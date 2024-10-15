@@ -16,20 +16,20 @@ page 1352 "Posted Return Shpt. - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Buy-from Vendor Name"; "Buy-from Vendor Name")
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Vendor';
                     Editable = false;
                     ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
@@ -39,13 +39,13 @@ page 1352 "Posted Return Shpt. - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to County"; "Ship-to County")
+                field("Ship-to County"; Rec."Ship-to County")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Ship-to County';
                     Editable = true;
                 }
-                field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Ship-to Country/Region';
@@ -67,7 +67,7 @@ page 1352 "Posted Return Shpt. - Update"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            if RecordChanged then
+            if RecordChanged() then
                 CODEUNIT.Run(CODEUNIT::"Return Shipment Header - Edit", Rec);
     end;
 
@@ -87,7 +87,7 @@ page 1352 "Posted Return Shpt. - Update"
     procedure SetRec(ReturnShipmentHeader: Record "Return Shipment Header")
     begin
         Rec := ReturnShipmentHeader;
-        Insert;
+        Insert();
     end;
 
     [IntegrationEvent(false, false)]

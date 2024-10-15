@@ -45,7 +45,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] G/L Account "G" is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          CustomerPostingGroup.TableCaption,
+          CustomerPostingGroup.TableCaption(),
           CustomerPostingGroup.FieldCaption("Invoice Rounding Account"),
           StrSubstNo('%1=%2', CustomerPostingGroup.FieldCaption(Code), CustomerPostingGroup.Code));
     end;
@@ -68,7 +68,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] G/L Account "G" is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          VendorPostingGroup.TableCaption,
+          VendorPostingGroup.TableCaption(),
           VendorPostingGroup.FieldCaption("Invoice Rounding Account"),
           StrSubstNo('%1=%2', VendorPostingGroup.FieldCaption(Code), VendorPostingGroup.Code));
     end;
@@ -96,7 +96,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Employee Posting Group is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          JobPostingGroup.TableCaption,
+          JobPostingGroup.TableCaption(),
           JobPostingGroup.FieldCaption("WIP Costs Account"),
           StrSubstNo('%1=%2', JobPostingGroup.FieldCaption(Code), JobPostingGroup.Code));
     end;
@@ -120,7 +120,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] G/L Account "G" is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          InventoryPostingSetup.TableCaption,
+          InventoryPostingSetup.TableCaption(),
           InventoryPostingSetup.FieldCaption("Inventory Account"),
           StrSubstNo(
             '%1=%2, %3=%4',
@@ -188,7 +188,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Employee Posting Group is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          EmployeePostingGroup.TableCaption,
+          EmployeePostingGroup.TableCaption(),
           EmployeePostingGroup.FieldCaption("Payables Account"),
           StrSubstNo('%1=%2', EmployeePostingGroup.FieldCaption(Code), EmployeePostingGroup.Code));
     end;
@@ -246,7 +246,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Gen. Journal Template is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          GenJournalTemplate.TableCaption,
+          GenJournalTemplate.TableCaption(),
           GenJournalTemplate.FieldCaption("Bal. Account No."),
           StrSubstNo('%1=%2', GenJournalTemplate.FieldCaption(Name), GenJournalTemplate.Name));
     end;
@@ -300,7 +300,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Gen. Journal Batch is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          GenJournalBatch.TableCaption,
+          GenJournalBatch.TableCaption(),
           GenJournalBatch.FieldCaption("Bal. Account No."),
           StrSubstNo(
             '%1=%2, %3=%4',
@@ -345,7 +345,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Gen. Jnl. Allocation is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          GenJnlAllocation.TableCaption,
+          GenJnlAllocation.TableCaption(),
           GenJnlAllocation.FieldCaption("Account No."),
           StrSubstNo(
             '%1=%2, %3=%4, %5=%6, %7=%8',
@@ -385,7 +385,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] General Posting Setup is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          GeneralPostingSetup.TableCaption,
+          GeneralPostingSetup.TableCaption(),
           GeneralPostingSetup.FieldCaption("Sales Account"),
           StrSubstNo(
             '%1=%2, %3=%4',
@@ -418,7 +418,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Bank Account Posting Group is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          BankAccountPostingGroup.TableCaption,
+          BankAccountPostingGroup.TableCaption(),
           BankAccountPostingGroup.FieldCaption("G/L Account No."),
           StrSubstNo('%1=%2', BankAccountPostingGroup.FieldCaption(Code), BankAccountPostingGroup.Code));
     end;
@@ -449,7 +449,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] VAT Posting Setup is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          VATPostingSetup.TableCaption,
+          VATPostingSetup.TableCaption(),
           VATPostingSetup.FieldCaption("Sales VAT Account"),
           StrSubstNo(
             '%1=%2, %3=%4',
@@ -481,7 +481,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] FA Posting Group is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          FAPostingGroup.TableCaption,
+          FAPostingGroup.TableCaption(),
           FAPostingGroup.FieldCaption("Acquisition Cost Account"),
           StrSubstNo('%1=%2', FAPostingGroup.FieldCaption(Code), FAPostingGroup.Code));
     end;
@@ -510,7 +510,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] FA Allocation is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          FAAllocation.TableCaption,
+          FAAllocation.TableCaption(),
           FAAllocation.FieldCaption("Account No."),
           StrSubstNo(
             '%1=%2, %3=%4, %5=%6',
@@ -548,7 +548,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Inventory Posting Setup is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          InventoryPostingSetup.TableCaption,
+          InventoryPostingSetup.TableCaption(),
           InventoryPostingSetup.FieldCaption("Inventory Account"),
           StrSubstNo(
             '%1=%2, %3=%4',
@@ -580,7 +580,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Service Contract Account Group is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          ServiceContractAccountGroup.TableCaption,
+          ServiceContractAccountGroup.TableCaption(),
           ServiceContractAccountGroup.FieldCaption("Non-Prepaid Contract Acc."),
           StrSubstNo('%1=%2', ServiceContractAccountGroup.FieldCaption(Code), ServiceContractAccountGroup.Code));
     end;
@@ -607,7 +607,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] IC Partner is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          ICPartner.TableCaption,
+          ICPartner.TableCaption(),
           ICPartner.FieldCaption("Receivables Account"),
           StrSubstNo('%1=%2', ICPartner.FieldCaption(Code), ICPartner.Code));
     end;
@@ -634,7 +634,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Payment Method is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          PaymentMethod.TableCaption,
+          PaymentMethod.TableCaption(),
           PaymentMethod.FieldCaption("Bal. Account No."),
           StrSubstNo('%1=%2', PaymentMethod.FieldCaption(Code), PaymentMethod.Code));
     end;
@@ -659,7 +659,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Sales & Receivables Setup is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          SalesSetup.TableCaption,
+          SalesSetup.TableCaption(),
           SalesSetup.FieldCaption("Freight G/L Acc. No."),
           StrSubstNo('%1=%2', SalesSetup.FieldCaption("Primary Key"), SalesSetup."Primary Key"));
     end;
@@ -707,7 +707,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Purchases & Payables Setup is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          PurchSetup.TableCaption,
+          PurchSetup.TableCaption(),
           PurchSetup.FieldCaption("Debit Acc. for Non-Item Lines"),
           StrSubstNo('%1=%2', PurchSetup.FieldCaption("Primary Key"), PurchSetup."Primary Key"));
     end;
@@ -757,7 +757,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Business Unit is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          BusinessUnit.TableCaption,
+          BusinessUnit.TableCaption(),
           BusinessUnit.FieldCaption("Exch. Rate Losses Acc."),
           StrSubstNo('%1=%2', BusinessUnit.FieldCaption(Code), BusinessUnit.Code));
     end;
@@ -785,7 +785,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Cash Flow Setup is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          CashFlowSetup.TableCaption,
+          CashFlowSetup.TableCaption(),
           CashFlowSetup.FieldCaption("Tax Bal. Account No."),
           StrSubstNo('%1=%2', CashFlowSetup.FieldCaption("Primary Key"), CashFlowSetup."Primary Key"));
     end;
@@ -813,7 +813,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
 
         // [THEN] Table With Link to G/L Account is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          TableWithLinkToGLAccount.TableCaption,
+          TableWithLinkToGLAccount.TableCaption(),
           TableWithLinkToGLAccount.FieldCaption("Account No."),
           StrSubstNo('%1=%2', TableWithLinkToGLAccount.FieldCaption(Code), TableWithLinkToGLAccount.Code));
     end;
@@ -921,7 +921,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
     begin
         GLAccountWhereUsedList.First;
         GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
-        GLAccountWhereUsedList.Next;
+        GLAccountWhereUsedList.Next();
         GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
         GLAccountWhereUsedList.OK.Invoke;
     end;

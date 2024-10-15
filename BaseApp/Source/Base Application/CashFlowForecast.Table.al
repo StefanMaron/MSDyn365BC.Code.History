@@ -150,7 +150,7 @@ table 840 "Cash Flow Forecast"
 
     trigger OnDelete()
     begin
-        if GetShowInChart then
+        if GetShowInChart() then
             CFSetup.SetChartRoleCenterCFNo('');
 
         CFAccountComment.Reset();
@@ -172,10 +172,10 @@ table 840 "Cash Flow Forecast"
             NoSeriesMgt.InitSeries(CFSetup."Cash Flow Forecast No. Series", xRec."No. Series", 0D, "No.", "No. Series");
         end;
 
-        "Creation Date" := WorkDate;
+        "Creation Date" := WorkDate();
         "Created By" := UserId;
-        "Manual Payments From" := WorkDate;
-        "G/L Budget From" := WorkDate;
+        "Manual Payments From" := WorkDate();
+        "G/L Budget From" := WorkDate();
     end;
 
     var
@@ -211,19 +211,19 @@ table 840 "Cash Flow Forecast"
     procedure CalcAmountForPosNeg(PositiveAmount: Boolean): Decimal
     begin
         SetRange("Positive Filter", PositiveAmount);
-        exit(CalcAmount);
+        exit(CalcAmount());
     end;
 
     procedure DrillDownPosNegEntries(PositiveAmount: Boolean)
     begin
         SetRange("Positive Filter", PositiveAmount);
-        DrillDown;
+        DrillDown();
     end;
 
     procedure CalcAmountForAccountNo(AccountNo: Code[20]): Decimal
     begin
         SetAccountNoFilter(AccountNo);
-        exit(CalcAmount);
+        exit(CalcAmount());
     end;
 
     procedure SetAccountNoFilter(AccountNo: Code[20])
@@ -243,7 +243,7 @@ table 840 "Cash Flow Forecast"
     procedure CalcSourceTypeAmount(SourceType: Enum "Cash Flow Source Type"): Decimal
     begin
         SetSourceTypeEntriesFilter(SourceType);
-        exit(CalcAmount);
+        exit(CalcAmount());
     end;
 
     procedure SetSourceTypeEntriesFilter(SourceType: Enum "Cash Flow Source Type")
@@ -297,8 +297,8 @@ table 840 "Cash Flow Forecast"
         CashFlowForecastList: Page "Cash Flow Forecast List";
     begin
         CashFlowForecastList.LookupMode(true);
-        if CashFlowForecastList.RunModal = ACTION::LookupOK then begin
-            Text := CashFlowForecastList.GetSelectionFilter;
+        if CashFlowForecastList.RunModal() = ACTION::LookupOK then begin
+            Text := CashFlowForecastList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -329,14 +329,14 @@ table 840 "Cash Flow Forecast"
         CFSetup.Get();
         CFSetup.Validate("CF No. on Chart in Role Center", NewCashFlowNo);
         CFSetup.Modify();
-        exit(GetShowInChart);
+        exit(GetShowInChart());
     end;
 
     procedure GetShowInChart(): Boolean
     var
         ChartRoleCenterCFNo: Code[20];
     begin
-        ChartRoleCenterCFNo := CFSetup.GetChartRoleCenterCFNo;
+        ChartRoleCenterCFNo := CFSetup.GetChartRoleCenterCFNo();
         if ChartRoleCenterCFNo = '' then
             exit(false);
 

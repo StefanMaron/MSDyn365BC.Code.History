@@ -1,4 +1,4 @@
-codeunit 1100 "Cost Account Mgt"
+﻿codeunit 1100 "Cost Account Mgt"
 {
     Permissions = TableData "G/L Account" = rm,
                   TableData "G/L Entry" = rm,
@@ -55,7 +55,7 @@ codeunit 1100 "Cost Account Mgt"
         if not Confirm(Text000, true) then
             Error('');
 
-        GetCostTypesFromChartDirect;
+        GetCostTypesFromChartDirect();
 
         IndentCostTypes(true);
 
@@ -69,7 +69,7 @@ codeunit 1100 "Cost Account Mgt"
         Window.Open(Text002);
 
         with GLAcc do begin
-            Reset;
+            Reset();
             SetRange("Income/Balance", "Income/Balance"::"Income Statement");
             if Find('-') then
                 repeat
@@ -104,9 +104,9 @@ codeunit 1100 "Cost Account Mgt"
                             RecsCreated := RecsCreated + 1;
                             "Cost Type No." := "No.";
                         end;
-                    Modify;
+                    Modify();
                 until Next() = 0;
-            Window.Close;
+            Window.Close();
         end;
 
         IndentCostTypes(true);
@@ -114,14 +114,14 @@ codeunit 1100 "Cost Account Mgt"
         OnAfterGetCostTypesFromChartDirect();
     end;
 
-    procedure ConfirmUpdate(CallingTrigger: Option OnInsert,OnModify,,OnRename; TableCaption: Text[80]; Value: Code[20]): Boolean
+    procedure ConfirmUpdate(CallingTrigger: Option OnInsert,OnModify,,OnRename; TableCaption2: Text[80]; Value: Code[20]): Boolean
     begin
         if CallingTrigger = CallingTrigger::OnInsert then
-            exit(Confirm(Text016, true, TableCaption, Value));
-        exit(Confirm(Text024, true, TableCaption, Value));
+            exit(Confirm(Text016, true, TableCaption2, Value));
+        exit(Confirm(Text024, true, TableCaption2, Value));
     end;
 
-    local procedure CanUpdate(Alignment: Option; NoAligment: Option; PromptAlignment: Option; DimValue: Record "Dimension Value"; DimensionCode: Code[20]; CallingTrigger: Option; TableCaption: Text[80]): Boolean
+    local procedure CanUpdate(Alignment: Option; NoAligment: Option; PromptAlignment: Option; DimValue: Record "Dimension Value"; DimensionCode: Code[20]; CallingTrigger: Option; TableCaption2: Text[80]): Boolean
     begin
         if DimValue."Dimension Code" <> DimensionCode then
             exit(false);
@@ -133,7 +133,7 @@ codeunit 1100 "Cost Account Mgt"
             NoAligment:
                 exit(false);
             PromptAlignment:
-                if not ConfirmUpdate(CallingTrigger, TableCaption, DimValue.Code) then
+                if not ConfirmUpdate(CallingTrigger, TableCaption2, DimValue.Code) then
                     exit(false);
         end;
         exit(true);
@@ -149,7 +149,7 @@ codeunit 1100 "Cost Account Mgt"
         if (CallingTrigger = CallingTrigger::OnModify) and (Format(GLAcc) = Format(xGLAcc)) then
             exit;
 
-        if not CostAccSetup.Get then
+        if not CostAccSetup.Get() then
             exit;
 
         if CostType.Get(GLAcc."No.") and (GLAcc."Cost Type No." = '') then
@@ -195,7 +195,7 @@ codeunit 1100 "Cost Account Mgt"
             CallingTrigger::OnRename:
                 begin
                     if CostType.Get(GLAcc."No.") then
-                        Error(Text023, GLAcc.TableCaption, GLAcc."No.", CostType.TableCaption);
+                        Error(Text023, GLAcc.TableCaption(), GLAcc."No.", CostType.TableCaption());
                     if CostType.Get(xGLAcc."No.") then begin
                         CostType.Rename(GLAcc."No.");
                         CostType."G/L Account Range" := GLAcc."No.";
@@ -209,7 +209,7 @@ codeunit 1100 "Cost Account Mgt"
         OnAfterUpdateCostTypeFromGLAcc(CostType, GLAcc, xGLAcc, CallingTrigger);
 
         IndentCostTypes(false);
-        Message(Text017, CostType.TableCaption, GLAcc."No.");
+        Message(Text017, CostType.TableCaption(), GLAcc."No.");
     end;
 
     procedure UpdateCostCenterFromDim(var DimValue: Record "Dimension Value"; var xDimValue: Record "Dimension Value"; CallingTrigger: Option OnInsert,OnModify,,OnRename)
@@ -219,7 +219,7 @@ codeunit 1100 "Cost Account Mgt"
         CostAccSetup.Get();
         if not CanUpdate(CostAccSetup."Align Cost Center Dimension", CostAccSetup."Align Cost Center Dimension"::"No Alignment",
              CostAccSetup."Align Cost Center Dimension"::Prompt, DimValue, CostAccSetup."Cost Center Dimension", CallingTrigger,
-             CostCenter.TableCaption)
+             CostCenter.TableCaption())
         then
             exit;
 
@@ -227,29 +227,27 @@ codeunit 1100 "Cost Account Mgt"
             CallingTrigger::OnInsert:
                 begin
                     if CostCenterExists(DimValue.Code) then
-                        Error(Text023, CostCenter.TableCaption, DimValue.Code, CostCenter.TableCaption);
+                        Error(Text023, CostCenter.TableCaption(), DimValue.Code, CostCenter.TableCaption());
                     InsertCostCenterFromDimValue(DimValue);
                 end;
             CallingTrigger::OnModify:
-                begin
-                    if not CostCenterExists(DimValue.Code) then
-                        InsertCostCenterFromDimValue(DimValue)
-                    else
-                        ModifyCostCenterFromDimValue(DimValue);
-                end;
+                if not CostCenterExists(DimValue.Code) then
+                    InsertCostCenterFromDimValue(DimValue)
+                else
+                    ModifyCostCenterFromDimValue(DimValue);
             CallingTrigger::OnRename:
                 begin
                     if not CostCenterExists(xDimValue.Code) then
                         exit;
                     if CostCenterExists(DimValue.Code) then
-                        Error(Text023, DimValue.TableCaption, DimValue.Code, CostCenter.TableCaption);
+                        Error(Text023, DimValue.TableCaption(), DimValue.Code, CostCenter.TableCaption());
                     CostCenter.Get(xDimValue.Code);
                     CostCenter.Rename(DimValue.Code);
                 end;
         end;
 
-        IndentCostCenters;
-        Message(Text017, CostCenter.TableCaption, DimValue.Code);
+        IndentCostCenters();
+        Message(Text017, CostCenter.TableCaption(), DimValue.Code);
     end;
 
     procedure UpdateCostObjectFromDim(var DimValue: Record "Dimension Value"; var xDimValue: Record "Dimension Value"; CallingTrigger: Option OnInsert,OnModify,,OnRename)
@@ -259,7 +257,7 @@ codeunit 1100 "Cost Account Mgt"
         CostAccSetup.Get();
         if not CanUpdate(CostAccSetup."Align Cost Object Dimension", CostAccSetup."Align Cost Object Dimension"::"No Alignment",
              CostAccSetup."Align Cost Object Dimension"::Prompt, DimValue, CostAccSetup."Cost Object Dimension", CallingTrigger,
-             CostObject.TableCaption)
+             CostObject.TableCaption())
         then
             exit;
 
@@ -267,29 +265,27 @@ codeunit 1100 "Cost Account Mgt"
             CallingTrigger::OnInsert:
                 begin
                     if CostObjectExists(DimValue.Code) then
-                        Error(Text023, CostObject.TableCaption, DimValue.Code, CostObject.TableCaption);
+                        Error(Text023, CostObject.TableCaption(), DimValue.Code, CostObject.TableCaption());
                     InsertCostObjectFromDimValue(DimValue);
                 end;
             CallingTrigger::OnModify:
-                begin
-                    if not CostObjectExists(DimValue.Code) then
-                        InsertCostObjectFromDimValue(DimValue)
-                    else
-                        ModifyCostObjectFromDimValue(DimValue);
-                end;
+                if not CostObjectExists(DimValue.Code) then
+                    InsertCostObjectFromDimValue(DimValue)
+                else
+                    ModifyCostObjectFromDimValue(DimValue);
             CallingTrigger::OnRename:
                 begin
                     if not CostObjectExists(xDimValue.Code) then
                         exit;
                     if CostObjectExists(DimValue.Code) then
-                        Error(Text023, DimValue.TableCaption, DimValue.Code, CostObject.TableCaption);
+                        Error(Text023, DimValue.TableCaption(), DimValue.Code, CostObject.TableCaption());
                     CostObject.Get(xDimValue.Code);
                     CostObject.Rename(DimValue.Code);
                 end;
         end;
 
-        IndentCostCenters;
-        Message(Text017, CostObject.TableCaption, DimValue.Code);
+        IndentCostCenters();
+        Message(Text017, CostObject.TableCaption(), DimValue.Code);
     end;
 
     procedure UpdateCostTypeFromDefaultDimension(var DefaultDim: Record "Default Dimension"; var GLAcc: Record "G/L Account"; CallingTrigger: Option OnInsert,OnModify,OnDelete)
@@ -323,7 +319,7 @@ codeunit 1100 "Cost Account Mgt"
 
     procedure ConfirmIndentCostTypes()
     begin
-        if not Confirm(Text001, true, CostType.TableCaption) then
+        if not Confirm(Text001, true, CostType.TableCaption()) then
             Error('');
 
         IndentCostTypes(true);
@@ -337,7 +333,7 @@ codeunit 1100 "Cost Account Mgt"
         if ShowMessage then
             Window.Open(Text004);
 
-        with CostType do begin
+        with CostType do
             if Find('-') then
                 repeat
                     if ShowMessage then
@@ -348,7 +344,7 @@ codeunit 1100 "Cost Account Mgt"
                             i := i - 1;
                     end;
                     Indentation := i;
-                    Modify;
+                    Modify();
                     if Type = Type::"Begin-Total" then begin
                         i := i + 1;
                         if i > ArrayLen(CostTypeNo) then
@@ -356,10 +352,9 @@ codeunit 1100 "Cost Account Mgt"
                         CostTypeNo[i] := "No.";
                     end;
                 until Next() = 0;
-        end;
 
         if ShowMessage then
-            Window.Close;
+            Window.Close();
     end;
 
     procedure LinkCostTypesToGLAccountsYN()
@@ -367,8 +362,8 @@ codeunit 1100 "Cost Account Mgt"
         if not Confirm(Text006, true) then
             Error('');
 
-        ClearAll;
-        LinkCostTypesToGLAccounts;
+        ClearAll();
+        LinkCostTypesToGLAccounts();
         Message(Text007, NoOfCostTypes, NoOfGLAcc);
     end;
 
@@ -390,7 +385,7 @@ codeunit 1100 "Cost Account Mgt"
                 if GLAcc.FindSet() then
                     repeat
                         if GLAcc."Cost Type No." <> '' then begin
-                            Window.Close;
+                            Window.Close();
                             Error(Text009, CostType."No.", GLAcc."No.", GLAcc."Cost Type No.");
                         end;
                         GLAcc."Cost Type No." := CostType."No.";
@@ -399,7 +394,7 @@ codeunit 1100 "Cost Account Mgt"
                     until GLAcc.Next() = 0;
             until CostType.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     procedure CreateCostCenters()
@@ -416,7 +411,7 @@ codeunit 1100 "Cost Account Mgt"
         Window.Open(Text018);
 
         with CostCenter do begin
-            Reset;
+            Reset();
             DimValue.SetRange("Dimension Code", CostAccSetup."Cost Center Dimension");
             if DimValue.Find('-') then begin
                 repeat
@@ -424,11 +419,11 @@ codeunit 1100 "Cost Account Mgt"
                     if InsertCostCenterFromDimValue(DimValue) then
                         RecsProcessed := RecsProcessed + 1;
                 until DimValue.Next() = 0;
-                Window.Close;
+                Window.Close();
             end;
         end;
 
-        IndentCostCenters;
+        IndentCostCenters();
 
         Message(Text019, RecsProcessed);
     end;
@@ -437,10 +432,10 @@ codeunit 1100 "Cost Account Mgt"
     var
         CostCenter: Record "Cost Center";
     begin
-        if not Confirm(Text001, true, CostCenter.TableCaption) then
+        if not Confirm(Text001, true, CostCenter.TableCaption()) then
             Error('');
 
-        IndentCostCenters;
+        IndentCostCenters();
     end;
 
     procedure IndentCostCenters()
@@ -461,7 +456,8 @@ codeunit 1100 "Cost Account Mgt"
             if Find('-') then
                 SpecialSort := true;
 
-            Reset;
+            CostCenterRange := '';
+            Reset();
             if SpecialSort then begin
                 SetCurrentKey("Sorting Order");
                 if FindSet() then
@@ -473,7 +469,7 @@ codeunit 1100 "Cost Account Mgt"
                             i := i - 1;
                         end;
                         Indentation := i;
-                        Modify;
+                        Modify();
                         if "Line Type" = "Line Type"::"Begin-Total" then begin
                             CostCenterRange := '';
                             i := i + 1;
@@ -502,7 +498,7 @@ codeunit 1100 "Cost Account Mgt"
                             i := i - 1;
                         end;
                         Indentation := i;
-                        Modify;
+                        Modify();
                         if "Line Type" = "Line Type"::"Begin-Total" then begin
                             i := i + 1;
                             if i > ArrayLen(StartRange) then
@@ -512,7 +508,7 @@ codeunit 1100 "Cost Account Mgt"
                     until Next() = 0;
             end;
         end;
-        Window.Close;
+        Window.Close();
     end;
 
     procedure CreateCostObjects()
@@ -529,7 +525,7 @@ codeunit 1100 "Cost Account Mgt"
         Window.Open(Text018);
 
         with CostObject do begin
-            Reset;
+            Reset();
             DimValue.SetRange("Dimension Code", CostAccSetup."Cost Object Dimension");
             if DimValue.Find('-') then begin
                 repeat
@@ -537,11 +533,11 @@ codeunit 1100 "Cost Account Mgt"
                     if InsertCostObjectFromDimValue(DimValue) then
                         RecsProcessed := RecsProcessed + 1;
                 until DimValue.Next() = 0;
-                Window.Close;
+                Window.Close();
             end;
         end;
 
-        IndentCostObjects;
+        IndentCostObjects();
         Message(Text020, RecsProcessed);
     end;
 
@@ -549,10 +545,10 @@ codeunit 1100 "Cost Account Mgt"
     var
         CostObject: Record "Cost Object";
     begin
-        if not Confirm(Text001, true, CostObject.TableCaption) then
+        if not Confirm(Text001, true, CostObject.TableCaption()) then
             Error('');
 
-        IndentCostObjects;
+        IndentCostObjects();
     end;
 
     procedure IndentCostObjects()
@@ -573,7 +569,8 @@ codeunit 1100 "Cost Account Mgt"
             if Find('-') then
                 SpecialSort := true;
 
-            Reset;
+            CostObjRange := '';
+            Reset();
             if SpecialSort then begin
                 SetCurrentKey("Sorting Order");
                 if FindSet() then
@@ -585,7 +582,7 @@ codeunit 1100 "Cost Account Mgt"
                             i := i - 1;
                         end;
                         Indentation := i;
-                        Modify;
+                        Modify();
                         if "Line Type" = "Line Type"::"Begin-Total" then begin
                             CostObjRange := '';
                             i := i + 1;
@@ -615,7 +612,7 @@ codeunit 1100 "Cost Account Mgt"
                             i := i - 1;
                         end;
                         Indentation := i;
-                        Modify;
+                        Modify();
 
                         if "Line Type" = "Line Type"::"Begin-Total" then begin
                             i := i + 1;
@@ -626,7 +623,7 @@ codeunit 1100 "Cost Account Mgt"
                     until Next() = 0;
             end;
         end;
-        Window.Close;
+        Window.Close();
     end;
 
     procedure CheckValidCCAndCOInGLEntry(DimSetID: Integer)
@@ -636,7 +633,7 @@ codeunit 1100 "Cost Account Mgt"
         CostCenterCode: Code[20];
         CostObjectCode: Code[20];
     begin
-        if not CostAccSetup.Get then
+        if not CostAccSetup.Get() then
             exit;
         if not CostAccSetup."Check G/L Postings" then
             exit;
@@ -646,20 +643,20 @@ codeunit 1100 "Cost Account Mgt"
 
         if CostCenterCode <> '' then begin
             if not CostCenter.Get(CostCenterCode) then
-                Error(Text013, CostCenter.TableCaption, CostCenterCode);
+                Error(Text013, CostCenter.TableCaption(), CostCenterCode);
             if CostCenter.Blocked then
-                Error(Text014, CostCenter.TableCaption, CostCenterCode);
+                Error(Text014, CostCenter.TableCaption(), CostCenterCode);
             if not (CostCenter."Line Type" in [CostCenter."Line Type"::"Cost Center", CostCenter."Line Type"::"Begin-Total"]) then
-                Error(Text015, CostCenter.TableCaption, CostCenterCode);
+                Error(Text015, CostCenter.TableCaption(), CostCenterCode);
         end;
 
         if CostObjectCode <> '' then begin
             if not CostObject.Get(CostObjectCode) then
-                Error(Text013, CostObject.TableCaption, CostObjectCode);
+                Error(Text013, CostObject.TableCaption(), CostObjectCode);
             if CostObject.Blocked then
-                Error(Text014, CostObject.TableCaption, CostObjectCode);
+                Error(Text014, CostObject.TableCaption(), CostObjectCode);
             if not (CostObject."Line Type" in [CostObject."Line Type"::"Cost Object", CostObject."Line Type"::"Begin-Total"]) then
-                Error(Text015, CostObject.TableCaption, CostObjectCode);
+                Error(Text015, CostObject.TableCaption(), CostObjectCode);
         end;
     end;
 
@@ -764,7 +761,7 @@ codeunit 1100 "Cost Account Mgt"
         CostCenter: Record "Cost Center";
     begin
         CopyDimValueToCostCenter(DimValue, CostCenter);
-        exit(CostCenter.Insert);
+        exit(CostCenter.Insert());
     end;
 
     local procedure ModifyCostCenterFromDimValue(DimValue: Record "Dimension Value"): Boolean
@@ -773,7 +770,7 @@ codeunit 1100 "Cost Account Mgt"
     begin
         CostCenter.Get(DimValue.Code);
         CopyDimValueToCostCenter(DimValue, CostCenter);
-        exit(CostCenter.Modify);
+        exit(CostCenter.Modify());
     end;
 
     local procedure CopyDimValueToCostCenter(DimValue: Record "Dimension Value"; var CostCenter: Record "Cost Center")
@@ -797,7 +794,7 @@ codeunit 1100 "Cost Account Mgt"
         CostObject: Record "Cost Object";
     begin
         CopyDimValueToCostObject(DimValue, CostObject);
-        exit(CostObject.Insert);
+        exit(CostObject.Insert());
     end;
 
     local procedure ModifyCostObjectFromDimValue(DimValue: Record "Dimension Value"): Boolean
@@ -806,7 +803,7 @@ codeunit 1100 "Cost Account Mgt"
     begin
         CostObject.Get(DimValue.Code);
         CopyDimValueToCostObject(DimValue, CostObject);
-        exit(CostObject.Modify);
+        exit(CostObject.Modify());
     end;
 
     local procedure CopyDimValueToCostObject(DimValue: Record "Dimension Value"; var CostObject: Record "Cost Object")
@@ -857,14 +854,14 @@ codeunit 1100 "Cost Account Mgt"
             CostBudgetReg.SetCurrentKey("From Cost Budget Entry No.", "To Cost Budget Entry No.");
             CostBudgetReg.SetRange("From Cost Budget Entry No.", 0, CostBudgetEntryNo);
             CostBudgetReg.SetFilter("To Cost Budget Entry No.", '%1..', CostBudgetEntryNo);
-            CostBudgetReg.FindLast
+            CostBudgetReg.FindLast()
         end else
             CostBudgetReg.Get(CostBudgetRegNo);
 
         if (CostBudgetEntryNo > CostBudgetReg."To Cost Budget Entry No." + 1) or
            (CostBudgetEntryNo < CostBudgetReg."From Cost Budget Entry No.")
         then
-            Error(Text025, CostBudgetReg.TableCaption, CostBudgetEntry.TableCaption, CostBudgetEntry.FieldCaption("Entry No."));
+            Error(Text025, CostBudgetReg.TableCaption(), CostBudgetEntry.TableCaption(), CostBudgetEntry.FieldCaption("Entry No."));
         if CostBudgetEntryNo > CostBudgetReg."To Cost Budget Entry No." then begin
             CostBudgetReg."To Cost Budget Entry No." := CostBudgetEntryNo;
             CostBudgetReg."No. of Entries" := CostBudgetReg."To Cost Budget Entry No." - CostBudgetReg."From Cost Budget Entry No." + 1
@@ -881,7 +878,7 @@ codeunit 1100 "Cost Account Mgt"
             exit(false);
 
         if CostAccSetup."Align G/L Account" = CostAccSetup."Align G/L Account"::Prompt then
-            if not ConfirmUpdate(CallingTrigger, CostType.TableCaption, GLAcc."No.") then
+            if not ConfirmUpdate(CallingTrigger, CostType.TableCaption(), GLAcc."No.") then
                 exit(false);
 
         exit(true);

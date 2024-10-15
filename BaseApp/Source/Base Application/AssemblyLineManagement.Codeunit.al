@@ -1,4 +1,4 @@
-﻿codeunit 905 "Assembly Line Management"
+codeunit 905 "Assembly Line Management"
 {
     Permissions = TableData "Assembly Line" = rimd;
 
@@ -110,7 +110,7 @@
                 AssemblyLine.CalcBOMQuantity(
                     BOMComponent.Type, BOMComponent."Quantity per", "Quantity to Assemble", QtyPerUoM, AssemblyLine."Resource Usage Type"));
             AssemblyLine.ValidateDueDate(AssemblyHeader, "Starting Date", ShowDueDateBeforeWorkDateMessage);
-            DueDateBeforeWorkDateMsgShown := (AssemblyLine."Due Date" < WorkDate) and ShowDueDateBeforeWorkDateMessage;
+            DueDateBeforeWorkDateMsgShown := (AssemblyLine."Due Date" < WorkDate()) and ShowDueDateBeforeWorkDateMessage;
             AssemblyLine.ValidateLeadTimeOffset(
                 AssemblyHeader, BOMComponent."Lead-Time Offset", not DueDateBeforeWorkDateMsgShown and ShowDueDateBeforeWorkDateMessage);
             if AssemblyLine.Type = AssemblyLine.Type::Item then
@@ -212,11 +212,11 @@
             ToAssemblyLine := TempAssemblyLine;
             ToAssemblyLine.Modify();
             OnExplodeAsmListOnAfterToAssemblyLineModify(TempAssemblyLine, ToAssemblyLine);
-            while TempAssemblyLine.Next <> 0 do begin
+            while TempAssemblyLine.Next() <> 0 do begin
                 ToAssemblyLine := TempAssemblyLine;
                 ToAssemblyLine.Insert();
                 OnExplodeAsmListOnAfterToAssemblyLineInsert(TempAssemblyLine, ToAssemblyLine);
-                if ToAssemblyLine."Due Date" < WorkDate then begin
+                if ToAssemblyLine."Due Date" < WorkDate() then begin
                     DueDateBeforeWorkDate := true;
                     NewLineDueDate := ToAssemblyLine."Due Date";
                 end;
@@ -337,7 +337,7 @@
 
         if not (FieldNum in [AsmHeader.FieldNo("Quantity to Assemble"), AsmHeader.FieldNo("Dimension Set ID")]) then
             if ShowAvailability(false, TempAssemblyHeader, TempAssemblyLine) then
-                ItemCheckAvail.RaiseUpdateInterruptedError;
+                ItemCheckAvail.RaiseUpdateInterruptedError();
 
         DoVerificationsSkippedEarlier(
             ReplaceLinesFromBOM, TempAssemblyLine, TempCurrAsmLine, UpdateDimension, AsmHeader."Dimension Set ID",
@@ -360,7 +360,7 @@
                     AssemblyLine.Modify(true);
                 OnUpdateAssemblyLinesOnBeforeAutoReserveAsmLine(AssemblyLine, ReplaceLinesFromBOM);
                 AsmHeader.AutoReserveAsmLine(AssemblyLine);
-                if AssemblyLine."Due Date" < WorkDate then begin
+                if AssemblyLine."Due Date" < WorkDate() then begin
                     DueDateBeforeWorkDate := true;
                     NewLineDueDate := AssemblyLine."Due Date";
                 end;
@@ -383,13 +383,11 @@
         with AsmHeader do
             case FieldNum of
                 FieldNo("Item No."):
-                    begin
-                        if "Item No." <> OldAsmHeader."Item No." then
-                            if LinesExist(AsmHeader) then
-                                if GuiAllowed then
-                                    if not Confirm(StrSubstNo(Text003, FieldCaption("Item No."), OldAsmHeader."Item No.", "Item No."), true) then
-                                        Error('');
-                    end;
+                    if "Item No." <> OldAsmHeader."Item No." then
+                        if LinesExist(AsmHeader) then
+                            if GuiAllowed then
+                                if not Confirm(StrSubstNo(Text003, FieldCaption("Item No."), OldAsmHeader."Item No.", "Item No."), true) then
+                                    Error('');
                 FieldNo("Variant Code"):
                     UpdateDueDate := true;
                 FieldNo("Location Code"):
@@ -455,7 +453,7 @@
             exit;
 
         with AsmHeader do begin
-            if IsStatusCheckSuspended then
+            if IsStatusCheckSuspended() then
                 AssemblyLine.SuspendStatusCheck(true);
 
             if UpdateLocation then
@@ -475,7 +473,7 @@
 
             if UpdateUOM then begin
                 QtyRatio := "Qty. per Unit of Measure" / OldAsmHeader."Qty. per Unit of Measure";
-                if AssemblyLine.FixedUsage then
+                if AssemblyLine.FixedUsage() then
                     AssemblyLine.Validate("Quantity per")
                 else
                     AssemblyLine.Validate("Quantity per", AssemblyLine."Quantity per" * QtyRatio);
@@ -483,7 +481,7 @@
             end;
 
             if UpdateQtyToConsume then
-                if not AssemblyLine.FixedUsage then begin
+                if not AssemblyLine.FixedUsage() then begin
                     AssemblyLine.InitQtyToConsume();
                     QtyToConsume := AssemblyLine.Quantity * "Quantity to Assemble" / Quantity;
                     AssemblyLine.RoundQty(QtyToConsume);
@@ -506,7 +504,7 @@
         if IsHandled then
             exit;
 
-        if QtyToConsume <= AssemblyLine.MaxQtyToConsume then
+        if QtyToConsume <= AssemblyLine.MaxQtyToConsume() then
             AssemblyLine.Validate("Quantity to Consume", QtyToConsume);
     end;
 
@@ -520,7 +518,7 @@
         if IsHandled then
             exit;
 
-        if AssemblyLine.FixedUsage then
+        if AssemblyLine.FixedUsage() then
             AssemblyLine.Validate(Quantity)
         else begin
             RoundedQty := AssemblyLine.Quantity * QtyRatio;
@@ -533,7 +531,7 @@
     begin
         if GuiAllowed then
             if GetWarningMode() then
-                Message(Text005, ActualLineDueDate, WorkDate);
+                Message(Text005, ActualLineDueDate, WorkDate());
     end;
 
     procedure CopyAssemblyData(FromAssemblyHeader: Record "Assembly Header"; var ToAssemblyHeader: Record "Assembly Header"; var ToAssemblyLine: Record "Assembly Line") NoOfLinesInserted: Integer
@@ -599,7 +597,7 @@
             AssemblyAvailability.SetHeaderInventoryData(
               Inventory, GrossRequirement, ReservedRequirement, ScheduledReceipts, ReservedReceipts,
               EarliestAvailableDateX, QtyAvailToMake, QtyAvailTooLow);
-            Rollback := not (AssemblyAvailability.RunModal = ACTION::Yes);
+            Rollback := not (AssemblyAvailability.RunModal() = ACTION::Yes);
         end;
     end;
 
@@ -621,10 +619,9 @@
                         TempNewAsmLine.Type::Resource:
                             TempNewAsmLine.CreateDimFromDefaultDim(NewHeaderSetID);
                     end
-                else begin
+                else
                     if UpdateDimension then
                         TempNewAsmLine.UpdateDim(NewHeaderSetID, OldHeaderSetID);
-                end;
 
                 TempNewAsmLine.Modify();
                 OnDoVerificationsSkippedEarlierOnAfterTempNewAsmLineModify(TempNewAsmLine);
@@ -642,6 +639,7 @@
         AssemblyLine.SetFilter("No.", '<>%1', '');
         AssemblyLine.SetFilter("Quantity per", '<>%1', 0);
         OrderAbleToAssemble := AsmHeader."Remaining Quantity";
+        EarliestStartingDate := 0D;
         if AssemblyLine.FindSet() then
             repeat
                 LineAbleToAssemble := CalcAvailToAssemble(AssemblyLine, AsmHeader, LineAvailabilityDate);

@@ -10,17 +10,17 @@ codeunit 132 "Release Incoming Document"
         if Status in [Status::Created, Status::Posted] then
             Error(CanReleasedIfStatusErr, Status::"Pending Approval", Status::New, Status::Failed);
 
-        OnCheckIncomingDocReleaseRestrictions;
+        OnCheckIncomingDocReleaseRestrictions();
 
         TestField(Posted, false);
 
-        if not IsADocumentAttached then
+        if not IsADocumentAttached() then
             Error(NothingToReleaseErr, "Entry No.");
 
         Status := Status::Released;
         Released := true;
         "Released Date-Time" := CurrentDateTime;
-        "Released By User ID" := UserSecurityId;
+        "Released By User ID" := UserSecurityId();
 
         Modify(true);
 

@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2103 "O365 Sales Document List"
 {
     // NB! The name of the 'New' action has to be "_NEW_TEMP_" in order for the phone client to show the '+' sign in the list.
@@ -10,6 +11,9 @@ page 2103 "O365 Sales Document List"
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
     SourceTableView = SORTING("Sell-to Customer Name");
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,70 +22,70 @@ page 2103 "O365 Sales Document List"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the type of the document.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the customer.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("Sell-to Contact"; "Sell-to Contact")
+                field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the sales document.';
                 }
-                field("Currency Symbol"; "Currency Symbol")
+                field("Currency Symbol"; Rec."Currency Symbol")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the currency with its symbol, such as $ for Dollar. ';
                 }
                 field(Posted; Posted)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies if the document is posted.';
                 }
-                field("Document Status"; "Document Status")
+                field("Document Status"; Rec."Document Status")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the status of the document, such as Released or Open.';
                 }
-                field("Total Invoiced Amount"; "Total Invoiced Amount")
+                field("Total Invoiced Amount"; Rec."Total Invoiced Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the total invoiced amount.';
                 }
-                field("Outstanding Status"; "Outstanding Status")
+                field("Outstanding Status"; Rec."Outstanding Status")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     StyleExpr = OutStandingStatusStyle;
                     ToolTip = 'Specifies the outstanding amount, meaning the amount not paid.';
                 }
-                field("Display No."; "Display No.")
+                field("Display No."; Rec."Display No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
             }
         }
@@ -93,7 +97,7 @@ page 2103 "O365 Sales Document List"
         {
             action(ShowLatest)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Show all invoices';
                 ToolTip = 'Show all invoices, sorted by their invoice date.';
                 Visible = NOT HideActions;
@@ -103,12 +107,12 @@ page 2103 "O365 Sales Document List"
                     SetRange(Posted);
                     SetRange("Outstanding Amount");
 
-                    SetSortByDocDate;
+                    SetSortByDocDate();
                 end;
             }
             action(ShowUnpaid)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Show only unpaid invoices';
                 Image = "Invoicing-Mail";
                 ToolTip = 'Displays invoices that have not yet been paid in full, sorted by the due date.';
@@ -119,7 +123,7 @@ page 2103 "O365 Sales Document List"
                     SetRange(Posted, true);
                     SetFilter("Outstanding Amount", '>0');
 
-                    SetSortByDueDate;
+                    SetSortByDueDate();
 
                     // go to "most late" document
                     FindPostedDocument('-');
@@ -128,7 +132,7 @@ page 2103 "O365 Sales Document List"
             }
             action(ShowDraft)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Show only draft invoices';
                 Image = "Invoicing-Document";
                 ToolTip = 'Displays draft invoices and estimates';
@@ -139,12 +143,12 @@ page 2103 "O365 Sales Document List"
                     SetRange(Posted, false);
                     SetRange("Outstanding Amount");
 
-                    SetSortByDocDate;
+                    SetSortByDocDate();
                 end;
             }
             action(ShowSent)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Show only sent invoices';
                 Image = "Invoicing-Send";
                 ToolTip = 'Displays invoices that are sent, sorted by the invoice date.';
@@ -155,12 +159,12 @@ page 2103 "O365 Sales Document List"
                     SetRange(Posted, true);
                     SetRange("Outstanding Amount");
 
-                    SetSortByDocDate;
+                    SetSortByDocDate();
                 end;
             }
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -170,12 +174,12 @@ page 2103 "O365 Sales Document List"
 
                 trigger OnAction()
                 begin
-                    OpenDocument;
+                    OpenDocument();
                 end;
             }
             action(Post)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Send';
                 Gesture = LeftSwipe;
                 Image = PostSendTo;
@@ -197,7 +201,7 @@ page 2103 "O365 Sales Document List"
             }
             action(_NEW_TEMP_)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'New';
                 Image = New;
                 RunObject = Page "BC O365 Sales Invoice";
@@ -224,7 +228,7 @@ page 2103 "O365 Sales Document List"
 
     trigger OnInit()
     begin
-        SetSortByDocDate;
+        SetSortByDocDate();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
@@ -241,4 +245,4 @@ page 2103 "O365 Sales Document List"
         HideActions := NewHideActions;
     end;
 }
-
+#endif

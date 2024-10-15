@@ -79,7 +79,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr.Get('Test');
 
         asserterror VATReportHdr.Modify(true);
-        Assert.ExpectedError(StrSubstNo(OnModifyError, VATReportHdr.TableCaption));
+        Assert.ExpectedError(StrSubstNo(OnModifyError, VATReportHdr.TableCaption()));
 
         VATReportHdr."Start Date" := Today;
         VATReportHdr."End Date" := Today;
@@ -171,7 +171,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr.Status := VATReportHdr.Status::Submitted;
 
         asserterror VATReportHdr.CheckIfCanBeReopened(VATReportHdr);
-        Assert.ExpectedError(StrSubstNo(CheckReopenedError, VATReportSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(CheckReopenedError, VATReportSetup.TableCaption()));
     end;
 
     [Test]
@@ -217,13 +217,13 @@ codeunit 134056 "ERM VAT Report Header Line"
         // Test Start date
         VATReportHdr."Start Date" := 0D;
         asserterror VATReportHdr.CheckDates;
-        Assert.ExpectedError(StrSubstNo(StartDateError, VATReportHdr.TableCaption));
+        Assert.ExpectedError(StrSubstNo(StartDateError, VATReportHdr.TableCaption()));
 
         // Test End date
         VATReportHdr."Start Date" := Today;
         VATReportHdr."End Date" := 0D;
         asserterror VATReportHdr.CheckDates;
-        Assert.ExpectedError(StrSubstNo(EndDateError, VATReportHdr.TableCaption));
+        Assert.ExpectedError(StrSubstNo(EndDateError, VATReportHdr.TableCaption()));
 
         VATReportHdr."End Date" := Today;
         VATReportHdr.CheckDates;

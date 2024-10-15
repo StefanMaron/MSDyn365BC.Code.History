@@ -1,6 +1,10 @@
+#if not CLEAN21
 page 2138 "O365 Payments Settings"
 {
     Caption = 'Payments';
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -17,7 +21,7 @@ page 2138 "O365 Payments Settings"
                 }
                 field(PaymentTermsCode; PaymentTermsCode)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment terms';
                     QuickEntry = false;
                     TableRelation = "Payment Terms" WHERE("Discount %" = CONST(0));
@@ -37,7 +41,7 @@ page 2138 "O365 Payments Settings"
                 }
                 field(PaymentMethodCode; PaymentMethodCode)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment method';
                     QuickEntry = false;
                     TableRelation = "Payment Method" WHERE("Use for Invoicing" = CONST(true));
@@ -65,7 +69,7 @@ page 2138 "O365 Payments Settings"
 
     trigger OnInit()
     begin
-        Intialize;
+        Intialize();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -90,4 +94,4 @@ page 2138 "O365 Payments Settings"
         PaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
     end;
 }
-
+#endif

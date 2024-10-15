@@ -12,7 +12,7 @@ report 6529 "Item Tracking Navigate"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Head3View; ItemFilters.GetFilter("Serial No. Filter") <> '')
@@ -150,15 +150,16 @@ report 6529 "Item Tracking Navigate"
     }
 
     var
-        Text001: Label 'Serial No. : ';
-        Text002: Label 'Lot No. : ';
         TempDocEntry: Record "Document Entry" temporary;
         TempRecordBuffer: Record "Record Buffer" temporary;
         ItemFilters: Record Item;
-        Text003: Label 'Item No. : ';
-        Text004: Label 'Variant Code. : ';
         PrintOnlyOnePerPage: Boolean;
         RecordCounter: Integer;
+
+        Text001: Label 'Serial No. : ';
+        Text002: Label 'Lot No. : ';
+        Text003: Label 'Item No. : ';
+        Text004: Label 'Variant Code. : ';
         ItemTrackingNavigateCaptionLbl: Label 'Item Tracking Navigate';
         CurrReportPageNoCaptionLbl: Label 'Page';
         NavigateFiltersCaptionLbl: Label 'Navigate Filters';

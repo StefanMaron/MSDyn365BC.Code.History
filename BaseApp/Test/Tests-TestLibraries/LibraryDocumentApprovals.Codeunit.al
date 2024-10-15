@@ -16,7 +16,7 @@ codeunit 131352 "Library - Document Approvals"
     procedure CreateApprovalEntryBasic(var ApprovalEntry: Record "Approval Entry"; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20]; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type"; RecID: RecordID; ApprovalType: Enum "Workflow Approval Type"; DueDate: Date; AmountDec: Decimal)
     begin
         with ApprovalEntry do begin
-            Init;
+            Init();
             "Table ID" := TableId;
             "Document Type" := DocumentType;
             "Document No." := DocumentNo;
@@ -102,13 +102,13 @@ codeunit 131352 "Library - Document Approvals"
     procedure GetUser(var User: Record User; WindowsUserName: Text[208]): Boolean
     begin
         User.SetRange("Windows Security ID", Sid(WindowsUserName));
-        exit(User.FindFirst);
+        exit(User.FindFirst())
     end;
 
     procedure GetNonWindowsUser(var User: Record User; UserName: Text[208]): Boolean
     begin
         User.SetRange("User Name", UserName);
-        exit(User.FindSet);
+        exit(User.FindSet());
     end;
 
     procedure GetUserSetup(var UserSetup: Record "User Setup"; WindowsUserName: Text[208]): Boolean
@@ -119,7 +119,7 @@ codeunit 131352 "Library - Document Approvals"
             UserSetup.SetRange("User ID", User."User Name")
         else
             UserSetup.SetRange("User ID", WindowsUserName);
-        exit(UserSetup.FindFirst);
+        exit(UserSetup.FindFirst())
     end;
 
     procedure UpdateApprovalLimits(var UserSetup: Record "User Setup"; UnlimitedSalesApproval: Boolean; UnlimitedPurchaseApproval: Boolean; UnlimitedRequestApproval: Boolean; SalesAmountApprovalLimit: Integer; PurchaseAmountApprovalLimit: Integer; RequestAmountApprovalLimit: Integer)

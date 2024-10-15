@@ -35,8 +35,8 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Verify: Verify Reminder No on Page IssuedDeliveryRemindersList.
         IssuedDeliveryRemindersList."No.".AssertEquals(IssuedDelivReminderHeader."No.");
-        IssuedDeliveryRemindersList.Close;
-        Navigate.Close;
+        IssuedDeliveryRemindersList.Close();
+        Navigate.Close();
     end;
 
     [Test]
@@ -59,8 +59,8 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Verify: Verify Reminder No on Page DelivReminderLedgerEntries.
         DelivReminderLedgerEntries."Reminder No.".AssertEquals(DeliveryReminderLedgerEntry."Reminder No.");
-        DelivReminderLedgerEntries.Close;
-        Navigate.Close;
+        DelivReminderLedgerEntries.Close();
+        Navigate.Close();
     end;
 
     [Test]
@@ -79,7 +79,7 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Exercise and Verify: Print from Page Issued Delivery Reminder and add Report handler -IssuedDeliveryReminderReportHandler.
         IssuedDeliveryReminder.PrintReport.Invoke;
-        IssuedDeliveryReminder.Close;
+        IssuedDeliveryReminder.Close();
     end;
 
     [Test]
@@ -102,9 +102,9 @@ codeunit 142041 "UT PAG DELIVREM"
         IssuedDeliveryReminder.Navigate.Invoke;
 
         // Verify: Verify Table Name on Navigate Page.
-        Navigate."Table Name".AssertEquals(CopyStr(IssuedDelivReminderHeader.TableCaption, 1, MaxStrLen(DocumentEntry."Table Name")));
-        IssuedDeliveryReminder.Close;
-        Navigate.Close;
+        Navigate."Table Name".AssertEquals(CopyStr(IssuedDelivReminderHeader.TableCaption(), 1, MaxStrLen(DocumentEntry."Table Name")));
+        IssuedDeliveryReminder.Close();
+        Navigate.Close();
     end;
 
     [Test]
@@ -125,7 +125,7 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Verify: Verify Reminder No on Page Delivery Reminder Ledger Entries.
         DelivReminderLedgerEntries."Reminder No.".AssertEquals(DeliveryReminderLedgerEntry."Reminder No.");
-        DelivReminderLedgerEntries.Close;
+        DelivReminderLedgerEntries.Close();
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Verify: Verify No on Page Delivery Reminder Level.
         DeliveryReminderLevels."No.".AssertEquals(DeliveryReminderLevel."No.");
-        DeliveryReminderLevels.Close;
+        DeliveryReminderLevels.Close();
     end;
 
     [Test]
@@ -168,7 +168,7 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Verify: Verify Report ID on Page Report Selection - Comf. Purch.
         ReportSelectionComfPurch.FindFirstField("Report ID", 5005273);  // Report ID.
-        ReportSelectionComfPurch.Close;
+        ReportSelectionComfPurch.Close();
     end;
 
     [Test]
@@ -188,7 +188,7 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Verify: Verify Report ID on Page Report Selection - Comf. Purch.
         ReportSelectionComfPurch.FindFirstField("Report ID", 5005272);
-        ReportSelectionComfPurch.Close;
+        ReportSelectionComfPurch.Close();
     end;
 
     [Test]
@@ -213,7 +213,7 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Exercise: Invoke Action - InsertExtTexts on Page Delivery Reminder Subform.
         DeliveryReminder.DeliveryReminderLines.InsertExtTexts.Invoke;
-        DeliveryReminder.Close;
+        DeliveryReminder.Close();
 
         // Verify: Verify Text of Extended Text Line is updated as Description of Delivery Reminder Line.
         DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
@@ -244,7 +244,7 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // Verify: Verify Description of Standard Text is updated as Description of Delivery Reminder Line.
         DeliveryReminder.DeliveryReminderLines.Description.AssertEquals(StandardText.Description);
-        DeliveryReminder.Close;
+        DeliveryReminder.Close();
     end;
 
     [Test]
@@ -263,7 +263,7 @@ codeunit 142041 "UT PAG DELIVREM"
         // [WHEN] Invoke Print Action
         // [THEN] Report "Issued Delivery Reminder" is called
         IssuedDeliveryRemindersList.PrintReport.Invoke;
-        IssuedDeliveryRemindersList.Close;
+        IssuedDeliveryRemindersList.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
@@ -344,7 +344,7 @@ codeunit 142041 "UT PAG DELIVREM"
     begin
         DeliveryReminderHeader."No." := LibraryUTUtility.GetNewCode;
         DeliveryReminderHeader.Name := LibraryUTUtility.GetNewCode;
-        DeliveryReminderHeader."Document Date" := WorkDate;
+        DeliveryReminderHeader."Document Date" := WorkDate();
         DeliveryReminderHeader.Insert();
     end;
 

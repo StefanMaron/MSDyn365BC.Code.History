@@ -24,7 +24,7 @@ report 6030 "Create Contract Invoices"
                 end;
                 Clear(ServContractMgt);
                 OnServiceContractHeaderOnAfterGetRecordOnBeforeServContractMgtInitCodeUnit("Service Contract Header", ServContractMgt);
-                ServContractMgt.InitCodeUnit;
+                ServContractMgt.InitCodeUnit();
                 ServContractHeader := "Service Contract Header";
                 with ServContractHeader do begin
                     TestField("Serv. Contract Acc. Gr. Code");
@@ -62,22 +62,21 @@ report 6030 "Create Contract Invoices"
                             ResultDescription := '';
                 end;
                 OnServiceContractHeaderOnAfterGetRecordOnBeforeServContractMgtFinishCodeunit("Service Contract Header", LastCustomer, LastContractCombined, InvoiceNo);
-                ServContractMgt.FinishCodeunit;
+                ServContractMgt.FinishCodeunit();
 
                 OnAfterServiceContractHeaderOnAfterGetRecord("Service Contract Header", InvoiceNo);
             end;
 
             trigger OnPostDataItem()
             begin
-                if not HideDialog then begin
+                if not HideDialog then
                     if CreateInvoices = CreateInvoices::"Create Invoices" then
                         if NoOfInvoices > 1 then
                             Message(Text010, NoOfInvoices)
                         else
                             Message(Text011, NoOfInvoices);
-                end;
 
-                OnAfterServiceContractHeaderOnPostDataItem;
+                OnAfterServiceContractHeaderOnPostDataItem();
             end;
 
             trigger OnPreDataItem()
@@ -96,7 +95,7 @@ report 6030 "Create Contract Invoices"
                     Error(Text000);
 
                 if not HideDialog then
-                    if PostingDate > WorkDate then
+                    if PostingDate > WorkDate() then
                         if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
                             Error(Text002);
 
@@ -104,7 +103,7 @@ report 6030 "Create Contract Invoices"
                     Error(Text003);
 
                 if not HideDialog then
-                    if InvoiceToDate > WorkDate then
+                    if InvoiceToDate > WorkDate() then
                         if not ConfirmManagement.GetResponseOrDefault(Text004, true) then
                             Error(Text002);
 
@@ -124,7 +123,7 @@ report 6030 "Create Contract Invoices"
                 Counter1 := 0;
                 Counter2 := 0;
                 CounterBreak := Round(CounterTotal / 100, 1, '>');
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
 
                 OnAfterServiceContractHeaderOnPreDataItem("Service Contract Header", PostingDate, InvoiceToDate);
             end;
@@ -176,21 +175,11 @@ report 6030 "Create Contract Invoices"
     trigger OnInitReport()
     begin
         if not SetOptionsCalled then
-            PostingDate := WorkDate;
+            PostingDate := WorkDate();
         NoOfInvoices := 0;
     end;
 
     var
-        Text000: Label 'You have not filled in the posting date.';
-        Text001: Label 'The posting date is later than the work date.\\Confirm that this is the correct date.';
-        Text002: Label 'The program has stopped the batch job at your request.';
-        Text003: Label 'You must fill in the Invoice-to Date field.';
-        Text004: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
-        Text005: Label 'Creating contract invoices...\\';
-        Text006: Label 'Service Order is missing.';
-        Text009: Label '%1 is missing.';
-        Text010: Label '%1 invoices were created.';
-        Text011: Label '%1 invoice was created.';
         Cust: Record Customer;
         ServContractHeader: Record "Service Contract Header";
         ServContractAccGr: Record "Service Contract Account Group";
@@ -217,6 +206,17 @@ report 6030 "Create Contract Invoices"
         HideDialog: Boolean;
         SetOptionsCalled: Boolean;
 
+        Text000: Label 'You have not filled in the posting date.';
+        Text001: Label 'The posting date is later than the work date.\\Confirm that this is the correct date.';
+        Text002: Label 'The program has stopped the batch job at your request.';
+        Text003: Label 'You must fill in the Invoice-to Date field.';
+        Text004: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
+        Text005: Label 'Creating contract invoices...\\';
+        Text006: Label 'Service Order is missing.';
+        Text009: Label '%1 is missing.';
+        Text010: Label '%1 invoices were created.';
+        Text011: Label '%1 invoice was created.';
+
     local procedure CheckIfCombinationExists(FromServContract: Record "Service Contract Header"): Boolean
     var
         ServContract2: Record "Service Contract Header";
@@ -225,7 +225,7 @@ report 6030 "Create Contract Invoices"
         ServContract2.SetFilter("Contract No.", '<>%1', FromServContract."Contract No.");
         ServContract2.SetRange("Customer No.", FromServContract."Customer No.");
         ServContract2.SetRange("Bill-to Customer No.", FromServContract."Bill-to Customer No.");
-        exit(ServContract2.FindFirst);
+        exit(not ServContract2.IsEmpty());
     end;
 
     procedure SetOptions(NewPostingDate: Date; NewInvoiceToDate: Date; NewCreateInvoices: Option "Create Invoices","Print Only")

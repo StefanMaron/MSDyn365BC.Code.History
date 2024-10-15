@@ -8,7 +8,10 @@ codeunit 11023 "Elster Management"
     var
         SubmissionMessageNotCreatedErr: Label 'No submission message has been created. Press the Create action to generate it.';
         CannotIdentifyAmountsErr: Label 'Cannot identify XML nodes related to amounts in the submission message.';
-        
+        ElecVATReportingTitleTxt: Label 'Set up electronic VAT reporting to the authorities.';
+        ElecVATReportingShortTitleTxt: Label 'Electronic VAT reporting';
+        ElecVATReportingDescriptionTxt: Label 'Create the files needed to report VAT via ELSTER to authorities and comply with German VAT requirements.';
+
     procedure GetElsterUpgradeTag(): Code[250];
     begin
         exit('MS-332065-ElsterUpgrade-20191029');
@@ -64,5 +67,13 @@ codeunit 11023 "Elster Management"
     begin
         PerCompanyUpgradeTags.Add(GetElsterUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCleanupElsterTag());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterManualSetup', '', true, true)]
+    local procedure InsertIntoMAnualSetupOnRegisterManualSetup()
+    var
+        GuidedExperience: Codeunit "Guided Experience";
+    begin
+        GuidedExperience.InsertManualSetup(ElecVATReportingTitleTxt, ElecVATReportingShortTitleTxt, ElecVATReportingDescriptionTxt, 2, ObjectType::Page, Page::"Electronic VAT Decl. Setup", "Manual Setup Category"::Finance, '', true);
     end;
 }

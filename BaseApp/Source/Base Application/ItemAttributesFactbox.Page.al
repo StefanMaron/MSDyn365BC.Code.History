@@ -16,21 +16,21 @@ page 9110 "Item Attributes Factbox"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(Attribute; GetAttributeNameInCurrentLanguage)
+                field(Attribute; GetAttributeNameInCurrentLanguage())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Attribute';
                     ToolTip = 'Specifies the name of the item attribute.';
                     Visible = TranslatedValuesVisible;
                 }
-                field(Value; GetValueInCurrentLanguage)
+                field(Value; GetValueInCurrentLanguage())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Value';
                     ToolTip = 'Specifies the value of the item attribute.';
                     Visible = TranslatedValuesVisible;
                 }
-                field("Attribute Name"; "Attribute Name")
+                field("Attribute Name"; Rec."Attribute Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Attribute';
@@ -70,7 +70,7 @@ page 9110 "Item Attributes Factbox"
                     if not Item.Get(ContextValue) then
                         exit;
                     PAGE.RunModal(PAGE::"Item Attribute Value Editor", Item);
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     LoadItemAttributesData(ContextValue);
                 end;
             }
@@ -80,7 +80,7 @@ page 9110 "Item Attributes Factbox"
     trigger OnOpenPage()
     begin
         SetAutoCalcFields("Attribute Name");
-        TranslatedValuesVisible := ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone;
+        TranslatedValuesVisible := ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone;
         IsVisible := true;
         if ItemAttCode <> '' then begin
             LoadItemAttributesData(ItemAttCode);

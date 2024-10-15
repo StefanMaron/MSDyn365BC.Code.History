@@ -280,7 +280,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
                     AssemblyBOM.Type.SetValue(BOMComponent.Type::Item);
                     AssemblyBOM."No.".SetValue(LibraryVariableStorage.DequeueText);
                     AssemblyBOM."Quantity per".SetValue(LibraryRandom.RandIntInRange(1, 100));
-                    AssemblyBOM.Next;
+                    AssemblyBOM.Next();
                     AssemblyBOM.Type.SetValue(BOMComponent.Type::Resource);
                     AssemblyBOM."No.".SetValue(LibraryVariableStorage.DequeueText);
                     AssemblyBOM."Quantity per".SetValue(LibraryRandom.RandIntInRange(1, 100));
@@ -298,7 +298,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
     [Scope('OnPrem')]
     procedure BOMStructurePageHandler(var BOMStructure: TestPage "BOM Structure")
     begin
-        BOMStructure.Close;
+        BOMStructure.Close();
     end;
 
     local procedure VerifyItemBOMComponents(Item: Record Item; ComponentCount: Integer)

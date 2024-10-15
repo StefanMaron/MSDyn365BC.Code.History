@@ -7,7 +7,6 @@ page 188 "Posted Docs. With No Inc. Doc."
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Incoming Document,Report';
     ShowFilter = false;
     SourceTable = "Posted Docs. With No Inc. Buf.";
     SourceTableTemporary = true;
@@ -28,7 +27,7 @@ page 188 "Posted Docs. With No Inc. Doc."
 
                     trigger OnValidate()
                     begin
-                        SearchForDocNos;
+                        SearchForDocNos();
                     end;
                 }
                 field(DocNoFilter; DocNoFilter)
@@ -40,7 +39,7 @@ page 188 "Posted Docs. With No Inc. Doc."
 
                     trigger OnValidate()
                     begin
-                        SearchForDocNos;
+                        SearchForDocNos();
                     end;
                 }
                 field(GLAccFilter; GLAccFilter)
@@ -52,7 +51,7 @@ page 188 "Posted Docs. With No Inc. Doc."
 
                     trigger OnValidate()
                     begin
-                        SearchForDocNos;
+                        SearchForDocNos();
                     end;
                 }
                 field(ExternalDocNoFilter; ExternalDocNoFilter)
@@ -64,7 +63,7 @@ page 188 "Posted Docs. With No Inc. Doc."
 
                     trigger OnValidate()
                     begin
-                        SearchForDocNos;
+                        SearchForDocNos();
                     end;
                 }
             }
@@ -72,36 +71,36 @@ page 188 "Posted Docs. With No Inc. Doc."
             {
                 Caption = 'Documents';
                 Editable = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the posted purchase and sales document that does not have an incoming document record.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the posting date of the posted purchase and sales document that does not have an incoming document record.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("First Posting Description"; "First Posting Description")
+                field("First Posting Description"; Rec."First Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the description of the first posting transaction on the posted purchase and sales document that does not have an incoming document record.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
@@ -131,8 +130,6 @@ page 188 "Posted Docs. With No Inc. Doc."
                     Caption = 'View Incoming Document';
                     Enabled = HasIncomingDocument;
                     Image = ViewOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View any incoming document records and file attachments that exist for the entry or document.';
 
                     trigger OnAction()
@@ -148,13 +145,11 @@ page 188 "Posted Docs. With No Inc. Doc."
                     ApplicationArea = Basic, Suite;
                     Caption = 'Select Incoming Document';
                     Image = SelectLineToApply;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
                     trigger OnAction()
                     begin
-                        UpdateIncomingDocuments;
+                        UpdateIncomingDocuments();
                     end;
                 }
                 action(IncomingDocAttachFile)
@@ -164,8 +159,6 @@ page 188 "Posted Docs. With No Inc. Doc."
                     Ellipsis = true;
                     Enabled = NOT HasIncomingDocument;
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = New;
                     ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
                     trigger OnAction()
@@ -174,7 +167,7 @@ page 188 "Posted Docs. With No Inc. Doc."
                     begin
                         IncomingDocumentAttachment.SetRange("Document No.", "Document No.");
                         IncomingDocumentAttachment.SetRange("Posting Date", "Posting Date");
-                        IncomingDocumentAttachment.NewAttachment;
+                        IncomingDocumentAttachment.NewAttachment();
                     end;
                 }
             }
@@ -183,8 +176,6 @@ page 188 "Posted Docs. With No Inc. Doc."
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -197,6 +188,35 @@ page 188 "Posted Docs. With No Inc. Doc."
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                actionref(IncomingDocAttachFile_Promoted; IncomingDocAttachFile)
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Incoming Document', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(IncomingDocCard_Promoted; IncomingDocCard)
+                {
+                }
+                actionref(SelectIncomingDoc_Promoted; SelectIncomingDoc)
+                {
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -206,7 +226,7 @@ page 188 "Posted Docs. With No Inc. Doc."
 
     trigger OnAfterGetRecord()
     begin
-        HasIncomingDocument := IncomingDocumentExists;
+        HasIncomingDocument := IncomingDocumentExists();
     end;
 
     trigger OnOpenPage()
@@ -216,11 +236,11 @@ page 188 "Posted Docs. With No Inc. Doc."
         FilterGroupNo: Integer;
     begin
         if DateFilter = '' then begin
-            FiscalStartDate := AccountingPeriod.GetFiscalYearStartDate(WorkDate);
+            FiscalStartDate := AccountingPeriod.GetFiscalYearStartDate(WorkDate());
             if FiscalStartDate <> 0D then
-                SetRange("Posting Date", FiscalStartDate, WorkDate)
+                SetRange("Posting Date", FiscalStartDate, WorkDate())
             else
-                SetRange("Posting Date", CalcDate('<CY>', WorkDate), WorkDate);
+                SetRange("Posting Date", CalcDate('<CY>', WorkDate()), WorkDate());
             DateFilter := CopyStr(GetFilter("Posting Date"), 1, MaxStrLen(DateFilter));
             SetRange("Posting Date");
         end;
@@ -229,7 +249,7 @@ page 188 "Posted Docs. With No Inc. Doc."
             GLAccFilter := CopyStr(GetFilter("G/L Account No. Filter"), 1, MaxStrLen(GLAccFilter));
             FilterGroupNo += 2;
         end;
-        SearchForDocNos;
+        SearchForDocNos();
     end;
 
     var

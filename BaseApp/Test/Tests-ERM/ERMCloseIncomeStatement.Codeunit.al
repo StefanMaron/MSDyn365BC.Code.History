@@ -139,7 +139,7 @@ codeunit 134228 "ERM Close Income Statement"
         GenJournalLine.SetRange("Account No.", GLAccount."No.");
         Assert.IsTrue(GenJournalLine.IsEmpty,
           StrSubstNo(GenJnlLineExistErr,
-            GenJournalLine.TableCaption,
+            GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Account Type"), Format(GenJournalLine."Account Type"::"G/L Account"),
             GenJournalLine.FieldCaption("Account No."), GLAccount."No."));
 
@@ -191,7 +191,7 @@ codeunit 134228 "ERM Close Income Statement"
           GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
         Commit();
 
         // [WHEN] Run "Close Income Statement"
@@ -492,7 +492,7 @@ codeunit 134228 "ERM Close Income Statement"
             repeat
                 GenJournalLine.TestField("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
                 GenJournalLine.TestField("Bal. Account No.", RetainedEarningsAccountNo);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     [Test]
@@ -535,7 +535,7 @@ codeunit 134228 "ERM Close Income Statement"
         if GenJournalLine.FindSet() then
             repeat
                 GenJournalLine.TestField("Bal. Account No.", '');
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     [Test]
@@ -652,11 +652,11 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
 
         with DimSetEntry do begin
-            Init;
+            Init();
             "Dimension Code" := DimensionCode;
             "Dimension Value Code" := DimensionValue.Code;
             "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -700,7 +700,7 @@ codeunit 134228 "ERM Close Income Statement"
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.SetupNewBatch;
+        GenJournalBatch.SetupNewBatch();
         GenJournalBatch.Validate("Posting No. Series", CreateNoSeries);
         GenJournalBatch.Modify(true);
     end;
@@ -840,8 +840,8 @@ codeunit 134228 "ERM Close Income Statement"
                 "Object Type" := 3;
                 "Object ID" := REPORT::"Close Income Statement";
                 "Dimension Code" := DimSetEntry."Dimension Code";
-                Insert;
-            until DimSetEntry.Next = 0;
+                Insert();
+            until DimSetEntry.Next() = 0;
         end;
     end;
 

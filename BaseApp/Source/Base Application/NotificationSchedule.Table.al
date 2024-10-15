@@ -36,7 +36,7 @@ table 1513 "Notification Schedule"
 
             trigger OnValidate()
             begin
-                UpdateDailyFrequency;
+                UpdateDailyFrequency();
             end;
         }
         field(6; Monday; Boolean)
@@ -342,7 +342,7 @@ table 1513 "Notification Schedule"
 
         JobQueueCategory.InsertRec(NotifyNowLbl, NotifyNowDescriptionTxt);
         JobQueueEntry.ScheduleJobQueueEntryForLater(
-          CODEUNIT::"Notification Entry Dispatcher", OneMinuteFromNow, NotifyNowLbl, '');
+          CODEUNIT::"Notification Entry Dispatcher", OneMinuteFromNow(), NotifyNowLbl, '');
     end;
 
     local procedure ScheduleForLater(RecipientUserID: Code[50])
@@ -369,7 +369,7 @@ table 1513 "Notification Schedule"
             exit;
 
         JobQueueEntry.ScheduleJobQueueEntryForLater(
-          CODEUNIT::"Notification Entry Dispatcher", ExecutionDateTime, NotifyLaterLbl, NotificationEntry.GetView);
+          CODEUNIT::"Notification Entry Dispatcher", ExecutionDateTime, NotifyLaterLbl, NotificationEntry.GetView());
         Rec."Last Scheduled Job" := JobQueueEntry.ID;
         Rec.Modify();
     end;

@@ -97,7 +97,7 @@ codeunit 5058 "BankCont-Update"
         end;
 
         with ContBusRel do begin
-            Init;
+            Init();
             "Contact No." := Cont."No.";
             "Business Relation Code" := RMSetup."Bus. Rel. Code for Bank Accs.";
             "Link to Table" := "Link to Table"::"Bank Account";

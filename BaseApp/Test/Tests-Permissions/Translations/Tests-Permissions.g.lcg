@@ -25,7 +25,7 @@
   </Item>
   <Item ItemId=";Codeunit 3056278879 - NamedType 3516382779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You do not have the following permissions]]></Val>
+      <Val><![CDATA[Sorry, the current permissions prevented the action.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -322,7 +322,7 @@
   </Item>
   <Item ItemId=";Codeunit 738097134 - NamedType 104992627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You do not have the following permissions on TableData 9: Insert]]></Val>
+      <Val><![CDATA[Sorry, the current permissions prevented the action. (TableData]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -331,7 +331,7 @@
   </Item>
   <Item ItemId=";Codeunit 2624883303 - NamedType 3516382779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You do not have the following permissions]]></Val>
+      <Val><![CDATA[Sorry, the current permissions prevented the action.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

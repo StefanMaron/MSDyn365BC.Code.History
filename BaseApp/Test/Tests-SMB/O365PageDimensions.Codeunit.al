@@ -32,7 +32,7 @@ codeunit 138042 "O365 Page Dimensions"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Page Dimensions");
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
 
         if IsInitialized then
             exit;
@@ -195,7 +195,7 @@ codeunit 138042 "O365 Page Dimensions"
     [Scope('OnPrem')]
     procedure DimensionCheckHandler(var ViewDimensionSetEntries: TestPage "Dimension Set Entries")
     begin
-        ViewDimensionSetEntries.First;
+        ViewDimensionSetEntries.First();
         Assert.AreEqual(ViewDimensionSetEntries."Dimension Code".Value, TestDimensionCode, 'Unexpected dimension on posted document.');
         Assert.AreEqual(ViewDimensionSetEntries.DimensionValueCode.Value, TestDimensionValue, 'Unexpected dimension value on posted doc.');
     end;

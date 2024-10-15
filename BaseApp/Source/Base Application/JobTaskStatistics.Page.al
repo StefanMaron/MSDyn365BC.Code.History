@@ -1,7 +1,7 @@
 page 1024 "Job Task Statistics"
 {
     Caption = 'Job Task Statistics';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     LinksAllowed = false;
     PageType = Card;
@@ -1350,7 +1350,7 @@ page 1024 "Job Task Statistics"
     begin
         Clear(JobCalcStatistics);
         JobCalcStatistics.JTCalculateCommonFilters(Rec, Job, false);
-        JobCalcStatistics.CalculateAmounts;
+        JobCalcStatistics.CalculateAmounts();
         JobCalcStatistics.GetLCYCostAmounts(CL);
         JobCalcStatistics.GetLCYPriceAmounts(PL);
         JobCalcStatistics.GetCostAmounts(C);

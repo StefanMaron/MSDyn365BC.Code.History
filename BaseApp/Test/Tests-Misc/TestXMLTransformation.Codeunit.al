@@ -360,7 +360,7 @@ codeunit 139149 "Test XML Transformation"
 
     local procedure CreateBrokenXMLText(): Text
     begin
-        exit(Format(CreateGuid));
+        exit(Format(CreateGuid()));
     end;
 
     local procedure CreateOutStream(var OutStr: OutStream)

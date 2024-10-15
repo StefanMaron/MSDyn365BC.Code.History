@@ -8,10 +8,10 @@ codeunit 5902 "Service Inv.-Printed"
         SuppressCommit: Boolean;
     begin
         OnBeforeOnRun(Rec, SuppressCommit);
-        Find;
+        Find();
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
-        Modify;
+        Modify();
         if not SuppressCommit then
             Commit();
     end;

@@ -59,7 +59,7 @@ report 1086 "Job Calculate WIP"
             NewNoSeriesCode: Code[20];
         begin
             if PostingDate = 0D then
-                PostingDate := WorkDate;
+                PostingDate := WorkDate();
 
             JobsSetup.Get();
 
@@ -112,7 +112,7 @@ report 1086 "Job Calculate WIP"
         end;
 
         if PostingDate = 0D then
-            PostingDate := WorkDate;
+            PostingDate := WorkDate();
 
         JobCalculateBatches.BatchError(PostingDate, DocNo);
     end;
@@ -133,7 +133,7 @@ report 1086 "Job Calculate WIP"
 
     procedure InitializeRequest()
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
     end;
 }
 

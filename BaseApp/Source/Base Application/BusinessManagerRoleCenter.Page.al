@@ -49,7 +49,18 @@ page 9022 "Business Manager Role Center"
                 AccessByPermission = TableData "G/L Entry" = R;
                 ApplicationArea = Basic, Suite;
             }
+#if not CLEAN21
             part(Control98; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
+                Visible = false;
+                ObsoleteTag = '21.0';
+            }
+#endif
+            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 AccessByPermission = TableData "Power BI User Configuration" = I;
                 ApplicationArea = Basic, Suite;
@@ -524,11 +535,11 @@ page 9022 "Business Manager Role Center"
                 action("Account Schedules")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Account Schedules';
+                    Caption = 'Financial Reporting';
                     Promoted = true;
                     PromotedCategory = Process;
-                    RunObject = Page "Account Schedule Names";
-                    ToolTip = 'Get insight into the financial data stored in your chart of accounts. Account schedules analyze figures in G/L accounts, and compare general ledger entries with general ledger budget entries. For example, you can view the general ledger entries as percentages of the budget entries. Account schedules provide the data for core financial statements and views, such as the Cash Flow chart.';
+                    RunObject = Page "Financial Reports";
+                    ToolTip = 'Get insight into the financial data stored in your chart of accounts. Financial reports analyze figures in G/L accounts, and compare general ledger entries with general ledger budget entries. For example, you can view the general ledger entries as percentages of the budget entries. Financial reports provide the data for core financial statements and views, such as the Cash Flow chart.';
                 }
                 action("Intrastat Journals")
                 {
@@ -1014,73 +1025,6 @@ page 9022 "Business Manager Role Center"
                     ToolTip = 'Open the list of posted purchase return shipments.';
                 }
             }
-#if not CLEAN18
-            group(SetupAndExtensions)
-            {
-                Caption = 'Setup & Extensions';
-                Image = Setup;
-                ToolTip = 'Overview and change system and application settings, and manage extensions and services';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                ObsoleteTag = '18.0';
-                action(Action104)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assisted Setup';
-                    Image = QuestionaireSetup;
-                    RunObject = Page "Assisted Setup";
-                    ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action("Manual Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Manual Setup';
-                    RunObject = Page "Manual Setup";
-                    ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Action107)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Service Connections';
-                    Image = ServiceTasks;
-                    RunObject = Page "Service Connections";
-                    ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Action106)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Extensions';
-                    Image = NonStockItemSetup;
-                    RunObject = Page "Extension Management";
-                    ToolTip = 'Install Extensions for greater functionality of the system.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-                action(Workflows)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Workflows';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = Page Workflows;
-                    ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
-                    ObsoleteTag = '18.0';
-                }
-            }
-#endif
         }
     }
 }

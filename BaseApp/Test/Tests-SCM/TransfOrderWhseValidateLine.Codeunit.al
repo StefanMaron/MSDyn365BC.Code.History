@@ -96,7 +96,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         TransferHeader: Record "Transfer Header";
         ExpectedErrorMessage: Text[1024];
     begin
-        ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, TransferHeader.TableCaption);
+        ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, TransferHeader.TableCaption());
 
         TransferOrderDelLines(false, ExpectedErrorMessage);
     end;
@@ -110,7 +110,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         ExpectedErrorMessage: Text[1024];
     begin
         ExpectedErrorMessage := StrSubstNo(ErrCannotBeDeleted,
-            TransferLine.TableCaption, WhseShptLine.TableCaption);
+            TransferLine.TableCaption(), WhseShptLine.TableCaption());
 
         TransferOrderDelLines(true, ExpectedErrorMessage);
     end;
@@ -195,12 +195,12 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         end;
 
         ExpectedErrorMessage := StrSubstNo(ErrFieldMustNotBeChanged,
-            FieldRef.Name, WhseShptLine.TableCaption, TransferLine.TableCaption);
+            FieldRef.Name, WhseShptLine.TableCaption(), TransferLine.TableCaption());
 
         asserterror UpdateTransferLine(TransferLine, FieldNo, Value);
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure TransferOrderDelLines(Reopen: Boolean; ExpectedErrorMessage: Text[1024])
@@ -223,7 +223,7 @@ codeunit 137224 "TransfOrder Whse Validate Line"
         asserterror TransferLine.DeleteAll(true);
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure TransferOrderVariantCodChange(Reopen: Boolean)

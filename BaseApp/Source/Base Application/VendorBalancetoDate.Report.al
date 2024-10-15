@@ -18,7 +18,7 @@ report 321 "Vendor - Balance to Date"
             column(StrNoVenGetMaxDtFilter; StrSubstNo(Text000, Format(GetRangeMax("Date Filter"))))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(VendFilter; VendFilter)
@@ -171,7 +171,7 @@ report 321 "Vendor - Balance to Date"
 
                 trigger OnPreDataItem()
                 begin
-                    Reset;
+                    Reset();
                     FilterDetailedVendLedgerEntry(DtldVendLedgEntry, StrSubstNo('%1..%2', MaxDate + 1, DMY2Date(31, 12, 9999)));
                     if DtldVendLedgEntry.Find('-') then
                         repeat
@@ -194,7 +194,7 @@ report 321 "Vendor - Balance to Date"
 
                     AddVendorDimensionFilter(VendLedgEntry3);
 
-                    CalcTotalVendorAmount;
+                    CalcTotalVendorAmount();
                 end;
             }
             dataitem(Integer2; "Integer")
@@ -203,40 +203,40 @@ report 321 "Vendor - Balance to Date"
                 column(Name1_Vendor; Vendor.Name)
                 {
                 }
-                column(CurrTotalBufferTotalAmt; CurrencyTotalBuffer."Total Amount")
+                column(CurrTotalBufferTotalAmt; TempCurrencyTotalBuffer."Total Amount")
                 {
-                    AutoFormatExpression = CurrencyTotalBuffer."Currency Code";
+                    AutoFormatExpression = TempCurrencyTotalBuffer."Currency Code";
                     AutoFormatType = 1;
                 }
-                column(CurrTotalBufferCurrCode; CurrencyTotalBuffer."Currency Code")
+                column(CurrTotalBufferCurrCode; TempCurrencyTotalBuffer."Currency Code")
                 {
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then
-                        OK := CurrencyTotalBuffer.Find('-')
+                        OK := TempCurrencyTotalBuffer.Find('-')
                     else
-                        OK := CurrencyTotalBuffer.Next <> 0;
+                        OK := TempCurrencyTotalBuffer.Next() <> 0;
                     if not OK then
                         CurrReport.Break();
 
-                    CurrencyTotalBuffer2.UpdateTotal(
-                      CurrencyTotalBuffer."Currency Code",
-                      CurrencyTotalBuffer."Total Amount",
+                    TempCurrencyTotalBuffer2.UpdateTotal(
+                      TempCurrencyTotalBuffer."Currency Code",
+                      TempCurrencyTotalBuffer."Total Amount",
                       0,
                       Counter1);
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    CurrencyTotalBuffer.DeleteAll();
+                    TempCurrencyTotalBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not ShowEntriesWithZeroBalance then
-                        CurrencyTotalBuffer.SetFilter("Total Amount", '<>0');
+                        TempCurrencyTotalBuffer.SetFilter("Total Amount", '<>0');
                 end;
             }
 
@@ -259,12 +259,12 @@ report 321 "Vendor - Balance to Date"
         dataitem(Integer3; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-            column(CurrTotalBuffer2CurrCode; CurrencyTotalBuffer2."Currency Code")
+            column(CurrTotalBuffer2CurrCode; TempCurrencyTotalBuffer2."Currency Code")
             {
             }
-            column(CurrTotalBuffer2TotalAmt; CurrencyTotalBuffer2."Total Amount")
+            column(CurrTotalBuffer2TotalAmt; TempCurrencyTotalBuffer2."Total Amount")
             {
-                AutoFormatExpression = CurrencyTotalBuffer2."Currency Code";
+                AutoFormatExpression = TempCurrencyTotalBuffer2."Currency Code";
                 AutoFormatType = 1;
             }
             column(TotalCaption; TotalCaptionLbl)
@@ -274,21 +274,21 @@ report 321 "Vendor - Balance to Date"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then
-                    OK := CurrencyTotalBuffer2.Find('-')
+                    OK := TempCurrencyTotalBuffer2.Find('-')
                 else
-                    OK := CurrencyTotalBuffer2.Next <> 0;
+                    OK := TempCurrencyTotalBuffer2.Next() <> 0;
                 if not OK then
                     CurrReport.Break();
             end;
 
             trigger OnPostDataItem()
             begin
-                CurrencyTotalBuffer2.DeleteAll();
+                TempCurrencyTotalBuffer2.DeleteAll();
             end;
 
             trigger OnPreDataItem()
             begin
-                CurrencyTotalBuffer2.SetFilter("Total Amount", '<>0');
+                TempCurrencyTotalBuffer2.SetFilter("Total Amount", '<>0');
             end;
         }
     }
@@ -359,10 +359,9 @@ report 321 "Vendor - Balance to Date"
     end;
 
     var
-        Text000: Label 'Balance on %1';
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        CurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
-        CurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
+        TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
+        TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         AutoFormat: Codeunit "Auto Format";
         PrintAmountInLCY: Boolean;
         PrintOnePrPage: Boolean;
@@ -377,17 +376,19 @@ report 321 "Vendor - Balance to Date"
         OK: Boolean;
         CurrencyCode: Code[10];
         PrintUnappliedEntries: Boolean;
+        ShowEntriesWithZeroBalance: Boolean;
+        UseExternalDocNo: Boolean;
+        VendLedgDocumentNo: Code[35];
+        DtldVendLedgDocumentNo: Code[35];
+        DocNoCaption: Text;
+
+        Text000: Label 'Balance on %1';
         VendorBalancetoDateCptnLbl: Label 'Vendor - Balance to Date';
         PageNoCaptionLbl: Label 'Page';
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY.';
         PostingDateCptionLbl: Label 'Posting Date';
         OriginalAmtCaptionLbl: Label 'Amount';
         TotalCaptionLbl: Label 'Total';
-        ShowEntriesWithZeroBalance: Boolean;
-        UseExternalDocNo: Boolean;
-        VendLedgDocumentNo: Code[35];
-        DtldVendLedgDocumentNo: Code[35];
-        DocNoCaption: Text;
 
     procedure InitializeRequest(NewPrintAmountInLCY: Boolean; NewPrintOnePrPage: Boolean; NewPrintUnappliedEntries: Boolean)
     begin
@@ -443,7 +444,7 @@ report 321 "Vendor - Balance to Date"
                     if not Get(VendorLedgerEntry."Entry No.") then
                         if CheckVendEntryIncluded(VendorLedgerEntry."Entry No.") then begin
                             TempVendorLedgerEntry := VendorLedgerEntry;
-                            Insert;
+                            Insert();
                         end;
                 until DetailedVendorLedgEntry.Next() = 0;
 
@@ -465,7 +466,7 @@ report 321 "Vendor - Balance to Date"
                     CalcVendorRemainingAmount(TempVendorLedgerEntry);
 
                     if (RemainingAmt <> 0) or ShowEntriesWithZeroBalance then
-                        CurrencyTotalBuffer.UpdateTotal(
+                        TempCurrencyTotalBuffer.UpdateTotal(
                           CurrencyCode,
                           RemainingAmt,
                           0,

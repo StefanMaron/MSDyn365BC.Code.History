@@ -12,7 +12,7 @@ report 5909 "Service Profit (Resp. Centers)"
         {
             DataItemTableView = SORTING("Responsibility Center", "Posting Date");
             RequestFilterFields = "Responsibility Center", "Posting Date", "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -174,11 +174,10 @@ report 5909 "Service Profit (Resp. Centers)"
 
     trigger OnPreReport()
     begin
-        ServShipmentHeaderFilter := "Service Shipment Header".GetFilters;
+        ServShipmentHeaderFilter := "Service Shipment Header".GetFilters();
     end;
 
     var
-        Text000: Label 'Total for ';
         ServLedgerEntry: Record "Service Ledger Entry";
         SalesAmount: Decimal;
         DiscountAmount: Decimal;
@@ -188,6 +187,8 @@ report 5909 "Service Profit (Resp. Centers)"
         ProfitPct: Decimal;
         ServShipmentHeaderFilter: Text;
         ShowDetail: Boolean;
+
+        Text000: Label 'Total for ';
         TotalForLbl: Label 'Total:';
         PageCaptionLbl: Label 'Page';
         ServProfitRespCentersCaptionLbl: Label 'Service Profit (Responsibility Centers)';

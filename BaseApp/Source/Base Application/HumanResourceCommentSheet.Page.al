@@ -42,17 +42,18 @@ page 5222 "Human Resource Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 
     var
-        Text000: Label 'untitled';
         Employee: Record Employee;
         EmployeeAbsence: Record "Employee Absence";
         EmployeeQualification: Record "Employee Qualification";
         EmployeeRelative: Record "Employee Relative";
         MiscArticleInfo: Record "Misc. Article Information";
         ConfidentialInfo: Record "Confidential Information";
+
+        Text000: Label 'untitled';
 
     procedure Caption(HRCommentLine: Record "Human Resource Comment Line") Result: Text
     var
@@ -68,31 +69,31 @@ page 5222 "Human Resource Comment Sheet"
                 if EmployeeAbsence.Get(HRCommentLine."Table Line No.") then begin
                     Employee.Get(EmployeeAbsence."Employee No.");
                     exit(
-                      Employee."No." + ' ' + Employee.FullName + ' ' +
+                      Employee."No." + ' ' + Employee.FullName() + ' ' +
                       EmployeeAbsence."Cause of Absence Code" + ' ' +
                       Format(EmployeeAbsence."From Date"));
                 end;
             HRCommentLine."Table Name"::Employee:
                 if Employee.Get(HRCommentLine."No.") then
-                    exit(HRCommentLine."No." + ' ' + Employee.FullName);
+                    exit(HRCommentLine."No." + ' ' + Employee.FullName());
             HRCommentLine."Table Name"::"Alternative Address":
                 if Employee.Get(HRCommentLine."No.") then
                     exit(
-                      HRCommentLine."No." + ' ' + Employee.FullName + ' ' +
+                      HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
                       HRCommentLine."Alternative Address Code");
             HRCommentLine."Table Name"::"Employee Qualification":
                 if EmployeeQualification.Get(HRCommentLine."No.", HRCommentLine."Table Line No.") and
                    Employee.Get(HRCommentLine."No.")
                 then
                     exit(
-                      HRCommentLine."No." + ' ' + Employee.FullName + ' ' +
+                      HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
                       EmployeeQualification."Qualification Code");
             HRCommentLine."Table Name"::"Employee Relative":
                 if EmployeeRelative.Get(HRCommentLine."No.", HRCommentLine."Table Line No.") and
                    Employee.Get(HRCommentLine."No.")
                 then
                     exit(
-                      HRCommentLine."No." + ' ' + Employee.FullName + ' ' +
+                      HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
                       EmployeeRelative."Relative Code");
             HRCommentLine."Table Name"::"Misc. Article Information":
                 if MiscArticleInfo.Get(
@@ -100,14 +101,14 @@ page 5222 "Human Resource Comment Sheet"
                    Employee.Get(HRCommentLine."No.")
                 then
                     exit(
-                      HRCommentLine."No." + ' ' + Employee.FullName + ' ' +
+                      HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
                       MiscArticleInfo."Misc. Article Code");
             HRCommentLine."Table Name"::"Confidential Information":
                 if ConfidentialInfo.Get(HRCommentLine."No.", HRCommentLine."Table Line No.") and
                    Employee.Get(HRCommentLine."No.")
                 then
                     exit(
-                      HRCommentLine."No." + ' ' + Employee.FullName + ' ' +
+                      HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
                       ConfidentialInfo."Confidential Code");
         end;
         exit(Text000);

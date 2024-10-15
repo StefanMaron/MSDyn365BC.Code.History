@@ -207,7 +207,7 @@ codeunit 142062 "ERM Reports DACH"
         CreatePurchaseOrderPostReceipt(PurchaseLine, Item);
 
         // [GIVEN] Post Inventory Cost to G/L.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [WHEN] Run Inventory Value report
         RunInventoryValue(ItemJournalLine."Item No.");
@@ -246,7 +246,7 @@ codeunit 142062 "ERM Reports DACH"
         CreatePurchaseOrderPostReceipt(PurchaseLine[2], Item[2]);
 
         // [GIVEN] Post Inventory Cost to G/L.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [WHEN] Run Inventory Value report
         RunInventoryValue(Item[1]."No." + '|' + Item[2]."No.");
@@ -318,11 +318,11 @@ codeunit 142062 "ERM Reports DACH"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [GIVEN] Invoice remaining 4 pcs on workdate + 1
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PostPurchaseInvoiceOnDate(PurchaseHeader, PurchaseHeader."Posting Date" + 1);
 
         // [GIVEN] Post cost to G/L
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [WHEN] Run "Inventory Value" report on workdate
         RunInventoryValue(Item."No.");
@@ -627,7 +627,7 @@ codeunit 142062 "ERM Reports DACH"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.Modify(true);
@@ -702,7 +702,7 @@ codeunit 142062 "ERM Reports DACH"
         PurchaseLine.Validate("Direct Unit Cost", Item."Unit Cost");
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
     end;
 
     local procedure CreateAndPostVendorInvoice(VendorNo: Code[20]; var DocumentNo: Code[20]; var Amount: Decimal)
@@ -783,7 +783,7 @@ codeunit 142062 "ERM Reports DACH"
             LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Account_Posting_Group_Code', BankAccountPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Bank_Account_Posting_Group__G_L_Bank_Account_No__', BankAccountPostingGroup."G/L Account No.");
-        until BankAccountPostingGroup.Next = 0;
+        until BankAccountPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyCustomerPostingGroupOnGLSetupInformation()
@@ -808,7 +808,7 @@ codeunit 142062 "ERM Reports DACH"
               'Customer_Posting_Group__Interest_Account_', CustomerPostingGroup."Interest Account");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Customer_Posting_Group__Debit_Curr__Appln__Rndg__Acc__', CustomerPostingGroup."Debit Curr. Appln. Rndg. Acc.");
-        until CustomerPostingGroup.Next = 0;
+        until CustomerPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyGenBusinessPostingGroupOnGLSetupInformation()
@@ -827,7 +827,7 @@ codeunit 142062 "ERM Reports DACH"
               'Gen__Business_Posting_Group__Def__VAT_Bus__Posting_Group_', GenBusinessPostingGroup."Def. VAT Bus. Posting Group");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Gen__Business_Posting_Group__Auto_Insert_Default_', GenBusinessPostingGroup."Auto Insert Default");
-        until GenBusinessPostingGroup.Next = 0;
+        until GenBusinessPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyGeneralPostingSetupOnGLSetupInformation()
@@ -865,7 +865,7 @@ codeunit 142062 "ERM Reports DACH"
               'General_Posting_Setup__Sales_Credit_Memo_Account_', GeneralPostingSetup."Sales Credit Memo Account");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'General_Posting_Setup__Purch__Credit_Memo_Account_', GeneralPostingSetup."Purch. Credit Memo Account");
-        until GeneralPostingSetup.Next = 0;
+        until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure VerifyGenProductPostingGroupOnGLSetupInformation()
@@ -883,7 +883,7 @@ codeunit 142062 "ERM Reports DACH"
               'Gen__Product_Posting_Group__Def__VAT_Prod__Posting_Group_', GenProductPostingGroup."Def. VAT Prod. Posting Group");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Gen__Product_Posting_Group__Auto_Insert_Default_', GenProductPostingGroup."Auto Insert Default");
-        until GenProductPostingGroup.Next = 0;
+        until GenProductPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyGLSetupCompanyDataConsolidation()
@@ -970,7 +970,7 @@ codeunit 142062 "ERM Reports DACH"
             if not LibraryReportDataset.GetNextRow then
                 Error(StrSubstNo(RowNotFound, 'Inventory_Posting_GroupsCaption', 'Inventory Posting Groups'));
             LibraryReportDataset.AssertCurrentRowValueEquals('Inventory_Posting_Group_Code', InventoryPostingGroup.Code);
-        until InventoryPostingGroup.Next = 0;
+        until InventoryPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyInventoryValue(ItemNo: Code[20]; Quantity: Decimal; InvoicedQuantity: Decimal; ExpectedAmount: Decimal; ActualAmount: Decimal)
@@ -1050,7 +1050,7 @@ codeunit 142062 "ERM Reports DACH"
                 Error(StrSubstNo(RowNotFound, 'SourceCaption', 'Source'));
             LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Code', SourceCode.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Description', SourceCode.Description);
-        until SourceCode.Next = 0;
+        until SourceCode.Next() = 0;
     end;
 
     local procedure VerifySourceCodeSetupOnGLSetupInformation()
@@ -1084,7 +1084,7 @@ codeunit 142062 "ERM Reports DACH"
                 Error(StrSubstNo(RowNotFound, 'VAT_Posting_GroupsCaption', 'VAT Posting Groups'));
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Business_Posting_Group_Code', VATBusinessPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Business_Posting_Group_Description', VATBusinessPostingGroup.Description);
-        until VATBusinessPostingGroup.Next = 0;
+        until VATBusinessPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyVATProductPostingGroupOnGLSetupInformation()
@@ -1098,7 +1098,7 @@ codeunit 142062 "ERM Reports DACH"
                 Error(StrSubstNo(RowNotFound, 'VAT_Product_Posting_GroupsCaption', 'VAT Product Posting Groups'));
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Product_Posting_Group_Code', VATProductPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Product_Posting_Group_Description', VATProductPostingGroup.Description);
-        until VATProductPostingGroup.Next = 0;
+        until VATProductPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyVATPostingSetupOnGLSetupInformation()
@@ -1130,7 +1130,7 @@ codeunit 142062 "ERM Reports DACH"
               'VAT_Posting_Setup__Reverse_Chrg__VAT_Acc__', VATPostingSetup."Reverse Chrg. VAT Acc.");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VAT_Posting_Setup__Reverse_Chrg__VAT_Unreal__Acc__', VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.");
-        until VATPostingSetup.Next = 0;
+        until VATPostingSetup.Next() = 0;
     end;
 
     local procedure VerifyVendorPaymentListReportWithStandardLayout(GenJournalLine: Record "Gen. Journal Line")
@@ -1199,7 +1199,7 @@ codeunit 142062 "ERM Reports DACH"
               'Vendor_Posting_Group__Invoice_Rounding_Account_', VendorPostingGroup."Invoice Rounding Account");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Vendor_Posting_Group__Debit_Curr__Appln__Rndg__Acc__', VendorPostingGroup."Debit Curr. Appln. Rndg. Acc.");
-        until VendorPostingGroup.Next = 0;
+        until VendorPostingGroup.Next() = 0;
     end;
 
     local procedure VerifyVendorLedgerEntryAmount(Row: Integer; Amount: Decimal)
@@ -1237,7 +1237,7 @@ codeunit 142062 "ERM Reports DACH"
     procedure InventoryValueRequestPageHandler(var InventoryValue: TestRequestPage "Inventory Value (Help Report)")
     begin
         InventoryValue.Item.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        InventoryValue.StatusDate.SetValue(WorkDate);
+        InventoryValue.StatusDate.SetValue(WorkDate());
         InventoryValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1262,7 +1262,7 @@ codeunit 142062 "ERM Reports DACH"
         JournalBatch: Variant;
         GLAccountNo: Variant;
     begin
-        ProvisionalTrialBalance.BalanceToDate.SetValue(WorkDate);
+        ProvisionalTrialBalance.BalanceToDate.SetValue(WorkDate());
         LibraryVariableStorage.Dequeue(JournalBatch);
         ProvisionalTrialBalance.WithJournal1.SetValue(JournalBatch);
         LibraryVariableStorage.Dequeue(GLAccountNo);

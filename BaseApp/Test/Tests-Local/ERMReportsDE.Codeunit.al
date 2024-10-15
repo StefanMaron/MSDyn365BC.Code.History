@@ -619,15 +619,15 @@ codeunit 144051 "ERM Reports DE"
     local procedure CreateVATEntryForCustomer(Customer: Record Customer; var VATEntry: Record "VAT Entry")
     begin
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := Type::Sale;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Bill-to/Pay-to No." := Customer."No.";
             "VAT Registration No." := Customer."VAT Registration No.";
             "Country/Region Code" := Customer."Country/Region Code";
             Base := LibraryRandom.RandDecInRange(10, 20, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -652,7 +652,7 @@ codeunit 144051 "ERM Reports DE"
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         VATEntry.FindFirst();
     end;
 
@@ -820,7 +820,7 @@ codeunit 144051 "ERM Reports DE"
     begin
         LibraryVariableStorage.Dequeue(ItemNoFilter);
         InventoryValue.Item.SetFilter("No.", ItemNoFilter);
-        InventoryValue.StatusDate.SetValue(WorkDate);
+        InventoryValue.StatusDate.SetValue(WorkDate());
         InventoryValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

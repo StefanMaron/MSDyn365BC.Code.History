@@ -97,9 +97,9 @@ table 477 "Report Inbox"
             Error(NoReportsToShowErr);
 
         CalcFields("Report Output", "Report Name");
-        if not "Report Output".HasValue then begin
+        if not "Report Output".HasValue() then begin
             Read := true;
-            Modify;
+            Modify();
             Commit();
             Message(ReportIsEmptyMsg);
             exit;
@@ -111,7 +111,7 @@ table 477 "Report Inbox"
 
         if not Read and Downloaded then begin
             Read := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -131,7 +131,7 @@ table 477 "Report Inbox"
 
     procedure GetFileNameWithExtension(): Text
     begin
-        exit(GetFileNameWithoutExtension() + Suffix);
+        exit(GetFileNameWithoutExtension() + Suffix());
     end;
 
     procedure GetFileNameWithoutExtension(): Text

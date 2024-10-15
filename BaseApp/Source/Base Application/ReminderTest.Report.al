@@ -38,7 +38,7 @@ report 122 "Reminder - Test"
             dataitem(PageCounter; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(TextPage; TextPageLbl)
@@ -242,7 +242,7 @@ report 122 "Reminder - Test"
                     }
                     column(Reminder_Line__Remaining_Amount_; "Remaining Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(Reminder_Line__Document_Date_; Format("Document Date"))
@@ -274,7 +274,7 @@ report 122 "Reminder - Test"
                     }
                     column(Reminder_Header_Additional_Fee_AddFeeInclVAT_VATInterest_100__1; (ReminderInterestAmount + "VAT Amount" + "Reminder Header"."Additional Fee" - AddFeeInclVAT) / (VATInterest / 100 + 1))
                     {
-                        AutoFormatExpression = GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(Reminder_Line_ReminderInterestAmount; ReminderInterestAmount)
@@ -282,7 +282,7 @@ report 122 "Reminder - Test"
                     }
                     column(Remaining_Amount_VATInterest_100____Reminder_Header___Additional_Fee____AddFeeInclVAT; "Remaining Amount" + ReminderInterestAmount)
                     {
-                        AutoFormatExpression = GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(TotalText; TotalText)
@@ -290,7 +290,7 @@ report 122 "Reminder - Test"
                     }
                     column(Reminder_Header___Additional_Fee_; "VAT Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(TotalInclVATText; TotalInclVATText)
@@ -298,7 +298,7 @@ report 122 "Reminder - Test"
                     }
                     column(Remaining_Amount____ReminderInterestAmount____VAT_Amount_; "Remaining Amount" + ReminderInterestAmount + "VAT Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(Reminder_Line__VAT_Amount_; "VAT Amount")
@@ -367,15 +367,15 @@ report 122 "Reminder - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if not "Detailed Interest Rates Entry" then begin
-                            VATAmountLine.Init();
-                            VATAmountLine."VAT Identifier" := "VAT Identifier";
-                            VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                            VATAmountLine."Tax Group Code" := "Tax Group Code";
-                            VATAmountLine."VAT %" := "VAT %";
-                            VATAmountLine."VAT Base" := Amount;
-                            VATAmountLine."VAT Amount" := "VAT Amount";
-                            VATAmountLine."Amount Including VAT" := Amount + "VAT Amount";
-                            VATAmountLine.InsertLine;
+                            TempVATAmountLine.Init();
+                            TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+                            TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                            TempVATAmountLine."Tax Group Code" := "Tax Group Code";
+                            TempVATAmountLine."VAT %" := "VAT %";
+                            TempVATAmountLine."VAT Base" := Amount;
+                            TempVATAmountLine."VAT Amount" := "VAT Amount";
+                            TempVATAmountLine."Amount Including VAT" := Amount + "VAT Amount";
+                            TempVATAmountLine.InsertLine();
 
                             ReminderInterestAmount := 0;
 
@@ -425,7 +425,7 @@ report 122 "Reminder - Test"
                                 Continue := "No. of Reminders" = 0;
                             until ((Next(-1) = 0) or not Continue);
 
-                        VATAmountLine.DeleteAll();
+                        TempVATAmountLine.DeleteAll();
                         Clear(ReminderInterestAmount);
                     end;
                 }
@@ -451,7 +451,7 @@ report 122 "Reminder - Test"
                     }
                     column(Not_Due__Remaining_Amount_; "Remaining Amount")
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(Not_Due__Type; Type)
@@ -484,50 +484,50 @@ report 122 "Reminder - Test"
                     DataItemTableView = SORTING(Number);
                     column(VALVATAmount; VALVATAmount)
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(VALVATBase; VALVATBase)
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_Amount_; VATAmountLine."VAT Amount")
+                    column(VATAmountLine__VAT_Amount_; TempVATAmountLine."VAT Amount")
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_Base_; VATAmountLine."VAT Base")
+                    column(VATAmountLine__VAT_Base_; TempVATAmountLine."VAT Base")
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT___; VATAmountLine."VAT %")
+                    column(VATAmountLine__VAT___; TempVATAmountLine."VAT %")
                     {
                     }
-                    column(VATAmountLine__Amount_Including_VAT_; VATAmountLine."Amount Including VAT")
+                    column(VATAmountLine__Amount_Including_VAT_; TempVATAmountLine."Amount Including VAT")
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_Amount__Control51; VATAmountLine."VAT Amount")
+                    column(VATAmountLine__VAT_Amount__Control51; TempVATAmountLine."VAT Amount")
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_Base__Control52; VATAmountLine."VAT Base")
+                    column(VATAmountLine__VAT_Base__Control52; TempVATAmountLine."VAT Base")
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__Amount_Including_VAT__Control78; VATAmountLine."Amount Including VAT")
+                    column(VATAmountLine__Amount_Including_VAT__Control78; TempVATAmountLine."Amount Including VAT")
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(VALVATBase_Control49; VALVATBase)
                     {
-                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader;
+                        AutoFormatExpression = "Reminder Line".GetCurrencyCodeFromHeader();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__VAT_Amount_Caption; VATAmountLine__VAT_Amount_CaptionLbl)
@@ -551,16 +551,16 @@ report 122 "Reminder - Test"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATAmountLine.GetLine(Number);
-                        VALVATBase := VATAmountLine."Amount Including VAT" / (1 + VATAmountLine."VAT %" / 100);
-                        VALVATAmount := VATAmountLine."Amount Including VAT" - VALVATBase;
+                        TempVATAmountLine.GetLine(Number);
+                        VALVATBase := TempVATAmountLine."Amount Including VAT" / (1 + TempVATAmountLine."VAT %" / 100);
+                        VALVATAmount := TempVATAmountLine."Amount Including VAT" - VALVATBase;
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if TotalVATAmount = 0 then
                             CurrReport.Break();
-                        SetRange(Number, 1, VATAmountLine.Count);
+                        SetRange(Number, 1, TempVATAmountLine.Count);
                         Clear(VALVATBase);
                         Clear(VALVATAmount);
                     end;
@@ -590,7 +590,7 @@ report 122 "Reminder - Test"
                     {
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT____Control116; VATAmountLine."VAT %")
+                    column(VATAmountLine__VAT____Control116; TempVATAmountLine."VAT %")
                     {
                         DecimalPlaces = 0 : 5;
                     }
@@ -617,7 +617,7 @@ report 122 "Reminder - Test"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATAmountLine.GetLine(Number);
+                        TempVATAmountLine.GetLine(Number);
 
                         VALVATBaseLCY := Round(CurrExchRate.ExchangeAmtFCYToLCY(
                               "Reminder Header"."Posting Date", "Reminder Header"."Currency Code",
@@ -631,11 +631,11 @@ report 122 "Reminder - Test"
                     begin
                         if (not GLSetup."Print VAT specification in LCY") or
                            ("Reminder Header"."Currency Code" = '') or
-                           (VATAmountLine.GetTotalVATAmount = 0)
+                           (TempVATAmountLine.GetTotalVATAmount() = 0)
                         then
                             CurrReport.Break();
 
-                        SetRange(Number, 1, VATAmountLine.Count);
+                        SetRange(Number, 1, TempVATAmountLine.Count);
                         Clear(VALVATBaseLCY);
                         Clear(VALVATAmountLCY);
 
@@ -663,7 +663,7 @@ report 122 "Reminder - Test"
                 CalcFields("Remaining Amount");
                 if "Customer No." = '' then
                     AddError(StrSubstNo(Text000, FieldCaption("Customer No.")))
-                else begin
+                else
                     if Cust.Get("Customer No.") then begin
                         if Cust."Privacy Blocked" then
                             AddError(Cust.GetPrivacyBlockedGenericErrorText(Cust));
@@ -671,13 +671,12 @@ report 122 "Reminder - Test"
                             AddError(
                               StrSubstNo(
                                 Text010,
-                                Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, "Customer No."));
+                                Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), "Customer No."));
                     end else
                         AddError(
                           StrSubstNo(
                             Text003,
-                            Cust.TableCaption, "Customer No."));
-                end;
+                            Cust.TableCaption(), "Customer No."));
 
                 GLSetup.Get();
 
@@ -712,13 +711,13 @@ report 122 "Reminder - Test"
                     VATNoText := FieldCaption("VAT Registration No.");
 
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                    AddError(DimMgt.GetDimCombErr);
+                    AddError(DimMgt.GetDimCombErr());
                 Cust.GetPrimaryContact("Customer No.", PrimaryContact);
 
                 TableID[1] := DATABASE::Customer;
                 No[1] := "Customer No.";
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    AddError(DimMgt.GetDimValuePostingErr);
+                    AddError(DimMgt.GetDimValuePostingErr());
 
                 CalcFields("Additional Fee");
                 CustPostingGroup.Get("Customer Posting Group");
@@ -729,7 +728,7 @@ report 122 "Reminder - Test"
                     AddFeeInclVAT := "Additional Fee";
 
                 CalcFields("Add. Fee per Line");
-                AddFeePerLineInclVAT := "Add. Fee per Line" + CalculateLineFeeVATAmount;
+                AddFeePerLineInclVAT := "Add. Fee per Line" + CalculateLineFeeVATAmount();
 
                 CalcFields("Interest Amount", "VAT Amount");
                 if ("Interest Amount" <> 0) and ("VAT Amount" <> 0) then begin
@@ -797,7 +796,7 @@ report 122 "Reminder - Test"
 
     trigger OnPreReport()
     begin
-        ReminderHeaderFilter := "Reminder Header".GetFilters;
+        ReminderHeaderFilter := "Reminder Header".GetFilters();
     end;
 
     var
@@ -809,7 +808,7 @@ report 122 "Reminder - Test"
         PrimaryContact: Record Contact;
         GLSetup: Record "General Ledger Setup";
         Cust: Record Customer;
-        VATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
         DimMgt: Codeunit DimensionManagement;

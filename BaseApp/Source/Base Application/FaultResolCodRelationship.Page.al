@@ -29,7 +29,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
                             SetRange("Service Item Group Code", ServItemGroupCode)
                         else
                             SetRange("Service Item Group Code");
-                        ServItemGroupCodeOnAfterValida;
+                        ServItemGroupCodeOnAfterValida();
                     end;
                 }
                 field(FaultArea; FaultArea)
@@ -45,7 +45,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
                             SetRange("Fault Area Code", FaultArea)
                         else
                             SetRange("Fault Area Code");
-                        FaultAreaOnAfterValidate;
+                        FaultAreaOnAfterValidate();
                     end;
                 }
                 field(SymptomCode; SymptomCode)
@@ -61,7 +61,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
                             SetRange("Symptom Code", SymptomCode)
                         else
                             SetRange("Symptom Code");
-                        SymptomCodeOnAfterValidate;
+                        SymptomCodeOnAfterValidate();
                     end;
                 }
                 field(FaultCode; FaultCode)
@@ -89,34 +89,34 @@ page 5930 "Fault/Resol. Cod. Relationship"
                             SetRange("Fault Code", FaultCode);
                         end else
                             SetRange("Fault Code");
-                        FaultCodeOnAfterValidate;
+                        FaultCodeOnAfterValidate();
                     end;
                 }
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Fault Area Code"; "Fault Area Code")
+                field("Fault Area Code"; Rec."Fault Area Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault area code.';
                 }
-                field("Symptom Code"; "Symptom Code")
+                field("Symptom Code"; Rec."Symptom Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the symptom code.';
                 }
-                field("Fault Code"; "Fault Code")
+                field("Fault Code"; Rec."Fault Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the fault code.';
                 }
-                field("Resolution Code"; "Resolution Code")
+                field("Resolution Code"; Rec."Resolution Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the resolution code.';
                 }
-                field("Service Item Group Code"; "Service Item Group Code")
+                field("Service Item Group Code"; Rec."Service Item Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service item group linked to the relationship.';
@@ -155,7 +155,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            OKOnPush;
+            OKOnPush();
     end;
 
     var
@@ -249,8 +249,8 @@ page 5930 "Fault/Resol. Cod. Relationship"
 
     local procedure OKOnPush()
     begin
-        UpdateOrginalRecord;
-        CurrPage.Close;
+        UpdateOrginalRecord();
+        CurrPage.Close();
     end;
 }
 

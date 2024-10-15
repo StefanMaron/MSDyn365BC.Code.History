@@ -131,7 +131,7 @@ codeunit 363 "PostSales-Delete"
             repeat
                 OnDeleteSalesInvLinesOnBeforeSalesInvLineDelete(SalesInvLine);
                 SalesInvLine.Delete();
-                ItemTrackingMgt.DeleteValueEntryRelation(SalesInvLine.RowID1);
+                ItemTrackingMgt.DeleteValueEntryRelation(SalesInvLine.RowID1());
             until SalesInvLine.Next() = 0;
 
         MoveEntries.MoveDocRelatedEntries(DATABASE::"Sales Invoice Header", SalesInvHeader."No.");

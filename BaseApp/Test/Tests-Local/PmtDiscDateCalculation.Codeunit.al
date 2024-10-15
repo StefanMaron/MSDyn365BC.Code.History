@@ -38,7 +38,7 @@ codeunit 144002 "Pmt. Disc. Date Calculation"
         CreateSalesOrderWithZeroDiscPmtTerms(SalesHeader);
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
         Commit();
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [WHEN] Run Combines Shipments with "Only Std. Payment Terms".
         RunCombineShipmentsReport(SalesHeader);

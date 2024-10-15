@@ -330,7 +330,7 @@ codeunit 139016 "File Mgt. Tests"
         ExportedFile.TextMode(true);
         ExportedFile.Open(FileName);
         Assert.IsTrue(ExportedFile.Read(TempText) = 0, FileNotEmptyErr);
-        ExportedFile.Close;
+        ExportedFile.Close();
     end;
 
     [Test]
@@ -394,20 +394,20 @@ codeunit 139016 "File Mgt. Tests"
 
         // [GIVEN] 3 files are contained directly under the folder
         File.Create(Names[1]);
-        File.Close;
+        File.Close();
 
         File.Create(Names[2]);
-        File.Close;
+        File.Close();
 
         File.Create(Names[3]);
-        File.Close;
+        File.Close();
 
         // [GIVEN] 2 files are contained in a subfolder
         File.Create(Names[4]);
-        File.Close;
+        File.Close();
 
         File.Create(Names[5]);
-        File.Close;
+        File.Close();
 
         // [WHEN] GetAllFilesUnderDirectory function is called
         FileMgt.GetServerDirectoryFilesListInclSubDirs(TempNameValueBuffer, DirectoryPath);
@@ -418,7 +418,7 @@ codeunit 139016 "File Mgt. Tests"
         TempNameValueBuffer.FindSet();
         for Index := 1 to 5 do begin
             Assert.AreEqual(TempNameValueBuffer.Name, Names[Index], 'name was different');
-            TempNameValueBuffer.Next;
+            TempNameValueBuffer.Next();
         end;
 
         // Clean up
@@ -441,7 +441,7 @@ codeunit 139016 "File Mgt. Tests"
         File.Create(FileName);
         for Counter := 1 to NoOfElements do
             File.Write(TextArray[Counter]);
-        File.Close;
+        File.Close();
     end;
 
     local procedure CreateTextFileOnServer(TextArray: array[10] of Text[30]; NoOfElements: Integer) FileName: Text
@@ -456,7 +456,7 @@ codeunit 139016 "File Mgt. Tests"
     begin
         StreamReader := StreamReader.StreamReader(FileName);
         Result := ValidateExportedFile(StreamReader, TextArray, NoOfElements);
-        StreamReader.Close;
+        StreamReader.Close();
         exit(Result);
     end;
 
@@ -468,7 +468,7 @@ codeunit 139016 "File Mgt. Tests"
     begin
         StreamReader := StreamReader.StreamReader(FileName);
         Result := ValidateExportedFile(StreamReader, TextArray, NoOfElements);
-        StreamReader.Close;
+        StreamReader.Close();
         exit(Result);
     end;
 

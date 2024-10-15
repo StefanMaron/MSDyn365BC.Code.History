@@ -32,7 +32,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         TempVATReportLineRelation."Table No." := DATABASE::"VAT Entry";
 
         asserterror TempVATReportLineRelation.Insert(true);
-        Assert.ExpectedError(StrSubstNo(InsertError, VATReportLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(InsertError, VATReportLine.TableCaption()));
 
         TearDown(TempVATReportLineRelation."VAT Report No.");
     end;
@@ -57,7 +57,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         PAGE.Run(PAGE::"VAT Statement", VATStatementLine);
         Assert.IsTrue(VATStatement."Box No.".Visible, 'VATStatement."Box No." should be visible');
         Assert.IsTrue(VATStatement."Box No.".Editable, 'VATStatement."Box No." should be editable');
-        VATStatement.Close;
+        VATStatement.Close();
     end;
 
     local procedure TearDown(VATReportNo: Code[20])

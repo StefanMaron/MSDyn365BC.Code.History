@@ -44,16 +44,24 @@ page 1550 "Restricted Records"
                 ApplicationArea = Suite;
                 Caption = 'Record';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the record that is restricted from certain usage, as defined by the workflow response.';
 
                 trigger OnAction()
                 begin
-                    ShowRecord;
+                    ShowRecord();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Record_Promoted; Record)
+                {
+                }
             }
         }
     }

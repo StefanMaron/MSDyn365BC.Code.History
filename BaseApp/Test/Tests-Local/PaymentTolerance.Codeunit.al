@@ -125,7 +125,7 @@ codeunit 142076 "Payment Tolerance"
         CashReceiptJournal.Control1906888607.PaymDiscDays.AssertEquals('');
         CashReceiptJournal.Control1906888607.DueDays.AssertEquals('');
 
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     [Test]
@@ -220,7 +220,7 @@ codeunit 142076 "Payment Tolerance"
         PaymentJournal.Control1906888707.PaymDiscDays.AssertEquals('');
         PaymentJournal.Control1906888707.DueDays.AssertEquals('');
 
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     [Test]
@@ -383,7 +383,7 @@ codeunit 142076 "Payment Tolerance"
         CreateCustomer(Customer, PaymentTerms.Code);
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.",
-          GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
@@ -399,7 +399,7 @@ codeunit 142076 "Payment Tolerance"
         CreateVendor(Vendor, PaymentTerms.Code);
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.",
-          GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(100, 2), WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);

@@ -7,8 +7,8 @@ codeunit 130404 "CAL Test Project Mgt."
 
     var
         FileMgt: Codeunit "File Management";
-        FileDialogFilterTxt: Label 'Test Project file (*.xml)|*.xml|All Files (*.*)|*.*', Locked = true;
         XMLDOMMgt: Codeunit "XML DOM Management";
+        FileDialogFilterTxt: Label 'Test Project file (*.xml)|*.xml|All Files (*.*)|*.*', Locked = true;
 
     [Scope('OnPrem')]
     procedure Export(CALTestSuiteName: Code[10]): Boolean
@@ -43,7 +43,7 @@ codeunit 130404 "CAL Test Project Mgt."
 
         XMLDataFile := FileMgt.ServerTempFileName('');
         FileMgt.IsAllowedPath(XMLDataFile, false);
-        FileFilter := GetFileDialogFilter;
+        FileFilter := GetFileDialogFilter();
         ToFile := 'PROJECT.xml';
         ProjectXML.Save(XMLDataFile);
 
@@ -125,7 +125,7 @@ codeunit 130404 "CAL Test Project Mgt."
 
     local procedure UploadXMLPackage(ServerFileName: Text): Boolean
     begin
-        exit(Upload('Import project', '', GetFileDialogFilter, '', ServerFileName));
+        exit(Upload('Import project', '', GetFileDialogFilter(), '', ServerFileName));
     end;
 }
 

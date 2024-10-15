@@ -50,8 +50,8 @@
                         if ReturnShptHeader."Currency Code" <> PurchHeader."Currency Code" then begin
                             Message(Text000,
                               PurchHeader.FieldCaption("Currency Code"),
-                              PurchHeader.TableCaption, PurchHeader."No.",
-                              ReturnShptHeader.TableCaption, ReturnShptHeader."No.");
+                              PurchHeader.TableCaption(), PurchHeader."No.",
+                              ReturnShptHeader.TableCaption(), ReturnShptHeader."No.");
                             DifferentCurrencies := true;
                         end;
                         OnBeforeTransferLineToPurchaseDoc(ReturnShptHeader, ReturnShptLine2, PurchHeader, DifferentCurrencies);

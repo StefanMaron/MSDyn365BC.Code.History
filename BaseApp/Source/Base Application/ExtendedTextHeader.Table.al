@@ -228,7 +228,7 @@ table 279 "Extended Text Header"
 
     trigger OnInsert()
     begin
-        IncrementTextNo;
+        IncrementTextNo();
     end;
 
     trigger OnRename()
@@ -236,9 +236,9 @@ table 279 "Extended Text Header"
         if ("Table Name" <> xRec."Table Name") or ("No." <> xRec."No.") then
             Error(RenameRecordErr, FieldCaption("Table Name"), FieldCaption("No."));
 
-        IncrementTextNo;
+        IncrementTextNo();
 
-        RecreateTextLines;
+        RecreateTextLines();
     end;
 
     var

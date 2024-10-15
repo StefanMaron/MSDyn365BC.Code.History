@@ -49,10 +49,10 @@ page 1441 "Headline RC Order Processor"
     end;
 
     var
+        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
         [InDataSet]
         DefaultFieldsVisible: Boolean;
         [InDataSet]
         UserGreetingVisible: Boolean;
-        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
 }
 

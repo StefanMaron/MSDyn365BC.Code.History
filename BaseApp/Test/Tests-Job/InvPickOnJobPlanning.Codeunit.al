@@ -1231,11 +1231,11 @@ codeunit 136317 "Inv. Pick On Job Planning"
         // [GIVEN] Create Inventory Pick for the Job
         OpenJobAndCreateInventoryPick(Job);
 
-        // [THEN] Make sure 1 line is created for non serial item
+        // [THEN] 2 Warehouse Activity Lines are created
         WarehouseActivityLinePick.SetRange("Source Type", Database::Job);
         WarehouseActivityLinePick.SetRange("Source Document", WarehouseActivityLinePick."Source Document"::"Job Usage");
         WarehouseActivityLinePick.SetRange("Source No.", Job."No.");
-        Assert.RecordCount(WarehouseActivityLinePick, 1);
+        Assert.RecordCount(WarehouseActivityLinePick, 2);
 
         // [WHEN] Bin code is set to Bin Code 3.
         WarehouseActivityLinePick.FindFirst();
@@ -1261,72 +1261,9 @@ codeunit 136317 "Inv. Pick On Job Planning"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler,ConfirmHandlerTrue')]
-    [Scope('OnPrem')]
-    procedure EmptySerialNoForSerialTrackedItemDoesNotThrowsErrorOnPosting()
-    var
-        Item: Record Item;
-        SerialTrackedItem: Record Item;
-        JobPlanningLine1: Record "Job Planning Line";
-        JobPlanningLine2: Record "Job Planning Line";
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
-        WarehouseActivityLinePick: Record "Warehouse Activity Line";
-        InventoryPickPage: TestPage "Inventory Pick";
-        QtyInventory: Integer;
-    begin
-        // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
-        // [SCENARIO 21] Serial No. tracked item is skipped
-        // [GIVEN] Inventory pick relevant Location, normal item and serially tracked item with sufficient quantity in the inventory for a Bin Code
-        Initialize();
-        LibraryInventory.CreateItem(Item);
-        CreateSerialTrackedItem(SerialTrackedItem, false);
-        QtyInventory := 10;
-        CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateAndPostInvtAdjustmentWithSNTracking(SerialTrackedItem."No.", LocationWithRequirePickBinMandatory.Code, Bin2.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-
-        // [GIVEN] A Job with both the items in the planning lines
-        LibraryJob.CreateJob(Job, CreateCustomer(''));
-        Job.Validate("Apply Usage Link", true);
-        Job.Modify(true);
-
-        // [GIVEN] Create job tasks and a Job Planning Line 
-        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
-        // [GIVEN] Job Planning Line for Job Task T1: Type = SerialTrackedItem, Line Type = Budget
-        LibraryJob.CreateJobTask(Job, JobTask);
-        CreateJobPlanningLineWithData(JobPlanningLine1, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine1.Type::Item, Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, LibraryRandom.RandInt(10));
-        CreateJobPlanningLineWithData(JobPlanningLine2, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine2.Type::Item, SerialTrackedItem."No.", LocationWithRequirePickBinMandatory.Code, Bin2.Code, LibraryRandom.RandIntInRange(5, 10));
-
-        // [GIVEN] Create Inventory Pick for the Job
-        OpenJobAndCreateInventoryPick(Job);
-
-        // [THEN] Make sure 1 line is created
-        WarehouseActivityLinePick.SetRange("Source Type", Database::Job);
-        WarehouseActivityLinePick.SetRange("Source Document", WarehouseActivityLinePick."Source Document"::"Job Usage");
-        WarehouseActivityLinePick.SetRange("Source No.", Job."No.");
-        Assert.RecordCount(WarehouseActivityLinePick, 1);
-
-        // [GIVEN] Serial No. field is empty
-        WarehouseActivityLinePick.ModifyAll("Serial No.", '');
-
-        // [WHEN] Inventory Pick is posted
-        WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Job Usage");
-        WarehouseActivityHeader.SetRange("Source No.", Job."No.");
-        WarehouseActivityHeader.SetRange("Location Code", LocationWithRequirePickBinMandatory.Code);
-        WarehouseActivityHeader.FindFirst();
-
-        // [THEN] Posting is successful
-        InventoryPickPage.OpenEdit();
-        InventoryPickPage.GoToRecord(WarehouseActivityHeader);
-        InventoryPickPage.AutofillQtyToHandle.Invoke();
-        InventoryPickPage."P&ost".Invoke();
-    end;
-
-    [Test]
     [HandlerFunctions('ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler')]
     [Scope('OnPrem')]
-    procedure ErrorOnPostingIfWarehouseTrackingIsNotEnabledForSerialTrackedItem() // Will be fixed in future release
+    procedure ErrorOnPostingIfWarehouseTrackingIsEnabledForSerialTrackedItem()
     var
         Item: Record Item;
         SerialTrackedItem: Record Item;
@@ -1366,11 +1303,11 @@ codeunit 136317 "Inv. Pick On Job Planning"
         // [GIVEN] Create Inventory Pick for the Job
         OpenJobAndCreateInventoryPick(Job);
 
-        // [THEN] Make sure 1 line are created
+        // [THEN] 2 Warehouse Activity Lines are created
         WarehouseActivityLinePick.SetRange("Source Type", Database::Job);
         WarehouseActivityLinePick.SetRange("Source Document", WarehouseActivityLinePick."Source Document"::"Job Usage");
         WarehouseActivityLinePick.SetRange("Source No.", Job."No.");
-        Assert.RecordCount(WarehouseActivityLinePick, 1);
+        Assert.RecordCount(WarehouseActivityLinePick, 2);
 
         // [WHEN] Serial No. field is modified
         WarehouseActivityLinePick.FindFirst;
@@ -1383,7 +1320,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
     [Test]
     [HandlerFunctions('ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler')]
     [Scope('OnPrem')]
-    procedure ItemTrackingNotEnabledYetForSNSpecific()
+    procedure ItemTrackingEnabledForSNSpecific()
     var
         Item: Record Item;
         SerialTrackedItem: Record Item;
@@ -1429,17 +1366,17 @@ codeunit 136317 "Inv. Pick On Job Planning"
         WarehouseActivityLinePick.SetRange("Source Type", Database::Job);
         WarehouseActivityLinePick.SetRange("Source Document", WarehouseActivityLinePick."Source Document"::"Job Usage");
         WarehouseActivityLinePick.SetRange("Source No.", Job."No.");
-        Assert.RecordCount(WarehouseActivityLinePick, 1);
+        Assert.RecordCount(WarehouseActivityLinePick, 2);
 
-        // [GIVEN] Serial No. field is empty
+        // [THEN] Warehouse Activity Line is created for the serially tracked item
         WarehouseActivityLinePick.SetRange("Item No.", SerialTrackedItem."No.");
-        Assert.RecordCount(WarehouseActivityLinePick, 0);
+        Assert.RecordCount(WarehouseActivityLinePick, 1);
     end;
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler')]
     [Scope('OnPrem')]
-    procedure ItemTrackingNotEnabledYetForSNAndWMSSpecific()
+    procedure ItemTrackingEnabledForSNAndWMSSpecific()
     var
         Item: Record Item;
         SerialTrackedItem: Record Item;
@@ -1454,7 +1391,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         QtyInventory: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
-        // [SCENARIO 23.1] Items that require item tracking is skipped
+        // [SCENARIO 23.1] SN and WMS specific item tracking is supported for inventory pick
         // [GIVEN] Inventory pick relevant Location, normal item and serially tracked item with sufficient quantity in the inventory for a Bin Code
         Initialize();
         LibraryInventory.CreateItem(Item);
@@ -1481,15 +1418,15 @@ codeunit 136317 "Inv. Pick On Job Planning"
         // [GIVEN] Create Inventory Pick for the Job
         OpenJobAndCreateInventoryPick(Job);
 
-        // [THEN] Make sure 2 lines are created
+        // [THEN] Make sure 3 lines are created
         WarehouseActivityLinePick.SetRange("Source Type", Database::Job);
         WarehouseActivityLinePick.SetRange("Source Document", WarehouseActivityLinePick."Source Document"::"Job Usage");
         WarehouseActivityLinePick.SetRange("Source No.", Job."No.");
-        Assert.RecordCount(WarehouseActivityLinePick, 1);
+        Assert.RecordCount(WarehouseActivityLinePick, 3);
 
-        // [GIVEN] Serial No. field is empty
+        // [THEN] Warehouse activity line is created for the item with Serial No. tracking
         WarehouseActivityLinePick.SetRange("Item No.", SerialTrackedItem."No.");
-        Assert.RecordCount(WarehouseActivityLinePick, 0);
+        Assert.RecordCount(WarehouseActivityLinePick, 2);
     end;
 
     [Test]

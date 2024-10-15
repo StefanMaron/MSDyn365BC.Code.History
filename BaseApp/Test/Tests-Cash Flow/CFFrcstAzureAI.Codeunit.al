@@ -69,7 +69,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         ErrorMessage.Find('-');
         Assert.AreEqual(AzureAIMustBeEnabledErr, ErrorMessage.Description, '1st error message');
         // [THEN] 2nd error message: 'You must specify API URL and API Key'
-        Assert.IsTrue(ErrorMessage.Next <> 0, '2nd error message not found');
+        Assert.IsTrue(ErrorMessage.Next() <> 0, '2nd error message not found');
         Assert.AreEqual(APIURLAPIKeyErr, ErrorMessage.Description, '2nd error message');
     end;
 
@@ -97,7 +97,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [THEN] Error message is shown
         ErrorMessage.FindFirst();
         Assert.AreEqual(StrSubstNo(AzureAIAPIURLEmptyErr, CashFlowSetup.FieldCaption("API URL"),
-            CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption), ErrorMessage.Description, '');
+            CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption()), ErrorMessage.Description, '');
     end;
 
     [Test]
@@ -124,7 +124,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [THEN] Error message is shown
         ErrorMessage.FindFirst();
         Assert.AreEqual(StrSubstNo(AzureAIAPIURLEmptyErr, CashFlowSetup.FieldCaption("API URL"),
-            CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption), ErrorMessage.Description, '');
+            CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption()), ErrorMessage.Description, '');
     end;
 
     [Test]
@@ -951,7 +951,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [GIVEN] Cash Flow Setup With not defined API URI
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        if not EnvironmentInformation.IsSaaS then
+        if not EnvironmentInformation.IsSaaS() then
             exit;
 
         CashFlowSetup.Get();
@@ -1030,11 +1030,11 @@ codeunit 135203 "CF Frcst. Azure AI"
         Amount := LibraryRandom.RandDec(100, 2);
         VAT := LibraryRandom.RandInt(20);
 
-        CreateSalesOrder(SalesHeader, WorkDate, Amount, VAT);
+        CreateSalesOrder(SalesHeader, WorkDate(), Amount, VAT);
         Assert.AreNearlyEqual(CashFlowManagement.GetTotalAmountFromSalesOrder(SalesHeader),
           (1 + (VAT / 100)) * Amount, 0.1, 'Amount was different than expected');
 
-        CreatePurchOrder(PurchaseHeader, WorkDate, Amount, VAT);
+        CreatePurchOrder(PurchaseHeader, WorkDate(), Amount, VAT);
         Assert.AreNearlyEqual(CashFlowManagement.GetTotalAmountFromPurchaseOrder(PurchaseHeader),
           (1 + (VAT / 100)) * Amount, 0.1, 'Amount was different than expected');
     end;
@@ -1080,7 +1080,7 @@ codeunit 135203 "CF Frcst. Azure AI"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"CF Frcst. Azure AI");
-        if CryptographyManagement.IsEncryptionEnabled then
+        if CryptographyManagement.IsEncryptionEnabled() then
             CryptographyManagement.DisableEncryption(true);
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -1105,7 +1105,7 @@ codeunit 135203 "CF Frcst. Azure AI"
     begin
         with CashFlowSetup do begin
             DeleteAll();
-            Init;
+            Init();
             Insert(true);
             Validate("Azure AI Enabled", true);
             Validate("API URL", '');
@@ -1174,7 +1174,7 @@ codeunit 135203 "CF Frcst. Azure AI"
     var
         TaxDetail: Record "Tax Detail";
     begin
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, 0, WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, 0, WorkDate());
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandDec(10, 2));
         TaxDetail.Modify(true);
     end;
@@ -1200,14 +1200,14 @@ codeunit 135203 "CF Frcst. Azure AI"
     begin
         CashFlowSetup.Get();
         with TempTimeSeriesForecast do begin
-            Init;
+            Init();
             "Group ID" := GroupID;
             "Period No." := "Period No." + 1;
             "Period Start Date" := GetDateWithoutLedgerEntries;
             Value := Amount;
             Delta := LibraryRandom.RandDec(100, 2);
             "Delta %" := CashFlowSetup."Variance %" - 1;// by default Delta % is smaller
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1220,14 +1220,14 @@ codeunit 135203 "CF Frcst. Azure AI"
             if FindLast() then;
             LastEntryNo := "Entry No.";
             InsertDetailedVendorLedgerEntry(LastEntryNo + 1, AmountValue);
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Due Date" := DueDate;
             "Vendor No." := LibraryPurchase.CreateVendorNo();
             "Document No." := CopyStr(CreateGuid, 1, 20);
             "Amount (LCY)" := AmountValue;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1240,14 +1240,14 @@ codeunit 135203 "CF Frcst. Azure AI"
             if FindLast() then;
             LastEntryNo := "Entry No.";
             InsertDetailedCustLedgerEntry(LastEntryNo + 1, AmountValue);
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Due Date" := DueDate;
             "Customer No." := LibrarySales.CreateCustomerNo();
             "Document No." := CopyStr(CreateGuid, 1, 20);
             "Amount (LCY)" := AmountValue;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1259,7 +1259,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         with VATEntry do begin
             if FindLast() then;
             LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Document Date" := DocumentDate;
             if IsSales then
@@ -1268,7 +1268,7 @@ codeunit 135203 "CF Frcst. Azure AI"
                 Type := Type::Purchase;
             "Document No." := CopyStr(CreateGuid, 1, 20);
             Amount := AmountValue;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1280,14 +1280,14 @@ codeunit 135203 "CF Frcst. Azure AI"
         with DetailedCustLedgEntry do begin
             if FindLast() then;
             LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Cust. Ledger Entry No." := CustLedgerEntryNo;
             Amount := AmountValue;
             "Amount (LCY)" := AmountValue;
             "Ledger Entry Amount" := true;
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -1299,14 +1299,14 @@ codeunit 135203 "CF Frcst. Azure AI"
         with DetailedVendorLedgEntry do begin
             if FindLast() then;
             LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Vendor Ledger Entry No." := VendorLedgerEntryNo;
             Amount := AmountValue;
             "Amount (LCY)" := AmountValue;
             "Ledger Entry Amount" := true;
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
         end;
     end;
 
@@ -1359,7 +1359,7 @@ codeunit 135203 "CF Frcst. Azure AI"
             LastLedgerEntryDate := PurchaseHeader."Document Date";
 
         if LastLedgerEntryDate = 0D then
-            exit(WorkDate);
+            exit(WorkDate());
 
         exit(CalcDate('<+1D>', LastLedgerEntryDate));
     end;

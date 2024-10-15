@@ -6,7 +6,6 @@ page 5052 "Contact List"
     DataCaptionFields = "Company No.";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Contact,Navigate';
     SourceTable = Contact;
     SourceTableView = SORTING("Company Name", "Company No.", Type, Name);
     UsageCategory = Lists;
@@ -18,7 +17,7 @@ page 5052 "Contact List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Style = Strong;
@@ -32,19 +31,19 @@ page 5052 "Contact List"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the name of the contact. If the contact is a person, you can click the field to see the Name Details window.';
                 }
-                field("Name 2"; "Name 2")
+                field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
                     ToolTip = 'Specifies an additional part of the name.';
                     Visible = false;
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the company. If the contact is a person, Specifies the name of the company for which this contact works. This field is not editable.';
                 }
-                field("Job Title"; "Job Title")
+                field("Job Title"; Rec."Job Title")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -56,70 +55,70 @@ page 5052 "Contact List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the existing business relation.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the contact''s phone number.';
                 }
-                field("Mobile Phone No."; "Mobile Phone No.")
+                field("Mobile Phone No."; Rec."Mobile Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the contact''s mobile telephone number.';
                     Visible = false;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the contact''s email.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the contact''s fax number.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the salesperson who normally handles this contact.';
                 }
-                field("Territory Code"; "Territory Code")
+                field("Territory Code"; Rec."Territory Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the territory code for the contact.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code for the contact.';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                     Visible = false;
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                     Visible = false;
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -133,14 +132,14 @@ page 5052 "Contact List"
                     ToolTip = 'Specifies that the person''s age is below the definition of adulthood as recognized by law. Data for minors is blocked until a parent or guardian of the minor provides parental consent. You unblock the data by selecting the Parental Consent Received check box.';
                     Visible = false;
                 }
-                field("Parental Consent Received"; "Parental Consent Received")
+                field("Parental Consent Received"; Rec."Parental Consent Received")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that a parent or guardian of the minor has provided their consent to allow the minor to use this service. When this check box is selected, data for the minor can be processed.';
                     Visible = false;
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the contact is coupled to a contact in Dataverse.';
@@ -258,8 +257,6 @@ page 5052 "Contact List"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Rlshp. Mgt. Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Contact),
                                   "No." = FIELD("No."),
@@ -345,7 +342,7 @@ page 5052 "Contact List"
                         ContactRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(Contact);
-                        Contact.Next;
+                        Contact.Next();
 
                         if Contact.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(Contact.RecordId)
@@ -448,7 +445,7 @@ page 5052 "Contact List"
                         var
                             CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         begin
-                            CRMIntegrationManagement.CreateNewContactFromCRM;
+                            CRMIntegrationManagement.CreateNewContactFromCRM();
                         end;
                     }
                 }
@@ -501,31 +498,11 @@ page 5052 "Contact List"
                     RunPageLink = "Contact No." = FIELD("No.");
                     ToolTip = 'View or edit the mailing groups that the contact is assigned to, for example, for sending price lists or Christmas cards.';
                 }
-#if not CLEAN18
-                action("C&ustomer/Vendor/Bank Acc.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'C&ustomer/Vendor/Bank Acc./Employee';
-                    Image = ContactReference;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by 4 actions: RelatedCustomer, RelatedVendor, RelatedBank, RelatedEmployee';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                    ToolTip = 'View the related customer, vendor, bank account, or employee that is associated with the current record.';
-
-                    trigger OnAction()
-                    begin
-                        ShowCustVendBank;
-                    end;
-                }
-#endif
                 action(RelatedCustomer)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer';
                     Image = Customer;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Enabled = RelatedCustomerEnabled;
                     ToolTip = 'View the related customer that is associated with the current record.';
 
@@ -541,8 +518,6 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor';
                     Image = Vendor;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Enabled = RelatedVendorEnabled;
                     ToolTip = 'View the related vendor that is associated with the current record.';
 
@@ -558,8 +533,6 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account';
                     Image = BankAccount;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Enabled = RelatedBankEnabled;
                     ToolTip = 'View the related bank account that is associated with the current record.';
 
@@ -575,8 +548,6 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Employee';
                     Image = Employee;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Enabled = RelatedEmployeeEnabled;
                     ToolTip = 'View the related employee that is associated with the current record.';
 
@@ -596,8 +567,6 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Lists';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -614,8 +583,6 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -634,8 +601,6 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Discounts';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -648,7 +613,7 @@ page 5052 "Contact List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN18
+#if not CLEAN21
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -692,8 +657,6 @@ page 5052 "Contact List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Open Oppo&rtunities';
                     Image = OpportunityList;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Opportunity List";
                     RunPageLink = "Contact Company No." = FIELD("Company No."),
                                   "Contact No." = FILTER(<> ''),
@@ -766,9 +729,6 @@ page 5052 "Contact List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Contact Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -801,8 +761,6 @@ page 5052 "Contact List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Make &Phone Call';
                     Image = Calls;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Call the selected contact.';
 
@@ -810,7 +768,7 @@ page 5052 "Contact List"
                     var
                         TAPIManagement: Codeunit TAPIManagement;
                     begin
-                        TAPIManagement.DialContCustVendBank(DATABASE::Contact, "No.", GetDefaultPhoneNo, '');
+                        TAPIManagement.DialContCustVendBank(DATABASE::Contact, "No.", GetDefaultPhoneNo(), '');
                     end;
                 }
                 action("Launch &Web Source")
@@ -826,7 +784,7 @@ page 5052 "Contact List"
                     begin
                         ContactWebSource.SetRange("Contact No.", "Company No.");
                         if PAGE.RunModal(PAGE::"Web Source Launch", ContactWebSource) = ACTION::LookupOK then
-                            ContactWebSource.Launch;
+                            ContactWebSource.Launch();
                     end;
                 }
                 group("Create as")
@@ -854,7 +812,7 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         begin
-                            CreateVendor;
+                            CreateVendor();
                         end;
                     }
                     action(Bank)
@@ -867,7 +825,7 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         begin
-                            CreateBankAccount;
+                            CreateBankAccount();
                         end;
                     }
                     action(CreateEmployee)
@@ -896,7 +854,7 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         begin
-                            CreateCustomerLink;
+                            CreateCustomerLink();
                         end;
                     }
                     action(Action64)
@@ -908,7 +866,7 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         begin
-                            CreateVendorLink;
+                            CreateVendorLink();
                         end;
                     }
                     action(Action65)
@@ -921,7 +879,7 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         begin
-                            CreateBankAccountLink;
+                            CreateBankAccountLink();
                         end;
                     }
                     action(LinkEmployee)
@@ -962,13 +920,11 @@ page 5052 "Contact List"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Create &Interaction';
                 Image = CreateInteraction;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create an interaction with a specified contact.';
 
                 trigger OnAction()
                 begin
-                    CreateInteraction;
+                    CreateInteraction();
                 end;
             }
             action("Create Opportunity")
@@ -976,9 +932,6 @@ page 5052 "Contact List"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Create Opportunity';
                 Image = NewOpportunity;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Opportunity Card";
                 RunPageLink = "Contact No." = FIELD("No."),
                               "Contact Company No." = FIELD("Company No.");
@@ -1008,8 +961,6 @@ page 5052 "Contact List"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this contact.';
-                Promoted = true;
-                PromotedCategory = Process;
                 Enabled = CanSendEmail;
 
                 trigger OnAction()
@@ -1027,8 +978,6 @@ page 5052 "Contact List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sync with Office 365';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Synchronize with Office 365 based on last sync date and last modified date. All changes in Office 365 since the last sync date will be synchronized back.';
 
                 trigger OnAction()
@@ -1056,13 +1005,11 @@ page 5052 "Contact List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Create Sales Quote';
                 Image = NewSalesQuote;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Offer items or services to a customer.';
 
                 trigger OnAction()
                 begin
-                    CreateSalesQuoteFromContact;
+                    CreateSalesQuoteFromContact();
                 end;
             }
         }
@@ -1093,13 +1040,136 @@ page 5052 "Contact List"
                 ToolTip = 'View information about your sales cycles. The report includes details about the sales cycle, such as the number of opportunities currently at that stage, the estimated and calculated current values of opportunities created using the sales cycle, and so on.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Create Opportunity_Promoted"; "Create Opportunity")
+                {
+                }
+                actionref("Create &Interaction_Promoted"; "Create &Interaction")
+                {
+                }
+                actionref(NewSalesQuote_Promoted; NewSalesQuote)
+                {
+                }
+                actionref(MakePhoneCall_Promoted; MakePhoneCall)
+                {
+                }
+                actionref(Email_Promoted; Email)
+                {
+                }
+                actionref("Export Contact_Promoted"; "Export Contact")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Contact', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref(RelatedCustomer_Promoted; RelatedCustomer)
+                {
+                }
+                actionref(RelatedVendor_Promoted; RelatedVendor)
+                {
+                }
+                actionref("Pro&files_Promoted"; "Pro&files")
+                {
+                }
+                actionref(RelatedBank_Promoted; RelatedBank)
+                {
+                }
+                actionref(RelatedEmployee_Promoted; RelatedEmployee)
+                {
+                }
+                actionref("Open Oppo&rtunities_Promoted"; "Open Oppo&rtunities")
+                {
+                }
+            }
+            group("Category_Prices & Discounts")
+            {
+                Caption = 'Prices & Discounts';
+
+                actionref(PriceLists_Promoted; PriceLists)
+                {
+                }
+                actionref(PriceLines_Promoted; PriceLines)
+                {
+                }
+                actionref(DiscountLines_Promoted; DiscountLines)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+
+                group("Category_Office 365")
+                {
+                    Caption = 'Office 365';
+
+                    actionref(SyncWithExchange_Promoted; SyncWithExchange)
+                    {
+                    }
+                    actionref(FullSyncWithExchange_Promoted; FullSyncWithExchange)
+                    {
+                    }
+                }
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(CRMGotoContact_Promoted; CRMGotoContact)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     var
         Contact: Record Contact;
     begin
-        EnableFields;
+        EnableFields();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
         SetEnabledRelatedActions();
@@ -1117,8 +1187,8 @@ page 5052 "Contact List"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
 
         UpdateContactBusinessRelationOnContacts();

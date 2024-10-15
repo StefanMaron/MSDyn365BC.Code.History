@@ -305,11 +305,11 @@ codeunit 142034 "UT COD DELIVREM"
         // Setup.
         UpdatePurchasesPayablesSetup(PurchasesPayablesSetup."Default Del. Rem. Date Field"::"Promised Receipt Date");
 
-        PurchaseLine."Promised Receipt Date" := CalcDate('<1D>', WorkDate);
+        PurchaseLine."Promised Receipt Date" := CalcDate('<1D>', WorkDate());
         PurchaseLine.Insert();
 
         // Exercise & Verify : Verify that the reminder line is not created for Promised Receipt Date. Return value from Function Remind must be false.
-        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, WorkDate), FalseValueMsg);
+        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, WorkDate()), FalseValueMsg);
     end;
 
     [Test]
@@ -328,11 +328,11 @@ codeunit 142034 "UT COD DELIVREM"
         // Setup.
         UpdatePurchasesPayablesSetup(PurchasesPayablesSetup."Default Del. Rem. Date Field"::"Expected Receipt Date");
 
-        PurchaseLine."Expected Receipt Date" := CalcDate('<1D>', WorkDate);
+        PurchaseLine."Expected Receipt Date" := CalcDate('<1D>', WorkDate());
         PurchaseLine.Insert();
 
         // Exercise & Verify : Verify that the reminder line is not created for Expected Receipt Date. Return value from Function Remind must be false.
-        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, WorkDate), FalseValueMsg);
+        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, WorkDate()), FalseValueMsg);
     end;
 
     [Test]
@@ -352,7 +352,7 @@ codeunit 142034 "UT COD DELIVREM"
         UpdatePurchasesPayablesSetup(PurchasesPayablesSetup."Default Del. Rem. Date Field"::"Expected Receipt Date");
 
         // Exercise & Verify : Verify that the reminder line is not created when RemindingDate = 0D. Return value from Function Remind must be false.
-        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, WorkDate), FalseValueMsg);
+        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, WorkDate()), FalseValueMsg);
     end;
 
     [Test]
@@ -371,12 +371,12 @@ codeunit 142034 "UT COD DELIVREM"
         // Setup.
         UpdatePurchasesPayablesSetup(PurchasesPayablesSetup."Default Del. Rem. Date Field"::"Promised Receipt Date");
 
-        PurchaseLine."Promised Receipt Date" := WorkDate;
+        PurchaseLine."Promised Receipt Date" := WorkDate();
         PurchaseLine."Outstanding Quantity" := 0;
         PurchaseLine.Insert();
 
         // Exercise & Verify : Verify that the reminder line is not created when Purchase Line - Outstanding Quantity <= 0. Return value from Function Remind must be false.
-        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, CalcDate('<1D>', WorkDate)), FalseValueMsg);
+        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, CalcDate('<1D>', WorkDate())), FalseValueMsg);
     end;
 
     [Test]
@@ -398,7 +398,7 @@ codeunit 142034 "UT COD DELIVREM"
 
         PurchaseLine."Document No." := LibraryUTUtility.GetNewCode;
         PurchaseLine."Line No." := 1;
-        PurchaseLine."Expected Receipt Date" := WorkDate;
+        PurchaseLine."Expected Receipt Date" := WorkDate();
         PurchaseLine."Outstanding Quantity" := 1;
         PurchaseLine.Insert();
 
@@ -406,8 +406,8 @@ codeunit 142034 "UT COD DELIVREM"
         DeliveryReminderTerm.Insert();
 
         DeliveryReminderLedgerEntry."Entry No." := SelectDeliveryReminderLedgerEntryNo;
-        DeliveryReminderLedgerEntry."Posting Date" := WorkDate;
-        DeliveryReminderLedgerEntry."Document Date" := WorkDate;
+        DeliveryReminderLedgerEntry."Posting Date" := WorkDate();
+        DeliveryReminderLedgerEntry."Document Date" := WorkDate();
         DeliveryReminderLedgerEntry."Order No." := PurchaseLine."Document No.";
         DeliveryReminderLedgerEntry."Order Line No." := PurchaseLine."Line No.";
         DeliveryReminderLedgerEntry."Reminder Level" := 1;
@@ -415,7 +415,7 @@ codeunit 142034 "UT COD DELIVREM"
 
         // Exercise & Verify : Verify that the reminder line is not created when DeliveryReminderTerms."Max. No. of Delivery Reminders"  <> 0 and does not exceed one more than Reminder levels.
         // Return value from Function Remind must be false.
-        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, CalcDate('<1D>', WorkDate)), FalseValueMsg);
+        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, CalcDate('<1D>', WorkDate())), FalseValueMsg);
     end;
 
     [Test]
@@ -502,7 +502,7 @@ codeunit 142034 "UT COD DELIVREM"
 
     local procedure UpdateDeliveryReminderHeader(var DeliveryReminderHeader: Record "Delivery Reminder Header"; LanguageCode: Code[10])
     begin
-        DeliveryReminderHeader."Document Date" := WorkDate;
+        DeliveryReminderHeader."Document Date" := WorkDate();
         DeliveryReminderHeader."Language Code" := LanguageCode;
         DeliveryReminderHeader.Modify();
     end;

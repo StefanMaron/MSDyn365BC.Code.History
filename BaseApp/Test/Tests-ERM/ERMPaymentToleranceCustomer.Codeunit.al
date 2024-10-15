@@ -61,7 +61,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
         RefAmount := CrMemoAmount + LibraryRandom.RandInt(10);  // Over Refund and Before Discount Date.
-        DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate));
+        DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate()));
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
@@ -91,9 +91,9 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
-        InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate);
+        InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate());
         DiscountAmountLCY := GetDiscountAmount(InvAmountLCY);
-        PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate) + LibraryRandom.RandInt(5);
+        PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate()) + LibraryRandom.RandInt(5);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmountFCY,
@@ -170,7 +170,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         ComputeUnderAmountForMaxValue(CrMemoAmount, RefAmount);
-        CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate);
+        CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate());
         DiscountAmountFCY := GetDiscountAmount(CrMemoAmountFCY);
 
         CreateAndPostDocumentLine(
@@ -202,9 +202,9 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
-        InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate);
+        InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate());
         DiscountAmountLCY := GetDiscountAmount(InvAmountLCY);
-        PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate);
+        PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate());
 
         // Calculate Payment Amount under Invoice Amount
         PmtAmount := PmtAmountFCY - (PmtAmountFCY * GetPaymentTolerancePercent / 100) + 1;
@@ -266,10 +266,10 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 500 * LibraryRandom.RandInt(5); // To check "Max. Payment Tolerance Amount" using 500 to 2500 range.
-        CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate);
+        CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate());
         DiscountAmount := GetDiscountAmount(CrMemoAmount);
         RefAmount := CrMemoAmount - (GetMaxPaymentToleranceAmount + DiscountAmount);
-        RefAmountFCY := LibraryERM.ConvertCurrency(RefAmount, CurrencyCode, '', WorkDate);
+        RefAmountFCY := LibraryERM.ConvertCurrency(RefAmount, CurrencyCode, '', WorkDate());
         PmtTolAmount := CrMemoAmountFCY - (RefAmountFCY + GetDiscountAmount(CrMemoAmountFCY));
 
         CreateAndPostDocumentLine(
@@ -326,7 +326,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
-        DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate));
+        DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate()));
         RefAmount := CrMemoAmount + LibraryRandom.RandInt(10);  // Over Refund and within Payment Tolerance Date.
 
         CreateAndPostDocumentLine(
@@ -360,9 +360,9 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
-        InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate);
+        InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate());
         PmtTolAmount := InvAmountLCY * GetPaymentTolerancePercent / 100;
-        PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate) + (PmtTolAmount + 1);
+        PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate()) + (PmtTolAmount + 1);
         DiscountAmount := GetDiscountAmount(InvAmountLCY);
 
         CreateAndPostDocumentLine(
@@ -449,7 +449,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         Initialize();
         CurrencyCode := UpdateAddCurrencySetup;
         ComputeUnderAmountForMaxValue(CrMemoAmount, RefAmount);
-        DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate));
+        DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate()));
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
@@ -482,8 +482,8 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CurrencyCode := UpdateAddCurrencySetup;
         CurrencyCode2 := CreateCurrency;
         InvAmount := 10 * LibraryRandom.RandInt(100);
-        InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate);
-        PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate);
+        InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate());
+        PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate());
         DiscountAmount := GetDiscountAmount(InvAmountLCY);
         PmtAmount := PmtAmountFCY - (PmtAmountFCY * GetPaymentTolerancePercent / 100) + 1;
 
@@ -575,7 +575,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CrMemoAmount := LibraryRandom.RandInt(499); // To Check Payment Tolerance % taking 499 maximum value.
         RefAmount := CrMemoAmount + (CrMemoAmount * GetPaymentTolerancePercent / 100);
         RefTolAmount := CrMemoAmount * GetPaymentTolerancePercent / 100;
-        RefTolAmountFCY := LibraryERM.ConvertCurrency(RefTolAmount, CurrencyCode, '', WorkDate);
+        RefTolAmountFCY := LibraryERM.ConvertCurrency(RefTolAmount, CurrencyCode, '', WorkDate());
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
@@ -662,7 +662,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CrMemoAmount := LibraryRandom.RandInt(499); // To Check Payment Tolerance % taking 499 maximum value.
         RefAmount := CrMemoAmount - (CrMemoAmount * GetPaymentTolerancePercent / 100);
         RefTolAmount := CrMemoAmount * GetPaymentTolerancePercent / 100;
-        RefTolAmountFCY := LibraryERM.ConvertCurrency(RefTolAmount, CurrencyCode, '', WorkDate);
+        RefTolAmountFCY := LibraryERM.ConvertCurrency(RefTolAmount, CurrencyCode, '', WorkDate());
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
@@ -828,7 +828,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Select Journal Batch Name and Template Name.
         LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, DocumentType, CreateCustomer, Amount, WorkDate, CurrencyCode);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, DocumentType, CreateCustomer, Amount, WorkDate(), CurrencyCode);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, DocumentType2, GenJournalLine."Account No.", Amount2, PostingDate, CurrencyCode2);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -876,7 +876,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.Get(GetPaymentTerms);
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
     local procedure GetDiscountAmount(Amount: Decimal): Decimal
@@ -941,7 +941,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
                 Counter += 1;
                 CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
                 CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
-            until (GLAccount.Next = 0) or (Counter = 2);
+            until (GLAccount.Next() = 0) or (Counter = 2);
         CustomerPostingGroup.Validate("Payment Tolerance Debit Acc.", GLAccount."No.");
         CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
         CustomerPostingGroup.Modify(true);
@@ -991,13 +991,13 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         Assert: Codeunit Assert;
     begin
         Currency.Get(CurrencyCode);
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
-          StrSubstNo(PaymentToleranceError, Amount, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."),
+          StrSubstNo(PaymentToleranceError, Amount, DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry No."),
             DetailedCustLedgEntry."Entry No."));
     end;
 
@@ -1012,21 +1012,21 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     begin
         GeneralLedgerSetup.Get();
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision", StrSubstNo(RoundingMessage, GLEntry.FieldCaption(Amount),
-            GLEntry.Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            GLEntry.Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
 
         // Verify Additional Reporting Currency Amount.
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(Amount, '', Currency.Code, WorkDate);
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(Amount, '', Currency.Code, WorkDate());
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", Currency."Amount Rounding Precision",
           StrSubstNo(RoundingMessage, GLEntry.FieldCaption("Additional-Currency Amount"), GLEntry."Additional-Currency Amount",
-            GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     local procedure WatchPaymentDiscountAmount(var DeltaAssert: Codeunit "Delta Assert"; DocumentNo: Code[20]; DiscountAmount: Decimal)
@@ -1037,7 +1037,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
-          DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Original Pmt. Disc. Possible"),
+          DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition(), CustLedgerEntry.FieldNo("Original Pmt. Disc. Possible"),
           CustLedgerEntry."Original Pmt. Disc. Possible" - DiscountAmount);
     end;
 }

@@ -505,7 +505,7 @@ codeunit 137309 "SCM Reports"
         Initialize();
         CreateFullWarehouseSetup(Location);
         ItemNo := CreateBlockedItem;
-        CreateWarehouseItemJournalLine(Location.Code, ItemNo, WorkDate);
+        CreateWarehouseItemJournalLine(Location.Code, ItemNo, WorkDate());
 
         // Exercise: Run Warehouse Inventory Registering Test report.
         Commit();
@@ -596,7 +596,7 @@ codeunit 137309 "SCM Reports"
     procedure InvValuationWIPReportWithLessthanUnitCost()
     begin
         // Verify Inventory Valuation Test Report values when Revaluation Journal posted before finishing Prod. Order with Lessthan Unit Cost(Revalued).
-        InventoryValuationWIPReportWithFinishedRelProdOrder(LibraryRandom.RandDec(5, 2), WorkDate, true);
+        InventoryValuationWIPReportWithFinishedRelProdOrder(LibraryRandom.RandDec(5, 2), WorkDate(), true);
     end;
 
     [Test]
@@ -605,7 +605,7 @@ codeunit 137309 "SCM Reports"
     procedure InvValuationWIPReportWithGreaterthanUnitCost()
     begin
         // Verify Inventory Valuation Test Report values when Revaluation Journal posted before finishing Prod. Order with morethan Unit Cost(Revalued).
-        InventoryValuationWIPReportWithFinishedRelProdOrder(-LibraryRandom.RandDec(5, 2), WorkDate, true);
+        InventoryValuationWIPReportWithFinishedRelProdOrder(-LibraryRandom.RandDec(5, 2), WorkDate(), true);
     end;
 
     [Test]
@@ -614,7 +614,7 @@ codeunit 137309 "SCM Reports"
     procedure InvValuationWIPReportWithExactUnitCost()
     begin
         // Verify Inventory Valuation Test Report values when Revaluation Journal posted before finishing Prod. Order with total Unit Cost(Revalued).
-        InventoryValuationWIPReportWithFinishedRelProdOrder(0, WorkDate, true);
+        InventoryValuationWIPReportWithFinishedRelProdOrder(0, WorkDate(), true);
     end;
 
     [Test]
@@ -623,7 +623,7 @@ codeunit 137309 "SCM Reports"
     procedure InvValuationWIPReportDateGreaterThanRevJournalPosted()
     begin
         // Verify Inventory Valuation WIP Test Report values when report is run for next month of Revaluation Journal Posted.
-        InventoryValuationWIPReportWithFinishedRelProdOrder(0, CalcDate('<2M>', WorkDate), true);
+        InventoryValuationWIPReportWithFinishedRelProdOrder(0, CalcDate('<2M>', WorkDate()), true);
     end;
 
     [Test]
@@ -632,7 +632,7 @@ codeunit 137309 "SCM Reports"
     procedure InvValuationWIPReportAfterFinishingReleasedProdOrderWithLessUnitCost()
     begin
         // Verify Inventory Valuation WIP Test Report values when Revaluation Journal posted after finishing Prod. Order with Lessthan Unit Cost(Revalued).
-        InventoryValuationWIPReportWithFinishedRelProdOrder(LibraryRandom.RandDec(5, 2), WorkDate, false);
+        InventoryValuationWIPReportWithFinishedRelProdOrder(LibraryRandom.RandDec(5, 2), WorkDate(), false);
     end;
 
     [Test]
@@ -641,7 +641,7 @@ codeunit 137309 "SCM Reports"
     procedure InvValuationWIPReportAfterFinishingReleasedProdOrderWithMoreUnitCost()
     begin
         // Verify Inventory Valuation WIP Test Report values when Revaluation Journal posted after finishing Prod. Order with morethan Unit Cost(Revalued).
-        InventoryValuationWIPReportWithFinishedRelProdOrder(-LibraryRandom.RandDec(5, 2), WorkDate, false);
+        InventoryValuationWIPReportWithFinishedRelProdOrder(-LibraryRandom.RandDec(5, 2), WorkDate(), false);
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 137309 "SCM Reports"
     procedure InvValuationWIPReportAfterFinishingReleasedProdOrderWithExactUnitCost()
     begin
         // Verify Inventory Valuation WIP Test Report values when Revaluation Journal posted before finishing Prod. Order with Total Unit Cost(Revalued).
-        InventoryValuationWIPReportWithFinishedRelProdOrder(0, WorkDate, false);
+        InventoryValuationWIPReportWithFinishedRelProdOrder(0, WorkDate(), false);
     end;
 
     [Test]
@@ -744,7 +744,7 @@ codeunit 137309 "SCM Reports"
             LibraryReportDataset.SetRange('ProdBOMLineIndexNo', ProductionBOMLine."No.");
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('BOMCompQtyBase', ProductionBOMLine.Quantity);
-        until ProductionBOMLine.Next = 0;
+        until ProductionBOMLine.Next() = 0;
     end;
 
     [Test]
@@ -852,7 +852,7 @@ codeunit 137309 "SCM Reports"
           ParentItem."Replenishment System"::"Prod. Order", ProductionBOMHeaderNo, 0);
         CreateProductionBOMVersionWithBOMLines(ProductionBOMHeaderNo, ParentItem."Production BOM No.",
           LibraryInventory.CreateItem(Item), FirstChildItem."No.", ProductionBOMVersion.Status::Certified);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
 
         // Exercise: Run Detailed Calculation Report.
         Commit();
@@ -892,7 +892,7 @@ codeunit 137309 "SCM Reports"
           ParentItem."Replenishment System"::"Prod. Order", ProductionBOMHeaderNo, 0);
         CreateProductionBOMVersionWithBOMLines(ProductionBOMHeaderNo, ParentItem."Production BOM No.",
           LibraryInventory.CreateItem(Item), SecondChildItem."No.", ProductionBOMVersion.Status::Certified);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
 
         // Exercise: Run Detailed Calculation Report.
         Commit();
@@ -924,7 +924,7 @@ codeunit 137309 "SCM Reports"
           Item, Item."Costing Method"::Standard, ProductionBOMHeader.Status::New, RoutingHeader.Status::"Under Development");
         CreateRoutingLineWithTypeMachineCenter(RoutingHeader, Item."Routing No.");
         CreateRoutingVersion(RoutingVersion, Item."Routing No.");
-        StartingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate);
+        StartingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate());
         FindRoutingLine(RoutingLine, RoutingVersion."Routing No.", RoutingVersion."Version Code");
         RoutingLine.Delete(true);
         UpdateRoutingVersion(RoutingVersion, RoutingVersion.Status::Certified, StartingDate);
@@ -1021,11 +1021,11 @@ codeunit 137309 "SCM Reports"
           ProductionBOMHeader, ProductionBOMLine, '',
           ProductionBOMLine.Type::"Production BOM", ProductionBOMLineChild."Production BOM No.", ChildBOMQty);
 
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
 
         // [WHEN] Run Detailed Calculation Report for the "ParentItem"
         Commit;
-        Item.SetRecFilter;
+        Item.SetRecFilter();
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
         ProductionBOMLine.FindFirst();
@@ -1153,7 +1153,7 @@ codeunit 137309 "SCM Reports"
         // Verify Inv. Valu. WIP Test Report values for starting period when Output is made to Expected cost in period First and Output invoiced in period Third.
         Initialize();
         InvValuationWIPReportForCostPostedtoGL(
-          WorkDate, CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(3, 5)), WorkDate));
+          WorkDate, CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(3, 5)), WorkDate()));
     end;
 
     [Test]
@@ -1165,7 +1165,7 @@ codeunit 137309 "SCM Reports"
     begin
         // Verify Inv. Valu. WIP Test Report values for ending period when Output is made to Expected cost in period First and Output invoiced in period Third.
         Initialize();
-        InventoryValuationWIPDate := CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(3, 5)), WorkDate);
+        InventoryValuationWIPDate := CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(3, 5)), WorkDate());
         InvValuationWIPReportForCostPostedtoGL(InventoryValuationWIPDate, InventoryValuationWIPDate);
     end;
 
@@ -1244,7 +1244,7 @@ codeunit 137309 "SCM Reports"
         Initialize();
         RoutingNo := CreateRouting(RoutingHeader.Status::"Under Development");
         CreateRoutingVersion(RoutingVersion, RoutingNo);
-        UpdateRoutingVersion(RoutingVersion, RoutingVersion.Status::Certified, WorkDate);
+        UpdateRoutingVersion(RoutingVersion, RoutingVersion.Status::Certified, WorkDate());
 
         // Exercise: Update Status and delete Routing Version.
         RoutingVersion.Validate(Status, RoutingVersion.Status::New);
@@ -1285,7 +1285,7 @@ codeunit 137309 "SCM Reports"
         LibraryAssembly.CreateAssemblyListComponent(BOMComponent.Type::Item, BOMComponent."No.", ParentItem."No.", '', 0, 1, true);
 
         // [WHEN] Run report 801 "Assembly BOMs" for item "I2"
-        ParentItem.SetRecFilter;
+        ParentItem.SetRecFilter();
         REPORT.Run(REPORT::"Assembly BOMs", true, false, ParentItem);
 
         // [THEN] Field "BOM" in the report line corresponding to item "I1" is "Yes", "BOM" in the line corresponding to "COMP" is "No"
@@ -1397,8 +1397,8 @@ codeunit 137309 "SCM Reports"
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
     begin
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup.Validate("Allow Posting From", WorkDate);
-        UserSetup.Validate("Allow Posting To", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));  // Adding Random months to WORKDATE.
+        UserSetup.Validate("Allow Posting From", WorkDate());
+        UserSetup.Validate("Allow Posting To", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));  // Adding Random months to WORKDATE.
         UserSetup.Modify(true);
     end;
 
@@ -1408,7 +1408,7 @@ codeunit 137309 "SCM Reports"
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, ItemNo);
-        ItemJournalLine.Validate("Posting Date", CalcDate('<' + Format(-RandomDays) + 'D>', WorkDate));
+        ItemJournalLine.Validate("Posting Date", CalcDate('<' + Format(-RandomDays) + 'D>', WorkDate()));
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -1804,7 +1804,7 @@ codeunit 137309 "SCM Reports"
         CreateRoutingVersion(RoutingVersion, Item."Routing No.");
         FindRoutingLine(RoutingLine, RoutingVersion."Routing No.", RoutingVersion."Version Code");
         RoutingLine.Delete(true);
-        UpdateRoutingVersion(RoutingVersion, Status, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate));
+        UpdateRoutingVersion(RoutingVersion, Status, CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate()));
         LibraryVariableStorage.Enqueue(CalcDate(StrSubstNo('<%1D>', Days), RoutingVersion."Starting Date"));
 
         // Exercise: Run Detailed Calculation Report.
@@ -1818,7 +1818,7 @@ codeunit 137309 "SCM Reports"
         FindRoutingLine(RoutingLine, RoutingHeader."No.", RoutingHeader."Version Nos.");
         repeat
             LibraryReportDataset.AssertElementWithValueExists('OperationNo_RtngLine', RoutingLine."Operation No.");
-        until RoutingLine.Next = 0;
+        until RoutingLine.Next() = 0;
     end;
 
     local procedure CreateReportSelection(UsageOption: Enum "Report Selection Usage"; ReportID: Integer)
@@ -1826,12 +1826,12 @@ codeunit 137309 "SCM Reports"
         ReportSelections: Record "Report Selections";
     begin
         with ReportSelections do begin
-            Init;
+            Init();
             Usage := UsageOption;
             Sequence :=
               LibraryUtility.GenerateRandomCode(FieldNo(Sequence), DATABASE::"Report Selections");
             Validate("Report ID", ReportID);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2077,12 +2077,12 @@ codeunit 137309 "SCM Reports"
         ProductionOrderNo := CreateAndPostProductionJournal(ParentItem."No.");
         if RevalueThenFinish then begin
             RevalueItemAutomatically(ParentItem."No.",
-              CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(2)), WorkDate), UnitCostRevalued);
+              CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(2)), WorkDate()), UnitCostRevalued);
             LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
         end else begin
             LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
             RevalueItemAutomatically(ParentItem."No.",
-              CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(2)), WorkDate), UnitCostRevalued);
+              CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(2)), WorkDate()), UnitCostRevalued);
         end;
         LibraryVariableStorage.Enqueue(InventoryValuationWIPStartingDate);
 
@@ -2112,7 +2112,7 @@ codeunit 137309 "SCM Reports"
         CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         Item.SetRange("No.", ItemNo);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(CalculatePer);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
@@ -2124,7 +2124,7 @@ codeunit 137309 "SCM Reports"
     begin
         LibraryVariableStorage.Enqueue(ItemNo);
         LibraryVariableStorage.Enqueue(ItemNo2);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::"Compare List", true, false);
     end;
 
@@ -2133,7 +2133,7 @@ codeunit 137309 "SCM Reports"
         Item: Record Item;
     begin
         Item.SetRange("No.", ItemNo);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(PeriodLength);
         LibraryVariableStorage.Enqueue(LocationFilter);
         REPORT.Run(REPORT::"Item Age Composition - Qty.", true, false, Item);
@@ -2144,7 +2144,7 @@ codeunit 137309 "SCM Reports"
         Item: Record Item;
     begin
         Item.SetRange("No.", ItemNo);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(PeriodLength);
         REPORT.Run(REPORT::"Item Age Composition - Value", true, false, Item);
     end;
@@ -2212,7 +2212,7 @@ codeunit 137309 "SCM Reports"
         LibraryPurchase.CreateSubcontractor(Vendor);
         WorkCenter.Validate("Subcontractor No.", Vendor."No.");
         WorkCenter.Modify(true);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate, WorkDate);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate(), WorkDate());
     end;
 
     local procedure UpdateGeneralLedgerSetup(AllowPostingFrom: Date) OldAllowPostingFrom: Date
@@ -2589,7 +2589,7 @@ codeunit 137309 "SCM Reports"
         ItemJournalLine.FindSet();
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     [StrMenuHandler]

@@ -170,7 +170,7 @@ codeunit 240 ItemJnlManagement
             if not ItemJnlBatch.FindFirst() then begin
                 ItemJnlBatch.Init();
                 ItemJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-                ItemJnlBatch.SetupNewBatch;
+                ItemJnlBatch.SetupNewBatch();
                 ItemJnlBatch.Name := Text003;
                 ItemJnlBatch.Description := Text004;
                 ItemJnlBatch.Insert(true);

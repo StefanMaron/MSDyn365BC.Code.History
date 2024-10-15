@@ -22,7 +22,7 @@ page 1213 "Data Exchange Types"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the data exchange type.';
                 }
-                field("Data Exch. Def. Code"; "Data Exch. Def. Code")
+                field("Data Exch. Def. Code"; Rec."Data Exch. Def. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the data exchange definition that the data exchange type uses.';

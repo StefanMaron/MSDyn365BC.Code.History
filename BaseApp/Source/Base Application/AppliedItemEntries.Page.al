@@ -12,27 +12,27 @@ page 5804 "Applied Item Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of transaction that the entry is created from.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number on the entry. The document is the voucher that the entry was based on, for example, a receipt.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item in the entry.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -43,19 +43,19 @@ page 5804 "Applied Item Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
@@ -73,19 +73,19 @@ page 5804 "Applied Item Entries"
                     Caption = 'Quantity';
                     ToolTip = 'Specifies the total quantity of items that have been applied.';
                 }
-                field("Invoiced Quantity"; "Invoiced Quantity")
+                field("Invoiced Quantity"; Rec."Invoiced Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item on the line have been invoiced.';
                     Visible = true;
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';
                     Visible = true;
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies how many units of the item on the line have been reserved.';
@@ -101,35 +101,35 @@ page 5804 "Applied Item Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the entry has been fully applied to.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity per item unit of measure.';
                     Visible = false;
                 }
-                field("Drop Shipment"; "Drop Shipment")
+                field("Drop Shipment"; Rec."Drop Shipment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if your vendor ships the items directly to your customer.';
                     Visible = false;
                 }
-                field("Applied Entry to Adjust"; "Applied Entry to Adjust")
+                field("Applied Entry to Adjust"; Rec."Applied Entry to Adjust")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there is one or more applied entries, which need to be adjusted.';
                 }
-                field("Order Type"; "Order Type")
+                field("Order Type"; Rec."Order Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of order that the entry was created in.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the order that created the entry.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -243,8 +243,6 @@ page 5804 "Applied Item Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -255,11 +253,22 @@ page 5804 "Applied Item Entries"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        GetApplQty;
+        GetApplQty();
     end;
 
     var

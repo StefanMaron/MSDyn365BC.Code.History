@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2101 "O365 Customer Activity Page"
 {
     Caption = 'Customers';
@@ -9,6 +10,9 @@ page 2101 "O365 Customer Activity Page"
     SourceTable = Customer;
     SourceTableView = SORTING(Name)
                       WHERE(Blocked = CONST(" "));
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,22 +23,22 @@ page 2101 "O365 Customer Activity Page"
                 Caption = '';
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the customer''s name. This name will appear on all sales documents for the customer.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the customer''s telephone number.';
                 }
                 field(Contact; Contact)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
                 }
-                field("Balance Due (LCY)"; "Balance Due (LCY)")
+                field("Balance Due (LCY)"; Rec."Balance Due (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = OverdueBalanceAutoFormatExpr;
                     AutoFormatType = 10;
                     BlankZero = true;
@@ -47,9 +51,9 @@ page 2101 "O365 Customer Activity Page"
                         OpenCustomerLedgerEntries(true);
                     end;
                 }
-                field("Sales (LCY)"; "Sales (LCY)")
+                field("Sales (LCY)"; Rec."Sales (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     ToolTip = 'Specifies the total net amount of sales to the customer in LCY.';
@@ -64,7 +68,7 @@ page 2101 "O365 Customer Activity Page"
         {
             action(DeleteLine)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete Customer';
                 Gesture = RightSwipe;
                 Image = Delete;
@@ -86,7 +90,7 @@ page 2101 "O365 Customer Activity Page"
 
     trigger OnAfterGetRecord()
     begin
-        "Balance Due (LCY)" := CalcOverdueBalance;
+        "Balance Due (LCY)" := CalcOverdueBalance();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -99,7 +103,7 @@ page 2101 "O365 Customer Activity Page"
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", 0D, WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
         OverdueBalanceAutoFormatExpr := StrSubstNo(AutoFormatExprWithPrefixTxt, OverdueTxt);
     end;
 
@@ -110,4 +114,4 @@ page 2101 "O365 Customer Activity Page"
         O365SalesManagement: Codeunit "O365 Sales Management";
         OverdueBalanceAutoFormatExpr: Text;
 }
-
+#endif

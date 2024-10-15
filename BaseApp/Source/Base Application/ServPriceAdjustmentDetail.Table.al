@@ -107,17 +107,17 @@ table 6083 "Serv. Price Adjustment Detail"
 
     trigger OnInsert()
     begin
-        ValidateRecord;
+        ValidateRecord();
     end;
 
     trigger OnModify()
     begin
-        ValidateRecord;
+        ValidateRecord();
     end;
 
     trigger OnRename()
     begin
-        ValidateRecord;
+        ValidateRecord();
     end;
 
     var
@@ -135,7 +135,7 @@ table 6083 "Serv. Price Adjustment Detail"
             ServPriceAdjmtDetail.SetRange(Type, Type);
             ServPriceAdjmtDetail.SetRange("Work Type", "Work Type");
             ServPriceAdjmtDetail.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
-            if ServPriceAdjmtDetail.FindFirst() then begin
+            if ServPriceAdjmtDetail.FindFirst() then
                 if
                    (ServPriceAdjmtDetail."Serv. Price Adjmt. Gr. Code" <> "Serv. Price Adjmt. Gr. Code") or
                    (ServPriceAdjmtDetail.Type <> Type) or
@@ -143,8 +143,7 @@ table 6083 "Serv. Price Adjustment Detail"
                    (ServPriceAdjmtDetail."Work Type" <> "Work Type") or
                    (ServPriceAdjmtDetail."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group")
                 then
-                    Error(Text001, ServPriceAdjmtDetail.TableCaption, Format(Type))
-            end;
+                    Error(Text001, ServPriceAdjmtDetail.TableCaption(), Format(Type));
         end else
             if ServPriceAdjmtDetail.Get(
                  "Serv. Price Adjmt. Gr. Code",
@@ -154,7 +153,7 @@ table 6083 "Serv. Price Adjustment Detail"
                  "Gen. Prod. Posting Group")
             then
                 Error(Text002,
-                  ServPriceAdjmtDetail.TableCaption,
+                  ServPriceAdjmtDetail.TableCaption(),
                   FieldCaption(Type),
                   FieldCaption("No."),
                   Format(Type));

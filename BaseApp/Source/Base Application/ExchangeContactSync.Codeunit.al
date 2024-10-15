@@ -20,6 +20,15 @@ codeunit 6703 "Exchange Contact Sync."
         ProcessExchangeContactsMsg: Label 'Processing contacts from Exchange.';
         ProcessNavContactsMsg: Label 'Processing contacts in your company.';
         ExchangeCountTelemetryTxt: Label 'Retrieved %1 Exchange contacts for synchronization.', Locked = true;
+        ExistingContactTxt: Label 'Found an existing contact for this Exchange contact.', Locked = true;
+        NavContactHasEmailTxt: Label 'The local contact has an email set: %1', Locked = true;
+        FoundNavContactForExchangeContactTxt: Label 'A contact already exists for this Exchange contact: %1', Locked = true;
+        PrivacyBlockedContactTxt: Label 'The existing contact is privacy blocked.', Locked = true;
+        ModifiedContactTxt: Label 'The existing contact was modified.', Locked = true;
+        ModifiedContactNoEmailTxt: Label 'The existing contact does not have an email specified.', Locked = true;
+        MultipleContactWithSameEmailTxt: Label 'More than one contact exists with the same email.', Locked = true;
+        InsertedContactTxt: Label 'The new contact was inserted.', Locked = true;
+        InsertedContactNoEmailTxt: Label 'The new contact does not have an email specified.', Locked = true;
 
     procedure GetRequestParameters(var ExchangeSync: Record "Exchange Sync"): Text
     var
@@ -28,9 +37,9 @@ codeunit 6703 "Exchange Contact Sync."
         FilterText: Text;
         ContactTxt: Text;
     begin
-        FilterText := ExchangeSync.GetSavedFilter;
+        FilterText := ExchangeSync.GetSavedFilter();
 
-        ContactTxt := LocalContact.TableCaption;
+        ContactTxt := LocalContact.TableCaption();
         FilterPage.PageCaption := ContactTxt;
         FilterPage.AddTable(ContactTxt, DATABASE::Contact);
 
@@ -45,7 +54,7 @@ codeunit 6703 "Exchange Contact Sync."
         FilterPage.ADdField(ContactTxt, LocalContact."Post Code");
         FilterPage.ADdField(ContactTxt, LocalContact."Country/Region Code");
 
-        if FilterPage.RunModal then
+        if FilterPage.RunModal() then
             FilterText := FilterPage.GetView(ContactTxt);
 
         if FilterText <> '' then begin
@@ -75,7 +84,7 @@ codeunit 6703 "Exchange Contact Sync."
         O365SyncManagement.ShowProgress(ProcessExchangeContactsMsg);
         ProcessExchangeContacts(ExchangeSync, TempContact, SkipDateFilters);
 
-        O365SyncManagement.CloseProgress;
+        O365SyncManagement.CloseProgress();
         ExchangeSync."Last Sync Date Time" := CreateDateTime(Today, Time);
         ExchangeSync.Modify(true);
     end;
@@ -92,32 +101,64 @@ codeunit 6703 "Exchange Contact Sync."
     local procedure ProcessExchangeContactRecordSet(var LocalContact: Record Contact; var ExchangeSync: Record "Exchange Sync")
     var
         Contact: Record Contact;
-        found: Boolean;
+        ExistingContact: Boolean;
+        LocalContactHasEmailSet: Boolean;
         ContactNo: Text;
     begin
         if LocalContact.FindSet() then
             repeat
-                found := false;
+                ExistingContact := false;
                 ContactNo := '';
                 Contact.Reset();
                 Clear(Contact);
-                Contact.SetRange("Search E-Mail", UpperCase(LocalContact."E-Mail"));
-                if Contact.FindFirst() then begin
-                    found := true;
-                    ContactNo := Contact."No.";
-                end;
 
-                if found then begin
-                    if not Contact."Privacy Blocked" then begin
+                LocalContactHasEmailSet := LocalContact."E-Mail" <> '';
+                Session.LogMessage('0000HKT', StrSubstNo(NavContactHasEmailTxt, LocalContactHasEmailSet), Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+
+                if LocalContactHasEmailSet then begin
+                    Contact.SetRange("Search E-Mail", UpperCase(LocalContact."E-Mail"));
+                    if Contact.FindSet() then begin
+                        if Contact."Privacy Blocked" then begin
+                            Contact.SetRange("Privacy Blocked", false); // Prefer a contact that is not blocked
+                            if not Contact.FindSet() then begin
+                                Contact.SetRange("Privacy Blocked");
+                                Contact.FindSet(); // There are none so return the original set
+                            end;
+                        end;
+
+                        ExistingContact := true;
+                        ContactNo := Contact."No.";
+                    end;
+
+                    Session.LogMessage('0000GOM', StrSubstNo(FoundNavContactForExchangeContactTxt, ExistingContact), Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+
+                    if ExistingContact then begin
+                        Session.LogMessage('0000GON', ExistingContactTxt, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+
+                        if Contact."Privacy Blocked" then
+                            Session.LogMessage('0000GOO', PrivacyBlockedContactTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory())
+                        else begin
+                            O365ContactSyncHelper.TransferExchangeContactToNavContact(LocalContact, Contact, ExchangeSync);
+                            Contact."No." := CopyStr(ContactNo, 1, 20);
+                            Contact.Modify(true);
+                            Session.LogMessage('0000GOP', ModifiedContactTxt, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+
+                            if Contact."E-Mail" = '' then
+                                Session.LogMessage('0000GOQ', ModifiedContactNoEmailTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+                        end;
+
+                        if Contact.Next() > 0 then
+                            Session.LogMessage('0000GOR', MultipleContactWithSameEmailTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+                    end else begin
+                        Contact."No." := '';
+                        Contact.Type := Contact.Type::Person;
+                        Contact.Insert(true);
                         O365ContactSyncHelper.TransferExchangeContactToNavContact(LocalContact, Contact, ExchangeSync);
-                        Contact."No." := CopyStr(ContactNo, 1, 20);
-                        Contact.Modify(true);
-                    end
-                end else begin
-                    Contact."No." := '';
-                    Contact.Type := Contact.Type::Person;
-                    Contact.Insert(true);
-                    O365ContactSyncHelper.TransferExchangeContactToNavContact(LocalContact, Contact, ExchangeSync);
+
+                        Session.LogMessage('0000GOS', InsertedContactTxt, Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+                        if Contact."E-Mail" = '' then
+                            Session.LogMessage('0000GOT', InsertedContactNoEmailTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
+                    end;
                 end;
             until (LocalContact.Next() = 0)
     end;
@@ -135,7 +176,7 @@ codeunit 6703 "Exchange Contact Sync."
 
     local procedure SetContactFilter(var Contact: Record Contact; var ExchangeSync: Record "Exchange Sync")
     begin
-        Contact.SetView(ExchangeSync.GetSavedFilter);
+        Contact.SetView(ExchangeSync.GetSavedFilter());
         Contact.SetRange(Type, Contact.Type::Person);
         Contact.SetFilter("E-Mail", '<>%1', '');
         Contact.SetRange("Privacy Blocked", false);

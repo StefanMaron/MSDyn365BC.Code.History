@@ -30,11 +30,11 @@ page 1263 Certificate
 
                         trigger OnValidate()
                         begin
-                            PasswordNotification.Recall;
+                            PasswordNotification.Recall();
                             CertificateManagement.SetCertPassword(CertPassword);
                             if CertificateManagement.VerifyCert(Rec) then begin
-                                if IsCertificateExpired then
-                                    HandleExpiredCert
+                                if IsCertificateExpired() then
+                                    HandleExpiredCert()
                                 else begin
                                     IsShowCertInfo := true;
                                     IsUploadedCertValid := not IsNewRecord;
@@ -57,7 +57,7 @@ page 1263 Certificate
             {
                 Caption = 'Certificate Information';
                 Visible = IsShowCertInfo;
-                field("Has Private Key"; "Has Private Key")
+                field("Has Private Key"; Rec."Has Private Key")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the certificate has a private key.';
@@ -68,17 +68,17 @@ page 1263 Certificate
                     Caption = 'Thumbprint';
                     ToolTip = 'Specifies the certificate thumbprint.';
                 }
-                field("Expiry Date"; "Expiry Date")
+                field("Expiry Date"; Rec."Expiry Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which the certificate will expire.';
                 }
-                field("Issued By"; "Issued By")
+                field("Issued By"; Rec."Issued By")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the certificate authority that issued the certificate.';
                 }
-                field("Issued To"; "Issued To")
+                field("Issued To"; Rec."Issued To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the person, organization, or domain that the certificate was issued to.';
@@ -94,29 +94,25 @@ page 1263 Certificate
             action("Upload Cerificate")
             {
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Upload a new certificate file for the certificate. Typically, you use this when a certificate will expire soon.';
                 Caption = 'Upload Certificate';
 
                 trigger OnAction()
                 begin
-                    RecallNotifications;
+                    RecallNotifications();
                     IsolatedCertificate := Rec;
                     CertPassword := '';
 
-                    CheckEncryption;
+                    CheckEncryption();
 
                     if not CertificateManagement.UploadAndVerifyCert(Rec) then begin
                         IsShowCertInfo := false;
-                        HandleRequirePassword;
+                        HandleRequirePassword();
                     end else begin
                         IsPasswordRequired := false;
                         IsShowCertInfo := true;
-                        if IsCertificateExpired then begin
-                            HandleExpiredCert;
+                        if IsCertificateExpired() then begin
+                            HandleExpiredCert();
 
                             Rec := IsolatedCertificate;
                             if ThumbPrint = '' then
@@ -126,6 +122,17 @@ page 1263 Certificate
 
                     CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Upload Cerificate_Promoted"; "Upload Cerificate")
+                {
+                }
             }
         }
     }
@@ -139,20 +146,20 @@ page 1263 Certificate
     begin
         if Code = '' then begin
             IsNewRecord := true;
-            CheckEncryption;
+            CheckEncryption();
             if not CertificateManagement.UploadAndVerifyCert(Rec) then
-                HandleRequirePassword
+                HandleRequirePassword()
             else begin
                 IsShowCertInfo := true;
-                if IsCertificateExpired then
-                    HandleExpiredCert;
+                if IsCertificateExpired() then
+                    HandleExpiredCert();
             end;
 
             IsolatedCertificate := Rec;
         end else
             if ThumbPrint <> '' then begin
                 IsShowCertInfo := true;
-                if IsCertificateExpired then
+                if IsCertificateExpired() then
                     NotfiyExpiredCert(CertHasExpiredMsg);
             end;
     end;
@@ -163,10 +170,10 @@ page 1263 Certificate
             TestField(Name);
 
         if IsNewRecord then
-            SetScope;
+            SetScope();
 
         if (IsNewRecord or IsUploadedCertValid) and not IsExpired then
-            SaveCertToIsolatedStorage;
+            SaveCertToIsolatedStorage();
     end;
 
     var
@@ -211,14 +218,14 @@ page 1263 Certificate
     begin
         IsPasswordRequired := true;
         PasswordNotification.Message(PasswordNotificationMsg);
-        PasswordNotification.Send;
+        PasswordNotification.Send();
     end;
 
     local procedure HandleExpiredCert()
     begin
-        NotfiyExpiredCert(StrSubstNo(ExpiredNewCertMsg, ' ' + CertificateManagement.GetUploadedCertFileName));
+        NotfiyExpiredCert(StrSubstNo(ExpiredNewCertMsg, ' ' + CertificateManagement.GetUploadedCertFileName()));
         if IsNewRecord then
-            ClearCertInfoFields
+            ClearCertInfoFields()
         else
             Rec := IsolatedCertificate;
 
@@ -230,21 +237,21 @@ page 1263 Certificate
     begin
         IsExpired := true;
         ExpiredNotification.Message(Message);
-        ExpiredNotification.Send;
+        ExpiredNotification.Send();
     end;
 
     local procedure RecallNotifications()
     begin
-        if ExpiredNotification.Recall then;
-        if PasswordNotification.Recall then;
+        if ExpiredNotification.Recall() then;
+        if PasswordNotification.Recall() then;
     end;
 
     local procedure CheckEncryption()
     var
         CryptographyManagement: Codeunit "Cryptography Management";
     begin
-        if not CryptographyManagement.IsEncryptionEnabled then
-            if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst) then
+        if not CryptographyManagement.IsEncryptionEnabled() then
+            if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst()) then
                 PAGE.RunModal(PAGE::"Data Encryption Management");
     end;
 }

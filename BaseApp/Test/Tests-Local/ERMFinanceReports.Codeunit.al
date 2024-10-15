@@ -87,7 +87,7 @@ codeunit 144050 "ERM Finance Reports"
         asserterror REPORT.Run(REPORT::"VAT-Vies Declaration Tax - DE");
 
         // Verify: Verify error for blank Posting Date.
-        Assert.ExpectedError(StrSubstNo(PostingDateError, VATEntry.FieldCaption("Posting Date"), VATEntry.TableCaption));
+        Assert.ExpectedError(StrSubstNo(PostingDateError, VATEntry.FieldCaption("Posting Date"), VATEntry.TableCaption()));
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 144050 "ERM Finance Reports"
         Commit();
 
         // Exercise and Verify.
-        RunVendorDetailedAgingReportAndVerify(WorkDate, '', '');  // Blank values for Vendor No.
+        RunVendorDetailedAgingReportAndVerify(WorkDate(), '', '');  // Blank values for Vendor No.
     end;
 
     [Test]
@@ -163,7 +163,7 @@ codeunit 144050 "ERM Finance Reports"
         asserterror REPORT.Run(REPORT::"G/L Total-Balance");
 
         // Verify: Verify error for blank Posting Date.
-        Assert.ExpectedError(StrSubstNo(PostingDateError, GLAccount.FieldCaption("Date Filter"), GLAccount.TableCaption));
+        Assert.ExpectedError(StrSubstNo(PostingDateError, GLAccount.FieldCaption("Date Filter"), GLAccount.TableCaption()));
     end;
 
     [Test]
@@ -208,7 +208,7 @@ codeunit 144050 "ERM Finance Reports"
         asserterror REPORT.Run(REPORT::"Customer Total-Balance");
 
         // Verify: Verify error for blank Posting Date.
-        Assert.ExpectedError(StrSubstNo(PostingDateError, Customer.FieldCaption("Date Filter"), Customer.TableCaption));
+        Assert.ExpectedError(StrSubstNo(PostingDateError, Customer.FieldCaption("Date Filter"), Customer.TableCaption()));
     end;
 
     [Test]
@@ -253,7 +253,7 @@ codeunit 144050 "ERM Finance Reports"
         asserterror REPORT.Run(REPORT::"Vendor Total-Balance");
 
         // Verify: Verify error for blank Posting Date.
-        Assert.ExpectedError(StrSubstNo(PostingDateError, Vendor.FieldCaption("Date Filter"), Vendor.TableCaption));
+        Assert.ExpectedError(StrSubstNo(PostingDateError, Vendor.FieldCaption("Date Filter"), Vendor.TableCaption()));
     end;
 
     [Test]
@@ -380,7 +380,7 @@ codeunit 144050 "ERM Finance Reports"
     begin
         GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.SetRange("Posting Date", WorkDate);
+        GLEntry.SetRange("Posting Date", WorkDate());
         GLEntry.CalcSums(Amount, "VAT Amount");
     end;
 
@@ -395,7 +395,7 @@ codeunit 144050 "ERM Finance Reports"
             repeat
                 VendorLedgerEntry.CalcFields("Remaining Amount");
                 RemAmount += VendorLedgerEntry."Remaining Amount";
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure CreateAndUpdateCustomer(VATBusPostingGroup: Code[20]): Code[20]
@@ -620,7 +620,7 @@ codeunit 144050 "ERM Finance Reports"
         RepPeriod: Option January,February,March,April,May,June,July,August,September,October,November,December,"1. Quarter","2. Quarter","3. Quarter","4. Quarter","Jan/Feb","April/May","July/Aug","Oct/Nov","Calendar Year";
     begin
         VATViesDeclarationTaxDE.RepPeriod.SetValue(RepPeriod::January);  // Setting value for control 'Reporting Period'.
-        VATViesDeclarationTaxDE.DateSignature.SetValue(WorkDate);  // Setting value for control 'Date of Signature'.
+        VATViesDeclarationTaxDE.DateSignature.SetValue(WorkDate());  // Setting value for control 'Date of Signature'.
         VATViesDeclarationTaxDE."VAT Entry".SetFilter("Posting Date", Format(0D));
         VATViesDeclarationTaxDE.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -687,8 +687,8 @@ codeunit 144050 "ERM Finance Reports"
     var
         PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
-        GLVATReconciliation.StartDate.SetValue(Format(WorkDate));  // Setting value for control Start Date.
-        GLVATReconciliation.EndDateReq.SetValue(Format(WorkDate));  // Setting value for control End Date.
+        GLVATReconciliation.StartDate.SetValue(Format(WorkDate()));  // Setting value for control Start Date.
+        GLVATReconciliation.EndDateReq.SetValue(Format(WorkDate()));  // Setting value for control End Date.
         GLVATReconciliation.PeriodSelection.SetValue(Format(PeriodSelection::"Within Period"));  // Setting value for control Period Selection.
         GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

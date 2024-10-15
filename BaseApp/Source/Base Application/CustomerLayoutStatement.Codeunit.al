@@ -76,9 +76,9 @@ codeunit 8810 "Customer Layout - Statement"
             exit;
 
         RunImmediately := Confirm(ConfirmRunRepInBackgroundQst);
-        CheckReportRunningInBackground;
+        CheckReportRunningInBackground();
         with JobQueueEntry do begin
-            Init;
+            Init();
             Scheduled := false;
             Status := Status::"On Hold";
             Description := RunCustomerStatementsTxt;
@@ -98,7 +98,7 @@ codeunit 8810 "Customer Layout - Statement"
     begin
         SetJobQueueEntryFilter(JobQueueEntry);
         if JobQueueEntry.FindFirst() then
-            if JobQueueEntry.DoesExistLocked then
+            if JobQueueEntry.DoesExistLocked() then
                 Error(DuplicateJobQueueRecordErr);
     end;
 

@@ -60,8 +60,10 @@ table 6700 "Exchange Sync"
     end;
 
     var
-        EncryptionIsNotActivatedQst: Label 'Data encryption is not activated. It is recommended that you encrypt data. \Do you want to open the Data Encryption Management window?';
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+
+        EncryptionIsNotActivatedQst: Label 'Data encryption is not activated. It is recommended that you encrypt data. \Do you want to open the Data Encryption Management window?';
+        IsDefaultProdEndpointTxt: Label 'Configured Exchange endpoint is the BC default: %1', Locked = true;
 
     [NonDebuggable]
     [Scope('OnPrem')]
@@ -69,10 +71,10 @@ table 6700 "Exchange Sync"
     begin
         PasswordText := DelChr(PasswordText, '=', ' ');
         if PasswordText <> '' then
-            CheckEncryption;
+            CheckEncryption();
 
         if IsNullGuid("Exchange Account Password Key") then
-            "Exchange Account Password Key" := CreateGuid;
+            "Exchange Account Password Key" := CreateGuid();
 
         IsolatedStorageManagement.Set("Exchange Account Password Key", PasswordText, DATASCOPE::Company);
     end;
@@ -80,15 +82,18 @@ table 6700 "Exchange Sync"
     procedure GetExchangeEndpoint() Endpoint: Text[250]
     var
         ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
+        O365SyncManagement: Codeunit "O365 Sync. Management";
     begin
         Endpoint := "Exchange Service URI";
         if Endpoint = '' then
-            Endpoint := CopyStr(ExchangeWebServicesServer.GetEndpoint, 1, 250);
+            Endpoint := CopyStr(ExchangeWebServicesServer.GetEndpoint(), 1, 250);
+
+        Session.LogMessage('0000GP0', StrSubstNo(IsDefaultProdEndpointTxt, ExchangeWebServicesServer.IsDefaultProdEndpoint(Endpoint)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
     end;
 
     local procedure CheckEncryption()
     begin
-        if not EncryptionEnabled then
+        if not EncryptionEnabled() then
             if Confirm(EncryptionIsNotActivatedQst) then
                 PAGE.Run(PAGE::"Data Encryption Management");
     end;

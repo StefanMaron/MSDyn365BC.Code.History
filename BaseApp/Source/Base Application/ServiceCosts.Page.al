@@ -18,7 +18,7 @@ page 5910 "Service Costs"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the service cost.';
                 }
-                field("Cost Type"; "Cost Type")
+                field("Cost Type"; Rec."Cost Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the cost type.';
@@ -28,32 +28,32 @@ page 5910 "Service Costs"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service cost.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the general ledger account number to which the service cost will be posted.';
                 }
-                field("Service Zone Code"; "Service Zone Code")
+                field("Service Zone Code"; Rec."Service Zone Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service zone, to which travel applies if the Cost Type is Travel.';
                 }
-                field("Default Quantity"; "Default Quantity")
+                field("Default Quantity"; Rec."Default Quantity")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default quantity that is copied to the service lines containing this service cost.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Default Unit Cost"; "Default Unit Cost")
+                field("Default Unit Cost"; Rec."Default Unit Cost")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default unit cost that is copied to the service lines containing this service cost.';
                 }
-                field("Default Unit Price"; "Default Unit Price")
+                field("Default Unit Price"; Rec."Default Unit Price")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default unit price of the cost that is copied to the service lines containing this service cost.';
@@ -84,8 +84,6 @@ page 5910 "Service Costs"
                 ApplicationArea = Service;
                 Caption = 'Sales Prices';
                 Image = SalesPrices;
-                Promoted = true;
-                PromotedCategory = Process;
                 Visible = ExtendedPriceEnabled;
                 ToolTip = 'View or edit prices and discounts for the service cost.';
 
@@ -96,6 +94,17 @@ page 5910 "Service Costs"
                 begin
                     Rec.ShowPriceListLines(PriceType::Sale, AmountType::Any);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
             }
         }
     }

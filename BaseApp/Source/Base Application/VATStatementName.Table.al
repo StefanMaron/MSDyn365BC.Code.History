@@ -57,7 +57,7 @@ table 257 "VAT Statement Name"
     begin
         VATStmtLine.SetRange("Statement Template Name", xRec."Statement Template Name");
         VATStmtLine.SetRange("Statement Name", xRec.Name);
-        while VATStmtLine.FindFirst do
+        while VATStmtLine.FindFirst() do
             VATStmtLine.Rename("Statement Template Name", Name, VATStmtLine."Line No.");
     end;
 

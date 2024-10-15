@@ -49,7 +49,7 @@ codeunit 134915 "ERM Online Mapping Setup"
         Initialize();
 
         // Exercise: Execute the default setup function of the Online Map Management code unit.
-        OnlineMapManagement.SetupDefault;
+        OnlineMapManagement.SetupDefault();
 
         // Verify: Check that the default entries exist.
         OnlineMapSetup.SetFilter("Map Parameter Setup Code", '%1', Bing);

@@ -46,17 +46,17 @@ table 324 "VAT Product Posting Group"
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     [Scope('OnPrem')]
@@ -65,8 +65,8 @@ table 324 "VAT Product Posting Group"
         VATProductPostingGroups: Page "VAT Product Posting Groups";
     begin
         VATProductPostingGroups.LookupMode(true);
-        if VATProductPostingGroups.RunModal = ACTION::LookupOK then begin
-            FilterString := VATProductPostingGroups.GetSelectionFilter;
+        if VATProductPostingGroups.RunModal() = ACTION::LookupOK then begin
+            FilterString := VATProductPostingGroups.GetSelectionFilter();
             exit(true);
         end;
         exit(false)

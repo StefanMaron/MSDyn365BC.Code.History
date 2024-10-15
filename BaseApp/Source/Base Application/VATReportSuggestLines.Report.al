@@ -64,7 +64,7 @@ report 741 "VAT Report Suggest Lines"
 
             trigger OnAfterGetRecord()
             begin
-                CheckEditingAllowed;
+                CheckEditingAllowed();
 
                 VATReportLine.SetRange("VAT Report No.", "No.");
                 VATReportLine.SetRange("Line Type", VATReportLine."Line Type"::New);
@@ -80,12 +80,12 @@ report 741 "VAT Report Suggest Lines"
             begin
                 case "VAT Report Type" of
                     "VAT Report Type"::Standard:
-                        SaveBuffer;
+                        SaveBuffer();
                     "VAT Report Type"::Corrective:
-                        SaveCorrBuffer;
+                        SaveCorrBuffer();
                 end;
 
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -166,12 +166,12 @@ report 741 "VAT Report Suggest Lines"
             TempVATReportLine.Insert();
         end;
         with TempVATReportLineRelation do begin
-            Init;
+            Init();
             "VAT Report No." := TempVATReportLine."VAT Report No.";
             "VAT Report Line No." := TempVATReportLine."Line No.";
             "Table No." := DATABASE::"VAT Entry";
             "Entry No." := VATEntry."Entry No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -207,7 +207,7 @@ report 741 "VAT Report Suggest Lines"
         ExistingVATReportLine: Record "VAT Report Line";
         SkipLine: Boolean;
     begin
-        CancelOutOfScopeLines;
+        CancelOutOfScopeLines();
 
         TempVATReportLine.Reset();
         if TempVATReportLine.FindSet() then
@@ -332,7 +332,7 @@ report 741 "VAT Report Suggest Lines"
             exit;
 
         with VATReportLine do begin
-            Init;
+            Init();
             "VAT Report No." := VATReportHeader."No.";
             case VATEntry.Type of
                 VATEntry.Type::Sale:
@@ -397,7 +397,7 @@ report 741 "VAT Report Suggest Lines"
         if VATReportLineRelation.Count <> TempVATReportLineRelation.Count then
             exit(true);
 
-        if VATReportLineRelation.FindSet and TempVATReportLineRelation.FindSet() then
+        if VATReportLineRelation.FindSet() and TempVATReportLineRelation.FindSet() then
             repeat
                 if VATReportLineRelation."Entry No." <> TempVATReportLineRelation."Entry No." then
                     exit(true);

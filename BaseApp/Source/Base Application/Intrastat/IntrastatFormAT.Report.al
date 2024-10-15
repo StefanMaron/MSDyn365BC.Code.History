@@ -42,7 +42,7 @@ report 11104 "Intrastat - Form AT"
                         end;
 
                     "Internal Ref. No." := IntraReferenceNo;
-                    Modify;
+                    Modify();
                 end;
             }
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")

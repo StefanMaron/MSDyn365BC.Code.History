@@ -15,7 +15,7 @@ report 1126 "Cost Acctg. Statement"
             column(StrsubstnodatePeriodtxt; StrSubstNo(Text000, PeriodTxt))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CostTypeTableCaptFilter; TableCaption + ': ' + CostTypeFilter)
@@ -133,12 +133,11 @@ report 1126 "Cost Acctg. Statement"
 
     trigger OnPreReport()
     begin
-        CostTypeFilter := "Cost Type".GetFilters;
+        CostTypeFilter := "Cost Type".GetFilters();
         PeriodTxt := "Cost Type".GetFilter("Date Filter");
     end;
 
     var
-        Text000: Label 'Date Filter: %1';
         GLSetup: Record "General Ledger Setup";
         CostTypeFilter: Text;
         PeriodTxt: Text;
@@ -146,6 +145,8 @@ report 1126 "Cost Acctg. Statement"
         NewPage: Boolean;
         LineType: Integer;
         ShowAddCurr: Boolean;
+
+        Text000: Label 'Date Filter: %1';
         AllAmountAreLbl: Label 'All amounts are in';
         CAProfitLossStatementCaptionLbl: Label 'Cost Acctg. Statement';
         CurrReportPageNoCaptionLbl: Label 'Page';

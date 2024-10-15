@@ -201,7 +201,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
           StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"),
-            VATAmount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            VATAmount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     local procedure VerifyVATAmountOnGLEntry(GenJournalLine: Record "Gen. Journal Line")
@@ -215,7 +215,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
             Assert.AreNearlyEqual(
               GenJournalLine."VAT Amount", "VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(
-                AmountError, FieldCaption("VAT Amount"), GenJournalLine."VAT Amount", TableCaption, FieldCaption("Entry No."), "Entry No."));
+                AmountError, FieldCaption("VAT Amount"), GenJournalLine."VAT Amount", TableCaption(), FieldCaption("Entry No."), "Entry No."));
         end;
     end;
 
@@ -229,7 +229,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
             Assert.AreNearlyEqual(
               GenJournalLine."VAT Amount", Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(
-                AmountError, FieldCaption(Amount), GenJournalLine."VAT Amount", TableCaption, FieldCaption("Entry No."), "Entry No."));
+                AmountError, FieldCaption(Amount), GenJournalLine."VAT Amount", TableCaption(), FieldCaption("Entry No."), "Entry No."));
         end;
     end;
 

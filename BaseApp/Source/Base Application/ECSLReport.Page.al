@@ -15,7 +15,7 @@ page 321 "ECSL Report"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -26,13 +26,13 @@ page 321 "ECSL Report"
                             CurrPage.Update();
                     end;
                 }
-                field("VAT Report Config. Code"; "VAT Report Config. Code")
+                field("VAT Report Config. Code"; Rec."VAT Report Config. Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the appropriate configuration code.';
                     Visible = false;
                 }
-                field("Original Report No."; "Original Report No.")
+                field("Original Report No."; Rec."Original Report No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the original VAT report if the VAT Report Type field is set to a value other than Standard.';
@@ -68,7 +68,7 @@ page 321 "ECSL Report"
                         CurrPage.Update();
                     end;
                 }
-                field("Report Period No."; "Report Period No.")
+                field("Report Period No."; Rec."Report Period No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the specific reporting period to use.';
@@ -93,7 +93,7 @@ page 321 "ECSL Report"
                         ECSLVATReportLine.ClearLines(Rec);
                     end;
                 }
-                field("Report Year"; "Report Year")
+                field("Report Year"; Rec."Report Year")
                 {
                     ApplicationArea = BasicEU;
                     LookupPageID = "Date Lookup";
@@ -106,7 +106,7 @@ page 321 "ECSL Report"
                         ECSLVATReportLine.ClearLines(Rec);
                     end;
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = BasicEU;
                     Importance = Additional;
@@ -114,10 +114,10 @@ page 321 "ECSL Report"
 
                     trigger OnValidate()
                     begin
-                        ClearPeriod;
+                        ClearPeriod();
                     end;
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = BasicEU;
                     Importance = Additional;
@@ -125,7 +125,7 @@ page 321 "ECSL Report"
 
                     trigger OnValidate()
                     begin
-                        ClearPeriod;
+                        ClearPeriod();
                     end;
                 }
             }
@@ -154,14 +154,11 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Suggest Lines';
                     Image = SuggestLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Create EC Sales List entries based on information gathered from sales-related documents.';
 
                     trigger OnAction()
                     begin
-                        UpdateSubForm;
+                        UpdateSubForm();
                         // VATReportMediator.GetLines(Rec);
                     end;
                 }
@@ -170,9 +167,6 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Submit';
                     Image = SendElectronicDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Submits the EC Sales List report to the tax authority''s reporting service.';
 
                     trigger OnAction()
@@ -186,9 +180,6 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Mark as Su&bmitted';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Indicate that the tax authority has approved and returned the report.';
 
                     trigger OnAction()
@@ -202,9 +193,6 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Cancel Submission';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Cancels previously submitted report.';
 
                     trigger OnAction()
@@ -218,9 +206,6 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Log Entries';
                     Image = ErrorLog;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'View a history of communications with the tax authority.';
 
                     trigger OnAction()
@@ -233,9 +218,6 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Release';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Verify that the report includes all of the required information, and prepare it for submission.';
 
                     trigger OnAction()
@@ -248,9 +230,6 @@ page 321 "ECSL Report"
                     ApplicationArea = BasicEU;
                     Caption = 'Reopen';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Open the report again to make changes.';
 
                     trigger OnAction()
@@ -264,8 +243,6 @@ page 321 "ECSL Report"
                 ApplicationArea = BasicEU;
                 Caption = '&Print';
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare the report for printing by specifying the information it will include.';
                 Visible = false;
 
@@ -281,6 +258,38 @@ page 321 "ECSL Report"
                 Image = Setup;
                 RunObject = Page "VAT Report Setup";
                 ToolTip = 'Specifies the setup that will be used for the VAT reports submission.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SuggestLines_Promoted; SuggestLines)
+                {
+                }
+                actionref(Submit_Promoted; Submit)
+                {
+                }
+                actionref("Mark as Submitted_Promoted"; "Mark as Submitted")
+                {
+                }
+                actionref("Cancel Submission_Promoted"; "Cancel Submission")
+                {
+                }
+                actionref("Log Entries_Promoted"; "Log Entries")
+                {
+                }
+                actionref(Release_Promoted; Release)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
             }
         }
     }

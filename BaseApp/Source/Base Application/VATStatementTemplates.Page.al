@@ -23,14 +23,14 @@ page 318 "VAT Statement Templates"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement template.';
                 }
-                field("VAT Statement Report ID"; "VAT Statement Report ID")
+                field("VAT Statement Report ID"; Rec."VAT Statement Report ID")
                 {
                     ApplicationArea = VAT;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the ID of the report that you can print for the VAT statement template. The standard VAT statement report ID that comes with the program is entered by default. You can select a different VAT statement report ID if your program contains more than one.';
                     Visible = false;
                 }
-                field("VAT Statement Report Caption"; "VAT Statement Report Caption")
+                field("VAT Statement Report Caption"; Rec."VAT Statement Report Caption")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the name of the VAT statement report that can be printed. The field with the VAT statement name corresponding to the VAT statement report ID selected in the VAT Statement Report ID field.';

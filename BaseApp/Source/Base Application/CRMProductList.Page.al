@@ -65,8 +65,6 @@ page 5348 "CRM Product List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Products';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled products.';
 
                 trigger OnAction()
@@ -79,14 +77,26 @@ page 5348 "CRM Product List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Products';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled products.';
 
                 trigger OnAction()
                 begin
                     MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
             }
         }
     }

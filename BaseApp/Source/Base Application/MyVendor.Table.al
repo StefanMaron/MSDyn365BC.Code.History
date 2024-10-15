@@ -21,7 +21,7 @@ table 9151 "My Vendor"
 
             trigger OnValidate()
             begin
-                SetVendorFields;
+                SetVendorFields();
             end;
         }
         field(3; Name; Text[100])
@@ -37,7 +37,7 @@ table 9151 "My Vendor"
         field(5; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No.")));
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;

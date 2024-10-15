@@ -13,7 +13,7 @@ report 5976 "Service Profit (Contracts)"
             CalcFields = Name;
             DataItemTableView = SORTING("Responsibility Center", "Service Zone Code", Status, "Contract Group Code") WHERE("Contract Type" = CONST(Contract));
             RequestFilterFields = "Responsibility Center", "Contract Group Code", "Contract No.", "Posted Service Order Filter", "Date Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -223,7 +223,7 @@ report 5976 "Service Profit (Contracts)"
 
     trigger OnPreReport()
     begin
-        ServContractFilter := "Service Contract Header".GetFilters;
+        ServContractFilter := "Service Contract Header".GetFilters();
         TotalSalesAmount := 0;
         TotalDiscountAmount := 0;
         TotalContractDiscAmount := 0;

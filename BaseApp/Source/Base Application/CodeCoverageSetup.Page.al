@@ -64,7 +64,7 @@ page 9991 "Code Coverage Setup"
 
     trigger OnOpenPage()
     begin
-        SetDefaultValues;
+        SetDefaultValues();
         CodeCoverageMgt.StartAutomaticBackup(TimeInterval, BackupPath, SummaryPath);
     end;
 

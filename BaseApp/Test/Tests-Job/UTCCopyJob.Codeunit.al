@@ -420,7 +420,7 @@ codeunit 136361 "UT C Copy Job"
         VerifyJobPlanningLineLedgerEntryFields(Job[2]."No.", JobTask."Job Task No.");
     end;
 
-#if not CLEAN20
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure CopyJobWithPriceDiffCurrency()
@@ -661,7 +661,7 @@ codeunit 136361 "UT C Copy Job"
             repeat
                 "WIP-Total" := "WIP-Total"::Total;
                 "WIP Method" := JobWIPMethod.Code;
-                Modify;
+                Modify();
             until Next = 0;
         end;
     end;
@@ -683,7 +683,7 @@ codeunit 136361 "UT C Copy Job"
         JobPlanningLine.Modify();
     end;
 
-#if not CLEAN20
+#if not CLEAN21
     local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[20])
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -895,7 +895,7 @@ codeunit 136361 "UT C Copy Job"
 
     local procedure CompareJobPlanningLineFields(SourceJobPlanningLine: Record "Job Planning Line"; TargetJobPlanningLine: Record "Job Planning Line"; QuantityCopied: Boolean)
     begin
-        Assert.AreEqual(TargetJobPlanningLine."Planning Date", WorkDate, '');
+        Assert.AreEqual(TargetJobPlanningLine."Planning Date", WorkDate(), '');
         Assert.AreEqual(SourceJobPlanningLine."Document No.", TargetJobPlanningLine."Document No.", '');
         Assert.AreEqual(SourceJobPlanningLine.Type, TargetJobPlanningLine.Type, '');
         Assert.AreEqual(SourceJobPlanningLine."No.", TargetJobPlanningLine."No.", '');
@@ -1060,7 +1060,7 @@ codeunit 136361 "UT C Copy Job"
         repeat
             VerifyJobTaskDimension(TargetJobNo, TaskNo, JobTaskDimension."Dimension Code", JobTaskDimension."Dimension Value Code");
             Count += 1;
-        until JobTaskDimension.Next = 0;
+        until JobTaskDimension.Next() = 0;
         VerifyJobTaskDimensionCount(TargetJobNo, TaskNo, Count);
     end;
 

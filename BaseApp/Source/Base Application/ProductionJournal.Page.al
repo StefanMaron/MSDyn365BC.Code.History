@@ -1,10 +1,9 @@
 page 5510 "Production Journal"
 {
     Caption = 'Production Journal';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Prod. Order';
     SourceTable = "Item Journal Line";
 
     layout
@@ -22,7 +21,7 @@ page 5510 "Production Journal"
 
                     trigger OnValidate()
                     begin
-                        PostingDateOnAfterValidate;
+                        PostingDateOnAfterValidate();
                     end;
                 }
                 field(FlushingFilter; FlushingFilter)
@@ -33,7 +32,7 @@ page 5510 "Production Journal"
 
                     trigger OnValidate()
                     begin
-                        FlushingFilterOnAfterValidate;
+                        FlushingFilterOnAfterValidate();
                     end;
                 }
             }
@@ -42,32 +41,32 @@ page 5510 "Production Journal"
                 IndentationColumn = DescriptionIndent;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Order Line No."; "Order Line No.")
+                field("Order Line No."; Rec."Order Line No.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the line number of the order that created the entry.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies a document number for the journal line.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
@@ -79,7 +78,7 @@ page 5510 "Production Journal"
                             PAGE.RunModal(PAGE::"Item List", Item);
                     end;
                 }
-                field("Operation No."; "Operation No.")
+                field("Operation No."; Rec."Operation No.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
@@ -91,18 +90,18 @@ page 5510 "Production Journal"
                     ToolTip = 'Specifies the journal type, which is either Work Center or Machine Center.';
                     Visible = true;
                 }
-                field("Flushing Method"; "Flushing Method")
+                field("Flushing Method"; Rec."Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -123,100 +122,100 @@ page 5510 "Production Journal"
                     HideValue = QuantityHideValue;
                     ToolTip = 'Specifies the quantity of the component that will be posted as consumed.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the inventory location where the item on the journal line will be registered.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Work Shift Code"; "Work Shift Code")
+                field("Work Shift Code"; Rec."Work Shift Code")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = WorkShiftCodeEditable;
                     ToolTip = 'Specifies the work shift code for this Journal line.';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = StartingTimeEditable;
                     ToolTip = 'Specifies the starting time of the operation on the item journal line.';
                     Visible = false;
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = EndingTimeEditable;
                     ToolTip = 'Specifies the ending time of the operation on the item journal line.';
                     Visible = false;
                 }
-                field("Concurrent Capacity"; "Concurrent Capacity")
+                field("Concurrent Capacity"; Rec."Concurrent Capacity")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = ConcurrentCapacityEditable;
                     ToolTip = 'Specifies the concurrent capacity.';
                     Visible = false;
                 }
-                field("Setup Time"; "Setup Time")
+                field("Setup Time"; Rec."Setup Time")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = SetupTimeEditable;
                     HideValue = SetupTimeHideValue;
                     ToolTip = 'Specifies the time required to set up the machines for this journal line.';
                 }
-                field("Run Time"; "Run Time")
+                field("Run Time"; Rec."Run Time")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = RunTimeEditable;
                     HideValue = RunTimeHideValue;
                     ToolTip = 'Specifies the run time of the operations represented by this journal line.';
                 }
-                field("Cap. Unit of Measure Code"; "Cap. Unit of Measure Code")
+                field("Cap. Unit of Measure Code"; Rec."Cap. Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = CapUnitofMeasureCodeEditable;
                     ToolTip = 'Specifies the unit of measure code for the capacity usage.';
                     Visible = false;
                 }
-                field("Scrap Code"; "Scrap Code")
+                field("Scrap Code"; Rec."Scrap Code")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = ScrapCodeEditable;
                     ToolTip = 'Specifies why an item has been scrapped.';
                     Visible = false;
                 }
-                field("Output Quantity"; "Output Quantity")
+                field("Output Quantity"; Rec."Output Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = OutputQuantityEditable;
                     HideValue = OutputQuantityHideValue;
                     ToolTip = 'Specifies the quantity of the produced item that can be posted as output on the journal line.';
                 }
-                field("Scrap Quantity"; "Scrap Quantity")
+                field("Scrap Quantity"; Rec."Scrap Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = ScrapQuantityEditable;
@@ -229,39 +228,39 @@ page 5510 "Production Journal"
                     Editable = FinishedEditable;
                     ToolTip = 'Specifies that the operation represented by the output journal line is finished.';
                 }
-                field("Applies-to Entry"; "Applies-to Entry")
+                field("Applies-to Entry"; Rec."Applies-to Entry")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if the quantity on the journal line must be applied to an already-posted entry. In that case, enter the entry number that the quantity will be applied to.';
                     Visible = false;
                 }
-                field("Applies-from Entry"; "Applies-from Entry")
+                field("Applies-from Entry"; Rec."Applies-from Entry")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = AppliesFromEntryEditable;
                     ToolTip = 'Specifies the number of the outbound item ledger entry, whose cost is forwarded to the inbound item ledger entry.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -466,15 +465,13 @@ page 5510 "Production Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action(ItemTrackingLines)
@@ -482,9 +479,7 @@ page 5510 "Production Journal"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -497,8 +492,6 @@ page 5510 "Production Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -516,8 +509,6 @@ page 5510 "Production Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Released Production Order";
                     RunPageLink = "No." = FIELD("Order No.");
                     ShortCutKey = 'Shift+F7';
@@ -588,9 +579,6 @@ page 5510 "Production Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -611,9 +599,6 @@ page 5510 "Production Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -636,8 +621,6 @@ page 5510 "Production Journal"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -651,13 +634,74 @@ page 5510 "Production Journal"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category4)
+                {
+                    Caption = 'Posting';
+                    ShowAs = SplitButton;
+
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(ItemTrackingLines_Promoted; ItemTrackingLines)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Prod. Order', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetActTimeAndQtyBase;
+        GetActTimeAndQtyBase();
 
-        ControlsMngt;
+        ControlsMngt();
     end;
 
     trigger OnAfterGetRecord()
@@ -674,17 +718,17 @@ page 5510 "Production Journal"
         QuantityHideValue := false;
         DescriptionIndent := 0;
         ShowShortcutDimCode(ShortcutDimCode);
-        DescriptionOnFormat;
-        QuantityOnFormat;
-        SetupTimeOnFormat;
-        RunTimeOnFormat;
-        OutputQuantityOnFormat;
-        ScrapQuantityOnFormat;
-        ActualConsumpQtyOnFormat;
-        ActualSetupTimeOnFormat;
-        ActualRunTimeOnFormat;
-        ActualOutputQtyOnFormat;
-        ActualScrapQtyOnFormat;
+        DescriptionOnFormat();
+        QuantityOnFormat();
+        SetupTimeOnFormat();
+        RunTimeOnFormat();
+        OutputQuantityOnFormat();
+        ScrapQuantityOnFormat();
+        ActualConsumpQtyOnFormat();
+        ActualSetupTimeOnFormat();
+        ActualRunTimeOnFormat();
+        ActualOutputQtyOnFormat();
+        ActualScrapQtyOnFormat();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -721,12 +765,12 @@ page 5510 "Production Journal"
 
     trigger OnOpenPage()
     begin
-        SetFilterGroup;
+        SetFilterGroup();
 
         if ProdOrderLineNo <> 0 then
             ProdOrderLine.Get(ProdOrder.Status, ProdOrder."No.", ProdOrderLineNo);
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var
@@ -855,9 +899,9 @@ page 5510 "Production Journal"
                             CostCalcMgt.CalcActTimeAndQtyBase(
                               ProdOrderLine, "Operation No.", ActualRunTime, ActualSetupTime, ActualOutputQty, ActualScrapQty);
                             ActualSetupTime :=
-                              Round(ActualSetupTime / "Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision);
+                              Round(ActualSetupTime / "Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision());
                             ActualRunTime :=
-                              Round(ActualRunTime / "Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision);
+                              Round(ActualRunTime / "Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision());
 
                             ActualOutputQty := ActualOutputQty / "Qty. per Unit of Measure";
                             ActualScrapQty := ActualScrapQty / "Qty. per Unit of Measure";
@@ -865,8 +909,8 @@ page 5510 "Production Journal"
                                 ActualOutputQty := UOMMgt.RoundToItemRndPrecision(ActualOutputQty, Item."Rounding Precision");
                                 ActualScrapQty := UOMMgt.RoundToItemRndPrecision(ActualScrapQty, Item."Rounding Precision");
                             end else begin
-                                ActualOutputQty := Round(ActualOutputQty, UOMMgt.QtyRndPrecision);
-                                ActualScrapQty := Round(ActualScrapQty, UOMMgt.QtyRndPrecision);
+                                ActualOutputQty := Round(ActualOutputQty, UOMMgt.QtyRndPrecision());
+                                ActualScrapQty := Round(ActualScrapQty, UOMMgt.QtyRndPrecision());
                             end;
                         end;
                     end;
@@ -888,7 +932,7 @@ page 5510 "Production Journal"
         if Item."Rounding Precision" > 0 then
             ActualConsumpQty := UOMMgt.RoundToItemRndPrecision(ActualConsumpQty, Item."Rounding Precision")
         else
-            ActualConsumpQty := Round(ActualConsumpQty, UOMMgt.QtyRndPrecision);
+            ActualConsumpQty := Round(ActualConsumpQty, UOMMgt.QtyRndPrecision());
     end;
 
     local procedure ControlsMngt()
@@ -1008,7 +1052,7 @@ page 5510 "Production Journal"
 
     local procedure FlushingFilterOnAfterValidate()
     begin
-        SetFilterGroup;
+        SetFilterGroup();
         CurrPage.Update(false);
     end;
 

@@ -82,13 +82,13 @@ codeunit 104040 "Upgrade Profiles V2"
         ConfigSetup.SetRange("Your Profile Scope", ConfigSetup."Your Profile Scope"::System);
         ConfigSetup.SetFilter("Your Profile Code", '<>%1', '');
 
-        if ConfigSetup.FindSet(true) then begin
+        if ConfigSetup.FindSet(true) then
             repeat
                 if FindTenantProfileFromAppProfile(ConfigSetup."Your Profile Code", TenantProfile) then begin
                     ConfigSetup."Your Profile App ID" := TenantProfile."App ID";
                     ConfigSetup."Your Profile Code" := TenantProfile."Profile ID";
                     ConfigSetup."Your Profile Scope" := ConfigSetup."Your Profile Scope"::Tenant;
-                    if ConfigSetup.Modify then
+                    if ConfigSetup.Modify() then
                         SuccessfulModifications += 1
                     else begin
                         SendFailedToUpdateProfileReferenceTag(ConfigSetup.TableName, ConfigSetup."Your Profile Code", TenantProfile);
@@ -97,7 +97,6 @@ codeunit 104040 "Upgrade Profiles V2"
                 end else
                     FailedModifications += 1; // Telemetry already raised as part of FindTenantProfileFromAppProfile
             until ConfigSetup.Next() = 0;
-        end;
 
         SendProfileReferenceUpdatedTag(SuccessfulModifications, FailedModifications, ConfigSetup.TableName);
     end;
@@ -118,7 +117,7 @@ codeunit 104040 "Upgrade Profiles V2"
                     UserPersonalization."Profile ID" := TenantProfile."Profile ID";
                     UserPersonalization."App ID" := TenantProfile."App ID";
                     UserPersonalization.Scope := UserPersonalization.Scope::Tenant;
-                    if UserPersonalization.Modify then
+                    if UserPersonalization.Modify() then
                         SuccessfulModifications += 1
                     else begin
                         SendFailedToUpdateProfileReferenceTag(UserPersonalization.TableName, UserPersonalization."Profile ID", TenantProfile);
@@ -142,13 +141,13 @@ codeunit 104040 "Upgrade Profiles V2"
         UserGroup.SetRange("Default Profile Scope", UserGroup."Default Profile Scope"::System);
         UserGroup.SetFilter("Default Profile ID", '<>%1', '');
 
-        if UserGroup.FindSet(true) then begin
+        if UserGroup.FindSet(true) then
             repeat
                 if FindTenantProfileFromAppProfile(UserGroup."Default Profile ID", TenantProfile) then begin
                     UserGroup."Default Profile ID" := TenantProfile."Profile ID";
                     UserGroup."Default Profile App ID" := TenantProfile."App ID";
                     UserGroup."Default Profile Scope" := UserGroup."Default Profile Scope"::Tenant;
-                    if UserGroup.Modify then
+                    if UserGroup.Modify() then
                         SuccessfulModifications += 1
                     else begin
                         SendFailedToUpdateProfileReferenceTag(UserGroup.TableName, UserGroup."Default Profile ID", TenantProfile);
@@ -157,7 +156,6 @@ codeunit 104040 "Upgrade Profiles V2"
                 end else
                     FailedModifications += 1; // Telemetry already raised as part of FindTenantProfileFromAppProfile
             until UserGroup.Next() = 0;
-        end;
 
         SendProfileReferenceUpdatedTag(SuccessfulModifications, FailedModifications, UserGroup.TableName);
     end;
@@ -177,7 +175,7 @@ codeunit 104040 "Upgrade Profiles V2"
                 if ShouldUpdateProfileIdForApplicationAreaSetup(ApplicationAreaSetup."Profile ID") then
                     if FindTenantProfileFromAppProfile(ApplicationAreaSetup."Profile ID", TenantProfile) then begin
                         ApplicationAreaSetup."Profile ID" := TenantProfile."Profile ID";
-                        if ApplicationAreaSetup.Modify then
+                        if ApplicationAreaSetup.Modify() then
                             SuccessfulModifications += 1
                         else begin
                             SendFailedToUpdateProfileReferenceTag(ApplicationAreaSetup.TableName, ApplicationAreaSetup."Profile ID", TenantProfile);
@@ -195,23 +193,20 @@ codeunit 104040 "Upgrade Profiles V2"
     local procedure FindTenantProfileFromAppProfile(SystemProfileId: Code[30]; var TenantProfile: Record "Tenant Profile"): Boolean
     begin
         Clear(TenantProfile);
-        if MatchSystemProfileToBaseAppTenantProfile(SystemProfileId, TenantProfile) then begin
+        if MatchSystemProfileToBaseAppTenantProfile(SystemProfileId, TenantProfile) then
             // The system profile that we referenced is one of the ones we provided as part of demotool. 
             // Those are now AL profiles, and we can match them.
             exit(true);
-        end;
 
-        if MatchSystemProfileWithAlreadyCreatedTenantProfile(SystemProfileId, TenantProfile) then begin
+        if MatchSystemProfileWithAlreadyCreatedTenantProfile(SystemProfileId, TenantProfile) then
             // There is a user-created profile that matches the App Profile.
             // It might be because the user has created it, or because some per-company upgrade ran before this and created it in the user space.
             exit(true);
-        end;
 
-        if CreateTenantProfileFromAppProfileId(SystemProfileId, TenantProfile) then begin
+        if CreateTenantProfileFromAppProfileId(SystemProfileId, TenantProfile) then
             // This means the profile has been created by some partner extension, and we haven't migrated it as part of some other profile upgrade.
             // So we just migrate it to the Tenant scope.
             exit(true);
-        end;
 
         // We could neither match a profile nor create one. Raise a telemetry error, as we might have a broken reference, but do not fail upgrade.
         Session.LogMessage('0000A35', StrSubstNo('Could not handle a system profile reference. ProfileID: %1', SystemProfileId), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);

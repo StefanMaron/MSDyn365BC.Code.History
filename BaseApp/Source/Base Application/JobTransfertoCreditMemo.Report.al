@@ -28,7 +28,7 @@ report 1092 "Job Transfer to Credit Memo"
                             if NewCreditMemo then begin
                                 CreditMemoNo := '';
                                 if PostingDate = 0D then
-                                    PostingDate := WorkDate;
+                                    PostingDate := WorkDate();
                                 CrMemoPostingDate := 0D;
                             end;
                         end;
@@ -67,7 +67,7 @@ report 1092 "Job Transfer to Credit Memo"
                                 PostingDate := 0D;
                             end;
                             if CreditMemoNo = '' then
-                                InitReport;
+                                InitReport();
                         end;
 
                         trigger OnValidate()
@@ -79,7 +79,7 @@ report 1092 "Job Transfer to Credit Memo"
                                 PostingDate := 0D;
                             end;
                             if CreditMemoNo = '' then
-                                InitReport;
+                                InitReport();
                         end;
                     }
                     field(CrMemoPostingDate; CrMemoPostingDate)
@@ -105,7 +105,7 @@ report 1092 "Job Transfer to Credit Memo"
 
         trigger OnOpenPage()
         begin
-            InitReport;
+            InitReport();
         end;
     }
 
@@ -126,11 +126,13 @@ report 1092 "Job Transfer to Credit Memo"
     var
         Job: Record Job;
         SalesHeader: Record "Sales Header";
-        NewCreditMemo: Boolean;
-        CreditMemoNo: Code[20];
         PostingDate: Date;
         CrMemoPostingDate: Date;
         Done: Boolean;
+
+    protected var
+        CreditMemoNo: Code[20];
+        NewCreditMemo: Boolean;
 
     procedure GetCreditMemoNo(var Done2: Boolean; var NewCreditMemo2: Boolean; var PostingDate2: Date; var CreditMemoNo2: Code[20])
     begin
@@ -142,7 +144,7 @@ report 1092 "Job Transfer to Credit Memo"
 
     procedure InitReport()
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         NewCreditMemo := true;
         CreditMemoNo := '';
         CrMemoPostingDate := 0D;

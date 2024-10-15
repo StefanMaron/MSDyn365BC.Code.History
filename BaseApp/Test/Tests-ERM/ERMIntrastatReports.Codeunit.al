@@ -111,7 +111,7 @@ codeunit 134063 "ERM Intrastat Reports"
         Initialize();
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::Order, Quantity);
         // [GIVEN] Two Intrastat Journal Batches: B1, B2
-        CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate);
+        CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate());
 
         // [WHEN] Run 'Intrastat - Checklist' on on the Batch B2.
         RunGetItemEntriesAndIntrastatChecklist(
@@ -180,7 +180,7 @@ codeunit 134063 "ERM Intrastat Reports"
         Initialize();
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::Order, Quantity);
         // [GIVEN] Two Intrastat Journal Batches: B1, B2
-        CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate);
+        CreateIntrastatLineMultipleBatches(IntrastatJnlLine, WorkDate());
 
         // [WHEN] Run 'Intrastat - Checklist' on on the Batch B2.
         RunGetItemEntriesAndIntrastatChecklist(
@@ -329,8 +329,8 @@ codeunit 134063 "ERM Intrastat Reports"
         // Exercise.
         CreateIntrastatLine(IntrastatJnlLine, Today);
         RunGetItemEntries(
-          IntrastatJnlLine, WorkDate,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false);
+          IntrastatJnlLine, WorkDate(),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), false);
 
         // Verify.
         VerifyValuesOnIntrastatJournal(IntrastatJnlLine, SalesLine."No.", Quantity, Amount);
@@ -358,11 +358,11 @@ codeunit 134063 "ERM Intrastat Reports"
         CreateIntrastatLine(IntrastatJnlLine, Today);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(WorkDate);
-        LibraryVariableStorage.Enqueue(CalcDate('<6M>', WorkDate));
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(CalcDate('<6M>', WorkDate()));
         RunGetItemEntries(
-          IntrastatJnlLine, WorkDate,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), true);
+          IntrastatJnlLine, WorkDate(),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), true);
 
         // Verify.
         VerifyValuesOnIntrastatJournal(IntrastatJnlLine, SalesLine."No.", Quantity, 0);
@@ -388,11 +388,11 @@ codeunit 134063 "ERM Intrastat Reports"
         CreateIntrastatLine(IntrastatJnlLine, Today);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        LibraryVariableStorage.Enqueue(WorkDate);
-        LibraryVariableStorage.Enqueue(CalcDate('<6M>', WorkDate));
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(CalcDate('<6M>', WorkDate()));
         RunGetItemEntries(
-          IntrastatJnlLine, WorkDate,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), true);
+          IntrastatJnlLine, WorkDate(),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), true);
 
         // Verify.
         VerifyEmptyIntrastatJournal(IntrastatJnlLine, SalesLine."No.");
@@ -616,7 +616,7 @@ codeunit 134063 "ERM Intrastat Reports"
 
     local procedure RunIntrastatChecklist(IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; ItemNo: Code[20]; TransactionType: Code[10])
     begin
-        CreateIntrastatLine(IntrastatJnlLine, WorkDate);
+        CreateIntrastatLine(IntrastatJnlLine, WorkDate());
         RunGetItemEntriesAndIntrastatChecklist(IntrastatJnlLine, Type, ItemNo, TransactionType);
     end;
 
@@ -624,7 +624,7 @@ codeunit 134063 "ERM Intrastat Reports"
     var
         IntrastatChecklist: Report "Intrastat - Checklist";
     begin
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), false);
 
         Commit();
         Clear(IntrastatChecklist);
@@ -640,7 +640,7 @@ codeunit 134063 "ERM Intrastat Reports"
         IntrastatForm: Report "Intrastat - Form";
     begin
         CreateIntrastatLine(IntrastatJnlLine, Today);
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), false);
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
         IntrastatJnlLine.SetRange("Transaction Type", TransactionType);
         IntrastatJnlLine.SetRange(Type, Type);

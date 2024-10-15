@@ -12,7 +12,7 @@
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -27,7 +27,7 @@
 
             trigger OnValidate()
             begin
-                CheckEditingAllowed;
+                CheckEditingAllowed();
             end;
         }
         field(3; "VAT Report Type"; Option)
@@ -38,8 +38,8 @@
 
             trigger OnValidate()
             begin
-                CheckEditingAllowed;
-                CheckIfFilterCanBeChanged;
+                CheckEditingAllowed();
+                CheckIfFilterCanBeChanged();
 
                 if "VAT Report Type" = "VAT Report Type"::Standard then
                     "Original Report No." := '';
@@ -53,7 +53,7 @@
             trigger OnValidate()
             begin
                 TestField("Original Report No.", '');
-                CheckEditingAllowed;
+                CheckEditingAllowed();
             end;
         }
         field(5; "End Date"; Date)
@@ -64,8 +64,8 @@
             trigger OnValidate()
             begin
                 TestField("Original Report No.", '');
-                CheckEditingAllowed;
-                CheckEndDate;
+                CheckEditingAllowed();
+                CheckEndDate();
                 if "End Date" <> xRec."End Date" then
                     Validate("Processing Date", "End Date");
             end;
@@ -87,7 +87,7 @@
 
             trigger OnValidate()
             begin
-                CheckEditingAllowed;
+                CheckEditingAllowed();
             end;
         }
         field(9; "Original Report No."; Code[20])
@@ -112,7 +112,7 @@
                 LookupVATReportHeader.SetRange("VAT Report Type", "VAT Report Type"::Standard);
                 VATReportList.SetTableView(LookupVATReportHeader);
                 VATReportList.LookupMode(true);
-                if VATReportList.RunModal = ACTION::LookupOK then begin
+                if VATReportList.RunModal() = ACTION::LookupOK then begin
                     VATReportList.GetRecord(LookupVATReportHeader);
                     Validate("Original Report No.", LookupVATReportHeader."No.");
                 end;
@@ -122,15 +122,13 @@
             var
                 VATReportHeader: Record "VAT Report Header";
             begin
-                CheckEditingAllowed;
-                CheckIfFilterCanBeChanged;
+                CheckEditingAllowed();
+                CheckIfFilterCanBeChanged();
 
                 case "VAT Report Type" of
                     "VAT Report Type"::Standard:
-                        begin
-                            if "Original Report No." <> '' then
-                                Error(Text006, "VAT Report Type");
-                        end;
+                        if "Original Report No." <> '' then
+                            Error(Text006, "VAT Report Type");
                     "VAT Report Type"::Corrective:
                         begin
                             TestField("Original Report No.");
@@ -161,9 +159,9 @@
                 TestField(Status, Status::Open);
                 TestField("Original Report No.", '');
                 if "Report Period Type" <> xRec."Report Period Type" then begin
-                    if LineExists then
+                    if LineExists() then
                         Error(Text010, FieldCaption("Report Period No."));
-                    SetPeriod;
+                    SetPeriod();
                 end;
             end;
         }
@@ -177,9 +175,9 @@
                 TestField("Original Report No.", '');
                 TestField("Report Period Type");
                 if "Report Period No." <> xRec."Report Period No." then begin
-                    if LineExists then
+                    if LineExists() then
                         Error(Text010, FieldCaption("Report Period No."));
-                    SetPeriod;
+                    SetPeriod();
                 end;
             end;
         }
@@ -254,7 +252,7 @@
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                CheckIfFilterCanBeChanged;
+                CheckIfFilterCanBeChanged();
             end;
         }
         field(29; "EU Goods/Services"; Option)
@@ -266,12 +264,12 @@
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                CheckIfFilterCanBeChanged;
+                CheckIfFilterCanBeChanged();
             end;
         }
         field(31; "Total Base"; Decimal)
         {
-            CalcFormula = Sum ("VAT Report Line".Base WHERE("VAT Report No." = FIELD("No."),
+            CalcFormula = Sum("VAT Report Line".Base WHERE("VAT Report No." = FIELD("No."),
                                                             "Line Type" = FILTER(New | Correction)));
             Caption = 'Total Base';
             Editable = false;
@@ -279,7 +277,7 @@
         }
         field(32; "Total Amount"; Decimal)
         {
-            CalcFormula = Sum ("VAT Report Line".Amount WHERE("VAT Report No." = FIELD("No."),
+            CalcFormula = Sum("VAT Report Line".Amount WHERE("VAT Report No." = FIELD("No."),
                                                               "Line Type" = FILTER(New | Correction)));
             Caption = 'Total Amount';
             Editable = false;
@@ -287,7 +285,7 @@
         }
         field(33; "Total Number of Supplies"; Decimal)
         {
-            CalcFormula = Sum ("VAT Report Line"."Number of Supplies" WHERE("VAT Report No." = FIELD("No."),
+            CalcFormula = Sum("VAT Report Line"."Number of Supplies" WHERE("VAT Report No." = FIELD("No."),
                                                                             "Line Type" = FILTER(New | Correction)));
             Caption = 'Total Number of Supplies';
             Editable = false;
@@ -295,7 +293,7 @@
         }
         field(34; "Total Number of Lines"; Integer)
         {
-            CalcFormula = Count ("VAT Report Line" WHERE("VAT Report No." = FIELD("No."),
+            CalcFormula = Count("VAT Report Line" WHERE("VAT Report No." = FIELD("No."),
                                                          "Line Type" = FILTER(New | Correction)));
             Caption = 'Total Number of Lines';
             Editable = false;
@@ -446,21 +444,21 @@
         VATReportLine.DeleteAll();
         VATReportLineRelation.SetRange("VAT Report No.", "No.");
         VATReportLineRelation.DeleteAll();
-        RemoveECSLLinesAndRelation;
+        RemoveECSLLinesAndRelation();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", WorkDate, "No.", "No. Series");
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", WorkDate(), "No.", "No. Series");
 
-        InitRecord;
+        InitRecord();
     end;
 
     trigger OnModify()
     begin
-        CheckEditingAllowed;
-        CheckDates;
+        CheckEditingAllowed();
+        CheckDates();
     end;
 
     trigger OnRename()
@@ -470,9 +468,10 @@
 
     var
         VATReportSetup: Record "VAT Report Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+
         Text002: Label 'Editing is not allowed because the report is marked as %1.';
         Text003: Label 'The %1 cannot be earlier than the %2.';
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         Text004: Label 'You cannot rename the report because it has been assigned a report number.';
         Text005: Label 'You cannot specify the same report as the reference report.';
         Text006: Label 'You cannot specify an original report for a report of type %1.';
@@ -499,7 +498,7 @@
 
     procedure AssistEdit(OldVATReportHeader: Record "VAT Report Header"): Boolean
     begin
-        if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldVATReportHeader."No. Series", "No. Series") then begin
+        if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldVATReportHeader."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("No.");
             exit(true);
         end;
@@ -509,8 +508,8 @@
     begin
         "VAT Report Config. Code" := "VAT Report Config. Code"::VIES;
         "Report Period Type" := "Report Period Type"::Month;
-        "Report Period No." := Date2DMY(WorkDate, 2);
-        Validate("Report Year", Date2DMY(WorkDate, 3));
+        "Report Period No." := Date2DMY(WorkDate(), 2);
+        Validate("Report Year", Date2DMY(WorkDate(), 3));
 
         FillCompanyInfo;
 
@@ -545,7 +544,7 @@
     begin
         TestField("Start Date");
         TestField("End Date");
-        CheckEndDate;
+        CheckEndDate();
     end;
 
     procedure CheckEndDate()
@@ -566,7 +565,7 @@
                 begin
                     VATReportSetup.Get();
                     if not VATReportSetup."Modify Submitted Reports" then
-                        Error(Text007, VATReportSetup.TableCaption);
+                        Error(Text007, VATReportSetup.TableCaption());
                 end
         end;
     end;
@@ -638,7 +637,7 @@
         if ("Start Date" = 0D) or ("End Date" = 0D) then
             exit;
 
-        CheckEndDate;
+        CheckEndDate();
     end;
 
     [Scope('OnPrem')]

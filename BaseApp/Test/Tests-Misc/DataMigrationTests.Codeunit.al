@@ -658,7 +658,7 @@ codeunit 135020 "Data Migration Tests"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Data Migration Mgt.";
         JobQueueEntry.Status := Status;
         JobQueueEntry.Insert();

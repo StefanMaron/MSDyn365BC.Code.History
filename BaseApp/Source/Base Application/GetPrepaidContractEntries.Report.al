@@ -18,7 +18,7 @@ report 6033 "Get Prepaid Contract Entries"
                         ServLine."Document Type" := ServHeader."Document Type";
                         ServLine."Document No." := ServHeader."No.";
                         ServLine."Line No." := NextLine;
-                        ServLine.Description := StrSubstNo('%1: %2', ServContract.TableCaption, "Service Contract No.");
+                        ServLine.Description := StrSubstNo('%1: %2', ServContract.TableCaption(), "Service Contract No.");
                         ServLine."Customer No." := ServHeader."Customer No.";
                         ServLine."Contract No." := "Service Contract No.";
                         ServLine.Insert();
@@ -106,7 +106,7 @@ report 6033 "Get Prepaid Contract Entries"
         ServHeader.TestField("No.");
         ServHeader.TestField("Customer No.");
         ServHeader.TestField("Bill-to Customer No.");
-        GetCurrency;
+        GetCurrency();
     end;
 
     local procedure UnitAmountToFCY(FCAmount: Decimal): Decimal
@@ -126,7 +126,7 @@ report 6033 "Get Prepaid Contract Entries"
     begin
         with ServHeader do
             if "Currency Code" = '' then
-                Currency.InitRoundingPrecision
+                Currency.InitRoundingPrecision()
             else begin
                 Currency.Get("Currency Code");
                 Currency.TestField("Amount Rounding Precision");

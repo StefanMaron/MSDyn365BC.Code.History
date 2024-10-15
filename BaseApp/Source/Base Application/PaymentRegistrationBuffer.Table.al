@@ -60,10 +60,10 @@ table 981 "Payment Registration Buffer"
                     exit;
                 end;
 
-                AutoFillDate;
+                AutoFillDate();
                 if "Amount Received" = 0 then
-                    SuggestAmountReceivedBasedOnDate;
-                UpdateRemainingAmount;
+                    SuggestAmountReceivedBasedOnDate();
+                UpdateRemainingAmount();
             end;
         }
         field(10; "Date Received"; Date)
@@ -87,14 +87,14 @@ table 981 "Payment Registration Buffer"
                 MaximumRemainingAmount: Decimal;
             begin
                 if "Limit Amount Received" then begin
-                    MaximumRemainingAmount := GetMaximumPaymentAmountBasedOnDate;
+                    MaximumRemainingAmount := GetMaximumPaymentAmountBasedOnDate();
                     if "Amount Received" > MaximumRemainingAmount then
                         "Amount Received" := MaximumRemainingAmount;
                 end;
 
-                AutoFillDate;
+                AutoFillDate();
                 "Payment Made" := true;
-                UpdateRemainingAmount;
+                UpdateRemainingAmount();
             end;
         }
         field(12; "Original Remaining Amount"; Decimal)
@@ -127,7 +127,6 @@ table 981 "Payment Registration Buffer"
         {
             Caption = 'Payment Method Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Payment Method" WHERE("Use for Invoicing" = CONST(true));
         }
         field(17; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
@@ -178,17 +177,17 @@ table 981 "Payment Registration Buffer"
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup.TestField("Bal. Account No.");
 
-        Reset;
+        Reset();
         DeleteAll();
 
         CustLedgerEntry.SetFilter("Document Type", '<>%1', CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.SetRange(Open, true);
-        if CustLedgerEntry.FindSet() then begin
+        if CustLedgerEntry.FindSet() then
             repeat
                 if Customer.Get(CustLedgerEntry."Customer No.") then begin
                     CustLedgerEntry.CalcFields("Remaining Amount");
 
-                    Init;
+                    Init();
                     "Ledger Entry No." := CustLedgerEntry."Entry No.";
                     "Source No." := CustLedgerEntry."Customer No.";
                     Name := Customer.Name;
@@ -201,9 +200,7 @@ table 981 "Payment Registration Buffer"
                     "Pmt. Discount Date" := CustLedgerEntry."Pmt. Discount Date";
                     "Rem. Amt. after Discount" := "Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible";
                     if CustLedgerEntry."Payment Method Code" <> '' then
-                        "Payment Method Code" := CustLedgerEntry."Payment Method Code"
-                    else
-                        "Payment Method Code" := GetO365DefalutPaymentMethodCode;
+                        "Payment Method Code" := CustLedgerEntry."Payment Method Code";
                     "Bal. Account Type" := "Payment Balance Account Type".FromInteger(PaymentRegistrationSetup."Bal. Account Type");
                     "Bal. Account No." := PaymentRegistrationSetup."Bal. Account No.";
                     "External Document No." := CustLedgerEntry."External Document No.";
@@ -211,7 +208,6 @@ table 981 "Payment Registration Buffer"
                     Insert();
                 end;
             until CustLedgerEntry.Next() = 0;
-        end;
 
         if FindSet() then;
     end;
@@ -235,7 +231,7 @@ table 981 "Payment Registration Buffer"
 
         SaveUserValues(TempDataSavePmtRegnBuf);
 
-        PopulateTable;
+        PopulateTable();
 
         RestoreUserValues(TempDataSavePmtRegnBuf);
 
@@ -265,12 +261,12 @@ table 981 "Payment Registration Buffer"
                     "Payment Made" := TempSavePmtRegnBuf."Payment Made";
                     "Date Received" := TempSavePmtRegnBuf."Date Received";
                     "Pmt. Discount Date" := TempSavePmtRegnBuf."Pmt. Discount Date";
-                    SuggestAmountReceivedBasedOnDate;
+                    SuggestAmountReceivedBasedOnDate();
                     "Remaining Amount" := TempSavePmtRegnBuf."Remaining Amount";
                     "Amount Received" := TempSavePmtRegnBuf."Amount Received";
                     "External Document No." := TempSavePmtRegnBuf."External Document No.";
                     OnRestoreUserValuesOnBeforeModify(Rec, TempSavePmtRegnBuf);
-                    Modify;
+                    Modify();
                 end;
             until TempSavePmtRegnBuf.Next() = 0;
     end;
@@ -310,13 +306,13 @@ table 981 "Payment Registration Buffer"
         if "Date Received" = 0D then begin
             PaymentRegistrationSetup.Get(UserId);
             if PaymentRegistrationSetup."Auto Fill Date Received" then
-                "Date Received" := WorkDate;
+                "Date Received" := WorkDate();
         end;
     end;
 
     local procedure SuggestAmountReceivedBasedOnDate()
     begin
-        "Amount Received" := GetMaximumPaymentAmountBasedOnDate;
+        "Amount Received" := GetMaximumPaymentAmountBasedOnDate();
         if "Date Received" = 0D then
             exit;
         "Remaining Amount" := 0;
@@ -331,14 +327,6 @@ table 981 "Payment Registration Buffer"
             exit("Rem. Amt. after Discount");
 
         exit("Original Remaining Amount");
-    end;
-
-    local procedure GetO365DefalutPaymentMethodCode(): Code[10]
-    var
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-    begin
-        if O365SalesInitialSetup.Get and O365SalesInitialSetup."Is initialized" then
-            exit(O365SalesInitialSetup."Default Payment Method Code");
     end;
 
     local procedure UpdateRemainingAmount()

@@ -41,7 +41,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
         // 3. Verify: Error occurs for Original Report No.
         Assert.ExpectedError(
-          StrSubstNo(OriginalReportNoError, VATReportHeader.TableCaption, VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
+          StrSubstNo(OriginalReportNoError, VATReportHeader.TableCaption(), VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
     end;
 
     [Test]
@@ -63,7 +63,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
         // 3. Verify: Error occurs for status.
         Assert.ExpectedError(
-          StrSubstNo(StatusError, VATReportHeader.TableCaption, VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
+          StrSubstNo(StatusError, VATReportHeader.TableCaption(), VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
     end;
 
     [Test]
@@ -89,7 +89,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         Assert.ExpectedError(
           StrSubstNo(
             VATReportConfigCodeError, VATReportHeader.FieldCaption("VAT Report Config. Code"),
-            TempVATReportHeader."VAT Report Config. Code", VATReportHeader.TableCaption,
+            TempVATReportHeader."VAT Report Config. Code", VATReportHeader.TableCaption(),
             VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
     end;
 
@@ -108,7 +108,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update the start and end date to any date less than workdate and Run Suggest Lines.
-        VATReportHeader."Start Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(10) + 1) + 'Y>', WorkDate);
+        VATReportHeader."Start Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(10) + 1) + 'Y>', WorkDate());
         VATReportHeader."End Date" := VATReportHeader."Start Date";
         VATReportHeader.Modify();
         Commit();
@@ -117,7 +117,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
         // 3. Verify: VAT Report Line is empty.
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        Assert.IsTrue(VATReportLine.IsEmpty, StrSubstNo(EmptyError, VATReportLine.TableCaption));
+        Assert.IsTrue(VATReportLine.IsEmpty, StrSubstNo(EmptyError, VATReportLine.TableCaption()));
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         asserterror VATReportMediator.Reopen(VATReportHeader);
 
         // 3. Verify: Error occurs for not allowed to reopen due to the VAT Report Setup.
-        Assert.ExpectedError(StrSubstNo(SubmittedError, VATReportSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(SubmittedError, VATReportSetup.TableCaption()));
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         asserterror VATReportMediator.Release(VATReportHeader);
 
         // 3. Verify: Error occurs for No VAT Report Lines.
-        VATReportErrorLog."Error Message".AssertEquals(StrSubstNo(NoLinesError, CopyStr(VATReportHeader.TableCaption, 1, 3)));
+        VATReportErrorLog."Error Message".AssertEquals(StrSubstNo(NoLinesError, CopyStr(VATReportHeader.TableCaption(), 1, 3)));
         VATReportErrorLog.OK.Invoke;
     end;
 
@@ -336,11 +336,11 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
             CreateVATReportHeader(VATReportHeader);
             "Trade Type" := TradeType;
             "Report Period Type" := VATReportHeader."Report Period Type"::Month;
-            "Report Period No." := Date2DMY(WorkDate, 2);
-            "Report Year" := Date2DMY(WorkDate, 3);
-            "Start Date" := CalcDate('<-CM>', WorkDate);
-            "End Date" := CalcDate('<CM>', WorkDate);
-            Modify;
+            "Report Period No." := Date2DMY(WorkDate(), 2);
+            "Report Year" := Date2DMY(WorkDate(), 3);
+            "Start Date" := CalcDate('<-CM>', WorkDate());
+            "End Date" := CalcDate('<CM>', WorkDate());
+            Modify();
         end;
     end;
 
@@ -353,33 +353,33 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         NextVATEntryNo: Integer;
     begin
         with VATReportLine do begin
-            Init;
+            Init();
             "VAT Report No." := VATReportNo;
             "Line No." := 10000;
-            Insert;
+            Insert();
         end;
 
         NextVATEntryNo := 10000;
         for i := 1 to 300 do begin
             with VATEntry do begin
-                Init;
+                Init();
                 "Entry No." := NextVATEntryNo;
-                "Posting Date" := WorkDate;
+                "Posting Date" := WorkDate();
                 "Document No." := VATReportNo;
                 "Document Type" := VATEntry."Document Type"::Invoice;
                 Type := VATEntry.Type::Sale;
                 Base := LibraryRandom.RandInt(1000);
-                Insert;
+                Insert();
             end;
             NextVATEntryNo := NextVATEntryNo + 1;
 
             with VATReportLineRelation do begin
-                Init;
+                Init();
                 "VAT Report No." := VATReportNo;
                 "VAT Report Line No." := 10000;
                 "Table No." := DATABASE::"VAT Entry";
                 "Entry No." := VATEntry."Entry No.";
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -391,7 +391,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         LibraryERM.CreateCountryRegion(CountryRegion);
         with CountryRegion do begin
             "EU Country/Region Code" := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -402,7 +402,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         with Customer do begin
             "Country/Region Code" := CreateCountryRegionCode;
             "VAT Registration No." := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -412,7 +412,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         with Vendor do begin
             "Country/Region Code" := CreateCountryRegionCode;
             "VAT Registration No." := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -446,7 +446,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
               "Document Type", "Account Type", '', BalAccountType, CVNo, PayAmount * SignFactor);
             "Document No." := DocumentNo;
-            Modify;
+            Modify();
         end;
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);

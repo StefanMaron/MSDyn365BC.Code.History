@@ -82,7 +82,7 @@ page 9033 "Invite External Accountant"
 
                         trigger OnValidate()
                         begin
-                            DefineInitialEmailBody;
+                            DefineInitialEmailBody();
                         end;
                     }
                 }
@@ -165,7 +165,7 @@ page 9033 "Invite External Accountant"
                 begin
                     if Step = Step::DefineInformation then begin
                         if (NewUserEmailAddress <> '') and (NewFirstName <> '') and (NewLastName <> '') and (NewUserWelcomeEmail <> '') then begin
-                            Invite;
+                            Invite();
                             OnInvitationEnd(WasInvitationSuccessful, InvitationResult, TargetLicense);
                             NextStep(false);
                         end else
@@ -185,7 +185,7 @@ page 9033 "Invite External Accountant"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -193,7 +193,7 @@ page 9033 "Invite External Accountant"
 
     trigger OnInit()
     begin
-        DefineInitialEmailBody;
+        DefineInitialEmailBody();
     end;
 
     trigger OnOpenPage()
@@ -206,8 +206,8 @@ page 9033 "Invite External Accountant"
         ProgressWindow: Dialog;
         ErrorMessage: Text;
     begin
-        OnInvitationStart;
-        if not EnvironmentInfo.IsSaaS then
+        OnInvitationStart();
+        if not EnvironmentInfo.IsSaaS() then
             Error(SaaSOnlyErrorErr);
 
         ProgressWindow.Open(WizardOpenValidationMsg);
@@ -215,23 +215,23 @@ page 9033 "Invite External Accountant"
             Error(NoEmailAccountDefinedErr, Enum::"Email Scenario"::"Invite External Accountant");
 
         if not InviteExternalAccountant.InvokeIsExternalAccountantLicenseAvailable(ErrorMessage, TargetLicense) then begin
-            OnInvitationNoExternalAccountantLicenseFail;
+            OnInvitationNoExternalAccountantLicenseFail();
             Error(NoExternalAccountantLicenseAvailableErr);
         end;
 
-        if not InviteExternalAccountant.InvokeIsUserAdministrator then begin
-            OnInvitationNoAADPermissionsFail;
+        if not InviteExternalAccountant.InvokeIsUserAdministrator() then begin
+            OnInvitationNoAADPermissionsFail();
             Error(NoAADPermissionsErr);
         end;
 
-        if not (NavUserAccountHelper.IsSessionAdminSession or NavUserAccountHelper.IsUserSuperInAllCompanies) then begin
-            OnInvitationNoUserTablePermissionsFail;
+        if not (NavUserAccountHelper.IsSessionAdminSession() or NavUserAccountHelper.IsUserSuperInAllCompanies()) then begin
+            OnInvitationNoUserTablePermissionsFail();
             Error(NoUserTableWritePermissionErr);
         end;
 
-        ProgressWindow.Close;
+        ProgressWindow.Close();
         Step := Step::Start;
-        EnableControls;
+        EnableControls();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -288,15 +288,15 @@ page 9033 "Invite External Accountant"
 
     local procedure EnableControls()
     begin
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Start:
-                ShowStartStep;
+                ShowStartStep();
             Step::DefineInformation:
-                ShowDefineInformationStep;
+                ShowDefineInformationStep();
             Step::Finish:
-                ShowFinishStep;
+                ShowFinishStep();
         end;
     end;
 
@@ -307,7 +307,7 @@ page 9033 "Invite External Accountant"
         else
             Step := Step + 1;
 
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure ShowStartStep()
@@ -342,12 +342,12 @@ page 9033 "Invite External Accountant"
         ProgressWindow.Open(InviteProgressWindowMsg);
 
         if not InviteExternalAccountant.InvokeInvitationsRequest(NewFirstName + NewLastName,
-             NewUserEmailAddress, GetWebClientUrl, InvitedUserId, InviteRedeemUrl, ErrorMessage)
+             NewUserEmailAddress, GetWebClientUrl(), InvitedUserId, InviteRedeemUrl, ErrorMessage)
         then begin
             InvitationResult := FailureTxt;
             InviteProgress := StrSubstNo(InvitationErrorTxt, InviteTxt);
             InviteExternalAccountant.SendTelemetryForWizardFailure(InviteTxt, ErrorMessage);
-            ProgressWindow.Close;
+            ProgressWindow.Close();
             exit;
         end;
 
@@ -355,7 +355,7 @@ page 9033 "Invite External Accountant"
             InvitationResult := FailureTxt;
             InviteProgress := StrSubstNo(InvitationErrorTxt, InviteTxt);
             InviteExternalAccountant.SendTelemetryForWizardFailure(InviteTxt, ErrorMessage);
-            ProgressWindow.Close;
+            ProgressWindow.Close();
             exit;
         end;
 
@@ -368,7 +368,7 @@ page 9033 "Invite External Accountant"
                 InvitationResult := FailureTxt;
                 InviteProgress := StrSubstNo(InvitationErrorTxt, ProfileUpdateTxt);
                 InviteExternalAccountant.SendTelemetryForWizardFailure(ProfileUpdateTxt, ErrorMessage);
-                ProgressWindow.Close;
+                ProgressWindow.Close();
                 exit;
             end;
 
@@ -376,7 +376,7 @@ page 9033 "Invite External Accountant"
                 InvitationResult := FailureTxt;
                 InviteProgress := StrSubstNo(InvitationErrorTxt, LicenseAssignmentTxt);
                 InviteExternalAccountant.SendTelemetryForWizardFailure(LicenseAssignmentTxt, ErrorMessage);
-                ProgressWindow.Close;
+                ProgressWindow.Close();
                 exit;
             end;
 
@@ -388,16 +388,16 @@ page 9033 "Invite External Accountant"
             InvitationResult := FailureTxt;
             InviteProgress := StrSubstNo(InvitationErrorTxt, EmailTxt);
             InviteExternalAccountant.SendTelemetryForWizardFailure(EmailTxt, EmailErrorTxt);
-            ProgressWindow.Close;
+            ProgressWindow.Close();
             exit;
         end;
 
-        ProgressWindow.Close;
+        ProgressWindow.Close();
 
         InvitationResult := SuccessTxt;
         WasInvitationSuccessful := true;
         InviteProgress := StrSubstNo(InvitationSuccessTxt, NewFirstName, NewLastName);
-        InviteExternalAccountant.UpdateAssistedSetup;
+        InviteExternalAccountant.UpdateAssistedSetup();
 
         CurrPage.Update(false);
     end;
@@ -412,7 +412,7 @@ page 9033 "Invite External Accountant"
         SendToList: List of [Text];
     begin
         SendToList.Add(SendTo);
-        EmailMessage.Create(SendToList, StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing),
+        EmailMessage.Create(SendToList, StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing()),
                 DefineFullEmailBody(NewUserWelcomeEmail), true);
         EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Invite External Accountant", EmailAccount);
         exit(Email.Send(EmailMessage, EmailAccount."Account Id", EmailAccount.Connector));
@@ -437,11 +437,11 @@ page 9033 "Invite External Accountant"
         EmailBody: Text;
         EmailClosing: Text;
     begin
-        User.Get(UserSecurityId);
+        User.Get(UserSecurityId());
         Company.Get(CompanyName);
-        EmailGreeting := EmailGreetingTxt + NewFirstName + ',' + NewLineForTextControl;
-        EmailBody := StrSubstNo(EmailBodyTxt, PRODUCTNAME.Marketing) + NewLineForTextControl + NewLineForTextControl;
-        EmailClosing := EmailClosingTxt + NewLineForTextControl + User."User Name" + NewLineForTextControl + Company."Display Name";
+        EmailGreeting := EmailGreetingTxt + NewFirstName + ',' + NewLineForTextControl();
+        EmailBody := StrSubstNo(EmailBodyTxt, PRODUCTNAME.Marketing()) + NewLineForTextControl() + NewLineForTextControl();
+        EmailClosing := EmailClosingTxt + NewLineForTextControl() + User."User Name" + NewLineForTextControl() + Company."Display Name";
         NewUserWelcomeEmail := EmailGreeting + EmailBody + EmailClosing;
         CurrPage.Update();
     end;
@@ -451,11 +451,11 @@ page 9033 "Invite External Accountant"
         EmailBody: Text;
     begin
         EmailBody := ReplaceNewLinesWithHtmlLineBreak(InitialEmailMessage);
-        EmailBody := EmailBody + LineBreakForEmail + LineBreakForEmail;
-        EmailBody := EmailBody + OpenTheFollowingLinkTxt + LineBreakForEmail;
-        EmailBody := EmailBody + GetWebClientUrl + LineBreakForEmail;
-        EmailBody := EmailBody + LineBreakForEmail + LineBreakForEmail;
-        EmailBody := EmailBody + LineBreakForEmail + LineBreakForEmail;
+        EmailBody := EmailBody + LineBreakForEmail() + LineBreakForEmail();
+        EmailBody := EmailBody + OpenTheFollowingLinkTxt + LineBreakForEmail();
+        EmailBody := EmailBody + GetWebClientUrl() + LineBreakForEmail();
+        EmailBody := EmailBody + LineBreakForEmail() + LineBreakForEmail();
+        EmailBody := EmailBody + LineBreakForEmail() + LineBreakForEmail();
         exit(EmailBody)
     end;
 
@@ -477,7 +477,7 @@ page 9033 "Invite External Accountant"
     begin
         String := InputText;
         TextToReplace[1] := 10;
-        exit(String.Replace(TextToReplace, LineBreakForEmail));
+        exit(String.Replace(TextToReplace, LineBreakForEmail()));
     end;
 
     local procedure GetWebClientUrl(): Text
@@ -489,9 +489,9 @@ page 9033 "Invite External Accountant"
         TenantDomainName: Text;
         TenantObjectId: Text;
     begin
-        ClientUrl := UrlHelper.GetFixedClientEndpointBaseUrl;
+        ClientUrl := UrlHelper.GetFixedClientEndpointBaseUrl();
 
-        TenantDomainName := AzureADMgt.GetInitialTenantDomainName;
+        TenantDomainName := AzureADMgt.GetInitialTenantDomainName();
         AzureADGraph.GetTenantDetail(TenantDetail);
         TenantObjectId := TenantDetail.ObjectId;
 

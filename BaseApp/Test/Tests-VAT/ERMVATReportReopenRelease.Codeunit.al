@@ -1,11 +1,11 @@
-codeunit 134058 "ERM VAT Report Reopen Release"
+﻿codeunit 134058 "ERM VAT Report Reopen Release"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
     trigger OnRun()
     begin
-        // [FEATURE] [VAT Report] [Release/Reopen]
+        // [FEATURE] [VAT Report] [Release/Reopen] [UT]
     end;
 
     var
@@ -50,7 +50,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
         VATReportSetup.Modify();
 
         asserterror VATReportReleaseReopen.Reopen(VATReportHdr);
-        Assert.ExpectedError(StrSubstNo(MissingSetupError, VATReportSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(MissingSetupError, VATReportSetup.TableCaption()));
 
         TearDown;
     end;

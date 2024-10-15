@@ -78,8 +78,8 @@ codeunit 142500 "DACH REP Lab Tests"
 
     local procedure UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation"; PeriodSelection: Enum "VAT Statement Report Period Selection"; EntrySelection: Enum "VAT Statement Report Selection"; UseAmtsInAddCurr: Boolean)
     begin
-        GLVATReconciliation.StartDate.SetValue(WorkDate);
-        GLVATReconciliation.EndDateReq.SetValue(WorkDate);
+        GLVATReconciliation.StartDate.SetValue(WorkDate());
+        GLVATReconciliation.EndDateReq.SetValue(WorkDate());
         GLVATReconciliation.UseAmtsInAddCurr.SetValue(UseAmtsInAddCurr);
         GLVATReconciliation.PeriodSelection.SetValue(PeriodSelection);
         GLVATReconciliation.Selection.SetValue(EntrySelection);

@@ -27,7 +27,7 @@ report 11105 "Intrastat - Checklist AT"
                 column(STRSUBSTNO_Text001__Intrastat_Jnl__Batch___Statistics_Period__; StrSubstNo(Text001, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(USERID; UserId)

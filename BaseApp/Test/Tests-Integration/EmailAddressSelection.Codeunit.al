@@ -41,39 +41,6 @@ codeunit 136580 "Email Address Selection"
         Assert.IsTrue(SendToEmail = '', 'Send to ' + SendToEmail + 'Expected no email');
     end;
 
-#if not CLEAN18
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyEmailFromOnSalesHeaderFromContact()
-    var
-        Contact: Record Contact;
-        SalesHeader: Record "Sales Header";
-        ReportSelections: Record "Report Selections";
-        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
-        SendToEmail: Text[250];
-        TempPath: Text[250];
-        CustomorTemplateCode: Code[10];
-    begin
-        // [GIVEN] A newly setup Contact with email
-        Initialize();
-        LibraryMarketing.CreateCompanyContact(Contact);
-        Contact."E-Mail" := ContactEmailTok;
-        Contact.Modify();
-        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        CustomorTemplateCode :=
-          LibrarySales.CreateCustomerTemplateWithBusPostingGroups(GenBusinessPostingGroup.Code, VATBusinessPostingGroup.Code);
-
-        // [WHEN] A qoute is created
-        LibraryMarketing.CreateSalesQuoteWithContact(SalesHeader, Contact."No.", CustomorTemplateCode);
-
-        // [THEN] The document should be send to the email from the contact
-        ReportSelections.GetEmailBodyTextForCust(TempPath, GetSalesQuoteId, SalesHeader, SalesHeader."Sell-to Customer No.", SendToEmail, '');
-        Assert.IsTrue(SendToEmail = ContactEmailTok, 'Send to ' + SendToEmail + 'Expected ' + ContactEmailTok);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure VerifyEmailFromOnSalesHeaderFromCustomer()

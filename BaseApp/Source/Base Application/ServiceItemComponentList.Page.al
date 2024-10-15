@@ -13,13 +13,13 @@ page 5986 "Service Item Component List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Parent Service Item No."; "Parent Service Item No.")
+                field("Parent Service Item No."; Rec."Parent Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item in which the component is included.';
                     Visible = false;
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the line.';
@@ -36,12 +36,12 @@ page 5986 "Service Item Component List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the component type.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -51,28 +51,28 @@ page 5986 "Service Item Component List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the component.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of the component.';
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEditSerialNo;
+                        AssistEditSerialNo();
                     end;
                 }
-                field("Date Installed"; "Date Installed")
+                field("Date Installed"; Rec."Date Installed")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the component was installed.';
                 }
-                field("From Line No."; "From Line No.")
+                field("From Line No."; Rec."From Line No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the line number assigned to the component when it was an active component of the service item.';
                     Visible = false;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the component was last modified.';

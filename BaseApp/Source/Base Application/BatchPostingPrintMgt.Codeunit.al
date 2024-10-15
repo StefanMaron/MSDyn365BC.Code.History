@@ -44,7 +44,7 @@ codeunit 1373 "Batch Posting Print Mgt."
                     begin
                         if Ship then begin
                             SalesShipmentHeader."No." := "Last Shipping No.";
-                            SalesShipmentHeader.SetRecFilter;
+                            SalesShipmentHeader.SetRecFilter();
                             PrintDocument(
                                 ReportSelections.Usage::"S.Shipment", SalesShipmentHeader,
                                 SalesReceivablesSetup."Post & Print with Job Queue",
@@ -52,7 +52,7 @@ codeunit 1373 "Batch Posting Print Mgt."
                         end;
                         if Invoice then begin
                             SalesInvoiceHeader."No." := "Last Posting No.";
-                            SalesInvoiceHeader.SetRecFilter;
+                            SalesInvoiceHeader.SetRecFilter();
                             PrintDocument(
                                 ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
                                 SalesReceivablesSetup."Post & Print with Job Queue",
@@ -65,7 +65,7 @@ codeunit 1373 "Batch Posting Print Mgt."
                             SalesInvoiceHeader."No." := "No."
                         else
                             SalesInvoiceHeader."No." := "Last Posting No.";
-                        SalesInvoiceHeader.SetRecFilter;
+                        SalesInvoiceHeader.SetRecFilter();
                         PrintDocument(
                             ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
                             SalesReceivablesSetup."Post & Print with Job Queue",
@@ -77,7 +77,7 @@ codeunit 1373 "Batch Posting Print Mgt."
                             SalesCrMemoHeader."No." := "No."
                         else
                             SalesCrMemoHeader."No." := "Last Posting No.";
-                        SalesCrMemoHeader.SetRecFilter;
+                        SalesCrMemoHeader.SetRecFilter();
                         PrintDocument(
                             ReportSelections.Usage::"S.Cr.Memo", SalesCrMemoHeader,
                             SalesReceivablesSetup."Post & Print with Job Queue",
@@ -112,7 +112,7 @@ codeunit 1373 "Batch Posting Print Mgt."
                     begin
                         if Receive then begin
                             PurchRcptHeader."No." := "Last Receiving No.";
-                            PurchRcptHeader.SetRecFilter;
+                            PurchRcptHeader.SetRecFilter();
                             PrintDocument(
                                 ReportSelections.Usage::"P.Receipt", PurchRcptHeader,
                                 PurchasesPayablesSetup."Post & Print with Job Queue",
@@ -120,7 +120,7 @@ codeunit 1373 "Batch Posting Print Mgt."
                         end;
                         if Invoice then begin
                             PurchInvHeader."No." := "Last Posting No.";
-                            PurchInvHeader.SetRecFilter;
+                            PurchInvHeader.SetRecFilter();
                             PrintDocument(
                                 ReportSelections.Usage::"P.Invoice", PurchInvHeader,
                                 PurchasesPayablesSetup."Post & Print with Job Queue",
@@ -133,7 +133,7 @@ codeunit 1373 "Batch Posting Print Mgt."
                             PurchInvHeader."No." := "No."
                         else
                             PurchInvHeader."No." := "Last Posting No.";
-                        PurchInvHeader.SetRecFilter;
+                        PurchInvHeader.SetRecFilter();
                         PrintDocument(
                             ReportSelections.Usage::"P.Invoice", PurchInvHeader,
                             PurchasesPayablesSetup."Post & Print with Job Queue",
@@ -145,7 +145,7 @@ codeunit 1373 "Batch Posting Print Mgt."
                             PurchCrMemoHdr."No." := "No."
                         else
                             PurchCrMemoHdr."No." := "Last Posting No.";
-                        PurchCrMemoHdr.SetRecFilter;
+                        PurchCrMemoHdr.SetRecFilter();
                         PrintDocument(
                             ReportSelections.Usage::"P.Cr.Memo", PurchCrMemoHdr,
                             PurchasesPayablesSetup."Post & Print with Job Queue",

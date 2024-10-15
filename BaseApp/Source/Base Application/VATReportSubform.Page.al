@@ -12,7 +12,7 @@ page 741 "VAT Report Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the type of the line in the VAT report.';
@@ -32,21 +32,21 @@ page 741 "VAT Report Subform"
                         ShowVATReportEntries("VAT Report No.", "Line No.");
                     end;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT registration number of the customer or vendor that the VAT entry is linked to.';
                 }
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = VAT;
                 }
-                field("EU Service"; "EU Service")
+                field("EU Service"; Rec."EU Service")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Indicates whether the line is associated with a EU Service.';

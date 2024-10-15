@@ -15,11 +15,6 @@ codeunit 6710 ODataUtility
         WorksheetWriter: DotNet WorksheetWriter;
         WorkbookWriter: DotNet WorkbookWriter;
         ODataProtocolVersion: Option V3,V4;
-#if not CLEAN18
-        ODataWizardTitleTxt: Label 'Set up reporting data for your own reports';
-        ODataWizardShortTitleTxt: Label 'Set Up Reporting Data';
-        ODataWizardDescriptionTxt: Label 'Create data sets that you can use for building reports in Excel, Power BI, or any other reporting tool that works with an OData data source.';
-#endif
         BalanceSheetHeadingTxt: Label 'Balance Sheet';
         BalanceSheetNameTxt: Label 'BalanceSheet', Locked = true;
         CompanyTxt: Label 'Company';
@@ -140,7 +135,7 @@ codeunit 6710 ODataUtility
         FilterText: Text;
     begin
         if TenantWebService.Get(ObjectTypeParam, ServiceNameParam) then begin
-            TableItemFilterTextDictionary := TableItemFilterTextDictionary.Dictionary;
+            TableItemFilterTextDictionary := TableItemFilterTextDictionary.Dictionary();
             GetNAVFilters(TenantWebService, TableItemFilterTextDictionary);
             FilterText := CombineFiltersFromTables(TenantWebService, TableItemFilterTextDictionary);
         end;
@@ -294,13 +289,12 @@ codeunit 6710 ODataUtility
         FilterText: Text;
     begin
         TenantWebServiceFilter.SetRange(TenantWebServiceID, TenantWebService.RecordId());
-        if TenantWebServiceFilter.Find('-') then begin
+        if TenantWebServiceFilter.Find('-') then
             repeat
                 FilterText := WebServiceManagement.RetrieveTenantWebServiceFilter(TenantWebServiceFilter);
                 if StrLen(FilterText) > 0 then
                     TableItemFilterTextDictionaryParam.Add(TenantWebServiceFilter."Data Item", FilterText);
             until TenantWebServiceFilter.Next() = 0;
-        end;
     end;
 
 #if not CLEAN19
@@ -316,29 +310,10 @@ codeunit 6710 ODataUtility
     var
         TableItemFilterTextDictionary: DotNet GenericDictionary2;
     begin
-        TableItemFilterTextDictionary := TableItemFilterTextDictionary.Dictionary;
+        TableItemFilterTextDictionary := TableItemFilterTextDictionary.Dictionary();
         TableItemFilterTextDictionary.Add(1, FilterText);
         FindColumnsFromNAVFilters(TenantWebService, TableItemFilterTextDictionary, ColumnList);
     end;
-
-#If not CLEAN18
-    [Obsolete(' "Set Up Reporting Data" already exists in the codeunit 1814 "Assisted Setup Subscribers"', '18.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
-    procedure CreateAssistedSetup()
-    var
-        GuidedExperience: Codeunit "Guided Experience";
-        CompanyInformationMgt: Codeunit "Company Information Mgt.";
-        Info: ModuleInfo;
-        AssistedSetupGroup: Enum "Assisted Setup Group";
-        VideoCategory: Enum "Video Category";
-    begin
-        If (EnvironmentInfo.IsSaaS() or CompanyInformationMgt.IsDemoCompany()) then
-            exit;
-        NavApp.GetCurrentModuleInfo(Info);
-        GuidedExperience.InsertAssistedSetup(ODataWizardTitleTxt, ODataWizardShortTitleTxt, ODataWizardDescriptionTxt, 10, ObjectType::Page,
-            PAGE::"OData Setup Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::Uncategorized, '');
-    end;
-#endif
 
     procedure EditJournalWorksheetInExcel(PageCaption: Text[240]; PageId: Text; JournalBatchName: Text; JournalTemplateName: Text)
     var
@@ -379,7 +354,7 @@ codeunit 6710 ODataUtility
 
         CreateOfficeAppInfo(OfficeAppInfo);
 
-        HostName := GetHostName;
+        HostName := GetHostName();
         if StrPos(HostName, '?') <> 0 then
             HostName := CopyStr(HostName, 1, StrPos(HostName, '?') - 1);
 
@@ -399,25 +374,25 @@ codeunit 6710 ODataUtility
 
         case StatementType of
             StatementType::BalanceSheet:
-                AddBalanceSheetCellValues;
+                AddBalanceSheetCellValues();
             StatementType::SummaryTrialBalance:
-                AddSummaryTrialBalancetCellValues;
+                AddSummaryTrialBalancetCellValues();
             StatementType::AgedAccountsPayable:
-                AddAgedAccountsPayableCellValues;
+                AddAgedAccountsPayableCellValues();
             StatementType::AgedAccountsReceivable:
-                AddAgedAccountsReceivableCellValues;
+                AddAgedAccountsReceivableCellValues();
             StatementType::CashFlowStatement:
-                AddCashFlowStatementCellValues;
+                AddCashFlowStatementCellValues();
             StatementType::IncomeStatement:
-                AddIncomeStatementCellValues;
+                AddIncomeStatementCellValues();
             StatementType::StatementOfRetainedEarnings:
-                AddStatementOfRetainedEarningsCellValues;
+                AddStatementOfRetainedEarningsCellValues();
         end;
 
         WorkbookSettingsManager := WorkbookSettingsManager.WorkbookSettingsManager(WorkbookWriter.Document);
 
-        SettingsObject := SettingsObject.DynamicsExtensionSettings;
-        WorkbookSettingsManager.SettingsObject.Headers.Clear;
+        SettingsObject := SettingsObject.DynamicsExtensionSettings();
+        WorkbookSettingsManager.SettingsObject.Headers.Clear();
         if EnvironmentInfo.IsSaaS() then
             WorkbookSettingsManager.SettingsObject.Headers.Add('BCEnvironment', EnvironmentInfo.GetEnvironmentName());
         if Company.Get(TenantWebService.CurrentCompany) then
@@ -426,9 +401,9 @@ codeunit 6710 ODataUtility
             WorkbookSettingsManager.SettingsObject.Headers.Add('Company', TenantWebService.CurrentCompany);
         WorkbookSettingsManager.SetAppInfo(OfficeAppInfo);
         WorkbookSettingsManager.SetHostName(HostName);
-        WorkbookSettingsManager.SetAuthenticationTenant(AzureADTenant.GetAadTenantId);
+        WorkbookSettingsManager.SetAuthenticationTenant(AzureADTenant.GetAadTenantId());
         WorkbookSettingsManager.SetLanguage(TypeHelper.LanguageIDToCultureName(WindowsLanguage));
-        WorkbookWriter.Close;
+        WorkbookWriter.Close();
 
         FileName := TenantWebService."Service Name" + '.xltm';
         FileManagement.BLOBExport(TempBlob, FileName, ShowDialogParm);
@@ -654,7 +629,7 @@ codeunit 6710 ODataUtility
     begin
         AllObj.Get(TenantWebService."Object Type", TenantWebService."Object ID");
         ApplicationObjectMetadata.Get(AllObj."App Runtime Package ID", TenantWebService."Object Type", TenantWebService."Object ID");
-        if not ApplicationObjectMetadata.Metadata.HasValue then
+        if not ApplicationObjectMetadata.Metadata.HasValue() then
             exit;
 
         ApplicationObjectMetadata.CalcFields(Metadata);
@@ -723,13 +698,13 @@ codeunit 6710 ODataUtility
     var
         UrlHelper: Codeunit "Url Helper";
     begin
-        exit(UrlHelper.GetExcelAddinProviderServiceUrl);
+        exit(UrlHelper.GetExcelAddinProviderServiceUrl());
     end;
 
     procedure GetHostName(): Text
     begin
         if EnvironmentInfo.IsSaaS() then
-            exit(GetExcelAddinProviderServiceUrl);
+            exit(GetExcelAddinProviderServiceUrl());
         exit(GetUrl(CLIENTTYPE::Web));
     end;
 

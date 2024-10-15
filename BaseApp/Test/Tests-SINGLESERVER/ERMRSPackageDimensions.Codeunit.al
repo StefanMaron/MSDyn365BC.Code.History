@@ -102,7 +102,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         repeat
             DimNumber += 1;
             CreateDimSetEntryPackageData(1, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code", DimNumber, ConfigPackage.Code);
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
 
         // 2. Create Gen. Journal Lines
         LineNo := 10000;
@@ -281,7 +281,7 @@ codeunit 136604 "ERM RS Package Dimensions"
 
         CreateGenJnlBatchPackageData(GenJnlTemplate, GenJnlBatch);
         CreateGenJnlLinePackageData(
-          GenJnlTemplate.Name, GenJnlBatch.Name, LineNo, WorkDate,
+          GenJnlTemplate.Name, GenJnlBatch.Name, LineNo, WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(GenJnlLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Line", GenJnlLine.FieldNo("Document No."))),
@@ -303,7 +303,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         CreateGenJnlBatchPackageData(GenJnlTemplate, GenJnlBatch);
         LibraryERM.FindGLAccount(GLAccount);
         PrepareGenJnlLinePackageData(
-          ConfigPackage.Code, 1, GenJnlTemplate.Name, GenJnlBatch.Name, LineNo, WorkDate,
+          ConfigPackage.Code, 1, GenJnlTemplate.Name, GenJnlBatch.Name, LineNo, WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(GenJnlLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Line", GenJnlLine.FieldNo("Document No."))),
@@ -321,7 +321,7 @@ codeunit 136604 "ERM RS Package Dimensions"
 
         CreateGenJnlBatchPackageData(GenJnlTemplate, GenJnlBatch);
         PrepareGenJnlLinePackageData(
-          ConfigPackage.Code, 1, GenJnlTemplate.Name, GenJnlBatch.Name, LineNo, WorkDate,
+          ConfigPackage.Code, 1, GenJnlTemplate.Name, GenJnlBatch.Name, LineNo, WorkDate(),
           CopyStr(
             LibraryUtility.GenerateRandomCode(GenJnlLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Line", GenJnlLine.FieldNo("Document No."))),
@@ -396,7 +396,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         repeat
             LibraryDim.CreateDefaultDimension(
               DefaultDimension, DATABASE::"G/L Account", AccNo, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
     end;
 
     local procedure ExportImportPackage(ConfigPackageCode: Code[20])
@@ -409,7 +409,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         ConfigPackage.Get(ConfigPackageCode);
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
 
-        PackageXML := PackageXML.XmlDocument;
+        PackageXML := PackageXML.XmlDocument();
         ConfigXMLExchange.SetExcelMode(true);
         ConfigXMLExchange.ExportPackageXMLDocument(PackageXML, ConfigPackageTable, ConfigPackage, false);
         ConfigXMLExchange.ImportPackageXMLDocument(PackageXML, '');

@@ -119,7 +119,7 @@ page 511 "Change Exchange Rate"
                         if UseExchRate then begin
                             CurrencyCode3 := CurrencyCode4;
                             CurrencyFactor := CurrExchRate.ExchangeRate(Date2, CurrencyCode3);
-                            InitForm;
+                            InitForm();
                         end else begin
                             CurrencyCode := '';
                             CurrentExchRate := 0;
@@ -155,14 +155,12 @@ page 511 "Change Exchange Rate"
 
     trigger OnOpenPage()
     begin
-        InitForm;
+        InitForm();
     end;
 
     var
-        Text000: Label 'The value must be greater than 0.';
         CurrExchRate: Record "Currency Exchange Rate";
         GLSetup: Record "General Ledger Setup";
-        CurrencyCode: Code[10];
         CurrencyCode2: Code[10];
         CurrentExchRate: Decimal;
         CurrentExchRate2: Decimal;
@@ -180,7 +178,6 @@ page 511 "Change Exchange Rate"
         Date2: Date;
         Date3: Date;
         FAUsed: Boolean;
-        Text001: Label 'The %1 field is not set up properly in the Currency Exchange Rates window. For %2 or the currency set up in the %3 field, the %1 field should be set to both.', Comment = '%1 Caption for  "Fix Exchange Rate Amount" %2 a currencu code %3 Caption for "Relational Currency Code"';
         [InDataSet]
         CurrentExchRateEditable: Boolean;
         [InDataSet]
@@ -199,6 +196,12 @@ page 511 "Change Exchange Rate"
         CurrencyCode2Editable: Boolean;
         [InDataSet]
         RefCurrencyCode2Editable: Boolean;
+
+        Text000: Label 'The value must be greater than 0.';
+        Text001: Label 'The %1 field is not set up properly in the Currency Exchange Rates window. For %2 or the currency set up in the %3 field, the %1 field should be set to both.', Comment = '%1 Caption for  "Fix Exchange Rate Amount" %2 a currencu code %3 Caption for "Relational Currency Code"';
+
+    protected var
+        CurrencyCode: Code[10];
 
     procedure SetParameter(NewCurrencyCode: Code[10]; NewFactor: Decimal; Date: Date)
     begin

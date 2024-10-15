@@ -24,7 +24,7 @@ table 5997 "Standard Service Line"
                 OldType: Enum "Service Line Type";
             begin
                 OldType := Type;
-                Init;
+                Init();
                 Type := OldType;
             end;
         }
@@ -95,7 +95,7 @@ table 5997 "Standard Service Line"
                         Type::"G/L Account":
                             begin
                                 GLAcc.Get("No.");
-                                GLAcc.CheckGLAcc;
+                                GLAcc.CheckGLAcc();
                                 GLAcc.TestField("Direct Posting", true);
                                 Description := GLAcc.Name;
                             end;
@@ -125,7 +125,7 @@ table 5997 "Standard Service Line"
         }
         field(7; "Amount Excl. VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrency;
+            AutoFormatExpression = GetCurrency();
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Amount Excl. VAT';
@@ -250,7 +250,7 @@ table 5997 "Standard Service Line"
 
     procedure InsertLine(): Boolean
     begin
-        exit((Type = Type::" ") or not EmptyLine);
+        exit((Type = Type::" ") or not EmptyLine());
     end;
 
     local procedure GetCurrency(): Code[10]
@@ -264,9 +264,9 @@ table 5997 "Standard Service Line"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "No.", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-        Modify;
+        Modify();
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])

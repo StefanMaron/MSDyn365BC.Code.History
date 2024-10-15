@@ -11,6 +11,7 @@ codeunit 371 "Bank Acc. Recon. Post (Yes/No)"
         PostReconciliationQst: Label 'Do you want to post the Reconciliation?';
         PostPaymentsOnlyQst: Label 'Do you want to post the payments?';
         PostPaymentsAndReconcileQst: Label 'Do you want to post the payments and reconcile the bank account?';
+        OpenPostedBankReconciliationQst: Label 'The reconciliation was posted for bank account %1 with statement number %2. The reconciliation was moved to the Bank Account Statement List window.\\Do you want to open the bank account statement?', Comment = '%1 = bank account no., %2 = bank account statement number';
 
     procedure BankAccReconPostYesNo(var BankAccReconciliation: Record "Bank Acc. Reconciliation") Result: Boolean
     var
@@ -38,7 +39,25 @@ codeunit 371 "Bank Acc. Recon. Post (Yes/No)"
 
         CODEUNIT.Run(CODEUNIT::"Bank Acc. Reconciliation Post", BankAccRecon);
         BankAccReconciliation := BankAccRecon;
+
+        ShowPostedConfirmationMessage(BankAccRecon);
         exit(true);
+    end;
+
+    local procedure ShowPostedConfirmationMessage(BankAccRecon: Record "Bank Acc. Reconciliation")
+    var
+        BankAccountStatement: Record "Bank Account Statement";
+    begin
+        if GuiAllowed then begin
+            BankAccountStatement.SetRange(BankAccountStatement."Bank Account No.", BankAccRecon."Bank Account No.");
+            BankAccountStatement.SetRange(BankAccountStatement."Statement No.", BankAccRecon."Statement No.");
+            if not BankAccountStatement.IsEmpty() then
+                if Confirm(StrSubstNo(OpenPostedBankReconciliationQst, BankAccRecon."Bank Account No.", BankAccRecon."Statement No.")) then begin
+                    Commit();
+                    BankAccountStatement.Get(BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
+                    Page.Run(Page::"Bank Account Statement", BankAccountStatement);
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -46,4 +65,3 @@ codeunit 371 "Bank Acc. Recon. Post (Yes/No)"
     begin
     end;
 }
-

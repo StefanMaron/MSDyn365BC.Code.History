@@ -126,7 +126,7 @@ table 249 "VAT Registration Log"
         CountryRegion: Record "Country/Region";
     begin
         if "Country/Region Code" = '' then begin
-            if not CompanyInformation.Get then
+            if not CompanyInformation.Get() then
                 exit('');
             exit(CompanyInformation."Country/Region Code");
         end;
@@ -142,8 +142,8 @@ table 249 "VAT Registration Log"
     begin
         VatRegNo := UpperCase("VAT Registration No.");
         VatRegNo := DelChr(VatRegNo, '=', DelChr(VatRegNo, '=', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'));
-        if StrPos(VatRegNo, UpperCase(GetCountryCode)) = 1 then
-            VatRegNo := DelStr(VatRegNo, 1, StrLen(GetCountryCode));
+        if StrPos(VatRegNo, UpperCase(GetCountryCode())) = 1 then
+            VatRegNo := DelStr(VatRegNo, 1, StrLen(GetCountryCode()));
         exit(VatRegNo);
     end;
 

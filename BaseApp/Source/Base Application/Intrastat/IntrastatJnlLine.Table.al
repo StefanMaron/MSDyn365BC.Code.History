@@ -36,7 +36,7 @@
 
             trigger OnValidate()
             begin
-                GetItemDescription;
+                GetItemDescription();
             end;
         }
         field(7; "Item Description"; Text[100])

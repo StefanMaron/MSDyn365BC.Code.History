@@ -365,7 +365,7 @@ page 1824 "Jobs Setup Wizard"
 
                 trigger OnAction()
                 begin
-                    AddResourceAction;
+                    AddResourceAction();
                 end;
             }
             action(ActionBack)
@@ -407,7 +407,7 @@ page 1824 "Jobs Setup Wizard"
 
                 trigger OnAction()
                 begin
-                    CreateAJobAction;
+                    CreateAJobAction();
                 end;
             }
             action(ActionFinish)
@@ -421,7 +421,7 @@ page 1824 "Jobs Setup Wizard"
 
                 trigger OnAction()
                 begin
-                    FinishAction;
+                    FinishAction();
                 end;
             }
         }
@@ -429,15 +429,15 @@ page 1824 "Jobs Setup Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
     begin
-        Init;
+        Init();
 
         Step := Step::Welcome;
-        EnableControls;
+        EnableControls();
 
         if ResourcesSetup.FindFirst() then;
         if JobsSetup.FindFirst() then;
@@ -521,33 +521,33 @@ page 1824 "Jobs Setup Wizard"
                 exit;
             end;
 
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Welcome:
-                ShowWelcomeStep;
+                ShowWelcomeStep();
             Step::Users:
-                ShowAddUsersStep;
+                ShowAddUsersStep();
             Step::Resources:
-                ShowAddResourcesStep;
+                ShowAddResourcesStep();
             Step::NoSeries:
-                ShowNoSeriesStep;
+                ShowNoSeriesStep();
             Step::PostWIP:
-                ShowPostWIPStep;
+                ShowPostWIPStep();
             Step::AskTimeSheet:
-                ShowAskTimeSheetStep;
+                ShowAskTimeSheetStep();
             Step::ResourcesSetup:
-                ShowResourcesSetupStep;
+                ShowResourcesSetupStep();
             Step::DoTimeSheet:
-                ShowDoTimeSheetStep;
+                ShowDoTimeSheetStep();
             Step::Finish:
-                ShowFinalStep;
+                ShowFinalStep();
         end;
     end;
 
     local procedure FinishAction()
     begin
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     local procedure NextStep(Backwards: Boolean)
@@ -558,17 +558,17 @@ page 1824 "Jobs Setup Wizard"
             if Step <> Step::Finish then
                 Step := Step + 1;
 
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure AddResourceAction()
     begin
         if ResourceNo = '' then
             Message(EnterResourceNoMsg)
-        else begin
+        else
             with Resource do
                 if not Get(ResourceNo) then begin
-                    Init;
+                    Init();
                     "No." := ResourceNo;
                     Name := ResourceName;
                     "Search Name" := Format(ResourceName);
@@ -576,7 +576,7 @@ page 1824 "Jobs Setup Wizard"
                     "Use Time Sheet" := ResourceUseTimeSheet;
                     "Time Sheet Owner User ID" := ResourceTimeSheetOwnerID;
                     "Time Sheet Approver User ID" := ResourceTimeSheetApproverID;
-                    Insert;
+                    Insert();
                     ResourceNo := '';
                     ResourceName := '';
                     ResourceType := ResourceType::Person;
@@ -585,12 +585,11 @@ page 1824 "Jobs Setup Wizard"
                     ResourceTimeSheetApproverID := '';
                 end else
                     Message(ExistingResourceMsg)
-        end;
     end;
 
     local procedure ShowAddUsersStep()
     begin
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         AddUsersVisible := true;
         BackActionEnabled := true;
         FinishActionEnabled := false;
@@ -602,7 +601,7 @@ page 1824 "Jobs Setup Wizard"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         AddResourcesVisible := true;
         FinishActionEnabled := false;
         CreateJobActionEnabled := false;
@@ -615,7 +614,7 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure ShowWelcomeStep()
     begin
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         WelcomeStepVisible := true;
         FinishActionEnabled := false;
         BackActionEnabled := false;
@@ -627,7 +626,7 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure ShowNoSeriesStep()
     begin
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         NoSeriesStepVisible := true;
         FinishActionEnabled := false;
         AddResourcesActionEnabled := false;
@@ -636,7 +635,7 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure ShowPostWIPStep()
     begin
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         PostWIPStepVisible := true;
         FinishActionEnabled := false;
         AddResourcesActionEnabled := false;
@@ -645,7 +644,7 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure ShowAskTimeSheetStep()
     begin
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         AskTimeSheetStepVisible := true;
         FinishActionEnabled := false;
         AddResourcesActionEnabled := false;
@@ -654,7 +653,7 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure ShowResourcesSetupStep()
     begin
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         ResourcesSetupStepVisible := true;
         FinishActionEnabled := false;
         AddResourcesActionEnabled := false;
@@ -663,12 +662,12 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure ShowDoTimeSheetStep()
     begin
-        SaveResourceInformation;
-        SaveJobsSetup;
+        SaveResourceInformation();
+        SaveJobsSetup();
 
         Commit();
 
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         FinalStepVisible := true;
         NextActionEnabled := false;
         AddResourcesActionEnabled := false;
@@ -678,15 +677,15 @@ page 1824 "Jobs Setup Wizard"
 
     local procedure ShowFinalStep()
     begin
-        SetAllStepsFalse;
+        SetAllStepsFalse();
         FinalStepVisible := true;
         BackActionEnabled := false;
         NextActionEnabled := false;
         AddResourcesActionEnabled := false;
 
         if CreateTimesheetNo then begin
-            SaveResourceInformation;
-            SaveJobsSetup;
+            SaveResourceInformation();
+            SaveJobsSetup();
         end;
     end;
 
@@ -698,13 +697,13 @@ page 1824 "Jobs Setup Wizard"
         AddResourcesActionEnabled := true;
         CreateJobActionEnabled := true;
 
-        SetAllStepsFalse;
+        SetAllStepsFalse();
     end;
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -716,14 +715,14 @@ page 1824 "Jobs Setup Wizard"
     begin
         with JobsSetup do
             if not FindFirst() then begin
-                Init;
+                Init();
                 "Job Nos." := NoSeriesJob;
                 "Job WIP Nos." := NoSeriesJobWIP;
                 "Default Job Posting Group" := DefaultJobPostingGroup;
                 "Default WIP Method" := DefaultWIPMethod;
-                Insert;
+                Insert();
             end else begin
-                Get;
+                Get();
                 if "Job Nos." <> NoSeriesJob then begin
                     ModifyRecord := true;
                     "Job Nos." := NoSeriesJob;
@@ -745,22 +744,22 @@ page 1824 "Jobs Setup Wizard"
                 end;
 
                 if ModifyRecord = true then
-                    Modify;
+                    Modify();
             end;
     end;
 
     local procedure SaveResourceInformation()
     begin
-        SaveNoSeriesResourceTimeSheet;
+        SaveNoSeriesResourceTimeSheet();
         with ResourcesSetup do
             if CreateTimesheetYes then
                 if not FindFirst() then begin
-                    Init;
+                    Init();
                     "Time Sheet First Weekday" := FirstWeekday;
                     "Time Sheet by Job Approval" := SuiteJobApproval;
-                    Insert;
+                    Insert();
                 end else begin
-                    Get;
+                    Get();
                     if "Time Sheet First Weekday" <> FirstWeekday then begin
                         ModifyRecord := true;
                         "Time Sheet First Weekday" := FirstWeekday;
@@ -772,14 +771,14 @@ page 1824 "Jobs Setup Wizard"
                     end;
 
                     if ModifyRecord = true then
-                        Modify;
+                        Modify();
                 end
     end;
 
     local procedure CreateAJobAction()
     begin
         PAGE.Run(PAGE::"Job Card");
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     local procedure SetAllStepsFalse()
@@ -799,12 +798,12 @@ page 1824 "Jobs Setup Wizard"
     begin
         with ResourcesSetup do
             if not FindFirst() then begin
-                Init;
+                Init();
                 "Resource Nos." := NoSeriesResource;
                 "Time Sheet Nos." := NoSeriesTimeSheet;
-                Insert;
+                Insert();
             end else begin
-                Get;
+                Get();
                 if "Resource Nos." <> NoSeriesResource then begin
                     ModifyRecord := true;
                     "Resource Nos." := NoSeriesResource;
@@ -816,7 +815,7 @@ page 1824 "Jobs Setup Wizard"
                 end;
 
                 if ModifyRecord = true then
-                    Modify;
+                    Modify();
             end;
     end;
 }

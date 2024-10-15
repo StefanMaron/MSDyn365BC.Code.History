@@ -18,12 +18,12 @@ page 9185 "Generic Chart Text Editor"
                     ToolTip = 'Specifies a code. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                 }
-                field("Language Name"; "Language Name")
+                field("Language Name"; Rec."Language Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -48,9 +48,9 @@ page 9185 "Generic Chart Text Editor"
     begin
         Copy(TempGenericChartCaptionsBuf, true);
         SetRange(Code, CaptionCode);
-        if Get(CaptionCode, Language.GetUserLanguageCode) then;
+        if Get(CaptionCode, Language.GetUserLanguageCode()) then;
         CurrPage.RunModal();
-        exit(GetCaption(CaptionCode, Language.GetUserLanguageCode))
+        exit(GetCaption(CaptionCode, Language.GetUserLanguageCode()))
     end;
 }
 

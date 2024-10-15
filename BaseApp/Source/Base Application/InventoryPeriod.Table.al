@@ -54,23 +54,24 @@ table 5814 "Inventory Period"
     trigger OnInsert()
     begin
         if not IsValidDate("Ending Date") then
-            Error(Text002, TableCaption, "Ending Date");
+            Error(Text002, TableCaption(), "Ending Date");
     end;
 
     trigger OnRename()
     begin
         TestField(Closed, false);
         if InvtPeriodEntryExists(xRec."Ending Date") then
-            Error(Text001, TableCaption, InvtPeriodEntry.TableCaption);
+            Error(Text001, TableCaption(), InvtPeriodEntry.TableCaption());
 
         if not IsValidDate("Ending Date") then
-            Error(Text001, TableCaption, "Ending Date");
+            Error(Text001, TableCaption(), "Ending Date");
     end;
 
     var
+        InvtPeriodEntry: Record "Inventory Period Entry";
+
         Text000: Label '<Month Text> <Year4>', Locked = true;
         Text001: Label 'You cannot rename the %1 because there is at least one %2 in this period.';
-        InvtPeriodEntry: Record "Inventory Period Entry";
         Text002: Label 'You are not allowed to insert an %1 that ends before %2.';
         Text003: Label 'You cannot post before %1 because the %2 is already closed. You must re-open the period first.';
 
@@ -107,7 +108,7 @@ table 5814 "Inventory Period"
         AccPeriod.SetFilter("Starting Date", '>=%1', EndingDate);
         if not AccPeriod.Find('-') then
             exit(false);
-        if AccPeriod.Next <> 0 then
+        if AccPeriod.Next() <> 0 then
             EndingDate := CalcDate('<-1D>', AccPeriod."Starting Date");
 
         SetFilter("Ending Date", '>=%1', EndingDate);

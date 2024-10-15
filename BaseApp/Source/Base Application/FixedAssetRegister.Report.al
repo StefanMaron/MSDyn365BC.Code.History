@@ -13,7 +13,7 @@ report 5603 "Fixed Asset Register"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FA_Register__TABLECAPTION__________FARegFilter; TableCaption + ': ' + FARegFilter)
@@ -166,15 +166,16 @@ report 5603 "Fixed Asset Register"
 
     trigger OnPreReport()
     begin
-        FARegFilter := "FA Register".GetFilters;
+        FARegFilter := "FA Register".GetFilters();
     end;
 
     var
-        Text000: Label 'Canceled';
         FA: Record "Fixed Asset";
         FARegFilter: Text;
         CanceledLedgEntry: Text[30];
         FATotalAmount: Decimal;
+
+        Text000: Label 'Canceled';
         Fixed_Asset_RegisterCaptionLbl: Label 'Fixed Asset Register';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         FA_Ledger_Entry__FA_Posting_Date_CaptionLbl: Label 'FA Posting Date';

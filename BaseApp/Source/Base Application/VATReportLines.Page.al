@@ -10,29 +10,29 @@ page 742 "VAT Report Lines"
         {
             repeater(Group)
             {
-                field("VAT Report No."; "VAT Report No.")
+                field("VAT Report No."; Rec."VAT Report No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
                 }
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the line in the VAT report.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("EU Service"; "EU Service")
+                field("EU Service"; Rec."EU Service")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Indicates whether the line is associated with a EU Service.';

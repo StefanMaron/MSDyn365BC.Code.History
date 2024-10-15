@@ -19,7 +19,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateSellToCustomerId;
+                UpdateSellToCustomerId();
             end;
         }
         field(3; "No."; Code[20])
@@ -36,7 +36,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateBillToCustomerId;
+                UpdateBillToCustomerId();
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -126,7 +126,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsId;
+                UpdatePaymentTermsId();
             end;
         }
         field(24; "Due Date"; Date)
@@ -142,7 +142,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateShipmentMethodId;
+                UpdateShipmentMethodId();
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -169,7 +169,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateCurrencyId;
+                UpdateCurrencyId();
             end;
         }
         field(35; "Prices Including VAT"; Boolean)
@@ -191,7 +191,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateOrderId;
+                UpdateOrderId();
             end;
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
@@ -346,7 +346,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                if IsUsingVAT then
+                if IsUsingVAT() then
                     Error(SalesTaxOnlyFieldErr, FieldCaption("Tax Area Code"));
             end;
         }
@@ -363,7 +363,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                if not IsUsingVAT then
+                if not IsUsingVAT() then
                     Error(VATOnlyFieldErr, FieldCaption("VAT Bus. Posting Group"));
             end;
         }
@@ -476,7 +476,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateSellToCustomerNo;
+                UpdateSellToCustomerNo();
             end;
         }
         field(9632; "Order Id"; Guid)
@@ -486,7 +486,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateOrderNo;
+                UpdateOrderNo();
             end;
         }
         field(9633; "Contact Graph Id"; Text[250])
@@ -502,7 +502,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateCurrencyCode;
+                UpdateCurrencyCode();
             end;
         }
         field(9635; "Payment Terms Id"; Guid)
@@ -513,7 +513,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdatePaymentTermsCode;
+                UpdatePaymentTermsCode();
             end;
         }
         field(9636; "Shipment Method Id"; Guid)
@@ -524,7 +524,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateShipmentMethodCode;
+                UpdateShipmentMethodCode();
             end;
         }
         field(9637; "Tax Area ID"; Guid)
@@ -534,10 +534,10 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                if IsUsingVAT then
-                    UpdateVATBusinessPostingGroupCode
+                if IsUsingVAT() then
+                    UpdateVATBusinessPostingGroupCode()
                 else
-                    UpdateTaxAreaCode;
+                    UpdateTaxAreaCode();
             end;
         }
         field(9638; "Bill-to Customer Id"; Guid)
@@ -548,7 +548,7 @@ table 5475 "Sales Invoice Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateBillToCustomerNo;
+                UpdateBillToCustomerNo();
             end;
         }
     }
@@ -578,13 +578,13 @@ table 5475 "Sales Invoice Entity Aggregate"
     trigger OnInsert()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     trigger OnModify()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     trigger OnRename()
@@ -596,7 +596,7 @@ table 5475 "Sales Invoice Entity Aggregate"
             Error(CannotModifyPostedInvoiceErr);
 
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     var
@@ -762,19 +762,19 @@ table 5475 "Sales Invoice Entity Aggregate"
 
     procedure UpdateReferencedRecordIds()
     begin
-        UpdateSellToCustomerId;
-        UpdateBillToCustomerId;
-        UpdateCurrencyId;
-        UpdatePaymentTermsId;
-        UpdateShipmentMethodId;
+        UpdateSellToCustomerId();
+        UpdateBillToCustomerId();
+        UpdateCurrencyId();
+        UpdatePaymentTermsId();
+        UpdateShipmentMethodId();
 
         if ("Order No." <> '') and IsNullGuid("Order Id") then
-            UpdateOrderId;
+            UpdateOrderId();
 
 #if not CLEAN20
-        UpdateGraphContactId;
+        UpdateGraphContactId();
 #endif        
-        UpdateTaxAreaId;
+        UpdateTaxAreaId();
     end;
 
 #if not CLEAN20
@@ -793,7 +793,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         TaxArea: Record "Tax Area";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
-        if IsUsingVAT then begin
+        if IsUsingVAT() then begin
             if "VAT Bus. Posting Group" <> '' then begin
                 VATBusinessPostingGroup.SetRange(Code, "VAT Bus. Posting Group");
                 if VATBusinessPostingGroup.FindFirst() then begin
@@ -847,7 +847,7 @@ table 5475 "Sales Invoice Entity Aggregate"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        exit(GeneralLedgerSetup.UseVat);
+        exit(GeneralLedgerSetup.UseVat());
     end;
 
     procedure GetIsRenameAllowed(): Boolean
@@ -862,9 +862,13 @@ table 5475 "Sales Invoice Entity Aggregate"
 
     procedure GetParentRecordNativeInvoicing(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
+#if not CLEAN21
         SalesInvoiceHeader.SetAutoCalcFields("Last Email Sent Time", "Last Email Sent Status", "Work Description");
         SalesHeader.SetAutoCalcFields("Last Email Sent Time", "Last Email Sent Status", "Work Description");
-
+#else
+        SalesInvoiceHeader.SetAutoCalcFields("Work Description");
+        SalesHeader.SetAutoCalcFields("Work Description");
+#endif
         exit(GetParentRecord(SalesHeader, SalesInvoiceHeader));
     end;
 

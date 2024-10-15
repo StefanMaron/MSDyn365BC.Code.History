@@ -6,7 +6,6 @@ page 1290 "Payment Reconciliation Journal"
     DelayedInsert = true;
     LinksAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Manual Application,Review,Details,View,Page,Posting,Line';
     SourceTable = "Bank Acc. Reconciliation Line";
     SourceTableView = WHERE("Statement Type" = CONST("Payment Application"));
     RefreshOnActivate = true;
@@ -19,7 +18,7 @@ page 1290 "Payment Reconciliation Journal"
             {
                 FreezeColumn = "Statement Amount";
                 ShowCaption = false;
-                field("Match Confidence"; "Match Confidence")
+                field("Match Confidence"; Rec."Match Confidence")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -41,24 +40,24 @@ page 1290 "Payment Reconciliation Journal"
                         DisplayApplication();
                     end;
                 }
-                field("Transaction Date"; "Transaction Date")
+                field("Transaction Date"; Rec."Transaction Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the payment represented by the journal line was recorded in the bank account.';
                 }
-                field("Transaction Text"; "Transaction Text")
+                field("Transaction Text"; Rec."Transaction Text")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the text that the customer or vendor entered on that payment transaction that is represented by the journal line.';
                     Width = 40;
                 }
-                field("Transaction ID"; "Transaction ID")
+                field("Transaction ID"; Rec."Transaction ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the imported bank transaction.';
                     Visible = false;
                 }
-                field("Statement Amount"; "Statement Amount")
+                field("Statement Amount"; Rec."Statement Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Transaction Amount';
@@ -66,7 +65,7 @@ page 1290 "Payment Reconciliation Journal"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         CurrPage.Update(false);
                         if not BankAccReconciliation.IsEmpty() then begin
                             BankAccReconciliation.Validate("Statement Ending Balance", 0.0);
@@ -74,7 +73,7 @@ page 1290 "Payment Reconciliation Journal"
                         end;
                     end;
                 }
-                field("Applied Amount"; "Applied Amount")
+                field("Applied Amount"; Rec."Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that has been applied to one or more open entries.';
@@ -95,7 +94,7 @@ page 1290 "Payment Reconciliation Journal"
                     ToolTip = 'Specifies the difference between the values in the Statement Amount and the Remaining Amount After Posting fields.';
                     Visible = false;
                 }
-                field(GetAppliedToDocumentNo; GetAppliedToDocumentNo)
+                field(GetAppliedToDocumentNo; GetAppliedToDocumentNo())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document No.';
@@ -114,7 +113,7 @@ page 1290 "Payment Reconciliation Journal"
                     Caption = 'Due Date';
                     ToolTip = 'Specifies the due date on the open entry that the payment is applied to.';
                 }
-                field(AccountName; GetAppliedToName)
+                field(AccountName; GetAppliedToName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Account Name';
@@ -123,15 +122,15 @@ page 1290 "Payment Reconciliation Journal"
 
                     trigger OnDrillDown()
                     begin
-                        AppliedToDrillDown;
+                        AppliedToDrillDown();
                     end;
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that the payment application will be posted to when you post the worksheet.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account number that the payment application will be posted to when you post the worksheet.';
@@ -140,7 +139,7 @@ page 1290 "Payment Reconciliation Journal"
                     begin
                         CurrPage.Update();
                         if Difference <> 0 then
-                            TransferRemainingAmountToAccount;
+                            TransferRemainingAmountToAccount();
                     end;
                 }
                 field(PostingDateAppliedEntry; AppliedPmtEntry."Posting Date")
@@ -181,7 +180,7 @@ page 1290 "Payment Reconciliation Journal"
                         DisplayApplication();
                     end;
                 }
-                field("Applied Entries"; "Applied Entries")
+                field("Applied Entries"; Rec."Applied Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies for a journal line where the payment has been applied, how many entries the payment has been applied to.';
@@ -196,7 +195,7 @@ page 1290 "Payment Reconciliation Journal"
                     ToolTip = 'Specifies the amount that remains to be paid on the open entry that the payment is applied to.';
                     Visible = false;
                 }
-                field("Additional Transaction Info"; "Additional Transaction Info")
+                field("Additional Transaction Info"; Rec."Additional Transaction Info")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -204,7 +203,7 @@ page 1290 "Payment Reconciliation Journal"
                     Visible = false;
                     Width = 40;
                 }
-                field("Related-Party Address"; "Related-Party Address")
+                field("Related-Party Address"; Rec."Related-Party Address")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -212,7 +211,7 @@ page 1290 "Payment Reconciliation Journal"
                     Visible = false;
                     Width = 30;
                 }
-                field("Related-Party Bank Acc. No."; "Related-Party Bank Acc. No.")
+                field("Related-Party Bank Acc. No."; Rec."Related-Party Bank Acc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -220,7 +219,7 @@ page 1290 "Payment Reconciliation Journal"
                     Visible = false;
                     Width = 20;
                 }
-                field("Related-Party City"; "Related-Party City")
+                field("Related-Party City"; Rec."Related-Party City")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -228,7 +227,7 @@ page 1290 "Payment Reconciliation Journal"
                     Visible = false;
                     Width = 10;
                 }
-                field("Related-Party Name"; "Related-Party Name")
+                field("Related-Party Name"; Rec."Related-Party Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -236,13 +235,13 @@ page 1290 "Payment Reconciliation Journal"
                     Visible = false;
                     Width = 30;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up on the General Ledger Setup page.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up om the General Ledger Setup page.';
@@ -545,9 +544,6 @@ page 1290 "Payment Reconciliation Journal"
                     Caption = '&Import Bank Transactions';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Import a file for transaction payments that was made from your bank account and apply the payments to the entry. The file name must end in .csv, .txt, asc, or .xml.';
 
                     trigger OnAction()
@@ -567,9 +563,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Automatically';
                     Image = MapAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunPageOnRec = true;
                     ToolTip = 'Apply payments to their related open entries based on data matches between bank transaction text and entry information.';
 
@@ -628,9 +621,6 @@ page 1290 "Payment Reconciliation Journal"
                         Caption = 'Post Payments and Reconcile Bank Account';
                         Ellipsis = true;
                         Image = PostApplication;
-                        Promoted = true;
-                        PromotedCategory = Category9;
-                        PromotedIsBig = true;
                         ShortCutKey = 'F9';
                         ToolTip = 'Reconcile the bank account for payments that you post with the journal and close related ledger entries.';
 
@@ -645,9 +635,6 @@ page 1290 "Payment Reconciliation Journal"
                         Caption = 'Post Payments Only';
                         Ellipsis = true;
                         Image = PaymentJournal;
-                        Promoted = true;
-                        PromotedCategory = Category9;
-                        PromotedIsBig = true;
                         ToolTip = 'Post payments but do not close related bank account ledger entries or reconcile the bank account.';
 
                         trigger OnAction()
@@ -660,8 +647,6 @@ page 1290 "Payment Reconciliation Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Preview Posting';
                         Image = ViewPostedOrder;
-                        Promoted = true;
-                        PromotedCategory = Category9;
                         ShortCutKey = 'Ctrl+Alt+F9';
                         ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -721,9 +706,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Transfer Difference to Account';
                     Image = TransferToGeneralJournal;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Specify the balancing account to which you want a non-applicable payment amount on a payment reconciliation journal line to be posted when you post the journal.';
 
                     trigger OnAction()
@@ -739,9 +721,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Map Text to Account';
                     Image = Add;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Associate text on payments with debit, credit, and balancing accounts, so payments are posted to the accounts when you post payments. The payments are not applied to invoices or credit memos, and are suited for recurring cash receipts or expenses.';
 
                     trigger OnAction()
@@ -762,14 +741,11 @@ page 1290 "Payment Reconciliation Journal"
                     Caption = '&Apply Manually';
                     Ellipsis = true;
                     Image = ApplyEntries;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Review and apply payments that were applied automatically to wrong open entries or not applied at all.';
 
                     trigger OnAction()
                     begin
-                        DisplayApplication;
+                        DisplayApplication();
                         GetAppliedPmtData(AppliedPmtEntry, RemainingAmountAfterPosting, StatementToRemAmtDifference, PmtAppliedToTxt);
                     end;
                 }
@@ -782,9 +758,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Accept Applications';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Accept a payment application after reviewing it or manually applying it to entries. This closes the payment application and sets the Match Confidence to Accepted.';
 
                     trigger OnAction()
@@ -792,7 +765,7 @@ page 1290 "Payment Reconciliation Journal"
                         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
                     begin
                         CurrPage.SetSelectionFilter(BankAccReconciliationLine);
-                        BankAccReconciliationLine.AcceptAppliedPaymentEntriesSelectedLines;
+                        BankAccReconciliationLine.AcceptAppliedPaymentEntriesSelectedLines();
                     end;
                 }
                 action(Reject)
@@ -800,9 +773,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove Applications';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Remove a payment application from an entry. This unapplies the payment.';
 
                     trigger OnAction()
@@ -810,7 +780,7 @@ page 1290 "Payment Reconciliation Journal"
                         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
                     begin
                         CurrPage.SetSelectionFilter(BankAccReconciliationLine);
-                        BankAccReconciliationLine.RejectAppliedPaymentEntriesSelectedLines;
+                        BankAccReconciliationLine.RejectAppliedPaymentEntriesSelectedLines();
                     end;
                 }
             }
@@ -822,9 +792,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Non-Applied Lines';
                     Image = FilterLines;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Display only payments in the list that have not been applied.';
 
                     trigger OnAction()
@@ -838,9 +805,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = AllLines;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Show all payments in the list no matter what their status is.';
 
                     trigger OnAction()
@@ -854,9 +818,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sort for Review Descending';
                     Image = MoveDown;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Sort the lines in ascending order.';
 
                     trigger OnAction()
@@ -869,9 +830,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sort for Review Ascending';
                     Image = MoveUp;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Sort the lines in descending order.';
 
                     trigger OnAction()
@@ -903,8 +861,6 @@ page 1290 "Payment Reconciliation Journal"
                 ApplicationArea = Dimensions;
                 Caption = 'Line Dimensions';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Category10;
                 ToolTip = 'View or edit the line dimensions sets that are set up for the current line.';
 
                 trigger OnAction()
@@ -929,9 +885,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Transaction Details';
                     Image = ExternalDocument;
-                    Promoted = true;
-                    PromotedCategory = Category10;
-                    PromotedIsBig = true;
                     RunObject = Page "Bank Statement Line Details";
                     RunPageLink = "Data Exch. No." = FIELD("Data Exch. Entry No."),
                                   "Line No." = FIELD("Data Exch. Line No.");
@@ -946,10 +899,6 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
                     Visible = IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -958,9 +907,108 @@ page 1290 "Payment Reconciliation Journal"
                     var
                         EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        EditinExcel.EditPageInExcel(CurrPage.Caption, CurrPage.ObjectId(false), '');
+                        EditinExcel.EditPageInExcel(CurrPage.Caption(), CurrPage.ObjectId(false), '');
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ImportBankTransactions_Promoted; ImportBankTransactions)
+                {
+                }
+                actionref(ApplyAutomatically_Promoted; ApplyAutomatically)
+                {
+                }
+                group(Category_Category9)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 8.';
+                    ShowAs = SplitButton;
+
+                    actionref(PostPaymentsOnly_Promoted; PostPaymentsOnly)
+                    {
+                    }
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref(Preview_Promoted; Preview)
+                    {
+                    }
+                }
+                group(Category_Category5)
+                {
+                    Caption = 'Review', Comment = 'Generated from the PromotedActionCategories property index 4.';
+                    ShowAs = SplitButton;
+
+                    actionref(Accept_Promoted; Accept)
+                    {
+                    }
+                    actionref(Reject_Promoted; Reject)
+                    {
+                    }
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manual Application', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ApplyEntries_Promoted; ApplyEntries)
+                {
+                }
+                actionref(TransferDiffToAccount_Promoted; TransferDiffToAccount)
+                {
+                }
+                actionref(AddMappingRule_Promoted; AddMappingRule)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Details', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Show', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(ShowNonAppliedLines_Promoted; ShowNonAppliedLines)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+                actionref(SortForReviewDescending_Promoted; SortForReviewDescending)
+                {
+                }
+                actionref(SortForReviewAscending_Promoted; SortForReviewAscending)
+                {
+                }
+            }
+            group(Category_Category10)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 9.';
+
+                actionref(ShowBankTransactionDetails_Promoted; ShowBankTransactionDetails)
+                {
+                }
+                actionref(LineDimensions_Promoted; LineDimensions)
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -977,14 +1025,9 @@ page 1290 "Payment Reconciliation Journal"
 
         FinanceChargeMemoEnabled := "Account Type" = "Account Type"::Customer;
         BankAccReconciliation.CalcFields("Total Balance on Bank Account", "Total Unposted Applied Amount", "Total Transaction Amount",
-          "Total Applied Amount", "Total Outstd Bank Transactions", "Total Outstd Payments", "Total Applied Amount Payments",
+          "Total Applied Amount", "Total Outstd Bank Transactions", "Total Outstd Payments",
           "Total Paid Amount", "Total Received Amount");
         AppliedBankAmounts := CalcAppliedBankAccountLines();
-
-        OutstandingTransactions := BankAccReconciliation."Total Outstd Bank Transactions" -
-          (BankAccReconciliation."Total Applied Amount" - BankAccReconciliation."Total Unposted Applied Amount" - AppliedBankAmounts) +
-          BankAccReconciliation."Total Applied Amount Payments";
-        OutstandingPayments := BankAccReconciliation."Total Outstd Payments" - BankAccReconciliation."Total Applied Amount Payments";
 
         UpdateBalanceAfterPostingStyleExpr();
 
@@ -1008,6 +1051,7 @@ page 1290 "Payment Reconciliation Journal"
         end;
 
         UpdateEmptyListNotification();
+        UpdateNumberSeriesNotification();
     end;
 
     local procedure CalcAppliedBankAccountLines(): Decimal
@@ -1040,7 +1084,7 @@ page 1290 "Payment Reconciliation Journal"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
         AppliedPmtEntry.Init();
         StatementToRemAmtDifference := 0;
         RemainingAmountAfterPosting := 0;
@@ -1143,6 +1187,31 @@ page 1290 "Payment Reconciliation Journal"
         LinesForReviewNotification.Send();
     end;
 
+    local procedure UpdateNumberSeriesNotification()
+    var
+        BankAccount: Record "Bank Account";
+        MyNotifications: Record "My Notifications";
+        MatchBankPayments: Codeunit "Match Bank Payments";
+        NumberSeriesNotification: Notification;
+    begin
+        NumberSeriesNotification.Id := MatchBankPayments.GetNumberSeriesNotificationId();
+        NumberSeriesNotification.Recall();
+
+        if not MyNotifications.IsEnabled(NumberSeriesNotification.Id) then
+            exit;
+
+        if BankAccount.Get(BankAccReconciliation."Bank Account No.") then
+            if BankAccount."Pmt. Rec. No. Series" <> '' then
+                exit;
+
+        NumberSeriesNotification.Message := NoNumberSeriesMsg;
+        NumberSeriesNotification.Scope := NotificationScope::LocalScope;
+        NumberSeriesNotification.SetData(FieldName("Bank Account No."), BankAccReconciliation."Bank Account No.");
+        NumberSeriesNotification.AddAction(ShowDetailsTxt, CODEUNIT::"Match Bank Payments", 'OpenBankAccountCard');
+        NumberSeriesNotification.AddAction(DisableNotificationTxt, CODEUNIT::"Match Bank Payments", 'DisableNotification');
+        NumberSeriesNotification.Send();
+    end;
+
     local procedure HasApplRulesWithConfidenseAndReviewRequired(): Boolean
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
@@ -1179,8 +1248,6 @@ page 1290 "Payment Reconciliation Journal"
         LinesWithDifferenceCount: Integer;
         PageMustCloseMsg: Label 'The Payment Reconciliation Journal page has been closed because the connection was suspended.';
         PageClosedByPosting: Boolean;
-        OutstandingTransactions: Decimal;
-        OutstandingPayments: Decimal;
         AppliedBankAmounts: Decimal;
         IsSaaSExcelAddinEnabled: Boolean;
         ReviewScoreFilter: Text;
@@ -1188,6 +1255,9 @@ page 1290 "Payment Reconciliation Journal"
         ListEmptyMsg: Label 'No bank transaction lines exist. Choose the Import Bank Transactions action to fill in the lines from a file, or enter lines manually.';
         LinesForReviewNotificationMsg: Label 'One or more lines must be reviewed before posting, because they were matched automatically with rules that require review.', Comment = '%1 number of lines for review';
         LinesForReviewDifferenceActionLbl: Label 'Review applications';
+        NoNumberSeriesMsg: Label 'You can specify a number series for this journal. Open the bank account card and choose a number series in the Payment Reconciliation No. Series field.';
+        ShowDetailsTxt: Label 'Open bank account card';
+        DisableNotificationTxt: Label 'Don''t show this again';
         PreviousUXExperienceActive: Boolean;
         WouldYouLikeToRunMapTexttoAccountAgainQst: Label 'Do you want to re-apply the text to account mapping rules to all lines in the bank statement?';
         StatementEndingBalance: Text;
@@ -1261,9 +1331,9 @@ page 1290 "Payment Reconciliation Journal"
         OnBeforeInvokePost(BankAccReconciliation);
 
         if BankAccReconPostYesNo.BankAccReconPostYesNo(BankAccReconciliation) then begin
-            Reset;
+            Reset();
             PageClosedByPosting := true;
-            CurrPage.Close;
+            CurrPage.Close();
         end;
     end;
 
@@ -1286,7 +1356,7 @@ page 1290 "Payment Reconciliation Journal"
         if not PageClosedByPosting then
             if GetFilter("Bank Account No.") + GetFilter("Statement Type") + GetFilter("Statement No.") = '' then begin
                 Message(PageMustCloseMsg);
-                CurrPage.Close;
+                CurrPage.Close();
             end;
         FilterGroup := 0;
     end;

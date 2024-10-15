@@ -48,8 +48,8 @@ table 741 "VAT Report Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
 
                 Base := RoundBase(Base);
             end;
@@ -61,8 +61,8 @@ table 741 "VAT Report Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
 
                 Amount := RoundBase(Amount);
             end;
@@ -134,8 +134,8 @@ table 741 "VAT Report Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
             end;
         }
         field(26; "External Document No."; Code[35])
@@ -152,7 +152,7 @@ table 741 "VAT Report Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 CheckLineType;
             end;
         }
@@ -165,7 +165,7 @@ table 741 "VAT Report Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(32; "Related Line No."; Integer)
@@ -182,7 +182,7 @@ table 741 "VAT Report Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 CheckLineType;
             end;
         }
@@ -215,7 +215,7 @@ table 741 "VAT Report Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 CheckLineType;
             end;
         }
@@ -276,7 +276,7 @@ table 741 "VAT Report Line"
     var
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
-        CheckEditingAllowed;
+        CheckEditingAllowed();
 
         VATReportLineRelation.Reset();
         VATReportLineRelation.SetRange("VAT Report No.", "VAT Report No.");
@@ -295,7 +295,7 @@ table 741 "VAT Report Line"
 
     trigger OnModify()
     begin
-        CheckEditingAllowed;
+        CheckEditingAllowed();
     end;
 
     var
@@ -368,7 +368,7 @@ table 741 "VAT Report Line"
     begin
         VATReportSetup.Get();
         VATReportHeader.Get("VAT Report No.");
-        VATReportHeader.CheckEditingAllowed;
+        VATReportHeader.CheckEditingAllowed();
     end;
 
     [Scope('OnPrem')]
@@ -380,7 +380,7 @@ table 741 "VAT Report Line"
     begin
         CheckLineAlreadyCorrected(VATReportHeader, CorrectionVATReportLine);
         with VATReportLine2 do begin
-            Init;
+            Init();
             "VAT Report No." := VATReportHeader."No.";
             "Line No." := GetNextLineNo(VATReportHeader."No.");
             "Trade Type" := CancellationVATReportLine."Trade Type";
@@ -398,7 +398,7 @@ table 741 "VAT Report Line"
             Insert(true);
             CancellationLineNo := "Line No.";
 
-            Init;
+            Init();
             "VAT Report No." := VATReportHeader."No.";
             "Line No." += 10000;
             "Trade Type" := CorrectionVATReportLine."Trade Type";

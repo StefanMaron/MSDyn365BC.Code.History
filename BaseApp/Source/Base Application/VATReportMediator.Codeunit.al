@@ -32,8 +32,8 @@ codeunit 740 "VAT Report Mediator"
 
         VATReportLines.SetToDeclaration(VATReportHeader);
         VATReportLines.LookupMode := true;
-        if VATReportLines.RunModal = ACTION::LookupOK then
-            VATReportLines.CopyLineToDeclaration;
+        if VATReportLines.RunModal() = ACTION::LookupOK then
+            VATReportLines.CopyLineToDeclaration();
         Clear(VATReportLines);
     end;
 

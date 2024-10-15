@@ -65,7 +65,7 @@ codeunit 142066 "UT PAG VATSTAT"
 
         // Verify: Verify Report ID is updated on Page Report Selection - VAT for different Usages.
         ReportSelectionVAT."Report ID".AssertEquals(DACHReportSelections."Report ID");
-        ReportSelectionVAT.Close;
+        ReportSelectionVAT.Close();
     end;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 142066 "UT PAG VATSTAT"
 
         // Excercise & verify: Invoke Action Print on Page VAT Statement. Opens Report - VAT Statement Germany handled in VATStatementGermanyRequestPageHandler.
         VATStatement.Print.Invoke;
-        VATStatement.Close;
+        VATStatement.Close();
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 142066 "UT PAG VATSTAT"
             VATStatementAction::VATStatementSchedule:
                 VATStatement.VATStatementSchedule.Invoke;  // Opens handler VATStatementScheduleRequestPageHandler.
         end;
-        VATStatement.Close;
+        VATStatement.Close();
     end;
 
     [RequestPageHandler]

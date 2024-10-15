@@ -43,7 +43,7 @@ codeunit 131303 "Library - Pmt Disc Setup"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.Get(PaymentTermsCode);
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
     procedure SetAdjustForPaymentDisc(AdjustForPaymentDisc: Boolean)

@@ -52,16 +52,16 @@ codeunit 104100 "Upg Local Functionality"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetPhysInvntOrdersUpgradeTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetPhysInvntOrdersUpgradeTag()) THEN
             EXIT;
 
-        IF InventorySetup.GET THEN BEGIN
+        IF InventorySetup.Get() then BEGIN
             InventorySetup."Phys. Invt. Order Nos." := InventorySetup."Phys. Inv. Order Nos.";
             InventorySetup."Posted Phys. Invt. Order Nos." := InventorySetup."Posted Phys. Inv. Order Nos.";
             InventorySetup.Modify();
         END;
 
-        IF SourceCodeSetup.GET THEN BEGIN
+        IF SourceCodeSetup.Get() then BEGIN
             SourceCodeSetup."Phys. Invt. Orders" := SourceCodeSetup."Phys. Invt. Order";
             SourceCodeSetup.Modify();
         END;
@@ -164,7 +164,7 @@ codeunit 104100 "Upg Local Functionality"
                 PhysInvtCountBuffer.Insert();
             UNTIL UPGPhysInvtDiffListBuffer.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetPhysInvntOrdersUpgradeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetPhysInvntOrdersUpgradeTag());
     end;
 
     local procedure CleanupPhysOrders()
@@ -213,7 +213,7 @@ codeunit 104100 "Upg Local Functionality"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForGLVATReconciliationTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForGLVATReconciliationTag()) THEN
             EXIT;
 
         DACHReportSelections.SETRANGE(Usage, DACHReportSelections.Usage::"Sales VAT Acc. Proof");
@@ -222,7 +222,7 @@ codeunit 104100 "Upg Local Functionality"
             DACHReportSelections.Modify();
         END;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForGLVATReconciliationTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForGLVATReconciliationTag());
     end;
 
 #if not CLEAN20

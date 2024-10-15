@@ -5,20 +5,21 @@ codeunit 7305 "Whse. Jnl.-B.Register"
     trigger OnRun()
     begin
         WhseJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Copy(WhseJnlBatch);
     end;
 
     var
-        Text000: Label 'Do you want to register the journals?';
-        Text001: Label 'The journals were successfully registered.';
-        Text002: Label 'It was not possible to register all of the journals. ';
-        Text003: Label 'The journals that were not successfully registered are now marked.';
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlBatch: Record "Warehouse Journal Batch";
         WhseJnlLine: Record "Warehouse Journal Line";
         WhseJnlRegisterBatch: Codeunit "Whse. Jnl.-Register Batch";
         JnlWithErrors: Boolean;
+
+        Text000: Label 'Do you want to register the journals?';
+        Text001: Label 'The journals were successfully registered.';
+        Text002: Label 'It was not possible to register all of the journals. ';
+        Text003: Label 'The journals that were not successfully registered are now marked.';
 
     local procedure "Code"()
     begin
@@ -52,7 +53,7 @@ codeunit 7305 "Whse. Jnl.-B.Register"
                   Text003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Location Code", "Location Code");

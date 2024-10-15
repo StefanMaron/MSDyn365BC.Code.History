@@ -368,7 +368,7 @@ codeunit 142064 "UT REP VATSTAT"
         Currency.Code := LibraryUTUtility.GetNewCode10;
         Currency.Insert();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
-        CurrencyExchangeRate."Starting Date" := WorkDate;
+        CurrencyExchangeRate."Starting Date" := WorkDate();
         CurrencyExchangeRate."Exchange Rate Amount" := 1;
         CurrencyExchangeRate."Relational Exch. Rate Amount" := 1;
         CurrencyExchangeRate.Insert();
@@ -430,8 +430,8 @@ codeunit 142064 "UT REP VATSTAT"
 
     local procedure UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation"; PeriodSelection: Enum "VAT Statement Report Period Selection"; EntrySelection: Enum "VAT Statement Report Selection"; UseAmtsInAddCurr: Boolean)
     begin
-        GLVATReconciliation.StartDate.SetValue(WorkDate);
-        GLVATReconciliation.EndDateReq.SetValue(WorkDate);
+        GLVATReconciliation.StartDate.SetValue(WorkDate());
+        GLVATReconciliation.EndDateReq.SetValue(WorkDate());
         GLVATReconciliation.UseAmtsInAddCurr.SetValue(UseAmtsInAddCurr);
         GLVATReconciliation.PeriodSelection.SetValue(PeriodSelection);
         GLVATReconciliation.Selection.SetValue(EntrySelection);

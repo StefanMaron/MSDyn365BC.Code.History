@@ -12,7 +12,7 @@ report 101 "Customer - List"
         dataitem(Customer; Customer)
         {
             RequestFilterFields = "No.", "Search Name", "Customer Posting Group";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Customer_TABLECAPTION__________CustFilter; TableCaption + ': ' + CustFilter)

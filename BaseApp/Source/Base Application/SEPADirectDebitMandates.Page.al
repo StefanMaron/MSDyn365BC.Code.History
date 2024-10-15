@@ -16,48 +16,48 @@ page 1230 "SEPA Direct Debit Mandates"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the direct-debit mandate.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the customer that the direct-debit mandate is activated for.';
                     Visible = false;
                 }
-                field("Customer Bank Account Code"; "Customer Bank Account Code")
+                field("Customer Bank Account Code"; Rec."Customer Bank Account Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies customer bank account that the direct-debit mandate is activated for.';
                 }
-                field("Valid From"; "Valid From")
+                field("Valid From"; Rec."Valid From")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the direct-debit mandate starts.';
                 }
-                field("Valid To"; "Valid To")
+                field("Valid To"; Rec."Valid To")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the direct-debit mandate ends.';
                 }
-                field("Date of Signature"; "Date of Signature")
+                field("Date of Signature"; Rec."Date of Signature")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when the direct-debit mandate was signed by the customer.';
                 }
-                field("Type of Payment"; "Type of Payment")
+                field("Type of Payment"; Rec."Type of Payment")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the direct-debit transaction is the first or the last according to the expected number of direct-debit transactions that you entered in the Expected Number of Debits field.';
                 }
-                field("Expected Number of Debits"; "Expected Number of Debits")
+                field("Expected Number of Debits"; Rec."Expected Number of Debits")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how many direct-debit transactions you expect to perform using the direct-debit mandate. This field is used to calculate when to enter First or Last in the Sequence Type field in the Direct Debit Collect. Entries window.';
                 }
-                field("Ignore Expected Number of Debits"; "Ignore Exp. Number of Debits")
+                field("Ignore Expected Number of Debits"; Rec."Ignore Exp. Number of Debits")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies that the direct-debit mandate will not be closed automatically when the debit counter reaches the expected number of debits.';
                 }
-                field("Debit Counter"; "Debit Counter")
+                field("Debit Counter"; Rec."Debit Counter")
                 {
                     ApplicationArea = Suite;
                     Editable = false;

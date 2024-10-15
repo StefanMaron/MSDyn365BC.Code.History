@@ -9,13 +9,13 @@ codeunit 1752 "Data Class. Eval. Data Country"
     var
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
     begin
-        ClassifyEmployee;
-        ClassifyPayableEmployeeLedgerEntry;
-        ClassifyDetailedEmployeeLedgerEntry;
-        ClassifyEmployeeLedgerEntry;
-        ClassifyEmployeeRelative;
-        ClassifyEmployeeQualification;
-        ClassifyVATReportHeader;
+        ClassifyEmployee();
+        ClassifyPayableEmployeeLedgerEntry();
+        ClassifyDetailedEmployeeLedgerEntry();
+        ClassifyEmployeeLedgerEntry();
+        ClassifyEmployeeRelative();
+        ClassifyEmployeeQualification();
+        ClassifyVATReportHeader();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Place of Dispatcher");
@@ -32,7 +32,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales VAT Advance Notification");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Transmission Log Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Electronic VAT Decl. Setup");
+#if not CLEAN21
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Electronic VAT Decl. Buffer");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Certificate);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Key Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Number Series Buffer");

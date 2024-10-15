@@ -1,5 +1,6 @@
 table 134487 "Mock Master Table"
 {
+    ReplicateData = false;
 
     fields
     {

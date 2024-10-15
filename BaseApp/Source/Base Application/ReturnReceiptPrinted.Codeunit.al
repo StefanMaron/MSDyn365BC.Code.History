@@ -5,10 +5,10 @@ codeunit 6661 "Return Receipt - Printed"
 
     trigger OnRun()
     begin
-        Find;
+        Find();
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
-        Modify;
+        Modify();
         Commit();
     end;
 

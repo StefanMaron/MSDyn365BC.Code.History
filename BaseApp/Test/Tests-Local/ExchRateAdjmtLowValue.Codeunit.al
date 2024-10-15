@@ -33,7 +33,7 @@
 
         // Setup: Run report Exchange Rate Adjustment to verify Error Code, Actual error message: Short term liabilities until must not be before Valuation Reference Date.
         Initialize();
-        AdjustExchangeRatesReportErrors(WorkDate, false, 'TestValidation');  // Posting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
+        AdjustExchangeRatesReportErrors(WorkDate(), false, 'TestValidation');  // Posting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
     end;
 
     local procedure AdjustExchangeRatesReportErrors(PostingDate: Date; AdjGLAcc: Boolean; Expected: Text[1024])
@@ -139,7 +139,7 @@
         RunAdjExchRatesForVendorByDateBilMog(CurrencyCode, AdjustmentDate[1]);
 
         // [GIVEN] Posted payment in "January" applied to invoice
-        CreatePostPaymentAppliedToInvoice(VendorNo, WorkDate, InvoiceAmount, InvoiceNo);
+        CreatePostPaymentAppliedToInvoice(VendorNo, WorkDate(), InvoiceAmount, InvoiceNo);
 
         // [WHEN] Adjust Exchange Rate report is being printed in the end of "December" with Valuation Method "BilMoG (Germany)"
         RunAdjExchRatesForVendorByDateBilMog(CurrencyCode, AdjustmentDate[2]);
@@ -169,7 +169,7 @@
         // [SCENARIO 210882] "Exch. Rate Adjustment" report generates the only total entry in "Exch. Rate Adjmt. Reg." for multiple bank accounts with the same bank account posting group
 
         // [GIVEN] Currency "C" with exchange rate = 1.3 at "01/01/17"
-        StartingDate := CalcDate('<-CY+1D>', WorkDate);
+        StartingDate := CalcDate('<-CY+1D>', WorkDate());
 
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(StartingDate, 1, LibraryRandom.RandInt(5));
 
@@ -228,7 +228,7 @@
 
         CurrencyExchangeRate.Init();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
-        CurrencyExchangeRate."Starting Date" := WorkDate;
+        CurrencyExchangeRate."Starting Date" := WorkDate();
         CurrencyExchangeRate."Adjustment Exch. Rate Amount" := 1;
         CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" := 1;
         CurrencyExchangeRate.Insert();
@@ -238,14 +238,14 @@
     local procedure CreateCurrencyWithSpecificExchangeRates(var AdjustmentDate: array[2] of Date) CurrencyCode: Code[10]
     begin
         // Exchange rate for "October"
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<CM - 3M>', WorkDate), 1.2368, 1.2368);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<CM - 3M>', WorkDate()), 1.2368, 1.2368);
 
         // Exchange rate for "November"
-        AdjustmentDate[1] := CalcDate('<CM - 2M>', WorkDate);
+        AdjustmentDate[1] := CalcDate('<CM - 2M>', WorkDate());
         LibraryERM.CreateExchangeRate(CurrencyCode, AdjustmentDate[1], 0.92, 0.92);
 
         // Exchange rate for "December"
-        AdjustmentDate[2] := CalcDate('<CM - 1M>', WorkDate);
+        AdjustmentDate[2] := CalcDate('<CM - 1M>', WorkDate());
         LibraryERM.CreateExchangeRate(CurrencyCode, AdjustmentDate[2], 0.8, 0.8);
     end;
 
@@ -275,7 +275,7 @@
             Validate("Bal. Account Type", "Bal. Account Type"::Vendor);
             Validate("Bal. Account No.", VendorNo);
             Validate("Posting Date", PostingDate);
-            Modify;
+            Modify();
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
             exit("Document No.");
         end;
@@ -291,7 +291,7 @@
             Validate("Posting Date", PostingDate);
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Validate("Applies-to Doc. No.", InvoiceNo);
-            Modify;
+            Modify();
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -330,8 +330,8 @@
         LibraryVariableStorage.Dequeue(AdjGLAcc);
         LibraryVariableStorage.Dequeue(PostingDate);
         ExchRateAdjustment.AdjGLAccount.SetValue(AdjGLAcc);
-        ExchRateAdjustment.StartingDate.SetValue(WorkDate);
-        ExchRateAdjustment.EndingDate.SetValue(WorkDate);
+        ExchRateAdjustment.StartingDate.SetValue(WorkDate());
+        ExchRateAdjustment.EndingDate.SetValue(WorkDate());
         ExchRateAdjustment.PostingDateReq.SetValue(PostingDate);
     end;
 
@@ -340,8 +340,8 @@
     procedure AdjustExchangeRatesDueDateLimitRequestPageHandler(var ExchRateAdjustment: TestRequestPage "Exch. Rate Adjustment")
     begin
         ExchRateAdjustment.Method.SetValue(RefValuationMethod::"BilMoG (Germany)");
-        ExchRateAdjustment.ValPerEnd.SetValue(CalcDate('<+CM>', WorkDate));
-        ExchRateAdjustment.DueDateLimit.SetValue(WorkDate);  // Less than ValPerEnd.
+        ExchRateAdjustment.ValPerEnd.SetValue(CalcDate('<+CM>', WorkDate()));
+        ExchRateAdjustment.DueDateLimit.SetValue(WorkDate());  // Less than ValPerEnd.
     end;
 
     [RequestPageHandler]
@@ -356,9 +356,9 @@
     procedure AdjustExchangeRatesValPerEndRequestPageHandler(var ExchRateAdjustment: TestRequestPage "Exch. Rate Adjustment")
     begin
         ExchRateAdjustment.Method.SetValue(RefValuationMethod::"BilMoG (Germany)");
-        ExchRateAdjustment.EndingDate.SetValue(WorkDate);
-        ExchRateAdjustment.PostingDateReq.AssertEquals(WorkDate);
-        ExchRateAdjustment.ValPerEnd.AssertEquals(CalcDate('<+CM>', WorkDate));  // ValPerEnd is equal to Last day of month of Posting Date.
+        ExchRateAdjustment.EndingDate.SetValue(WorkDate());
+        ExchRateAdjustment.PostingDateReq.AssertEquals(WorkDate());
+        ExchRateAdjustment.ValPerEnd.AssertEquals(CalcDate('<+CM>', WorkDate()));  // ValPerEnd is equal to Last day of month of Posting Date.
     end;
 
     [RequestPageHandler]
@@ -366,8 +366,8 @@
     procedure AdjustExchangeRatesValuationMethodRequestPageHandler(var ExchRateAdjustment: TestRequestPage "Exch. Rate Adjustment")
     begin
         ExchRateAdjustment.Method.SetValue(RefValuationMethod::"BilMoG (Germany)");
-        ExchRateAdjustment.ValPerEnd.SetValue(WorkDate);
-        ExchRateAdjustment.DueDateLimit.AssertEquals(CalcDate('<+1Y>', WorkDate));  // DueDateLimit is equal to same day of next year of ValPerEnd.
+        ExchRateAdjustment.ValPerEnd.SetValue(WorkDate());
+        ExchRateAdjustment.DueDateLimit.AssertEquals(CalcDate('<+1Y>', WorkDate()));  // DueDateLimit is equal to same day of next year of ValPerEnd.
         Assert.IsTrue(ExchRateAdjustment.DueDateLimit.Enabled, FieldMustEnabledMsg);
         Assert.IsTrue(ExchRateAdjustment.ValPerEnd.Enabled, FieldMustEnabledMsg);
     end;

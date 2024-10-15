@@ -15,14 +15,14 @@ page 593 "Change Log Setup (Table) List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'ID';
                     Editable = false;
                     ToolTip = 'Specifies the ID of the table. ';
                 }
-                field("Object Caption"; "Object Caption")
+                field("Object Caption"; Rec."Object Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';
@@ -42,7 +42,7 @@ page 593 "Change Log Setup (Table) List"
                     begin
                         with ChangeLogSetupTable do
                             TestField("Log Insertion", "Log Insertion"::"Some Fields");
-                        AssistEdit;
+                        AssistEdit();
                     end;
 
                     trigger OnValidate()
@@ -52,11 +52,11 @@ page 593 "Change Log Setup (Table) List"
                     begin
                         if ChangeLogSetupTable."Table No." <> "Object ID" then begin
                             NewValue := ChangeLogSetupTable."Log Insertion";
-                            GetRec;
+                            GetRec();
                             ChangeLogSetupTable."Log Insertion" := NewValue;
                         end;
 
-                        if xChangeLogSetupTable.Get(ChangeLogSetupTable."Table No.") then begin
+                        if xChangeLogSetupTable.Get(ChangeLogSetupTable."Table No.") then
                             if (xChangeLogSetupTable."Log Insertion" = xChangeLogSetupTable."Log Insertion"::"Some Fields") and
                                (xChangeLogSetupTable."Log Insertion" <> ChangeLogSetupTable."Log Insertion")
                             then
@@ -64,8 +64,8 @@ page 593 "Change Log Setup (Table) List"
                                      StrSubstNo(Text002, xChangeLogSetupTable.FieldCaption("Log Insertion"), xChangeLogSetupTable."Log Insertion"), true)
                                 then
                                     ChangeLogSetupTable.DelChangeLogFields(0);
-                        end;
-                        ChangeLogSetupTableLogInsertio;
+
+                        ChangeLogSetupTableLogInsertio();
                     end;
                 }
                 field(LogModification; ChangeLogSetupTable."Log Modification")
@@ -81,7 +81,7 @@ page 593 "Change Log Setup (Table) List"
                     begin
                         with ChangeLogSetupTable do
                             TestField("Log Modification", "Log Modification"::"Some Fields");
-                        AssistEdit;
+                        AssistEdit();
                     end;
 
                     trigger OnValidate()
@@ -91,11 +91,11 @@ page 593 "Change Log Setup (Table) List"
                     begin
                         if ChangeLogSetupTable."Table No." <> "Object ID" then begin
                             NewValue := ChangeLogSetupTable."Log Modification";
-                            GetRec;
+                            GetRec();
                             ChangeLogSetupTable."Log Modification" := NewValue;
                         end;
 
-                        if xChangeLogSetupTable.Get(ChangeLogSetupTable."Table No.") then begin
+                        if xChangeLogSetupTable.Get(ChangeLogSetupTable."Table No.") then
                             if (xChangeLogSetupTable."Log Modification" = xChangeLogSetupTable."Log Modification"::"Some Fields") and
                                (xChangeLogSetupTable."Log Modification" <> ChangeLogSetupTable."Log Modification")
                             then
@@ -103,8 +103,7 @@ page 593 "Change Log Setup (Table) List"
                                      StrSubstNo(Text002, xChangeLogSetupTable.FieldCaption("Log Modification"), xChangeLogSetupTable."Log Modification"), true)
                                 then
                                     ChangeLogSetupTable.DelChangeLogFields(1);
-                        end;
-                        ChangeLogSetupTableLogModifica;
+                        ChangeLogSetupTableLogModifica();
                     end;
                 }
                 field(LogDeletion; ChangeLogSetupTable."Log Deletion")
@@ -120,7 +119,7 @@ page 593 "Change Log Setup (Table) List"
                     begin
                         with ChangeLogSetupTable do
                             TestField("Log Deletion", "Log Deletion"::"Some Fields");
-                        AssistEdit;
+                        AssistEdit();
                     end;
 
                     trigger OnValidate()
@@ -130,11 +129,11 @@ page 593 "Change Log Setup (Table) List"
                     begin
                         if ChangeLogSetupTable."Table No." <> "Object ID" then begin
                             NewValue := ChangeLogSetupTable."Log Deletion";
-                            GetRec;
+                            GetRec();
                             ChangeLogSetupTable."Log Deletion" := NewValue;
                         end;
 
-                        if xChangeLogSetupTable.Get(ChangeLogSetupTable."Table No.") then begin
+                        if xChangeLogSetupTable.Get(ChangeLogSetupTable."Table No.") then
                             if (xChangeLogSetupTable."Log Deletion" = xChangeLogSetupTable."Log Deletion"::"Some Fields") and
                                (xChangeLogSetupTable."Log Deletion" <> ChangeLogSetupTable."Log Deletion")
                             then
@@ -142,8 +141,7 @@ page 593 "Change Log Setup (Table) List"
                                      StrSubstNo(Text002, xChangeLogSetupTable.FieldCaption("Log Deletion"), xChangeLogSetupTable."Log Deletion"), true)
                                 then
                                     ChangeLogSetupTable.DelChangeLogFields(2);
-                        end;
-                        ChangeLogSetupTableLogDeletion;
+                        ChangeLogSetupTableLogDeletion();
                     end;
                 }
             }
@@ -156,7 +154,7 @@ page 593 "Change Log Setup (Table) List"
 
     trigger OnAfterGetRecord()
     begin
-        GetRec;
+        GetRec();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -212,10 +210,10 @@ page 593 "Change Log Setup (Table) List"
             if ("Log Insertion" = "Log Insertion"::" ") and ("Log Modification" = "Log Modification"::" ") and
                ("Log Deletion" = "Log Deletion"::" ")
             then begin
-                if Delete then;
+                if Delete() then;
             end else
-                if not Modify then
-                    Insert;
+                if not Modify() then
+                    Insert();
 
         ChangeLogSettingsUpdated := true;
     end;
@@ -242,7 +240,7 @@ page 593 "Change Log Setup (Table) List"
         if AllObjWithCaption.Find('-') then
             repeat
                 Rec := AllObjWithCaption;
-                Insert;
+                Insert();
             until AllObjWithCaption.Next() = 0;
     end;
 
@@ -253,17 +251,17 @@ page 593 "Change Log Setup (Table) List"
 
     local procedure ChangeLogSetupTableLogInsertio()
     begin
-        UpdateRec;
+        UpdateRec();
     end;
 
     local procedure ChangeLogSetupTableLogModifica()
     begin
-        UpdateRec;
+        UpdateRec();
     end;
 
     local procedure ChangeLogSetupTableLogDeletion()
     begin
-        UpdateRec;
+        UpdateRec();
     end;
 
     [IntegrationEvent(false, false)]

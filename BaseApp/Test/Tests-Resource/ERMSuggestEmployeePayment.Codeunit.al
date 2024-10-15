@@ -93,7 +93,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         NoOfLines := 2 * LibraryRandom.RandInt(5);  // Use Random Number to generate more than two lines.
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee2);
         CreateMultipleGenJournalLine(
-          GenJournalLine, GenJournalBatch, NoOfLines, WorkDate, Employee2."No.",
+          GenJournalLine, GenJournalBatch, NoOfLines, WorkDate(), Employee2."No.",
           GenJournalLine."Document Type"::" ", -1);
 
         // Exercise: Post General Journal Lines and Run Report Suggest Employee Payment.
@@ -132,9 +132,9 @@ codeunit 134116 "ERM Suggest Employee Payment"
 
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
-        CreateMultipleGenJournalLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandInt(2), CalcDate('<-1D>', WorkDate),
+        CreateMultipleGenJournalLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandInt(2), CalcDate('<-1D>', WorkDate()),
           Employee."No.", GenJournalLine."Document Type"::" ", -1);
-        CreateMultipleGenJournalLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandInt(2), WorkDate,
+        CreateMultipleGenJournalLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandInt(2), WorkDate(),
           Employee."No.", GenJournalLine."Document Type"::" ", -1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -198,8 +198,8 @@ codeunit 134116 "ERM Suggest Employee Payment"
         NumberOfLines := 1 + LibraryRandom.RandInt(5);  // Use Random Number to generate more than one line.
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
-        CreateMultipleGenJournalLine(GenJournalLine, GenJournalBatch, NumberOfLines, WorkDate, Employee."No.", DocumentType, AmountSign);
-        CreateMultipleGenJournalLine(GenJournalLine, GenJournalBatch, 1, WorkDate, Employee."No.", DocumentType2, -AmountSign);
+        CreateMultipleGenJournalLine(GenJournalLine, GenJournalBatch, NumberOfLines, WorkDate(), Employee."No.", DocumentType, AmountSign);
+        CreateMultipleGenJournalLine(GenJournalLine, GenJournalBatch, 1, WorkDate(), Employee."No.", DocumentType2, -AmountSign);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Set Applies to ID to all Expenses.
@@ -229,10 +229,10 @@ codeunit 134116 "ERM Suggest Employee Payment"
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
         ExpenseAmount := LibraryRandom.RandDec(1000, 2);  // Use Random for Expense Amount.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, WorkDate, Employee."No.", GenJournalLine."Document Type"::" ", -ExpenseAmount);
+          GenJournalLine, GenJournalBatch, WorkDate(), Employee."No.", GenJournalLine."Document Type"::" ", -ExpenseAmount);
         ExpenseNo := GenJournalLine."Document No.";
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, WorkDate, Employee."No.", GenJournalLine."Document Type"::Payment,
+          GenJournalLine, GenJournalBatch, WorkDate(), Employee."No.", GenJournalLine."Document Type"::Payment,
           ExpenseAmount * LibraryUtility.GenerateRandomFraction);
         ApplyGenJnlLineEntryToExpense(GenJournalLine, ExpenseNo);
 
@@ -705,7 +705,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
 
         // [THEN] Page Create Employee Payment shows Batch Name = Blank
         Assert.AreEqual('', Format(CreateEmployeePayment."Batch Name"), '');
-        CreateEmployeePayment.Close;
+        CreateEmployeePayment.Close();
     end;
 
     [Test]
@@ -728,7 +728,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
 
         // [THEN] Page Create Employee Payment shows Batch Name = Blank
         Assert.AreEqual('', Format(CreateEmployeePayment."Batch Name"), '');
-        CreateEmployeePayment.Close;
+        CreateEmployeePayment.Close();
     end;
 
     [Test]
@@ -755,7 +755,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
 
         // [GIVEN] Gen. Journal line in Batch "B" with "Document No." equal to 100
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, WorkDate, LibraryHumanResource.CreateEmployeeNo,
+          GenJournalLine, GenJournalBatch, WorkDate(), LibraryHumanResource.CreateEmployeeNo,
           GenJournalLine."Document Type"::Payment, -LibraryRandom.RandInt(10));
 
         // [WHEN] On Create Employee Payment page "Batch name" is set to "B"
@@ -767,7 +767,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.FindLast();
         CreateEmployeePayment."Starting Document No.".AssertEquals(IncStr(GenJournalLine."Document No."));
-        CreateEmployeePayment.Close;
+        CreateEmployeePayment.Close();
     end;
 
     [Test]
@@ -963,7 +963,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         repeat
             EmployeeLedgerEntry2.Validate("Amount to Apply", -EmployeeLedgerEntry.Amount / NumberOfLines);
             EmployeeLedgerEntry2.Modify(true);
-        until EmployeeLedgerEntry2.Next = 0;
+        until EmployeeLedgerEntry2.Next() = 0;
         LibraryERM.SetAppliestoIdEmployee(EmployeeLedgerEntry2);
     end;
 
@@ -999,9 +999,9 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate, EmployeeNo, GenJournalLine."Document Type"::" ",
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), EmployeeNo, GenJournalLine."Document Type"::" ",
           -FirstExpenseAmount);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate, EmployeeNo, GenJournalLine."Document Type"::" ",
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), EmployeeNo, GenJournalLine."Document Type"::" ",
           -SecondExpenseAmount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1062,10 +1062,10 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, WorkDate, Employee."No.", DocumentType, -LibraryRandom.RandDec(100, 2));
+          GenJournalLine, GenJournalBatch, WorkDate(), Employee."No.", DocumentType, -LibraryRandom.RandDec(100, 2));
         DocumentNo := GenJournalLine."Document No.";
 
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate, Employee."No.", DocumentType, GenJournalLine.Amount * 2);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), Employee."No.", DocumentType, GenJournalLine.Amount * 2);
         UpdateOnHoldOnGenJournalLine(GenJournalLine, GetOnHold);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1079,7 +1079,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, WorkDate, Employee."No.", DocumentType, -LibraryRandom.RandDec(100, 2));
+          GenJournalLine, GenJournalBatch, WorkDate(), Employee."No.", DocumentType, -LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1204,7 +1204,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         NoOfLines := 2 * LibraryRandom.RandInt(5);
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         CreateMultipleGenJournalLine(
-          GenJournalLine, GenJournalBatch, NoOfLines, WorkDate, Employee."No.", GenJournalLine."Document Type"::" ", -1);
+          GenJournalLine, GenJournalBatch, NoOfLines, WorkDate(), Employee."No.", GenJournalLine."Document Type"::" ", -1);
     end;
 
     local procedure SetupGenJournalLineForSuggestEmployeePayments(var GenJournalLine: Record "Gen. Journal Line"; NoSeriesLine: Record "No. Series Line")
@@ -1241,7 +1241,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
 
         // Required Random Value for "Document No." field value is not important.
         SuggestEmployeePayments.InitializeRequest(
-          0, false, WorkDate, Format(LibraryRandom.RandInt(100)),
+          0, false, WorkDate(), Format(LibraryRandom.RandInt(100)),
           SummarizePerEmployee, BalAccountType, BalAccountNo, BankPaymentType);
         SuggestEmployeePayments.UseRequestPage(false);
         SuggestEmployeePayments.RunModal();
@@ -1301,7 +1301,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         DefaultDimension: Record "Default Dimension";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             LibraryDimension.CreateDefaultDimension(
               DefaultDimension, DATABASE::Employee, EmployeeNo, "Shortcut Dimension 1 Code",
               LibraryDimension.FindDifferentDimensionValue("Shortcut Dimension 1 Code", GlobalDimValueCode1));
@@ -1389,7 +1389,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         repeat
             GenJournalLine2 := GenJournalLine;
             GenJournalLine2.Insert();
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyAmountDoesNotExceedLimit(GenJournalLine: Record "Gen. Journal Line"; Limit: Integer; NoOfPayment: Integer)
@@ -1422,7 +1422,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         repeat
             EmployeeLedgerEntry.CalcFields("Amount (LCY)");
             TotalAmountLCY += Abs(EmployeeLedgerEntry."Amount (LCY)");
-        until EmployeeLedgerEntry.Next = 0;
+        until EmployeeLedgerEntry.Next() = 0;
 
         Assert.AreNearlyEqual(
           TotalAmountLCY, GenJournalLine."Amount (LCY)", Currency."Amount Rounding Precision",
@@ -1450,7 +1450,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         repeat
             EmployeeLedgerEntry.CalcFields("Remaining Amount");
             EmployeeLedgerEntry.TestField("Remaining Amount", 0);
-        until EmployeeLedgerEntry.Next = 0;
+        until EmployeeLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyEmployeeLedgerEntry(EmployeeNo: Code[20]; EmployeeLedgerEntryCount: Integer)
@@ -1474,7 +1474,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
             FindFirst();
             CalcFields(Amount, "Remaining Amount");
             Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision,
-              StrSubstNo(ValidateErrorErr, FieldCaption(Amount), Amount2, TableCaption, FieldCaption("Entry No."), "Entry No."));
+              StrSubstNo(ValidateErrorErr, FieldCaption(Amount), Amount2, TableCaption(), FieldCaption("Entry No."), "Entry No."));
             TestField("Remaining Amount", RemainingAmount);
             TestField(Open, Open2);
         end;
@@ -1493,7 +1493,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
             GLEntry.TestField("Document Type", GLEntry."Document Type"::" ");
             GLEntry.TestField("Global Dimension 1 Code", ShortcutDimension1Code);
             GLEntry.TestField("Global Dimension 2 Code", ShortcutDimension2Code);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyDimensionOnGeneralJournalLine(GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20]; GLAccountNo: Code[20])
@@ -1710,7 +1710,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         GenJournalBatch.Get(LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueText);
 
-        SuggestEmployeePayments.PostingDate.AssertEquals(WorkDate);
+        SuggestEmployeePayments.PostingDate.AssertEquals(WorkDate());
         SuggestEmployeePayments.BalAccountType.AssertEquals(GenJournalBatch."Bal. Account Type");
         SuggestEmployeePayments.BalAccountNo.AssertEquals(GenJournalBatch."Bal. Account No.");
         SuggestEmployeePayments.Cancel.Invoke;

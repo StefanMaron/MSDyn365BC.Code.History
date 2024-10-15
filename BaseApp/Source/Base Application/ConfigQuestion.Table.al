@@ -37,7 +37,7 @@ table 8612 "Config. Question"
 
             trigger OnLookup()
             begin
-                AnswerLookup;
+                AnswerLookup();
             end;
 
             trigger OnValidate()
@@ -75,7 +75,7 @@ table 8612 "Config. Question"
 
             trigger OnLookup()
             begin
-                FieldLookup;
+                FieldLookup();
             end;
         }
         field(9; Reference; Text[250])
@@ -89,7 +89,7 @@ table 8612 "Config. Question"
         }
         field(11; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup (Field.FieldName WHERE(TableNo = FIELD("Table ID"),
+            CalcFormula = Lookup(Field.FieldName WHERE(TableNo = FIELD("Table ID"),
                                                         "No." = FIELD("Field ID")));
             Caption = 'Field Name';
             Editable = false;
@@ -97,12 +97,12 @@ table 8612 "Config. Question"
 
             trigger OnLookup()
             begin
-                FieldLookup;
+                FieldLookup();
             end;
         }
         field(12; "Field Caption"; Text[250])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
                                                               "No." = FIELD("Field ID")));
             Caption = 'Field Caption';
             Editable = false;
@@ -110,7 +110,7 @@ table 8612 "Config. Question"
 
             trigger OnLookup()
             begin
-                FieldLookup;
+                FieldLookup();
             end;
         }
     }
@@ -188,7 +188,7 @@ table 8612 "Config. Question"
             Clear(ConfigPackageDataPage);
             ConfigPackageDataPage.SetTableView(ConfigPackageData);
             ConfigPackageDataPage.LookupMode := true;
-            if ConfigPackageDataPage.RunModal = ACTION::LookupOK then begin
+            if ConfigPackageDataPage.RunModal() = ACTION::LookupOK then begin
                 ConfigPackageDataPage.GetRecord(ConfigPackageData);
                 Answer := CopyStr(ConfigPackageData.Value, 1, MaxStrLen(Answer));
             end;

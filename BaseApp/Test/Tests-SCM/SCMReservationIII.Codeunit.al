@@ -22,6 +22,7 @@ codeunit 137270 "SCM Reservation III"
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ItemTrackingLinesControl: Option CallingFromPO,CallingFromTO;
         isInitialized: Boolean;
@@ -29,7 +30,6 @@ codeunit 137270 "SCM Reservation III"
         BinCodeError: Label 'Bin Code must have a value in Warehouse Activity Line';
         BinContentError: Label 'The field Bin Code of table Warehouse Activity Line contains a value';
         LocationCodeError: Label 'You are not allowed to use location code %1.';
-        NothingToPostError: Label 'There is nothing to post.';
         OrderTrackingMessage: Label 'There are no order tracking entries for this line.';
         PickActivityMessage: Label 'Pick activity no. %1 has been created.';
         PlaceBinCodeError: Label 'The Place bin code must be different from the Take bin code on location';
@@ -122,7 +122,7 @@ codeunit 137270 "SCM Reservation III"
             Assert.AreEqual(108, WhseActivityLine."Qty. (Base)", 'Quantity (Base UOM) value in Pick line does not match expectations');
             Assert.AreEqual(10, WhseActivityLine.Quantity,
               'Quantity (alternative UOM) value in Pick line does not match expectations')
-        until WhseActivityLine.Next = 0
+        until WhseActivityLine.Next() = 0
     end;
 
     [Test]
@@ -405,7 +405,7 @@ codeunit 137270 "SCM Reservation III"
         DocumentNo := PostWhseRcptAndCreateWhseShpt(PurchaseLine);
         GetWhseDocFromPickWksh;
         Commit();
-        PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate, false);
+        PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate(), false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMessage, PickNo));  // Enqueue for Message Handler.
 
         // Exercise.
@@ -600,7 +600,7 @@ codeunit 137270 "SCM Reservation III"
         Initialize();
         WarehouseSetup.Get();
         No := CreateWhseInternalPickLine(SalesLine);
-        PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate, false);
+        PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate(), false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMessage, PickNo));  // Enqueue for Message Handler.
 
         // Exercise: Create Pick from Warehouse Internal Pick page.
@@ -655,7 +655,7 @@ codeunit 137270 "SCM Reservation III"
         Initialize();
         BinCode := CreateWhseInternalPutAwayLine(SalesLine);
         WarehouseSetup.Get();
-        PutAwayNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Put-away Nos.", WorkDate, false);
+        PutAwayNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Put-away Nos.", WorkDate(), false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PutAwayActivityMessage, PutAwayNo));  // Enqueue for Message Handler.
 
         // Exercise: Create Put Away from Warehouse Internal Put Away.
@@ -836,7 +836,7 @@ codeunit 137270 "SCM Reservation III"
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // Verify: Verify error message while posing Warehouse Shipment without Registering Pick.
-        Assert.ExpectedError(NothingToPostError);
+        Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -1068,7 +1068,7 @@ codeunit 137270 "SCM Reservation III"
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
 
         // Verify: Verify error message while posting Warehouse Shipment.
-        Assert.ExpectedError(NothingToPostError);
+        Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -1088,7 +1088,7 @@ codeunit 137270 "SCM Reservation III"
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
 
         // Exercise: Modify Shipment Date on Sales Header.
-        SalesHeader.Validate("Shipment Date", CalcDate('<1D>', WorkDate));
+        SalesHeader.Validate("Shipment Date", CalcDate('<1D>', WorkDate()));
         SalesHeader.Modify(true);
 
         // Verify: Verify Reservation Entry values after modifying the Shipment Date on Sales Line.
@@ -1383,7 +1383,7 @@ codeunit 137270 "SCM Reservation III"
         SalesLine.ShowReservation();
 
         // [THEN] Sales Line has fully reserved Quantity "0.5" of PO in UoM "Y"
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", Round(QtyPurch * QtyPer1 / QtyPer2, 0.00001));
     end;
@@ -1473,7 +1473,7 @@ codeunit 137270 "SCM Reservation III"
         Item: Record Item;
     begin
         Item.Get(ItemNo);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));  // Dates based on WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
         FindRequisitionLine(RequisitionLine, ItemNo, LocationCode);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
         exit(RequisitionLine."Ref. Order No.");
@@ -2312,7 +2312,7 @@ codeunit 137270 "SCM Reservation III"
                     ItemChargeAssignmentSales.First;
                     repeat
                         ItemChargeAssignmentSales."Qty. to Assign".SetValue(1);  // Added Qty. to Assign as 1 for Item Charge.
-                    until not ItemChargeAssignmentSales.Next;
+                    until not ItemChargeAssignmentSales.Next();
                 end;
             OptionString::GetShipmentLine:
                 begin
@@ -2347,7 +2347,7 @@ codeunit 137270 "SCM Reservation III"
                     TrackingQuantity := ItemTrackingLines.Quantity3.AsDEcimal;
                     ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
                 end;

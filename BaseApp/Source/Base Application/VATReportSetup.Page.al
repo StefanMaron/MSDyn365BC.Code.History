@@ -15,32 +15,32 @@ page 743 "VAT Report Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Modify Submitted Reports"; "Modify Submitted Reports")
+                field("Modify Submitted Reports"; Rec."Modify Submitted Reports")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if users can modify VAT reports that have been submitted to the tax authorities. If the field is left blank, users must create a corrective or supplementary VAT report instead.';
                 }
-                field("Export Cancellation Lines"; "Export Cancellation Lines")
+                field("Export Cancellation Lines"; Rec."Export Cancellation Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT report includes export cancellation lines.';
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the company to be included on the VAT report.';
                 }
-                field("Company Address"; "Company Address")
+                field("Company Address"; Rec."Company Address")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address of the company that is submitting the VAT report.';
                 }
-                field("Company City"; "Company City")
+                field("Company City"; Rec."Company City")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the company for the VAT report.';
                 }
-                field("Report VAT Note"; "Report VAT Note")
+                field("Report VAT Note"; Rec."Report VAT Note")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the VAT Note field is available for reporting from the VAT Return card page.';
@@ -49,7 +49,7 @@ page 743 "VAT Report Setup"
             group(Numbering)
             {
                 Caption = 'Numbering';
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used for standard VAT reports.';
@@ -58,17 +58,17 @@ page 743 "VAT Report Setup"
             group(ZIVIT)
             {
                 Caption = 'ZIVIT';
-                field("Source Identifier"; "Source Identifier")
+                field("Source Identifier"; Rec."Source Identifier")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the 11 character alphabetic ID that is provided when you register at the processing agency (ZIVIT).';
                 }
-                field("Transmission Process ID"; "Transmission Process ID")
+                field("Transmission Process ID"; Rec."Transmission Process ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the 3 character alphanumeric ID of the transmission process.';
                 }
-                field("Supplier ID"; "Supplier ID")
+                field("Supplier ID"; Rec."Supplier ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the 3 character alphanumeric ID of the supplier.';
@@ -78,7 +78,7 @@ page 743 "VAT Report Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code page for the formats in which you can submit a dataset for a VAT report.';
                 }
-                field("Registration ID"; "Registration ID")
+                field("Registration ID"; Rec."Registration ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration ID of the EU Sales List document.';
@@ -97,10 +97,10 @@ page 743 "VAT Report Setup"
         VatReportTok: Label 'DACH VAT Report', Locked = true;
     begin
         FeatureTelemetry.LogUptake('0001Q0B', VatReportTok, Enum::"Feature Uptake Status"::"Set up");
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

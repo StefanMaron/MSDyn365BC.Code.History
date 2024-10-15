@@ -113,7 +113,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.Form.Invoke;  // Invokes IntrastatFormDEReportHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     [Test]
@@ -133,7 +133,7 @@ codeunit 142035 "UT PAG INTRASTAT"
             repeat
                 TempIntrastatJnlTemplate := IntrastatJnlTemplate;
                 TempIntrastatJnlTemplate.Insert();
-            until IntrastatJnlTemplate.Next = 0;
+            until IntrastatJnlTemplate.Next() = 0;
         IntrastatJnlTemplate.DeleteAll();
 
         // Setup: Create DACH Report Selections for Usage Intrastat Checklist.
@@ -148,14 +148,14 @@ codeunit 142035 "UT PAG INTRASTAT"
         Commit();  // Commit required for explicit commit used  in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.ChecklistReport.Invoke;  // Invokes IntrastatChecklistReportPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
 
         IntrastatJnlTemplate.DeleteAll();
         if TempIntrastatJnlTemplate.FindSet() then
             repeat
                 IntrastatJnlTemplate := TempIntrastatJnlTemplate;
                 IntrastatJnlTemplate.Insert();
-            until TempIntrastatJnlTemplate.Next = 0;
+            until TempIntrastatJnlTemplate.Next() = 0;
     end;
 
     [Test]
@@ -182,7 +182,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.CreateFile.Invoke;  // Invokes IntrastatDiskTaxAuthDEReportPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     [Test]
@@ -208,7 +208,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.DiskLabels.Invoke;  // Invokes IntrastatMakeDiskTaxAuthReportPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     [Test]
@@ -300,7 +300,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         ReportSelectionIntrastat.FILTER.SetFilter(Sequence, Sequence);
         ReportSelectionIntrastat."Report ID".AssertEquals(ReportID);
         ReportSelectionIntrastat."Report Name".AssertEquals(ReportName);
-        ReportSelectionIntrastat.Close;
+        ReportSelectionIntrastat.Close();
     end;
 
     local procedure UpdateReceiptsShipmentsOnIntrastatSetup(ReportReceipts: Boolean; ReportShipments: Boolean)

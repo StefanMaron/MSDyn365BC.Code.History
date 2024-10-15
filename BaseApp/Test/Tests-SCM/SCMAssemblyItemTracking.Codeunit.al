@@ -10,7 +10,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     begin
         // [FEATURE] [Assembly] [Item Tracking] [SCM]
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
         Initialized := false;
     end;
 
@@ -164,7 +164,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
 
         asserterror LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
         Assert.IsTrue(StrPos(GetLastErrorText, SNMissingErr) > 0, 'Wrong error: ' + GetLastErrorText + '; Expected: ' + SNMissingErr);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -192,7 +192,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
 
         asserterror LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
         Assert.IsTrue(StrPos(GetLastErrorText, SNMissingErr) > 0, 'Wrong error: ' + GetLastErrorText + '; Expected: ' + SNMissingErr);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -565,11 +565,11 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ItemTracingPage.Expand(true);
         ValidateItemTracingLine(ItemTracingPage, 'Assembly Output', SNParent, LNParent, ItemParent."No.", 1);
 
-        ItemTracingPage.Next;
+        ItemTracingPage.Next();
         ItemTracingPage.Expand(true);
         ValidateItemTracingLine(ItemTracingPage, 'Assembly Consumption', SNChild, LNChild, ItemChild."No.", -1);
 
-        ItemTracingPage.Next;
+        ItemTracingPage.Next();
         ValidateItemTracingLine(ItemTracingPage, 'Item Ledger Entry', SNChild, LNChild, ItemChild."No.", 1);
 
         ItemTracingPage.TraceOppositeFromLine.Invoke; // Trace opposite from line
@@ -578,11 +578,11 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ItemTracingPage.Expand(true);
         ValidateItemTracingLine(ItemTracingPage, 'Item Ledger Entry', SNChild, LNChild, ItemChild."No.", 1);
 
-        ItemTracingPage.Next;
+        ItemTracingPage.Next();
         ItemTracingPage.Expand(true);
         ValidateItemTracingLine(ItemTracingPage, 'Assembly Consumption', SNChild, LNChild, ItemChild."No.", -1);
 
-        ItemTracingPage.Next;
+        ItemTracingPage.Next();
         ValidateItemTracingLine(ItemTracingPage, 'Assembly Output', SNParent, LNParent, ItemParent."No.", 1);
 
         // Validate Navigate result parent
@@ -591,7 +591,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         NavigatePage.LotNoFilter.Value(LNParent);
         NavigatePage.Find.Invoke;
         ValidateNavigateLine(NavigatePage, 'Item Ledger Entry', 1);
-        NavigatePage.Next;
+        NavigatePage.Next();
         ValidateNavigateLine(NavigatePage, 'Posted Assembly Header', 1);
 
         // Validate Navigate result child
@@ -599,7 +599,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         NavigatePage.LotNoFilter.Value(LNChild);
         NavigatePage.Find.Invoke;
         ValidateNavigateLine(NavigatePage, 'Item Ledger Entry', 2);
-        NavigatePage.Next;
+        NavigatePage.Next();
         ValidateNavigateLine(NavigatePage, 'Posted Assembly Header', 1);
     end;
 
@@ -647,7 +647,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
             WhseActivityLine.Validate("Lot No.", LN);
             WhseActivityLine.Validate("Serial No.", SN);
             WhseActivityLine.Modify();
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
     end;
 
     [Normal]

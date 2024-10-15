@@ -14,13 +14,13 @@ page 9213 "ResGrp. Alloc. per Job Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -435,7 +435,7 @@ page 9213 "ResGrp. Alloc. per Job Matrix"
 
     trigger OnAfterGetRecord()
     begin
-        MatrixOnAfterGetRecord;
+        MatrixOnAfterGetRecord();
     end;
 
     trigger OnInit()
@@ -572,7 +572,7 @@ page 9213 "ResGrp. Alloc. per Job Matrix"
             OnMatrixOnAfterGetRecordOnBeforeMatrixRecLoop(MatrixRec, MatrixCellQuantity);
             if MatrixRec.Find('-') then
                 repeat
-                    MatrixCellQuantity += Round(MatrixRec.Quantity * MatrixRec."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision)
+                    MatrixCellQuantity += Round(MatrixRec.Quantity * MatrixRec."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision())
                 until MatrixRec.Next() = 0;
 
             if MatrixCellQuantity <> 0 then
@@ -581,7 +581,7 @@ page 9213 "ResGrp. Alloc. per Job Matrix"
                 MatrixCellData[I] := '';
         end;
 
-        SetVisible;
+        SetVisible();
     end;
 
     local procedure MatrixOnDrillDown(Column: Integer)
