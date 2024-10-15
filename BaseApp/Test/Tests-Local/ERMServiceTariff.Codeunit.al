@@ -84,7 +84,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting when Transport Method is blank on Sales Order with Service Tariff No. Mandatory checked.
         SalesOrderWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, SalesHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, SalesHeader.TableCaption()), CreateServiceTariffNumber(), '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting when Payment Method is blank on Sales Order with Service Tariff No. Mandatory checked.
         SalesOrderWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, SalesHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, SalesHeader.TableCaption()), CreateServiceTariffNumber(), CreateTransportMethod());
     end;
 
     local procedure SalesOrderWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -117,7 +117,7 @@ codeunit 144156 "ERM Service Tariff"
     procedure PostSalesOrderWithServiceTariffNoMandatoryTrue()
     begin
         // Purpose of the test is to verify that Sales Order posts successfully with all mandatory fields when Service Tariff No. Mandatory is checked.
-        CreateAndPostSalesOrder(CreateServiceTariffNumber, CreateTransportMethod, CreatePaymentMethod, true);  // Using TRUE for EU Service.
+        CreateAndPostSalesOrder(CreateServiceTariffNumber(), CreateTransportMethod(), CreatePaymentMethod(), true);  // Using TRUE for EU Service.
     end;
 
     [Test]
@@ -164,7 +164,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting prepmt invoice when Transport Method is blank on Sales Order with Service Tariff No. Mandatory checked.
         SalesPrepmtWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, SalesHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, SalesHeader.TableCaption()), CreateServiceTariffNumber(), '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting prepmt invoice when Payment Method is blank on Sales Order with Service Tariff No. Mandatory checked.
         SalesPrepmtWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, SalesHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, SalesHeader.TableCaption()), CreateServiceTariffNumber(), CreateTransportMethod());
     end;
 
     local procedure SalesPrepmtWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -197,7 +197,7 @@ codeunit 144156 "ERM Service Tariff"
     procedure PostSalesPrepmtWithServiceTariffNoMandatoryTrue()
     begin
         // Purpose of the test is to verify that Sales Prepmt Invoice posts successfully with all mandatory fields when Service Tariff No. Mandatory is checked.
-        CreateAndPostSalesPrepmtInvoice(CreateServiceTariffNumber, CreateTransportMethod, CreatePaymentMethod, true);  // Using TRUE for EU Service.
+        CreateAndPostSalesPrepmtInvoice(CreateServiceTariffNumber(), CreateTransportMethod(), CreatePaymentMethod(), true);  // Using TRUE for EU Service.
     end;
 
     [Test]
@@ -245,7 +245,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting when Transport Method is blank on Purchase Order with Service Tariff No. Mandatory checked.
         PurchaseOrderWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber(), '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting when Payment Method is blank on Purchase Order with Service Tariff No. Mandatory checked.
         PurchaseOrderWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber(), CreateTransportMethod());
     end;
 
     local procedure PurchaseOrderWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -278,7 +278,7 @@ codeunit 144156 "ERM Service Tariff"
     procedure PostPurchaseOrderWithServiceTariffNoMandatoryTrue()
     begin
         // Purpose of the test is to verify that Purchase Order posts successfully with all mandatory fields when Service Tariff No. Mandatory is checked.
-        CreateAndPostPurchaseOrder(CreateServiceTariffNumber, CreateTransportMethod, CreatePaymentMethod, true);  // Using TRUE for EU Service.
+        CreateAndPostPurchaseOrder(CreateServiceTariffNumber(), CreateTransportMethod(), CreatePaymentMethod(), true);  // Using TRUE for EU Service.
     end;
 
     [Test]
@@ -325,7 +325,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting Prepmt Invoice when Transport Method is blank on Purchase Order with Service Tariff No. Mandatory checked.
         PurchasePrepmtWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber(), '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -336,7 +336,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error while posting Prepmt Invoice when Payment Method is blank on Purchase Order with Service Tariff No. Mandatory checked.
         PurchasePrepmtWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, PurchaseHeader.TableCaption()), CreateServiceTariffNumber(), CreateTransportMethod());
     end;
 
     local procedure PurchasePrepmtWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -358,7 +358,7 @@ codeunit 144156 "ERM Service Tariff"
     procedure PostPurchasePrepmtWithServiceTariffNoMandatoryTrue()
     begin
         // Purpose of the test is to verify that Purch Prepmt Invoice posts successfully with all mandatory fields when Service Tariff No. Mandatory is checked.
-        CreateAndPostPurchasePrepmtInvoice(CreateServiceTariffNumber, CreateTransportMethod, CreatePaymentMethod, true);  // Using TRUE for EU Service.
+        CreateAndPostPurchasePrepmtInvoice(CreateServiceTariffNumber(), CreateTransportMethod(), CreatePaymentMethod(), true);  // Using TRUE for EU Service.
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error when Transport Method is blank on Service Invoice with Service Tariff No. Mandatory checked.
         ServiceInvoiceWithServiceTariffNoMandatory(
-          StrSubstNo(BlankTransportMethodErr, ServiceHeader.TableCaption()), CreateServiceTariffNumber, '');  // Using blank for Transport Method.
+          StrSubstNo(BlankTransportMethodErr, ServiceHeader.TableCaption()), CreateServiceTariffNumber(), '');  // Using blank for Transport Method.
     end;
 
     [Test]
@@ -418,7 +418,7 @@ codeunit 144156 "ERM Service Tariff"
     begin
         // Purpose of the test is to verify error when Payment Method is blank on Service Invoice with Service Tariff No. Mandatory checked.
         ServiceInvoiceWithServiceTariffNoMandatory(
-          StrSubstNo(BlankPaymentMethodCodeErr, ServiceHeader.TableCaption()), CreateServiceTariffNumber, CreateTransportMethod);
+          StrSubstNo(BlankPaymentMethodCodeErr, ServiceHeader.TableCaption()), CreateServiceTariffNumber(), CreateTransportMethod());
     end;
 
     local procedure ServiceInvoiceWithServiceTariffNoMandatory(ExpectedError: Text; ServiceTariffNumber: Code[10]; TransportMethod: Code[10])
@@ -440,7 +440,7 @@ codeunit 144156 "ERM Service Tariff"
     procedure PostServiceInvoiceWithServiceTariffNoMandatoryTrue()
     begin
         // Purpose of the test is to verify that Service Invoice posts successfully with all mandatory fields when Service Tariff No. Mandatory is checked.
-        CreateAndPostServiceInvoice(CreateServiceTariffNumber, CreateTransportMethod, CreatePaymentMethod, true);  // Using TRUE for EU Service.
+        CreateAndPostServiceInvoice(CreateServiceTariffNumber(), CreateTransportMethod(), CreatePaymentMethod(), true);  // Using TRUE for EU Service.
     end;
 
     [Test]

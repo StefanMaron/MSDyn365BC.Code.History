@@ -1,4 +1,4 @@
-﻿#if not CLEAN22
+#if not CLEAN22
 report 12160 "Intrastat - Monthly Report"
 {
     DefaultLayout = RDLC;
@@ -915,7 +915,6 @@ report 12160 "Intrastat - Monthly Report"
         ITIntrastatTok: Label 'IT Print Intrastat Report', Locked = true;
         Text001: Label 'WwWw';
         Text002: Label 'Statistics Period: %1';
-        Text003: Label 'All amounts are in %1';
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         PaymentMethod: Record "Payment Method";

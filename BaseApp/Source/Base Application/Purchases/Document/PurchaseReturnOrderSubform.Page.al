@@ -590,7 +590,7 @@ page 6641 "Purchase Return Order Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -601,7 +601,7 @@ page 6641 "Purchase Return Order Subform"
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -612,19 +612,19 @@ page 6641 "Purchase Return Order Subform"
                 field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the type of journal line that is created in the Job Planning Line table from this line.';
+                    ToolTip = 'Specifies the type of journal line that is created in the Project Planning Line table from this line.';
                     Visible = false;
                 }
                 field("Job Planning Line No."; Rec."Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job planning line number to which the usage should be linked when the Job Journal is posted. You can only link to Job Planning Lines that have the Apply Usage Link option enabled.';
+                    ToolTip = 'Specifies the project planning line number to which the usage should be linked when the Project Journal is posted. You can only link to Project Planning Lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") AND (Rec.Type <> Rec.Type::" ");
+                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") and (Rec.Type <> Rec.Type::" ");
                     TableRelation = "Deferral Template"."Deferral Code";
                     ToolTip = 'Specifies the deferral template that governs how expenses paid with this purchase document are deferred to the different accounting periods when the expenses were incurred.';
                     Visible = false;
@@ -639,7 +639,7 @@ page 6641 "Purchase Return Order Subform"
                 field("Returns Deferral Start Date"; Rec."Returns Deferral Start Date")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") AND (Rec.Type <> Rec.Type::" ");
+                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") and (Rec.Type <> Rec.Type::" ");
                     ToolTip = 'Specifies the starting date of the returns deferral period.';
                     Visible = false;
                 }
@@ -1392,11 +1392,12 @@ page 6641 "Purchase Return Order Subform"
 
     procedure ShowDocumentLineTracking()
     var
-        DocumentLineTracking: Page "Document Line Tracking";
+        DocumentLineTrackingPage: Page "Document Line Tracking";
     begin
-        Clear(DocumentLineTracking);
-        DocumentLineTracking.SetDoc(9, Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal();
+        Clear(DocumentLineTrackingPage);
+        DocumentLineTrackingPage.SetSourceDoc(
+            "Document Line Source Type"::"Purchase Return Order", Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
+        DocumentLineTrackingPage.RunModal();
     end;
 
     procedure NoOnAfterValidate()
@@ -1537,7 +1538,7 @@ page 6641 "Purchase Return Order Subform"
             end
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
     begin
     end;

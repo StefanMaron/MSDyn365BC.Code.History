@@ -38,13 +38,13 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         Initialize();
 
         // [GIVEN] A posted purchase invoice
-        VendorNo := CreateVendor;
-        CustomerNo := CreateCustomer;
-        ItemNo := CreateItem;
+        VendorNo := CreateVendor();
+        CustomerNo := CreateCustomer();
+        ItemNo := CreateItem();
         CreateAndPostPurchaseInvoice(VendorNo, ItemNo, 7);
 
         // Set plan to Business Manager
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [WHEN] Create a purchase order from existing vendor
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate());
@@ -58,7 +58,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         CalculateAvailableToPromise(SalesOrder);
 
         // [THEN] Dates have been automatically calculated and filled in
-        VerifyOrderPromisingLines;
+        VerifyOrderPromisingLines();
 
         // [WHEN] Post the purchase order (as received or received and invoiced),
         // So now the inventory is in stock and we can ship to the customer
@@ -90,13 +90,13 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         Initialize();
 
         // [GIVEN] A posted purchase invoice
-        VendorNo := CreateVendor;
-        CustomerNo := CreateCustomer;
-        ItemNo := CreateItem;
+        VendorNo := CreateVendor();
+        CustomerNo := CreateCustomer();
+        ItemNo := CreateItem();
         CreateAndPostPurchaseInvoice(VendorNo, ItemNo, 7);
 
         // Set plan to Accountant
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [WHEN] Create a purchase order from existing vendor
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate());
@@ -110,7 +110,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         CalculateAvailableToPromise(SalesOrder);
 
         // [THEN] Dates have been automatically calculated and filled in
-        VerifyOrderPromisingLines;
+        VerifyOrderPromisingLines();
 
         // [WHEN] Post the purchase order (as received or received and invoiced),
         // So now the inventory is in stock and we can ship to the customer
@@ -143,32 +143,32 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         Initialize();
 
         // [GIVEN] A posted purchase invoice
-        VendorNo := CreateVendor;
-        CustomerNo := CreateCustomer;
-        ItemNo := CreateItem;
+        VendorNo := CreateVendor();
+        CustomerNo := CreateCustomer();
+        ItemNo := CreateItem();
         CreateAndPostPurchaseInvoice(VendorNo, ItemNo, 7);
 
         // Set plan to Team Member
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] Create a purchase order from existing vendor
         asserterror PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate());
         Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         PurchaseOrderNo := CreatePurchaseOrder(VendorNo, ItemNo, 13, WorkDate());
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] Create a new sales order and select reserve
         asserterror InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate()));
         SalesOrder.Close();
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         InitialSalesOrderNo := CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 12, CalcDate('<+2W>', WorkDate()));
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [THEN] Quantity is reserved
         SalesOrder.SalesLines."Reserved Quantity".AssertEquals(12);
 
@@ -176,35 +176,35 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         CalculateAvailableToPromise(SalesOrder);
 
         // [THEN] Dates have been automatically calculated and filled in
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
-        VerifyOrderPromisingLines;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
+        VerifyOrderPromisingLines();
 
         // [WHEN] Post the purchase order (as received or received and invoiced),
         // So now the inventory is in stock and we can ship to the customer
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostPurchaseOrder(PurchaseOrderNo);
         ErrorMessagesPage.Description.AssertEquals(TeamMemberErr);
         ErrorMessagesPage.Close();
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         PostPurchaseOrder(PurchaseOrderNo);
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] Create a new sales order and select reserve
         asserterror CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate()));
         SalesOrder.Close();
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CreateAndReserveSalesOrder(SalesOrder, CustomerNo, ItemNo, 15, CalcDate('<+4W>', WorkDate()));
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [GIVEN] You can only reserve 8 pcs, 12 of 20 available items are already reserved.
         SalesOrder.SalesLines."Reserved Quantity".AssertEquals(8);
 
         // [WHEN] Post sales order
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         asserterror VerifyPostingInitialSalesOrder(InitialSalesOrderNo);
         // [THEN] Order is not posted, error message: 'As a Team Member you cannot complete this task '
         Assert.ExpectedError('The TestPage is not open.');
@@ -212,7 +212,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         ErrorMessagesPage.Close();
 
         // [WHEN] Set Business Manager Plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         // [THEN] Post the initial sales order without errors
         VerifyPostingInitialSalesOrder(InitialSalesOrderNo);
     end;
@@ -227,7 +227,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reserv. & Order Promising E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         LibraryVariableStorage.Clear();
 
         if isInitialized then
@@ -238,7 +238,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryTemplates.EnableTemplatesFeature();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
         LibraryERMCountryData.CreateVATData();
@@ -249,7 +249,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryTemplates.UpdateTemplatesVATGroups();
 
-        InitializeAvailabilityCheckSettingsOnCompanyInformation;
+        InitializeAvailabilityCheckSettingsOnCompanyInformation();
 
         isInitialized := true;
         Commit();
@@ -278,8 +278,8 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PurchaseInvoice.PurchLines."No.".SetValue(ItemNo);
         PurchaseInvoice.PurchLines.Quantity.SetValue(Quantity);
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
-        PurchaseInvoiceNo := PurchaseInvoice."No.".Value;
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoiceNo := PurchaseInvoice."No.".Value();
+        PurchaseInvoice.OK().Invoke();
 
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoiceNo);
         LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
@@ -290,9 +290,9 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoKey(PurchaseHeader."Document Type"::Invoice, PurchaseInvoiceNo);
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
     end;
 
     [Normal]
@@ -310,8 +310,8 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PurchaseOrder.PurchLines."No.".SetValue(ItemNo);
         PurchaseOrder.PurchLines.Quantity.SetValue(Quantity);
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
-        PurchaseOrderNo := PurchaseOrder."No.".Value;
-        PurchaseOrder.OK.Invoke;
+        PurchaseOrderNo := PurchaseOrder."No.".Value();
+        PurchaseOrder.OK().Invoke();
 
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
         LibraryPurchase.SetCheckTotalOnPurchaseDocument(PurchaseHeader, false, true, true);
@@ -322,9 +322,9 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PurchaseHeader: Record "Purchase Header";
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoKey(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
-        PurchaseOrder.Post.Invoke;
+        PurchaseOrder.Post.Invoke();
     end;
 
     local procedure CreateItem() ItemNo: Code[20]
@@ -334,8 +334,8 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     begin
         ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
-        ItemNo := ItemCard."No.".Value;
-        ItemCard.OK.Invoke;
+        ItemNo := ItemCard."No.".Value();
+        ItemCard.OK().Invoke();
         Commit();
     end;
 
@@ -349,9 +349,9 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
-        VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup);
-        VendorNo := VendorCard."No.".Value;
-        VendorCard.OK.Invoke;
+        VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup());
+        VendorNo := VendorCard."No.".Value();
+        VendorCard.OK().Invoke();
         Commit();
     end;
 
@@ -365,9 +365,9 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
-        CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup);
-        CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.OK.Invoke;
+        CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup());
+        CustomerNo := CustomerCard."No.".Value();
+        CustomerCard.OK().Invoke();
         Commit();
     end;
 
@@ -383,22 +383,22 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
         SalesOrder.SalesLines."Shipment Date".SetValue(OrderDate);
-        SalesOrderNo := SalesOrder."No.".Value;
-        SalesOrder.SalesLines.Reserve.Invoke;
+        SalesOrderNo := SalesOrder."No.".Value();
+        SalesOrder.SalesLines.Reserve.Invoke();
     end;
 
     local procedure CalculateAvailableToPromise(SalesOrder: TestPage "Sales Order")
     begin
-        SalesOrder.OrderPromising.Invoke;
-        SalesOrder.OK.Invoke;
+        SalesOrder.OrderPromising.Invoke();
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure VerifyOrderPromisingLines()
     begin
-        Assert.AreEqual(0D, LibraryVariableStorage.DequeueDate, PlannedDeliveryDateErr);
-        Assert.AreEqual(0D, LibraryVariableStorage.DequeueDate, EarliestShipmentDateErr);
-        Assert.AreEqual(CalcDate('<+2W>', WorkDate()), LibraryVariableStorage.DequeueDate, PlannedDeliveryDateErr);
-        Assert.AreEqual(CalcDate('<+2W>', WorkDate()), LibraryVariableStorage.DequeueDate, EarliestShipmentDateErr);
+        Assert.AreEqual(0D, LibraryVariableStorage.DequeueDate(), PlannedDeliveryDateErr);
+        Assert.AreEqual(0D, LibraryVariableStorage.DequeueDate(), EarliestShipmentDateErr);
+        Assert.AreEqual(CalcDate('<+2W>', WorkDate()), LibraryVariableStorage.DequeueDate(), PlannedDeliveryDateErr);
+        Assert.AreEqual(CalcDate('<+2W>', WorkDate()), LibraryVariableStorage.DequeueDate(), EarliestShipmentDateErr);
     end;
 
     local procedure VerifyPostingInitialSalesOrder(InitialSalesOrderNo: Code[20])
@@ -407,10 +407,10 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         SalesOrder: TestPage "Sales Order";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoKey(SalesHeader."Document Type"::Order, InitialSalesOrderNo);
-        PostedSalesInvoice.Trap;
-        SalesOrder.Post.Invoke;
+        PostedSalesInvoice.Trap();
+        SalesOrder.Post.Invoke();
         PostedSalesInvoice.Close();
     end;
 
@@ -477,25 +477,25 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     [Scope('OnPrem')]
     procedure ReservationModalPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Auto Reserve".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OrderPromisingLinesModalPageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
-        OrderPromisingLines.First;
+        OrderPromisingLines.First();
         // Collect values BEFORE invoking Available-to-Promise
-        LibraryVariableStorage.Enqueue(OrderPromisingLines."Planned Delivery Date".AsDate);
-        LibraryVariableStorage.Enqueue(OrderPromisingLines."Earliest Shipment Date".AsDate);
+        LibraryVariableStorage.Enqueue(OrderPromisingLines."Planned Delivery Date".AsDate());
+        LibraryVariableStorage.Enqueue(OrderPromisingLines."Earliest Shipment Date".AsDate());
 
-        OrderPromisingLines.AvailableToPromise.Invoke;
+        OrderPromisingLines.AvailableToPromise.Invoke();
         // Collect values AFTER invoking Available-to-Promise
-        LibraryVariableStorage.Enqueue(OrderPromisingLines."Planned Delivery Date".AsDate);
-        LibraryVariableStorage.Enqueue(OrderPromisingLines."Earliest Shipment Date".AsDate);
+        LibraryVariableStorage.Enqueue(OrderPromisingLines."Planned Delivery Date".AsDate());
+        LibraryVariableStorage.Enqueue(OrderPromisingLines."Earliest Shipment Date".AsDate());
 
-        OrderPromisingLines.AcceptButton.Invoke;
+        OrderPromisingLines.AcceptButton.Invoke();
     end;
 
     [MessageHandler]

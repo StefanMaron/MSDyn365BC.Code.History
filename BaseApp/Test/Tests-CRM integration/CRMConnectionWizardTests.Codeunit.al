@@ -63,7 +63,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Initialize();
 
         // [WHEN] The CRM Connection Setup Wizard wizard is exited right away
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
         CRMConnectionSetupWizard.Close();
 
@@ -84,7 +84,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Initialize();
 
         // [WHEN] The CRM Connection Setup Wizard is closed but closing is not confirmed
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
         CRMConnectionSetupWizard.Close();
 
@@ -105,7 +105,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
         // [WHEN] The CRM Connection Setup Wizard is completed
         RunWizardToCompletion(CRMConnectionSetupWizard);
-        CRMConnectionSetupWizard.ActionFinish.Invoke;
+        CRMConnectionSetupWizard.ActionFinish.Invoke();
 
         // [THEN] Status of the setup step is set to Completed
         Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should be completed.');
@@ -126,15 +126,15 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [GIVEN] CRM Connection Setup already exists
         CreateCRMConnectionSetup(CRMConnectionSetup);
         // [WHEN] The CRM Connection Setup Wizard is closed but closing is not confirmed
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
 
         // [THEN] Wizard "Server Address" = CRM Connection Setup."Server Address"
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         Assert.AreEqual(
           CRMConnectionSetup."Server Address", CRMConnectionSetupWizard.ServerAddress.Value, 'Values must be the same');
         // [THEN] Wizard "Email" = CRM Connection Setup."User Name"
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         Assert.AreEqual(
           CRMConnectionSetup."User Name", CRMConnectionSetupWizard.Email.Value, 'Values must be the same');
     end;
@@ -150,12 +150,12 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Initialize();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
 
         // [WHEN] User does not fill Dynamics CRM URL and press Next
         CRMConnectionSetupWizard.ServerAddress.SetValue('');
-        asserterror CRMConnectionSetupWizard.ActionNext.Invoke;
+        asserterror CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [THEN] Error message appears that Dynamics CRM URL should not be empty
         Assert.ExpectedError(StrSubstNo(DynamicsCRMURLEmptyErr, CRMProductName.SHORT()));
@@ -181,26 +181,26 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [GIVEN] User password, Admin Email and password filled
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         CRMConnectionSetupWizard.Password.SetValue('ABC');
 
         // [WHEN] When final page of wizard opened
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [THEN] Import CRM Solution = FALSE and user can change it
         Assert.IsTrue(
-          CRMConnectionSetupWizard.ImportCRMSolution.Enabled,
+          CRMConnectionSetupWizard.ImportCRMSolution.Enabled(),
           StrSubstNo(ShouldBeErr, CRMConnectionSetupWizard.ImportCRMSolution.Caption, EnabledTxt));
         CRMConnectionSetupWizard.ImportCRMSolution.AssertEquals(true);
 
         // [THEN] Enable CRM Connection = FALSE and user can change it
         Assert.IsTrue(
-          CRMConnectionSetupWizard.EnableCRMConnection.Enabled,
+          CRMConnectionSetupWizard.EnableCRMConnection.Enabled(),
           StrSubstNo(ShouldBeErr, CRMConnectionSetupWizard.EnableCRMConnection.Caption, EnabledTxt));
         CRMConnectionSetupWizard.EnableCRMConnection.AssertEquals(true);
     end;
@@ -225,26 +225,26 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [GIVEN] User password, Admin Email and password filled
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         CRMConnectionSetupWizard.Password.SetValue('ABC');
 
         // [WHEN] When final page of wizard opened
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [THEN] Import CRM Solution = TRUE and user cannot change it
         Assert.IsFalse(
-          CRMConnectionSetupWizard.ImportCRMSolution.Enabled,
+          CRMConnectionSetupWizard.ImportCRMSolution.Enabled(),
           StrSubstNo(ShouldNotBeErr, CRMConnectionSetupWizard.ImportCRMSolution.Caption, EnabledTxt));
         CRMConnectionSetupWizard.ImportCRMSolution.AssertEquals(true);
 
         // [THEN] Enable CRM Connection = TRUE and user cannot change it
         Assert.IsFalse(
-          CRMConnectionSetupWizard.EnableCRMConnection.Enabled,
+          CRMConnectionSetupWizard.EnableCRMConnection.Enabled(),
           StrSubstNo(ShouldNotBeErr, CRMConnectionSetupWizard.EnableCRMConnection.Caption, EnabledTxt));
         CRMConnectionSetupWizard.EnableCRMConnection.AssertEquals(true);
     end;
@@ -260,58 +260,58 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Initialize();
 
         // [WHEN] CRM Connection Wizard is opened
-        CRMConnectionSetupWizard.OpenEdit;
+        CRMConnectionSetupWizard.OpenEdit();
 
         // [THEN] Advanced action button is disabled
         Assert.IsFalse(
-          CRMConnectionSetupWizard.ActionAdvanced.Visible,
+          CRMConnectionSetupWizard.ActionAdvanced.Visible(),
           StrSubstNo(ShouldNotBeErr, ButtonTxt, VisibleTxt));
 
         // [WHEN] Second page of Wizard is opened
         CRMConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [THEN] Advanced action button is enabled
         Assert.IsTrue(
-          CRMConnectionSetupWizard.ActionAdvanced.Visible,
+          CRMConnectionSetupWizard.ActionAdvanced.Visible(),
           StrSubstNo(ShouldBeErr, ButtonTxt, VisibleTxt));
 
         // [WHEN] User presses on button "Advanced"
-        CRMConnectionSetupWizard.ActionAdvanced.Invoke;
+        CRMConnectionSetupWizard.ActionAdvanced.Invoke();
 
         // [THEN] Button "Simple" is visible
         Assert.IsTrue(
-          CRMConnectionSetupWizard.ActionSimple.Visible,
+          CRMConnectionSetupWizard.ActionSimple.Visible(),
           StrSubstNo(ShouldBeErr, ButtonTxt, VisibleTxt));
 
         // [WHEN] User presses on button "Simple"
-        CRMConnectionSetupWizard.ActionSimple.Invoke;
+        CRMConnectionSetupWizard.ActionSimple.Invoke();
 
         // [THEN] Button "Advanced" is visible
         Assert.IsTrue(
-          CRMConnectionSetupWizard.ActionAdvanced.Visible,
+          CRMConnectionSetupWizard.ActionAdvanced.Visible(),
           StrSubstNo(ShouldBeErr, ButtonTxt, VisibleTxt));
 
         // [WHEN] User press "Back" button
-        CRMConnectionSetupWizard.ActionBack.Invoke;
+        CRMConnectionSetupWizard.ActionBack.Invoke();
 
         // [THEN] Both "Advanced" and "Simple" buttons not visible
         Assert.IsFalse(
-          CRMConnectionSetupWizard.ActionAdvanced.Visible,
+          CRMConnectionSetupWizard.ActionAdvanced.Visible(),
           StrSubstNo(ShouldNotBeErr, ButtonTxt, VisibleTxt));
         Assert.IsFalse(
-          CRMConnectionSetupWizard.ActionSimple.Visible,
+          CRMConnectionSetupWizard.ActionSimple.Visible(),
           StrSubstNo(ShouldNotBeErr, ButtonTxt, VisibleTxt));
 
         // [WHEN] User press "Back" button
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [THEN] "Advanced" is Visible, "Simple" - not visible
         Assert.IsTrue(
-          CRMConnectionSetupWizard.ActionAdvanced.Visible,
+          CRMConnectionSetupWizard.ActionAdvanced.Visible(),
           StrSubstNo(ShouldBeErr, ButtonTxt, VisibleTxt));
         Assert.IsFalse(
-          CRMConnectionSetupWizard.ActionSimple.Visible,
+          CRMConnectionSetupWizard.ActionSimple.Visible(),
           StrSubstNo(ShouldNotBeErr, ButtonTxt, VisibleTxt));
         CRMConnectionSetupWizard.Close();
     end;
@@ -326,14 +326,14 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Initialize();
 
         // [GIVEN] CRM Connection Wizard is opened, synch user credentials not filled
-        CRMConnectionSetupWizard.OpenEdit;
+        CRMConnectionSetupWizard.OpenEdit();
         CRMConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
         CRMConnectionSetupWizard.Email.SetValue('');
         CRMConnectionSetupWizard.Password.SetValue('');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [WHEN] Finish action button is invoked
-        asserterror CRMConnectionSetupWizard.ActionFinish.Invoke;
+        asserterror CRMConnectionSetupWizard.ActionFinish.Invoke();
 
         // [THEN] Error message appears stating user should fill synch user credentials
         Assert.ExpectedError(StrSubstNo(EmptySynchUserCredentialsErr, CRMProductName.SHORT()));
@@ -388,7 +388,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup.Insert();
         // [WHEN] EnableCRMConnectionFromWizard() on a empty CRMConnectionSetup
         TempCRMConnectionSetup.Insert();
-        asserterror TempCRMConnectionSetup.EnableCRMConnectionFromWizard;
+        asserterror TempCRMConnectionSetup.EnableCRMConnectionFromWizard();
         // [THEN] Error: 'All credentials required to enable connection'
         Assert.ExpectedError(StrSubstNo(AllCredentialsRequiredErr, CRMProductName.SHORT()));
     end;
@@ -411,12 +411,12 @@ codeunit 139314 "CRM Connection Wizard Tests"
         TempCRMConnectionSetup.UpdateFromWizard(CRMConnectionSetup, 'password');
 
         // [THEN] The temp record got set
-        Assert.IsTrue(TempCRMConnectionSetup.Get, 'temp record should exist');
+        Assert.IsTrue(TempCRMConnectionSetup.Get(), 'temp record should exist');
         Assert.IsTrue(TempCRMConnectionSetup.HasPassword(), 'password must be set');
         TempCRMConnectionSetup.TestField("Server Address", CRMConnectionSetup."Server Address");
         TempCRMConnectionSetup.TestField("User Name", CRMConnectionSetup."User Name");
         // [THEN] The real record is not inserted
-        Assert.IsFalse(CRMConnectionSetup.Get, 'real record should not exist');
+        Assert.IsFalse(CRMConnectionSetup.Get(), 'real record should not exist');
     end;
 
     [Test]
@@ -431,28 +431,28 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [FEATURE] [UT]
         // [SCENARIO] Step Finish should update the real record
         Initialize();
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.CreateCRMOrganization();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         CRMConnectionSetupWizard.OpenNew();
         // [GIVEN] Fill Office365 parameters
         CRMConnectionSetupWizard.ServerAddress.SetValue('@@test@@');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         CRMConnectionSetupWizard.Password.SetValue('***');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         CRMConnectionSetupWizard.ImportCRMSolution.SetValue(Format(false));
 
         // [WHEN] Finish pressed
-        CRMConnectionSetupWizard.ActionFinish.Invoke;
+        CRMConnectionSetupWizard.ActionFinish.Invoke();
 
         // [THEN] CRM Connection Setup, where password is set, connection is enabled
         CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("User Password Key");
         CRMConnectionSetup.TestField("Is Enabled");
         Assert.ExpectedMessage('Url', CRMConnectionSetup.GetConnectionString());
-        CRMConnectionSetup.RefreshDataFromCRM;
+        CRMConnectionSetup.RefreshDataFromCRM();
         // [THEN] user mapping is disabled
         // [THEN] The latest SDK proxy version is by default
         LatestSDKVersion := LibraryCRMIntegration.GetLastestSDKVersion();
@@ -520,11 +520,11 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [GIVEN] CRM Connection Setup Wizard is opened
         // [GIVEN] Server address = "https://crm.abc.com"
 
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
         CRMConnectionSetupWizard.ServerAddress.SetValue('https://crm.abc.com');
         Email := 'abc@abc.com';
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [WHEN] Sync user email entered
         CRMConnectionSetupWizard.Email.SetValue(Email);
@@ -552,11 +552,11 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         // [GIVEN] Server address = "https://crm.abc.com"
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
         CRMConnectionSetupWizard.ServerAddress.SetValue('https://crm.abc.com');
         Email := 'abc@abc.com';
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
 
         // [WHEN] Sync user email entered
         CRMConnectionSetupWizard.Email.SetValue(Email);
@@ -576,21 +576,21 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [FEATURE] [Multiple SDK]
         // [SCENARIO 234755] Check selected sdk version 8 copied to connection setup
         Initialize();
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.CreateCRMOrganization();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         CRMConnectionSetupWizard.OpenNew();
         // [GIVEN] Fill Office365 parameters, SDK Version = 8
         CRMConnectionSetupWizard.ServerAddress.SetValue('@@test@@');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         CRMConnectionSetupWizard.Password.SetValue('***');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         CRMConnectionSetupWizard.ImportCRMSolution.SetValue(Format(false));
         CRMConnectionSetupWizard.SDKVersion.SetValue(8);
         // [WHEN] Finish pressed
-        CRMConnectionSetupWizard.ActionFinish.Invoke;
+        CRMConnectionSetupWizard.ActionFinish.Invoke();
 
         // [THEN] CRM Connection Setup has "Proxy Version" = 8
         CRMConnectionSetup.Get();
@@ -608,24 +608,24 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [FEATURE] [Multiple SDK]
         // [SCENARIO 234755] SDK Version '8' can be changed to '9'
         Initialize();
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.CreateCRMOrganization();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         CRMConnectionSetupWizard.OpenNew();
         // [GIVEN] Fill Office365 parameters
         CRMConnectionSetupWizard.ServerAddress.SetValue('@@test@@');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         CRMConnectionSetupWizard.Password.SetValue('***');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
         CRMConnectionSetupWizard.ImportCRMSolution.SetValue(Format(false));
         // [GIVEN] SDK Version 9 is selected
         // First selected 8 as 9 is default value
         CRMConnectionSetupWizard.SDKVersion.SetValue(8);
         CRMConnectionSetupWizard.SDKVersion.SetValue(9);
         // [WHEN] Finish pressed
-        CRMConnectionSetupWizard.ActionFinish.Invoke;
+        CRMConnectionSetupWizard.ActionFinish.Invoke();
 
         // [THEN] CRM Connection Setup has "Proxy Version" = 9
         CRMConnectionSetup.Get();
@@ -662,7 +662,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
         LibraryVariableStorage.Clear();
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
@@ -680,18 +680,18 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
     local procedure RunWizardToCompletion(var CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard")
     begin
-        CRMConnectionSetupWizard.Trap;
+        CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
 
         with CRMConnectionSetupWizard do begin
             ServerAddress.SetValue('https://test.dynamics.com');
-            ActionNext.Invoke; // Credentials page
+            ActionNext.Invoke(); // Credentials page
             Email.SetValue('test@test.com');
             Password.SetValue('test1234');
             ImportCRMSolution.SetValue(false);
             EnableBidirectionalSalesOrderIntegration.SetValue(false);
             EnableCRMConnection.SetValue(false);
-            Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
+            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
         end;
     end;
 
@@ -720,7 +720,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     procedure ConfirmYesHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
-        if Question <> CryptographyManagement.GetEncryptionIsNotActivatedQst then
+        if Question <> CryptographyManagement.GetEncryptionIsNotActivatedQst() then
             Reply := true;
     end;
 
@@ -752,14 +752,14 @@ codeunit 139314 "CRM Connection Wizard Tests"
         UserSecurityId := GUIDVAR;
         User.Get(UserSecurityId);
         Users.GotoRecord(User);
-        Users.OK.Invoke;
+        Users.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UsersCancelSelectionModalPageHandler(var Users: TestPage Users)
     begin
-        Users.Cancel.Invoke;
+        Users.Cancel().Invoke();
     end;
 
     [ConfirmHandler]
@@ -776,7 +776,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     begin
         CRMAdministratorCredentials.Email.SetValue('abc@def.com');
         CRMAdministratorCredentials.Password.SetValue('abc');
-        CRMAdministratorCredentials.OK.Invoke;
+        CRMAdministratorCredentials.OK().Invoke();
     end;
 
     [PageHandler]
@@ -790,7 +790,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         LibraryVariableStorage.Dequeue(CRMGuidVAR);
         CRMGuid := CRMGuidVAR;
         CRMSystemuserList.GotoKey(CRMGuid);
-        InternalEmailAddress := LibraryVariableStorage.DequeueText;
+        InternalEmailAddress := LibraryVariableStorage.DequeueText();
         Assert.AreEqual(
           InternalEmailAddress, CRMSystemuserList.InternalEMailAddress.Value,
           StrSubstNo(ShouldBeErr, CRMSystemuserList.InternalEMailAddress.Caption, InternalEmailAddress));
@@ -810,7 +810,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         asserterror CRMSystemuserList.GotoKey(CRMGuid);
         Assert.ExpectedError(TheRowDoesNotExistErr);
 
-        CRMSystemuserList.OK.Invoke;
+        CRMSystemuserList.OK().Invoke();
     end;
 
     [PageHandler]

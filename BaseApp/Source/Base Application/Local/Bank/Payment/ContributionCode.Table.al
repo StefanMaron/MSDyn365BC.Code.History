@@ -11,6 +11,7 @@ table 12106 "Contribution Code"
     Caption = 'Contribution Code';
     DrillDownPageID = "Contribution Codes-INPS";
     LookupPageID = "Contribution Codes-INPS";
+    DataClassification = CustomerContent;
 
     fields
     {

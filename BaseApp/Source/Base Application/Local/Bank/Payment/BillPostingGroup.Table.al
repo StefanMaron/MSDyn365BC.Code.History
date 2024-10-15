@@ -11,6 +11,7 @@ using System.Telemetry;
 table 12179 "Bill Posting Group"
 {
     Caption = 'Bill Posting Group';
+    DataClassification = CustomerContent;
 
     fields
     {

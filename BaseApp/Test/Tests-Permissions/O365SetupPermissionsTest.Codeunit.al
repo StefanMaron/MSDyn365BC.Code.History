@@ -148,7 +148,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
 
-        GLAccountCode := LibraryERM.CreateGLAccountNoWithDirectPosting;
+        GLAccountCode := LibraryERM.CreateGLAccountNoWithDirectPosting();
         LibraryERM.CreateAnalysisView(AnalysisView);
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
@@ -160,7 +160,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryERM.CreateBankAccountPostingGroup(BankAccountPostingGroup);
         LibraryERM.CreateCountryRegion(CountryRegion);
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
         LibraryERM.CreateDeferralTemplateCode("Deferral Calculation Method"::"Equal per Period", "Deferral Calculation Start Date"::"Beginning of Period", 12);
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
@@ -185,7 +185,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibraryERM.CreateReminderTerms(ReminderTerms);
         LibraryERM.CreateReminderLevel(ReminderLevel, ReminderTerms.Code);
         LibraryERM.CreateReminderText(
-          ReminderText, ReminderTerms.Code, ReminderLevel."No.", 1, CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10));
+          ReminderText, ReminderTerms.Code, ReminderLevel."No.", "Reminder Text Position"::Ending, CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10));
         LibraryERM.CreateCurrencyForReminderLevel(CurrencyForReminderLevel, ReminderTerms.Code, CurrencyCode);
         LibraryERM.CreateRecurringTemplateName(GenJournalTemplate);
         LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
@@ -266,16 +266,16 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         LibraryDimension.CreateDimension(Dimension);
 
-        LibraryWorkflow.CreateWorkflowCategory;
+        LibraryWorkflow.CreateWorkflowCategory();
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.CreateWorkflowTableRelation(
           WorkflowTableRelation, DATABASE::Workflow, Workflow.FieldNo(Code), DATABASE::Customer, Customer.FieldNo("No."));
-        LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response, UserId, '', '', 0, true);
+        LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response, UserId, '', '', "Workflow Approver Type"::"Salesperson/Purchaser", true);
         LibraryWorkflow.CreateNotificationSetup(
           NotificationSetup, UserId, NotificationSetup."Notification Type"::Approval, NotificationSetup."Notification Method"::Email);
         LibraryWorkflow.CreateDynamicRequestPageEntity(
-          LibraryUtility.GenerateGUID, DATABASE::"Purchase Header", DATABASE::"Purchase Line");
+          LibraryUtility.GenerateGUID(), DATABASE::"Purchase Header", DATABASE::"Purchase Line");
         LibraryWorkflow.CreateDynamicRequestPageField(DATABASE::Dimension, Dimension.FieldNo(Code));
         LibraryWorkflow.CreatePredecessor(WFEventResponseCombination.Type::"Event", CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10),
           WFEventResponseCombination."Predecessor Type"::"Event", CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10));
@@ -299,7 +299,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         FAJournalTemplate: Record "FA Journal Template";
     begin
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddO365FASetup;
+        LibraryLowerPermissions.AddO365FASetup();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFASubclass(FASubclass);
@@ -317,7 +317,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
         TimeSheetLineArchive: Record "Time Sheet Line Archive";
     begin
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
 
         TimeSheetHeaderArchive.Init();
         TimeSheetHeaderArchive."No." :=
@@ -348,7 +348,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         TimeSheetLineArchive.Insert();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddO365Basic;
+        LibraryLowerPermissions.AddO365Basic();
 
         // Verify read permissions
         TimeSheetLineArchive.Find();

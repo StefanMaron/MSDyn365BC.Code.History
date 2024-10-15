@@ -6,8 +6,8 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Company;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
+using Microsoft.Utilities;
 using System.Utilities;
 
 report 12108 "VAT Register Grouped"
@@ -531,10 +531,10 @@ report 12108 "VAT Register Grouped"
 
     trigger OnPreReport()
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        ITReportManagement: Codeunit "IT - Report Management";
     begin
-        NoSeriesMgt.CheckSalesDocNoGaps(EndingDate);
-        NoSeriesMgt.CheckPurchDocNoGaps(EndingDate);
+        ITReportManagement.CheckSalesDocNoGaps(EndingDate, true, false);
+        ITReportManagement.CheckPurchDocNoGaps(EndingDate, true, false);
     end;
 
     var

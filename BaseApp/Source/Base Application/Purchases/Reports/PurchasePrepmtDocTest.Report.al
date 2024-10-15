@@ -468,35 +468,33 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                     CurrReport.Break();
                             "Purchase Line" := TempPurchLine;
                             CurrentErrorCount := ErrorCounter;
-                            with "Purchase Line" do begin
-                                if ("VAT Bus. Posting Group" <> VATPostingSetup."VAT Bus. Posting Group") or
-                                   ("VAT Prod. Posting Group" <> VATPostingSetup."VAT Prod. Posting Group")
+                            if ("Purchase Line"."VAT Bus. Posting Group" <> VATPostingSetup."VAT Bus. Posting Group") or
+                               ("Purchase Line"."VAT Prod. Posting Group" <> VATPostingSetup."VAT Prod. Posting Group")
+                            then
+                                if not VATPostingSetup.Get(
+                                     "Purchase Line"."VAT Bus. Posting Group", "Purchase Line"."VAT Prod. Posting Group")
                                 then
-                                    if not VATPostingSetup.Get(
-                                         "VAT Bus. Posting Group", "VAT Prod. Posting Group")
-                                    then
+                                    AddError(
+                                      StrSubstNo(
+                                        Text016,
+                                         VATPostingSetup.TableCaption(),
+                                        "Purchase Line"."VAT Bus. Posting Group", "Purchase Line"."VAT Prod. Posting Group"));
+                            if VATPostingSetup."Purch. Prepayments Account" = '' then
+                                AddError(StrSubstNo(Text006, VATPostingSetup.FieldCaption("Purch. Prepayments Account")))
+                            else
+                                if GLAcc.Get(VATPostingSetup."Purch. Prepayments Account") then begin
+                                    if GLAcc.Blocked then
                                         AddError(
                                           StrSubstNo(
-                                            Text016,
-                                             VATPostingSetup.TableCaption(),
-                                            "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
-                                if VATPostingSetup."Purch. Prepayments Account" = '' then
-                                    AddError(StrSubstNo(Text006, VATPostingSetup.FieldCaption("Purch. Prepayments Account")))
-                                else
-                                    if GLAcc.Get(VATPostingSetup."Purch. Prepayments Account") then begin
-                                        if GLAcc.Blocked then
-                                            AddError(
-                                              StrSubstNo(
-                                                Text008, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
-                                    end else
-                                        AddError(StrSubstNo(Text007, GLAcc.TableCaption(), VATPostingSetup."Purch. Prepayments Account"));
+                                            Text008, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "Purchase Line"."No."));
+                                end else
+                                    AddError(StrSubstNo(Text007, GLAcc.TableCaption(), VATPostingSetup."Purch. Prepayments Account"));
 
-                                if ErrorCounter = CurrentErrorCount then
-                                    if PurchPostPrepmt.PrepmtAmount("Purchase Line", DocumentType) <> 0 then begin
-                                        PurchPostPrepmt.FillInvLineBuffer("Purchase Header", "Purchase Line", TempPrepmtInvLineBuf2);
-                                        TempPrepmtInvLineBuf.InsertInvLineBuffer(TempPrepmtInvLineBuf2);
-                                    end;
-                            end;
+                            if ErrorCounter = CurrentErrorCount then
+                                if PurchPostPrepmt.PrepmtAmount("Purchase Line", DocumentType) <> 0 then begin
+                                    PurchPostPrepmt.FillInvLineBuffer("Purchase Header", "Purchase Line", TempPrepmtInvLineBuf2);
+                                    TempPrepmtInvLineBuf.InsertInvLineBuffer(TempPrepmtInvLineBuf2);
+                                end;
 
                             TempPrepmtInvLineBuf2.Reset();
                             TempPrepmtInvLineBuf2.DeleteAll();

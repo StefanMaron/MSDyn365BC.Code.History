@@ -224,7 +224,7 @@ codeunit 144143 "ERM FA Deprciation"
 
         // Setup: Create Depreciation Table Lines with Period Depreciation %.
         Initialize();
-        DepreciationTableCode := CreateDepreciationTableWithMultipleLines;
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
 
         // Exercise & Verify: Open Depreciation Table Card and Verify Total Depreciation Percentage.
         OpenAndVerifyTotalDepreciationOnDepriciationTableCard(DepreciationTableCode);
@@ -240,7 +240,7 @@ codeunit 144143 "ERM FA Deprciation"
 
         // Setup: Create FA Depreciation Books with Depreciation Book Code.
         Initialize();
-        CreateFADepreciationBookSetup(FADepreciationBook[1], '', WorkDate(), CreateDepreciationBookAndFAJournalSetup);  // Depreciation Table Code as blank.
+        CreateFADepreciationBookSetup(FADepreciationBook[1], '', WorkDate(), CreateDepreciationBookAndFAJournalSetup());  // Depreciation Table Code as blank.
         CreateFADepreciationBookSetup(FADepreciationBook[2], '', WorkDate(), FADepreciationBook[1]."Depreciation Book Code");  // Depreciation Table Code as blank.
 
         // Exercise: Post Purchase Invoice with Fixed Assets.
@@ -265,7 +265,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Setup: Create VAT Transaction Report Amount, FA Depreciation Book and Purchase Invoice.
         Initialize();
         UpdateVATTransactionReportAmount(VATTransactionReportAmount);
-        CreateFADepreciationBookSetup(FADepreciationBook, '', WorkDate(), CreateDepreciationBookAndFAJournalSetup);
+        CreateFADepreciationBookSetup(FADepreciationBook, '', WorkDate(), CreateDepreciationBookAndFAJournalSetup());
         CreatePurchaseHeader(PurchaseHeader);
         CreatePurchaseLine(PurchaseHeader, FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code");
 
@@ -295,7 +295,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Setup: Create VAT Transaction Report Amount, FA Depreciation Book and Sales Invoice.
         Initialize();
         UpdateVATTransactionReportAmount(VATTransactionReportAmount);
-        CreateFADepreciationBookSetup(FADepreciationBook, '', WorkDate(), CreateDepreciationBookAndFAJournalSetup);  // Depreciation Table Code as blank.
+        CreateFADepreciationBookSetup(FADepreciationBook, '', WorkDate(), CreateDepreciationBookAndFAJournalSetup());  // Depreciation Table Code as blank.
         CreateAndPostGenJournalLine(
           FADepreciationBook, GenJournalLine."FA Posting Type"::"Acquisition Cost", LibraryRandom.RandDec(1000, 2), WorkDate());
         CreateSalesHeader(SalesHeader);
@@ -321,8 +321,8 @@ codeunit 144143 "ERM FA Deprciation"
         Amount: Decimal;
     begin
         // Test to verify Totals -  1 FA, 1 Class.
-        DeprBookCode := CreateDepreciationBookAndFAJournalSetup;
-        Amount := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass, '', WorkDate());
+        DeprBookCode := CreateDepreciationBookAndFAJournalSetup();
+        Amount := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass(), '', WorkDate());
 
         RunDepreciationBookReport(DeprBookCode, '', '', false, CalcDate('<1Y>', WorkDate()));
         VerifyFAClassTotalling(true, Amount, Amount, 0, Amount);
@@ -340,10 +340,10 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // Test to verify Totals -  2 FAs, 2 Classes, 2 Subclasses
         Initialize();
-        DeprBookCode := CreateDepreciationBookAndFAJournalSetup;
+        DeprBookCode := CreateDepreciationBookAndFAJournalSetup();
 
-        Amount1 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass, CreateFASubclass, WorkDate());
-        Amount2 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass, CreateFASubclass, WorkDate());
+        Amount1 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass(), CreateFASubclass(), WorkDate());
+        Amount2 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass(), CreateFASubclass(), WorkDate());
 
         RunDepreciationBookReport(DeprBookCode, '', '', true, CalcDate('<1Y>', WorkDate()));
         VerifyFAClassTotalling(true, Amount1, Amount1, 0, Amount1);
@@ -364,11 +364,11 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // Test to verify Totals - 2 FAs, 2 Classes, 1 Subclass
         Initialize();
-        DeprBookCode := CreateDepreciationBookAndFAJournalSetup;
-        FASubclassCode := CreateFASubclass;
+        DeprBookCode := CreateDepreciationBookAndFAJournalSetup();
+        FASubclassCode := CreateFASubclass();
 
-        Amount1 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass, FASubclassCode, WorkDate());
-        Amount2 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass, FASubclassCode, WorkDate());
+        Amount1 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass(), FASubclassCode, WorkDate());
+        Amount2 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass(), FASubclassCode, WorkDate());
 
         RunDepreciationBookReport(DeprBookCode, '', '', true, CalcDate('<1Y>', WorkDate()));
         VerifyFAClassTotalling(true, Amount1, Amount1, 0, Amount1);
@@ -389,11 +389,11 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // Test to verify Totals - 2 FAs, 1 Class, 2 Subclasses
         Initialize();
-        DeprBookCode := CreateDepreciationBookAndFAJournalSetup;
-        FAClassCode := CreateFAClass;
+        DeprBookCode := CreateDepreciationBookAndFAJournalSetup();
+        FAClassCode := CreateFAClass();
 
-        Amount1 := PurchFAWithFAClassSubclass(DeprBookCode, FAClassCode, CreateFASubclass, WorkDate());
-        Amount2 := PurchFAWithFAClassSubclass(DeprBookCode, FAClassCode, CreateFASubclass, WorkDate());
+        Amount1 := PurchFAWithFAClassSubclass(DeprBookCode, FAClassCode, CreateFASubclass(), WorkDate());
+        Amount2 := PurchFAWithFAClassSubclass(DeprBookCode, FAClassCode, CreateFASubclass(), WorkDate());
 
         RunDepreciationBookReport(DeprBookCode, '', '', true, CalcDate('<1Y>', WorkDate()));
         VerifyFAClassTotalling(true, Amount1, Amount1, 0, Amount1);
@@ -412,8 +412,8 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // Test to verify Totals / FA Depr. Starting Date is in different years for each FA.
         // Check totals(FA Class totaling) are not summarized between years.
-        FAClassCode := CreateFAClass;
-        Amount := CreatePurchFARunFADeprBookReport(FAClassCode, FAClassCode, CreateFASubclass, CreateFASubclass, true);
+        FAClassCode := CreateFAClass();
+        Amount := CreatePurchFARunFADeprBookReport(FAClassCode, FAClassCode, CreateFASubclass(), CreateFASubclass(), true);
         VerifyFAClassTotalling(true, Amount, Amount, 0, Amount);
     end;
 
@@ -427,8 +427,8 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // Test to verify Totals / FA Depr. Starting Date is in different years for each FA.
         // Check totals(FA SubClass totaling) are not summarized between years.
-        FASubClassCode := CreateFASubclass;
-        Amount := CreatePurchFARunFADeprBookReport(CreateFAClass, CreateFAClass, FASubClassCode, FASubClassCode, false);
+        FASubClassCode := CreateFASubclass();
+        Amount := CreatePurchFARunFADeprBookReport(CreateFAClass(), CreateFAClass(), FASubClassCode, FASubClassCode, false);
         VerifyFASubclassTotalling(true, Amount, Amount, 0, Amount);
     end;
 
@@ -455,7 +455,7 @@ codeunit 144143 "ERM FA Deprciation"
         // [GIVEN] Fixed Asset "N" with Acquisition Cost and calculated depreciation
         CreateFADepreciationBookSetup(
           FADepreciationBookNormal, FADepreciationBook[1]."Depreciation Table Code",
-          WorkDate, FADepreciationBook[1]."Depreciation Book Code");
+          WorkDate(), FADepreciationBook[1]."Depreciation Book Code");
         CreateAndPostGenJournalLine(
           FADepreciationBookNormal, GenJournalLine."FA Posting Type"::"Acquisition Cost", LibraryRandom.RandDec(1000, 2), WorkDate());
         EnqueueValuesInRequestPageHandler(
@@ -500,8 +500,8 @@ codeunit 144143 "ERM FA Deprciation"
         // [FEATURE] [Report] [FA Disposal] [Reclassification] [Depreciation Book]
         // [SCENARIO 331401] Report 12119 "Depreciation Book" do not mix reclassification amounts for "Addition in Period" and "Disposal in Period" when FA was reclassified and depreciated at the same period.
         Initialize();
-        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup;
-        DepreciationTableCode := CreateDepreciationTableWithMultipleLines;
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
         CreateFAPostingGroup(FAPostingGroupCode);
 
         // [GIVEN] Fixed Asset "FA1" with depreciation book starting from 01.01 , aquired for amount of 500
@@ -534,7 +534,7 @@ codeunit 144143 "ERM FA Deprciation"
           FALedgerEntry, FADepreciationBook[2]."FA No.", DepreciationBookCode,
           FALedgerEntry."Document Type"::Invoice, FALedgerEntry."FA Posting Category"::Disposal);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'TotalDisposalAmounts_1__TotalDisposalAmounts_3__TotalDisposalAmounts_4_', FALedgerEntry.Amount);
     end;
@@ -875,7 +875,7 @@ codeunit 144143 "ERM FA Deprciation"
         // [GIVEN] Acquired Fixed Asset "FA2" with Source FA No. = "FA1".
         AcquisitionDate := CalcDate('<-CY>', WorkDate());
         DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
-        CreateFADepreciationBookSetup(FADepreciationBook, CreateDepreciationTableWithMultipleLines, AcquisitionDate, DepreciationBookCode);
+        CreateFADepreciationBookSetup(FADepreciationBook, CreateDepreciationTableWithMultipleLines(), AcquisitionDate, DepreciationBookCode);
         CreateAndPostGenJournalLine(FADepreciationBook, GenJournalLine."FA Posting Type"::"Acquisition Cost", 1000, AcquisitionDate);
         UpdateSourceFANoOnFixedAsset(FADepreciationBook."FA No.", SourceFixedAsset."No.");
         Commit();
@@ -1240,8 +1240,8 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         CreateFADepreciationBookSetup(
           FADepreciationBook[1],
-          CreateDepreciationTableWithMultipleLines,
-          WorkDate, CreateDepreciationBookAndFAJournalSetup);
+          CreateDepreciationTableWithMultipleLines(),
+          WorkDate(), CreateDepreciationBookAndFAJournalSetup());
         CreateFADepreciationBookSetup(
           FADepreciationBook[2],
           FADepreciationBook[1]."Depreciation Table Code",
@@ -1421,7 +1421,7 @@ codeunit 144143 "ERM FA Deprciation"
     var
         DepreciationTableCard: TestPage "Depreciation Table Card";
     begin
-        DepreciationTableCard.OpenEdit;
+        DepreciationTableCard.OpenEdit();
         DepreciationTableCard.FILTER.SetFilter(Code, DepreciationTableCode);
         DepreciationTableCard.SubFormDeprTableLines.TotalDepreciationPct.AssertEquals(GetPeriodDepreciationPerc(DepreciationTableCode));
         DepreciationTableCard.Close();
@@ -1475,11 +1475,11 @@ codeunit 144143 "ERM FA Deprciation"
     var
         FAReclassJournal: TestPage "FA Reclass. Journal";
     begin
-        FAReclassJournal.OpenEdit;
+        FAReclassJournal.OpenEdit();
         FAReclassJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
         FAReclassJournal.FILTER.SetFilter("Depreciation Book Code", DepreciationBookCode);
-        FAReclassJournal.Reclassify.Invoke;
-        PostFAReclassJournal;
+        FAReclassJournal.Reclassify.Invoke();
+        PostFAReclassJournal();
     end;
 
     local procedure SetFiscalCodeAndRegCompanyNoOnCompanyInfo()
@@ -1573,7 +1573,7 @@ codeunit 144143 "ERM FA Deprciation"
     local procedure VerifyValuesOnDepreciationBookReport(LoadDataSetFile: Boolean; Caption: Text; Caption2: Text; Caption3: Text; Caption4: Text; CaptionValue: Variant; CaptionValue2: Variant; CaptionValue3: Decimal; CaptionValue4: Decimal)
     begin
         if LoadDataSetFile then
-            LibraryReportDataset.LoadDataSetFile;
+            LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, CaptionValue);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, CaptionValue2);
         LibraryReportDataset.AssertElementWithValueExists(Caption3, CaptionValue3);
@@ -1596,7 +1596,7 @@ codeunit 144143 "ERM FA Deprciation"
 
     local procedure VerifyFAAfterPartialDisposal(StartAmount: Decimal; DisposalAmount: Decimal; BookValueAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('StartAmounts_1_', StartAmount);
         LibraryReportDataset.AssertElementWithValueExists('DisposalAmounts_1_', DisposalAmount);
         LibraryReportDataset.AssertElementWithValueExists('TotalEndingAmounts_Type__Control1130084', BookValueAmount);
@@ -1671,7 +1671,7 @@ codeunit 144143 "ERM FA Deprciation"
     var
         DeprBookCode: Code[10];
     begin
-        DeprBookCode := CreateDepreciationBookAndFAJournalSetup;
+        DeprBookCode := CreateDepreciationBookAndFAJournalSetup();
         PurchFAWithFAClassSubclass(DeprBookCode, FAClassCode1, FASubClassCode1, WorkDate());
         Amount := PurchFAWithFAClassSubclass(DeprBookCode, FAClassCode2, FASubClassCode2, CalcDate('<1Y>', WorkDate()));
         RunDepreciationBookReport(DeprBookCode, '', '', PrintPerFixedAsset, CalcDate('<1Y>', WorkDate()));
@@ -1737,19 +1737,19 @@ codeunit 144143 "ERM FA Deprciation"
         CalculateDepreciation.PostingDate.SetValue(Format(PostingDate));
         CalculateDepreciation.DepreciationBook.SetValue(DepreciationBook);
         CalculateDepreciation.InsertBalAccount.SetValue(true);
-        CalculateDepreciation.OK.Invoke;
+        CalculateDepreciation.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DepreciationBookRequestPageHandler(var DepreciationBook: TestRequestPage "Depreciation Book")
     begin
-        DepreciationBook."Fixed Asset".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        DepreciationBook.DepreciationBook.SetValue(LibraryVariableStorage.DequeueText);
-        DepreciationBook.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        DepreciationBook.EndingDate.SetValue(CalcDate('<CY>', DepreciationBook.StartingDate.AsDate));
-        DepreciationBook.PrintPerFixedAsset.SetValue(LibraryVariableStorage.DequeueBoolean);
-        DepreciationBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DepreciationBook."Fixed Asset".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        DepreciationBook.DepreciationBook.SetValue(LibraryVariableStorage.DequeueText());
+        DepreciationBook.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        DepreciationBook.EndingDate.SetValue(CalcDate('<CY>', DepreciationBook.StartingDate.AsDate()));
+        DepreciationBook.PrintPerFixedAsset.SetValue(LibraryVariableStorage.DequeueBoolean());
+        DepreciationBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

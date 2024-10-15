@@ -33,6 +33,7 @@ table 17 "G/L Entry"
     Caption = 'G/L Entry';
     DrillDownPageID = "General Ledger Entries";
     LookupPageID = "General Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -94,7 +95,21 @@ table 17 "G/L Entry"
         field(17; Amount; Decimal)
         {
             AutoFormatType = 1;
-            Caption = 'Amount';
+            Caption = 'Amount (LCY)';
+            DataClassification = CustomerContent;
+        }
+        field(18; "Source Currency Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Source Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Source Currency Amount';
+            DataClassification = CustomerContent;
+        }
+        field(20; "Source Currency Code"; Code[10])
+        {
+            Caption = 'Source Currency Code';
+            TableRelation = Currency;
+            DataClassification = SystemMetadata;
         }
         field(23; "Global Dimension 1 Code"; Code[20])
         {
@@ -130,7 +145,7 @@ table 17 "G/L Entry"
         }
         field(41; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(42; Quantity; Decimal)
@@ -296,7 +311,7 @@ table 17 "G/L Entry"
         }
         field(76; "G/L Account Name"; Text[100])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("G/L Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("G/L Account No.")));
             Caption = 'G/L Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -436,7 +451,7 @@ table 17 "G/L Entry"
         }
         field(8001; "Account Id"; Guid)
         {
-            CalcFormula = Lookup("G/L Account".SystemId where("No." = field("G/L Account No.")));
+            CalcFormula = lookup("G/L Account".SystemId where("No." = field("G/L Account No.")));
             Caption = 'Account Id';
             FieldClass = FlowField;
             TableRelation = "G/L Account".SystemId;
@@ -470,11 +485,12 @@ table 17 "G/L Entry"
         }
         key(Key2; "G/L Account No.", "Posting Date")
         {
-            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", Quantity;
+            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", Quantity, "Source Currency Amount";
+            IncludedFields = Amount, "Additional-Currency Amount";
         }
-        key(Key3; "G/L Account No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "VAT Reporting Date")
+        key(Key3; "G/L Account No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "VAT Reporting Date", "Source Currency Code")
         {
-            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount";
+            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", "Source Currency Amount";
         }
         key(Key4; "G/L Account No.", "Business Unit Code", "Posting Date")
         {

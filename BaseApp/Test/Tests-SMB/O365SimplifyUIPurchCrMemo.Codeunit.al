@@ -34,7 +34,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     [Test]
@@ -57,11 +57,11 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
 
         // Exercise
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        LibrarySales.EnableConfirmOnPostingDoc;
-        PurchaseCreditMemo.Post.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        LibrarySales.EnableConfirmOnPostingDoc();
+        PurchaseCreditMemo.Post.Invoke();
 
         // Verify
     end;
@@ -86,10 +86,10 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
 
         // Exercise
-        PurchaseCreditMemos.OpenView;
+        PurchaseCreditMemos.OpenView();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        PurchaseCreditMemos.Post.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        PurchaseCreditMemos.Post.Invoke();
 
         // Verify
     end;
@@ -125,7 +125,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         OldValue := PurchHeader."Currency Factor";
 
         // Exercise
-        PurchaseCreditMemo."Currency Code".AssistEdit;
+        PurchaseCreditMemo."Currency Code".AssistEdit();
         PurchaseCreditMemo.Close();
 
         // Verify
@@ -170,9 +170,9 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         UserSetup.Modify();
 
         with PurchaseCreditMemo do begin
-            OpenEdit;
+            OpenEdit();
             Assert.IsFalse(GotoRecord(PurchHeader), '');
-            Close;
+            Close();
         end;
     end;
 
@@ -201,9 +201,9 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
 
-        PurchaseCreditMemo.PurchLines.New;
+        PurchaseCreditMemo.PurchLines.New();
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
-        PurchaseCreditMemo.PurchLines.InsertExtTexts.Invoke;
+        PurchaseCreditMemo.PurchLines.InsertExtTexts.Invoke();
 
         // Verify
         PurchLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
@@ -253,7 +253,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         // Exercise: Select existing Vend.
         PurchaseCreditMemo.OpenNew();
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend1.Name);
 
@@ -277,7 +277,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         VendName := CopyStr(Format(CreateGuid()), 1, 50);
 
         PurchaseCreditMemo.OpenNew();
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
 
         // Verify
         asserterror PurchaseCreditMemo."Buy-from Vendor Name".SetValue(VendName);
@@ -341,7 +341,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         PurchaseCreditMemo."Payment Terms Code".AssertEquals('');
         // Due Date is replaced by Operation Occurred Date in IT
-        PurchaseCreditMemo."Operation Occurred Date".AssertEquals(PurchaseCreditMemo."Document Date".AsDate);
+        PurchaseCreditMemo."Operation Occurred Date".AssertEquals(PurchaseCreditMemo."Document Date".AsDate());
     end;
 
     [Test]
@@ -362,7 +362,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         PaymentTerms.Get(Vend."Payment Terms Code");
         PurchaseCreditMemo."Payment Terms Code".SetValue(PaymentTerms.Code);
-        ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", PurchaseCreditMemo."Document Date".AsDate);
+        ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", PurchaseCreditMemo."Document Date".AsDate());
         // Due Date is replaced by Operation Occurred Date in IT
         PurchaseCreditMemo."Operation Occurred Date".AssertEquals(ExpectedDueDate);
     end;
@@ -377,11 +377,11 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Initialize();
 
         PurchaseCreditMemo.OpenNew();
-        Assert.IsTrue(PurchaseCreditMemo."Expected Receipt Date".Enabled,
+        Assert.IsTrue(PurchaseCreditMemo."Expected Receipt Date".Enabled(),
           Format('Shipment Date should be present on Purch Credit Memo'));
 
-        PostedPurchaseCreditMemo.OpenView;
-        Assert.IsTrue(PurchaseCreditMemo."Expected Receipt Date".Enabled,
+        PostedPurchaseCreditMemo.OpenView();
+        Assert.IsTrue(PurchaseCreditMemo."Expected Receipt Date".Enabled(),
           Format('Shipment Date should be present on Posted Purch Credit Memo'));
     end;
 
@@ -477,7 +477,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         // [GIVEN] "Buy-from Vendor Name" is being changed to 'Test'
         NewName := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Buy-from Vendor Name"), DATABASE::"Purchase Header");
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder."Buy-from Vendor Name".SetValue(NewName);
 
@@ -513,7 +513,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         ClearTable(DATABASE::Resource);
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
@@ -584,15 +584,15 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
     begin
         LibraryVariableStorage.Dequeue(VendName);
         VendorList.FILTER.SetFilter(Name, VendName);
-        VendorList.Last;
-        VendorList.OK.Invoke;
+        VendorList.Last();
+        VendorList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendListCancelPageHandler(var VendorList: TestPage "Vendor List")
     begin
-        VendorList.Cancel.Invoke;
+        VendorList.Cancel().Invoke();
     end;
 
     local procedure CreateVend(var Vend: Record Vendor)
@@ -645,14 +645,14 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
     begin
         Evaluate(OldValue, ChangeExchRate.RefExchRate.Value);
         ChangeExchRate.RefExchRate.SetValue(OldValue + 1);
-        ChangeExchRate.OK.Invoke;
+        ChangeExchRate.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchCredMemoPageHandler(var PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo")
     begin
-        PostedPurchaseCreditMemo.OK.Invoke;
+        PostedPurchaseCreditMemo.OK().Invoke();
     end;
 }
 

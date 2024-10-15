@@ -95,7 +95,7 @@ codeunit 144127 "ERM  Miscellaneous"
         REPORT.Run(REPORT::"Account Book Sheet - Print");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account_No_', GenJournalLine."Account No.");
         LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GenJournalLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists('GL_Book_Entry__External_Document_No__', GenJournalLine."Document No.");
@@ -139,7 +139,7 @@ codeunit 144127 "ERM  Miscellaneous"
         Initialize();
         // [GIVEN] Vendor "X", vendor "Y", "X"."Pay-to Vendor No." = "Y"
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         Vendor.Modify(true);
         // [GIVEN] Vendor Bank Account "Z" for vendor "Y"
         LibraryPurchase.CreateVendorBankAccount(VendBankAcc, Vendor."Pay-to Vendor No.");
@@ -163,7 +163,7 @@ codeunit 144127 "ERM  Miscellaneous"
         Initialize();
         // [GIVEN] Customer "X", customer "Y", "X"."Bill-to Customer No." = "Y"
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         Customer.Modify(true);
         // [GIVEN] Customer Bank Account "Z" for customer "Y"
         LibrarySales.CreateCustomerBankAccount(CustBankAcc, Customer."Bill-to Customer No.");
@@ -191,7 +191,7 @@ codeunit 144127 "ERM  Miscellaneous"
 
         // [WHEN] Invoke "Company Information".GetTaxCode
         // [THEN] Result = "X"
-        Assert.AreEqual(CompanyInformation."Fiscal Code", CompanyInformation.GetTaxCode, WrongResultErr);
+        Assert.AreEqual(CompanyInformation."Fiscal Code", CompanyInformation.GetTaxCode(), WrongResultErr);
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 144127 "ERM  Miscellaneous"
 
         // [WHEN] Invoke "Company Information".GetTaxCode
         // [THEN] Result = "X"
-        Assert.AreEqual(CompanyInformation."VAT Registration No.", CompanyInformation.GetTaxCode, WrongResultErr);
+        Assert.AreEqual(CompanyInformation."VAT Registration No.", CompanyInformation.GetTaxCode(), WrongResultErr);
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 144127 "ERM  Miscellaneous"
 
         // [WHEN] Invoke Vendor.GetTaxCode
         // [THEN] Result = "X"
-        Assert.AreEqual(Vendor."Fiscal Code", Vendor.GetTaxCode, WrongResultErr);
+        Assert.AreEqual(Vendor."Fiscal Code", Vendor.GetTaxCode(), WrongResultErr);
     end;
 
     [Test]
@@ -247,7 +247,7 @@ codeunit 144127 "ERM  Miscellaneous"
 
         // [WHEN] Invoke Vendor.GetTaxCode
         // [THEN] Result = "X"
-        Assert.AreEqual(Vendor."VAT Registration No.", Vendor.GetTaxCode, WrongResultErr);
+        Assert.AreEqual(Vendor."VAT Registration No.", Vendor.GetTaxCode(), WrongResultErr);
     end;
 
     [Test]
@@ -484,7 +484,7 @@ codeunit 144127 "ERM  Miscellaneous"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
     end;
 
     local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -537,7 +537,7 @@ codeunit 144127 "ERM  Miscellaneous"
         Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Use Random Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));  // Use random Unit Price.
@@ -571,7 +571,7 @@ codeunit 144127 "ERM  Miscellaneous"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Method Code", FindPaymentMethod);
+        Customer.Validate("Payment Method Code", FindPaymentMethod());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -656,7 +656,7 @@ codeunit 144127 "ERM  Miscellaneous"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        PaymentMethod.SetRange("Bill Code", FindBill);
+        PaymentMethod.SetRange("Bill Code", FindBill());
         LibraryERM.FindPaymentMethod(PaymentMethod);
         exit(PaymentMethod.Code);
     end;
@@ -697,7 +697,7 @@ codeunit 144127 "ERM  Miscellaneous"
         AccountBookSheetPrint."G/L Account".SetFilter("Date Filter", Format(DateFilter));
         AccountBookSheetPrint.ProgressiveBalance.SetValue(true);
         AccountBookSheetPrint.ShowAmountsInAddReportingCurrency.SetValue(true);
-        AccountBookSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AccountBookSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -714,7 +714,7 @@ codeunit 144127 "ERM  Miscellaneous"
         IssuingCustomerBill.DoNotCheckDimensions.SetValue(true);
         IssuingCustomerBill.PostingDate.SetValue(PostingDate);
         IssuingCustomerBill.DocumentDate.SetValue(PostingDate);
-        IssuingCustomerBill.OK.Invoke;
+        IssuingCustomerBill.OK().Invoke();
     end;
 
     [MessageHandler]

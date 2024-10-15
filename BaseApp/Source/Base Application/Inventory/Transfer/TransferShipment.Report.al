@@ -390,8 +390,6 @@ report 5704 "Transfer Shipment"
         ShipmentMethod: Record "Shipment Method";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        TransferFromAddr: array[8] of Text[100];
-        TransferToAddr: array[8] of Text[100];
         MoreLines: Boolean;
         CopyText: Text[30];
         DimText: Text[120];
@@ -422,6 +420,8 @@ report 5704 "Transfer Shipment"
 
     protected var
         FormatAddr: Codeunit "Format Address";
+        TransferFromAddr: array[8] of Text[100];
+        TransferToAddr: array[8] of Text[100];
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         OutputNo: Integer;

@@ -5,12 +5,11 @@ table 2004 "Azure AI Usage"
     // // This table is used for Azure Machine Learning related features to control that amount of time used by all
     // // these features in total does not exceed the limit defined by Azure ML.The table is singleton and used only in SaaS.
 
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Table will be marked as internal. Use codeunit ''Azure AI Usage'' to read the data from the table.';
-    ObsoleteTag = '17.0';
     ReplicateData = false;
     Caption = 'Azure AI Usage';
     Permissions = TableData "Azure AI Usage" = rimd;
+    Access = Internal;
+    DataClassification = CustomerContent;
 
     fields
     {

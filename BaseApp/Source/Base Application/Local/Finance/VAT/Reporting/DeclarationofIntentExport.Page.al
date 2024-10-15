@@ -189,7 +189,6 @@ page 12161 "Declaration of Intent Export"
         TaxAuthorityReceiptsNo: Text[17];
         TaxAuthorityDocNo: Text[6];
 
-    [Scope('OnPrem')]
     procedure Initialize(var VATExemption2: Record "VAT Exemption")
     begin
         VATExemption := VATExemption2;

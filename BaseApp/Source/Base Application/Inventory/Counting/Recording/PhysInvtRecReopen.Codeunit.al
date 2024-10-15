@@ -29,43 +29,41 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
     begin
         OnBeforeCode(PhysInvtRecordHeader);
 
-        with PhysInvtRecordHeader do begin
-            TestField("Order No.");
-            TestField("Recording No.");
-            TestField(Status, Status::Finished);
+        PhysInvtRecordHeader.TestField("Order No.");
+        PhysInvtRecordHeader.TestField("Recording No.");
+        PhysInvtRecordHeader.TestField(Status, PhysInvtRecordHeader.Status::Finished);
 
-            Window.Open(
-              '#1#################################\\' + ReopeningLinesMsg);
-            Window.Update(1, StrSubstNo('%1 %2', TableCaption(), "Order No."));
+        Window.Open(
+          '#1#################################\\' + ReopeningLinesMsg);
+        Window.Update(1, StrSubstNo('%1 %2', PhysInvtRecordHeader.TableCaption(), PhysInvtRecordHeader."Order No."));
 
-            PhysInvtOrderHeader.Get("Order No.");
-            PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
+        PhysInvtOrderHeader.Get(PhysInvtRecordHeader."Order No.");
+        PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
 
-            LineCount := 0;
-            PhysInvtRecordLine.Reset();
-            PhysInvtRecordLine.SetRange("Order No.", "Order No.");
-            PhysInvtRecordLine.SetRange("Recording No.", "Recording No.");
-            if PhysInvtRecordLine.Find('-') then
-                repeat
-                    LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
-                    if PhysInvtRecordLine."Item No." <> '' then begin
-                        PhysInvtOrderLine.Get(PhysInvtRecordLine."Order No.", PhysInvtRecordLine."Order Line No.");
-                        PhysInvtOrderLine."Qty. Recorded (Base)" -= PhysInvtRecordLine."Quantity (Base)";
-                        PhysInvtOrderLine."No. Finished Rec.-Lines" -= 1;
-                        PhysInvtOrderLine."On Recording Lines" := PhysInvtOrderLine."No. Finished Rec.-Lines" <> 0;
-                        OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, PhysInvtRecordLine, PhysInvtRecordHeader);
-                        PhysInvtOrderLine.Modify();
+        LineCount := 0;
+        PhysInvtRecordLine.Reset();
+        PhysInvtRecordLine.SetRange("Order No.", PhysInvtRecordHeader."Order No.");
+        PhysInvtRecordLine.SetRange("Recording No.", PhysInvtRecordHeader."Recording No.");
+        if PhysInvtRecordLine.Find('-') then
+            repeat
+                LineCount := LineCount + 1;
+                Window.Update(2, LineCount);
+                if PhysInvtRecordLine."Item No." <> '' then begin
+                    PhysInvtOrderLine.Get(PhysInvtRecordLine."Order No.", PhysInvtRecordLine."Order Line No.");
+                    PhysInvtOrderLine."Qty. Recorded (Base)" -= PhysInvtRecordLine."Quantity (Base)";
+                    PhysInvtOrderLine."No. Finished Rec.-Lines" -= 1;
+                    PhysInvtOrderLine."On Recording Lines" := PhysInvtOrderLine."No. Finished Rec.-Lines" <> 0;
+                    OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, PhysInvtRecordLine, PhysInvtRecordHeader);
+                    PhysInvtOrderLine.Modify();
 
-                        PhysInvtRecordLine."Order Line No." := 0;
-                        PhysInvtRecordLine."Recorded Without Order" := false;
-                        PhysInvtRecordLine.Modify();
-                    end;
-                until PhysInvtRecordLine.Next() = 0;
+                    PhysInvtRecordLine."Order Line No." := 0;
+                    PhysInvtRecordLine."Recorded Without Order" := false;
+                    PhysInvtRecordLine.Modify();
+                end;
+            until PhysInvtRecordLine.Next() = 0;
 
-            Status := Status::Open;
-            Modify();
-        end;
+        PhysInvtRecordHeader.Status := PhysInvtRecordHeader.Status::Open;
+        PhysInvtRecordHeader.Modify();
     end;
 
     [IntegrationEvent(false, false)]

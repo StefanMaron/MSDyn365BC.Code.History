@@ -27,6 +27,8 @@ report 12180 "Issuing Customer Bill"
             RequestFilterFields = "Customer No.", "Due Date";
 
             trigger OnAfterGetRecord()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 Window.Update(1, "Customer No.");
                 Window.Update(2, "Document No.");
@@ -43,8 +45,7 @@ report 12180 "Issuing Customer Bill"
 
                 BillCode.TestField("Temporary Bill No.");
 
-                GenJnlLine."Document No." := NoSeriesMgt.GetNextNo(BillCode."Temporary Bill No.",
-                    GenJnlLine."Posting Date", true);
+                GenJnlLine."Document No." := NoSeries.GetNextNo(BillCode."Temporary Bill No.", GenJnlLine."Posting Date");
 
                 GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
                 GenJnlLine.Validate("Account No.", "Customer No.");
@@ -192,7 +193,6 @@ report 12180 "Issuing Customer Bill"
         PaymentMethod: Record "Payment Method";
         BillCode: Record Bill;
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Window: Dialog;
         PostingDate: Date;

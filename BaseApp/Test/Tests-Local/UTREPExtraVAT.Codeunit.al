@@ -97,8 +97,8 @@ codeunit 144077 "UT REP Extra VAT"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped with blank Company Name.
         Initialize();
         VATRegisterGrouped(
-          '', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Company Name.
+          '', LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Blank Company Name.
     end;
 
     [Test]
@@ -110,8 +110,8 @@ codeunit 144077 "UT REP Extra VAT"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped with blank Company Address.
         Initialize();
         VATRegisterGrouped(
-          LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Company Address.
+          LibraryUTUtility.GetNewCode(), '', LibraryUTUtility.GetNewCode10(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Blank Company Address.
     end;
 
     [Test]
@@ -123,8 +123,8 @@ codeunit 144077 "UT REP Extra VAT"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped blank Company Post Code
         Initialize();
         VATRegisterGrouped(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Company Post Code.
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Blank Company Post Code.
     end;
 
     [Test]
@@ -136,8 +136,8 @@ codeunit 144077 "UT REP Extra VAT"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped blank Register Company Number.
         Initialize();
         VATRegisterGrouped(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, '',
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Register Company Number.
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(), '',
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Blank Register Company Number.
     end;
 
     [Test]
@@ -149,8 +149,8 @@ codeunit 144077 "UT REP Extra VAT"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped blank VAT Registration No.
         Initialize();
         VATRegisterGrouped(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
-          LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode);  // Blank VAT Registration No.
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(),
+          LibraryUTUtility.GetNewCode(), '', LibraryUTUtility.GetNewCode());  // Blank VAT Registration No.
     end;
 
     [Test]
@@ -162,8 +162,8 @@ codeunit 144077 "UT REP Extra VAT"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped blank Fiscal Code
         Initialize();
         VATRegisterGrouped(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '');  // Blank Fiscal Code.
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '');  // Blank Fiscal Code.
     end;
 
     local procedure VATRegisterGrouped(Name: Text[50]; Address: Text[50]; PostCode: Code[10]; RegisterCompanyNo: Text[50]; VATRegistrationNo: Text[20]; FiscalCode: Code[20])
@@ -210,8 +210,8 @@ codeunit 144077 "UT REP Extra VAT"
     begin
         // Setup.
         UpdateCompanyInformation(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());
         EnqueueValuesInVATRegisterGroupedHandler(PeriodStartingDate, 0D);  // Enqueue blank Period Ending Date for VAT Register Grouped Request Page Handler.
 
         // Exercise.
@@ -307,7 +307,7 @@ codeunit 144077 "UT REP Extra VAT"
         CalcAndPostVATSettlementWithUnrealizedVAT(VATEntry, false, VATEntry.Type::Purchase, true);  // False for Unrealized VAT and True for Show VAT Entries.
 
         // Verify: Next Period Input VAT Amount on generated file of Report - Calculate and Post VAT Settlement.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           PeriodInputVATYearInputVATCap, FindPeriodicSettlementVATEntry(VATEntry."Operation Occurred Date"));
     end;
@@ -377,8 +377,8 @@ codeunit 144077 "UT REP Extra VAT"
         // Setup.
         Initialize();
         UpdateCompanyInformation(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());
         RunVATRegisterPrintWithVATBookEntry(PeriodStartingDate);
         EnqueueValuesInVATRegisterGroupedHandler(PeriodStartingDate, PeriodEndingDate);
 
@@ -415,7 +415,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATRegisterPrintWithVATBookEntry(VATBookEntry.Type::Sale, -LibraryRandom.RandDec(10, 2));  // Using random value for Unrealized Amount
     end;
 
-    local procedure VATRegisterPrintWithVATBookEntry(Type: Option; UnrealizedAmount: Decimal)
+    local procedure VATRegisterPrintWithVATBookEntry(Type: Enum "General Posting Type"; UnrealizedAmount: Decimal)
     var
         NoSeries: Record "No. Series";
         VATBookEntry: Record "VAT Book Entry";
@@ -423,8 +423,8 @@ codeunit 144077 "UT REP Extra VAT"
     begin
         // Setup.
         UpdateCompanyInformation(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());
         CreateNumberSeries(NoSeries);
         CreateVATBookEntry(VATBookEntry, WorkDate(), NoSeries.Code, Type, UnrealizedAmount);
         EnqueueValuesForVATRegisterPrintRequestPageHandler(NoSeries."VAT Register", PrintingType::Test, WorkDate(), WorkDate());  // Enqueue WORKDATE as PeriodStartingDate and PeriodEndingDate for handler - VATRegisterPrintRequestPageHandler.
@@ -456,19 +456,19 @@ codeunit 144077 "UT REP Extra VAT"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
 
     local procedure CreateNumberSeries(var NoSeries: Record "No. Series")
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
-        NoSeries."VAT Register" := CreateVATRegister;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
+        NoSeries."VAT Register" := CreateVATRegister();
         NoSeries.Insert();
     end;
 
-    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; PeriodStartingDate: Date; NoSeries: Code[20]; Type: Option; UnrealizedAmount: Decimal)
+    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; PeriodStartingDate: Date; NoSeries: Code[20]; Type: Enum "General Posting Type"; UnrealizedAmount: Decimal)
     var
         VATBookEntry2: Record "VAT Book Entry";
     begin
@@ -477,7 +477,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATBookEntry.Type := Type;
         VATBookEntry."No. Series" := NoSeries;
         VATBookEntry."Posting Date" := PeriodStartingDate;
-        VATBookEntry."VAT Identifier" := CreateVATIdentifier;
+        VATBookEntry."VAT Identifier" := CreateVATIdentifier();
         VATBookEntry."Unrealized VAT" := true;
         VATBookEntry."Unrealized Amount" := UnrealizedAmount;
         VATBookEntry."Nondeductible Amount" := VATBookEntry."Unrealized Amount";
@@ -495,7 +495,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := Type;
-        VATEntry."Operation Occurred Date" := GetStartingDate;
+        VATEntry."Operation Occurred Date" := GetStartingDate();
         VATEntry."Remaining Unrealized Amount" := LibraryRandom.RandDec(100, 2);
         VATEntry."Remaining Unrealized Base" := VATEntry."Remaining Unrealized Amount";
         VATEntry."Nondeductible Base" := VATEntry."Remaining Unrealized Amount";
@@ -527,16 +527,16 @@ codeunit 144077 "UT REP Extra VAT"
     var
         VATIdentifier: Record "VAT Identifier";
     begin
-        VATIdentifier.Code := LibraryUTUtility.GetNewCode10;
+        VATIdentifier.Code := LibraryUTUtility.GetNewCode10();
         VATIdentifier.Insert();
         exit(VATIdentifier.Code);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
-        VATPostingSetup."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
-        VATPostingSetup."Sales VAT Account" := LibraryUTUtility.GetNewCode;
+        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
+        VATPostingSetup."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10();
+        VATPostingSetup."Sales VAT Account" := LibraryUTUtility.GetNewCode();
         VATPostingSetup."Purchase VAT Account" := VATPostingSetup."Sales VAT Account";
         VATPostingSetup.Insert();
     end;
@@ -545,7 +545,7 @@ codeunit 144077 "UT REP Extra VAT"
     var
         VATRegister: Record "VAT Register";
     begin
-        VATRegister.Code := LibraryUTUtility.GetNewCode10;
+        VATRegister.Code := LibraryUTUtility.GetNewCode10();
         VATRegister.Insert();
         exit(VATRegister.Code);
     end;
@@ -630,7 +630,7 @@ codeunit 144077 "UT REP Extra VAT"
 
     local procedure VerifyValuesOnCalcAndPostVATSettlementReport(ExpectedAmountCaption: Text; ExpectedAmountValue: Decimal; ExpectedBaseCaption: Text; ExpectedBaseValue: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ExpectedAmountCaption, ExpectedAmountValue);
         LibraryReportDataset.AssertElementWithValueExists(ExpectedBaseCaption, ExpectedBaseValue);
     end;
@@ -640,7 +640,7 @@ codeunit 144077 "UT REP Extra VAT"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CompanyInfoNameCap, CompanyInformation.Name);
         LibraryReportDataset.AssertElementWithValueExists(CompanyInfoAddressCap, CompanyInformation.Address);
         LibraryReportDataset.AssertElementWithValueExists(CompanyInfoPostCodeCap, CompanyInformation."Post Code");
@@ -653,7 +653,7 @@ codeunit 144077 "UT REP Extra VAT"
 
     local procedure VerifyValuesOnVATRegisterPrintReport(VATBookEntry: Record "VAT Book Entry")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(UnrealizedVATSellToBuyFromNoCap, VATBookEntry."Sell-to/Buy-from No.");
         LibraryReportDataset.AssertElementWithValueExists(UnrealizedVATEntryNoCap, VATBookEntry."Entry No.");
         LibraryReportDataset.AssertElementWithValueExists(SignumUnrealizedAmountCap, VATBookEntry."Unrealized Amount");
@@ -667,16 +667,16 @@ codeunit 144077 "UT REP Extra VAT"
         ShowVATEntries: Variant;
         GLAccountNo: Code[20];
     begin
-        GLAccountNo := CreateGLAccount;
+        GLAccountNo := CreateGLAccount();
         LibraryVariableStorage.Dequeue(ShowVATEntries);
-        CalcAndPostVATSettlement.StartingDate.SetValue(GetStartingDate);
-        CalcAndPostVATSettlement.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
+        CalcAndPostVATSettlement.StartingDate.SetValue(GetStartingDate());
+        CalcAndPostVATSettlement.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
         CalcAndPostVATSettlement.SettlementAcc.SetValue(GLAccountNo);
         CalcAndPostVATSettlement.GLGainsAccount.SetValue(GLAccountNo);
         CalcAndPostVATSettlement.GLLossesAccount.SetValue(GLAccountNo);
         CalcAndPostVATSettlement.Post.SetValue(true);
         CalcAndPostVATSettlement.ShowVATEntries.SetValue(ShowVATEntries);
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -704,7 +704,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATRegisterGrouped.Address.SetValue(CompanyInformation.Address);
         VATRegisterGrouped.PostCodeCityCounty.SetValue(CompanyInformation."Post Code");
         VATRegisterGrouped.VATRegistrationNo.SetValue(CompanyInformation."VAT Registration No.");
-        VATRegisterGrouped.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterGrouped.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -724,8 +724,8 @@ codeunit 144077 "UT REP Extra VAT"
         VATRegisterPrint.PeriodStartingDate.SetValue(Format(PeriodStartingDate));
         VATRegisterPrint.PeriodEndingDate.SetValue(Format(PeriodEndingDate));
         VATRegisterPrint.PrintingType.SetValue(PrintingType);
-        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);
-        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode());
+        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

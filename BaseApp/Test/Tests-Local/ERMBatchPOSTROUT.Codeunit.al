@@ -51,7 +51,6 @@ codeunit 144066 "ERM Batch POSTROUT"
     var
         PurchaseHeader: Record "Purchase Header";
         LastUsedSeriesDate: Date;
-        DocNo: Code[20];
         BuyFromVendorNo: Code[20];
     begin
         // [GIVEN] Create Purchase Credit Memo.
@@ -63,7 +62,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostPurchCreditMemos(BuyFromVendorNo, LastUsedSeriesDate);
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
-        VerifyPurchaseErrorNotification;
+        VerifyPurchaseErrorNotification();
 
         // [THEN] Verify Purchase Credit Memo not posted successfully.
         VerifyPurchCrMemoHeaderNotExist(BuyFromVendorNo);
@@ -98,7 +97,6 @@ codeunit 144066 "ERM Batch POSTROUT"
     procedure BatchPostPurchReturnOrdWithSamePostingDate()
     var
         PurchaseHeader: Record "Purchase Header";
-        ErrorMessages: TestPage "Error Messages";
         LastUsedSeriesDate: Date;
         BuyFromVendorNo: Code[20];
     begin
@@ -111,7 +109,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostPurchRetOrders(BuyFromVendorNo, LastUsedSeriesDate);
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
-        VerifyPurchaseErrorNotification;
+        VerifyPurchaseErrorNotification();
         // [THEN] Verify Purchase Return Order not posted successfully.
         VerifyPurchCrMemoHeaderNotExist(BuyFromVendorNo);
     end;
@@ -157,7 +155,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostPurchaseOrders(BuyFromVendorNo, LastUsedSeriesDate);
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
-        VerifyPurchaseErrorNotification;
+        VerifyPurchaseErrorNotification();
         // [THEN] Verify Purchase Order not posted successfully.
         VerifyPurchInvHeaderNotExist(BuyFromVendorNo);
     end;
@@ -203,7 +201,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostPurchaseInvoices(BuyFromVendorNo, WorkDate());
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
-        VerifyPurchaseErrorNotification;
+        VerifyPurchaseErrorNotification();
         // [THEN] Verify Purchase Invoice not posted successfully.
         VerifyPurchInvHeaderNotExist(BuyFromVendorNo);
     end;
@@ -249,7 +247,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostSalesCreditMemos(SellToCustomerNo, LastUsedSeriesDate);
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Sales Header records.'
-        VerifySalesErrorNotification;
+        VerifySalesErrorNotification();
         // [THEN] Verify Sales Credit Memo not posted successfully.
         VerifySalesCrMemoHeaderNotExist(SellToCustomerNo);
     end;
@@ -295,7 +293,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostSalesInvoices(SellToCustomerNo, LastUsedSeriesDate);
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Sales Header records.'
-        VerifySalesErrorNotification;
+        VerifySalesErrorNotification();
         // [THEN] Verify Sales Invoice not posted successfully.
         VerifySalesInvoiceHeaderNotExist(SellToCustomerNo);
     end;
@@ -341,7 +339,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostSalesReturnOrders(SellToCustomerNo, LastUsedSeriesDate);
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Sales Header records.'
-        VerifySalesErrorNotification;
+        VerifySalesErrorNotification();
         // [THEN] Verify Sales Return Order not posted successfully.
         VerifySalesCrMemoHeaderNotExist(SellToCustomerNo);
     end;
@@ -387,7 +385,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostSalesOrders(SellToCustomerNo, LastUsedSeriesDate);
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Sales Header records.'
-        VerifySalesErrorNotification;
+        VerifySalesErrorNotification();
         // [THEN] Verify Sales Order not posted successfully.
         VerifySalesInvoiceHeaderNotExist(SellToCustomerNo);
     end;
@@ -778,7 +776,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     procedure BatchPostPurchInvNoSeriesLinePurchWithHigherPostingDate()
     var
         PurchaseHeader: Record "Purchase Header";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLine: Record "No. Series Line";
         BuyFromVendorNo: Code[20];
         NoSeriesCode: Code[20];
         PostingDate: Date;
@@ -794,10 +792,10 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostPurchaseInvoices(BuyFromVendorNo, PostingDate);  // Opens handler - BatchPostPurchaseInvoicesRequestPageHandler.
 
         // [THEN] Verify Number Series Line Purchase - Last Date Used is updated with Posting date of Purchase Invoice.
-        VerifyNoSeriesLinePurchase(NoSeriesLinePurchase, NoSeriesCode, PostingDate);
+        VerifyNoSeriesLine(NoSeriesLine, NoSeriesCode, PostingDate);
 
         // Teardown.
-        UpdateNoSeriesLinePurchase(NoSeriesLinePurchase);
+        UpdateNoSeriesLine(NoSeriesLine);
     end;
 
     [Test]
@@ -806,7 +804,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     procedure BatchPostSalesInvNoSeriesLineSalesWithHigherPostingDate()
     var
         SalesHeader: Record "Sales Header";
-        NoSeriesLineSales: Record "No. Series Line Sales";
+        NoSeriesLine: Record "No. Series Line";
         SellToCustomerNo: Code[20];
         NoSeriesCode: Code[20];
         PostingDate: Date;
@@ -822,10 +820,10 @@ codeunit 144066 "ERM Batch POSTROUT"
         RunReportBatchPostSalesInvoices(SellToCustomerNo, PostingDate);  // Opens handler - BatchPostSalesInvoicesRequestPageHandler.
 
         // [THEN] Verify Number Series Line Sales - Last Date Used is updated with Posting date of Sales Header.
-        VerifyNoSeriesLineSales(NoSeriesLineSales, NoSeriesCode, PostingDate);
+        VerifyNoSeriesLine(NoSeriesLine, NoSeriesCode, PostingDate);
 
         // Teardown.
-        UpdateNoSeriesLineSales(NoSeriesLineSales);
+        UpdateNoSeriesLine(NoSeriesLine);
     end;
 
     [Test]
@@ -891,7 +889,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-        SalesHeader.Validate("Operation Type", FindSalesNoSeries);
+        SalesHeader.Validate("Operation Type", FindSalesNoSeries());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
@@ -907,7 +905,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
-        ServiceHeader.Validate("Operation Type", FindSalesNoSeries);
+        ServiceHeader.Validate("Operation Type", FindSalesNoSeries());
         ServiceHeader.Validate("Posting Date", WorkDate());
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
@@ -1155,34 +1153,28 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesLine.Modify(true);
     end;
 
-    local procedure UpdateNoSeriesLinePurchase(NoSeriesLinePurchase: Record "No. Series Line Purchase")
+    local procedure UpdateNoSeriesLine(NoSeriesLine: Record "No. Series Line")
     begin
-        NoSeriesLinePurchase.Validate("Last Date Used", WorkDate());
-        NoSeriesLinePurchase.Modify(true);
-    end;
-
-    local procedure UpdateNoSeriesLineSales(NoSeriesLineSales: Record "No. Series Line Sales")
-    begin
-        NoSeriesLineSales.Validate("Last Date Used", WorkDate());
-        NoSeriesLineSales.Modify(true);
+        NoSeriesLine.Validate("Last Date Used", WorkDate());
+        NoSeriesLine.Modify(true);
     end;
 
     local procedure VerifyPurchaseErrorNotification()
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Assert.ExpectedMessage(NotificationBatchPurchHeaderMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(NotificationBatchPurchHeaderMsg, LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecordID(PurchaseHeader.RecordId);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure VerifySalesErrorNotification()
     var
         SalesHeader: Record "Sales Header";
     begin
-        Assert.ExpectedMessage(NotificationBatchSalesHeaderMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(NotificationBatchSalesHeaderMsg, LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecordID(SalesHeader.RecordId);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure VerifyPurchCrMemoHeader(BuyFromVendorNo: Code[20]; PostingDate: Date)
@@ -1234,7 +1226,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        Assert.IsFalse(PurchCrMemoHdr.FindFirst, ValueMustNotExistMsg);
+        Assert.IsFalse(PurchCrMemoHdr.FindFirst(), ValueMustNotExistMsg);
     end;
 
     local procedure VerifyPurchInvHeaderNotExist(BuyFromVendorNo: Code[20])
@@ -1242,7 +1234,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        Assert.IsFalse(PurchInvHeader.FindFirst, ValueMustNotExistMsg);
+        Assert.IsFalse(PurchInvHeader.FindFirst(), ValueMustNotExistMsg);
     end;
 
     local procedure VerifySalesInvoiceHeaderNotExist(SellToCustomerNo: Code[20])
@@ -1250,7 +1242,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        Assert.IsFalse(SalesInvoiceHeader.FindFirst, ValueMustNotExistMsg);
+        Assert.IsFalse(SalesInvoiceHeader.FindFirst(), ValueMustNotExistMsg);
     end;
 
     local procedure VerifySalesCrMemoHeaderNotExist(SellToCustomerNo: Code[20])
@@ -1258,7 +1250,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        Assert.IsFalse(SalesCrMemoHeader.FindFirst, ValueMustNotExistMsg);
+        Assert.IsFalse(SalesCrMemoHeader.FindFirst(), ValueMustNotExistMsg);
     end;
 
     local procedure VerifyServiceCrMemoHeader(BillToCustomerNo: Code[20]; PostingDate: Date)
@@ -1277,7 +1269,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
-        Assert.IsFalse(ServiceCrMemoHeader.FindFirst, ValueMustNotExistMsg);
+        Assert.IsFalse(ServiceCrMemoHeader.FindFirst(), ValueMustNotExistMsg);
     end;
 
     local procedure VerifyServiceInvoiceHeader(BillToCustomerNo: Code[20]; PostingDate: Date)
@@ -1296,7 +1288,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
-        Assert.IsFalse(ServiceInvoiceHeader.FindFirst, ValueMustNotExistMsg);
+        Assert.IsFalse(ServiceInvoiceHeader.FindFirst(), ValueMustNotExistMsg);
     end;
 
     local procedure VerifyPurchaseOrderOperationAndDocumentDate(BuyFromVendorNo: Code[20]; DocumentDate: Date)
@@ -1317,20 +1309,12 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesHeader.TestField("Document Date", DocumentDate);
     end;
 
-    local procedure VerifyNoSeriesLineSales(var NoSeriesLineSales: Record "No. Series Line Sales"; NoSeriesCode: Code[20]; PostingDate: Date)
+    local procedure VerifyNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20]; PostingDate: Date)
     begin
-        NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLineSales.SetFilter("Starting Date", '<%1', WorkDate());
-        NoSeriesLineSales.FindLast();
-        NoSeriesLineSales.TestField("Last Date Used", PostingDate);
-    end;
-
-    local procedure VerifyNoSeriesLinePurchase(var NoSeriesLinePurchase: Record "No. Series Line Purchase"; NoSeriesCode: Code[20]; PostingDate: Date)
-    begin
-        NoSeriesLinePurchase.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLinePurchase.SetFilter("Starting Date", '<%1', WorkDate());
-        NoSeriesLinePurchase.FindLast();
-        NoSeriesLinePurchase.TestField("Last Date Used", PostingDate);
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.SetFilter("Starting Date", '<%1', WorkDate());
+        NoSeriesLine.FindLast();
+        NoSeriesLine.TestField("Last Date Used", PostingDate);
     end;
 
     [RequestPageHandler]
@@ -1342,7 +1326,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibraryVariableStorage.Dequeue(PostingDate);
         BatchPostPurchCreditMemos.PostingDate.SetValue(PostingDate);
         BatchPostPurchCreditMemos.ReplacePostingDate.SetValue(true);
-        BatchPostPurchCreditMemos.OK.Invoke;
+        BatchPostPurchCreditMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1356,7 +1340,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BatchPostPurchRetOrders.Invoice.SetValue(true);
         BatchPostPurchRetOrders.PostingDate.SetValue(PostingDate);
         BatchPostPurchRetOrders.ReplacePostingDate.SetValue(true);
-        BatchPostPurchRetOrders.OK.Invoke;
+        BatchPostPurchRetOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1370,7 +1354,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BatchPostPurchaseOrders.Invoice.SetValue(true);
         BatchPostPurchaseOrders.PostingDate.SetValue(PostingDate);
         BatchPostPurchaseOrders.ReplacePostingDate.SetValue(true);
-        BatchPostPurchaseOrders.OK.Invoke;
+        BatchPostPurchaseOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1382,7 +1366,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibraryVariableStorage.Dequeue(PostingDate);
         BatchPostPurchaseInvoices.PostingDate.SetValue(PostingDate);
         BatchPostPurchaseInvoices.ReplacePostingDate.SetValue(true);
-        BatchPostPurchaseInvoices.OK.Invoke;
+        BatchPostPurchaseInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1394,7 +1378,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibraryVariableStorage.Dequeue(PostingDate);
         BatchPostSalesCreditMemos.PostingDate.SetValue(PostingDate);
         BatchPostSalesCreditMemos.ReplacePostingDate.SetValue(true);
-        BatchPostSalesCreditMemos.OK.Invoke;
+        BatchPostSalesCreditMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1406,7 +1390,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibraryVariableStorage.Dequeue(PostingDate);
         BatchPostSalesInvoices.PostingDate.SetValue(PostingDate);
         BatchPostSalesInvoices.ReplacePostingDate.SetValue(true);
-        BatchPostSalesInvoices.OK.Invoke;
+        BatchPostSalesInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1420,7 +1404,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BatchPostSalesReturnOrders.ReceiveReq.SetValue(true);
         BatchPostSalesReturnOrders.InvReq.SetValue(true);
         BatchPostSalesReturnOrders.ReplacePostingDate.SetValue(true);
-        BatchPostSalesReturnOrders.OK.Invoke;
+        BatchPostSalesReturnOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1432,7 +1416,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibraryVariableStorage.Dequeue(PostingDate);
         BatchPostServiceCrMemos.PostingDate.SetValue(PostingDate);
         BatchPostServiceCrMemos.ReplacePostingDate.SetValue(true);
-        BatchPostServiceCrMemos.OK.Invoke;
+        BatchPostServiceCrMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1444,7 +1428,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibraryVariableStorage.Dequeue(PostingDate);
         BatchPostServiceInvoices.PostingDate.SetValue(PostingDate);
         BatchPostServiceInvoices.ReplacePostingDate.SetValue(true);
-        BatchPostServiceInvoices.OK.Invoke;
+        BatchPostServiceInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1458,7 +1442,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BatchPostServiceOrders.Invoice.SetValue(true);
         BatchPostServiceOrders.PostingDate.SetValue(PostingDate);
         BatchPostServiceOrders.ReplacePostingDate_Option.SetValue(true);
-        BatchPostServiceOrders.OK.Invoke;
+        BatchPostServiceOrders.OK().Invoke();
     end;
 
     [MessageHandler]

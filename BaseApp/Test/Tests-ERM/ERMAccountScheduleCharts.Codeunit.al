@@ -390,7 +390,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccountSchedulesChartSetupPage.OpenNew();
         AccountSchedulesChartSetupName := LibraryUtility.GenerateGUID();
         AccountSchedulesChartSetupPage.Name.Value := AccountSchedulesChartSetupName;
-        AccountSchedulesChartSetupPage.OK.Invoke;
+        AccountSchedulesChartSetupPage.OK().Invoke();
 
         // [THEN] "User ID" of added record is equal to current user ID.
         AccountSchedulesChartSetupRec.SetRange(Name, AccountSchedulesChartSetupName);
@@ -533,7 +533,7 @@ codeunit 134561 "ERM Account Schedule Charts"
           AccountSchedulesChartSetup);
 
         // Exercise: Call function DrillDown.
-        ChartOfCostType.Trap;
+        ChartOfCostType.Trap();
         AccSchedChartManagement.DrillDown(BusinessChartBuffer, AccountSchedulesChartSetup);
 
         // Verify: Verify that Chart of cost type page opens successfully by trap with expected filters.
@@ -557,7 +557,7 @@ codeunit 134561 "ERM Account Schedule Charts"
           AccountSchedulesChartSetup);
 
         // Exercise: Call function DrillDown.
-        ChartOfCashFlowAccounts.Trap;
+        ChartOfCashFlowAccounts.Trap();
         AccSchedChartManagement.DrillDown(BusinessChartBuffer, AccountSchedulesChartSetup);
 
         // Verify: Verify that Chart of cash flow accounts page opens successfully by trap with expected filters.
@@ -581,7 +581,7 @@ codeunit 134561 "ERM Account Schedule Charts"
           AccountSchedulesChartSetup);
 
         // Exercise: Call function DrillDown.
-        ChartOfAccountsGL.Trap;
+        ChartOfAccountsGL.Trap();
         AccSchedChartManagement.DrillDown(BusinessChartBuffer, AccountSchedulesChartSetup);
 
         // Verify: Verify that Chart of Accounts (G/L) page opens successfully by trap with expected filters.
@@ -607,7 +607,7 @@ codeunit 134561 "ERM Account Schedule Charts"
           AccountSchedulesChartSetup);
 
         // Exercise: Call function DrillDown.
-        ChartOfAccsAnalysisView.Trap;
+        ChartOfAccsAnalysisView.Trap();
         AccSchedChartManagement.DrillDown(BusinessChartBuffer, AccountSchedulesChartSetup);
 
         // Verify: Verify that Chart of Accs. (Analysis View) page opens successfully by trap with expected filters.
@@ -650,7 +650,7 @@ codeunit 134561 "ERM Account Schedule Charts"
           'Unexpected account schedule line selected in the overview page.');
         Assert.AreEqual(
           BusinessChartBuffer."Period Length",
-          AccScheduleOverview.PeriodType.AsInteger,
+          AccScheduleOverview.PeriodType.AsInteger(),
           'Unexpected account schedule period selected in the overview page.');
 
         AccScheduleOverview.Close();

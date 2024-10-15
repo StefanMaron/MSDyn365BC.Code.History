@@ -204,7 +204,7 @@ codeunit 144205 "FatturaPA Attachments"
         if IsInitialized then
             exit;
 
-        LibraryITLocalization.SetupFatturaPA;
+        LibraryITLocalization.SetupFatturaPA();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
@@ -232,7 +232,7 @@ codeunit 144205 "FatturaPA Attachments"
         FileNameExtension := LibraryUtility.GenerateGUID();
         OriginalPlainText := LibraryUtility.GenerateRandomXMLText(TextLength);
         Base64String := Base64Convert.ToBase64(OriginalPlainText);
-        FullFileName := LibraryUtility.GenerateGUID + '\' + FileNameWithoutExtension + '.' + FileNameExtension;
+        FullFileName := LibraryUtility.GenerateGUID() + '\' + FileNameWithoutExtension + '.' + FileNameExtension;
 
         TempBlob.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         OutStream.WriteText(OriginalPlainText);
@@ -262,18 +262,18 @@ codeunit 144205 "FatturaPA Attachments"
         exit(CreatePostSalesDocWithPmtData(DocumentType, CreatePaymentTerms(), CreatePaymentMethod()));
     end;
 
-    local procedure CreatePostSalesDocWithPmtData(DocumentType: Option; PmtTermsCode: Code[10]; PmtMethodCode: Code[10]): Code[20]
+    local procedure CreatePostSalesDocWithPmtData(DocumentType: Enum "Sales Document Type"; PmtTermsCode: Code[10]; PmtMethodCode: Code[10]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         SalesHeader.Validate("Payment Terms Code", PmtTermsCode);
         SalesHeader.Validate("Payment Method Code", PmtMethodCode);
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
 
@@ -291,12 +291,12 @@ codeunit 144205 "FatturaPA Attachments"
 
     local procedure CreatePaymentMethod(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode());
     end;
 
     local procedure CreatePaymentTerms(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode());
     end;
 
     local procedure VerifySingleAttachment(TempBlob: Codeunit "Temp Blob"; Name: Text; Format: Text; Attachment: Text)
@@ -338,9 +338,9 @@ codeunit 144205 "FatturaPA Attachments"
         ActualValue: Text;
     begin
         Assert.AreEqual(
-          ExpectedName, XMLBuffer.Name, StrSubstNo(UnexpectedElementNameErr, ExpectedName, XMLBuffer.GetElementName));
+          ExpectedName, XMLBuffer.Name, StrSubstNo(UnexpectedElementNameErr, ExpectedName, XMLBuffer.GetElementName()));
         if StrLen(ExpectedValue) > MaxStrLen(XMLBuffer.Value) then
-            ActualValue := XMLBuffer.GetValue
+            ActualValue := XMLBuffer.GetValue()
         else
             ActualValue := XMLBuffer.Value;
         Assert.AreEqual(

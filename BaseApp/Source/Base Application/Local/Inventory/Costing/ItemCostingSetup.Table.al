@@ -7,6 +7,7 @@ namespace Microsoft.Inventory.Costing;
 table 12132 "Item Costing Setup"
 {
     Caption = 'Item Costing Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

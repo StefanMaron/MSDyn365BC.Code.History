@@ -17,6 +17,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Service.History;
+using Microsoft.Utilities;
 using System.Utilities;
 
 report 12120 "VAT Register - Print"
@@ -435,9 +436,7 @@ report 12120 "VAT Register - Print"
                         VATIdentifier.Get("VAT Identifier");
                         DescrVATIdentifier := VATIdentifier.Code;
 
-                        if (PrintingType = PrintingType::Final) and
-                           not Preview
-                        then begin
+                        if (PrintingType = PrintingType::Final) and not PreviewRegister then begin
                             VATBookEntry := "VAT Book Entry";
                             UpdateBuffer();
                             if not HasBeenMarked then
@@ -699,9 +698,7 @@ report 12120 "VAT Register - Print"
                                             VATBookEntry2."Document No.",
                                             VATBookEntry2."Unrealized VAT Entry No.");
 
-                                    if (PrintingType = PrintingType::Final) and
-                                       not Preview
-                                    then begin
+                                    if (PrintingType = PrintingType::Final) and not PreviewRegister then begin
                                         VATBookEntry2."Printing Date" := Today;
                                         VATBookEntry2.Modify();
                                     end;
@@ -759,9 +756,7 @@ report 12120 "VAT Register - Print"
                         VATIdentifier.Get("VAT Identifier");
                         DescrVATIdentifier := VATIdentifier.Code;
 
-                        if (PrintingType = PrintingType::Final) and
-                           not Preview
-                        then begin
+                        if (PrintingType = PrintingType::Final) and not PreviewRegister then begin
                             VATBookEntry := UnrealizedVAT;
                             UpdateBuffer();
                             if not HasBeenMarked then
@@ -793,7 +788,7 @@ report 12120 "VAT Register - Print"
 
             trigger OnAfterGetRecord()
             begin
-                Preview := CurrReport.Preview;
+                PreviewRegister := CurrReport.Preview();
                 if Type = Type::Sale then begin
                     RegisterTypeSales := true;
                     RegisterTypePurchase := false;
@@ -1155,9 +1150,7 @@ report 12120 "VAT Register - Print"
         VATBookEntryTemp.Reset();
         VATBookEntryTemp.DeleteAll();
         VATRegister.Get(VATRegister.Code);
-        if (PrintingType = PrintingType::Final) and
-           not Preview
-        then begin
+        if (PrintingType = PrintingType::Final) and not PreviewRegister then begin
             ReprintInfo.Report := ReprintInfo.Report::"VAT Register - Print";
             ReprintInfo."Start Date" := StartingDate;
             ReprintInfo."End Date" := EndingDate;
@@ -1177,10 +1170,10 @@ report 12120 "VAT Register - Print"
 
     trigger OnPreReport()
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        ITReportManagement: Codeunit "IT - Report Management";
     begin
-        NoSeriesMgt.CheckSalesDocNoGaps(EndingDate);
-        NoSeriesMgt.CheckPurchDocNoGaps(EndingDate);
+        ITReportManagement.CheckSalesDocNoGaps(EndingDate, true, false);
+        ITReportManagement.CheckPurchDocNoGaps(EndingDate, true, false);
 
         if VATRegister.Code = '' then
             Error(Text1130008, VATRegister.FieldCaption(Code));
@@ -1235,7 +1228,7 @@ report 12120 "VAT Register - Print"
         HasBeenMarked := false;
 
         VATLines := 0;
-        Preview := false;
+        PreviewRegister := false;
 
         if PrintingType = PrintingType::Test then
             CompanyInformation[7] := StrSubstNo(Text1050, VATRegister.Description);
@@ -1275,7 +1268,7 @@ report 12120 "VAT Register - Print"
         FirstVATLine: Boolean;
         RegisterTypeSales: Boolean;
         RegisterTypePurchase: Boolean;
-        Preview: Boolean;
+        PreviewRegister: Boolean;
         PrintCompanyInformations: Boolean;
         Name: Text[100];
         Descr: Text[100];
@@ -1439,42 +1432,40 @@ report 12120 "VAT Register - Print"
     [Scope('OnPrem')]
     procedure UpdateBuffer()
     begin
-        with VATRegisterBuffer do begin
-            Reset();
-            SetRange("Period Start Date", StartingDate);
-            SetRange("Period End Date", EndingDate);
-            SetRange("VAT Register Code", VATRegister.Code);
-            SetRange("Register Type", VATRegister.Type);
-            SetRange("VAT Identifier", VATBookEntry."VAT Identifier");
-            SetRange("VAT Deductible %", VATBookEntry."Deductible %");
-            SetRange("VAT %", VATBookEntry."VAT %");
+        VATRegisterBuffer.Reset();
+        VATRegisterBuffer.SetRange("Period Start Date", StartingDate);
+        VATRegisterBuffer.SetRange("Period End Date", EndingDate);
+        VATRegisterBuffer.SetRange("VAT Register Code", VATRegister.Code);
+        VATRegisterBuffer.SetRange("Register Type", VATRegister.Type);
+        VATRegisterBuffer.SetRange("VAT Identifier", VATBookEntry."VAT Identifier");
+        VATRegisterBuffer.SetRange("VAT Deductible %", VATBookEntry."Deductible %");
+        VATRegisterBuffer.SetRange("VAT %", VATBookEntry."VAT %");
 
-            if FindFirst() then begin
-                Base := Base + VATBookEntry.Base;
-                Amount := Amount + VATBookEntry.Amount;
-                "Nondeductible Base" := "Nondeductible Base" + VATBookEntry."Nondeductible Base";
-                "Nondeductible Amount" := "Nondeductible Amount" + VATBookEntry."Nondeductible Amount";
-                "Unrealized Base" := "Unrealized Base" + VATBookEntry."Unrealized Base";
-                "Unrealized Amount" := "Unrealized Amount" + VATBookEntry."Unrealized Amount";
-                Modify();
-            end else begin
-                Init();
-                "Period Start Date" := StartingDate;
-                "Period End Date" := EndingDate;
-                "VAT Register Code" := VATRegister.Code;
-                "Register Type" := VATRegister.Type;
-                "VAT Prod. Posting Group" := VATBookEntry."VAT Prod. Posting Group";
-                "VAT Deductible %" := VATBookEntry."Deductible %";
-                "VAT %" := VATBookEntry."VAT %";
-                "VAT Identifier" := VATBookEntry."VAT Identifier";
-                Base := VATBookEntry.Base;
-                Amount := VATBookEntry.Amount;
-                "Nondeductible Base" := VATBookEntry."Nondeductible Base";
-                "Nondeductible Amount" := VATBookEntry."Nondeductible Amount";
-                "Unrealized Base" := VATBookEntry."Unrealized Base";
-                "Unrealized Amount" := VATBookEntry."Unrealized Amount";
-                Insert();
-            end;
+        if VATRegisterBuffer.FindFirst() then begin
+            VATRegisterBuffer.Base := VATRegisterBuffer.Base + VATBookEntry.Base;
+            VATRegisterBuffer.Amount := VATRegisterBuffer.Amount + VATBookEntry.Amount;
+            VATRegisterBuffer."Nondeductible Base" := VATRegisterBuffer."Nondeductible Base" + VATBookEntry."Nondeductible Base";
+            VATRegisterBuffer."Nondeductible Amount" := VATRegisterBuffer."Nondeductible Amount" + VATBookEntry."Nondeductible Amount";
+            VATRegisterBuffer."Unrealized Base" := VATRegisterBuffer."Unrealized Base" + VATBookEntry."Unrealized Base";
+            VATRegisterBuffer."Unrealized Amount" := VATRegisterBuffer."Unrealized Amount" + VATBookEntry."Unrealized Amount";
+            VATRegisterBuffer.Modify();
+        end else begin
+            VATRegisterBuffer.Init();
+            VATRegisterBuffer."Period Start Date" := StartingDate;
+            VATRegisterBuffer."Period End Date" := EndingDate;
+            VATRegisterBuffer."VAT Register Code" := VATRegister.Code;
+            VATRegisterBuffer."Register Type" := VATRegister.Type;
+            VATRegisterBuffer."VAT Prod. Posting Group" := VATBookEntry."VAT Prod. Posting Group";
+            VATRegisterBuffer."VAT Deductible %" := VATBookEntry."Deductible %";
+            VATRegisterBuffer."VAT %" := VATBookEntry."VAT %";
+            VATRegisterBuffer."VAT Identifier" := VATBookEntry."VAT Identifier";
+            VATRegisterBuffer.Base := VATBookEntry.Base;
+            VATRegisterBuffer.Amount := VATBookEntry.Amount;
+            VATRegisterBuffer."Nondeductible Base" := VATBookEntry."Nondeductible Base";
+            VATRegisterBuffer."Nondeductible Amount" := VATBookEntry."Nondeductible Amount";
+            VATRegisterBuffer."Unrealized Base" := VATBookEntry."Unrealized Base";
+            VATRegisterBuffer."Unrealized Amount" := VATBookEntry."Unrealized Amount";
+            VATRegisterBuffer.Insert();
         end;
     end;
 
@@ -1498,24 +1489,22 @@ report 12120 "VAT Register - Print"
         ServiceInvHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        with VATBookEntry do begin
-            VATReg := GetCustomerVatRegistrationNo("Sell-to/Buy-from No.", "Entry No.");
-            Name := GetCustomerName("Sell-to/Buy-from No.");
+        VATReg := GetCustomerVatRegistrationNo(VATBookEntry."Sell-to/Buy-from No.", VATBookEntry."Entry No.");
+        Name := GetCustomerName(VATBookEntry."Sell-to/Buy-from No.");
 
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    if SalesInvHeader.Get("Document No.") then
-                        Name := SalesInvHeader."Bill-to Name"
-                    else
-                        if ServiceInvHeader.Get("Document No.") then
-                            Name := ServiceInvHeader."Bill-to Name";
-                "Document Type"::"Credit Memo":
-                    if SalesCrMemoHeader.Get("Document No.") then
-                        Name := SalesCrMemoHeader."Bill-to Name"
-                    else
-                        if ServiceCrMemoHeader.Get("Document No.") then
-                            Name := ServiceCrMemoHeader."Bill-to Name";
-            end;
+        case VATBookEntry."Document Type" of
+            VATBookEntry."Document Type"::Invoice:
+                if SalesInvHeader.Get(VATBookEntry."Document No.") then
+                    Name := SalesInvHeader."Bill-to Name"
+                else
+                    if ServiceInvHeader.Get(VATBookEntry."Document No.") then
+                        Name := ServiceInvHeader."Bill-to Name";
+            VATBookEntry."Document Type"::"Credit Memo":
+                if SalesCrMemoHeader.Get(VATBookEntry."Document No.") then
+                    Name := SalesCrMemoHeader."Bill-to Name"
+                else
+                    if ServiceCrMemoHeader.Get(VATBookEntry."Document No.") then
+                        Name := ServiceCrMemoHeader."Bill-to Name";
         end;
     end;
 
@@ -1524,18 +1513,16 @@ report 12120 "VAT Register - Print"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
-        with VATBookEntry do begin
-            VATReg := GetVendorVatRegistrationNo("Sell-to/Buy-from No.", "Entry No.");
-            Name := GetVendorName("Sell-to/Buy-from No.");
+        VATReg := GetVendorVatRegistrationNo(VATBookEntry."Sell-to/Buy-from No.", VATBookEntry."Entry No.");
+        Name := GetVendorName(VATBookEntry."Sell-to/Buy-from No.");
 
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    if PurchInvHeader.Get("Document No.") then
-                        Name := PurchInvHeader."Pay-to Name";
-                "Document Type"::"Credit Memo":
-                    if PurchCrMemoHeader.Get("Document No.") then
-                        Name := PurchCrMemoHeader."Pay-to Name";
-            end;
+        case VATBookEntry."Document Type" of
+            VATBookEntry."Document Type"::Invoice:
+                if PurchInvHeader.Get(VATBookEntry."Document No.") then
+                    Name := PurchInvHeader."Pay-to Name";
+            VATBookEntry."Document Type"::"Credit Memo":
+                if PurchCrMemoHeader.Get(VATBookEntry."Document No.") then
+                    Name := PurchCrMemoHeader."Pay-to Name";
         end;
     end;
 
@@ -1560,17 +1547,15 @@ report 12120 "VAT Register - Print"
         VATEntry: Record "VAT Entry";
         Vendor: Record Vendor;
     begin
-        with Vendor do
-            if Get(VendorNo) then begin
-                ;
-                if Resident = Resident::Resident then
-                    exit("VAT Registration No.");
+        if Vendor.Get(VendorNo) then begin
+            if Vendor.Resident = Vendor.Resident::Resident then
+                exit(Vendor."VAT Registration No.");
 
-                VATEntry.Get(VATEntryNo);
-                if VATEntry."Tax Representative No." = '' then
-                    exit(GetVATRegNoOfTaxRepresentative("Tax Representative Type", "Tax Representative No."));
-                exit(GetVATRegNoOfTaxRepresentative(VATEntry."Tax Representative Type", VATEntry."Tax Representative No."));
-            end;
+            VATEntry.Get(VATEntryNo);
+            if VATEntry."Tax Representative No." = '' then
+                exit(GetVATRegNoOfTaxRepresentative(Vendor."Tax Representative Type", Vendor."Tax Representative No."));
+            exit(GetVATRegNoOfTaxRepresentative(VATEntry."Tax Representative Type", VATEntry."Tax Representative No."));
+        end;
     end;
 
     local procedure GetVATRegNoOfTaxRepresentative(TaxRepresentativeType: Option; TaxRepresentativeNo: Code[20]): Text
@@ -1597,16 +1582,15 @@ report 12120 "VAT Register - Print"
     var
         Customer: Record Customer;
     begin
-        with Customer do
-            if Get(CustomerNo) then begin
-                if Resident = Resident::Resident then
-                    exit("VAT Registration No.");
+        if Customer.Get(CustomerNo) then begin
+            if Customer.Resident = Customer.Resident::Resident then
+                exit(Customer."VAT Registration No.");
 
-                VATEntry.Get(VATEntryNo);
-                if VATEntry."Tax Representative No." = '' then
-                    exit(GetVATRegNoOfTaxRepresentative("Tax Representative Type", "Tax Representative No."));
-                exit(GetVATRegNoOfTaxRepresentative(VATEntry."Tax Representative Type", VATEntry."Tax Representative No."));
-            end;
+            VATEntry.Get(VATEntryNo);
+            if VATEntry."Tax Representative No." = '' then
+                exit(GetVATRegNoOfTaxRepresentative(Customer."Tax Representative Type", Customer."Tax Representative No."));
+            exit(GetVATRegNoOfTaxRepresentative(VATEntry."Tax Representative Type", VATEntry."Tax Representative No."));
+        end;
     end;
 
     local procedure GetPageNo(PageNo: Integer; PrintCompanyInfo: Boolean): Integer

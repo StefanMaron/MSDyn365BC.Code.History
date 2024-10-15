@@ -13,6 +13,7 @@ table 12130 "Lifo Band"
     Caption = 'Lifo Band';
     DrillDownPageID = "Lifo Band List";
     LookupPageID = "Lifo Band List";
+    DataClassification = CustomerContent;
 
     fields
     {

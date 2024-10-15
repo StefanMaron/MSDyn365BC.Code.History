@@ -38,6 +38,7 @@ codeunit 99000842 "Service Line-Reserve"
     procedure CreateReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
+        IsHandled: Boolean;
     begin
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text000Err);
@@ -61,16 +62,22 @@ codeunit 99000842 "Service Line-Reserve"
             ExpectedReceiptDate := ServiceLine."Needed by Date";
         end;
 
-        CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(),
-          ServiceLine."Document No.", '', 0, ServiceLine."Line No.",
-          ServiceLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForReservationEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(ServiceLine, Quantity, QuantityBase, ForReservationEntry, IsHandled);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+                DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(),
+                ServiceLine."Document No.", '', 0, ServiceLine."Line No.",
+                ServiceLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForReservationEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
-          ServiceLine."No.", ServiceLine."Variant Code", ServiceLine."Location Code",
-          Description, ExpectedReceiptDate, ShipmentDate, 0);
+            ServiceLine."No.", ServiceLine."Variant Code", ServiceLine."Location Code",
+            Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
+
+        OnAfterCreateReservation(ServiceLine);
     end;
 
     procedure CreateBindingReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
@@ -783,6 +790,16 @@ codeunit 99000842 "Service Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransServLineToServLineOnBeforeCreateReservEntry(OldReservationEntry: Record "Reservation Entry"; OldServiceLine: Record "Service Line"; var TransferQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ServiceLine: Record "Service Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateReservation(var ServiceLine: Record "Service Line")
     begin
     end;
 }

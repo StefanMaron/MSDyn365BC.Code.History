@@ -10,6 +10,7 @@ table 12202 "VAT Transaction Nature"
     DataCaptionFields = "Code", Description;
     DrillDownPageID = "VAT Transaction Nature";
     LookupPageID = "VAT Transaction Nature";
+    DataClassification = CustomerContent;
 
     fields
     {

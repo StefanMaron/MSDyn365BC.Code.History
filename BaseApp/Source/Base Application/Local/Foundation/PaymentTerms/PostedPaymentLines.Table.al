@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.PaymentTerms;
 table 12171 "Posted Payment Lines"
 {
     Caption = 'Posted Payment Lines';
+    DataClassification = CustomerContent;
 
     fields
     {

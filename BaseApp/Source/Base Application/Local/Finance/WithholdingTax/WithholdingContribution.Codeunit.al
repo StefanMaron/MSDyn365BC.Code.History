@@ -42,264 +42,262 @@ codeunit 12101 "Withholding - Contribution"
         if IsHandled then
             exit;
 
-        with TempWithholdingSocSec do begin
-            if WithholdApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then begin
-                if ComputedWithholdingTax.Get("Vendor No.", "Document Date", "Invoice No.") then begin
-                    ComputedWithholdingTax."External Document No." := "External Document No.";
+        if WithholdApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then begin
+            if ComputedWithholdingTax.Get(TempWithholdingSocSec."Vendor No.", TempWithholdingSocSec."Document Date", TempWithholdingSocSec."Invoice No.") then begin
+                ComputedWithholdingTax."External Document No." := TempWithholdingSocSec."External Document No.";
 
-                    if "Currency Code" = ComputedWithholdingTax."Currency Code" then begin
-                        ComputedWithholdingTax."Remaining Amount" := ComputedWithholdingTax."Remaining Amount" - "Total Amount";
-                        ComputedWithholdingTax."Remaining - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount" -
-                          "Base - Excluded Amount";
-                        ComputedWithholdingTax."Non Taxable Remaining Amount" := ComputedWithholdingTax."Non Taxable Remaining Amount" -
-                          "Non Taxable Amount By Treaty";
-                    end else begin
-                        ComputedWithholdingTax."Remaining Amount" := ComputedWithholdingTax."Remaining Amount" -
-                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                            ComputedWithholdingTax."Currency Code", "Total Amount");
-                        ComputedWithholdingTax."Remaining - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount" -
-                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                            ComputedWithholdingTax."Currency Code", "Base - Excluded Amount");
-                        ComputedWithholdingTax."Non Taxable Remaining Amount" := ComputedWithholdingTax."Non Taxable Remaining Amount" -
-                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                            ComputedWithholdingTax."Currency Code", "Non Taxable Amount By Treaty");
-                    end;
-                    ComputedWithholdingTax."Withholding Tax Code" := "Withholding Tax Code";
-                    ComputedWithholdingTax."Related Date" := "Related Date";
-                    ComputedWithholdingTax."Payment Date" := "Payment Date";
-                    OnPostPaymentsOnBeforeComputedWithholdingTaxModify(TempWithholdingSocSec, ComputedWithholdingTax);
-                    ComputedWithholdingTax.Modify();
-                end;
-
-                WithholdingTax.LockTable();
-                if WithholdingTax.FindLast() then
-                    EntryNo := WithholdingTax."Entry No." + 1
-                else
-                    EntryNo := 1;
-
-                WithholdingTax.Init();
-                WithholdingTax."Entry No." := EntryNo;
-                WithholdingTax.Month := Date2DMY(GenJnlLine."Posting Date", 2);
-                WithholdingTax.Year := Date2DMY(GenJnlLine."Posting Date", 3);
-                WithholdingTax."Document Date" := "Document Date";
-                WithholdingTax."Document No." := GenJnlLine."Document No.";
-                WithholdingTax."External Document No." := "External Document No.";
-                WithholdingTax."Vendor No." := "Vendor No.";
-                WithholdingTax."Related Date" := "Related Date";
-                WithholdingTax."Posting Date" := GenJnlLine."Posting Date";
-                WithholdingTax."Payment Date" := GenJnlLine."Posting Date";
-                WithholdingTax."Withholding Tax Code" := "Withholding Tax Code";
-                WithholdingTax."Withholding Tax %" := "Withholding Tax %";
-                WithholdingTax."Non Taxable Amount %" := "Non Taxable %";
-                WithholdingTax.Reason := Reason;
-                if "Currency Code" = '' then begin
-                    WithholdingTax."Total Amount" := "Total Amount";
-                    WithholdingTax."Base - Excluded Amount" := "Base - Excluded Amount";
-                    WithholdingTax."Non Taxable Amount By Treaty" := "Non Taxable Amount By Treaty";
-                    WithholdingTax."Non Taxable Amount" := "Non Taxable Amount";
-                    WithholdingTax."Taxable Base" := "Taxable Base";
-                    WithholdingTax."Withholding Tax Amount" := "Withholding Tax Amount";
+                if TempWithholdingSocSec."Currency Code" = ComputedWithholdingTax."Currency Code" then begin
+                    ComputedWithholdingTax."Remaining Amount" := ComputedWithholdingTax."Remaining Amount" - TempWithholdingSocSec."Total Amount";
+                    ComputedWithholdingTax."Remaining - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount" -
+                      TempWithholdingSocSec."Base - Excluded Amount";
+                    ComputedWithholdingTax."Non Taxable Remaining Amount" := ComputedWithholdingTax."Non Taxable Remaining Amount" -
+                      TempWithholdingSocSec."Non Taxable Amount By Treaty";
                 end else begin
-                    WithholdingTax."Total Amount" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                          GenJnlLine."Document Date", "Currency Code", "Total Amount", GenJnlLine."Currency Factor"));
-
-                    WithholdingTax."Base - Excluded Amount" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                          GenJnlLine."Document Date", "Currency Code", "Base - Excluded Amount", GenJnlLine."Currency Factor"));
-
-                    WithholdingTax."Non Taxable Amount By Treaty" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                          GenJnlLine."Document Date", "Currency Code", "Non Taxable Amount By Treaty", GenJnlLine."Currency Factor"));
-
-                    WithholdingTax."Non Taxable Amount" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                          GenJnlLine."Document Date", "Currency Code", "Non Taxable Amount", GenJnlLine."Currency Factor"));
-
-                    WithholdingTax."Taxable Base" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                          GenJnlLine."Document Date", "Currency Code", "Taxable Base", GenJnlLine."Currency Factor"));
-                    WithholdingTax."Withholding Tax Amount" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                          GenJnlLine."Document Date", "Currency Code", "Withholding Tax Amount", GenJnlLine."Currency Factor"));
+                    ComputedWithholdingTax."Remaining Amount" := ComputedWithholdingTax."Remaining Amount" -
+                      CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                        ComputedWithholdingTax."Currency Code", TempWithholdingSocSec."Total Amount");
+                    ComputedWithholdingTax."Remaining - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount" -
+                      CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                        ComputedWithholdingTax."Currency Code", TempWithholdingSocSec."Base - Excluded Amount");
+                    ComputedWithholdingTax."Non Taxable Remaining Amount" := ComputedWithholdingTax."Non Taxable Remaining Amount" -
+                      CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                        ComputedWithholdingTax."Currency Code", TempWithholdingSocSec."Non Taxable Amount By Treaty");
                 end;
-                if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then begin
-                    WithholdingTax."Total Amount" := -WithholdingTax."Total Amount";
-                    WithholdingTax."Base - Excluded Amount" := -WithholdingTax."Base - Excluded Amount";
-                    WithholdingTax."Non Taxable Amount By Treaty" := -WithholdingTax."Non Taxable Amount By Treaty";
-                    WithholdingTax."Non Taxable Amount" := -WithholdingTax."Non Taxable Amount";
-                    WithholdingTax."Taxable Base" := -WithholdingTax."Taxable Base";
-                    WithholdingTax."Withholding Tax Amount" := -WithholdingTax."Withholding Tax Amount";
-                end;
-                if WithholdCode.Get("Withholding Tax Code") then begin
-                    WithholdingTax."Source-Withholding Tax" := WithholdCode."Source-Withholding Tax";
-                    WithholdingTax."Recipient May Report Income" := WithholdCode."Recipient May Report Income";
-                    WithholdingTax."Tax Code" := WithholdCode."Tax Code";
-                end;
-
-                OnBeforeWithholdingTaxInsert(WithholdingTax, TempWithholdingSocSec, GenJnlLine);
-                WithholdingTax.Insert();
-
-                if SocialSecurityApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then
-                    if ComputedSocialSec.Get("Vendor No.", "Document Date", "Invoice No.") then begin
-                        ComputedSocialSec."External Document No." := "External Document No.";
-                        ComputedSocialSec."Social Security Code" := "Social Security Code";
-                        if "Currency Code" = ComputedSocialSec."Currency Code" then begin
-                            ComputedSocialSec."Remaining Gross Amount" :=
-                              ComputedSocialSec."Remaining Gross Amount" - "Gross Amount";
-                            ComputedSocialSec."Remaining Soc.Sec. Non Taxable" := ComputedSocialSec."Remaining Soc.Sec. Non Taxable" -
-                              "Soc.Sec.Non Taxable Amount";
-                            ComputedSocialSec."Remaining Free-Lance Amount" := ComputedSocialSec."Remaining Free-Lance Amount" -
-                              "Free-Lance Amount";
-                        end else begin
-                            ComputedSocialSec."Remaining Gross Amount" :=
-                              ComputedSocialSec."Remaining Gross Amount" -
-                              CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                                ComputedSocialSec."Currency Code", "Gross Amount");
-                            ComputedSocialSec."Remaining Soc.Sec. Non Taxable" :=
-                              ComputedSocialSec."Remaining Soc.Sec. Non Taxable" -
-                              CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                                ComputedSocialSec."Currency Code", "Soc.Sec.Non Taxable Amount");
-                            ComputedSocialSec."Remaining Free-Lance Amount" :=
-                              ComputedSocialSec."Remaining Free-Lance Amount" -
-                              CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                                ComputedSocialSec."Currency Code", "Free-Lance Amount");
-                        end;
-                        ComputedSocialSec.Modify();
-                    end;
-
-                if ("INAIL Code" <> '') and
-                   (("INAIL Payment Line" <> 0) or ("INAIL Company Payment Line" <> 0))
-                then
-                    if ComputedSocialSec.Get("Vendor No.", "Document Date", "Invoice No.") then begin
-                        ComputedSocialSec."External Document No." := "External Document No.";
-                        ComputedSocialSec."INAIL Code" := "INAIL Code";
-                        if "Currency Code" = ComputedSocialSec."Currency Code" then begin
-                            ComputedSocialSec."INAIL Remaining Gross Amount" :=
-                              ComputedSocialSec."INAIL Remaining Gross Amount" - "INAIL Gross Amount";
-
-                            ComputedSocialSec."INAIL Rem. Non Tax. Amount" := ComputedSocialSec."INAIL Rem. Non Tax. Amount" -
-                              "INAIL Non Taxable Amount";
-
-                            ComputedSocialSec."INAIL Rem. Free-Lance Amount" := ComputedSocialSec."INAIL Rem. Free-Lance Amount" -
-                              "INAIL Free-Lance Amount";
-                        end else begin
-                            ComputedSocialSec."INAIL Remaining Gross Amount" :=
-                              ComputedSocialSec."INAIL Remaining Gross Amount" -
-                              CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                                ComputedSocialSec."Currency Code", "INAIL Gross Amount");
-
-                            ComputedSocialSec."INAIL Rem. Non Tax. Amount" :=
-                              ComputedSocialSec."INAIL Rem. Non Tax. Amount" -
-                              CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                                ComputedSocialSec."Currency Code", "INAIL Non Taxable Amount");
-
-                            ComputedSocialSec."INAIL Rem. Free-Lance Amount" :=
-                              ComputedSocialSec."INAIL Rem. Free-Lance Amount" -
-                              CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", "Currency Code",
-                                ComputedSocialSec."Currency Code", "INAIL Free-Lance Amount");
-                        end;
-                        ComputedSocialSec.Modify();
-                    end;
-                InsertRec := false;
-                // Insert INPS/INAIL values
-                SocialSecurity.LockTable();
-                if SocialSecurity.FindLast() then
-                    EntryNo := SocialSecurity."Entry No." + 1
-                else
-                    EntryNo := 1;
-                SocialSecurity.Init();
-                SocialSecurity."Entry No." := EntryNo;
-
-                SocialSecurity.Month := Date2DMY(GenJnlLine."Posting Date", 2);
-                SocialSecurity.Year := Date2DMY(GenJnlLine."Posting Date", 3);
-                SocialSecurity."Document Date" := "Document Date";
-                SocialSecurity."Document No." := GenJnlLine."Document No.";
-                SocialSecurity."External Document No." := "External Document No.";
-                SocialSecurity."Vendor No." := "Vendor No.";
-                SocialSecurity."Related Date" := "Related Date";
-                SocialSecurity."Payment Date" := GenJnlLine."Posting Date";
-                SocialSecurity."Posting Date" := GenJnlLine."Posting Date";
-                SocialSecurity.Reported := false;
-
-                if SocialSecurityApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then begin
-                    InsertRec := true;
-                    SocialSecurity."Social Security Code" := "Social Security Code";
-                    SocialSecurity."Social Security %" := "Social Security %";
-                    SocialSecurity."Free-Lance Amount %" := "Free-Lance %";
-
-                    if "Currency Code" = '' then begin
-                        SocialSecurity."Gross Amount" := "Gross Amount";
-                        SocialSecurity."Non Taxable Amount" := "Soc.Sec.Non Taxable Amount";
-                        SocialSecurity."Contribution Base" := "Contribution Base";
-                        SocialSecurity."Total Social Security Amount" := "Total Social Security Amount";
-                        SocialSecurity."Free-Lance Amount" := "Free-Lance Amount";
-                        SocialSecurity."Company Amount" := "Company Amount";
-                    end else begin
-                        SocialSecurity."Gross Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "Gross Amount", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."Non Taxable Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "Soc.Sec.Non Taxable Amount", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."Contribution Base" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "Contribution Base", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."Total Social Security Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "Total Social Security Amount", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."Free-Lance Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "Free-Lance Amount", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."Company Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "Company Amount", GenJnlLine."Currency Factor"));
-                    end;
-                end;
-
-                if ("INAIL Code" <> '') and (("INAIL Payment Line" <> 0) or ("INAIL Company Payment Line" <> 0)) then begin
-                    InsertRec := true;
-                    SocialSecurity."INAIL Code" := "INAIL Code";
-                    SocialSecurity."INAIL Per Mil" := "INAIL Per Mil";
-                    SocialSecurity."INAIL Free-Lance %" := "INAIL Free-Lance %";
-
-                    if "Currency Code" = '' then begin
-                        SocialSecurity."INAIL Gross Amount" := "INAIL Gross Amount";
-                        SocialSecurity."INAIL Non Taxable Amount" := "INAIL Non Taxable Amount";
-                        SocialSecurity."INAIL Contribution Base" := "INAIL Contribution Base";
-                        SocialSecurity."INAIL Total Amount" := "INAIL Total Amount";
-                        SocialSecurity."INAIL Free-Lance Amount" := "INAIL Free-Lance Amount";
-                        SocialSecurity."INAIL Company Amount" := "INAIL Company Amount";
-                    end else begin
-                        SocialSecurity."INAIL Gross Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "INAIL Gross Amount", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."INAIL Non Taxable Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "INAIL Non Taxable Amount", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."INAIL Contribution Base" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "INAIL Contribution Base", GenJnlLine."Currency Factor"));
-                        SocialSecurity."INAIL Total Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "INAIL Total Amount", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."INAIL Free-Lance Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "INAIL Free-Lance Amount", GenJnlLine."Currency Factor"));
-
-                        SocialSecurity."INAIL Company Amount" :=
-                          Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
-                              GenJnlLine."Document Date", "Currency Code", "INAIL Company Amount", GenJnlLine."Currency Factor"));
-                    end;
-                end;
-                if InsertRec then
-                    SocialSecurity.Insert();
+                ComputedWithholdingTax."Withholding Tax Code" := TempWithholdingSocSec."Withholding Tax Code";
+                ComputedWithholdingTax."Related Date" := TempWithholdingSocSec."Related Date";
+                ComputedWithholdingTax."Payment Date" := TempWithholdingSocSec."Payment Date";
+                OnPostPaymentsOnBeforeComputedWithholdingTaxModify(TempWithholdingSocSec, ComputedWithholdingTax);
+                ComputedWithholdingTax.Modify();
             end;
-            if not CalledFromVendBillLine then
-                Delete();
-        end
+
+            WithholdingTax.LockTable();
+            if WithholdingTax.FindLast() then
+                EntryNo := WithholdingTax."Entry No." + 1
+            else
+                EntryNo := 1;
+
+            WithholdingTax.Init();
+            WithholdingTax."Entry No." := EntryNo;
+            WithholdingTax.Month := Date2DMY(GenJnlLine."Posting Date", 2);
+            WithholdingTax.Year := Date2DMY(GenJnlLine."Posting Date", 3);
+            WithholdingTax."Document Date" := TempWithholdingSocSec."Document Date";
+            WithholdingTax."Document No." := GenJnlLine."Document No.";
+            WithholdingTax."External Document No." := TempWithholdingSocSec."External Document No.";
+            WithholdingTax."Vendor No." := TempWithholdingSocSec."Vendor No.";
+            WithholdingTax."Related Date" := TempWithholdingSocSec."Related Date";
+            WithholdingTax."Posting Date" := GenJnlLine."Posting Date";
+            WithholdingTax."Payment Date" := GenJnlLine."Posting Date";
+            WithholdingTax."Withholding Tax Code" := TempWithholdingSocSec."Withholding Tax Code";
+            WithholdingTax."Withholding Tax %" := TempWithholdingSocSec."Withholding Tax %";
+            WithholdingTax."Non Taxable Amount %" := TempWithholdingSocSec."Non Taxable %";
+            WithholdingTax.Reason := TempWithholdingSocSec.Reason;
+            if TempWithholdingSocSec."Currency Code" = '' then begin
+                WithholdingTax."Total Amount" := TempWithholdingSocSec."Total Amount";
+                WithholdingTax."Base - Excluded Amount" := TempWithholdingSocSec."Base - Excluded Amount";
+                WithholdingTax."Non Taxable Amount By Treaty" := TempWithholdingSocSec."Non Taxable Amount By Treaty";
+                WithholdingTax."Non Taxable Amount" := TempWithholdingSocSec."Non Taxable Amount";
+                WithholdingTax."Taxable Base" := TempWithholdingSocSec."Taxable Base";
+                WithholdingTax."Withholding Tax Amount" := TempWithholdingSocSec."Withholding Tax Amount";
+            end else begin
+                WithholdingTax."Total Amount" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                      GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Total Amount", GenJnlLine."Currency Factor"));
+
+                WithholdingTax."Base - Excluded Amount" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                      GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Base - Excluded Amount", GenJnlLine."Currency Factor"));
+
+                WithholdingTax."Non Taxable Amount By Treaty" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                      GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Non Taxable Amount By Treaty", GenJnlLine."Currency Factor"));
+
+                WithholdingTax."Non Taxable Amount" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                      GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Non Taxable Amount", GenJnlLine."Currency Factor"));
+
+                WithholdingTax."Taxable Base" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                      GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Taxable Base", GenJnlLine."Currency Factor"));
+                WithholdingTax."Withholding Tax Amount" := Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                      GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Withholding Tax Amount", GenJnlLine."Currency Factor"));
+            end;
+            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then begin
+                WithholdingTax."Total Amount" := -WithholdingTax."Total Amount";
+                WithholdingTax."Base - Excluded Amount" := -WithholdingTax."Base - Excluded Amount";
+                WithholdingTax."Non Taxable Amount By Treaty" := -WithholdingTax."Non Taxable Amount By Treaty";
+                WithholdingTax."Non Taxable Amount" := -WithholdingTax."Non Taxable Amount";
+                WithholdingTax."Taxable Base" := -WithholdingTax."Taxable Base";
+                WithholdingTax."Withholding Tax Amount" := -WithholdingTax."Withholding Tax Amount";
+            end;
+            if WithholdCode.Get(TempWithholdingSocSec."Withholding Tax Code") then begin
+                WithholdingTax."Source-Withholding Tax" := WithholdCode."Source-Withholding Tax";
+                WithholdingTax."Recipient May Report Income" := WithholdCode."Recipient May Report Income";
+                WithholdingTax."Tax Code" := WithholdCode."Tax Code";
+            end;
+
+            OnBeforeWithholdingTaxInsert(WithholdingTax, TempWithholdingSocSec, GenJnlLine);
+            WithholdingTax.Insert();
+
+            if SocialSecurityApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then
+                if ComputedSocialSec.Get(TempWithholdingSocSec."Vendor No.", TempWithholdingSocSec."Document Date", TempWithholdingSocSec."Invoice No.") then begin
+                    ComputedSocialSec."External Document No." := TempWithholdingSocSec."External Document No.";
+                    ComputedSocialSec."Social Security Code" := TempWithholdingSocSec."Social Security Code";
+                    if TempWithholdingSocSec."Currency Code" = ComputedSocialSec."Currency Code" then begin
+                        ComputedSocialSec."Remaining Gross Amount" :=
+                          ComputedSocialSec."Remaining Gross Amount" - TempWithholdingSocSec."Gross Amount";
+                        ComputedSocialSec."Remaining Soc.Sec. Non Taxable" := ComputedSocialSec."Remaining Soc.Sec. Non Taxable" -
+                          TempWithholdingSocSec."Soc.Sec.Non Taxable Amount";
+                        ComputedSocialSec."Remaining Free-Lance Amount" := ComputedSocialSec."Remaining Free-Lance Amount" -
+                          TempWithholdingSocSec."Free-Lance Amount";
+                    end else begin
+                        ComputedSocialSec."Remaining Gross Amount" :=
+                          ComputedSocialSec."Remaining Gross Amount" -
+                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                            ComputedSocialSec."Currency Code", TempWithholdingSocSec."Gross Amount");
+                        ComputedSocialSec."Remaining Soc.Sec. Non Taxable" :=
+                          ComputedSocialSec."Remaining Soc.Sec. Non Taxable" -
+                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                            ComputedSocialSec."Currency Code", TempWithholdingSocSec."Soc.Sec.Non Taxable Amount");
+                        ComputedSocialSec."Remaining Free-Lance Amount" :=
+                          ComputedSocialSec."Remaining Free-Lance Amount" -
+                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                            ComputedSocialSec."Currency Code", TempWithholdingSocSec."Free-Lance Amount");
+                    end;
+                    ComputedSocialSec.Modify();
+                end;
+
+            if (TempWithholdingSocSec."INAIL Code" <> '') and
+               ((TempWithholdingSocSec."INAIL Payment Line" <> 0) or (TempWithholdingSocSec."INAIL Company Payment Line" <> 0))
+            then
+                if ComputedSocialSec.Get(TempWithholdingSocSec."Vendor No.", TempWithholdingSocSec."Document Date", TempWithholdingSocSec."Invoice No.") then begin
+                    ComputedSocialSec."External Document No." := TempWithholdingSocSec."External Document No.";
+                    ComputedSocialSec."INAIL Code" := TempWithholdingSocSec."INAIL Code";
+                    if TempWithholdingSocSec."Currency Code" = ComputedSocialSec."Currency Code" then begin
+                        ComputedSocialSec."INAIL Remaining Gross Amount" :=
+                          ComputedSocialSec."INAIL Remaining Gross Amount" - TempWithholdingSocSec."INAIL Gross Amount";
+
+                        ComputedSocialSec."INAIL Rem. Non Tax. Amount" := ComputedSocialSec."INAIL Rem. Non Tax. Amount" -
+                          TempWithholdingSocSec."INAIL Non Taxable Amount";
+
+                        ComputedSocialSec."INAIL Rem. Free-Lance Amount" := ComputedSocialSec."INAIL Rem. Free-Lance Amount" -
+                          TempWithholdingSocSec."INAIL Free-Lance Amount";
+                    end else begin
+                        ComputedSocialSec."INAIL Remaining Gross Amount" :=
+                          ComputedSocialSec."INAIL Remaining Gross Amount" -
+                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                            ComputedSocialSec."Currency Code", TempWithholdingSocSec."INAIL Gross Amount");
+
+                        ComputedSocialSec."INAIL Rem. Non Tax. Amount" :=
+                          ComputedSocialSec."INAIL Rem. Non Tax. Amount" -
+                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                            ComputedSocialSec."Currency Code", TempWithholdingSocSec."INAIL Non Taxable Amount");
+
+                        ComputedSocialSec."INAIL Rem. Free-Lance Amount" :=
+                          ComputedSocialSec."INAIL Rem. Free-Lance Amount" -
+                          CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
+                            ComputedSocialSec."Currency Code", TempWithholdingSocSec."INAIL Free-Lance Amount");
+                    end;
+                    ComputedSocialSec.Modify();
+                end;
+            InsertRec := false;
+            // Insert INPS/INAIL values
+            SocialSecurity.LockTable();
+            if SocialSecurity.FindLast() then
+                EntryNo := SocialSecurity."Entry No." + 1
+            else
+                EntryNo := 1;
+            SocialSecurity.Init();
+            SocialSecurity."Entry No." := EntryNo;
+
+            SocialSecurity.Month := Date2DMY(GenJnlLine."Posting Date", 2);
+            SocialSecurity.Year := Date2DMY(GenJnlLine."Posting Date", 3);
+            SocialSecurity."Document Date" := TempWithholdingSocSec."Document Date";
+            SocialSecurity."Document No." := GenJnlLine."Document No.";
+            SocialSecurity."External Document No." := TempWithholdingSocSec."External Document No.";
+            SocialSecurity."Vendor No." := TempWithholdingSocSec."Vendor No.";
+            SocialSecurity."Related Date" := TempWithholdingSocSec."Related Date";
+            SocialSecurity."Payment Date" := GenJnlLine."Posting Date";
+            SocialSecurity."Posting Date" := GenJnlLine."Posting Date";
+            SocialSecurity.Reported := false;
+
+            if SocialSecurityApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then begin
+                InsertRec := true;
+                SocialSecurity."Social Security Code" := TempWithholdingSocSec."Social Security Code";
+                SocialSecurity."Social Security %" := TempWithholdingSocSec."Social Security %";
+                SocialSecurity."Free-Lance Amount %" := TempWithholdingSocSec."Free-Lance %";
+
+                if TempWithholdingSocSec."Currency Code" = '' then begin
+                    SocialSecurity."Gross Amount" := TempWithholdingSocSec."Gross Amount";
+                    SocialSecurity."Non Taxable Amount" := TempWithholdingSocSec."Soc.Sec.Non Taxable Amount";
+                    SocialSecurity."Contribution Base" := TempWithholdingSocSec."Contribution Base";
+                    SocialSecurity."Total Social Security Amount" := TempWithholdingSocSec."Total Social Security Amount";
+                    SocialSecurity."Free-Lance Amount" := TempWithholdingSocSec."Free-Lance Amount";
+                    SocialSecurity."Company Amount" := TempWithholdingSocSec."Company Amount";
+                end else begin
+                    SocialSecurity."Gross Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Gross Amount", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."Non Taxable Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Soc.Sec.Non Taxable Amount", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."Contribution Base" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Contribution Base", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."Total Social Security Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Total Social Security Amount", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."Free-Lance Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Free-Lance Amount", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."Company Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."Company Amount", GenJnlLine."Currency Factor"));
+                end;
+            end;
+
+            if (TempWithholdingSocSec."INAIL Code" <> '') and ((TempWithholdingSocSec."INAIL Payment Line" <> 0) or (TempWithholdingSocSec."INAIL Company Payment Line" <> 0)) then begin
+                InsertRec := true;
+                SocialSecurity."INAIL Code" := TempWithholdingSocSec."INAIL Code";
+                SocialSecurity."INAIL Per Mil" := TempWithholdingSocSec."INAIL Per Mil";
+                SocialSecurity."INAIL Free-Lance %" := TempWithholdingSocSec."INAIL Free-Lance %";
+
+                if TempWithholdingSocSec."Currency Code" = '' then begin
+                    SocialSecurity."INAIL Gross Amount" := TempWithholdingSocSec."INAIL Gross Amount";
+                    SocialSecurity."INAIL Non Taxable Amount" := TempWithholdingSocSec."INAIL Non Taxable Amount";
+                    SocialSecurity."INAIL Contribution Base" := TempWithholdingSocSec."INAIL Contribution Base";
+                    SocialSecurity."INAIL Total Amount" := TempWithholdingSocSec."INAIL Total Amount";
+                    SocialSecurity."INAIL Free-Lance Amount" := TempWithholdingSocSec."INAIL Free-Lance Amount";
+                    SocialSecurity."INAIL Company Amount" := TempWithholdingSocSec."INAIL Company Amount";
+                end else begin
+                    SocialSecurity."INAIL Gross Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."INAIL Gross Amount", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."INAIL Non Taxable Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."INAIL Non Taxable Amount", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."INAIL Contribution Base" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."INAIL Contribution Base", GenJnlLine."Currency Factor"));
+                    SocialSecurity."INAIL Total Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."INAIL Total Amount", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."INAIL Free-Lance Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."INAIL Free-Lance Amount", GenJnlLine."Currency Factor"));
+
+                    SocialSecurity."INAIL Company Amount" :=
+                      Round(CurrencyExchRate.ExchangeAmtFCYToLCY(
+                          GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code", TempWithholdingSocSec."INAIL Company Amount", GenJnlLine."Currency Factor"));
+                end;
+            end;
+            if InsertRec then
+                SocialSecurity.Insert();
+        end;
+        if not CalledFromVendBillLine then
+            TempWithholdingSocSec.Delete();
     end;
 
     procedure CalculateWithholdingTax(var PurchHeader: Record "Purchase Header"; Recalculate: Boolean)
@@ -352,154 +350,152 @@ codeunit 12101 "Withholding - Contribution"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            if ("Document Type" <> "Document Type"::Payment) and
-               ("Document Type" <> "Document Type"::Refund)
-            then
-                FieldError("Document Type", MustBePaymentOrRefundTxt);
+        if (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Payment) and
+           (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Refund)
+        then
+            GenJnlLine.FieldError("Document Type", MustBePaymentOrRefundTxt);
 
-            TestField("Account Type", "Account Type"::Vendor);
-            TestField("Account No.");
-            TestField("System-Created Entry", false);
+        GenJnlLine.TestField("Account Type", GenJnlLine."Account Type"::Vendor);
+        GenJnlLine.TestField("Account No.");
+        GenJnlLine.TestField("System-Created Entry", false);
 
-            TmpWithholdingSocSec.Reset();
+        TmpWithholdingSocSec.Reset();
 
-            if not TmpWithholdingSocSec.Get("Journal Template Name", "Journal Batch Name", "Line No.") then begin
-                TmpWithholdingSocSec.Init();
-                TmpWithholdingSocSec."Journal Template Name" := "Journal Template Name";
-                TmpWithholdingSocSec."Journal Batch Name" := "Journal Batch Name";
-                TmpWithholdingSocSec."Line No." := "Line No.";
-                TmpWithholdingSocSec."Document Date" := "Document Date";
-                if GenJnlLine."Applies-to ID" <> '' then begin
-                    VendorLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
-                    VendorLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
-                    VendorLedgerEntry.SetRange(Open, true);
-                    VendorLedgerEntry.SetFilter(
-                        "Document Type", '%1|%2',
-                        VendorLedgerEntry."Document Type"::"Credit Memo", VendorLedgerEntry."Document Type"::Invoice);
-                    if VendorLedgerEntry.Count() > 1 then
-                        Error(MultiApplyErr);
+        if not TmpWithholdingSocSec.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine."Line No.") then begin
+            TmpWithholdingSocSec.Init();
+            TmpWithholdingSocSec."Journal Template Name" := GenJnlLine."Journal Template Name";
+            TmpWithholdingSocSec."Journal Batch Name" := GenJnlLine."Journal Batch Name";
+            TmpWithholdingSocSec."Line No." := GenJnlLine."Line No.";
+            TmpWithholdingSocSec."Document Date" := GenJnlLine."Document Date";
+            if GenJnlLine."Applies-to ID" <> '' then begin
+                VendorLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
+                VendorLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                VendorLedgerEntry.SetRange(Open, true);
+                VendorLedgerEntry.SetFilter(
+                    "Document Type", '%1|%2',
+                    VendorLedgerEntry."Document Type"::"Credit Memo", VendorLedgerEntry."Document Type"::Invoice);
+                if VendorLedgerEntry.Count() > 1 then
+                    Error(MultiApplyErr);
 
-                    if VendorLedgerEntry.FindFirst() then begin
-                        VendorLedgerEntry.Validate("Applies-to ID", '');
-                        Codeunit.Run(Codeunit::"Vend. Entry-Edit", VendorLedgerEntry);
+                if VendorLedgerEntry.FindFirst() then begin
+                    VendorLedgerEntry.Validate("Applies-to ID", '');
+                    Codeunit.Run(Codeunit::"Vend. Entry-Edit", VendorLedgerEntry);
 
-                        GenJnlLine.Validate("Applies-to ID", '');
-                        GenJnlLine.Validate("Applies-to Doc. Type", VendorLedgerEntry."Document Type");
-                        GenJnlLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
-                        GenJnlLine.Validate("Applies-to Occurrence No.", VendorLedgerEntry."Document Occurrence");
-                        GenJnlLine.Modify(true);
-                    end;
+                    GenJnlLine.Validate("Applies-to ID", '');
+                    GenJnlLine.Validate("Applies-to Doc. Type", VendorLedgerEntry."Document Type");
+                    GenJnlLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
+                    GenJnlLine.Validate("Applies-to Occurrence No.", VendorLedgerEntry."Document Occurrence");
+                    GenJnlLine.Modify(true);
                 end;
-                TmpWithholdingSocSec."Invoice No." := "Applies-to Doc. No.";
-                TmpWithholdingSocSec."Vendor No." := "Account No.";
-                TmpWithholdingSocSec."Old Withholding Amount" := 0;
-                TmpWithholdingSocSec."Old Free-Lance Amount" := 0;
-                TmpWithholdingSocSec."Payment Date" := "Document Date";
-                TmpWithholdingSocSec."Currency Code" := "Currency Code";
+            end;
+            TmpWithholdingSocSec."Invoice No." := GenJnlLine."Applies-to Doc. No.";
+            TmpWithholdingSocSec."Vendor No." := GenJnlLine."Account No.";
+            TmpWithholdingSocSec."Old Withholding Amount" := 0;
+            TmpWithholdingSocSec."Old Free-Lance Amount" := 0;
+            TmpWithholdingSocSec."Payment Date" := GenJnlLine."Document Date";
+            TmpWithholdingSocSec."Currency Code" := GenJnlLine."Currency Code";
 
-                ComputedWithholdingTax.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
-                ComputedWithholdingTax.SetRange("Vendor No.", "Account No.");
-                ComputedWithholdingTax.SetRange("Document No.", "Applies-to Doc. No.");
+            ComputedWithholdingTax.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
+            ComputedWithholdingTax.SetRange("Vendor No.", GenJnlLine."Account No.");
+            ComputedWithholdingTax.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
 
-                if ComputedWithholdingTax.FindFirst() then begin
-                    TmpWithholdingSocSec."External Document No." := ComputedWithholdingTax."External Document No.";
-                    TmpWithholdingSocSec."Related Date" := ComputedWithholdingTax."Related Date";
-                    if ComputedWithholdingTax."Payment Date" <> 0D then
-                        TmpWithholdingSocSec."Payment Date" := ComputedWithholdingTax."Payment Date";
-                    TmpWithholdingSocSec."Withholding Tax Code" := ComputedWithholdingTax."Withholding Tax Code";
+            if ComputedWithholdingTax.FindFirst() then begin
+                TmpWithholdingSocSec."External Document No." := ComputedWithholdingTax."External Document No.";
+                TmpWithholdingSocSec."Related Date" := ComputedWithholdingTax."Related Date";
+                if ComputedWithholdingTax."Payment Date" <> 0D then
+                    TmpWithholdingSocSec."Payment Date" := ComputedWithholdingTax."Payment Date";
+                TmpWithholdingSocSec."Withholding Tax Code" := ComputedWithholdingTax."Withholding Tax Code";
 
-                    ComputedSocSec.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
-                    ComputedSocSec.SetRange("Vendor No.", "Account No.");
-                    ComputedSocSec.SetRange("Document No.", "Applies-to Doc. No.");
+                ComputedSocSec.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
+                ComputedSocSec.SetRange("Vendor No.", GenJnlLine."Account No.");
+                ComputedSocSec.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
 
-                    if ComputedSocSec.FindFirst() then
-                        TmpWithholdingSocSec."Social Security Code" := ComputedSocSec."Social Security Code";
-                    if ComputedSocSec.FindFirst() then
-                        TmpWithholdingSocSec."INAIL Code" := ComputedSocSec."INAIL Code";
-                    if ComputedWithholdingTax."Currency Code" = "Currency Code" then begin
-                        TmpWithholdingSocSec."Total Amount" := GetRemainingWithhTaxAmount(ComputedWithholdingTax, "Applies-to Occurrence No.");
-                        TmpWithholdingSocSec."Base - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount";
-                        TmpWithholdingSocSec.Validate("Non Taxable Amount By Treaty", ComputedWithholdingTax."Non Taxable Remaining Amount");
+                if ComputedSocSec.FindFirst() then
+                    TmpWithholdingSocSec."Social Security Code" := ComputedSocSec."Social Security Code";
+                if ComputedSocSec.FindFirst() then
+                    TmpWithholdingSocSec."INAIL Code" := ComputedSocSec."INAIL Code";
+                if ComputedWithholdingTax."Currency Code" = GenJnlLine."Currency Code" then begin
+                    TmpWithholdingSocSec."Total Amount" := GetRemainingWithhTaxAmount(ComputedWithholdingTax, GenJnlLine."Applies-to Occurrence No.");
+                    TmpWithholdingSocSec."Base - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount";
+                    TmpWithholdingSocSec.Validate("Non Taxable Amount By Treaty", ComputedWithholdingTax."Non Taxable Remaining Amount");
 
-                        if ComputedSocSec.FindFirst() then begin
-                            TmpWithholdingSocSec.Validate("Gross Amount", ComputedSocSec."Remaining Gross Amount");
-                            TmpWithholdingSocSec.Validate("Soc.Sec.Non Taxable Amount", ComputedSocSec."Remaining Soc.Sec. Non Taxable");
-                            TmpWithholdingSocSec.Validate("Free-Lance Amount", ComputedSocSec."Remaining Free-Lance Amount");
-                            TmpWithholdingSocSec.Validate("INAIL Gross Amount", ComputedSocSec."INAIL Remaining Gross Amount");
-                            TmpWithholdingSocSec.Validate("INAIL Non Taxable Amount", ComputedSocSec."INAIL Rem. Non Tax. Amount");
-                            TmpWithholdingSocSec.Validate("INAIL Free-Lance Amount", ComputedSocSec."INAIL Rem. Free-Lance Amount");
-                        end;
-                    end else begin
-                        TmpWithholdingSocSec."Total Amount" := CurrencyExchRate.ExchangeAmtFCYToFCY(
-                            "Document Date",
-                            ComputedWithholdingTax."Currency Code",
-                            "Currency Code",
-                            GetRemainingWithhTaxAmount(ComputedWithholdingTax, "Applies-to Occurrence No."));
-
-                        TmpWithholdingSocSec."Base - Excluded Amount" := CurrencyExchRate.ExchangeAmtFCYToFCY(
-                            "Document Date",
-                            ComputedWithholdingTax."Currency Code",
-                            "Currency Code",
-                            ComputedWithholdingTax."Remaining - Excluded Amount");
-
-                        TmpWithholdingSocSec.Validate("Non Taxable Amount By Treaty", CurrencyExchRate.ExchangeAmtFCYToFCY(
-                            "Document Date",
-                            ComputedWithholdingTax."Currency Code",
-                            "Currency Code",
-                            ComputedWithholdingTax."Non Taxable Remaining Amount"));
-
-                        if ComputedSocSec.FindFirst() then begin
-                            TmpWithholdingSocSec.Validate("Gross Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
-                                "Document Date",
-                                ComputedWithholdingTax."Currency Code",
-                                "Currency Code",
-                                ComputedSocSec."Remaining Gross Amount"));
-
-                            TmpWithholdingSocSec.Validate("Soc.Sec.Non Taxable Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
-                                "Document Date",
-                                ComputedWithholdingTax."Currency Code",
-                                "Currency Code",
-                                ComputedSocSec."Remaining Soc.Sec. Non Taxable"));
-
-                            TmpWithholdingSocSec.Validate("Free-Lance Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
-                                "Document Date",
-                                ComputedWithholdingTax."Currency Code",
-                                "Currency Code",
-                                ComputedSocSec."Remaining Free-Lance Amount"));
-
-                            TmpWithholdingSocSec.Validate("INAIL Gross Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
-                                "Document Date",
-                                ComputedWithholdingTax."Currency Code",
-                                "Currency Code",
-                                ComputedSocSec."INAIL Remaining Gross Amount"));
-
-                            TmpWithholdingSocSec.Validate("INAIL Non Taxable Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
-                                "Document Date",
-                                ComputedWithholdingTax."Currency Code",
-                                "Currency Code",
-                                ComputedSocSec."INAIL Rem. Non Tax. Amount"));
-
-                            TmpWithholdingSocSec.Validate("INAIL Free-Lance Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
-                                "Document Date",
-                                ComputedWithholdingTax."Currency Code",
-                                "Currency Code",
-                                ComputedSocSec."INAIL Rem. Free-Lance Amount"));
-                        end;
+                    if ComputedSocSec.FindFirst() then begin
+                        TmpWithholdingSocSec.Validate("Gross Amount", ComputedSocSec."Remaining Gross Amount");
+                        TmpWithholdingSocSec.Validate("Soc.Sec.Non Taxable Amount", ComputedSocSec."Remaining Soc.Sec. Non Taxable");
+                        TmpWithholdingSocSec.Validate("Free-Lance Amount", ComputedSocSec."Remaining Free-Lance Amount");
+                        TmpWithholdingSocSec.Validate("INAIL Gross Amount", ComputedSocSec."INAIL Remaining Gross Amount");
+                        TmpWithholdingSocSec.Validate("INAIL Non Taxable Amount", ComputedSocSec."INAIL Rem. Non Tax. Amount");
+                        TmpWithholdingSocSec.Validate("INAIL Free-Lance Amount", ComputedSocSec."INAIL Rem. Free-Lance Amount");
                     end;
                 end else begin
-                    Vend.Get("Account No.");
-                    TmpWithholdingSocSec."Social Security Code" := Vend."Social Security Code";
-                    TmpWithholdingSocSec.Validate("Withholding Tax Code", Vend."Withholding Tax Code");
-                    TmpWithholdingSocSec."INAIL Code" := Vend."INAIL Code";
+                    TmpWithholdingSocSec."Total Amount" := CurrencyExchRate.ExchangeAmtFCYToFCY(
+                        GenJnlLine."Document Date",
+                        ComputedWithholdingTax."Currency Code",
+                        GenJnlLine."Currency Code",
+                        GetRemainingWithhTaxAmount(ComputedWithholdingTax, GenJnlLine."Applies-to Occurrence No."));
+
+                    TmpWithholdingSocSec."Base - Excluded Amount" := CurrencyExchRate.ExchangeAmtFCYToFCY(
+                        GenJnlLine."Document Date",
+                        ComputedWithholdingTax."Currency Code",
+                        GenJnlLine."Currency Code",
+                        ComputedWithholdingTax."Remaining - Excluded Amount");
+
+                    TmpWithholdingSocSec.Validate("Non Taxable Amount By Treaty", CurrencyExchRate.ExchangeAmtFCYToFCY(
+                        GenJnlLine."Document Date",
+                        ComputedWithholdingTax."Currency Code",
+                        GenJnlLine."Currency Code",
+                        ComputedWithholdingTax."Non Taxable Remaining Amount"));
+
+                    if ComputedSocSec.FindFirst() then begin
+                        TmpWithholdingSocSec.Validate("Gross Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
+                            GenJnlLine."Document Date",
+                            ComputedWithholdingTax."Currency Code",
+                            GenJnlLine."Currency Code",
+                            ComputedSocSec."Remaining Gross Amount"));
+
+                        TmpWithholdingSocSec.Validate("Soc.Sec.Non Taxable Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
+                            GenJnlLine."Document Date",
+                            ComputedWithholdingTax."Currency Code",
+                            GenJnlLine."Currency Code",
+                            ComputedSocSec."Remaining Soc.Sec. Non Taxable"));
+
+                        TmpWithholdingSocSec.Validate("Free-Lance Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
+                            GenJnlLine."Document Date",
+                            ComputedWithholdingTax."Currency Code",
+                            GenJnlLine."Currency Code",
+                            ComputedSocSec."Remaining Free-Lance Amount"));
+
+                        TmpWithholdingSocSec.Validate("INAIL Gross Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
+                            GenJnlLine."Document Date",
+                            ComputedWithholdingTax."Currency Code",
+                            GenJnlLine."Currency Code",
+                            ComputedSocSec."INAIL Remaining Gross Amount"));
+
+                        TmpWithholdingSocSec.Validate("INAIL Non Taxable Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
+                            GenJnlLine."Document Date",
+                            ComputedWithholdingTax."Currency Code",
+                            GenJnlLine."Currency Code",
+                            ComputedSocSec."INAIL Rem. Non Tax. Amount"));
+
+                        TmpWithholdingSocSec.Validate("INAIL Free-Lance Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
+                            GenJnlLine."Document Date",
+                            ComputedWithholdingTax."Currency Code",
+                            GenJnlLine."Currency Code",
+                            ComputedSocSec."INAIL Rem. Free-Lance Amount"));
+                    end;
                 end;
-
-                if ComputedWithholdingTax."WHT Amount Manual" <> 0 then
-                    TmpWithholdingSocSec.Validate("Withholding Tax Amount", ComputedWithholdingTax."WHT Amount Manual");
-
-                OnBeforeTmpWithholdingSocSecInsert(TmpWithholdingSocSec, ComputedWithholdingTax, GenJnlLine);
-                TmpWithholdingSocSec.Insert();
+            end else begin
+                Vend.Get(GenJnlLine."Account No.");
+                TmpWithholdingSocSec."Social Security Code" := Vend."Social Security Code";
+                TmpWithholdingSocSec.Validate("Withholding Tax Code", Vend."Withholding Tax Code");
+                TmpWithholdingSocSec."INAIL Code" := Vend."INAIL Code";
             end;
+
+            if ComputedWithholdingTax."WHT Amount Manual" <> 0 then
+                TmpWithholdingSocSec.Validate("Withholding Tax Amount", ComputedWithholdingTax."WHT Amount Manual");
+
+            OnBeforeTmpWithholdingSocSecInsert(TmpWithholdingSocSec, ComputedWithholdingTax, GenJnlLine);
+            TmpWithholdingSocSec.Insert();
         end;
 
         Commit();
@@ -578,81 +574,77 @@ codeunit 12101 "Withholding - Contribution"
     begin
         if CheckForMultipleInstallment(ComputedWithholdingTax."Document No.") then
             exit(GetInstallmentAmount(ComputedWithholdingTax, AppliestoOccurrenceNo));
-        with VendLedgEntry do begin
-            // Get the Vendor Ledger Entry that generates the ComputedWithholdingTax line
-            Reset();
-            SetRange("Document No.", ComputedWithholdingTax."Document No.");
-            if FindFirst() then
-                CreateVendLedgEntry := VendLedgEntry;
-            SetRange("Document No.");
+        // Get the Vendor Ledger Entry that generates the ComputedWithholdingTax line
+        VendLedgEntry.Reset();
+        VendLedgEntry.SetRange("Document No.", ComputedWithholdingTax."Document No.");
+        if VendLedgEntry.FindFirst() then
+            CreateVendLedgEntry := VendLedgEntry;
+        VendLedgEntry.SetRange("Document No.");
+        // Find applied entries;
+        DtldVendLedgEntry1.SetCurrentKey("Vendor Ledger Entry No.");
+        DtldVendLedgEntry1.SetRange("Vendor Ledger Entry No.", CreateVendLedgEntry."Entry No.");
+        DtldVendLedgEntry1.SetRange(Unapplied, false);
+        if DtldVendLedgEntry1.FindSet() then
+            repeat
+                if DtldVendLedgEntry1."Vendor Ledger Entry No." =
+                   DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
+                then begin
+                    DtldVendLedgEntry2.Init();
+                    DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
+                    DtldVendLedgEntry2.SetRange(
+                      "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
+                    DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::Application);
+                    DtldVendLedgEntry2.SetRange(Unapplied, false);
+                    if DtldVendLedgEntry2.FindSet() then
+                        repeat
+                            if DtldVendLedgEntry2."Vendor Ledger Entry No." <>
+                               DtldVendLedgEntry2."Applied Vend. Ledger Entry No."
+                            then begin
+                                VendLedgEntry.SetCurrentKey("Entry No.");
+                                VendLedgEntry.SetRange("Entry No.", DtldVendLedgEntry2."Vendor Ledger Entry No.");
+                                if VendLedgEntry.FindFirst() then
+                                    VendLedgEntry.Mark(true);
+                            end;
+                        until DtldVendLedgEntry2.Next() = 0;
+                end else begin
+                    VendLedgEntry.SetCurrentKey("Entry No.");
+                    VendLedgEntry.SetRange("Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
+                    if VendLedgEntry.FindFirst() then
+                        VendLedgEntry.Mark(true);
+                end;
+            until DtldVendLedgEntry1.Next() = 0;
 
-            // Find applied entries;
-            DtldVendLedgEntry1.SetCurrentKey("Vendor Ledger Entry No.");
-            DtldVendLedgEntry1.SetRange("Vendor Ledger Entry No.", CreateVendLedgEntry."Entry No.");
-            DtldVendLedgEntry1.SetRange(Unapplied, false);
-            if DtldVendLedgEntry1.FindSet() then
-                repeat
-                    if DtldVendLedgEntry1."Vendor Ledger Entry No." =
-                       DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
-                    then begin
-                        DtldVendLedgEntry2.Init();
-                        DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
-                        DtldVendLedgEntry2.SetRange(
-                          "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
-                        DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::Application);
-                        DtldVendLedgEntry2.SetRange(Unapplied, false);
-                        if DtldVendLedgEntry2.FindSet() then
-                            repeat
-                                if DtldVendLedgEntry2."Vendor Ledger Entry No." <>
-                                   DtldVendLedgEntry2."Applied Vend. Ledger Entry No."
-                                then begin
-                                    SetCurrentKey("Entry No.");
-                                    SetRange("Entry No.", DtldVendLedgEntry2."Vendor Ledger Entry No.");
-                                    if FindFirst() then
-                                        Mark(true);
-                                end;
-                            until DtldVendLedgEntry2.Next() = 0;
-                    end else begin
-                        SetCurrentKey("Entry No.");
-                        SetRange("Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
-                        if FindFirst() then
-                            Mark(true);
-                    end;
-                until DtldVendLedgEntry1.Next() = 0;
+        VendLedgEntry.SetCurrentKey("Entry No.");
+        VendLedgEntry.SetRange("Entry No.");
 
-            SetCurrentKey("Entry No.");
-            SetRange("Entry No.");
-
-            if CreateVendLedgEntry."Closed by Entry No." <> 0 then begin
-                "Entry No." := CreateVendLedgEntry."Closed by Entry No.";
-                Mark(true);
-            end;
-
-            SetCurrentKey("Closed by Entry No.");
-            SetRange("Closed by Entry No.", CreateVendLedgEntry."Entry No.");
-            if FindSet() then
-                repeat
-                    Mark(true);
-                until Next() = 0;
-
-            SetCurrentKey("Entry No.");
-            SetRange("Closed by Entry No.");
-            MarkedOnly(true);
-            OnGetRemainingWithhTaxAmountOnAfterVendLedgEntrySetFilters(VendLedgEntry, CreateVendLedgEntry, ComputedWithholdingTax, AppliestoOccurrenceNo);
-
-            // Calculate the RemainingWithhTaxAmount by substracting amount from its applied amount
-            RemainingWithhTaxAmount := ComputedWithholdingTax."Remaining Amount";
-            if FindSet() then begin
-                repeat
-                    ComputedWithholdingTax1.Reset();
-                    ComputedWithholdingTax1.SetRange("Document No.", "Document No.");
-                    if ComputedWithholdingTax1.FindFirst() then
-                        RemainingWithhTaxAmount -= ComputedWithholdingTax1."Remaining Amount";
-                until Next() = 0
-            end;
-
-            exit(RemainingWithhTaxAmount);
+        if CreateVendLedgEntry."Closed by Entry No." <> 0 then begin
+            VendLedgEntry."Entry No." := CreateVendLedgEntry."Closed by Entry No.";
+            VendLedgEntry.Mark(true);
         end;
+
+        VendLedgEntry.SetCurrentKey("Closed by Entry No.");
+        VendLedgEntry.SetRange("Closed by Entry No.", CreateVendLedgEntry."Entry No.");
+        if VendLedgEntry.FindSet() then
+            repeat
+                VendLedgEntry.Mark(true);
+            until VendLedgEntry.Next() = 0;
+
+        VendLedgEntry.SetCurrentKey("Entry No.");
+        VendLedgEntry.SetRange("Closed by Entry No.");
+        VendLedgEntry.MarkedOnly(true);
+        OnGetRemainingWithhTaxAmountOnAfterVendLedgEntrySetFilters(VendLedgEntry, CreateVendLedgEntry, ComputedWithholdingTax, AppliestoOccurrenceNo);
+        // Calculate the RemainingWithhTaxAmount by substracting amount from its applied amount
+        RemainingWithhTaxAmount := ComputedWithholdingTax."Remaining Amount";
+        if VendLedgEntry.FindSet() then begin
+            repeat
+                ComputedWithholdingTax1.Reset();
+                ComputedWithholdingTax1.SetRange("Document No.", VendLedgEntry."Document No.");
+                if ComputedWithholdingTax1.FindFirst() then
+                    RemainingWithhTaxAmount -= ComputedWithholdingTax1."Remaining Amount";
+            until VendLedgEntry.Next() = 0
+        end;
+
+        exit(RemainingWithhTaxAmount);
     end;
 
     procedure WithholdApplicable(TempWithholdingSocSec: Record "Tmp Withholding Contribution"; CalledFromVendBillLine: Boolean) Result: Boolean
@@ -675,19 +667,17 @@ codeunit 12101 "Withholding - Contribution"
 
     procedure SocialSecurityApplicable(TempWithholdingSocSec: Record "Tmp Withholding Contribution"; CalledFromVendBillLine: Boolean): Boolean
     begin
-        with TempWithholdingSocSec do begin
-            if not CalledFromVendBillLine then begin
-                if ("Social Security Code" <> '') and
-                   (("Payment Line-Soc. Sec." <> 0) or
-                    ("Payment Line-Company" <> 0))
-                then
-                    exit(true)
-            end else
-                if ("Social Security Code" <> '') and
-                   ("Total Social Security Amount" <> 0)
-                then
-                    exit(true)
-        end;
+        if not CalledFromVendBillLine then begin
+            if (TempWithholdingSocSec."Social Security Code" <> '') and
+               ((TempWithholdingSocSec."Payment Line-Soc. Sec." <> 0) or
+                (TempWithholdingSocSec."Payment Line-Company" <> 0))
+            then
+                exit(true)
+        end else
+            if (TempWithholdingSocSec."Social Security Code" <> '') and
+               (TempWithholdingSocSec."Total Social Security Amount" <> 0)
+            then
+                exit(true);
         exit(false)
     end;
 
@@ -706,22 +696,20 @@ codeunit 12101 "Withholding - Contribution"
         VendLedgEntry: Record "Vendor Ledger Entry";
         TotalPaymentAmt: Decimal;
     begin
-        with VendLedgEntry do begin
-            SetCurrentKey("Document No.");
-            SetRange("Document No.", ComputedWithholdingTax."Document No.");
-            if FindSet() then
-                repeat
-                    CalcFields(Amount);
-                    TotalPaymentAmt := TotalPaymentAmt + Abs(Amount);
-                until Next() = 0;
-            if TotalPaymentAmt = 0 then
-                exit(0);
-            SetRange("Document Occurrence", AppliestoOccurrenceNo);
-            if FindFirst() then begin
-                CalcFields("Remaining Amount");
-                if "Remaining Amount" <> 0 then
-                    exit(Abs(ComputedWithholdingTax."Total Amount" / TotalPaymentAmt * "Remaining Amount"));
-            end;
+        VendLedgEntry.SetCurrentKey("Document No.");
+        VendLedgEntry.SetRange("Document No.", ComputedWithholdingTax."Document No.");
+        if VendLedgEntry.FindSet() then
+            repeat
+                VendLedgEntry.CalcFields(Amount);
+                TotalPaymentAmt := TotalPaymentAmt + Abs(VendLedgEntry.Amount);
+            until VendLedgEntry.Next() = 0;
+        if TotalPaymentAmt = 0 then
+            exit(0);
+        VendLedgEntry.SetRange("Document Occurrence", AppliestoOccurrenceNo);
+        if VendLedgEntry.FindFirst() then begin
+            VendLedgEntry.CalcFields("Remaining Amount");
+            if VendLedgEntry."Remaining Amount" <> 0 then
+                exit(Abs(ComputedWithholdingTax."Total Amount" / TotalPaymentAmt * VendLedgEntry."Remaining Amount"));
         end;
     end;
 
@@ -729,12 +717,10 @@ codeunit 12101 "Withholding - Contribution"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetCurrentKey("Document No.");
-            SetRange("Document No.", DocumentNo);
-            SetFilter("Document Occurrence", '>%1', 1);
-            exit(not IsEmpty);
-        end;
+        VendLedgEntry.SetCurrentKey("Document No.");
+        VendLedgEntry.SetRange("Document No.", DocumentNo);
+        VendLedgEntry.SetFilter("Document Occurrence", '>%1', 1);
+        exit(not VendLedgEntry.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

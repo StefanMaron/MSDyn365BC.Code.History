@@ -89,20 +89,18 @@ report 511 "Complete IC Inbox Action"
                                   ICDocDim, DATABASE::"IC Inbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
                                 if ICDocDim.FindFirst() then
                                     DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Header", "Transaction Source");
-                                with InboxSalesLine do begin
-                                    SetRange("IC Transaction No.", InboxSalesHeader2."IC Transaction No.");
-                                    SetRange("IC Partner Code", InboxSalesHeader2."IC Partner Code");
-                                    SetRange("Transaction Source", InboxSalesHeader2."Transaction Source");
-                                    if Find('-') then
-                                        repeat
-                                            HandledInboxSalesLine.TransferFields(InboxSalesLine);
-                                            HandledInboxSalesLine.Insert();
-                                            DimMgt.SetICDocDimFilters(
-                                              ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
-                                            if ICDocDim.FindFirst() then
-                                                DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", "Transaction Source");
-                                        until Next() = 0;
-                                end;
+                                InboxSalesLine.SetRange("IC Transaction No.", InboxSalesHeader2."IC Transaction No.");
+                                InboxSalesLine.SetRange("IC Partner Code", InboxSalesHeader2."IC Partner Code");
+                                InboxSalesLine.SetRange("Transaction Source", InboxSalesHeader2."Transaction Source");
+                                if InboxSalesLine.Find('-') then
+                                    repeat
+                                        HandledInboxSalesLine.TransferFields(InboxSalesLine);
+                                        HandledInboxSalesLine.Insert();
+                                        DimMgt.SetICDocDimFilters(
+                                          ICDocDim, DATABASE::"IC Inbox Sales Line", InboxSalesLine."IC Transaction No.", InboxSalesLine."IC Partner Code", InboxSalesLine."Transaction Source", InboxSalesLine."Line No.");
+                                        if ICDocDim.FindFirst() then
+                                            DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", InboxSalesLine."Transaction Source");
+                                    until InboxSalesLine.Next() = 0;
                                 OnAfterMoveICInboxSalesHeaderToHandled(InboxSalesHeader2, HandledInboxSalesHeader);
                             end;
                     end;
@@ -139,21 +137,19 @@ report 511 "Complete IC Inbox Action"
                                   ICDocDim, DATABASE::"IC Inbox Purchase Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
                                 if ICDocDim.FindFirst() then
                                     DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Header", "Transaction Source");
-                                with InboxPurchLine do begin
-                                    SetRange("IC Transaction No.", InboxPurchHeader2."IC Transaction No.");
-                                    SetRange("IC Partner Code", InboxPurchHeader2."IC Partner Code");
-                                    SetRange("Transaction Source", InboxPurchHeader2."Transaction Source");
-                                    if Find('-') then
-                                        repeat
-                                            HandledInboxPurchLine.TransferFields(InboxPurchLine);
-                                            HandledInboxPurchLine.Insert();
-                                            DimMgt.SetICDocDimFilters(
-                                              ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code",
-                                              "Transaction Source", "Line No.");
-                                            if ICDocDim.FindFirst() then
-                                                DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", "Transaction Source");
-                                        until Next() = 0;
-                                end;
+                                InboxPurchLine.SetRange("IC Transaction No.", InboxPurchHeader2."IC Transaction No.");
+                                InboxPurchLine.SetRange("IC Partner Code", InboxPurchHeader2."IC Partner Code");
+                                InboxPurchLine.SetRange("Transaction Source", InboxPurchHeader2."Transaction Source");
+                                if InboxPurchLine.Find('-') then
+                                    repeat
+                                        HandledInboxPurchLine.TransferFields(InboxPurchLine);
+                                        HandledInboxPurchLine.Insert();
+                                        DimMgt.SetICDocDimFilters(
+                                          ICDocDim, DATABASE::"IC Inbox Purchase Line", InboxPurchLine."IC Transaction No.", InboxPurchLine."IC Partner Code",
+                                          InboxPurchLine."Transaction Source", InboxPurchLine."Line No.");
+                                        if ICDocDim.FindFirst() then
+                                            DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", InboxPurchLine."Transaction Source");
+                                    until InboxPurchLine.Next() = 0;
                                 OnAfterMoveICInboxPurchHeaderToHandled(InboxPurchHeader2, HandledInboxPurchHeader);
                             end;
                     end;
@@ -241,7 +237,9 @@ report 511 "Complete IC Inbox Action"
                     group(Journals)
                     {
                         Caption = 'Journals';
+#pragma warning disable AA0100
                         field("TempGenJnlLine.""Journal Template Name"""; TempGenJnlLine."Journal Template Name")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Intercompany;
                             Caption = 'IC Gen. Journal Template';
@@ -262,7 +260,9 @@ report 511 "Complete IC Inbox Action"
                                 PageValidateJnl();
                             end;
                         }
+#pragma warning disable AA0100
                         field("TempGenJnlLine.""Journal Batch Name"""; TempGenJnlLine."Journal Batch Name")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Intercompany;
                             Caption = 'Gen. Journal Batch';
@@ -293,7 +293,9 @@ report 511 "Complete IC Inbox Action"
                                 PageValidateJnl();
                             end;
                         }
+#pragma warning disable AA0100
                         field("TempGenJnlLine.""Document No."""; TempGenJnlLine."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Intercompany;
                             Caption = 'Starting Document No.';
@@ -394,7 +396,6 @@ report 511 "Complete IC Inbox Action"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         ICIOMgt: Codeunit ICInboxOutboxMgt;
         DimMgt: Codeunit DimensionManagement;
         GLSetupFound: Boolean;
@@ -419,6 +420,7 @@ report 511 "Complete IC Inbox Action"
     procedure PageValidateJnl()
     var
         GenJnlLine: Record "Gen. Journal Line";
+        NoSeries: Codeunit "No. Series";
     begin
         TempGenJnlLine."Document No." := '';
         GenJnlLine.SetRange("Journal Template Name", TempGenJnlLine."Journal Template Name");
@@ -431,10 +433,8 @@ report 511 "Complete IC Inbox Action"
             if GenJnlBatch.Get(TempGenJnlLine."Journal Template Name", TempGenJnlLine."Journal Batch Name") then
                 if GenJnlBatch."No. Series" = '' then
                     TempGenJnlLine."Document No." := ''
-                else begin
-                    TempGenJnlLine."Document No." := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", TempGenJnlLine."Posting Date", false);
-                    Clear(NoSeriesMgt);
-                end;
+                else
+                    TempGenJnlLine."Document No." := NoSeries.PeekNextNo(GenJnlBatch."No. Series", TempGenJnlLine."Posting Date");
     end;
 
     procedure SetJournal(JournalTemplateName: Code[10]; JournalBatchName: Code[10])

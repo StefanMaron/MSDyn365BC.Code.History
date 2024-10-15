@@ -535,8 +535,8 @@
         GLAccount.Modify();
         CreatePurchaseDocument(PurchaseLine, GLAccount."No.", Vendor."No.");
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
-        PurchaseLine.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
-        PurchaseLine.Validate("IC Partner Reference", FindICGLAccount);
+        PurchaseLine.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo());
+        PurchaseLine.Validate("IC Partner Reference", FindICGLAccount());
         PurchaseLine.Modify(true);
 
         // [WHEN] Post Purchase Credit Memo.
@@ -824,9 +824,9 @@
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LibraryVariableStorage.Enqueue(true); // to reply Yes on second confirmation
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.Dimensions.Invoke;
+        PurchaseOrder.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
         // The reply is inside the handler ConfirmHandlerForPurchaseHeaderDimUpdate
@@ -861,9 +861,9 @@
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LibraryVariableStorage.Enqueue(false); // to reply No on second confirmation
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        asserterror PurchaseOrder.Dimensions.Invoke;
+        asserterror PurchaseOrder.Dimensions.Invoke();
 
         // [WHEN] Answer No on shipped line update confirmation
         // The reply is inside the handler ConfirmHandlerForPurchaseHeaderDimUpdate
@@ -952,10 +952,10 @@
         // [GIVEN] Purchase Line dimension set is being updated in Edit Dimension Set Entries page
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.PurchLines.First;
-        PurchaseOrder.PurchLines.Dimensions.Invoke;
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
 
@@ -987,10 +987,10 @@
         // [GIVEN] Purchase Line dimension set is being updated in Edit Dimension Set Entries page
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.PurchLines.First;
-        asserterror PurchaseOrder.PurchLines.Dimensions.Invoke;
+        PurchaseOrder.PurchLines.First();
+        asserterror PurchaseOrder.PurchLines.Dimensions.Invoke();
 
         // [WHEN] Answer No on shipped line update confirmation
 
@@ -1054,7 +1054,6 @@
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         Index: Integer;
         DocumentNo: Code[20];
         ExpectedVATAmount: array[5] of Decimal;
@@ -1108,7 +1107,6 @@
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         Index: Integer;
         DocumentNo: Code[20];
         ExpectedVATAmount: array[5] of Decimal;
@@ -1158,13 +1156,11 @@
     var
         Vendor: Record Vendor;
         Currency: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRate: Decimal;
         Index: Integer;
         DocumentNo: Code[20];
@@ -1223,13 +1219,11 @@
     var
         Vendor: Record Vendor;
         CurrencyFCY: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         Index: Integer;
         DocumentNo: Code[20];
@@ -1291,13 +1285,11 @@
         Vendor: Record Vendor;
         CurrencyFCY: Record Currency;
         CurrencyACY: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         ExchangeRateACY: Decimal;
         Index: Integer;
@@ -1366,13 +1358,11 @@
     var
         Vendor: Record Vendor;
         CurrencyFCY: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         Index: Integer;
         DocumentNo: Code[20];
@@ -1435,13 +1425,11 @@
         Vendor: Record Vendor;
         CurrencyFCY: Record Currency;
         CurrencyACY: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         ExchangeRateACY: Decimal;
         Index: Integer;
@@ -1731,10 +1719,7 @@
         PurchaseHeader: Record "Purchase Header";
         DimensionValue: Record "Dimension Value";
         Location: Record Location;
-        DimensionSetEntry: Record "Dimension Set Entry";
         PurchaseQuote: TestPage "Purchase Quote";
-        PurchaseOrder: TestPage "Purchase Order";
-        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
     begin
         // [SCENARIO 454238] Header Dimensions will be deleted in a purchase order when you select ship to location.
         Initialize();
@@ -2328,8 +2313,8 @@
     begin
         // Use Random because value is not important.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
-        SalesLine.Validate("Purchasing Code", FindPurchasingCode);
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Purchasing Code", FindPurchasingCode());
         SalesLine.Modify(true);
     end;
 
@@ -2458,9 +2443,9 @@
 
     local procedure CreatePartlyReceiptPurchOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInDecimalRange(10, 20, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInDecimalRange(10, 20, 2));
         UpdatePartialQuantityToReceive(PurchaseLine);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2636,7 +2621,7 @@
     var
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity * LibraryUtility.GenerateRandomFraction);
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity * LibraryUtility.GenerateRandomFraction());
         PurchaseLine.Modify(true);
     end;
 
@@ -2691,7 +2676,7 @@
         GLAccount: Record "G/L Account";
         DimensionValue: Record "Dimension Value";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         LibraryDimension.FindDimensionValue(DimensionValue, DimensionCode);
         LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccount."No.", DimensionCode, DimensionValue.Code);
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
@@ -2987,7 +2972,7 @@
 
     local procedure OpenVendorCard(var VendorCard: TestPage "Vendor Card"; VendorNo: Code[20])
     begin
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.Filter.SetFilter("No.", VendorNo);
     end;
 
@@ -3276,7 +3261,7 @@
             Question = UpdateFromHeaderLinesQst:
                 Reply := true;
             StrPos(Question, UpdateLineDimQst) <> 0:
-                Reply := LibraryVariableStorage.DequeueBoolean;
+                Reply := LibraryVariableStorage.DequeueBoolean();
         end;
     end;
 
@@ -3307,10 +3292,10 @@
     [Scope('OnPrem')]
     procedure EditDimensionSetEntriesHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
-        EditDimensionSetEntries.New;
-        EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText);
-        EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText);
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.New();
+        EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText());
+        EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText());
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3318,7 +3303,7 @@
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.FILTER.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText());
-        SalesList.OK.Invoke();
+        SalesList.OK().Invoke();
     end;
 
     [ModalPageHandler]

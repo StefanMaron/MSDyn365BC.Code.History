@@ -32,7 +32,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [GIVEN] Withhold Code with "Withholding Taxes Payable Acc." = "G"
         WithholdCode.Init();
-        WithholdCode.Code := LibraryUTUtility.GetNewCode;
+        WithholdCode.Code := LibraryUTUtility.GetNewCode();
         WithholdCode."Withholding Taxes Payable Acc." := LibraryERM.CreateGLAccountNo();
         WithholdCode.Insert();
 
@@ -59,12 +59,12 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [GIVEN] Withhold Code "W" with "Withholding Taxes Payable Acc." = "G"
         WithholdCode.Init();
-        WithholdCode.Code := LibraryUTUtility.GetNewCode;
+        WithholdCode.Code := LibraryUTUtility.GetNewCode();
         WithholdCode."Withholding Taxes Payable Acc." := LibraryERM.CreateGLAccountNo();
         WithholdCode.Insert();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        WithholdCodes.Trap;
+        WithholdCodes.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(WithholdCode."Withholding Taxes Payable Acc.");
 
         // [THEN] Withhold Code page opened with "Code" = "W"
@@ -83,7 +83,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [GIVEN] Contribution Code with "Social Security Payable Acc." = "G"
         LibraryITLocalization.CreateContributionCode(ContributionCode, ContributionCode."Contribution Type"::INAIL);
-        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo);
+        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo());
         ContributionCode.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -114,11 +114,11 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [GIVEN] Contribution Code "Code" = "CINPS", "Contribution Type" = "INPS" with "Social Security Payable Acc." = "G"
         LibraryITLocalization.CreateContributionCode(ContributionCode, ContributionCode."Contribution Type"::INPS);
-        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo);
+        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo());
         ContributionCode.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        ContributionCodesINPS.Trap;
+        ContributionCodesINPS.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(ContributionCode."Social Security Payable Acc.");
 
         // [THEN] Contribution Codes-INPS page opened with "Code" = "CINPS"
@@ -138,11 +138,11 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [GIVEN] Contribution Code "Code" = "CINAIL", "Contribution Type" = "INAIL" with "Social Security Payable Acc." = "G"
         LibraryITLocalization.CreateContributionCode(ContributionCode, ContributionCode."Contribution Type"::INAIL);
-        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo);
+        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo());
         ContributionCode.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        ContributionCodesINAIL.Trap;
+        ContributionCodesINAIL.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(ContributionCode."Social Security Payable Acc.");
 
         // [THEN] Contribution Codes-INAIL page opened with "Code" = "CINAIL"
@@ -164,9 +164,9 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         LibraryITLocalization.CreateBillPostingGroup(
           BillPostingGroup,
-          LibraryERM.CreateBankAccountNo,
+          LibraryERM.CreateBankAccountNo(),
           PaymentMethod.Code);
-        BillPostingGroup.Validate("Bills For Collection Acc. No.", LibraryERM.CreateGLAccountNo);
+        BillPostingGroup.Validate("Bills For Collection Acc. No.", LibraryERM.CreateGLAccountNo());
         BillPostingGroup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -200,13 +200,13 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         LibraryITLocalization.CreateBillPostingGroup(
           BillPostingGroup,
-          LibraryERM.CreateBankAccountNo,
+          LibraryERM.CreateBankAccountNo(),
           PaymentMethod.Code);
-        BillPostingGroup.Validate("Bills For Collection Acc. No.", LibraryERM.CreateGLAccountNo);
+        BillPostingGroup.Validate("Bills For Collection Acc. No.", LibraryERM.CreateGLAccountNo());
         BillPostingGroup.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        BillPostingGroupPage.Trap;
+        BillPostingGroupPage.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(BillPostingGroup."Bills For Collection Acc. No.");
 
         // [THEN] Bill Posting Group page opened with with "Payment Method" = "PM"
@@ -225,7 +225,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [GIVEN] Bill with "Bills for Coll. Temp. Acc. No." = "G"
         LibraryITLocalization.CreateBill(Bill);
-        Bill.Validate("Bills for Coll. Temp. Acc. No.", LibraryERM.CreateGLAccountNo);
+        Bill.Validate("Bills for Coll. Temp. Acc. No.", LibraryERM.CreateGLAccountNo());
         Bill.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -251,11 +251,11 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
         // [GIVEN] Bill "Code" = "B" with "Bills for Coll. Temp. Acc. No." = "G"
         LibraryITLocalization.CreateBill(Bill);
-        Bill.Validate("Bills for Coll. Temp. Acc. No.", LibraryERM.CreateGLAccountNo);
+        Bill.Validate("Bills for Coll. Temp. Acc. No.", LibraryERM.CreateGLAccountNo());
         Bill.Modify();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        BillPage.Trap;
+        BillPage.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(Bill."Bills for Coll. Temp. Acc. No.");
 
         // [THEN] Bill page opened with "Code" = "B"
@@ -273,28 +273,28 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)
     begin
-        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText, InvalidTableCaptionErr);
-        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText, InvalidFieldCaptionErr);
-        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText, InvalidLineValueErr);
+        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText(), InvalidTableCaptionErr);
+        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText(), InvalidFieldCaptionErr);
+        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText(), InvalidLineValueErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
+        GLAccountWhereUsedList.First();
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Table Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Field Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.Line.Value);
-        GLAccountWhereUsedList.OK.Invoke;
+        GLAccountWhereUsedList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedShowDetailsHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
-        GLAccountWhereUsedList.ShowDetails.Invoke;
+        GLAccountWhereUsedList.First();
+        GLAccountWhereUsedList.ShowDetails.Invoke();
     end;
 }
 

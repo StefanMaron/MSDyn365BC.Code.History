@@ -146,7 +146,7 @@ codeunit 137620 "SCM Costing Bugs I"
         ItemB.Get(ItemB."No.");
         LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ItemB, ItemC, 1, '');
 
-        Day1 := WorkDate + 10;
+        Day1 := WorkDate() + 10;
         Day2 := Day1 + 33;
 
         // Post item journal
@@ -300,7 +300,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Initialize();
 
         // Inventory setup
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         // Make item and put child into inventory
@@ -351,7 +351,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Initialize();
 
         // Inventory setup
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         // Make item
@@ -490,14 +490,14 @@ codeunit 137620 "SCM Costing Bugs I"
     begin
         Initialize();
 
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
 
         // Make item
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, LibraryRandom.RandInt(10), 0, 0, '');
         LibraryPatterns.MAKERouting(RoutingHeader, Item, '', LibraryRandom.RandInt(10));
 
-        Day1 := WorkDate - 90;
+        Day1 := WorkDate() - 90;
         // Post item journal
         InventoryQty := LibraryRandom.RandDecInDecimalRange(2, 10, 2);
         QtyPosItemPosting := LibraryRandom.RandDecInDecimalRange(1, InventoryQty - 1, 2);
@@ -564,7 +564,7 @@ codeunit 137620 "SCM Costing Bugs I"
     begin
         Initialize();
 
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         // Make item
@@ -844,7 +844,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Initialize();
 
         // [GIVEN] Update Inventory Setup: set "Average Cost Calc. Type" = "Item & Location & Variant", "Average Cost Period" = Day and disable automatic cost adjustment
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup(
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Day);
 
@@ -856,9 +856,9 @@ codeunit 137620 "SCM Costing Bugs I"
         // [GIVEN] Item "I". Post inventory adjustment on location "L2" on WORKDATE
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
         LibraryPatterns.POSTPositiveAdjustment(Item, Location[2].Code, '', '', 1, WorkDate(), LibraryRandom.RandDec(100, 2));
-        // [GIVEN] Transfer item "I" from location "L2" to "L1" on WORKDATE + 1 day
+        // [GIVEN] Transfer item "I" from location "L2" to "L1" on WorkDate() + 1 day
         LibraryPatterns.POSTTransferOrder(
-          TransferHeader, Item, Location[2], Location[1], Location[3], '', 1, WorkDate + 1, WorkDate + 1, true, true);
+          TransferHeader, Item, Location[2], Location[1], Location[3], '', 1, WorkDate() + 1, WorkDate() + 1, true, true);
 
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Location Code", Location[2].Code);
@@ -869,6 +869,31 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // [THEN] Valuation chain is empty, transfers are not included
         Assert.RecordIsEmpty(TempItemLedgerEntry);
+    end;
+
+    [Test]
+    procedure LocationCodeIsSavedInAvgCostAdjmtEntryPointForFIFOItem()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+    begin
+        // [SCENARIO 521477] Location code is saved in Avg. Cost Adjmt. Entry Point for FIFO item.
+        Initialize();
+
+        // [GIVEN] Create item "I" with FIFO costing method
+        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
+
+        // [GIVEN] Create location "L"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [WHEN] Post positive adjustment of item "I" on location "L"
+        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', 1, WorkDate(), LibraryRandom.RandDec(100, 2));
+
+        // [THEN] Avg. Cost Adjmt. Entry Point is created with location code "L"
+        AvgCostAdjmtEntryPoint.SetRange("Item No.", Item."No.");
+        AvgCostAdjmtEntryPoint.FindLast();
+        AvgCostAdjmtEntryPoint.TestField("Location Code", Location.Code);
     end;
 
     local procedure Initialize()
@@ -882,7 +907,7 @@ codeunit 137620 "SCM Costing Bugs I"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Bugs I");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateVATData();
@@ -1037,9 +1062,9 @@ codeunit 137620 "SCM Costing Bugs I"
         ValueEntry.SetRange("No.", ItemJournalLine."No.");
         ValueEntry.FindFirst();
         Assert.AreNearlyEqual(ItemJournalLine."Run Time" + ItemJournalLine."Setup Time", ValueEntry."Valued Quantity",
-          LibraryERM.GetAmountRoundingPrecision, 'Wrong valued qty.');
+          LibraryERM.GetAmountRoundingPrecision(), 'Wrong valued qty.');
         Assert.AreNearlyEqual(UnitCost * ValueEntry."Valued Quantity", ValueEntry."Cost Amount (Actual)",
-          LibraryERM.GetAmountRoundingPrecision, 'Wrong cost amount.');
+          LibraryERM.GetAmountRoundingPrecision(), 'Wrong cost amount.');
     end;
 
     [ModalPageHandler]
@@ -1047,7 +1072,7 @@ codeunit 137620 "SCM Costing Bugs I"
     procedure PostedPurchaseDocumentLinePageHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
     begin
         PostedPurchaseDocumentLines.OriginalQuantity.SetValue(true);
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [MessageHandler]

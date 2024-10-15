@@ -120,7 +120,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         SalesLine.TestField("Include in VAT Transac. Rep.", InclInVATSetup); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -216,14 +216,14 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         SalesLine.TestField("Include in VAT Transac. Rep.", true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure EUCountrySalesInv()
     begin
-        VerifyCountrySalesInv(CreateCountry); // EU Country.
+        VerifyCountrySalesInv(CreateCountry()); // EU Country.
     end;
 
     local procedure VerifyCountrySalesInv(CountryRegionCode: Code[10])
@@ -252,7 +252,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         SalesLine.TestField("Include in VAT Transac. Rep.", false);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -265,46 +265,37 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         SalesReturnOrderTestPage: TestPage "Sales Return Order";
     begin
         // Verify EDITABLE is TRUE through pages because property is not available through record.
-
         // Sales Invoice.
-        with SalesInvoiceTestPage do begin
-            OpenNew;
-            "Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
-            Assert.IsTrue(
-              SalesLines."Include in VAT Transac. Rep.".Editable,
-              'EDITABLE should be TRUE for the field ' + SalesLines."Include in VAT Transac. Rep.".Caption);
-            Close;
-        end;
+        SalesInvoiceTestPage.OpenNew();
+        SalesInvoiceTestPage."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
+        Assert.IsTrue(
+          SalesInvoiceTestPage.SalesLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + SalesInvoiceTestPage.SalesLines."Include in VAT Transac. Rep.".Caption);
+        SalesInvoiceTestPage.Close();
 
         // Sales Order.
-        with SalesOrderTestPage do begin
-            OpenNew;
-            "Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
-            Assert.IsTrue(
-              SalesLines."Include in VAT Transac. Rep.".Editable,
-              'EDITABLE should be TRUE for the field ' + SalesLines."Include in VAT Transac. Rep.".Caption);
-            Close;
-        end;
+        SalesOrderTestPage.OpenNew();
+        SalesOrderTestPage."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
+        Assert.IsTrue(
+          SalesOrderTestPage.SalesLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + SalesOrderTestPage.SalesLines."Include in VAT Transac. Rep.".Caption);
+        SalesOrderTestPage.Close();
 
         // Sales Credit Memo.
-        with SalesCreditMemoTestPage do begin
-            OpenNew;
-            "Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
-            Assert.IsTrue(
-              SalesLines."Include in VAT Transac. Rep.".Editable,
-              'EDITABLE should be TRUE for the field ' + SalesLines."Include in VAT Transac. Rep.".Caption);
-            Close;
-        end;
+        SalesCreditMemoTestPage.OpenNew();
+        SalesCreditMemoTestPage."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
+        Assert.IsTrue(
+          SalesCreditMemoTestPage.SalesLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + SalesCreditMemoTestPage.SalesLines."Include in VAT Transac. Rep.".Caption);
+        SalesCreditMemoTestPage.Close();
 
         // Sales Return Order.
-        with SalesReturnOrderTestPage do begin
-            OpenNew;
-            "Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
-            Assert.IsTrue(
-              SalesLines."Include in VAT Transac. Rep.".Editable,
-              'EDITABLE should be TRUE for the field ' + SalesLines."Include in VAT Transac. Rep.".Caption);
-            Close;
-        end;
+        SalesReturnOrderTestPage.OpenNew();
+        SalesReturnOrderTestPage."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
+        Assert.IsTrue(
+          SalesReturnOrderTestPage.SalesLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + SalesReturnOrderTestPage.SalesLines."Include in VAT Transac. Rep.".Caption);
+        SalesReturnOrderTestPage.Close();
     end;
 
     [Test]
@@ -382,7 +373,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Sales Header", DocumentType.AsInteger()), DocumentNo, true); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -442,7 +433,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VerifyContractNo(SalesHeader."Document Type"::Invoice, DocumentNo, -LineAmount, BlanketOrderNo);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -632,7 +623,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Sales Header", DocumentType.AsInteger()), DocumentNo, true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -653,7 +644,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         // Setup.
         SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
-        SetupPrepayments;
+        SetupPrepayments();
 
         // Create Sales Document.
         LineAmount := CalculateAmount(WorkDate(), false, true);
@@ -687,7 +678,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VATEntry.TestField("Include in VAT Transac. Rep.", false); // Reverse of Prepayment Invoice VAT.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -728,7 +719,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         case TaxRepType of
             Customer."Tax Representative Type"::Contact:
                 begin
-                    TaxRepNo := CreateContact;
+                    TaxRepNo := CreateContact();
                     ExpectedTaxRepType := VATEntry."Tax Representative Type"::Contact;
                 end;
             Customer."Tax Representative Type"::Customer:
@@ -751,7 +742,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
           GetDocumentTypeVATEntry(DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger()), DocumentNo, ExpectedTaxRepType, TaxRepNo);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -905,7 +896,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Assert.ExpectedError(ExpectedError);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -975,7 +966,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1033,7 +1024,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         // Setup.
         SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
-        SetupPrepayments;
+        SetupPrepayments();
 
         // Create Sales Document.
         LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
@@ -1045,22 +1036,22 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Sales Header", DocumentType.AsInteger()), DocumentNo, false); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     local procedure Initialize()
     begin
-        TearDown; // Cleanup.
+        TearDown(); // Cleanup.
         LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
 
         isInitialized := true;
-        CreateVATReportSetup;
+        CreateVATReportSetup();
         Commit();
 
-        TearDown; // Cleanup for the first test.
+        TearDown(); // Cleanup for the first test.
     end;
 
     local procedure CalculateAmount(StartingDate: Date; InclVAT: Boolean; InclInVATTransRep: Boolean) Amount: Decimal
@@ -1123,7 +1114,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
 
         if ReqFlds then begin
             if Resident = Customer.Resident::"Non-Resident" then
-                Customer.Validate("Country/Region Code", GetCountryCode);
+                Customer.Validate("Country/Region Code", GetCountryCode());
             if not IndividualPerson then
                 Customer.Validate(
                   "VAT Registration No.",
@@ -1266,7 +1257,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         // Create VAT Report Setup.
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
-        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         VATReportSetup.Modify(true);
     end;
 
@@ -1538,9 +1529,9 @@ codeunit 144007 "IT - VAT Reporting - Sales"
     [Scope('OnPrem')]
     procedure BillToCustomerNoChangeConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := true;
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 }
 

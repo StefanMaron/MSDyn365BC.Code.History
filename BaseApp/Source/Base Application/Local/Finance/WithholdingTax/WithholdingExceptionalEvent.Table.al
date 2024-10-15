@@ -8,6 +8,7 @@ table 12134 "Withholding Exceptional Event"
 {
     Caption = 'Withholding Tax Exceptional Event';
     LookupPageId = "Withholding Exceptional Events";
+    DataClassification = CustomerContent;
 
     fields
     {

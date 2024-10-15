@@ -2276,17 +2276,16 @@ codeunit 139511 "Intrastat IT Test"
 
     local procedure ResetNoSeries()
     var
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
-        NoSeriesLineSales: Record "No. Series Line Sales";
+        NoSeriesLine: Record "No. Series Line";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         if VATBusinessPostingGroup.FindSet() then
             repeat
-                NoSeriesLineSales.SetRange("Series Code", VATBusinessPostingGroup."Default Sales Operation Type");
-                NoSeriesLineSales.ModifyAll("Last Date Used", 0D);
+                NoSeriesLine.SetRange("Series Code", VATBusinessPostingGroup."Default Sales Operation Type");
+                NoSeriesLine.ModifyAll("Last Date Used", 0D);
 
-                NoSeriesLinePurchase.SetRange("Series Code", VATBusinessPostingGroup."Default Purch. Operation Type");
-                NoSeriesLinePurchase.ModifyAll("Last Date Used", 0D);
+                NoSeriesLine.SetRange("Series Code", VATBusinessPostingGroup."Default Purch. Operation Type");
+                NoSeriesLine.ModifyAll("Last Date Used", 0D);
             until VATBusinessPostingGroup.Next() = 0;
     end;
 
@@ -2797,14 +2796,12 @@ codeunit 139511 "Intrastat IT Test"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatReportChecklistModalPageHandler(var IntrastatReportChecklist: TestPage "Intrastat Report Checklist")
-    var
     begin
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatReportSetupModalPageHandler(var IntrastatReportSetupPage: TestPage "Intrastat Report Setup")
-    var
     begin
     end;
 

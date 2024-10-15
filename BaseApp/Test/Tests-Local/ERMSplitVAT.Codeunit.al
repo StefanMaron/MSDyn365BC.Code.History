@@ -52,7 +52,7 @@ codeunit 144561 "ERM Split VAT"
         RetrieveAndVerifySalesLineParameters(SalesHeader, VATPostingSetup10, -10);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -76,7 +76,7 @@ codeunit 144561 "ERM Split VAT"
         RetrieveAndVerifySalesLineParameters(SalesHeader, VATPostingSetup10, -200);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -103,7 +103,7 @@ codeunit 144561 "ERM Split VAT"
         RetrieveAndVerifySalesLineParameters(SalesHeader, VATPostingSetup20, -200);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -139,7 +139,7 @@ codeunit 144561 "ERM Split VAT"
         RetrieveAndVerifySalesLineParameters(SalesHeader, VATPostingSetup20, -600);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -163,7 +163,7 @@ codeunit 144561 "ERM Split VAT"
         // This is validated by the execution of the related message handler
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -192,7 +192,7 @@ codeunit 144561 "ERM Split VAT"
         RetrieveAndVerifySalesLineParameters(SalesHeader, VATPostingSetup10, -10);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -213,7 +213,7 @@ codeunit 144561 "ERM Split VAT"
         Assert.IsTrue(ChangeTriggeredCalled, StrSubstNo(TriggerDoesntWorkTxt, 'Quantity'));
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -234,7 +234,7 @@ codeunit 144561 "ERM Split VAT"
         Assert.IsTrue(ChangeTriggeredCalled, StrSubstNo(TriggerDoesntWorkTxt, 'Unit Price'));
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -255,7 +255,7 @@ codeunit 144561 "ERM Split VAT"
         Assert.IsFalse(ChangeTriggeredCalled, StrSubstNo(TriggerShouldNotWorkTxt, 'Quantity'));
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -332,7 +332,7 @@ codeunit 144561 "ERM Split VAT"
         SalesLine.Insert(true);
 
         // [WHEN] Split Sales line
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [THEN] Total count of Sales Lines is equal to 3 (2 initial lines and one split line)
         SalesLine.Reset();
@@ -341,7 +341,7 @@ codeunit 144561 "ERM Split VAT"
         Assert.RecordCount(SalesLine, 3);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -438,7 +438,7 @@ codeunit 144561 "ERM Split VAT"
         Initialize();
 
         // [GIVEN] Enable SalesSetup Calc. Inv. Discount and Calc. Inv. Discount per VAT ID
-        SetSalesSetupCalcInvDiscount;
+        SetSalesSetupCalcInvDiscount();
 
         // [GIVEN] Split VAT Posting Setup
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -450,7 +450,7 @@ codeunit 144561 "ERM Split VAT"
         InvoiceDiscountAmount := CreateSalesInvoiceForCustomer(SalesHeader, CustomerNo, VATPostingSetup);
 
         // [WHEN] Split Sales line
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [THEN] Inv. Discount Amount should not be changed
         // Verify using Service Statistics page handler
@@ -459,7 +459,7 @@ codeunit 144561 "ERM Split VAT"
         PAGE.RunModal(PAGE::"Sales Statistics", SalesHeader);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -477,7 +477,7 @@ codeunit 144561 "ERM Split VAT"
         Initialize();
 
         // [GIVEN] Enable SalesSetup Calc. Inv. Discount and Calc. Inv. Discount per VAT ID
-        SetSalesSetupCalcInvDiscount;
+        SetSalesSetupCalcInvDiscount();
 
         // [GIVEN] Split VAT Posting Setup
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -489,7 +489,7 @@ codeunit 144561 "ERM Split VAT"
         InvoiceDiscountAmount := CreateServiceInvoiceForCustomer(ServiceHeader, CustomerNo, VATPostingSetup);
 
         // [WHEN] Split Service line
-        ServiceHeader.AddSplitVATLines;
+        ServiceHeader.AddSplitVATLines();
 
         // [THEN] Inv. Discount Amount should not be changed
         // Verify using Service Statistics page handler
@@ -498,7 +498,7 @@ codeunit 144561 "ERM Split VAT"
         PAGE.RunModal(PAGE::"Service Statistics", ServiceHeader);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -592,7 +592,7 @@ codeunit 144561 "ERM Split VAT"
         SalesHeader.Modify(true);
 
         // [WHEN] Function Generate Split VAT Lines is being run
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [THEN] Created sales line has dimensions "DIM1" and "DIM2"
         CombinedDimSetID := LibraryDimension.CreateDimSet(DimSetID, DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
@@ -618,7 +618,7 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.CreateSalesDoc(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice);
 
         // [GIVEN] Split VAT line was generated
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [WHEN] Delete Original Sales Line
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", false);
@@ -629,7 +629,7 @@ codeunit 144561 "ERM Split VAT"
         Assert.RecordIsEmpty(SalesLine);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.CreateSalesDoc(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::"Credit Memo");
 
         // [GIVEN] Split VAT line was generated
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [WHEN] Delete Original Sales Line
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", false);
@@ -661,7 +661,7 @@ codeunit 144561 "ERM Split VAT"
         Assert.RecordIsEmpty(SalesLine);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -682,7 +682,7 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::Invoice);
 
         // [GIVEN] Split VAT line was generated
-        ServiceHeader.AddSplitVATLines;
+        ServiceHeader.AddSplitVATLines();
 
         // [WHEN] Delete Original Service Line
         FindServiceLine(ServiceLine, ServiceHeader."Document Type", ServiceHeader."No.", false);
@@ -693,7 +693,7 @@ codeunit 144561 "ERM Split VAT"
         Assert.RecordIsEmpty(ServiceLine);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -714,7 +714,7 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::"Credit Memo");
 
         // [GIVEN] Split VAT line was generated
-        ServiceHeader.AddSplitVATLines;
+        ServiceHeader.AddSplitVATLines();
 
         // [WHEN] Delete Original Service Line
         FindServiceLine(ServiceLine, ServiceHeader."Document Type", ServiceHeader."No.", false);
@@ -725,7 +725,7 @@ codeunit 144561 "ERM Split VAT"
         Assert.RecordIsEmpty(ServiceLine);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -749,7 +749,7 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.AddSalesLine(SalesHeader, VATPostingSetup."VAT Prod. Posting Group", LineAmount);
 
         // [GIVEN] Split VAT line was generated
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [WHEN] Delete Original Sales Line
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", false);
@@ -761,7 +761,7 @@ codeunit 144561 "ERM Split VAT"
         SalesLine.TestField("Line Amount", -LineAmount * VATPostingSetup."VAT %" / 100);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -790,7 +790,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -820,7 +820,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -849,7 +849,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -880,7 +880,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -909,7 +909,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -938,7 +938,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -967,7 +967,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -996,7 +996,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1026,7 +1026,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1055,7 +1055,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1086,7 +1086,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1115,7 +1115,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1144,7 +1144,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1173,7 +1173,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1202,7 +1202,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1232,7 +1232,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1261,7 +1261,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1292,7 +1292,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1321,7 +1321,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1350,7 +1350,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1379,7 +1379,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1408,7 +1408,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1438,7 +1438,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1467,7 +1467,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1498,7 +1498,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1527,7 +1527,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1556,7 +1556,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1585,7 +1585,7 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Value Amount in Split VAT Line was changed.
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1672,7 +1672,7 @@ codeunit 144561 "ERM Split VAT"
         // [GIVEN] Split VAT Posting Setup.
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
 
-        // [GIVEN] Service Invoice with Posting Date = WorkDate + 10 days.
+        // [GIVEN] Service Invoice with Posting Date = WorkDate() + 10 days.
         // [GIVEN] Service Invoice has Service Line.
         LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::Invoice);
         UpdatePostingDateOnServiceHeader(ServiceHeader, LibraryRandom.RandDate(10));
@@ -1761,11 +1761,11 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.CreateVATPostingSetupForSplitVAT(VATPostingSetup10, SplitVATPostingSetup, 10);
         InitializeSplitVATTestLine(VATPostingSetup10, 100);
         CreateSalesInvoice(SalesHeader, VATPostingSetup10);
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         if GenerateLines then
-            SalesInvoice.GenerateSplitVATLines.Invoke;
+            SalesInvoice.GenerateSplitVATLines.Invoke();
     end;
 
     local procedure CreateSalesDocWithSplitVATLineFullVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
@@ -1774,7 +1774,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
         LibrarySplitVAT.CreateSalesDoc(SalesHeader, VATPostingSetup, DocumentType);
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, false);
     end;
 
@@ -1784,7 +1784,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
         LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, DocumentType);
-        ServiceHeader.AddSplitVATLines;
+        ServiceHeader.AddSplitVATLines();
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, false);
     end;
 
@@ -1834,7 +1834,7 @@ codeunit 144561 "ERM Split VAT"
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
         LibrarySplitVAT.CreateSalesHeader(SalesHeader, DocumentType, VATPostingSetup."VAT Bus. Posting Group");
         LibrarySplitVAT.CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup."VAT Prod. Posting Group");
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         GLAccountNo := SalesLine."No.";
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1858,9 +1858,9 @@ codeunit 144561 "ERM Split VAT"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesInvoice.GenerateSplitVATLines.Invoke;
+        SalesInvoice.GenerateSplitVATLines.Invoke();
     end;
 
     local procedure InitializeSplitVATTestLine(VATPostingSetup: Record "VAT Posting Setup"; AmountExcludingVAT: Decimal)
@@ -2029,7 +2029,7 @@ codeunit 144561 "ERM Split VAT"
 
     local procedure VerifySalesDocumentTestReport(SalesLine: Record "Sales Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         with SalesLine do begin
             VerifyReportElementValue('Sales_Line__Quantity', Quantity, 'SalesLineHidden', '0');
             VerifyReportElementValue('Sales_Line__Quantity', -1, 'SalesLineHidden', '1');
@@ -2044,7 +2044,7 @@ codeunit 144561 "ERM Split VAT"
 
     local procedure VerifySalesInvoiceReport(SalesLine: Record "Sales Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         with SalesLine do begin
             VerifyReportElementValue('Quantity_SalesInvLine', Quantity, 'SalesInvLineHidden', '0');
             VerifyReportElementValue('Quantity_SalesInvLine', -1, 'SalesInvLineHidden', '1');
@@ -2059,7 +2059,7 @@ codeunit 144561 "ERM Split VAT"
 
     local procedure VerifySalesCreditMemoReport(SalesLine: Record "Sales Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         with SalesLine do begin
             VerifyReportElementValue('Qty_SalesCrMemoLine', Quantity, 'SalesCrMemoLineHidden', '0');
             VerifyReportElementValue('Qty_SalesCrMemoLine', -1, 'SalesCrMemoLineHidden', '1');
@@ -2074,7 +2074,7 @@ codeunit 144561 "ERM Split VAT"
 
     local procedure VerifyServiceDocumentTestReport(ServiceLine: Record "Service Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         with ServiceLine do begin
             VerifyReportElementValue('Service_Line__Quantity', Quantity, 'ServiceLineHidden', '0');
             VerifyReportElementValue('Service_Line__Quantity', -1, 'ServiceLineHidden', '1');
@@ -2089,7 +2089,7 @@ codeunit 144561 "ERM Split VAT"
 
     local procedure VerifyServiceInvoiceReport(ServiceLine: Record "Service Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         with ServiceLine do begin
             VerifyReportElementValue('Qty_ServInvLine', Quantity, 'ServiceLineHidden', '0');
             VerifyReportElementValue('Qty_ServInvLine', -1, 'ServiceLineHidden', '1');
@@ -2104,7 +2104,7 @@ codeunit 144561 "ERM Split VAT"
 
     local procedure VerifyServiceCreditMemoReport(ServiceLine: Record "Service Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         with ServiceLine do begin
             VerifyReportElementValue('Quantity_ServCrMemoLine', Quantity, 'ServiceLineHidden', '0');
             VerifyReportElementValue('Quantity_ServCrMemoLine', -1, 'ServiceLineHidden', '1');
@@ -2148,17 +2148,17 @@ codeunit 144561 "ERM Split VAT"
         LibraryVariableStorage.Enqueue(ServiceLine."Line No.");
 
         // [GIVEN] Function "Generate Split VAT Lines" was being run
-        ServiceHeader.AddSplitVATLines;
+        ServiceHeader.AddSplitVATLines();
 
         // [GIVEN] Service Invoice Subform was opened
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         OldUnitPrice := ServiceLine."Unit Price";
-        ServiceLine.Get(ServiceHeader."Document Type", ServiceHeader."No.", LibraryVariableStorage.DequeueInteger);
-        ServiceInvoiceSubform.OpenEdit;
+        ServiceLine.Get(ServiceHeader."Document Type", ServiceHeader."No.", LibraryVariableStorage.DequeueInteger());
+        ServiceInvoiceSubform.OpenEdit();
         ServiceInvoiceSubform.FILTER.SetFilter("Document Type", Format(ServiceLine."Document Type"));
         ServiceInvoiceSubform.FILTER.SetFilter("Document No.", Format(ServiceLine."Document No."));
         ServiceInvoiceSubform.FILTER.SetFilter("Line No.", Format(ServiceLine."Line No."));
-        ServiceInvoiceSubform.First;
+        ServiceInvoiceSubform.First();
     end;
 
     local procedure SetUpForRecalculateSplitVATInServiceCrMemo(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform"; var VATPostingSetup: Record "VAT Posting Setup") OldUnitPrice: Decimal
@@ -2172,17 +2172,17 @@ codeunit 144561 "ERM Split VAT"
         LibraryVariableStorage.Enqueue(ServiceLine."Line No.");
 
         // [GIVEN] Function "Generate Split VAT Lines" was being run
-        ServiceHeader.AddSplitVATLines;
+        ServiceHeader.AddSplitVATLines();
 
         // [GIVEN] Service Credit Memo Subform was opened
         LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
         OldUnitPrice := ServiceLine."Unit Price";
-        ServiceLine.Get(ServiceHeader."Document Type", ServiceHeader."No.", LibraryVariableStorage.DequeueInteger);
-        ServiceCreditMemoSubform.OpenEdit;
+        ServiceLine.Get(ServiceHeader."Document Type", ServiceHeader."No.", LibraryVariableStorage.DequeueInteger());
+        ServiceCreditMemoSubform.OpenEdit();
         ServiceCreditMemoSubform.FILTER.SetFilter("Document Type", Format(ServiceLine."Document Type"));
         ServiceCreditMemoSubform.FILTER.SetFilter("Document No.", Format(ServiceLine."Document No."));
         ServiceCreditMemoSubform.FILTER.SetFilter("Line No.", Format(ServiceLine."Line No."));
-        ServiceCreditMemoSubform.First;
+        ServiceCreditMemoSubform.First();
     end;
 
     local procedure SetUpForRecalculateSplitVATInSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesInvoiceSubform: TestPage "Sales Invoice Subform"; var VATPostingSetup: Record "VAT Posting Setup") OldUnitPrice: Decimal
@@ -2196,17 +2196,17 @@ codeunit 144561 "ERM Split VAT"
         LibraryVariableStorage.Enqueue(SalesLine."Line No.");
 
         // [GIVEN] Function "Generate Split VAT Lines" was being run
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [GIVEN] Sales Invoice Subform was opened
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         OldUnitPrice := SalesLine."Unit Price";
-        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", LibraryVariableStorage.DequeueInteger);
-        SalesInvoiceSubform.OpenEdit;
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", LibraryVariableStorage.DequeueInteger());
+        SalesInvoiceSubform.OpenEdit();
         SalesInvoiceSubform.FILTER.SetFilter("Document Type", Format(SalesLine."Document Type"));
         SalesInvoiceSubform.FILTER.SetFilter("Document No.", Format(SalesLine."Document No."));
         SalesInvoiceSubform.FILTER.SetFilter("Line No.", Format(SalesLine."Line No."));
-        SalesInvoiceSubform.First;
+        SalesInvoiceSubform.First();
     end;
 
     local procedure SetUpForRecalculateSplitVATInSalesCrMemo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform"; var VATPostingSetup: Record "VAT Posting Setup") OldUnitPrice: Decimal
@@ -2221,17 +2221,17 @@ codeunit 144561 "ERM Split VAT"
         LibraryVariableStorage.Enqueue(SalesLine."Line No.");
 
         // [GIVEN] Function "Generate Split VAT Lines" was being run
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [GIVEN] Sales Credit Memo Subform was opened
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
         OldUnitPrice := SalesLine."Unit Price";
-        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", LibraryVariableStorage.DequeueInteger);
-        SalesCrMemoSubform.OpenEdit;
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", LibraryVariableStorage.DequeueInteger());
+        SalesCrMemoSubform.OpenEdit();
         SalesCrMemoSubform.FILTER.SetFilter("Document Type", Format(SalesLine."Document Type"));
         SalesCrMemoSubform.FILTER.SetFilter("Document No.", Format(SalesLine."Document No."));
         SalesCrMemoSubform.FILTER.SetFilter("Line No.", Format(SalesLine."Line No."));
-        SalesCrMemoSubform.First;
+        SalesCrMemoSubform.First();
     end;
 
     [ConfirmHandler]
@@ -2279,32 +2279,32 @@ codeunit 144561 "ERM Split VAT"
     [Scope('OnPrem')]
     procedure SalesDocumentTestReportRPH(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     begin
-        SalesDocumentTest."Sales Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest."Sales Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceDocumentTestReportRPH(var ServiceDocumentTest: TestRequestPage "Service Document - Test")
     begin
-        ServiceDocumentTest."Service Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceDocumentTest."Service Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceInvoiceReportRPH(var ServiceInvoice: TestRequestPage "Service - Invoice")
     begin
-        ServiceInvoice."Service Invoice Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceInvoice."Service Invoice Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceCreditMemoReportRPH(var ServiceCreditMemo: TestRequestPage "Service - Credit Memo")
     begin
-        ServiceCreditMemo."Service Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceCreditMemo."Service Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]

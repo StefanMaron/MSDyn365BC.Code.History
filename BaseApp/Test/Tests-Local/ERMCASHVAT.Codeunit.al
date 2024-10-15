@@ -62,8 +62,6 @@ codeunit 144110 "ERM CASHVAT"
         CashVATFooterTextCap: Label 'CashVATFooterText';
         VATIdentifierPurchInvLineCap: Label 'VATIdentifier_PurchInvLine';
         VATIdentifierPurchCrMemoLineCap: Label 'VATIdentifier_PurchCrMemoLine';
-        VATIdentifierSalesInvLineCap: Label 'VATIdentifier_SalesInvLine';
-        VATIdentSalesCrMemoLineCap: Label 'VATIdent_SalesCrMemoLine';
         LibraryRandom: Codeunit "Library - Random";
 
     [Test]
@@ -350,7 +348,7 @@ codeunit 144110 "ERM CASHVAT"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure FindNoSeries(NoSeriesType: Option): Code[20]
+    local procedure FindNoSeries(NoSeriesType: Enum "No. Series Type"): Code[20]
     var
         NoSeries: Record "No. Series";
     begin
@@ -394,7 +392,7 @@ codeunit 144110 "ERM CASHVAT"
 
     local procedure VerifyCashVATAndVATIdentifierOnReport(VATPostingSetup: Record "VAT Posting Setup"; VATIdentifierCap: Text[1024])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CashVATFooterTextCap, VATPostingSetup."VAT Prod. Posting Group");
         LibraryReportDataset.AssertElementWithValueExists(VATIdentifierCap, VATPostingSetup."VAT Identifier");
     end;
@@ -403,14 +401,14 @@ codeunit 144110 "ERM CASHVAT"
     [Scope('OnPrem')]
     procedure PurchaseInvoiceRequestPageHandler(var PurchaseInvoice: TestRequestPage "Purchase - Invoice")
     begin
-        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoRequestPageHandler(var PurchaseCreditMemo: TestRequestPage "Purchase - Credit Memo")
     begin
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

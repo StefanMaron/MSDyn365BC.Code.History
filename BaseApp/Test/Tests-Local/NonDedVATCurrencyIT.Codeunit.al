@@ -95,8 +95,6 @@ codeunit 144004 "Non. Ded. VAT Currency IT"
     end;
 
     local procedure CreatePurchaseInvoice(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10])
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(
             PurchHeader, PurchHeader."Document Type"::Invoice,

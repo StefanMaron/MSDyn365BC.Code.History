@@ -27,14 +27,12 @@
         AmountErr: Label '%1 must be %2 in %3.', Comment = '.';
         VATDateErr: Label 'VAT date on document do not mach VAT Entry', Comment = '.';
         VATDateOnRecordErr: Label 'VAT date was not correctly updated on record', Comment = '.';
-        VatDateComparisonErr: Label 'VAT Date is not correct based on GL setup', Comment = '.';
         MustNotBeNegativeErr: Label '%1 must not be negative.', Comment = '.';
         PostingGroupErr: Label '%1 must be %2 in %3: %4.', Comment = '.';
         VATAmountMsg: Label '%1 must not be editable.', Comment = '.';
         RoundingEntryErr: Label 'Rounding Entry must exist for Sales Document No.: %1.', Comment = '.';
         TooManyValuableSalesEntriesErr: Label 'Too many valuable Sales Lines found.', Comment = '.';
         TooManyValuablePurchaseEntriesErr: Label 'Too many valuable Purchase Lines found.', Comment = '.';
-        VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
 
     [Test]
     procedure VerifyVATDateEqualsToPostingDate()
@@ -196,7 +194,7 @@
         VATEntry: Record "VAT Entry";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         BaseAmount: Decimal;
         DocumentNo: Code[20];
     begin
@@ -207,7 +205,7 @@
 
         // Take 1 Fix value to Create 1 Purchase Line.
         BaseAmount := CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Order);
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
+        DocumentNo := NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series");
 
         // Exercise: Post Purchase Order with Receive and Invoice.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -224,7 +222,7 @@
         VATEntry: Record "VAT Entry";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         BaseAmount: Decimal;
         DocumentNo: Code[20];
     begin
@@ -235,7 +233,7 @@
 
         // Take 1 Fix value to Create 1 Purchase Line.
         BaseAmount := CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Order);
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
+        DocumentNo := NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Quantity Received");
@@ -346,13 +344,13 @@
 
         // Setup: Create Sales Invoice and calculate VAT Amount.
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
         VATDifference := ModifyAllowVATDifferenceSales(true);
         CreateSalesDocumentAndCalcVAT(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, VATDifference);
 
         // Exercise: Change Customer No. on Sales Header and Calculate VAT Amount Lines.
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.Modify(true);
         CalcSalesVATAmountLines(VATAmountLine, SalesHeader, SalesLine);
 
@@ -443,7 +441,7 @@
         CreatePurchDocumentAndCalcVAT(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, VATDifference);
 
         // Exercise: Change Vendor on Purchase Header and Calculate VAT Amount Lines.
-        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Modify(true);
         CalcPurchaseVATAmountLines(VATAmountLine, PurchaseHeader, PurchaseLine);
 
@@ -460,7 +458,7 @@
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         VATDifference: Decimal;
         PostedDocumentNo: Code[20];
         VATAmount: Decimal;
@@ -476,7 +474,7 @@
         PurchaseLine.Modify(true);
         VATAmount :=
           Round(PurchaseLine."Qty. to Invoice" * PurchaseLine."Direct Unit Cost" * PurchaseLine."VAT %" / 100) + VATDifference;
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
+        PostedDocumentNo := NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series");
 
         // Exercise: Post Purchase Order with Ship and Invoice.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -688,8 +686,8 @@
     begin
         // Check that correct VAT Bus. Posting Group and Gen. Bus. Posting Group updated on Sales Header and VAT Entry when Bill To Sell To VAT Calc is Bill To Pay To No.
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
         SetupBillToSellToVATCalc(SalesHeader, GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
 
@@ -707,8 +705,8 @@
     begin
         // Check that correct VAT Bus. Posting Group and Gen. Bus. Posting Group updated on Sales Header and VAT Entry when Bill To Sell To VAT Calc is Sell To Buy From No.
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
         SetupBillToSellToVATCalc(SalesHeader, GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
 
@@ -808,15 +806,15 @@
         CreatePurchaseDocument(PurchHeader, PurchLine, PurchLine."Document Type"::Order, false);
 
         // [GIVEN] Open "Purch Order" page
-        PurchOrderPage.Trap;
+        PurchOrderPage.Trap();
         PAGE.Run(PAGE::"Purchase Order", PurchHeader);
-        PurchOrderPage.PurchLines.First;
-        PurchOrderPage.PurchLines."Line Amount".SetValue(PurchOrderPage.PurchLines."Line Amount".AsDEcimal); // to trigger totals calculation
-        ExpectedVATAmount := PurchOrderPage.PurchLines."Total VAT Amount".AsDEcimal + MaxVATDiffAmt;
+        PurchOrderPage.PurchLines.First();
+        PurchOrderPage.PurchLines."Line Amount".SetValue(PurchOrderPage.PurchLines."Line Amount".AsDecimal()); // to trigger totals calculation
+        ExpectedVATAmount := PurchOrderPage.PurchLines."Total VAT Amount".AsDecimal() + MaxVATDiffAmt;
         LibraryVariableStorage.Enqueue(ExpectedVATAmount);
 
         // [GIVEN] "Purch Order Statistics" page is open from "Purch Order" page
-        PurchOrderPage.Statistics.Invoke; // handled by PurchOrderStatisticsChangeVATHandler
+        PurchOrderPage.Statistics.Invoke(); // handled by PurchOrderStatisticsChangeVATHandler
 
         // [GIVEN] "VAT Amount" is changed to 21 in the line on the "Invoice" tab
         // Executed in VATAmountLinesHandler
@@ -844,15 +842,15 @@
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, true);
 
         // [GIVEN] Open "Sales Order" page
-        SalesOrderPage.Trap;
+        SalesOrderPage.Trap();
         PAGE.Run(PAGE::"Sales Order", SalesHeader);
-        SalesOrderPage.SalesLines.First;
-        SalesOrderPage.SalesLines."Line Amount".SetValue(SalesOrderPage.SalesLines."Line Amount".AsDEcimal); // to trigger totals calculation
-        ExpectedVATAmount := SalesOrderPage.SalesLines."Total VAT Amount".AsDEcimal;
+        SalesOrderPage.SalesLines.First();
+        SalesOrderPage.SalesLines."Line Amount".SetValue(SalesOrderPage.SalesLines."Line Amount".AsDecimal()); // to trigger totals calculation
+        ExpectedVATAmount := SalesOrderPage.SalesLines."Total VAT Amount".AsDecimal();
         LibraryVariableStorage.Enqueue(ExpectedVATAmount);
 
         // [GIVEN] "Sales Order Statistics" page is open from "Sales Order" page
-        SalesOrderPage.Statistics.Invoke; // handled by SalesOrderStatisticsChangeVATHandler
+        SalesOrderPage.Statistics.Invoke(); // handled by SalesOrderStatisticsChangeVATHandler
 
         // [GIVEN] "VAT Amount" is changed to 21 in the line on the "Invoice" tab
         // Executed in VATAmountLinesHandler
@@ -1043,7 +1041,7 @@
         OldInvRoundingPrecision := ModifyInvRoundingInGLSetup(LibraryRandom.RandDec(0, 1));
         ModifyInvRoundingInSalesSetup(true, SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, true); // Prices Including VAT TRUE to make sure that VAT Amount is not added to the line amount.
-        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100) + LibraryERM.GetInvoiceRoundingPrecisionLCY / 2); // Make sure invoice rounding entry is needed.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100) + LibraryERM.GetInvoiceRoundingPrecisionLCY() / 2); // Make sure invoice rounding entry is needed.
         SalesLine.Validate(Quantity, 2 * LibraryRandom.RandInt(10) + 1); // Make sure quantity is odd so rounding entry is needed.
         SalesLine.Modify(true);
         CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
@@ -1250,7 +1248,7 @@
         // Check that correct Gen. Bus. Posting Group updated on Purchase Header and VAT Entry when Bill To Sell To VAT Calc is Bill To Pay To No.
         Initialize();
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
-        SetupBillToPayToVATCalc;
+        SetupBillToPayToVATCalc();
     end;
 
     [Test]
@@ -1613,7 +1611,7 @@
         // [SCENARIO 378179] It should be possible to add up too 100 Sales Lines with filled Type and No. and any number of other lines without a "Totals or discounts may not be up-to-date." message
 
         Initialize();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         for i := 1 to 110 do begin
             SalesLine.Init();
             SalesLine.Validate("Document Type", SalesHeader."Document Type");
@@ -1623,7 +1621,7 @@
             SalesLine.Insert(true);
         end;
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
 
         Assert.IsTrue(DocumentTotals.SalesCheckNumberOfLinesLimit(SalesHeader), TooManyValuableSalesEntriesErr);
     end;
@@ -1641,9 +1639,9 @@
         // [SCENARIO 378179] It should not be possible to add more than 100 Sales Lines with filled Type and No. without a "Totals or discounts may not be up-to-date." message
 
         Initialize();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         for i := 1 to 110 do
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
 
         Assert.IsFalse(DocumentTotals.SalesCheckNumberOfLinesLimit(SalesHeader), TooManyValuableSalesEntriesErr);
     end;
@@ -1662,7 +1660,7 @@
         // [SCENARIO 378179] It should be possible to add up too 100 Purchase Lines with filled Type and No. and any number of other lines without a "Totals or discounts may not be up-to-date." message
 
         Initialize();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         for i := 1 to 110 do begin
             PurchaseLine.Init();
             PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
@@ -1672,7 +1670,7 @@
             PurchaseLine.Insert(true);
         end;
 
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
 
         Assert.IsTrue(DocumentTotals.PurchaseCheckNumberOfLinesLimit(PurchaseHeader), TooManyValuablePurchaseEntriesErr);
     end;
@@ -1690,9 +1688,9 @@
         // [SCENARIO 378179] It should not be possible to add more than 100 Purchase Lines with filled Type and No. without a "Totals or discounts may not be up-to-date." message
 
         Initialize();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         for i := 1 to 110 do
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
 
         Assert.IsFalse(DocumentTotals.PurchaseCheckNumberOfLinesLimit(PurchaseHeader), TooManyValuablePurchaseEntriesErr);
     end;
@@ -2078,7 +2076,7 @@
         VATPostingSetup[2]."VAT %" := VATPct[2];
         VATPostingSetup[2].Insert();
 
-        InvoiceRoundingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        InvoiceRoundingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         InvoiceRoundingGLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup[2]."VAT Prod. Posting Group");
         InvoiceRoundingGLAccount.Modify(true);
 
@@ -2156,7 +2154,7 @@
         VATPostingSetup[2]."VAT %" := VATPct[2];
         VATPostingSetup[2].Insert();
 
-        InvoiceRoundingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        InvoiceRoundingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         InvoiceRoundingGLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup[2]."VAT Prod. Posting Group");
         InvoiceRoundingGLAccount.Modify(true);
 
@@ -2562,13 +2560,12 @@
     procedure TestVATDatePostedRecurringJournal()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        RecurringFrequency: array[6] of DateFormula;
         ExternaDocNo: Code[35];
         VATDate: Date;
     begin
         // [FEATURE] [VAT]
         // [GIVEN] Recurring Journal Line, with VAT Reporting Date different than Posting Date
-        CreateRecurringJournalLine(GenJournalLine, RecurringFrequency);
+        CreateRecurringJournalLine(GenJournalLine);
         VatDate := CalcDate('<+5D>', GenJournalLine."Posting Date");
         GenJournalLine.Validate("VAT Reporting Date", VatDate);
         GenJournalLine.Modify(true);
@@ -2593,8 +2590,8 @@
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
         LibrarySetupStorage.Restore();
         LibraryRandom.SetSeed(1);  // Generate Random Seed using Random Number Generator.
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
@@ -3043,9 +3040,9 @@
         SalesOrder: TestPage "Sales Order";
     begin
         // Create new Sales Line with Random Unit Price and Quantity.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.SalesLines.First;
+        SalesOrder.SalesLines.First();
         SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.Type.SetValue(Format(SalesOrder.SalesLines.Type));
         SalesOrder.SalesLines."No.".SetValue(
@@ -3058,8 +3055,6 @@
     local procedure CreateAndPostSalesDoc(VATDate: Date; DocType: Enum "Gen. Journal Document Type"): Code[20]
     var
         SalesLine: Record "Sales Line";
-        PaymentMethod: Record "Payment Method";
-        PaymentTerms: Record "Payment Terms";
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -3080,8 +3075,6 @@
     local procedure CreateAndPostPurchDoc(VATDate: Date; DocType: Enum "Gen. Journal Document Type"): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
-        PaymentMethod: Record "Payment Method";
-        PaymentTerms: Record "Payment Terms";
         PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -3283,54 +3276,54 @@
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", DocumentNo);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
     end;
 
     local procedure OpenSalesQuoteStatistics(DocumentNo: Code[20])
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", DocumentNo);
-        SalesQuote.Statistics.Invoke;
+        SalesQuote.Statistics.Invoke();
     end;
 
     local procedure OpenBlanketSalesOrderStatistics(DocumentNo: Code[20])
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.FILTER.SetFilter("No.", DocumentNo);
-        BlanketSalesOrder.Statistics.Invoke;
+        BlanketSalesOrder.Statistics.Invoke();
     end;
 
     local procedure OpenSalesInvoiceStatistics(DocumentNo: Code[20])
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", DocumentNo);
-        SalesInvoice.Statistics.Invoke;
+        SalesInvoice.Statistics.Invoke();
     end;
 
     local procedure OpenPurchaseOrderStatistics(DocumentNo: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", DocumentNo);
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
     end;
 
     local procedure OpenPurchaseInvoiceStatistics(DocumentNo: Code[20])
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", DocumentNo);
-        PurchaseInvoice.Statistics.Invoke;
+        PurchaseInvoice.Statistics.Invoke();
     end;
 
     local procedure PurchaseVATAmountCalculation(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -3439,7 +3432,7 @@
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         Customer.Get(CustomerNo);
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccount.Validate("VAT Prod. Posting Group", VATProdPostGroup);
         GLAccount.Modify(true);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
@@ -3454,7 +3447,7 @@
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         Vendor.Get(VendorNo);
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GLAccount.Validate("VAT Prod. Posting Group", VATProdPostGroup);
         GLAccount.Modify(true);
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
@@ -3488,7 +3481,7 @@
           StrSubstNo(VATDifferenceErr, GeneralLedgerSetup."Max. VAT Difference Allowed", VATAmountLine.TableCaption()));
     end;
 
-    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var RecurringFrequency: array[6] of DateFormula)
+    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line")
     var
         GLAccount: Record "G/L Account";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -3556,7 +3549,7 @@
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
+          VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption()));
     end;
 
@@ -3566,7 +3559,7 @@
     begin
         FindVATEntry(VATEntry, DocumentNo, Type);
         Assert.AreNearlyEqual(
-          Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
+          Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Base, VATEntry.TableCaption()));
     end;
 
@@ -3619,7 +3612,7 @@
         SalesLine.SetRange("No.", No);
         SalesLine.FindFirst();
         Assert.AreNearlyEqual(
-          VATDifference, SalesLine."VAT Difference", LibraryERM.GetAmountRoundingPrecision,
+          VATDifference, SalesLine."VAT Difference", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, SalesLine.FieldCaption("VAT Difference"), VATDifference, SalesLine.TableCaption()));
     end;
 
@@ -3635,7 +3628,7 @@
         VATEntry.TestField("Bill-to/Pay-to No.", PurchaseLine."Buy-from Vendor No.");
         VATEntry.TestField("EU 3-Party Trade", false);
         Assert.AreNearlyEqual(
-          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption()));
     end;
 
@@ -3646,7 +3639,7 @@
         // Verify Rounding Entries
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange("No.", No);
-        Assert.IsTrue(SalesInvoiceLine.FindFirst, StrSubstNo(RoundingEntryErr, DocumentNo));
+        Assert.IsTrue(SalesInvoiceLine.FindFirst(), StrSubstNo(RoundingEntryErr, DocumentNo));
     end;
 
     local procedure VerifyVATAndBaseAmount(DocumentNo: Code[20]; GenProductPostingGroup: Code[20]; VATProductPostingGroup: Code[20]; BaseAmount: Decimal; VATAmount: Decimal; Type: Enum "General Posting Type")
@@ -3661,10 +3654,10 @@
         VATEntry.SetRange("Gen. Prod. Posting Group", GenProductPostingGroup);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          BaseAmount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
+          BaseAmount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), BaseAmount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption()));
     end;
 
@@ -3719,9 +3712,9 @@
             Assert.AreEqual(ExpectedAmountInclVAT, "Amount Including VAT", FieldCaption("Amount Including VAT"));
             Assert.AreEqual(ExpectedAmountInclVAT, "Outstanding Amount", FieldCaption("Outstanding Amount"));
             if SalesHeader."Prices Including VAT" then
-                Assert.AreEqual("Line Amount", GetLineAmountInclVAT, 'Line Amount Incl. VAT')
+                Assert.AreEqual("Line Amount", GetLineAmountInclVAT(), 'Line Amount Incl. VAT')
             else
-                Assert.AreEqual("Line Amount", GetLineAmountExclVAT, 'Line Amount Excl. VAT');
+                Assert.AreEqual("Line Amount", GetLineAmountExclVAT(), 'Line Amount Excl. VAT');
         end;
     end;
 
@@ -3779,7 +3772,7 @@
     procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         // Modal Page Handler.
-        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown;
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
 
     [ModalPageHandler]
@@ -3787,7 +3780,7 @@
     procedure PurchaseOrderStatisticsHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         // Modal Page Handler.
-        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown;
+        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
 
     [ModalPageHandler]
@@ -3795,7 +3788,7 @@
     procedure PurchaseStatisticsHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
     begin
         // Modal Page Handler.
-        PurchaseStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        PurchaseStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -3803,14 +3796,14 @@
     procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
     begin
         // Modal Page Handler.
-        SalesStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        SalesStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CheckValuesOnVATAmountLinesMPH(var VATAmountLines: TestPage "VAT Amount Lines")
     begin
-        VATAmountLines."VAT Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        VATAmountLines."VAT Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -3818,36 +3811,36 @@
     procedure EditSalesVATAmountLinesHandler(var VATAmountLines: TestPage "VAT Amount Lines")
     begin
         // Modal Page Handler.
-        VATAmountLines."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal);
-        VATAmountLines.OK.Invoke;
+        VATAmountLines."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        VATAmountLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure BlanketOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        SalesOrderStatistics.NoOfVATLines_General.DrillDown;
+        SalesOrderStatistics.NoOfVATLines_General.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesQuoteStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
     begin
-        Assert.IsFalse(SalesStatistics.VATAmount.Editable, StrSubstNo(VATAmountMsg, SalesStatistics.VATAmount.Caption));
+        Assert.IsFalse(SalesStatistics.VATAmount.Editable(), StrSubstNo(VATAmountMsg, SalesStatistics.VATAmount.Caption));
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VATAmountLineHandler(var VATAmountLines: TestPage "VAT Amount Lines")
     begin
-        Assert.IsFalse(VATAmountLines."VAT Amount".Editable, StrSubstNo(VATAmountMsg, VATAmountLines."VAT Amount".Caption));
+        Assert.IsFalse(VATAmountLines."VAT Amount".Editable(), StrSubstNo(VATAmountMsg, VATAmountLines."VAT Amount".Caption));
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure InvoicingVATAmountSalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        SalesOrderStatistics.VATAmount_Invoicing.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        SalesOrderStatistics.VATAmount_Invoicing.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ConfirmHandler]
@@ -3875,7 +3868,7 @@
         BatchPostSalesInvoices.ReplaceVATDate.SetValue(true);
         BatchPostSalesInvoices.PostingDate.SetValue(PostingDate);
         BatchPostSalesInvoices.VATDate.SetValue(VATDate);
-        BatchPostSalesInvoices.OK.Invoke;
+        BatchPostSalesInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3896,7 +3889,7 @@
         BatchPostSalesOrders.ReplaceVATDate.SetValue(true);
         BatchPostSalesOrders.PostingDate.SetValue(PostingDate);
         BatchPostSalesOrders.VATDate.SetValue(VATDate);
-        BatchPostSalesOrders.OK.Invoke;
+        BatchPostSalesOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3910,7 +3903,7 @@
         BatchPostSalesCreditMemos.ReplaceVATDate.SetValue(true);
         BatchPostSalesCreditMemos.PostingDate.SetValue(PostingDate);
         BatchPostSalesCreditMemos.VATDate.SetValue(VATDate);
-        BatchPostSalesCreditMemos.OK.Invoke;
+        BatchPostSalesCreditMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3926,7 +3919,7 @@
         BatchPostPurchOrders.ReplaceVATDate.SetValue(true);
         BatchPostPurchOrders.PostingDate.SetValue(PostingDate);
         BatchPostPurchOrders.VATDate.SetValue(VATDate);
-        BatchPostPurchOrders.OK.Invoke;
+        BatchPostPurchOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3940,7 +3933,7 @@
         BatchPostPurchCreditMemos.ReplaceVATDate.SetValue(true);
         BatchPostPurchCreditMemos.PostingDate.SetValue(PostingDate);
         BatchPostPurchCreditMemos.VATDate.SetValue(VATDate);
-        BatchPostPurchCreditMemos.OK.Invoke;
+        BatchPostPurchCreditMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3954,7 +3947,7 @@
         BatchPostPurchInvoices.ReplaceVATDate.SetValue(true);
         BatchPostPurchInvoices.PostingDate.SetValue(PostingDate);
         BatchPostPurchInvoices.VATDate.SetValue(VATDate);
-        BatchPostPurchInvoices.OK.Invoke;
+        BatchPostPurchInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]

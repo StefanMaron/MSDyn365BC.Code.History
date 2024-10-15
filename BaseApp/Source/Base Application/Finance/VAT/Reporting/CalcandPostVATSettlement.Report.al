@@ -15,7 +15,6 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
-using Microsoft.Foundation.NoSeries;
 using System.Utilities;
 using Microsoft.Utilities;
 
@@ -907,19 +906,16 @@ report 20 "Calc. and Post VAT Settlement"
     trigger OnPreReport()
     var
         ConfirmManagement: Codeunit "Confirm Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        ITReportManagement: Codeunit "IT - Report Management";
     begin
         OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle);
-
-        if CurrReport.Preview() then
-            PostSettlement := false;
 
         GetGLSetup();
         if EndDateReq = 0D then
             Error(Text1130000);
 
-        NoSeriesMgt.CheckSalesDocNoGaps(EndDateReq);
-        NoSeriesMgt.CheckPurchDocNoGaps(EndDateReq);
+        ITReportManagement.CheckSalesDocNoGaps(EndDateReq, true, false);
+        ITReportManagement.CheckPurchDocNoGaps(EndDateReq, true, false);
 
         if PostSettlement then begin
             if EntrdStartDate <= GLSetup."Last Settlement Date" then
@@ -1126,15 +1122,13 @@ report 20 "Calc. and Post VAT Settlement"
 
     local procedure CopyAmounts(var GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry")
     begin
-        with GenJournalLine do begin
-            Amount := -VATEntry.Amount;
-            "VAT Amount" := -VATEntry.Amount;
-            "VAT Base Amount" := -VATEntry.Base;
-            "Source Currency Code" := GLSetup."Additional Reporting Currency";
-            "Source Currency Amount" := -VATEntry."Additional-Currency Amount";
-            "Source Curr. VAT Amount" := -VATEntry."Additional-Currency Amount";
-            "Source Curr. VAT Base Amount" := -VATEntry."Additional-Currency Base";
-        end;
+        GenJournalLine.Amount := -VATEntry.Amount;
+        GenJournalLine."VAT Amount" := -VATEntry.Amount;
+        GenJournalLine."VAT Base Amount" := -VATEntry.Base;
+        GenJournalLine."Source Currency Code" := GLSetup."Additional Reporting Currency";
+        GenJournalLine."Source Currency Amount" := -VATEntry."Additional-Currency Amount";
+        GenJournalLine."Source Curr. VAT Amount" := -VATEntry."Additional-Currency Amount";
+        GenJournalLine."Source Curr. VAT Base Amount" := -VATEntry."Additional-Currency Base";
         OnAfterCopyAmounts(GenJournalLine, VATEntry);
     end;
 

@@ -92,86 +92,84 @@ codeunit 570 "G/L Account Category Mgt."
                 exit;
 
         GLAccount.ModifyAll("Account Subcategory Entry No.", 0);
-        with GLAccountCategory do begin
-            DeleteAll();
-            CategoryID[1] := AddCategory(0, 0, "Account Category"::Assets, '', true, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Assets, CurrentAssetsTxt, false, 0);
-            CategoryID[3] :=
-              AddCategory(0, CategoryID[2], "Account Category"::Assets, CashTxt, false, "Additional Report Definition"::"Cash Accounts");
-            CategoryID[3] :=
-              AddCategory(
-                0, CategoryID[2], "Account Category"::Assets, ARTxt, false,
-                "Additional Report Definition"::"Operating Activities");
-            CategoryID[3] :=
-              AddCategory(
-                0, CategoryID[2], "Account Category"::Assets, PrepaidExpensesTxt, false,
-                "Additional Report Definition"::"Operating Activities");
-            CategoryID[3] :=
-              AddCategory(
-                0, CategoryID[2], "Account Category"::Assets, InventoryTxt, false,
-                "Additional Report Definition"::"Operating Activities");
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Assets, FixedAssetsTxt, false, 0);
-            CategoryID[3] :=
-              AddCategory(
-                0, CategoryID[2], "Account Category"::Assets, EquipementTxt, false,
-                "Additional Report Definition"::"Investing Activities");
-            CategoryID[3] :=
-              AddCategory(
-                0, CategoryID[2], "Account Category"::Assets, AccumDeprecTxt, false,
-                "Additional Report Definition"::"Investing Activities");
-            CategoryID[1] := AddCategory(0, 0, "Account Category"::Liabilities, '', true, 0);
-            CategoryID[2] :=
-              AddCategory(
-                0, CategoryID[1], "Account Category"::Liabilities, CurrentLiabilitiesTxt, false,
-                "Additional Report Definition"::"Operating Activities");
-            CategoryID[2] :=
-              AddCategory(
-                0, CategoryID[1], "Account Category"::Liabilities, PayrollLiabilitiesTxt, false,
-                "Additional Report Definition"::"Operating Activities");
-            CategoryID[2] :=
-              AddCategory(
-                0, CategoryID[1], "Account Category"::Liabilities, LongTermLiabilitiesTxt, false,
-                "Additional Report Definition"::"Financing Activities");
-            CategoryID[1] := AddCategory(0, 0, "Account Category"::Equity, '', true, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Equity, CommonStockTxt, false, 0);
-            CategoryID[2] :=
-              AddCategory(
-                0, CategoryID[1], "Account Category"::Equity, RetEarningsTxt, false,
-                "Additional Report Definition"::"Retained Earnings");
-            CategoryID[2] :=
-              AddCategory(
-                0, CategoryID[1], "Account Category"::Equity, DistrToShareholdersTxt, false,
-                "Additional Report Definition"::"Distribution to Shareholders");
-            CategoryID[1] := AddCategory(0, 0, "Account Category"::Income, '', true, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Income, IncomeServiceTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Income, IncomeProdSalesTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Income, IncomeJobsTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Income, IncomeSalesDiscountsTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Income, IncomeSalesReturnsTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Income, IncomeInterestTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Income, JobSalesContraTxt, false, 0);
-            CategoryID[1] := AddCategory(0, 0, "Account Category"::"Cost of Goods Sold", '', true, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::"Cost of Goods Sold", COGSLaborTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::"Cost of Goods Sold", COGSMaterialsTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::"Cost of Goods Sold", COGSDiscountsGrantedTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::"Cost of Goods Sold", JobsCostTxt, false, 0);
-            CategoryID[1] := AddCategory(0, 0, "Account Category"::Expense, '', true, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, RentExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, AdvertisingExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, InterestExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, FeesExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, InsuranceExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, PayrollExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, BenefitsExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, SalariesExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, RepairsTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, UtilitiesExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, OtherIncomeExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, TaxExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, TravelExpenseTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, VehicleExpensesTxt, false, 0);
-            CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, BadDebtExpenseTxt, false, 0);
-        end;
+        GLAccountCategory.DeleteAll();
+        CategoryID[1] := AddCategory(0, 0, GLAccountCategory."Account Category"::Assets, '', true, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Assets, CurrentAssetsTxt, false, 0);
+        CategoryID[3] :=
+          AddCategory(0, CategoryID[2], GLAccountCategory."Account Category"::Assets, CashTxt, false, GLAccountCategory."Additional Report Definition"::"Cash Accounts");
+        CategoryID[3] :=
+          AddCategory(
+            0, CategoryID[2], GLAccountCategory."Account Category"::Assets, ARTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Operating Activities");
+        CategoryID[3] :=
+          AddCategory(
+            0, CategoryID[2], GLAccountCategory."Account Category"::Assets, PrepaidExpensesTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Operating Activities");
+        CategoryID[3] :=
+          AddCategory(
+            0, CategoryID[2], GLAccountCategory."Account Category"::Assets, InventoryTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Operating Activities");
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Assets, FixedAssetsTxt, false, 0);
+        CategoryID[3] :=
+          AddCategory(
+            0, CategoryID[2], GLAccountCategory."Account Category"::Assets, EquipementTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Investing Activities");
+        CategoryID[3] :=
+          AddCategory(
+            0, CategoryID[2], GLAccountCategory."Account Category"::Assets, AccumDeprecTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Investing Activities");
+        CategoryID[1] := AddCategory(0, 0, GLAccountCategory."Account Category"::Liabilities, '', true, 0);
+        CategoryID[2] :=
+          AddCategory(
+            0, CategoryID[1], GLAccountCategory."Account Category"::Liabilities, CurrentLiabilitiesTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Operating Activities");
+        CategoryID[2] :=
+          AddCategory(
+            0, CategoryID[1], GLAccountCategory."Account Category"::Liabilities, PayrollLiabilitiesTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Operating Activities");
+        CategoryID[2] :=
+          AddCategory(
+            0, CategoryID[1], GLAccountCategory."Account Category"::Liabilities, LongTermLiabilitiesTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Financing Activities");
+        CategoryID[1] := AddCategory(0, 0, GLAccountCategory."Account Category"::Equity, '', true, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Equity, CommonStockTxt, false, 0);
+        CategoryID[2] :=
+          AddCategory(
+            0, CategoryID[1], GLAccountCategory."Account Category"::Equity, RetEarningsTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Retained Earnings");
+        CategoryID[2] :=
+          AddCategory(
+            0, CategoryID[1], GLAccountCategory."Account Category"::Equity, DistrToShareholdersTxt, false,
+            GLAccountCategory."Additional Report Definition"::"Distribution to Shareholders");
+        CategoryID[1] := AddCategory(0, 0, GLAccountCategory."Account Category"::Income, '', true, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Income, IncomeServiceTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Income, IncomeProdSalesTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Income, IncomeJobsTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Income, IncomeSalesDiscountsTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Income, IncomeSalesReturnsTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Income, IncomeInterestTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Income, JobSalesContraTxt, false, 0);
+        CategoryID[1] := AddCategory(0, 0, GLAccountCategory."Account Category"::"Cost of Goods Sold", '', true, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::"Cost of Goods Sold", COGSLaborTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::"Cost of Goods Sold", COGSMaterialsTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::"Cost of Goods Sold", COGSDiscountsGrantedTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::"Cost of Goods Sold", JobsCostTxt, false, 0);
+        CategoryID[1] := AddCategory(0, 0, GLAccountCategory."Account Category"::Expense, '', true, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, RentExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, AdvertisingExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, InterestExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, FeesExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, InsuranceExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, PayrollExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, BenefitsExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, SalariesExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, RepairsTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, UtilitiesExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, OtherIncomeExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, TaxExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, TravelExpenseTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, VehicleExpensesTxt, false, 0);
+        CategoryID[2] := AddCategory(0, CategoryID[1], GLAccountCategory."Account Category"::Expense, BadDebtExpenseTxt, false, 0);
 
         OnAfterInitializeAccountCategories();
     end;

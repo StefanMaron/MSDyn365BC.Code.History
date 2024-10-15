@@ -95,7 +95,7 @@ codeunit 144164 "ERM Payment Lines"
     procedure RecalculatePmtAmtOnPurchJournalWithCurr()
     begin
         // Test to verify Amount on Payment Date Lines page invoked from Purchase Journal with Currency.
-        RecalculatePmtAmtOnPurchJournal(CreateCurrencyWithExchangeRate);
+        RecalculatePmtAmtOnPurchJournal(CreateCurrencyWithExchangeRate());
     end;
 
     local procedure RecalculatePmtAmtOnPurchJournal(CurrencyCode: Code[10])
@@ -110,17 +110,17 @@ codeunit 144164 "ERM Payment Lines"
         LibrarySales.CreateCustomer(Customer);
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalTemplate.Type::Purchases, GenJournalLine."Account Type"::Customer,
-          Customer."No.", FindPaymentTermsCode, LibraryRandom.RandDecInRange(100, 500, 2));  // Use Random value for Amount
+          Customer."No.", FindPaymentTermsCode(), LibraryRandom.RandDecInRange(100, 500, 2));  // Use Random value for Amount
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
         Commit();  // COMMIT required for test case
-        PurchaseJournal.OpenEdit;
+        PurchaseJournal.OpenEdit();
         PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
-        PaymentDateLines.Trap;
-        PurchaseJournal."&Payments".Invoke;
+        PaymentDateLines.Trap();
+        PurchaseJournal."&Payments".Invoke();
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Amounts on Payment Date Lines page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, GenJournalLine."Debit Amount" / 2);  // Use 2 for partial payment
@@ -140,15 +140,15 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Amount on Posted Payments page invoked from Posted Sales Invoice without Currency.
 
         // Setup: Create and post Sales Invoice.
-        AmountIncludingVAT := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);  // Use Blank for Currency
+        AmountIncludingVAT := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode());  // Use Blank for Currency
         No := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Invoice
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.FILTER.SetFilter("No.", No);
-        PostedPayments.Trap;
-        PostedSalesInvoice.Payments.Invoke;
+        PostedPayments.Trap();
+        PostedSalesInvoice.Payments.Invoke();
 
         // Exercise: Recalculate Amount on Posted Payments page.
-        PostedPayments.RecalcAmount.Invoke;
+        PostedPayments.RecalcAmount.Invoke();
 
         // Verify: Amounts on Posted Payments page.
         VerifyAmountsOnPostedPaymentsPage(PostedPayments, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -169,14 +169,14 @@ codeunit 144164 "ERM Payment Lines"
         // Setup: Create Sales Credit Memo.
         AmountIncludingVAT :=
           CreateSalesDocument(
-            SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCurrencyWithExchangeRate, FindPaymentTermsCode);
-        SalesCreditMemo.OpenEdit;
+            SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCurrencyWithExchangeRate(), FindPaymentTermsCode());
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        PaymentDateLines.Trap;
-        SalesCreditMemo."Pa&yments".Invoke;
+        PaymentDateLines.Trap();
+        SalesCreditMemo."Pa&yments".Invoke();
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Amounts on Payment Date Lines page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -196,15 +196,15 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Amount on Posted Payments page invoked from Posted Purchase Invoice without Currency.
 
         // Setup: Create and post Purchase Invoice.
-        AmountIncludingVAT := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');  // Use Blank for Currency and Payment Method Code.
+        AmountIncludingVAT := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode(), '');  // Use Blank for Currency and Payment Method Code.
         No := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Invoice
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.FILTER.SetFilter("No.", No);
-        PostedPayments.Trap;
-        PostedPurchaseInvoice."Pa&yments".Invoke;
+        PostedPayments.Trap();
+        PostedPurchaseInvoice."Pa&yments".Invoke();
 
         // Exercise: Recalculate Amount on Posted Payments page.
-        PostedPayments.RecalcAmount.Invoke;
+        PostedPayments.RecalcAmount.Invoke();
 
         // Verify: Amounts on Posted Payments page.
         VerifyAmountsOnPostedPaymentsPage(PostedPayments, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -225,14 +225,14 @@ codeunit 144164 "ERM Payment Lines"
         // Setup: Create Purchase Credit Memo
         AmountIncludingVAT :=
           CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo",
-            CreateCurrencyWithExchangeRate, FindPaymentTermsCode, '');  // Blank for Payment Method.
-        PurchaseCreditMemo.OpenEdit;
+            CreateCurrencyWithExchangeRate(), FindPaymentTermsCode(), '');  // Blank for Payment Method.
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PaymentDateLines.Trap;
-        PurchaseCreditMemo."Pa&yments".Invoke;
+        PaymentDateLines.Trap();
+        PurchaseCreditMemo."Pa&yments".Invoke();
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -252,13 +252,13 @@ codeunit 144164 "ERM Payment Lines"
 
         // Setup: Create and Post Service Invoice.
         AmountIncludingVAT := CreateAndPostServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, true);  // True for Invoice
-        PostedServiceInvoice.OpenEdit;
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.FILTER.SetFilter("Pre-Assigned No.", ServiceHeader."No.");
-        PostedPayments.Trap;
-        PostedServiceInvoice."Pa&yments".Invoke;
+        PostedPayments.Trap();
+        PostedServiceInvoice."Pa&yments".Invoke();
 
         // Exercise: Recalculate Amount on Posted Payments page.
-        PostedPayments.RecalcAmount.Invoke;
+        PostedPayments.RecalcAmount.Invoke();
 
         // Verify: Amounts on Posted Payments Page.
         VerifyAmountsOnPostedPaymentsPage(PostedPayments, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -277,12 +277,12 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Amount on Payment Date Lines page invoked from Service Invoice with Currency.
 
         // Setup: Create Service Invoice.
-        AmountIncludingVAT := CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCurrencyWithExchangeRate);
-        PaymentDateLines.Trap;
+        AmountIncludingVAT := CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCurrencyWithExchangeRate());
+        PaymentDateLines.Trap();
         InvokePaymentDateLinesPageFromServiceInvoice(ServiceInvoice, ServiceHeader."No.");
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -303,13 +303,13 @@ codeunit 144164 "ERM Payment Lines"
         // Setup: Create and Post Service Credit Memo.
         AmountIncludingVAT :=
           CreateAndPostServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", true);  // True for Invoice
-        PostedServiceCreditMemo.OpenEdit;
+        PostedServiceCreditMemo.OpenEdit();
         PostedServiceCreditMemo.FILTER.SetFilter("Pre-Assigned No.", ServiceHeader."No.");
-        PostedPayments.Trap;
-        PostedServiceCreditMemo."Pa&yments".Invoke;
+        PostedPayments.Trap();
+        PostedServiceCreditMemo."Pa&yments".Invoke();
 
         // Exercise: Recalculate Amount on Posted Payments page.
-        PostedPayments.RecalcAmount.Invoke;
+        PostedPayments.RecalcAmount.Invoke();
 
         // Verify: Amounts on Posted Payments Page.
         VerifyAmountsOnPostedPaymentsPage(PostedPayments, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -328,12 +328,12 @@ codeunit 144164 "ERM Payment Lines"
 
         // Setup: Create Service Credit Memo.
         AmountIncludingVAT :=
-          CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCurrencyWithExchangeRate);
-        PaymentDateLines.Trap;
+          CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCurrencyWithExchangeRate());
+        PaymentDateLines.Trap();
         InvokePaymentDateLinesPageFromServiceCreditMemo(ServiceHeader."No.");
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -350,12 +350,12 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Amount on Payment Date Lines page invoked from Service Order with Currency.
 
         // Setup: Create Service Order.
-        AmountIncludingVAT := CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCurrencyWithExchangeRate);
-        PaymentDateLines.Trap;
+        AmountIncludingVAT := CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCurrencyWithExchangeRate());
+        PaymentDateLines.Trap();
         InvokePaymentDateLinesPageFromServiceOrder(ServiceHeader."No.");
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -373,11 +373,11 @@ codeunit 144164 "ERM Payment Lines"
 
         // Setup: Create Service Order and Post Shipment.
         AmountIncludingVAT := CreateAndPostServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order, false);  // False for Invoice
-        PaymentDateLines.Trap;
+        PaymentDateLines.Trap();
         InvokePaymentDateLinesPageFromServiceOrder(ServiceHeader."No.");
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -396,11 +396,11 @@ codeunit 144164 "ERM Payment Lines"
 
         // Setup: Create Service Invoice with multiple Lines.
         AmountIncludingVAT := CreateServiceDocumentWithMultipleLines(ServiceLine, ServiceLine."Document Type"::Invoice);
-        PaymentDateLines.Trap;
+        PaymentDateLines.Trap();
         InvokePaymentDateLinesPageFromServiceInvoice(ServiceInvoice, ServiceLine."Document No.");
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -419,11 +419,11 @@ codeunit 144164 "ERM Payment Lines"
 
         // Setup: Create Service Credit Memo with multiple Lines.
         AmountIncludingVAT := CreateServiceDocumentWithMultipleLines(ServiceLine, ServiceLine."Document Type"::"Credit Memo");
-        PaymentDateLines.Trap;
+        PaymentDateLines.Trap();
         InvokePaymentDateLinesPageFromServiceCreditMemo(ServiceLine."Document No.");
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Verify Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -441,14 +441,14 @@ codeunit 144164 "ERM Payment Lines"
 
         // Setup: Create Service Invoice, recalculate Payment and delete the Service line.
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, '');  // Use Blank for Currency and Payment Method Code.
-        PaymentDateLines.Trap;
+        PaymentDateLines.Trap();
         InvokePaymentDateLinesPageFromServiceInvoice(ServiceInvoice, ServiceHeader."No.");
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
         DeleteServiceLine(ServiceHeader);
-        ServiceInvoice."Pa&yments".Invoke;
+        ServiceInvoice."Pa&yments".Invoke();
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Verify Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, 0);
@@ -467,15 +467,15 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Amount on Payment Date Lines page invoked from Purchase Invoice.
 
         // Setup: Create and release Purchase Invoice, Open Payment Date Lines page.
-        AmountIncludingVAT := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');  // Use Blank for Currency and Payment Method.
+        AmountIncludingVAT := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode(), '');  // Use Blank for Currency and Payment Method.
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        PaymentDateLines.Trap;
-        PurchaseInvoice.OpenEdit;
+        PaymentDateLines.Trap();
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseInvoice."Pa&yments".Invoke;
+        PurchaseInvoice."Pa&yments".Invoke();
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Verify Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -494,15 +494,15 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Amount on Payment Date Lines page invoked from Sales Invoice.
 
         // Setup: Create and release Sales Invoice and open Payment Date Lines page.
-        AmountIncludingVAT := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);  // Use Blank for Currency
+        AmountIncludingVAT := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode());  // Use Blank for Currency
         LibrarySales.ReleaseSalesDocument(SalesHeader);
-        PaymentDateLines.Trap;
-        SalesInvoice.OpenEdit;
+        PaymentDateLines.Trap();
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesInvoice."Pa&yments".Invoke;
+        SalesInvoice."Pa&yments".Invoke();
 
         // Exercise: Recalculate Amount on Payment Date Lines page.
-        PaymentDateLines.RecalcAmount.Invoke;
+        PaymentDateLines.RecalcAmount.Invoke();
 
         // Verify: Verify Amounts on Payment Date Lines Page.
         VerifyAmountsOnPaymentDateLinesPage(PaymentDateLines, AmountIncludingVAT / 2);  // Use 2 for partial payment
@@ -522,13 +522,13 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Amount on Vendor Ledger Entry after posting Purchase Invoice.
 
         // Setup: Create Purchase Invoice.
-        AmountIncludingVAT := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');  // Use Blank for Currency and Payment Method Code.
+        AmountIncludingVAT := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode(), '');  // Use Blank for Currency and Payment Method Code.
 
         // Exercise.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Amount on Vendor Ledger Entry.
-        Evaluate(SecondDueDateCalculation, GetDueDateCalculationFromPaymentTerms(DueDateCalculation, FindPaymentTermsCode));
+        Evaluate(SecondDueDateCalculation, GetDueDateCalculationFromPaymentTerms(DueDateCalculation, FindPaymentTermsCode()));
         VerifyAmountOnVendorLedgerEntry(DocumentNo, -AmountIncludingVAT / 2, DueDateCalculation);
         VerifyAmountOnVendorLedgerEntry(DocumentNo, -AmountIncludingVAT / 2, SecondDueDateCalculation);
     end;
@@ -546,13 +546,13 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Amount on Customer Ledger Entry after posting Sales Invoice.
 
         // Setup: Create Sales Invoice.
-        AmountIncludingVAT := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);  // Use Blank for Currency
+        AmountIncludingVAT := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode());  // Use Blank for Currency
 
         // Exercise.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify Amount on Customer Ledger Entry.
-        Evaluate(SecondDueDateCalculation, GetDueDateCalculationFromPaymentTerms(DueDateCalculation, FindPaymentTermsCode));
+        Evaluate(SecondDueDateCalculation, GetDueDateCalculationFromPaymentTerms(DueDateCalculation, FindPaymentTermsCode()));
         VerifyAmountOnCustomerLedgerEntry(DocumentNo, AmountIncludingVAT / 2, DueDateCalculation);
         VerifyAmountOnCustomerLedgerEntry(DocumentNo, AmountIncludingVAT / 2, SecondDueDateCalculation);
     end;
@@ -572,7 +572,7 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Original Amount on Customer Ledger Entry after posting Sales Invoice with Discount on Payment Terms.
 
         // Setup: Create Payment Terms, create and post Sales Invoice.
-        PaymentTermsCode := CreatePaymentTerms;
+        PaymentTermsCode := CreatePaymentTerms();
         Amount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', PaymentTermsCode);  // Use Blank for Currency
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         CreateGenJournalLine(
@@ -586,7 +586,7 @@ codeunit 144164 "ERM Payment Lines"
         Amount := FindPaymentLineAndCalculateOriginalAmount(PaymentTermsCode, Amount);
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
         Assert.AreNearlyEqual(
-          -Amount, CustLedgerEntry."Original Amount", LibraryERM.GetAmountRoundingPrecision,
+          -Amount, CustLedgerEntry."Original Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption("Original Amount"), Amount, CustLedgerEntry.TableCaption()));
     end;
 
@@ -605,7 +605,7 @@ codeunit 144164 "ERM Payment Lines"
         // Test to verify Original Amount on Vendor Ledger Entry after posting Purchase Invoice with Discount on Payment Terms.
 
         // Setup: Create Payment Terms, create and post Purchase Invoice.
-        PaymentTermsCode := CreatePaymentTerms;
+        PaymentTermsCode := CreatePaymentTerms();
         Amount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', PaymentTermsCode, '');  // Use Blank for Currency and Payment Method.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreateGenJournalLine(
@@ -619,7 +619,7 @@ codeunit 144164 "ERM Payment Lines"
         Amount := FindPaymentLineAndCalculateOriginalAmount(PaymentTermsCode, Amount);
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
         Assert.AreNearlyEqual(
-          Amount, VendorLedgerEntry."Original Amount", LibraryERM.GetAmountRoundingPrecision,
+          Amount, VendorLedgerEntry."Original Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption("Original Amount"), Amount, VendorLedgerEntry.TableCaption()));
     end;
 
@@ -629,12 +629,11 @@ codeunit 144164 "ERM Payment Lines"
     var
         VendorBillHeader: Record "Vendor Bill Header";
         No: Code[20];
-        VendorNo: Code[20];
     begin
         // Test to verify no error message appears when deleting Vendor Bill Line.
 
         // Setup: Create and post Puchase Invoice, Create vendor Bill Header and Suggest Vendor Bills.
-        No := PostPurchaseInvoiceAndSuggestVendorBills;
+        No := PostPurchaseInvoiceAndSuggestVendorBills();
 
         // Exercise.
         DeleteVendorBillLine(No);
@@ -650,18 +649,17 @@ codeunit 144164 "ERM Payment Lines"
     var
         VendorBillCard: TestPage "Vendor Bill Card";
         No: Code[20];
-        VendorNo: Code[20];
     begin
         // Test to verify no error message appears when Cancel List from Vendor Bill List Issued Card.
 
         // Setup: Create and post Puchase Invoice, Create vendor Bill Header, Suggest Vendor Bills and Delete Vendor Bill Line.
-        No := PostPurchaseInvoiceAndSuggestVendorBills;
+        No := PostPurchaseInvoiceAndSuggestVendorBills();
         DeleteVendorBillLine(No);
 
         // Issue Vendor Bill.
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", No);
-        VendorBillCard."&Create List".Invoke;
+        VendorBillCard."&Create List".Invoke();
 
         // Exercise.
         CancelListOnVendorBillListSentCard(No);
@@ -683,13 +681,13 @@ codeunit 144164 "ERM Payment Lines"
         // [FEATURE] [Purchase Journal]
         // [SCENARIO 363437] Balance should be correct after cursor was moved to next row
         // [GIVEN] Gen. Journal Line in Purchase journal with "Debit Amount" = "X"
-        DebitAmount := CreateGenJournalLineWithDebitAmount;
+        DebitAmount := CreateGenJournalLineWithDebitAmount();
         Commit();
-        PurchaseJournal.OpenEdit;
+        PurchaseJournal.OpenEdit();
         // [WHEN] Cursor move to next row
         PurchaseJournal.Next();
         // [THEN] Balance = "X"
-        Assert.AreEqual(DebitAmount, PurchaseJournal.TotalBalance.AsDEcimal, WrongBalanceErr);
+        Assert.AreEqual(DebitAmount, PurchaseJournal.TotalBalance.AsDecimal(), WrongBalanceErr);
     end;
 
     [Test]
@@ -706,7 +704,7 @@ codeunit 144164 "ERM Payment Lines"
         Initialize();
 
         // [GIVEN] Purchase Blanket Order with Payment Line, Quantity = 100, "Qty to Receive" = 1
-        CreatePurchaseDocument(PurchHeader, PurchHeader."Document Type"::"Blanket Order", '', FindPaymentTermsCode, '');
+        CreatePurchaseDocument(PurchHeader, PurchHeader."Document Type"::"Blanket Order", '', FindPaymentTermsCode(), '');
         UpdateQtyToReceiveInPurchLine(PurchHeader."Document Type", PurchHeader."No.", 1);
 
         // [WHEN] Make Order from Blanket Order
@@ -734,7 +732,7 @@ codeunit 144164 "ERM Payment Lines"
         LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Purchase Sales Order with Payment Line, Quantity = 100, "Qty to Receive" = 1
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '', FindPaymentTermsCode);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '', FindPaymentTermsCode());
         UpdateQtyToShipInSalesLine(SalesHeader."Document Type", SalesHeader."No.", 1);
 
         // [WHEN] Make Order from Blanket Order
@@ -1205,13 +1203,13 @@ codeunit 144164 "ERM Payment Lines"
         PurchHeader.Init();
 
         // [GIVEN] Header is populated with Vendor data, including payment terms code
-        PurchHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Running InitInsert
         PurchHeader.InitInsert();
 
         // [THEN] Payment lines for this document type, document no are created.
-        VerifyPaymentLinesExist(PaymentLines."Sales/Purchase"::Purchase, PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
+        VerifyPaymentLinesExist(PaymentLines."Sales/Purchase"::Purchase, PurchHeader."Document Type", PurchHeader."No.");
     end;
 
     [Test]
@@ -1227,7 +1225,7 @@ codeunit 144164 "ERM Payment Lines"
         Initialize();
 
         // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
-        DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');
+        DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode(), '');
 
         // [WHEN] Purchase Header was posted
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
@@ -1250,7 +1248,7 @@ codeunit 144164 "ERM Payment Lines"
 
         // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
         DocumentAmount := CreatePurchaseDocument(
-            PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", '', FindPaymentTermsCode, '');
+            PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", '', FindPaymentTermsCode(), '');
 
         // [WHEN] Purchase Header was posted
         PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
@@ -1272,7 +1270,7 @@ codeunit 144164 "ERM Payment Lines"
         Initialize();
 
         // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
-        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);
+        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode());
 
         // [WHEN] Sales Header was posted
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
@@ -1294,7 +1292,7 @@ codeunit 144164 "ERM Payment Lines"
         Initialize();
 
         // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
-        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', FindPaymentTermsCode);
+        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', FindPaymentTermsCode());
 
         // [WHEN] Sales Header was posted
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
@@ -1317,7 +1315,7 @@ codeunit 144164 "ERM Payment Lines"
         Initialize();
 
         // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
-        DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');
+        DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode(), '');
 
         // [GIVEN] Purchase Header was posted
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
@@ -1345,7 +1343,7 @@ codeunit 144164 "ERM Payment Lines"
         Initialize();
 
         // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
-        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);
+        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode());
 
         // [GIVEN] Sales Header was posted
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
@@ -1413,7 +1411,7 @@ codeunit 144164 "ERM Payment Lines"
         // [WHEN] Suggest Vendor Bills report is ran for Vendor bill header with "Use same ABI code" = TRUE
         SuggestVendorBills.InitValues(VendorBillHeader);
         LibraryVariableStorage.Enqueue(true);
-        Commit;
+        Commit();
         SuggestVendorBills.Run();
         // UI handled by SuggestVendorBillsUIHandler
 
@@ -1426,7 +1424,7 @@ codeunit 144164 "ERM Payment Lines"
         VendorBillLine.SetRange("Vendor No.", Vendor[2]."No.");
         Assert.RecordIsEmpty(VendorBillLine);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1506,10 +1504,10 @@ codeunit 144164 "ERM Payment Lines"
         SalesJournal: TestPage "Sales Journal";
     begin
         Commit();
-        SalesJournal.OpenEdit;
+        SalesJournal.OpenEdit();
         SalesJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
-        SalesJournal."Apply Entries".Invoke;
-        SalesJournal.Post.Invoke;
+        SalesJournal."Apply Entries".Invoke();
+        SalesJournal.Post.Invoke();
     end;
 
     local procedure ApplyVendorLedgerEntryAndPostApplication(CurrentJnlBatchName: Code[10])
@@ -1517,19 +1515,19 @@ codeunit 144164 "ERM Payment Lines"
         PurchaseJournal: TestPage "Purchase Journal";
     begin
         Commit();
-        PurchaseJournal.OpenEdit;
+        PurchaseJournal.OpenEdit();
         PurchaseJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
-        PurchaseJournal."Apply Entries".Invoke;
-        PurchaseJournal.Post.Invoke;
+        PurchaseJournal."Apply Entries".Invoke();
+        PurchaseJournal.Post.Invoke();
     end;
 
     local procedure CancelListOnVendorBillListSentCard(No: Code[20])
     var
         VendorBillListSentCard: TestPage "Vendor Bill List Sent Card";
     begin
-        VendorBillListSentCard.OpenEdit;
+        VendorBillListSentCard.OpenEdit();
         VendorBillListSentCard.FILTER.SetFilter("No.", No);
-        VendorBillListSentCard.CancelList.Invoke;
+        VendorBillListSentCard.CancelList.Invoke();
     end;
 
     local procedure CreateAndPostServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; Invoice: Boolean) AmountIncludingVAT: Decimal
@@ -1592,7 +1590,6 @@ codeunit 144164 "ERM Payment Lines"
 
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Type: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PaymentTermsCode: Code[10]; Amount: Decimal)
     var
-        Customer: Record Customer;
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         CreateGenJournalBatch(GenJournalBatch, Type);
@@ -1600,7 +1597,7 @@ codeunit 144164 "ERM Payment Lines"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount());
         GenJournalLine.Validate("Payment Terms Code", PaymentTermsCode);
         GenJournalLine.Modify(true);
     end;
@@ -1638,7 +1635,7 @@ codeunit 144164 "ERM Payment Lines"
         ABICodes.Init();
         ABICodes.ABI := ABICode;
         ABICodes.CAB := ABICode;
-        if ABICodes.Insert then;
+        if ABICodes.Insert() then;
         exit(ABICode);
     end;
 
@@ -1663,7 +1660,6 @@ codeunit 144164 "ERM Payment Lines"
     local procedure CreatePaymentTerms(): Code[10]
     var
         PaymentTerms: Record "Payment Terms";
-        PaymentLines: Record "Payment Lines";
         PaymentPct: Integer;
     begin
         LibraryERM.CreatePaymentTermsIT(PaymentTerms);
@@ -1722,7 +1718,7 @@ codeunit 144164 "ERM Payment Lines"
         ServiceLine: Record "Service Line";
     begin
         CreateServiceHeader(ServiceHeader, DocumentType, CurrencyCode);
-        CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", CreateGLAccount);
+        CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", CreateGLAccount());
         exit(ServiceLine."Amount Including VAT");
     end;
 
@@ -1743,7 +1739,7 @@ codeunit 144164 "ERM Payment Lines"
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
         ServiceHeader.Validate("Currency Code", CurrencyCode);
-        ServiceHeader.Validate("Payment Terms Code", FindPaymentTermsCode);
+        ServiceHeader.Validate("Payment Terms Code", FindPaymentTermsCode());
         ServiceHeader.Modify(true);
     end;
 
@@ -1770,7 +1766,7 @@ codeunit 144164 "ERM Payment Lines"
     local procedure CreateVendorBillHeader(var VendorBillHeader: Record "Vendor Bill Header"; PaymentMethodCode: Code[10])
     begin
         LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
-        VendorBillHeader.Validate("Bank Account No.", CreateBankAccount);
+        VendorBillHeader.Validate("Bank Account No.", CreateBankAccount());
         VendorBillHeader.Validate("Payment Method Code", PaymentMethodCode);
         VendorBillHeader.Modify(true);
     end;
@@ -1803,7 +1799,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         CreateGenJnlTmplAndGenJnlBatch(GenJournalBatch, GenJournalTemplate.Type::Purchases);
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDec(1000, 2));
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         exit(GenJournalLine."Debit Amount");
@@ -1863,7 +1859,7 @@ codeunit 144164 "ERM Payment Lines"
         exit(Amount - DiscountAmount);
     end;
 
-    local procedure FilterPaymentLines(var PaymentLines: Record "Payment Lines"; EntryType: Option; DocType: Option; DocNo: Code[20])
+    local procedure FilterPaymentLines(var PaymentLines: Record "Payment Lines"; EntryType: Option; DocType: Enum "Payment Lines Document Type"; DocNo: Code[20])
     begin
         with PaymentLines do begin
             SetRange("Sales/Purchase", EntryType);
@@ -1913,26 +1909,26 @@ codeunit 144164 "ERM Payment Lines"
     var
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
-        ServiceCreditMemo."Pa&yments".Invoke;
+        ServiceCreditMemo."Pa&yments".Invoke();
         ServiceCreditMemo.Close();
     end;
 
     local procedure InvokePaymentDateLinesPageFromServiceInvoice(var ServiceInvoice: TestPage "Service Invoice"; No: Code[20])
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", No);
-        ServiceInvoice."Pa&yments".Invoke;
+        ServiceInvoice."Pa&yments".Invoke();
     end;
 
     local procedure InvokePaymentDateLinesPageFromServiceOrder(No: Code[20])
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder."Pa&yments".Invoke;
+        ServiceOrder."Pa&yments".Invoke();
         ServiceOrder.Close();
     end;
 
@@ -1963,7 +1959,7 @@ codeunit 144164 "ERM Payment Lines"
         PaymentMethod.SetRange("Bill Code", Bill.Code);
         LibraryERM.FindPaymentMethod(PaymentMethod);
 
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, PaymentMethod.Code);  // Use Blank for Currency
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode(), PaymentMethod.Code);  // Use Blank for Currency
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Create Vendor Bill Header and Suggest Vendor Bills.
@@ -1976,7 +1972,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         PaymentDateLines.FILTER.SetFilter("Due Date Calculation", Format(DueDateCalculation));
         Assert.AreNearlyEqual(
-          ExpectedAmount, PaymentDateLines.Amount.AsDEcimal, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          ExpectedAmount, PaymentDateLines.Amount.AsDecimal(), LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmountErr, PaymentDateLines.Amount.Caption, ExpectedAmount, PaymentDateLines.Caption));
     end;
 
@@ -1985,7 +1981,7 @@ codeunit 144164 "ERM Payment Lines"
         DueDateCalculation: DateFormula;
         SecondDueDateCalculation: DateFormula;
     begin
-        Evaluate(SecondDueDateCalculation, GetDueDateCalculationFromPaymentTerms(DueDateCalculation, FindPaymentTermsCode));
+        Evaluate(SecondDueDateCalculation, GetDueDateCalculationFromPaymentTerms(DueDateCalculation, FindPaymentTermsCode()));
         VerifyAmountOnPaymentDateLinesPage(PaymentDateLines, DueDateCalculation, Amount);
         VerifyAmountOnPaymentDateLinesPage(PaymentDateLines, SecondDueDateCalculation, Amount);
         PaymentDateLines.Close();
@@ -1995,7 +1991,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         PostedPayments.FILTER.SetFilter("Due Date Calculation", Format(DueDateCalculation));
         Assert.AreNearlyEqual(
-          ExpectedAmount, PostedPayments.Amount.AsDEcimal, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          ExpectedAmount, PostedPayments.Amount.AsDecimal(), LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmountErr, PostedPayments.Amount.Caption, ExpectedAmount, PostedPayments.Caption));
     end;
 
@@ -2004,7 +2000,7 @@ codeunit 144164 "ERM Payment Lines"
         DueDateCalculation: DateFormula;
         SecondDueDateCalculation: DateFormula;
     begin
-        Evaluate(SecondDueDateCalculation, GetDueDateCalculationFromPaymentTerms(DueDateCalculation, FindPaymentTermsCode));
+        Evaluate(SecondDueDateCalculation, GetDueDateCalculationFromPaymentTerms(DueDateCalculation, FindPaymentTermsCode()));
         VerifyAmountOnPostedPaymentsPage(PostedPayments, DueDateCalculation, Amount);
         VerifyAmountOnPostedPaymentsPage(PostedPayments, SecondDueDateCalculation, Amount);
         PostedPayments.Close();
@@ -2019,7 +2015,7 @@ codeunit 144164 "ERM Payment Lines"
         VendorLedgerEntry.SetRange("Due Date", DueDate);
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
         Assert.AreNearlyEqual(
-          Amount, VendorLedgerEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          Amount, VendorLedgerEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption()));
     end;
 
@@ -2032,11 +2028,11 @@ codeunit 144164 "ERM Payment Lines"
         CustLedgerEntry.SetRange("Due Date", DueDate);
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
         Assert.AreNearlyEqual(
-          Amount, CustLedgerEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          Amount, CustLedgerEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
     end;
 
-    local procedure VerifyPaymentLinesExist(EntryType: Option; DocType: Option; DocNo: Code[20])
+    local procedure VerifyPaymentLinesExist(EntryType: Option; DocType: Enum "Payment Lines Document Type"; DocNo: Code[20])
     var
         PaymentLines: Record "Payment Lines";
     begin
@@ -2044,7 +2040,7 @@ codeunit 144164 "ERM Payment Lines"
         Assert.RecordIsNotEmpty(PaymentLines);
     end;
 
-    local procedure VerifyPaymentLinesDoNotExist(EntryType: Option; DocType: Option; DocNo: Code[20])
+    local procedure VerifyPaymentLinesDoNotExist(EntryType: Option; DocType: Enum "Payment Lines Document Type"; DocNo: Code[20])
     var
         PaymentLines: Record "Payment Lines";
     begin
@@ -2056,7 +2052,7 @@ codeunit 144164 "ERM Payment Lines"
     var
         PostedSalesInvoicesPage: TestPage "Posted Sales Invoices";
     begin
-        PostedSalesInvoicesPage.OPENVIEW;
+        PostedSalesInvoicesPage.OpenView();
         PostedSalesInvoicesPage.FILTER.SETFILTER("No.", DocumentNo);
         PostedSalesInvoicesPage."Remaining Amount".ASSERTEQUALS(Amount);
         PostedSalesInvoicesPage.Close();
@@ -2066,7 +2062,7 @@ codeunit 144164 "ERM Payment Lines"
     var
         PostedSalesCreditMemosPage: TestPage "Posted Sales Credit Memos";
     begin
-        PostedSalesCreditMemosPage.OPENVIEW;
+        PostedSalesCreditMemosPage.OpenView();
         PostedSalesCreditMemosPage.FILTER.SETFILTER("No.", DocumentNo);
         PostedSalesCreditMemosPage."Remaining Amount".ASSERTEQUALS(Amount);
         PostedSalesCreditMemosPage.Close();
@@ -2076,7 +2072,7 @@ codeunit 144164 "ERM Payment Lines"
     var
         PostedPurchaseInvoicesPage: TestPage "Posted Purchase Invoices";
     begin
-        PostedPurchaseInvoicesPage.OPENVIEW;
+        PostedPurchaseInvoicesPage.OpenView();
         PostedPurchaseInvoicesPage.FILTER.SETFILTER("No.", DocumentNo);
         PostedPurchaseInvoicesPage."Remaining Amount".ASSERTEQUALS(Amount);
         PostedPurchaseInvoicesPage.Close();
@@ -2086,7 +2082,7 @@ codeunit 144164 "ERM Payment Lines"
     var
         PostedPurchaseCreditMemosPage: TestPage "Posted Purchase Credit Memos";
     begin
-        PostedPurchaseCreditMemosPage.OPENVIEW;
+        PostedPurchaseCreditMemosPage.OpenView();
         PostedPurchaseCreditMemosPage.FILTER.SETFILTER("No.", DocumentNo);
         PostedPurchaseCreditMemosPage."Remaining Amount".ASSERTEQUALS(Amount);
         PostedPurchaseCreditMemosPage.Close();
@@ -2096,20 +2092,20 @@ codeunit 144164 "ERM Payment Lines"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         ApplyCustomerEntries.Next();
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         ApplyVendorEntries.Next();
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2120,7 +2116,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         LibraryVariableStorage.Dequeue(GenJournalTemplateName);
         GenJournalTemplateList.FILTER.SetFilter(Name, GenJournalTemplateName);
-        GenJournalTemplateList.OK.Invoke;
+        GenJournalTemplateList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2147,8 +2143,8 @@ codeunit 144164 "ERM Payment Lines"
     [Scope('OnPrem')]
     procedure SuggestVendorBillsRPH(var SuggestVendorBills: TestRequestPage "Suggest Vendor Bills")
     begin
-        SuggestVendorBills.UseSameABICode.SetValue(LibraryVariableStorage.DequeueBoolean);
-        SuggestVendorBills.OK.Invoke;
+        SuggestVendorBills.UseSameABICode.SetValue(LibraryVariableStorage.DequeueBoolean());
+        SuggestVendorBills.OK().Invoke();
     end;
 
     [ConfirmHandler]

@@ -539,9 +539,8 @@ report 12116 "Vendor Account Bills List"
 
     local procedure IsPaymentDocumentType(VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
     begin
-        with VendorLedgerEntry do
-            exit(
-              "Document Type" in ["Document Type"::" ", "Document Type"::Payment, "Document Type"::"Credit Memo"]);
+        exit(
+              VendorLedgerEntry."Document Type" in [VendorLedgerEntry."Document Type"::" ", VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Document Type"::"Credit Memo"]);
     end;
 }
 

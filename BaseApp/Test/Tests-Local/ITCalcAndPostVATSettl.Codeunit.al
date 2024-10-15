@@ -41,7 +41,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // Calc. and Post VAT Settlement report
         // Purchase Invoice with non-deductible Amount
         Initialize();
-        PostingDate := GetPostingDate;
+        PostingDate := GetPostingDate();
         CreateNonDeductibleVATPostingSetup(VATPostingSetup);
 
         Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -72,7 +72,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // Calc. and Post VAT Settlement report
         // Sales Invoice
         Initialize();
-        PostingDate := GetPostingDate;
+        PostingDate := GetPostingDate();
 
         CreateNonDeductibleVATPostingSetup(VATPostingSetup);
 
@@ -103,7 +103,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // Calc. and Post VAT Settlement report
         // Purchase Invoice with non-deductible Amount, Sales Invoice with greater Amount
         Initialize();
-        PostingDate := GetPostingDate;
+        PostingDate := GetPostingDate();
         CreateNonDeductibleVATPostingSetup(VATPostingSetup);
 
         Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -138,7 +138,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // Calc. and Post VAT Settlement report
         // Purchase Invoice with non-deductible Amount, Sales Invoice with less Amount
         Initialize();
-        PostingDate := GetPostingDate;
+        PostingDate := GetPostingDate();
         CreateNonDeductibleVATPostingSetup(VATPostingSetup);
 
         Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -173,7 +173,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     begin
         // Setup: Find and update VAT Posting Setup. Create Activity Code. Create Vendor and Customer with Activitty Code.
         Initialize();
-        PostingDate := GetPostingDate;
+        PostingDate := GetPostingDate();
         FindAndUpdateVATPostingSetup(VATPostingSetup);
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale);
         Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -201,7 +201,6 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         Vendor: Record Vendor;
         Customer: Record Customer;
         DummyGLAccount: Record "G/L Account";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccountNo: Code[20];
         ActivityCode: Code[6];
         UnitPrice: Decimal;
@@ -214,7 +213,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         SetUseActivityCode(true);
         ActivityCode := CreateActivityCode();
         // [GIVEN] Prepare setup for posting of a sales and purchase invoices
-        PostingDate := GetPostingDate;
+        PostingDate := GetPostingDate();
         FindAndUpdateVATPostingSetup(VATPostingSetup);
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale);
         Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -255,7 +254,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         Initialize();
 
         // [GIVEN] VAT Posting Setup with Reverse Chrg. VAT Acc. = "GLAcc"
-        PostingDate := GetPostingDate;
+        PostingDate := GetPostingDate();
         CreateVATPostingSetupWithReverseChrgVATAcc(VATPostingSetup);
         Price := LibraryRandom.RandIntInRange(100, 1000);
         ExpectedVATAmount := Round(Price * VATPostingSetup."VAT %" / 100, GLSetup."Amount Rounding Precision");
@@ -270,8 +269,8 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         LibraryVariableStorage.Enqueue(PostingDate);
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          PostingDate, PostingDate, PostingDate, Format(LibraryRandom.RandIntInRange(1, 10)), LibraryERM.CreateGLAccountNo,
-          LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo, false, true);
+          PostingDate, PostingDate, PostingDate, Format(LibraryRandom.RandIntInRange(1, 10)), LibraryERM.CreateGLAccountNo(),
+          LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo(), false, true);
         Commit();
         CalcAndPostVATSettlement.Run();
 
@@ -286,7 +285,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         GLEntry.FindFirst();
         GLEntry.TestField("Credit Amount", ExpectedVATAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -296,7 +295,6 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     var
         VATPostingSetup: Record "VAT Posting Setup";
         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
-        ActivityCode: Code[10];
         GLAccountCode: Code[20];
         PurchAmount: Decimal;
     begin
@@ -331,7 +329,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
 
         // [WHEN] Run Calc. and Post VAT Settlement report
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName);
+        CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // [THEN] In the report 'Next Period Input VAT'=2 and 'Next Period Output VAT'=0
         VerifyCalcAndPostVATSettlementReportCreditDebitExistence(
@@ -383,13 +381,13 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // [THEN] Verify the "PeriodInputVATYearInputVAT" suggest Advanced Amount
         // [THEN] Verify the "DebitNextPeriod" do not suggest Advanced Amount
         // [THEN] Verify the "CreditNextPeriod" suggest Advanced Amount
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('PeriodInputVATYearInputVAT', AdvancedAmount);
         LibraryReportDataset.AssertElementWithValueExists('DebitNextPeriod', 0);
         LibraryReportDataset.AssertElementWithValueExists(
             'CreditNextPeriod', CalcDeductVATAmount(PurchAmount, VATPostingSetup."Deductible %", VATPostingSetup."VAT %") + AdvancedAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -522,7 +520,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     local procedure CreateNonDeductibleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLine: Record "No. Series Line";
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -534,15 +532,15 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         VATPostingSetup.Modify(true);
 
         VATBusPostingGroup.Get(VATPostingSetup."VAT Bus. Posting Group");
-        NoSeriesLinePurchase.SetRange("Series Code", VATBusPostingGroup."Default Purch. Operation Type");
-        NoSeriesLinePurchase.ModifyAll("Last Date Used", 0D);
+        NoSeriesLine.SetRange("Series Code", VATBusPostingGroup."Default Purch. Operation Type");
+        NoSeriesLine.ModifyAll("Last Date Used", 0D);
     end;
 
     local procedure CreateNonDeductibleVATPostingSetupAndGroups(var VATPostingSetup: Record "VAT Posting Setup")
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
         VATProdPostingGroup: Record "VAT Product Posting Group";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLine: Record "No. Series Line";
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
@@ -554,8 +552,8 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         VATPostingSetup.Validate("Purchase VAT Account", GLAccount."No.");
         VATPostingSetup.Modify(true);
 
-        NoSeriesLinePurchase.SetRange("Series Code", VATBusPostingGroup."Default Purch. Operation Type");
-        NoSeriesLinePurchase.ModifyAll("Last Date Used", 0D);
+        NoSeriesLine.SetRange("Series Code", VATBusPostingGroup."Default Purch. Operation Type");
+        NoSeriesLine.ModifyAll("Last Date Used", 0D);
     end;
 
     local procedure CreateAndPostPurchInvoice(VendorNo: Code[20]; PostingDate: Date; GLAccountNo: Code[20]; UnitCost: Decimal; ActivityCode: Code[6])
@@ -568,7 +566,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PurchaseHeader.Validate("Document Date", PostingDate);
         PurchaseHeader.Validate("Operation Occurred Date", PostingDate);
         PurchaseHeader.Validate("Activity Code", ActivityCode);
-        PurchaseHeader."Posting No. Series" := LibraryERM.CreateNoSeriesPurchaseCode;
+        PurchaseHeader."Posting No. Series" := LibraryERM.CreateNoSeriesPurchaseCode();
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
         PurchaseLine.Validate("Direct Unit Cost", UnitCost);
@@ -591,7 +589,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         SalesHeader.Validate("Activity Code", ActivityCode);
         NoSeries.Init();
         SalesHeader.Validate("Operation Type", LibraryERM.FindOperationType(NoSeries."No. Series Type"::Sales));
-        SalesHeader."Posting No. Series" := LibraryERM.CreateNoSeriesSalesCode;
+        SalesHeader."Posting No. Series" := LibraryERM.CreateNoSeriesSalesCode();
         SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);
@@ -617,7 +615,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         GLAccount: Record "G/L Account";
-        NoSeriesLineSales: Record "No. Series Line Sales";
+        NoSeriesLine: Record "No. Series Line";
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 50));
@@ -627,14 +625,14 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         VATPostingSetup."Reverse Chrg. VAT Acc." := GLAccount."No.";
         VATPostingSetup.Modify();
         VATBusinessPostingGroup.Get(VATPostingSetup."VAT Bus. Posting Group");
-        NoSeriesLineSales.SetRange("Series Code", VATBusinessPostingGroup."Default Sales Operation Type");
-        NoSeriesLineSales.ModifyAll("Last Date Used", 0D);
+        NoSeriesLine.SetRange("Series Code", VATBusinessPostingGroup."Default Sales Operation Type");
+        NoSeriesLine.ModifyAll("Last Date Used", 0D);
     end;
 
     local procedure VerifyCalcAndPostVATStatementDebitCredit(DebitNextPeriodAmount: Decimal; CreditNextPeriodAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DebitNextPeriod', DebitNextPeriodAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('CreditNextPeriod', CreditNextPeriodAmount);
     end;
@@ -683,8 +681,8 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         InputVAT: Text;
         InputVATFound: Boolean;
     begin
-        LibraryReportValidation.DownloadFile;
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.DownloadFile();
+        LibraryReportValidation.OpenExcelFile();
 
         OutputVAT := LibraryReportValidation.GetValueAt(OutputVATFound,
             LibraryReportValidation.FindRowNoFromColumnCaption('Next Period Output VAT'),
@@ -720,8 +718,8 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     [Scope('OnPrem')]
     procedure CalcAndPostVATSettlementHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
-        CalcAndPostVATSettlement.StartingDate.SetValue := LibraryVariableStorage.DequeueDate;
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostVATSettlement.StartingDate.SetValue := LibraryVariableStorage.DequeueDate();
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

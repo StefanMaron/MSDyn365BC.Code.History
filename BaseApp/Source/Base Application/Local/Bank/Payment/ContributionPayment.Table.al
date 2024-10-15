@@ -9,6 +9,7 @@ table 12115 "Contribution Payment"
     Caption = 'Contribution Payment';
     DrillDownPageID = "Contribution Payment List";
     LookupPageID = "Contribution Payment List";
+    DataClassification = CustomerContent;
 
     fields
     {

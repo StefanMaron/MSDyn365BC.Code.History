@@ -33,14 +33,14 @@ codeunit 144071 "UT PAG VAT Exemption"
         Initialize();
 
         // [GIVEN] Created VAT Exemption and opened page - Customer Card.
-        SalesNoSeriesNextNo := SetNoSeriesForSales;
-        CreateVATExemption(VATExemption, VATExemption.Type::Customer, LibrarySales.CreateCustomerNo);
-        CustomerCard.OpenEdit;
+        SalesNoSeriesNextNo := SetNoSeriesForSales();
+        CreateVATExemption(VATExemption, VATExemption.Type::Customer, LibrarySales.CreateCustomerNo());
+        CustomerCard.OpenEdit();
         CustomerCard.FILTER.SetFilter("No.", VATExemption."No.");
-        VATExemptions.Trap;
+        VATExemptions.Trap();
 
         // [WHEN] Using "VAT Exeption" action
-        CustomerCard."VAT E&xemption".Invoke;
+        CustomerCard."VAT E&xemption".Invoke();
 
         // [THEN] VAT Exemption Starting Date, VAT Exemption Ending Date and VAT Exemption Interest Registry Number are filled on page - VAT Exemptions.
         // [THEN] Consecutive VAT Exempt. No. field is visible from the Customer Card page
@@ -64,14 +64,14 @@ codeunit 144071 "UT PAG VAT Exemption"
         Initialize();
 
         // [GIVEN] Created VAT Exemption and opened page - Vendor Card.
-        PurchasesNoSeriesNextNo := SetNoSeriesForPurchase;
-        CreateVATExemption(VATExemption, VATExemption.Type::Vendor, LibraryPurchase.CreateVendorNo);
-        VendorCard.OpenEdit;
+        PurchasesNoSeriesNextNo := SetNoSeriesForPurchase();
+        CreateVATExemption(VATExemption, VATExemption.Type::Vendor, LibraryPurchase.CreateVendorNo());
+        VendorCard.OpenEdit();
         VendorCard.FILTER.SetFilter("No.", VATExemption."No.");
-        VATExemptions.Trap;
+        VATExemptions.Trap();
 
         // [WHEN] Using "VAT Exeption" action
-        VendorCard."VAT E&xemption".Invoke;
+        VendorCard."VAT E&xemption".Invoke();
 
         // [THEN] VAT Exemption Starting Date, VAT Exemption Ending Date and VAT Exemption Interest Registry Number are filled on page - VAT Exemptions.
         // [THEN] Consecutive VAT Exempt. No. field is not visible from the Vendor Card page
@@ -98,7 +98,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         VATExemption."No." := No;
         VATExemption."VAT Exempt. Starting Date" := WorkDate();
         VATExemption."VAT Exempt. Ending Date" := WorkDate();
-        VATExemption."VAT Exempt. Int. Registry No." := LibraryUTUtility.GetNewCode;
+        VATExemption."VAT Exempt. Int. Registry No." := LibraryUTUtility.GetNewCode();
         VATExemption.Insert(true);
     end;
 
@@ -107,7 +107,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
@@ -116,7 +116,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         SalesSetup."VAT Exemption Nos." := NoSeries.Code;
         SalesSetup.Modify();
 
-        exit(NoSeriesMgt.GetNextNo(NoSeries.Code, 0D, false));
+        exit(NoSeriesCodeunit.PeekNextNo(NoSeries.Code));
     end;
 
     local procedure SetNoSeriesForPurchase(): Code[10]
@@ -124,7 +124,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
         PurchasesSetup: Record "Purchases & Payables Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
@@ -133,26 +133,26 @@ codeunit 144071 "UT PAG VAT Exemption"
         PurchasesSetup."VAT Exemption Nos." := NoSeries.Code;
         PurchasesSetup.Modify();
 
-        exit(NoSeriesMgt.GetNextNo(NoSeries.Code, 0D, false));
+        exit(NoSeriesCodeunit.PeekNextNo(NoSeries.Code));
     end;
 
     local procedure VerifyVATExemptionDetail(VATExemptions: TestPage "VAT Exemptions"; VATExemptIntRegistryNo: Code[20]; VATProgressiveNoVisible: Boolean)
     begin
-        VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit;
+        VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit();
 
         VATExemptions."VAT Exempt. Starting Date".AssertEquals(WorkDate());
         VATExemptions."VAT Exempt. Ending Date".AssertEquals(WorkDate());
         VATExemptions."VAT Exempt. Int. Registry No.".AssertEquals(VATExemptIntRegistryNo);
         Assert.AreEqual(
-          VATProgressiveNoVisible, VATExemptions."Consecutive VAT Exempt. No.".Visible, 'Consecutive VAT Exempt. No. visibility is incorrect');
-        VATExemptions.OK.Invoke;
+          VATProgressiveNoVisible, VATExemptions."Consecutive VAT Exempt. No.".Visible(), 'Consecutive VAT Exempt. No. visibility is incorrect');
+        VATExemptions.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NoSeriesPageHandler(var NoSeriesList: Page "No. Series"; var Response: Action)
     begin
-        Response := ACTION::Yes;
+        Response := ACTION::LookupOK;
     end;
 }
 

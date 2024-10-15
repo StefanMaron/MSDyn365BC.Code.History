@@ -9,6 +9,7 @@ using Microsoft.Finance.VAT.Ledger;
 table 12187 "VAT Plafond Period"
 {
     Caption = 'VAT Plafond Period';
+    DataClassification = CustomerContent;
 
     fields
     {

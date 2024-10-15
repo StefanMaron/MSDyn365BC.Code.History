@@ -8,8 +8,11 @@ namespace Microsoft.Foundation.NoSeries;
 table 12145 "No. Series Line Sales"
 {
     Caption = 'No. Series Line Sales';
-    DrillDownPageID = "No. Series Lines Sales";
-    LookupPageID = "No. Series Lines Sales";
+    DataClassification = CustomerContent;
+    ObsoleteReason = 'Merged into No. Series Line table.';
+    ObsoleteState = Moved;
+    ObsoleteTag = '24.0';
+    MovedTo = 'f3552374-a1f2-4356-848e-196002525837';
 
     fields
     {
@@ -30,33 +33,14 @@ table 12145 "No. Series Line Sales"
         field(4; "Starting No."; Code[20])
         {
             Caption = 'Starting No.';
-
-            trigger OnValidate()
-            begin
-                UpdateLine("Starting No.", FieldCaption("Starting No."));
-            end;
         }
         field(5; "Ending No."; Code[20])
         {
             Caption = 'Ending No.';
-
-            trigger OnValidate()
-            begin
-                if "Ending No." = '' then
-                    "Warning No." := '';
-                UpdateLine("Ending No.", FieldCaption("Ending No."));
-                Validate(Open);
-            end;
         }
         field(6; "Warning No."; Code[20])
         {
             Caption = 'Warning No.';
-
-            trigger OnValidate()
-            begin
-                TestField("Ending No.");
-                UpdateLine("Warning No.", FieldCaption("Warning No."));
-            end;
         }
         field(7; "Increment-by No."; Integer)
         {
@@ -67,23 +51,12 @@ table 12145 "No. Series Line Sales"
         field(8; "Last No. Used"; Code[20])
         {
             Caption = 'Last No. Used';
-
-            trigger OnValidate()
-            begin
-                UpdateLine("Last No. Used", FieldCaption("Last No. Used"));
-                Validate(Open);
-            end;
         }
         field(9; Open; Boolean)
         {
             Caption = 'Open';
             Editable = false;
             InitValue = true;
-
-            trigger OnValidate()
-            begin
-                Open := ("Ending No." = '') or ("Ending No." <> "Last No. Used");
-            end;
         }
         field(10; "Last Date Used"; Date)
         {
@@ -97,24 +70,5 @@ table 12145 "No. Series Line Sales"
         {
             Clustered = true;
         }
-        key(Key2; "Series Code", "Starting Date", "Starting No.")
-        {
-        }
-        key(Key3; "Starting No.")
-        {
-        }
     }
-
-    fieldgroups
-    {
-    }
-
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-
-    local procedure UpdateLine(NewNo: Code[20]; NewFieldName: Text[30])
-    begin
-        NoSeriesMgt.UpdateNoSeriesLineSales(Rec, NewNo, NewFieldName);
-    end;
 }
-

@@ -363,7 +363,7 @@ codeunit 144117 "UT VAT Communication"
         CreateSalesOrder(SalesLine, true, SalesHeader.Resident::Resident, PrepmtCMRefersToPeriod);  // Using value True for Individual Person.
 
         // Verify: Verify Prepmt. CM Refers To Period on Sales Order.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesLine."Document No.");
         SalesOrder.SalesLines."Prepmt. CM Refers to Period".AssertEquals(PrepmtCMRefersToPeriod);
         SalesOrder.Close();
@@ -449,7 +449,7 @@ codeunit 144117 "UT VAT Communication"
         CreatePurchaseOrder(PurchaseLine, true, PurchaseHeader.Resident::Resident, PrepmtCMRefersToPeriod);  // Using value True for Individual Person.
 
         // Verify: Verify Prepmt. CM Refers To Period on Purchase Order.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
         PurchaseOrder.PurchLines."Prepmt. CM Refers to Period".AssertEquals(PrepmtCMRefersToPeriod);
         PurchaseOrder.Close();
@@ -536,7 +536,7 @@ codeunit 144117 "UT VAT Communication"
         REPORT.Run(REPORT::"VAT Transaction");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(OperationOccurredDate, Format(VATEntry."Operation Occurred Date"));
         LibraryReportDataset.AssertElementWithValueExists(VATRegistrationNo, VATEntry."VAT Registration No.");
     end;
@@ -553,10 +553,10 @@ codeunit 144117 "UT VAT Communication"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         CustomerPostingGroup.FindFirst();
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Name := Customer."No.";
         Customer."Tax Representative Type" := TaxRepresentativeType;
-        Customer."Tax Representative No." := LibraryUTUtility.GetNewCode;
+        Customer."Tax Representative No." := LibraryUTUtility.GetNewCode();
         Customer."Customer Posting Group" := CustomerPostingGroup.Code;
         Customer.Insert();
         exit(Customer."No.");
@@ -567,7 +567,7 @@ codeunit 144117 "UT VAT Communication"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalBatch."Journal Template Name" := JournalTemplateName;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
         exit(GenJournalBatch.Name);
     end;
@@ -577,10 +577,10 @@ codeunit 144117 "UT VAT Communication"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         CreateVATPostingSetup(VATPostingSetup);
-        GenJournalLine."Journal Template Name" := CreateGeneralJournalTemplate;
+        GenJournalLine."Journal Template Name" := CreateGeneralJournalTemplate();
         GenJournalLine."Journal Batch Name" := CreateGeneralJournalBatch(GenJournalLine."Journal Template Name");
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Bal. Gen. Posting Type" := GenJournalLine."Bal. Gen. Posting Type"::Sale;
         GenJournalLine."Bal. VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         GenJournalLine."Bal. VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
@@ -594,7 +594,7 @@ codeunit 144117 "UT VAT Communication"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         exit(GenJournalTemplate.Name);
     end;
@@ -603,7 +603,7 @@ codeunit 144117 "UT VAT Communication"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader."Prepmt. CM Refers to Period" := PrepmtCMRefersToPeriod;
         PurchaseHeader."Individual Person" := IndividualPerson;
@@ -623,7 +623,7 @@ codeunit 144117 "UT VAT Communication"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."Prepmt. CM Refers to Period" := PrepmtCMRefersToPeriod;
         SalesHeader."Individual Person" := IndividualPerson;
@@ -645,7 +645,7 @@ codeunit 144117 "UT VAT Communication"
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
     begin
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
         ServiceHeader."Bill-to Customer No." := CreateCustomer(Customer."Tax Representative Type"::" ");
         ServiceHeader."Individual Person" := IndividualPerson;
@@ -671,11 +671,11 @@ codeunit 144117 "UT VAT Communication"
         VATEntry.Type := Type;
         VATEntry."Posting Date" := WorkDate();
         VATEntry."Operation Occurred Date" := VATEntry."Posting Date";
-        VATEntry."Fiscal Code" := LibraryUTUtility.GetNewCode;
+        VATEntry."Fiscal Code" := LibraryUTUtility.GetNewCode();
         VATEntry."Include in VAT Transac. Rep." := true;
         VATEntry."Individual Person" := false;
         VATEntry.Resident := Resident;
-        VATEntry."VAT Registration No." := LibraryUTUtility.GetNewCode10;
+        VATEntry."VAT Registration No." := LibraryUTUtility.GetNewCode10();
         VATEntry."Bill-to/Pay-to No." := CreateCustomer(TaxRepresentativeType);
         VATEntry."EU Service" := EUService;
         VATEntry.Insert();
@@ -683,8 +683,8 @@ codeunit 144117 "UT VAT Communication"
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
-        VATPostingSetup."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
+        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
+        VATPostingSetup."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10();
         VATPostingSetup."Include in VAT Transac. Rep." := true;
         VATPostingSetup.Insert();
     end;
@@ -695,7 +695,7 @@ codeunit 144117 "UT VAT Communication"
         REPORT.Run(ReportID);  // Opens GeneralJournalTestRequestPageHandler, SalesDocumentTestRequestPageHandler, PurchaseDocumentTestRequestPageHandler and ServiceDocumentTestRequestPageHandler.
 
         // Verify: Verify Error Text Number and Warning Error on Report General Journal - Test, Sales Document - Test, Purchase Document - Test and Service Document - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ErrorTextNumberCap, ErrorTextNumber);
         LibraryReportDataset.AssertElementWithValueExists(WarningErrorTextNumberCap, StrSubstNo(WarningTxt));
     end;
@@ -711,7 +711,7 @@ codeunit 144117 "UT VAT Communication"
         LibraryVariableStorage.Dequeue(JournalBatchName);
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Template Name", JournalTemplateName);
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", JournalBatchName);
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -722,7 +722,7 @@ codeunit 144117 "UT VAT Communication"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -733,7 +733,7 @@ codeunit 144117 "UT VAT Communication"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseDocumentTest."Purchase Header".SetFilter("No.", No);
-        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -744,7 +744,7 @@ codeunit 144117 "UT VAT Communication"
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceDocumentTest."Service Header".SetFilter("No.", No);
-        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -755,7 +755,7 @@ codeunit 144117 "UT VAT Communication"
     begin
         LibraryVariableStorage.Dequeue(OperationOccurredDate);
         VATTransaction.FiscalCode.SetFilter("Operation Occurred Date", Format(OperationOccurredDate));
-        VATTransaction.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATTransaction.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

@@ -62,7 +62,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         end;
 
         // Verify query: Query - database consistency.
-        DelayedProdOrdersByCost.Open;
+        DelayedProdOrdersByCost.Open();
         count := 0;
         while DelayedProdOrdersByCost.Read() do begin
             count += 1;
@@ -124,7 +124,7 @@ codeunit 137111 "SCM Production Backlog Chart"
 
         // Verify query: Query - database consistency.
         count := 0;
-        Top10ProdOrdersByCost.Open;
+        Top10ProdOrdersByCost.Open();
         while Top10ProdOrdersByCost.Read() do begin
             GetExpectedProdOrderBacklog(
               Qty, CostAmount, TotalCostAmount, '', false, Top10ProdOrdersByCost.Status, Top10ProdOrdersByCost.Item_No);
@@ -178,7 +178,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         end;
 
         // Verify query: Query - database consistency.
-        PendingProdOrdersByCost.Open;
+        PendingProdOrdersByCost.Open();
         count := 0;
         while PendingProdOrdersByCost.Read() do begin
             count += 1;
@@ -249,7 +249,7 @@ codeunit 137111 "SCM Production Backlog Chart"
 
         // Verify query: Query - database consistency.
         MyDelayedProdOrders.SetFilter(User_ID, UserId);
-        MyDelayedProdOrders.Open;
+        MyDelayedProdOrders.Open();
         while MyDelayedProdOrders.Read() do begin
             GetExpectedProdOrderBacklog(Qty, CostAmount, TotalCostAmount, '<=', true, MyDelayedProdOrders.Status, MyDelayedProdOrders.Item_No);
             Assert.AreEqual(Qty, MyDelayedProdOrders.Sum_Remaining_Quantity, 'Item: ' + MyDelayedProdOrders.Item_No + '; field: ' + MyDelayedProdOrders.ColumnCaption(Sum_Remaining_Quantity));
@@ -309,7 +309,7 @@ codeunit 137111 "SCM Production Backlog Chart"
 
         // Verify query: Query - database consistency.
         MyProdOrdersByCost.SetFilter(User_ID, UserId);
-        MyProdOrdersByCost.Open;
+        MyProdOrdersByCost.Open();
         count := 0;
         while MyProdOrdersByCost.Read() do begin
             count += 1;
@@ -407,7 +407,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         if Qty > 0 then
             ExpQueryRecords := 1;
 
-        DelayedProdOrdersByCost.Open;
+        DelayedProdOrdersByCost.Open();
         while DelayedProdOrdersByCost.Read() do
             if (DelayedProdOrdersByCost.Item_No = ItemNo) and (DelayedProdOrdersByCost.Status = Status) then begin
                 Assert.AreEqual(Qty, DelayedProdOrdersByCost.Sum_Remaining_Quantity, 'Item: ' + DelayedProdOrdersByCost.Item_No + '; field: ' + DelayedProdOrdersByCost.ColumnCaption(Sum_Remaining_Quantity));
@@ -434,7 +434,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         if Qty > 0 then
             ExpQueryRecords := 1;
 
-        PendingProdOrdersByCost.Open;
+        PendingProdOrdersByCost.Open();
         while PendingProdOrdersByCost.Read() do
             if (PendingProdOrdersByCost.Item_No = ItemNo) and (PendingProdOrdersByCost.Status = Status) then begin
                 Assert.AreEqual(Qty, PendingProdOrdersByCost.Sum_Remaining_Quantity, 'Item: ' + PendingProdOrdersByCost.Item_No + '; field: ' + PendingProdOrdersByCost.ColumnCaption(Sum_Remaining_Quantity));
@@ -462,7 +462,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             ExpQueryRecords := 1;
 
         MyDelayedProdOrders.SetFilter(User_ID, UserId);
-        MyDelayedProdOrders.Open;
+        MyDelayedProdOrders.Open();
         while MyDelayedProdOrders.Read() do
             if (MyDelayedProdOrders.Item_No = ItemNo) and (MyDelayedProdOrders.Status = Status) then begin
                 Assert.AreEqual(Qty, MyDelayedProdOrders.Sum_Remaining_Quantity, 'Item: ' + MyDelayedProdOrders.Item_No + '; field: ' + MyDelayedProdOrders.ColumnCaption(Sum_Remaining_Quantity));
@@ -488,7 +488,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             ExpQueryRecords := 1;
 
         MyProdOrdersByCost.SetFilter(User_ID, UserId);
-        MyProdOrdersByCost.Open;
+        MyProdOrdersByCost.Open();
         while MyProdOrdersByCost.Read() do
             if (MyProdOrdersByCost.Item_No = ItemNo) and (MyProdOrdersByCost.Status = Status) then begin
                 Assert.AreEqual(Qty, MyProdOrdersByCost.Sum_Remaining_Quantity, 'Item: ' + MyProdOrdersByCost.Item_No + '; field: ' + MyProdOrdersByCost.ColumnCaption(Sum_Remaining_Quantity));

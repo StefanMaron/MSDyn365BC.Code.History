@@ -28,7 +28,7 @@ report 99000756 "Detailed Calculation"
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(CalculateDate; Text000 + Format(CalculateDate))
+            column(CalculateDate; CalculateDateLbl + Format(CalculateDate))
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -153,7 +153,7 @@ report 99000756 "Detailed Calculation"
                         SubcPrices."Unit of Measure Code" := Item."Base Unit of Measure";
                         SubcPrices."Start Date" := CalculateDate;
                         SubcPrices."Currency Code" := '';
-                        SubcontractingPriceMgt.RoutingPricelistCost(
+                        SubcontractingPriceMgt.GetRoutingPricelistCost(
                           SubcPrices,
                           WorkCenter,
                           DirectUnitCost,
@@ -275,7 +275,6 @@ report 99000756 "Detailed Calculation"
                     else
                         UOMFactor := 1;
 
-
                     CompItemQtyBase :=
                       CostCalcMgt.CalcCompItemQtyBase(ProdBOMLine[Level], CalculateDate, Quantity[Level], Item."Routing No.", Level = 1) /
                       UOMFactor;
@@ -387,13 +386,11 @@ report 99000756 "Detailed Calculation"
 
                 CostTotal := 0;
 
-
                 PBOMNoList[1] := "Production BOM No.";
 
                 if "Production BOM No." <> '' then
                     PBOMVersionCode[1] :=
                       VersionMgt.GetBOMVersion("Production BOM No.", CalculateDate, false);
-
 
                 if "Routing No." <> '' then
                     RtngVersionCode := VersionMgt.GetRtngVersion("Routing No.", CalculateDate, false);
@@ -458,24 +455,13 @@ report 99000756 "Detailed Calculation"
         VersionMgt: Codeunit VersionManagement;
         RtngVersionCode: Code[20];
         ItemFilter: Text;
-        CompItemQtyBase: Decimal;
-        CalculateDate: Date;
-        CostTotal: Decimal;
-        ProdUnitCost: Decimal;
-        ProdTotalCost: Decimal;
-        CostTime: Decimal;
         InBOM: Boolean;
         InRouting: Boolean;
-        Level: Integer;
-        NextLevel: Integer;
-        SingleLevelMfgOvhd: Decimal;
         DirectUnitCost: Decimal;
         IndirectCostPct: Decimal;
         OverheadRate: Decimal;
-        FooterProdTotalCost: Decimal;
-        FooterCostTotal: Decimal;
 
-        Text000: Label 'As of ';
+        CalculateDateLbl: Label 'As of ';
         PageNoCaptionLbl: Label 'Page';
         DetailedCalculationCaptionLbl: Label 'Detailed Calculation';
         UnitCostCaptionLbl: Label 'Unit Cost';
@@ -497,5 +483,15 @@ report 99000756 "Detailed Calculation"
         PBOMNoList: array[99] of Code[20];
         PBOMVersionCode: array[99] of Code[20];
         Quantity: array[99] of Decimal;
+        CalculateDate: Date;
+        Level: Integer;
+        NextLevel: Integer;
+        CompItemQtyBase: Decimal;
+        CostTotal: Decimal;
+        ProdUnitCost: Decimal;
+        ProdTotalCost: Decimal;
+        CostTime: Decimal;
+        SingleLevelMfgOvhd: Decimal;
+        FooterProdTotalCost: Decimal;
+        FooterCostTotal: Decimal;
 }
-

@@ -44,7 +44,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         ClearTable(DATABASE::"Production BOM Line");
         ClearTable(DATABASE::Resource);
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
@@ -70,7 +70,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     [Test]
@@ -95,14 +95,14 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         LibrarySmallBusiness.CreateSalesCrMemoHeader(SalesHeader, Customer);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
 
-        PostedSalesCreditMemo.Trap;
+        PostedSalesCreditMemo.Trap();
 
         // Exercise
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        LibrarySales.EnableConfirmOnPostingDoc;
-        SalesCreditMemo.Post.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        LibrarySales.EnableConfirmOnPostingDoc();
+        SalesCreditMemo.Post.Invoke();
 
         // Verify
         PostedSalesCreditMemo.Close();
@@ -130,13 +130,13 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         LibrarySmallBusiness.CreateSalesCrMemoHeader(SalesHeader, Customer);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
 
-        PostedSalesCreditMemo.Trap;
+        PostedSalesCreditMemo.Trap();
 
         // Exercise
-        SalesCreditMemos.OpenView;
+        SalesCreditMemos.OpenView();
         SalesCreditMemos.GotoRecord(SalesHeader);
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        SalesCreditMemos.Post.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        SalesCreditMemos.Post.Invoke();
 
         // Verify
         PostedSalesCreditMemo.Close();
@@ -172,7 +172,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         OldValue := SalesHeader."Currency Factor";
 
         // Exercise
-        SalesCreditMemo."Currency Code".AssistEdit;
+        SalesCreditMemo."Currency Code".AssistEdit();
         SalesCreditMemo.Close();
 
         // Verify
@@ -217,7 +217,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         UserSetup.Validate("Sales Resp. Ctr. Filter", ResponsibilityCenter.Code);
         UserSetup.Modify();
 
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         Assert.IsFalse(SalesCreditMemo.GotoRecord(SalesHeader), '');
         SalesCreditMemo.Close();
     end;
@@ -257,8 +257,8 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
-        SalesCreditMemo.SalesLines.InsertExtTexts.Invoke;
-        SalesCreditMemo.SalesLines.New;
+        SalesCreditMemo.SalesLines.InsertExtTexts.Invoke();
+        SalesCreditMemo.SalesLines.New();
         SalesCreditMemo.Close();
 
         // Verify
@@ -308,11 +308,11 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         // Exercise: Select existing customer.
         SalesCreditMemo.OpenNew();
-        SalesCreditMemo.SalesLines.First;
+        SalesCreditMemo.SalesLines.First();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
         // Enqueue for ChangeSellToBillToCustomerConfirmHandler that is called twice
         // for sell-to and bill-to
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer1.Name);
 
         // Verify.
@@ -335,7 +335,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         CustomerName := CopyStr(Format(CreateGuid()), 1, 50);
 
         SalesCreditMemo.OpenNew();
-        SalesCreditMemo.SalesLines.First;
+        SalesCreditMemo.SalesLines.First();
 
         // Verify
         asserterror SalesCreditMemo."Sell-to Customer Name".SetValue(CustomerName);
@@ -399,16 +399,16 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
-        SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType);
+        SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType());
 
         // Set item on line - if no errors than is ok
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 2));
-        SalesCreditMemo.SalesLines.New;
+        SalesCreditMemo.SalesLines.New();
 
         LibraryVariableStorage.Enqueue(true); // for the posting confirm handler
         LibraryVariableStorage.Enqueue(false); // for open posted sales credit memo confirm handler
-        SalesCreditMemo.Post.Invoke;
+        SalesCreditMemo.Post.Invoke();
 
         VerifyUnitCostOnItemCard(Item, false); // ILEs exist and control should be non - editable
     end;
@@ -431,16 +431,16 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
-        SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType);
+        SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType());
 
         // Set item as service on line - if no errors than is ok
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 2));
-        SalesCreditMemo.SalesLines.New;
+        SalesCreditMemo.SalesLines.New();
 
         LibraryVariableStorage.Enqueue(true); // for the posting confirm handler
         LibraryVariableStorage.Enqueue(false); // for open posted sales credit memo confirm handler
-        SalesCreditMemo.Post.Invoke;
+        SalesCreditMemo.Post.Invoke();
 
         VerifyUnitCostOnItemCard(Item, true); // ILEs exist but is service item so control should be editable
     end;
@@ -463,8 +463,8 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         Assert.AreEqual(SalesCreditMemo."Payment Terms Code".Value, '', 'Payment Terms Code should be empty by default');
         // Due Date is replaced by Operation Occurred Date in IT
-        Assert.AreEqual(SalesCreditMemo."Operation Occurred Date".AsDate,
-          SalesCreditMemo."Document Date".AsDate, 'Due Date incorrectly calculated.');
+        Assert.AreEqual(SalesCreditMemo."Operation Occurred Date".AsDate(),
+          SalesCreditMemo."Document Date".AsDate(), 'Due Date incorrectly calculated.');
     end;
 
     [Test]
@@ -485,9 +485,9 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         PaymentTerms.Get(Customer."Payment Terms Code");
         SalesCreditMemo."Payment Terms Code".SetValue(PaymentTerms.Code);
-        ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", SalesCreditMemo."Document Date".AsDate);
+        ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", SalesCreditMemo."Document Date".AsDate());
         // Due Date is replaced by Operation Occurred Date in IT
-        Assert.AreEqual(SalesCreditMemo."Operation Occurred Date".AsDate, ExpectedDueDate, 'Due Date incorrectly calculated.');
+        Assert.AreEqual(SalesCreditMemo."Operation Occurred Date".AsDate(), ExpectedDueDate, 'Due Date incorrectly calculated.');
     end;
 
     [Test]
@@ -500,11 +500,11 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Initialize();
 
         SalesCreditMemo.OpenNew();
-        Assert.IsTrue(SalesCreditMemo."Shipment Date".Enabled,
+        Assert.IsTrue(SalesCreditMemo."Shipment Date".Enabled(),
           Format('Shipment Date should be present on Sales Credit Memo'));
 
-        PostedSalesCreditMemo.OpenView;
-        Assert.IsTrue(SalesCreditMemo."Shipment Date".Enabled,
+        PostedSalesCreditMemo.OpenView();
+        Assert.IsTrue(SalesCreditMemo."Shipment Date".Enabled(),
           Format('Shipment Date should be present on Posted Sales Credit Memo'));
     end;
 
@@ -538,9 +538,9 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        Assert.IsTrue(ItemCard."Unit Cost".Editable = Editable,
+        Assert.IsTrue(ItemCard."Unit Cost".Editable() = Editable,
           'Editable property for Unit cost field should be: ' + Format(Editable));
     end;
 
@@ -562,15 +562,15 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
     begin
         LibraryVariableStorage.Dequeue(CustomerName);
         CustomerList.FILTER.SetFilter(Name, CustomerName);
-        CustomerList.Last;
-        CustomerList.OK.Invoke;
+        CustomerList.Last();
+        CustomerList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerListCancelPageHandler(var CustomerList: TestPage "Customer List")
     begin
-        CustomerList.Cancel.Invoke;
+        CustomerList.Cancel().Invoke();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
@@ -615,7 +615,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
     begin
         Evaluate(OldValue, ChangeExchRate.RefExchRate.Value);
         ChangeExchRate.RefExchRate.SetValue(OldValue + 1);
-        ChangeExchRate.OK.Invoke;
+        ChangeExchRate.OK().Invoke();
     end;
 
     local procedure CreateNewRespCenter(var ResponsibilityCenter: Record "Responsibility Center")

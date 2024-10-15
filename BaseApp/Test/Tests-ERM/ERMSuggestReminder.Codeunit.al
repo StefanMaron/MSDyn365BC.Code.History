@@ -31,7 +31,7 @@
 
         // Create Reminder and suggest Reminder Lines. Take random no. of days to calculate Document Date after Due Date.
         Initialize();
-        ReminderHeaderNo := CreateAndSuggestReminderLine(LibraryRandom.RandInt(10), CreateCustomer);
+        ReminderHeaderNo := CreateAndSuggestReminderLine(LibraryRandom.RandInt(10), CreateCustomer());
 
         // Verify: Verify the Creation of Reminder Lines.
         VerifyReminderLine(ReminderHeaderNo);
@@ -49,11 +49,19 @@
 
         // Create Reminder and suggest Reminder Lines. Take Negative random no. of days to calculate Document Date before Due Date.
         Initialize();
-        ReminderNo := CreateAndSuggestReminderLine(-LibraryRandom.RandInt(10), CreateCustomer);
+        ReminderNo := CreateAndSuggestReminderLine(-LibraryRandom.RandInt(10), CreateCustomer());
 
         // Verify: Check that no Reminder Line exists when Document Date is before Due Date.
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         Assert.IsTrue(ReminderLine.IsEmpty, ReminderLineExistErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoReminderLinesWithInterestCalculation()
+    begin
+        // [SCENARIO TFS121135] Create Reminder and remove Reminder Header if total balance is negative.
+        // Not implemented for IT
     end;
 
     [Test]
@@ -80,10 +88,10 @@
 
         // Open Reminder Text Page from Reminder Levels Page.
         OpenReminderTextPage(ReminderLevels, ReminderTermsCode, ReminderLevel."No.");
-        ReminderTextPage.Trap;
+        ReminderTextPage.Trap();
 
         // Exercise: Invoke Reminder Text Page.
-        ReminderLevels.BeginningText.Invoke;
+        ReminderLevels.BeginningText.Invoke();
 
         // Verify: Verify page caption for Reminder Text Page.
         Assert.AreEqual(StrSubstNo(ReminderCaptionTxt, ReminderTermsCode, ReminderLevel."No."), ReminderTextPage.Caption, CaptionErr);
@@ -166,9 +174,9 @@
         Initialize();
 
         // [GIVEN] Two Reminders.
-        CreateAndPostSalesInvoice(SalesHeader, CreateCustomer);
+        CreateAndPostSalesInvoice(SalesHeader, CreateCustomer());
         CreateReminderForCustomer(ReminderHeader[1], SalesHeader."Sell-to Customer No.", SalesHeader."Due Date");
-        CreateAndPostSalesInvoice(SalesHeader, CreateCustomer);
+        CreateAndPostSalesInvoice(SalesHeader, CreateCustomer());
         CreateReminderForCustomer(ReminderHeader[2], SalesHeader."Sell-to Customer No.", SalesHeader."Due Date");
 
         // [WHEN] Report "Suggest Reminder Lines" is run for two Reminders.
@@ -184,8 +192,18 @@
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Suggest Reminder");
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+        end;
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Suggest Reminder");
@@ -241,7 +259,7 @@
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           DocType, GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amt);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amt);
         GenJournalLine.Validate("Posting Date", DocDate);
         GenJournalLine.Modify(true);
 
@@ -254,6 +272,7 @@
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", CreateReminderTerms(true));
+        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms());
         Customer.Modify(true);
         exit(Customer."No.")
     end;
@@ -262,6 +281,7 @@
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", CreateReminderTerms(CalculateInterest));
+        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms());
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         Customer.Modify(true);
@@ -357,10 +377,10 @@
     var
         ReminderTerms: TestPage "Reminder Terms";
     begin
-        ReminderTerms.OpenEdit;
+        ReminderTerms.OpenEdit();
         ReminderTerms.FILTER.SetFilter(Code, Code);
-        ReminderLevels.Trap;
-        ReminderTerms."&Levels".Invoke;
+        ReminderLevels.Trap();
+        ReminderTerms."&Levels".Invoke();
         ReminderLevels.FILTER.SetFilter("No.", Format(No));
     end;
 

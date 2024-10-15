@@ -190,7 +190,7 @@ codeunit 137158 "SCM Orders V"
         Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
-        CreateItemWithItemTrackingCode(Item2, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // True for Lot.
+        CreateItemWithItemTrackingCode(Item2, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');  // True for Lot.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
         CreateAndPostPurchaseOrderWithMultipleItems(PurchaseHeader, PurchaseLine, Item."No.", Quantity, Item2."No.");
         LibraryVariableStorage.Dequeue(DequeueVariable);
@@ -256,7 +256,7 @@ codeunit 137158 "SCM Orders V"
 
         if CarryOutActionMessage then begin
             // Exercise.
-            LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+            LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
             VendorPostingGroup.Get(Vendor."Vendor Posting Group");
             GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
             UpdateUnitCostOnPurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.");
@@ -490,7 +490,7 @@ codeunit 137158 "SCM Orders V"
 
         if PostTransferOrder then begin
             // Exercise.
-            PostAllTransferOrdersWithLocationInTransit;  // Posting of All Transfers Orders is required for verification of this test.
+            PostAllTransferOrdersWithLocationInTransit();  // Posting of All Transfers Orders is required for verification of this test.
 
             // Verify.
             VerifyEditablePropertyOfUseAsInTransitFieldOnLocationCard(LocationInTransit.Code, true);  // Editable as TRUE.
@@ -1045,10 +1045,10 @@ codeunit 137158 "SCM Orders V"
         // Exercise: Change the Unit of Measure Code on Sales Order page to trigger the avail. warning and post the order.
         // PS: The automation case cannot detect the error "The following C/AL functionts..." due to testability issue.
         Commit();
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrder.SalesLines."Unit of Measure Code".SetValue(ItemUnitOfMeasure1.Code); // Trigger the avail.warning.
-        SalesOrder.Post.Invoke;
+        SalesOrder.Post.Invoke();
 
         // Verify: Verify the Quantity(calculated by ItemUnitOfMeasure1) on Item Ledger Entry.
         VerifyItemLedgerEntry(
@@ -1194,7 +1194,7 @@ codeunit 137158 "SCM Orders V"
         Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         for i := 1 to ArrayLen(Item) do begin
-            CreateItemWithItemTrackingCode(Item[i], true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // True for Lot.
+            CreateItemWithItemTrackingCode(Item[i], true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');  // True for Lot.
             CreateDimensionForItem(Item[i]."No.");
         end;
 
@@ -1295,14 +1295,14 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Item with lot tracking
         Qty := LibraryRandom.RandInt(100);
-        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');
+        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');
         // [GIVEN] Post purchase receipt with lot no. = "L"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, '', Item."No.", Qty, '', true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Post sales shipment for lot "L"
-        LotNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(LotNo));
+        LotNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNo));
         CreateSalesOrderWithItemTracking(SalesHeader, '', Item."No.", Qty, '');
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
@@ -1510,10 +1510,10 @@ codeunit 137158 "SCM Orders V"
         // [GIVEN] New sales order
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
-        SalesOrder.SalesLines.New;
+        SalesOrder.SalesLines.New();
         SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
 
         // [WHEN] In sales order line, set an item that is not on inventory
@@ -1544,8 +1544,8 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Sales Order Line with "I".
         SalesOrder.OpenNew();
-        SalesOrder."Sell-to Customer No.".SetValue(LibrarySales.CreateCustomerNo);
-        SalesOrder.SalesLines.New;
+        SalesOrder."Sell-to Customer No.".SetValue(LibrarySales.CreateCustomerNo());
+        SalesOrder.SalesLines.New();
         SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
         SalesOrder.SalesLines."No.".SetValue(Item."No.");
 
@@ -1579,8 +1579,8 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Purchase Order Line with "I".
         PurchaseOrder.OpenNew();
-        PurchaseOrder."Buy-from Vendor No.".SETVALUE(LibraryPurchase.CreateVendorNo);
-        PurchaseOrder.PurchLines.New;
+        PurchaseOrder."Buy-from Vendor No.".SETVALUE(LibraryPurchase.CreateVendorNo());
+        PurchaseOrder.PurchLines.New();
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseOrder.PurchLines."No.".SetValue(Item."No.");
 
@@ -1611,7 +1611,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Sales order "SO" marked as "Special Order" and linked to purchase order "PO"
         ItemNo := LibraryInventory.CreateItemNo();
-        CreateSalesOrderWithSpecialOrder(SalesHeaderOrder, LibrarySales.CreateCustomerNo, '', ItemNo);
+        CreateSalesOrderWithSpecialOrder(SalesHeaderOrder, LibrarySales.CreateCustomerNo(), '', ItemNo);
 
         // [GIVEN] "PO" with line "PL" received and not invoiced
         CreateSpecialPurchaseOrderAndPostReceipt(PurchaseHeader, SalesHeaderOrder, ItemNo);
@@ -1652,7 +1652,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Sales order "SO" marked as "Special Order" and linked to purchase order "PO"
         ItemNo := LibraryInventory.CreateItemNo();
-        CreateSalesOrderWithSpecialOrder(SalesHeaderOrder, LibrarySales.CreateCustomerNo, '', ItemNo);
+        CreateSalesOrderWithSpecialOrder(SalesHeaderOrder, LibrarySales.CreateCustomerNo(), '', ItemNo);
 
         // [GIVEN] "PO" with line "PL" received and not invoiced
         CreateSpecialPurchaseOrderAndPostReceipt(PurchaseHeader, SalesHeaderOrder, ItemNo);
@@ -1771,7 +1771,7 @@ codeunit 137158 "SCM Orders V"
         CreateSalesOrderWithInsertedExtendedText(SalesHeader, SalesLine, AssemblyItem."No.");
 
         // [GIVEN] Additional line in the end of Sales Order
-        CreateSalesLine(SalesHeader, NewSalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '');
+        CreateSalesLine(SalesHeader, NewSalesLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '');
 
         // [WHEN] Explode Assembly BOM
         LibrarySales.ExplodeBOM(SalesLine);
@@ -1835,7 +1835,7 @@ codeunit 137158 "SCM Orders V"
         CreatePurchOrderWithInsertedExtendedText(PurchHeader, PurchLine, AssemblyItem."No.");
 
         // [GIVEN] Additional line in the end of Purchase Order
-        CreatePurchaseLine(PurchHeader, NewPurchLine, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', false);
+        CreatePurchaseLine(PurchHeader, NewPurchLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', false);
 
         // [WHEN] Explode Assembly BOM
         LibraryPurchase.ExplodeBOM(PurchLine);
@@ -2367,7 +2367,7 @@ codeunit 137158 "SCM Orders V"
         SalesHeaderOrder.Delete(true);
 
         // [THEN] Sales order is deleted
-        Assert.IsFalse(SalesHeaderOrder.Find, StrSubstNo(MustBeDeletedErr, SalesHeaderOrder."No."));
+        Assert.IsFalse(SalesHeaderOrder.Find(), StrSubstNo(MustBeDeletedErr, SalesHeaderOrder."No."));
     end;
 
     [Test]
@@ -2384,7 +2384,7 @@ codeunit 137158 "SCM Orders V"
         Initialize();
 
         // [GIVEN] Sales order "SO" with a "Drop Shipment" purchasing code
-        CreateSalesOrderWithDropShipment(SalesHeader, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
+        CreateSalesOrderWithDropShipment(SalesHeader, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
 
         // [GIVEN] Create a purchase order and get drop shipment lines into it
         CreatePurchaseOrderWithGetDropShipment(PurchHeader, SalesHeader."Sell-to Customer No.");
@@ -2414,7 +2414,7 @@ codeunit 137158 "SCM Orders V"
         // [GIVEN] Blanket sales order with customer "C", item "I" and unit price "X".
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeaderBlanketOrder, SalesLineBlanketOrder, SalesHeaderBlanketOrder."Document Type"::"Blanket Order",
-          LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate());
+          LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
         SalesLineBlanketOrder.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLineBlanketOrder.Modify(true);
 
@@ -2451,7 +2451,7 @@ codeunit 137158 "SCM Orders V"
         // [GIVEN] Sales order with item "I" is set up for drop shipment.
         // [GIVEN] Create purchase order for vendor "V" by getting the sales order line.
         CreateSalesOrderWithDropShipment(
-          SalesHeader, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
+          SalesHeader, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
         CreatePurchaseOrderWithGetDropShipment(PurchHeaderOrder, SalesHeader."Sell-to Customer No.");
         FindPurchaseLineByHeader(PurchLineOrder, PurchHeaderOrder);
 
@@ -2487,11 +2487,11 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
 
         // [GIVEN] Sales return order "SRO" with a lot-tracked line.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo(),
           Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
@@ -2507,7 +2507,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] A confirmation message "Return Order "SRO" has item reservation." is shown.
         // Verification is done in ConfirmHandler.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2527,11 +2527,11 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
 
         // [GIVEN] Purchase order "PO" with a lot-tracked line.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(),
           Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
@@ -2547,7 +2547,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] A confirmation message "Order "PO" has item reservation." is shown.
         // Verification is done in ConfirmHandler.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2567,7 +2567,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
 
         // [GIVEN] Released production order "RPO" with a lot-tracked line.
         LibraryManufacturing.CreateAndRefreshProductionOrder(
@@ -2587,7 +2587,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] A confirmation message "Released production order "RPO" has item reservation." is shown.
         // Verification is done in ConfirmHandler.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2607,7 +2607,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
 
         // [GIVEN] Transfer order "TO" with a lot-tracked line.
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationBlue.Code, LocationRed.Code, LocationInTransit.Code);
@@ -2627,7 +2627,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] A confirmation message "Transfer order "TO" has item reservation." is shown.
         // Verification is done in ConfirmHandler.
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2809,7 +2809,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Purchase order for a lot tracked item, Quantity = 30 pcs
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 30);
 
         // [GIVEN] Assign 3 lot nos on the purchase line, 10 pcs in each lot, and post purchase receipt
@@ -2823,7 +2823,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] Error message "The quantity to invoice does not match the quantity defined in item tracking" is thrown.
         Assert.ExpectedError(QtyToInvoiceDoesNotMatchItemTrackingErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2843,7 +2843,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Purchase order for a lot tracked item, Quantity = 30 pcs
         CreateItemWithItemTrackingCode(Item, true, false, '', '');
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 30);
 
         // [GIVEN] Assign 3 lot nos on the purchase line, 10 pcs in each lot, and post purchase receipt
@@ -2863,7 +2863,7 @@ codeunit 137158 "SCM Orders V"
         PurchInvLine.FindFirst();
         PurchInvLine.TestField(Quantity, 20);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2894,7 +2894,7 @@ codeunit 137158 "SCM Orders V"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Create and ship sales order for the whole stock
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 30);
         EnqueueLotAssignment(3, 10);
         SalesLine.OpenItemTrackingLines();
@@ -2906,7 +2906,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] Error message "The quantity to invoice does not match the quantity defined in item tracking" is thrown.
         Assert.ExpectedError(QtyToInvoiceDoesNotMatchItemTrackingErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2938,7 +2938,7 @@ codeunit 137158 "SCM Orders V"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Create and ship sales order for the whole stock
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 30);
         EnqueueLotAssignment(3, 10);
         SalesLine.OpenItemTrackingLines();
@@ -2956,7 +2956,7 @@ codeunit 137158 "SCM Orders V"
         SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField(Quantity, 20);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3065,7 +3065,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] "Qty. to Invoice" in the item tracking = 8 pcs.
         VerifyQtyToInvoiceInItemTrackingOnPurchLine(PurchaseLine, 8);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3117,7 +3117,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] "Qty. to Invoice" in the item tracking = 8 pcs.
         VerifyQtyToInvoiceInItemTrackingOnPurchLine(PurchaseLine, 8);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3157,7 +3157,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] "Qty. to Invoice" in the item tracking = 5 pcs.
         VerifyQtyToInvoiceInItemTrackingOnPurchLine(PurchaseLine, 5);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3197,7 +3197,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] "Qty. to Invoice" in the item tracking = 1 pc.
         VerifyQtyToInvoiceInItemTrackingOnPurchLine(PurchaseLine, 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3234,7 +3234,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] "The quantity to invoice does not match the quantity defined in item tracking." error message is thrown.
         Assert.ExpectedError(QtyToInvoiceDoesNotMatchItemTrackingErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3268,7 +3268,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] "Qty. to Invoice" in the item tracking = 8 pcs.
         VerifyQtyToInvoiceInItemTrackingOnPurchLine(PurchaseLine, 8);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3319,7 +3319,7 @@ codeunit 137158 "SCM Orders V"
         // [THEN] "Qty. to Invoice" in the item tracking = 1 pc.
         VerifyQtyToInvoiceInItemTrackingOnSalesLine(SalesLine, -1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3355,7 +3355,7 @@ codeunit 137158 "SCM Orders V"
 
         // [GIVEN] Sales Line 10000 with Drop Shipment purchasing code
         CreateSalesLineWithPurchasingCode(
-          SalesHeader, SalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', CreatePurchasingCode(false, true));
+          SalesHeader, SalesLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2), '', CreatePurchasingCode(false, true));
 
         // [GIVEN] Purchase Order "PO01" with linked Drop Shipment for sales line "SO01",10000
         CreatePurchaseOrderWithGetDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
@@ -3395,11 +3395,11 @@ codeunit 137158 "SCM Orders V"
         DefaultDimension.Modify(true);
 
         // [GIVEN] Sales Order "SO01"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Line 10000 with Drop Shipment purchasing code
         CreateSalesLineWithPurchasingCode(
-          SalesHeader, SalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', CreatePurchasingCode(false, true));
+          SalesHeader, SalesLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2), '', CreatePurchasingCode(false, true));
 
         // [GIVEN] Purchase Order "PO01" with linked Drop Shipment for sales line "SO01",10000 for Vendor "VE01" and Dimension 'Department' deleted
         CreatePurchaseHeaderWithSellToCustomerNo(PurchaseHeader, VendorNo, SalesHeader."Sell-to Customer No.");
@@ -3432,10 +3432,10 @@ codeunit 137158 "SCM Orders V"
         Initialize();
 
         // [GIVEN] Sales Order has one line with drop shipment and a normal line
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLineWithPurchasingCode(
-          SalesHeader, SalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(5, 10), '', CreatePurchasingCode(false, true));
-        CreateSalesLine(SalesHeader, SalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(5, 10), '');
+          SalesHeader, SalesLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(5, 10), '', CreatePurchasingCode(false, true));
+        CreateSalesLine(SalesHeader, SalesLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(5, 10), '');
 
         // [GIVEN] Drop shipment line is posted entirely: posted and invoiced with associated purchase order
         CreatePurchaseOrderWithGetDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
@@ -3502,7 +3502,6 @@ codeunit 137158 "SCM Orders V"
         Customer: Record Customer;
         SalesInvoice: Record "Sales Header";
         SalesHeader: array[2] of Record "Sales Header";
-        SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [Combine Shipments] [Fattura]
         // [SCENARIO 376886] Combine Shipments report joins Shipment for same "Fattura Project Code" and "Fattura Tender Code" into one invoice
@@ -3512,11 +3511,11 @@ codeunit 137158 "SCM Orders V"
         CreateCustomerWithCombineShipments(Customer);
 
         // [GIVEN] Sales order "SO1", Fattura Project Code = "XXX", Fattura Tender Code = "111", shipped.
-        CreateSalesOrderWithFatturaCodes(SalesHeader[1], LibraryInventory.CreateItemNo, Customer."No.", LibraryRandom.RandInt(10), '', '');
+        CreateSalesOrderWithFatturaCodes(SalesHeader[1], LibraryInventory.CreateItemNo(), Customer."No.", LibraryRandom.RandInt(10), '', '');
         LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
 
         // [GIVEN] Sales order "SO2", Fattura Project Code = "XXX", Fattura Tender Code = "111", shipped.
-        CreateSalesOrderWithFatturaCodes(SalesHeader[2], LibraryInventory.CreateItemNo, Customer."No.", LibraryRandom.RandInt(10), SalesHeader[1]."Fattura Project Code", SalesHeader[1]."Fattura Tender Code");
+        CreateSalesOrderWithFatturaCodes(SalesHeader[2], LibraryInventory.CreateItemNo(), Customer."No.", LibraryRandom.RandInt(10), SalesHeader[1]."Fattura Project Code", SalesHeader[1]."Fattura Tender Code");
         LibrarySales.PostSalesDocument(SalesHeader[2], true, false);
 
         // [WHEN] Run "Combine Shipments" batch job for both shipped sales orders.
@@ -3534,7 +3533,7 @@ codeunit 137158 "SCM Orders V"
         SalesInvoice.TestField("Fattura Project Code", SalesHeader[1]."Fattura Project Code");
         SalesInvoice.TestField("Fattura Tender Code", SalesHeader[1]."Fattura Tender Code");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3545,7 +3544,6 @@ codeunit 137158 "SCM Orders V"
         Customer: Record Customer;
         SalesInvoice: Record "Sales Header";
         SalesHeader: array[2] of Record "Sales Header";
-        SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [Combine Shipments] [Fattura]
         // [SCENARIO 376886] Combine Shipments report creates separate Invoices for Shipments with different "Fattura Project Code" and "Fattura Tender Code"
@@ -3555,11 +3553,11 @@ codeunit 137158 "SCM Orders V"
         CreateCustomerWithCombineShipments(Customer);
 
         // [GIVEN] Sales order "SO1", Fattura Project Code = "XXX", Fattura Tender Code = "111", shipped.
-        CreateSalesOrderWithFatturaCodes(SalesHeader[1], LibraryInventory.CreateItemNo, Customer."No.", LibraryRandom.RandInt(10), '', '');
+        CreateSalesOrderWithFatturaCodes(SalesHeader[1], LibraryInventory.CreateItemNo(), Customer."No.", LibraryRandom.RandInt(10), '', '');
         LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
 
         // [GIVEN] Sales order "SO2", Fattura Project Code = "YYY", Fattura Tender Code = "222", shipped.
-        CreateSalesOrderWithFatturaCodes(SalesHeader[2], LibraryInventory.CreateItemNo, Customer."No.", LibraryRandom.RandInt(10), '', '');
+        CreateSalesOrderWithFatturaCodes(SalesHeader[2], LibraryInventory.CreateItemNo(), Customer."No.", LibraryRandom.RandInt(10), '', '');
         LibrarySales.PostSalesDocument(SalesHeader[2], true, false);
 
         // [WHEN] Run "Combine Shipments" batch job for both shipped sales orders.
@@ -3582,7 +3580,7 @@ codeunit 137158 "SCM Orders V"
         SalesInvoice.TestField("Fattura Project Code", SalesHeader[2]."Fattura Project Code");
         SalesInvoice.TestField("Fattura Tender Code", SalesHeader[2]."Fattura Tender Code");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3739,7 +3737,7 @@ codeunit 137158 "SCM Orders V"
         ItemTrackingCode: Record "Item Tracking Code";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         Qty2: Decimal;
         Qty3: Decimal;
         LotNoCode: Code[20];
@@ -3764,16 +3762,16 @@ codeunit 137158 "SCM Orders V"
         LotNoCode := LibraryERM.CreateNoSeriesCode();
 
         // [GIVEN] Create 3 Lot Nos from No Series.
-        LotNo[1] := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
-        LotNo[2] := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
-        LotNo[3] := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
+        LotNo[1] := NoSeriesBatch.GetNextNo(LotNoCode);
+        LotNo[2] := NoSeriesBatch.GetNextNo(LotNoCode);
+        LotNo[3] := NoSeriesBatch.GetNextNo(LotNoCode);
 
         // [GIVEN] Create two Quantities and save each in a Variable.
         Qty2 := LibraryRandom.RandIntInRange(200, 200);
         Qty3 := LibraryRandom.RandIntInRange(300, 300);
 
         // [GIVEN] Create Lot No 4 from No Series.
-        LotNo4 := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
+        LotNo4 := NoSeriesBatch.GetNextNo(LotNoCode);
 
         // [GIVEN] Create a Purchase Order with three Item Tracking Lines & Assign Lot No to each.
         CreatePurchaseOrderWithItemTrackingMultipleLotNo(PurchaseHeader, LotNo, Vendor."No.", Item."No.", LibraryRandom.RandIntInRange(1000, 1000));
@@ -3799,8 +3797,8 @@ codeunit 137158 "SCM Orders V"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders V");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // Lazy Setup.
         if isInitialized then
@@ -3812,7 +3810,7 @@ codeunit 137158 "SCM Orders V"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
@@ -3829,11 +3827,11 @@ codeunit 137158 "SCM Orders V"
     begin
         ItemJournalTemplate.SetRange(Recurring, false);
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate2, ItemJournalTemplateType);
-        ItemJournalTemplate2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate2.Modify(true);
 
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch2, ItemJournalTemplate2.Type, ItemJournalTemplate2.Name);
-        ItemJournalBatch2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch2.Modify(true);
     end;
 
@@ -4083,7 +4081,7 @@ codeunit 137158 "SCM Orders V"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency."Invoice Rounding Precision" := LibraryERM.GetAmountRoundingPrecision;
+        Currency."Invoice Rounding Precision" := LibraryERM.GetAmountRoundingPrecision();
         Currency.Modify();
 
         CreateCurrencyExchangeRate(
@@ -4160,7 +4158,7 @@ codeunit 137158 "SCM Orders V"
 
     local procedure CreateDropShipmentSalesAndPurchase(var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header")
     begin
-        CreateSalesOrderWithDropShipment(SalesHeader, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
+        CreateSalesOrderWithDropShipment(SalesHeader, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
         CreatePurchaseOrderWithGetDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
     end;
 
@@ -4244,7 +4242,7 @@ codeunit 137158 "SCM Orders V"
 
     local procedure CreateLotItemWithStandardCostingMethod(var Item: Record Item)
     begin
-        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // TRUE for Lot.
+        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');  // TRUE for Lot.
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
         Item.Modify(true);
     end;
@@ -4271,7 +4269,7 @@ codeunit 137158 "SCM Orders V"
 
     local procedure CreateNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20]; StartingDate: Date)
     begin
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeriesCode, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeriesCode, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
         NoSeriesLine.Validate("Starting Date", StartingDate);
         NoSeriesLine.Modify(true);
     end;
@@ -4364,7 +4362,7 @@ codeunit 137158 "SCM Orders V"
     var
         PurchaseLine2: Record "Purchase Line";
     begin
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, ItemNo, Quantity, LocationCode, false);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), ItemNo, Quantity, LocationCode, false);
         CreatePurchaseLine(PurchaseHeader, PurchaseLine2, ItemNo2, Quantity, LocationCode, UseTracking);
     end;
 
@@ -4523,7 +4521,7 @@ codeunit 137158 "SCM Orders V"
         Customer: Record Customer;
         Item: Record Item;
     begin
-        CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // TRUE for Serial.
+        CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode());  // TRUE for Serial.
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         CreateSalesLineWithPurchasingCode(
@@ -4802,14 +4800,14 @@ codeunit 137158 "SCM Orders V"
         TaskList: TestPage "Task List";
         TaskCard: TestPage "Task Card";
     begin
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", ContactNo);
-        TaskList.Trap;
-        ContactCard."T&asks".Invoke;
-        TaskCard.Trap;
-        TaskList."Edit Organizer Task".Invoke;
+        TaskList.Trap();
+        ContactCard."T&asks".Invoke();
+        TaskCard.Trap();
+        TaskList."Edit Organizer Task".Invoke();
         TaskCard.Description.SetValue(Description);
-        TaskCard.OK.Invoke;
+        TaskCard.OK().Invoke();
     end;
 
     local procedure OpenCommentPageFromTaskCard(Task: Record "To-do"; Comment: Text[80])
@@ -4817,13 +4815,13 @@ codeunit 137158 "SCM Orders V"
         TaskCard: TestPage "Task Card";
         RlshpMgtCommentSheet: TestPage "Rlshp. Mgt. Comment Sheet";
     begin
-        TaskCard.OpenEdit;
+        TaskCard.OpenEdit();
         TaskCard.GotoRecord(Task);
-        RlshpMgtCommentSheet.Trap;
-        TaskCard."Co&mment".Invoke;
+        RlshpMgtCommentSheet.Trap();
+        TaskCard."Co&mment".Invoke();
         RlshpMgtCommentSheet.Comment.AssertEquals(Comment);
-        RlshpMgtCommentSheet.OK.Invoke;
-        TaskCard.OK.Invoke;
+        RlshpMgtCommentSheet.OK().Invoke();
+        TaskCard.OK().Invoke();
     end;
 
     local procedure PostAllTransferOrdersWithLocationInTransit()
@@ -4954,7 +4952,7 @@ codeunit 137158 "SCM Orders V"
         // Setup: Create Assembly Item with Assembly BOM. Create Bin for Loation Yellow.
         Quantity := LibraryRandom.RandInt(10);
         Quantity2 := LibraryRandom.RandInt(5);
-        LibraryWarehouse.CreateBin(Bin, LocationYellow.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationYellow.Code, LibraryUtility.GenerateGUID(), '', '');
         LibraryInventory.CreateItem(CompItem);
         CreateAssemblyItemWithAsseblyBOM(AssemblyItem, CompItem."No.", 1);
 
@@ -5250,13 +5248,13 @@ codeunit 137158 "SCM Orders V"
     var
         LocationCard: TestPage "Location Card";
     begin
-        LocationCard.OpenEdit;
+        LocationCard.OpenEdit();
         LocationCard.FILTER.SetFilter(Code, LocationCode);
         if Editable then
-            Assert.IsTrue(LocationCard."Use As In-Transit".Editable, FieldShouldBeEditableErr)
+            Assert.IsTrue(LocationCard."Use As In-Transit".Editable(), FieldShouldBeEditableErr)
         else
-            Assert.IsFalse(LocationCard."Use As In-Transit".Editable, FieldShouldNotBeEditableErr);
-        LocationCard.OK.Invoke;
+            Assert.IsFalse(LocationCard."Use As In-Transit".Editable(), FieldShouldNotBeEditableErr);
+        LocationCard.OK().Invoke();
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
@@ -5270,7 +5268,7 @@ codeunit 137158 "SCM Orders V"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualErr);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualErr);
     end;
 
     local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; JobNo: Code[20]; JobTaskNo: Code[20])
@@ -5395,17 +5393,15 @@ codeunit 137158 "SCM Orders V"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            Next;
-            TestField("No.", CompItemNo);
-            Next;
-            TestField(Description, ExtendedTxt);
-            Next;
-            TestField("No.", CompItemNo2);
-        end;
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindSet();
+        SalesLine.Next();
+        SalesLine.TestField("No.", CompItemNo);
+        SalesLine.Next();
+        SalesLine.TestField(Description, ExtendedTxt);
+        SalesLine.Next();
+        SalesLine.TestField("No.", CompItemNo2);
     end;
 
     local procedure VerifyInvoiceQtyOnSalesLine(SalesLine: Record "Sales Line"; QtyToInvoice: Decimal; QtyInvoiced: Decimal)
@@ -5490,17 +5486,15 @@ codeunit 137158 "SCM Orders V"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            Next;
-            TestField("No.", CompItemNo);
-            Next;
-            TestField(Description, ExtendedTxt);
-            Next;
-            TestField("No.", CompItemNo2);
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindSet();
+        PurchaseLine.Next();
+        PurchaseLine.TestField("No.", CompItemNo);
+        PurchaseLine.Next();
+        PurchaseLine.TestField(Description, ExtendedTxt);
+        PurchaseLine.Next();
+        PurchaseLine.TestField("No.", CompItemNo2);
     end;
 
     local procedure VerifyInvoiceQtyOnPurchaseLine(PurchaseLine: Record "Purchase Line"; QtyToInvoice: Decimal; QtyInvoiced: Decimal)
@@ -5678,7 +5672,7 @@ codeunit 137158 "SCM Orders V"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst();
         PurchaseLine.OpenItemTrackingLines();
-        Assert.AreEqual(Qty, LibraryVariableStorage.DequeueDecimal, WrongLotQtyOnPurchaseLineErr);
+        Assert.AreEqual(Qty, LibraryVariableStorage.DequeueDecimal(), WrongLotQtyOnPurchaseLineErr);
     end;
 
     [ConfirmHandler]
@@ -5698,7 +5692,7 @@ codeunit 137158 "SCM Orders V"
     [Scope('OnPrem')]
     procedure GetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
-        GetReceiptLines.OK.Invoke;
+        GetReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5715,41 +5709,41 @@ codeunit 137158 "SCM Orders V"
         case ItemTrackingMode of
             ItemTrackingMode::AssignLotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;
+                    ItemTrackingLines."Assign Lot No.".Invoke();
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);  // Enqueue Lot No.
                 end;
             ItemTrackingMode::AssignGivenLotNos:
                 begin
-                    NoOfLots := LibraryVariableStorage.DequeueInteger;
+                    NoOfLots := LibraryVariableStorage.DequeueInteger();
                     for i := 1 to NoOfLots do begin
-                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                         ItemTrackingLines.Next();
                     end;
                 end;
             ItemTrackingMode::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             ItemTrackingMode::AssignSerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;
-                    ItemTrackingLines.First;
+                    ItemTrackingLines."Assign Serial No.".Invoke();
+                    ItemTrackingLines.First();
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Serial No.".Value);
                 end;
             ItemTrackingMode::UpdateQtyOnFirstLine:
                 begin
-                    ItemTrackingLines.First;
+                    ItemTrackingLines.First();
                     ItemTrackingLines."Qty. to Invoice (Base)".SetValue(0);  // Value 0 required for the test.
                 end;
             ItemTrackingMode::UpdateQtyOnLastLine:
                 begin
-                    ItemTrackingLines.Last;
+                    ItemTrackingLines.Last();
                     ItemTrackingLines."Qty. to Invoice (Base)".SetValue(0);  // Value 0 required for the test.
                 end;
             ItemTrackingMode::UpdateLotQty:
                 begin
-                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-                    ItemTrackingLines."Qty. to Invoice (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines."Qty. to Invoice (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             ItemTrackingMode::VerifyLot:
                 begin
@@ -5758,23 +5752,23 @@ codeunit 137158 "SCM Orders V"
                 end;
             ItemTrackingMode::"Set Lot No.":
                 begin
-                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
                 end;
             ItemTrackingMode::"Get Lot Quantity":
                 begin
-                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
-                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Quantity (Base)".AsDecimal);
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText());
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Quantity (Base)".AsDecimal());
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -5798,7 +5792,7 @@ codeunit 137158 "SCM Orders V"
     [Scope('OnPrem')]
     procedure PostedITLPageHandler(var PostedItemTrackingLines: TestPage "Posted Item Tracking Lines")
     begin
-        PostedItemTrackingLines."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PostedItemTrackingLines."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [ModalPageHandler]
@@ -5808,8 +5802,8 @@ codeunit 137158 "SCM Orders V"
         DocumentType: Option "Posted Receipts","Posted Invoices","Posted Return Shipments","Posted Cr. Memos";
     begin
         PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(Format(DocumentType::"Posted Receipts"));
-        PostedPurchaseDocumentLines.PostedRcpts.Last;
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.PostedRcpts.Last();
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5818,20 +5812,20 @@ codeunit 137158 "SCM Orders V"
     var
         DocumentType: Option;
     begin
-        DocumentType := LibraryVariableStorage.DequeueInteger;
+        DocumentType := LibraryVariableStorage.DequeueInteger();
         case DocumentType of
             PostedSalesDocType::"Posted Shipments":
                 begin
                     PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(PostedSalesDocType::"Posted Shipments"));
-                    PostedSalesDocumentLines.PostedShpts.Last;
+                    PostedSalesDocumentLines.PostedShpts.Last();
                 end;
             PostedSalesDocType::"Posted Return Receipts":
                 begin
                     PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(PostedSalesDocType::"Posted Return Receipts"));
-                    PostedSalesDocumentLines.PostedReturnRcpts.First;
+                    PostedSalesDocumentLines.PostedReturnRcpts.First();
                 end;
         end;
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5839,7 +5833,7 @@ codeunit 137158 "SCM Orders V"
     procedure PostedSalesDocTrackingPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
         PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(PostedSalesDocType::"Posted Shipments"));
-        PostedSalesDocumentLines.PostedShpts.ItemTrackingLines.Invoke;
+        PostedSalesDocumentLines.PostedShpts.ItemTrackingLines.Invoke();
     end;
 
     [ModalPageHandler]
@@ -5847,20 +5841,20 @@ codeunit 137158 "SCM Orders V"
     procedure PostedSalesDocTrackingVerifyFilterPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
         PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(PostedSalesDocType::"Posted Shipments"));
-        PostedSalesDocumentLines.PostedShpts.ItemTrackingLines.Invoke;
+        PostedSalesDocumentLines.PostedShpts.ItemTrackingLines.Invoke();
 
-        PostedSalesDocumentLines.PostedShpts.First;
-        PostedSalesDocumentLines.PostedShpts."Document No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PostedSalesDocumentLines.PostedShpts.First();
+        PostedSalesDocumentLines.PostedShpts."Document No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PostedSalesDocumentLines.PostedShpts.Next();
-        PostedSalesDocumentLines.PostedShpts."Document No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(PostedSalesDocumentLines.Next, StrSubstNo(WrongNoOfDocumentsListErr, 2));
+        PostedSalesDocumentLines.PostedShpts."Document No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(PostedSalesDocumentLines.Next(), StrSubstNo(WrongNoOfDocumentsListErr, 2));
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesListPageHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.OK.Invoke;
+        SalesList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5868,14 +5862,14 @@ codeunit 137158 "SCM Orders V"
     procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(false);  // False required for the CreateNewLotNo in the tests.
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetShipmentLinesModalPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        GetShipmentLines.OK.Invoke;
+        GetShipmentLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -5890,7 +5884,7 @@ codeunit 137158 "SCM Orders V"
         CustomerNo := LibraryVariableStorage.DequeueText();
         CombineShipments.SalesOrderHeader.SetFilter("Sell-to Customer No.", CustomerNo);
         CombineShipments.SalesOrderHeader.SetFilter("Bill-to Customer No.", CustomerNo);
-        CombineShipments.OK.Invoke();
+        CombineShipments.OK().Invoke();
     end;
 
     [StrMenuHandler]

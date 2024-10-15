@@ -38,7 +38,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Inventory Valuation");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
@@ -746,84 +746,6 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ValCostAmountActualFIFO()
-    var
-        Item: Record Item;
-    begin
-        ValuateCostAmountActual(Item."Costing Method"::FIFO);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValCostAmountActualLIFO()
-    var
-        Item: Record Item;
-    begin
-        ValuateCostAmountActual(Item."Costing Method"::LIFO);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValCostAmountActualSTD()
-    var
-        Item: Record Item;
-    begin
-        ValuateCostAmountActual(Item."Costing Method"::Standard);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValCostAmountActualAVG()
-    var
-        Item: Record Item;
-    begin
-        ValuateCostAmountActual(Item."Costing Method"::Average);
-    end;
-
-    [Normal]
-    local procedure ValuateCostAmountActual(CostingMethod: Enum "Costing Method")
-    begin
-        // no series issue prohibits posting.
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CostingManufFIFO()
-    var
-        Item: Record Item;
-    begin
-        CostingManufacturing(Item."Costing Method"::FIFO);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CostingManufLIFO()
-    var
-        Item: Record Item;
-    begin
-        CostingManufacturing(Item."Costing Method"::LIFO);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CostingManufSTD()
-    var
-        Item: Record Item;
-    begin
-        CostingManufacturing(Item."Costing Method"::Standard);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CostingManufAVG()
-    var
-        Item: Record Item;
-    begin
-        CostingManufacturing(Item."Costing Method"::Average);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CalcInventoryValueLongFilters()
     var
         Item: Record Item;
@@ -831,16 +753,18 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         CalcInventoryValueCheck: Codeunit "Calc. Inventory Value-Check";
     begin
         // [FEATURE] [Calculate Inventory Value]
-        // [SCENARIO] Calculate Inventory Value can be run with Location Filter and Variant Filter longer than 10 characters
+        // [SCENARIO 378236] Calculate Inventory Value can be run with Location Filter and Variant Filter longer than 10 characters
 
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Set filters on Calculate Inventory Value. Fields Location Filter and Variant Filter, both filters longer than 10 characters
         Item.SetRecFilter();
-        Item.SetFilter("Location Filter", '%1|%2', LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
-        Item.SetFilter("Variant Filter", '%1|%2', LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+        Item.SetFilter("Location Filter", '%1|%2', LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
+        Item.SetFilter("Variant Filter", '%1|%2', LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
 
         // [WHEN] Run Inventory Valuation - Check
+        CalcInventoryValueCheck.SetParameters(WorkDate(), "Inventory Value Calc. Per"::"Item Ledger Entry", true, true, false, true);
         CalcInventoryValueCheck.RunCheck(Item, TempErrorBuffer);
 
         // [THEN] Verification competed without errors
@@ -875,7 +799,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Item.SetRecFilter();
         Item.SetRange("Location Filter", Location.Code);
         Item.SetRange("Variant Filter", ItemVariant.Code);
-        CalcInventoryValueCheck.SetProperties(WorkDate(), 0, true, true, false, true);
+        CalcInventoryValueCheck.SetParameters(WorkDate(), "Inventory Value Calc. Per"::"Item Ledger Entry", true, true, false, true);
         CalcInventoryValueCheck.RunCheck(Item, TempErrorBuffer);
 
         // [THEN] Verification returns error: "open outbound entry found".
@@ -885,13 +809,6 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Assert.ExpectedMessage(StrSubstNo(OpenOutboudEntryErr, ItemLedgerEntry."Entry No."), TempErrorBuffer."Error Text");
     end;
 
-    [Normal]
-    local procedure CostingManufacturing(CostingMethod: Enum "Costing Method")
-    begin
-        // no series issue prohibits posting.
-    end;
-
-    [Normal]
     local procedure ApplyToItemLedgerEntry(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);

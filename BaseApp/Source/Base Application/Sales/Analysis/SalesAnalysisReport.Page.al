@@ -389,9 +389,6 @@ page 7117 "Sales Analysis Report"
         AnalysisReportMgt: Codeunit "Analysis Report Management";
         SalesAnalysisMatrix: Page "Sales Analysis Matrix";
         NewCurrentReportName: Code[10];
-        CurrentSourceTypeNoFilter: Text;
-        CurrentSourceTypeFilter: Enum "Analysis Source Type";
-        CurrentAnalysisAreaType: Enum "Analysis Area Type";
         PeriodType: Enum "Analysis Period Type";
         Direction: Option Backward,Forward;
         NoOfColumns: Integer;
@@ -407,8 +404,11 @@ page 7117 "Sales Analysis Report"
         CurrentReportName: Code[10];
         CurrentColumnTemplate: Code[10];
         CurrentLineTemplate: Code[10];
+        CurrentSourceTypeNoFilter: Text;
+        CurrentSourceTypeFilter: Enum "Analysis Source Type";
+        CurrentAnalysisAreaType: Enum "Analysis Area Type";
 
-    local procedure FindPeriod(SearchText: Code[10])
+    local procedure FindPeriod(SearchText: Code[3])
     var
         Calendar: Record Date;
         PeriodPageMgt: Codeunit PeriodPageManagement;
@@ -489,7 +489,7 @@ page 7117 "Sales Analysis Report"
         AnalysisLine.SetRange("Analysis Line Template Name", CurrentLineTemplate);
     end;
 
-    local procedure GetColumnsRangeFilter(): Text[80]
+    local procedure GetColumnsRangeFilter(): Text
     begin
         if FirstColumn = LastColumn then
             exit(FirstColumn);

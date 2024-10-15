@@ -1,6 +1,8 @@
 namespace Microsoft.Warehouse.Worksheet;
 
+#pragma warning disable AL0659
 enum 5772 "Warehouse Worksheet Document Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

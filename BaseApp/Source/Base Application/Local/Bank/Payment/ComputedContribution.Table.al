@@ -11,6 +11,7 @@ table 12112 "Computed Contribution"
 {
     Caption = 'Computed Contribution';
     LookupPageID = "Computed Contribution";
+    DataClassification = CustomerContent;
 
     fields
     {

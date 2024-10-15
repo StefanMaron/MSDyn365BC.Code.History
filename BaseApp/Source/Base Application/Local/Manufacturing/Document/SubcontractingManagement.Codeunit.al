@@ -106,40 +106,38 @@ codeunit 12152 SubcontractingManagement
     begin
         Subcontracting := false;
 
-        with ProdOrdRoutingLine do begin
-            if Type = Type::"Work Center" then
-                Subcontracting := GetSubcontractor("No.", Vendor);
+        if ProdOrdRoutingLine.Type = ProdOrdRoutingLine.Type::"Work Center" then
+            Subcontracting := GetSubcontractor(ProdOrdRoutingLine."No.", Vendor);
 
-            ProdOrdComponent.SetRange(Status, Status);
-            ProdOrdComponent.SetRange("Prod. Order No.", "Prod. Order No.");
-            ProdOrdComponent.SetRange("Prod. Order Line No.", "Routing Reference No.");
-            ProdOrdComponent.SetRange("Routing Link Code", "Routing Link Code");
-            if ProdOrdComponent.FindSet() then begin
-                if ShowMsg then
-                    if not Confirm(RoutingLinkUpdConfQst, true, "Routing Link Code") then
-                        Error(UpdateIsCancelledErr);
-                ProdOrdLine.Get(Status, ProdOrdComponent."Prod. Order No.", ProdOrdComponent."Prod. Order Line No.");
-                GetPlanningParameters.AtSKU(
-                  SKU, ProdOrdLine."Item No.",
-                  ProdOrdLine."Variant Code",
-                  ProdOrdLine."Location Code");
-                repeat
-                    if not Subcontracting then
-                        ProdOrdComponent.Validate("Location Code", SKU."Components at Location")
+        ProdOrdComponent.SetRange(Status, ProdOrdRoutingLine.Status);
+        ProdOrdComponent.SetRange("Prod. Order No.", ProdOrdRoutingLine."Prod. Order No.");
+        ProdOrdComponent.SetRange("Prod. Order Line No.", ProdOrdRoutingLine."Routing Reference No.");
+        ProdOrdComponent.SetRange("Routing Link Code", ProdOrdRoutingLine."Routing Link Code");
+        if ProdOrdComponent.FindSet() then begin
+            if ShowMsg then
+                if not Confirm(RoutingLinkUpdConfQst, true, ProdOrdRoutingLine."Routing Link Code") then
+                    Error(UpdateIsCancelledErr);
+            ProdOrdLine.Get(ProdOrdRoutingLine.Status, ProdOrdComponent."Prod. Order No.", ProdOrdComponent."Prod. Order Line No.");
+            GetPlanningParameters.AtSKU(
+              SKU, ProdOrdLine."Item No.",
+              ProdOrdLine."Variant Code",
+              ProdOrdLine."Location Code");
+            repeat
+                if not Subcontracting then
+                    ProdOrdComponent.Validate("Location Code", SKU."Components at Location")
+                else
+                    if Vendor."Subcontractor Procurement" then
+                        ProdOrdComponent.Validate("Location Code", Vendor."Subcontracting Location Code")
                     else
-                        if Vendor."Subcontractor Procurement" then
-                            ProdOrdComponent.Validate("Location Code", Vendor."Subcontracting Location Code")
-                        else
-                            ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                    IsHandled := false;
-                    OnUpdLinkedComponentsOnBeforeModify(ProdOrdRoutingLine, ProdOrdComponent, ProdOrdLine, SKU, IsHandled);
-                    if not IsHandled then
-                        ProdOrdComponent.Modify();
-                until ProdOrdComponent.Next() = 0;
+                        ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
+                IsHandled := false;
+                OnUpdLinkedComponentsOnBeforeModify(ProdOrdRoutingLine, ProdOrdComponent, ProdOrdLine, SKU, IsHandled);
+                if not IsHandled then
+                    ProdOrdComponent.Modify();
+            until ProdOrdComponent.Next() = 0;
 
-                if ShowMsg then
-                    Message(SuccessfullyUpdatedMsg);
-            end;
+            if ShowMsg then
+                Message(SuccessfullyUpdatedMsg);
         end;
     end;
 
@@ -151,31 +149,29 @@ codeunit 12152 SubcontractingManagement
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
         IsHandled: Boolean;
     begin
-        with ProdOrdRoutingLine do begin
-            ProdOrdComponent.SetRange(Status, Status);
-            ProdOrdComponent.SetRange("Prod. Order No.", "Prod. Order No.");
-            ProdOrdComponent.SetRange("Prod. Order Line No.", "Routing Reference No.");
-            ProdOrdComponent.SetRange("Routing Link Code", "Routing Link Code");
-            if ProdOrdComponent.FindSet() then begin
-                if ShowMsg then
-                    if not Confirm(RoutingLinkUpdConfQst, true, "Routing Link Code") then
-                        Error(UpdateIsCancelledErr);
-                ProdOrdLine.Get(Status, ProdOrdComponent."Prod. Order No.", ProdOrdComponent."Prod. Order Line No.");
-                GetPlanningParameters.AtSKU(
-                  SKU, ProdOrdLine."Item No.",
-                  ProdOrdLine."Variant Code",
-                  ProdOrdLine."Location Code");
-                repeat
-                    ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                    IsHandled := false;
-                    OnDelLocationLinkedComponentsOnBeforeModify(ProdOrdRoutingLine, ProdOrdComponent, ProdOrdLine, SKU, IsHandled);
-                    if not IsHandled then
-                        ProdOrdComponent.Modify();
-                until ProdOrdComponent.Next() = 0;
+        ProdOrdComponent.SetRange(Status, ProdOrdRoutingLine.Status);
+        ProdOrdComponent.SetRange("Prod. Order No.", ProdOrdRoutingLine."Prod. Order No.");
+        ProdOrdComponent.SetRange("Prod. Order Line No.", ProdOrdRoutingLine."Routing Reference No.");
+        ProdOrdComponent.SetRange("Routing Link Code", ProdOrdRoutingLine."Routing Link Code");
+        if ProdOrdComponent.FindSet() then begin
+            if ShowMsg then
+                if not Confirm(RoutingLinkUpdConfQst, true, ProdOrdRoutingLine."Routing Link Code") then
+                    Error(UpdateIsCancelledErr);
+            ProdOrdLine.Get(ProdOrdRoutingLine.Status, ProdOrdComponent."Prod. Order No.", ProdOrdComponent."Prod. Order Line No.");
+            GetPlanningParameters.AtSKU(
+              SKU, ProdOrdLine."Item No.",
+              ProdOrdLine."Variant Code",
+              ProdOrdLine."Location Code");
+            repeat
+                ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
+                IsHandled := false;
+                OnDelLocationLinkedComponentsOnBeforeModify(ProdOrdRoutingLine, ProdOrdComponent, ProdOrdLine, SKU, IsHandled);
+                if not IsHandled then
+                    ProdOrdComponent.Modify();
+            until ProdOrdComponent.Next() = 0;
 
-                if ShowMsg then
-                    Message(SuccessfullyUpdatedMsg);
-            end;
+            if ShowMsg then
+                Message(SuccessfullyUpdatedMsg);
         end;
     end;
 
@@ -187,34 +183,33 @@ codeunit 12152 SubcontractingManagement
         SKU: Record "Stockkeeping Unit";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
     begin
-        with ReqLine do begin
-            ProdOrderRoutingLine.Get(ProdOrderRoutingLine.Status::Released, "Prod. Order No.",
-              "Routing Reference No.", "Routing No.", "Operation No.");
+        ProdOrderRoutingLine.Get(
+            ProdOrderRoutingLine.Status::Released, ReqLine."Prod. Order No.",
+            ReqLine."Routing Reference No.", ReqLine."Routing No.", ReqLine."Operation No.");
 
-            ProdOrdComponent.SetRange(Status, ProdOrderRoutingLine.Status);
-            ProdOrdComponent.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
-            ProdOrdComponent.SetRange("Prod. Order Line No.", ProdOrderRoutingLine."Routing Reference No.");
-            ProdOrdComponent.SetRange("Routing Link Code", ProdOrderRoutingLine."Routing Link Code");
-            if ProdOrdComponent.FindSet() then begin
-                if ShowMsg then
-                    if not Confirm(RoutingLinkUpdConfQst, true, ProdOrderRoutingLine."Routing Link Code") then
-                        Error(UpdateIsCancelledErr);
-                ProdOrdLine.Get(ProdOrdComponent.Status, ProdOrdComponent."Prod. Order No.", ProdOrdComponent."Prod. Order Line No.");
-                GetPlanningParameters.AtSKU(
-                  SKU, ProdOrdLine."Item No.",
-                  ProdOrdLine."Variant Code",
-                  ProdOrdLine."Location Code");
-                repeat
-                    if Vendor."Subcontractor Procurement" then
-                        ProdOrdComponent.Validate("Location Code", Vendor."Subcontracting Location Code")
-                    else
-                        ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                    ProdOrdComponent.Modify();
-                until ProdOrdComponent.Next() = 0;
+        ProdOrdComponent.SetRange(Status, ProdOrderRoutingLine.Status);
+        ProdOrdComponent.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        ProdOrdComponent.SetRange("Prod. Order Line No.", ProdOrderRoutingLine."Routing Reference No.");
+        ProdOrdComponent.SetRange("Routing Link Code", ProdOrderRoutingLine."Routing Link Code");
+        if ProdOrdComponent.FindSet() then begin
+            if ShowMsg then
+                if not Confirm(RoutingLinkUpdConfQst, true, ProdOrderRoutingLine."Routing Link Code") then
+                    Error(UpdateIsCancelledErr);
+            ProdOrdLine.Get(ProdOrdComponent.Status, ProdOrdComponent."Prod. Order No.", ProdOrdComponent."Prod. Order Line No.");
+            GetPlanningParameters.AtSKU(
+              SKU, ProdOrdLine."Item No.",
+              ProdOrdLine."Variant Code",
+              ProdOrdLine."Location Code");
+            repeat
+                if Vendor."Subcontractor Procurement" then
+                    ProdOrdComponent.Validate("Location Code", Vendor."Subcontracting Location Code")
+                else
+                    ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
+                ProdOrdComponent.Modify();
+            until ProdOrdComponent.Next() = 0;
 
-                if ShowMsg then
-                    Message(SuccessfullyUpdatedMsg);
-            end;
+            if ShowMsg then
+                Message(SuccessfullyUpdatedMsg);
         end;
     end;
 

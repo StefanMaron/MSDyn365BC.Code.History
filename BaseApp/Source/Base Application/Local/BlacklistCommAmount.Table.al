@@ -7,6 +7,7 @@ namespace Microsoft;
 table 12194 "Blacklist Comm. Amount"
 {
     Caption = 'Blacklist Comm. Amount';
+    DataClassification = CustomerContent;
 
     fields
     {

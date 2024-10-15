@@ -268,7 +268,7 @@ codeunit 5465 "Graph Mgt - General Tools"
         repeat
             OriginalFieldRef := OriginalRecordRef.Field(TempRelatedRecodIdsField."No.");
             UpdatedFieldRef := UpdatedRecordRef.Field(TempRelatedRecodIdsField."No.");
-            OriginalFieldRef.Value := UpdatedFieldRef.Value;
+            OriginalFieldRef.Value := UpdatedFieldRef.Value();
         until TempRelatedRecodIdsField.Next() = 0;
     end;
 

@@ -320,12 +320,12 @@ codeunit 144203 "FatturaPA Stamp"
         LibraryApplicationArea.EnableFoundationSetup();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Order, true);
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", DocNo);
-        Assert.IsTrue(SalesOrder."Fattura Stamp".Visible, '');
-        Assert.IsTrue(SalesOrder."Fattura Stamp Amount".Visible, '');
+        Assert.IsTrue(SalesOrder."Fattura Stamp".Visible(), '');
+        Assert.IsTrue(SalesOrder."Fattura Stamp Amount".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -343,12 +343,12 @@ codeunit 144203 "FatturaPA Stamp"
         LibraryApplicationArea.EnableFoundationSetup();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Invoice, true);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", DocNo);
-        Assert.IsTrue(SalesInvoice."Fattura Stamp".Visible, '');
-        Assert.IsTrue(SalesInvoice."Fattura Stamp Amount".Visible, '');
+        Assert.IsTrue(SalesInvoice."Fattura Stamp".Visible(), '');
+        Assert.IsTrue(SalesInvoice."Fattura Stamp Amount".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -366,12 +366,12 @@ codeunit 144203 "FatturaPA Stamp"
         LibraryApplicationArea.EnableFoundationSetup();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::"Credit Memo", true);
 
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", DocNo);
-        Assert.IsTrue(SalesCreditMemo."Fattura Stamp".Visible, '');
-        Assert.IsTrue(SalesCreditMemo."Fattura Stamp Amount".Visible, '');
+        Assert.IsTrue(SalesCreditMemo."Fattura Stamp".Visible(), '');
+        Assert.IsTrue(SalesCreditMemo."Fattura Stamp Amount".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -386,17 +386,17 @@ codeunit 144203 "FatturaPA Stamp"
         // [SCENARIO 294788] Fattura Stamp field visible on Service Order page
 
         Initialize();
-        LibraryApplicationArea.EnableServiceManagementSetup;
+        LibraryApplicationArea.EnableServiceManagementSetup();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Order, true);
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
         ServiceInvoiceHeader.FindFirst();
 
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", ServiceInvoiceHeader."No.");
-        Assert.IsTrue(ServiceOrder."Fattura Stamp".Visible, '');
-        Assert.IsTrue(ServiceOrder."Fattura Stamp Amount".Visible, '');
+        Assert.IsTrue(ServiceOrder."Fattura Stamp".Visible(), '');
+        Assert.IsTrue(ServiceOrder."Fattura Stamp Amount".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -411,17 +411,17 @@ codeunit 144203 "FatturaPA Stamp"
         // [SCENARIO 294788] Fattura Stamp field visible on Service Invoice page
 
         Initialize();
-        LibraryApplicationArea.EnableServiceManagementSetup;
+        LibraryApplicationArea.EnableServiceManagementSetup();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Invoice, true);
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
         ServiceInvoiceHeader.FindFirst();
 
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceHeader."No.");
-        Assert.IsTrue(ServiceInvoice."Fattura Stamp".Visible, '');
-        Assert.IsTrue(ServiceInvoice."Fattura Stamp Amount".Visible, '');
+        Assert.IsTrue(ServiceInvoice."Fattura Stamp".Visible(), '');
+        Assert.IsTrue(ServiceInvoice."Fattura Stamp Amount".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -436,17 +436,17 @@ codeunit 144203 "FatturaPA Stamp"
         // [SCENARIO 294788] Fattura Stamp field visible on Service Credit Memo page
 
         Initialize();
-        LibraryApplicationArea.EnableServiceManagementSetup;
+        LibraryApplicationArea.EnableServiceManagementSetup();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", true);
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
         ServiceCrMemoHeader.FindFirst();
 
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", ServiceCrMemoHeader."No.");
-        Assert.IsTrue(ServiceCreditMemo."Fattura Stamp".Visible, '');
-        Assert.IsTrue(ServiceCreditMemo."Fattura Stamp Amount".Visible, '');
+        Assert.IsTrue(ServiceCreditMemo."Fattura Stamp".Visible(), '');
+        Assert.IsTrue(ServiceCreditMemo."Fattura Stamp Amount".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     local procedure Initialize()
@@ -455,7 +455,7 @@ codeunit 144203 "FatturaPA Stamp"
         if IsInitialized then
             exit;
 
-        LibraryITLocalization.SetupFatturaPA;
+        LibraryITLocalization.SetupFatturaPA();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
@@ -473,26 +473,26 @@ codeunit 144203 "FatturaPA Stamp"
 
     local procedure CreatePaymentMethod(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode());
     end;
 
     local procedure CreatePaymentTerms(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode());
     end;
 
     local procedure PostSalesDocumentWithStamp(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; FatturaStamp: Boolean): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCustomer);
-        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod);
-        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCustomer());
+        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod());
+        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         SalesHeader.Validate("Fattura Stamp", FatturaStamp);
         SalesHeader.Validate("Fattura Stamp Amount", LibraryRandom.RandDec(100, 2));
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -504,10 +504,10 @@ codeunit 144203 "FatturaPA Stamp"
         ServiceLine: Record "Service Line";
         ServiceItemLine: Record "Service Item Line";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, DocType, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, DocType, CreateCustomer());
         ServiceHeader.Validate("Order Date", WorkDate());
-        ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod);
-        ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod());
+        ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         ServiceHeader.Validate("Fattura Stamp", FatturaStamp);
         ServiceHeader.Validate("Fattura Stamp Amount", LibraryRandom.RandDec(100, 2));
         ServiceHeader.Modify(true);

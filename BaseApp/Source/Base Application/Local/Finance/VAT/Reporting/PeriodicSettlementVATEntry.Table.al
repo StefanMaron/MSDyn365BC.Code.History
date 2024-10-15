@@ -9,6 +9,7 @@ using Microsoft.Bank.BankAccount;
 table 12135 "Periodic Settlement VAT Entry"
 {
     Caption = 'Periodic Settlement VAT Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

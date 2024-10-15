@@ -50,7 +50,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Initialize();
 
         // SETUP: Create bin content on dedicated bin
-        LocationCode := MockLocationCode;
+        LocationCode := MockLocationCode();
 
         Bin.Init();
         Bin."Location Code" := LocationCode;
@@ -85,7 +85,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Commit();
         WhseGetBinContent.UseRequestPage(false);
         WhseInternalPutAwayHeaderDummy.Init();
-        WhseGetBinContent.SetParameters(WhseWorksheetLine, WhseInternalPutAwayHeaderDummy, 0);
+        WhseGetBinContent.SetParameters(WhseWorksheetLine, WhseInternalPutAwayHeaderDummy, "Warehouse Destination Type 2"::MovementWorksheet);
         WhseGetBinContent.Run();
 
         // VERIFY: Make sure the warehouse worksheet line appears with the quantity on the bin content
@@ -157,7 +157,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         // SETUP: Create entries for inventory, Create pick from warehouse shipment
         TakeBinCode := LibraryUtility.GenerateGUID();
-        RefDate := WorkDate - 4;
+        RefDate := WorkDate() - 4;
 
         CreateInventory(ItemLedgerEntry, TakeBinCode, DPPLocation);
 
@@ -313,16 +313,16 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Initialize();
 
         // [GIVEN] Three warehouse pick lines with "Line No." = 1, 2, 3.
-        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, CreateLocationWithWhseEmployee);
+        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, CreateLocationWithWhseEmployee());
         for i := 1 to 3 do
             MockWhseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, i, WarehouseActivityLine."Action Type"::Take);
 
         // [WHEN] Open Warehouse Pick page and invoke "Split Line" action on line 2.
         WarehouseActivityLine.Get(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", 2);
-        WarehousePick.OpenEdit;
+        WarehousePick.OpenEdit();
         WarehousePick.GotoRecord(WarehouseActivityHeader);
         WarehousePick.WhseActivityLines.GotoRecord(WarehouseActivityLine);
-        WarehousePick.WhseActivityLines.SplitWhseActivityLine.Invoke;
+        WarehousePick.WhseActivityLines.SplitWhseActivityLine.Invoke();
 
         // [THEN] The cursor on the page remains on the second line. "Quantity" = "Qty. to Handle", so the line is split.
         WarehousePick.WhseActivityLines."Item No.".AssertEquals(WarehouseActivityLine."Item No.");
@@ -351,16 +351,16 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Initialize();
 
         // [GIVEN] Three warehouse put-away lines with "Line No." = 1, 2, 3.
-        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Put-away", CreateLocationWithWhseEmployee);
+        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Put-away", CreateLocationWithWhseEmployee());
         for i := 1 to 3 do
             MockWhseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, i, WarehouseActivityLine."Action Type"::Place);
 
         // [WHEN] Open Warehouse Put-away page and invoke "Split Line" action on line 2.
         WarehouseActivityLine.Get(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", 2);
-        WarehousePutAway.OpenEdit;
+        WarehousePutAway.OpenEdit();
         WarehousePutAway.GotoRecord(WarehouseActivityHeader);
         WarehousePutAway.WhseActivityLines.GotoRecord(WarehouseActivityLine);
-        WarehousePutAway.WhseActivityLines.SplitWhseActivityLine.Invoke;
+        WarehousePutAway.WhseActivityLines.SplitWhseActivityLine.Invoke();
 
         // [THEN] The cursor on the page remains on the second line. "Quantity" = "Qty. to Handle", so the line is split.
         WarehousePutAway.WhseActivityLines."Item No.".AssertEquals(WarehouseActivityLine."Item No.");
@@ -381,16 +381,16 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Initialize();
 
         // [GIVEN] Three warehouse movement lines with "Line No." = 1, 2, 3.
-        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Movement, CreateLocationWithWhseEmployee);
+        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Movement, CreateLocationWithWhseEmployee());
         for i := 1 to 3 do
             MockWhseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, i, WarehouseActivityLine."Action Type"::Place);
 
         // [WHEN] Open Warehouse Movement page and invoke "Split Line" action on line 2.
         WarehouseActivityLine.Get(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", 2);
-        WarehouseMovement.OpenEdit;
+        WarehouseMovement.OpenEdit();
         WarehouseMovement.GotoRecord(WarehouseActivityHeader);
         WarehouseMovement.WhseMovLines.GotoRecord(WarehouseActivityLine);
-        WarehouseMovement.WhseMovLines.SplitWhseActivityLine.Invoke;
+        WarehouseMovement.WhseMovLines.SplitWhseActivityLine.Invoke();
 
         // [THEN] The cursor on the page remains on the second line. "Quantity" = "Qty. to Handle", so the line is split.
         WarehouseMovement.WhseMovLines."Item No.".AssertEquals(WarehouseActivityLine."Item No.");
@@ -411,16 +411,16 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Initialize();
 
         // [GIVEN] Three inventory pick lines with "Line No." = 1, 2, 3.
-        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Pick", CreateLocationWithWhseEmployee);
+        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Pick", CreateLocationWithWhseEmployee());
         for i := 1 to 3 do
             MockWhseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, i, WarehouseActivityLine."Action Type"::Place);
 
         // [WHEN] Open Inventory Pick page and invoke "Split Line" action on line 2.
         WarehouseActivityLine.Get(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", 2);
-        InventoryPick.OpenEdit;
+        InventoryPick.OpenEdit();
         InventoryPick.GotoRecord(WarehouseActivityHeader);
         InventoryPick.WhseActivityLines.GotoRecord(WarehouseActivityLine);
-        InventoryPick.WhseActivityLines.SplitWhseActivityLine.Invoke;
+        InventoryPick.WhseActivityLines.SplitWhseActivityLine.Invoke();
 
         // [THEN] The cursor on the page remains on the second line. "Quantity" = "Qty. to Handle", so the line is split.
         InventoryPick.WhseActivityLines."Item No.".AssertEquals(WarehouseActivityLine."Item No.");
@@ -441,16 +441,16 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Initialize();
 
         // [GIVEN] Three inventory put-away lines with "Line No." = 1, 2, 3.
-        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Put-away", CreateLocationWithWhseEmployee);
+        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Put-away", CreateLocationWithWhseEmployee());
         for i := 1 to 3 do
             MockWhseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, i, WarehouseActivityLine."Action Type"::Place);
 
         // [WHEN] Open Inventory Put-away page and invoke "Split Line" action on line 2.
         WarehouseActivityLine.Get(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", 2);
-        InventoryPutAway.OpenEdit;
+        InventoryPutAway.OpenEdit();
         InventoryPutAway.GotoRecord(WarehouseActivityHeader);
         InventoryPutAway.WhseActivityLines.GotoRecord(WarehouseActivityLine);
-        InventoryPutAway.WhseActivityLines.SplitWhseActivityLine.Invoke;
+        InventoryPutAway.WhseActivityLines.SplitWhseActivityLine.Invoke();
 
         // [THEN] The cursor on the page remains on the second line. "Quantity" = "Qty. to Handle", so the line is split.
         InventoryPutAway.WhseActivityLines."Item No.".AssertEquals(WarehouseActivityLine."Item No.");
@@ -471,16 +471,16 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Initialize();
 
         // [GIVEN] Three inventory movement lines with "Line No." = 1, 2, 3.
-        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Movement", CreateLocationWithWhseEmployee);
+        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::"Invt. Movement", CreateLocationWithWhseEmployee());
         for i := 1 to 3 do
             MockWhseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, i, WarehouseActivityLine."Action Type"::Place);
 
         // [WHEN] Open Inventory Movement page and invoke "Split Line" action on line 2.
         WarehouseActivityLine.Get(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", 2);
-        InventoryMovement.OpenEdit;
+        InventoryMovement.OpenEdit();
         InventoryMovement.GotoRecord(WarehouseActivityHeader);
         InventoryMovement.WhseActivityLines.GotoRecord(WarehouseActivityLine);
-        InventoryMovement.WhseActivityLines.SplitWhseActivityLine.Invoke;
+        InventoryMovement.WhseActivityLines.SplitWhseActivityLine.Invoke();
 
         // [THEN] The cursor on the page remains on the second line. "Quantity" = "Qty. to Handle", so the line is split.
         InventoryMovement.WhseActivityLines."Item No.".AssertEquals(WarehouseActivityLine."Item No.");
@@ -1264,7 +1264,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         LocationCode: Code[10];
     begin
         LocationCode := MockCustomLocationCode(not DPPLocation, false, false, DPPLocation);
-        ItemNo := CreateItemWithLotTracking;
+        ItemNo := CreateItemWithLotTracking();
 
         MockILE(ItemLedgerEntry, ItemNo, LocationCode, 10);
         ItemLedgerEntry."Lot No." := LibraryUtility.GenerateGUID();
@@ -1403,7 +1403,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                 WarehouseActivityHeader.Type := WarehouseActivityHeader.Type::"Invt. Movement";
         end;
         WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID();
-        WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
         WarehouseActivityHeader.Insert();
         if WarehouseActivityHeader.Type <> WarehouseActivityHeader.Type::"Invt. Pick" then
             CreateWarehouseActivityLine(WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take,
@@ -1481,8 +1481,8 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         // SETUP : Create sales
         LocationCode := MockCustomLocationCode(false, true, false, false);
-        ItemNo := MockItemNoWithBaseUOM;
-        VSTF335595CreateUnitOfMeasure(ItemUnitOfMeasureBOX, ItemNo, LibraryUtility.GenerateGUID, 144);
+        ItemNo := MockItemNoWithBaseUOM();
+        VSTF335595CreateUnitOfMeasure(ItemUnitOfMeasureBOX, ItemNo, LibraryUtility.GenerateGUID(), 144);
 
         Qty := 20 / 144;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
@@ -1586,7 +1586,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         LocationCode := VSTF330787CreateLocation(DPPLocation);
         BinCode := VSTF330787CreateBin(LocationCode);
 
-        ItemNo := CreateItemWithLotTracking;
+        ItemNo := CreateItemWithLotTracking();
         VSTF330787CreateItemUnitOfMeasure(ItemUnitOfMeasureBAG, ItemNo, 0.45);
         VSTF330787CreateItemUnitOfMeasure(ItemUnitOfMeasureCAS, ItemNo, 10.8);
 
@@ -1603,14 +1603,14 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseEmployee: Record "Warehouse Employee";
         ItemNo: Code[20];
     begin
-        LocationCode := CreateWhiteLikeLocationWithPutPickFlags;
+        LocationCode := CreateWhiteLikeLocationWithPutPickFlags();
 
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, false);
 
         BinCode[1] := CreateBinWithPutPickType(LocationCode);
         BinCode[2] := CreateBinWithPutPickType(LocationCode);
 
-        ItemNo := CreateItemWithTracking;
+        ItemNo := CreateItemWithTracking();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ItemNo, UnitOfMeasure.Code, 8.4);
@@ -1752,7 +1752,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     begin
         BinTypeCode := LibraryWarehouse.SelectBinType(false, false, true, true);
         FindZone(Zone, LocationCode, BinTypeCode);
-        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID, Zone.Code, BinTypeCode);
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), Zone.Code, BinTypeCode);
         exit(Bin.Code);
     end;
 
@@ -1768,7 +1768,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         WarehouseEmployee: Record "Warehouse Employee";
     begin
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, CreateSimpleLocation, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, CreateSimpleLocation(), false);
         exit(WarehouseEmployee."Location Code");
     end;
 
@@ -1777,7 +1777,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Location: Record Location;
     begin
         with Location do begin
-            Get(CreateSimpleLocation);
+            Get(CreateSimpleLocation());
             "Use As In-Transit" := true;
             Modify();
             exit(Code);
@@ -1871,7 +1871,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemTrackingCode."Lot Purchase Outbound Tracking" := true;
         ItemTrackingCode.Modify(true);
 
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
 
         exit(Item."No.");
     end;
@@ -2007,7 +2007,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         TransLine: Record "Transfer Line";
     begin
-        CreateTransHeader(TransHeader, LocationCode, CreateSimpleLocation, CreateInTransitLocation);
+        CreateTransHeader(TransHeader, LocationCode, CreateSimpleLocation(), CreateInTransitLocation());
         CreateTransLine(TransLine, TransHeader, ItemUOM, 50);
         CreateReservEntryForTransfer(TransLine, ItemUOM, LotNo[1], 42, 126);
         CreateReservEntryForTransfer(TransLine, ItemUOM, LotNo[2], 24, 102);
@@ -2174,16 +2174,14 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
     local procedure MockServiceLine(var ServiceLine: Record "Service Line")
     begin
-        with ServiceLine do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "Document No." := MockServiceHeader;
-            "Line No." := 10000;
-            Type := Type::Item;
-            "No." := MockItemNoWithBaseUOM;
-            Validate(Quantity, LibraryRandom.RandIntInRange(100, 200));
-            Insert(true);
-        end;
+        ServiceLine.Init();
+        ServiceLine."Document Type" := ServiceLine."Document Type"::Order;
+        ServiceLine."Document No." := MockServiceHeader();
+        ServiceLine."Line No." := 10000;
+        ServiceLine.Type := ServiceLine.Type::Item;
+        ServiceLine."No." := MockItemNoWithBaseUOM();
+        ServiceLine.Validate(Quantity, LibraryRandom.RandIntInRange(100, 200));
+        ServiceLine.Insert(true);
     end;
 
     local procedure MockWhseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10])
@@ -2306,7 +2304,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             if FindSet() then
                 repeat
                     Sum += "Qty. to Handle (Base)";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -2327,7 +2325,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             Modify(true);
 
             SetRange("Bin Code"); // action type "Place" has another bin code
-            Next;
+            Next();
             TestField("Action Type", "Action Type"::Place);
             TestField("Qty. to Handle", QtyTaken);
             Validate("Qty. to Handle", QtyToHandle);
@@ -2547,7 +2545,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Initialize();
 
         // SETUP : Create inventory for new item in 2 bins for Require Pick location.
-        ItemNo := MockItemNo;
+        ItemNo := MockItemNo();
         LocationCode := MockCustomLocationCode(true, false, true, false);
 
         QtyOnDefaultBin := 5;
@@ -2649,8 +2647,8 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Lot No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Lot No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [Test]
@@ -2798,7 +2796,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
     local procedure RaiseErrorOnChangingQtyIfPickExistsMakeItemLocation(var ItemNo: Code[20]; var LocationCode: Code[10])
     begin
-        ItemNo := MockItemNo;
+        ItemNo := MockItemNo();
         LocationCode := MockCustomLocationCode(true, false, true, false);
     end;
 
@@ -2879,7 +2877,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine: Record "Sales Line";
         SalesOrderSubform: TestPage "Sales Order Subform";
     begin
-        SalesOrderSubform.Trap;
+        SalesOrderSubform.Trap();
         SalesLine.Get(SourceSubtype, SourceNo, SourceLineNo);
         PAGE.Run(PAGE::"Sales Order Subform", SalesLine);
         SalesOrderSubform."Qty. to Ship".SetValue(NewQtyToShip);
@@ -2891,7 +2889,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         TransferLine: Record "Transfer Line";
         TransferOrderSubform: TestPage "Transfer Order Subform";
     begin
-        TransferOrderSubform.Trap;
+        TransferOrderSubform.Trap();
         TransferLine.Get(SourceNo, SourceLineNo);
         PAGE.Run(PAGE::"Transfer Order Subform", TransferLine);
         TransferOrderSubform."Qty. to Ship".SetValue(NewQtyToShip);
@@ -2903,7 +2901,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         TransferLine: Record "Transfer Line";
         TransferOrderSubform: TestPage "Transfer Order Subform";
     begin
-        TransferOrderSubform.Trap;
+        TransferOrderSubform.Trap();
         TransferLine.Get(SourceNo, SourceLineNo);
         PAGE.Run(PAGE::"Transfer Order Subform", TransferLine);
         TransferOrderSubform."Qty. to Receive".SetValue(NewQtyToReceive);
@@ -2958,7 +2956,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine.Insert();
 
         // EXERCISE : change UOM Code in sales to big uom so that sale qty > inventory.
-        SalesOrderSubform.Trap;
+        SalesOrderSubform.Trap();
         PAGE.Run(PAGE::"Sales Order Subform", SalesLine);
         SalesOrderSubform."Unit of Measure Code".SetValue(BigItemUnitOfMeasure.Code);
         // VERIFY : An availabity notification is sent

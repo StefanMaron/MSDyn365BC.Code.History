@@ -119,7 +119,7 @@ codeunit 132576 "OpenXML Management UT"
         Assert.ExpectedError(MissingXMLMapErr);
 
         // [GIVEN] Add CustomXMLMappingsPart, but without XML Map
-        WrkBkWriter.AddCustomXmlMappingsPart;
+        WrkBkWriter.AddCustomXmlMappingsPart();
         // [WHEN] ExtractXMLSchema()
         asserterror OpenXMLManagement.ExtractXMLSchema(WrkBkWriter.Workbook.WorkbookPart);
         // [THEN] Error: "The Excel workbook must contain an XML Map."

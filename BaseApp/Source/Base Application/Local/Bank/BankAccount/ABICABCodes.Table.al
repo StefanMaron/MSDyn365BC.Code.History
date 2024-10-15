@@ -10,6 +10,7 @@ table 12176 "ABI/CAB Codes"
 {
     Caption = 'ABI/CAB Codes';
     LookupPageID = "ABI/CAB List";
+    DataClassification = CustomerContent;
 
     fields
     {

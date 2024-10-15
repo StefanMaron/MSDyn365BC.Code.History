@@ -11,6 +11,7 @@ table 12173 "Deferring Due Dates"
     Caption = 'Deferring Due Dates';
     DrillDownPageID = "Stop Payment Periods";
     LookupPageID = "Stop Payment Periods";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -176,26 +176,24 @@ report 6080 "Serv. Pricing Profitability"
                             ServInvHeader.SetRange("Order No.", ServShipmentHeader."Order No.");
                             if ServInvHeader.Find('-') then
                                 repeat
-                                    with ServInvLine do begin
-                                        Reset();
-                                        SetCurrentKey("Document No.", "Service Item Line No.", Type, "No.");
-                                        SetRange("Document No.", ServInvHeader."No.");
-                                        SetRange("Service Item Line No.", "Service Shipment Item Line"."Line No.");
-                                        if Find('-') then
-                                            repeat
-                                                CostAmt += Round("Unit Cost (LCY)" * Quantity, Currency."Amount Rounding Precision");
-                                                InvoiceAmt += CurrExchRate.ExchangeAmtFCYToLCY(
-                                                    ServShipmentHeader."Posting Date",
-                                                    ServShipmentHeader."Currency Code",
-                                                    Round("Unit Price" * Quantity, Currency."Amount Rounding Precision"),
-                                                    ServShipmentHeader."Currency Factor");
-                                                DiscountAmt += CurrExchRate.ExchangeAmtFCYToLCY(
-                                                    ServShipmentHeader."Posting Date",
-                                                    ServShipmentHeader."Currency Code",
-                                                    "Line Discount Amount",
-                                                    ServShipmentHeader."Currency Factor");
-                                            until Next() = 0;
-                                    end;
+                                    ServInvLine.Reset();
+                                    ServInvLine.SetCurrentKey("Document No.", "Service Item Line No.", Type, "No.");
+                                    ServInvLine.SetRange("Document No.", ServInvHeader."No.");
+                                    ServInvLine.SetRange("Service Item Line No.", "Service Shipment Item Line"."Line No.");
+                                    if ServInvLine.Find('-') then
+                                        repeat
+                                            CostAmt += Round(ServInvLine."Unit Cost (LCY)" * ServInvLine.Quantity, Currency."Amount Rounding Precision");
+                                            InvoiceAmt += CurrExchRate.ExchangeAmtFCYToLCY(
+                                                ServShipmentHeader."Posting Date",
+                                                ServShipmentHeader."Currency Code",
+                                                Round(ServInvLine."Unit Price" * ServInvLine.Quantity, Currency."Amount Rounding Precision"),
+                                                ServShipmentHeader."Currency Factor");
+                                            DiscountAmt += CurrExchRate.ExchangeAmtFCYToLCY(
+                                                ServShipmentHeader."Posting Date",
+                                                ServShipmentHeader."Currency Code",
+                                                ServInvLine."Line Discount Amount",
+                                                ServShipmentHeader."Currency Factor");
+                                        until ServInvLine.Next() = 0;
                                 until ServInvHeader.Next() = 0;
 
                         until Next() = 0;

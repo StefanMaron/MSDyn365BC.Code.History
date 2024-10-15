@@ -61,44 +61,42 @@ codeunit 12185 "Export Self-Billing Documents"
         StartID: Integer;
         EndID: Integer;
     begin
-        with SelectedVATEntry do begin
-            SetCurrentKey("Document No.", "Posting Date", "Unrealized VAT Entry No.");
-            if FindSet() then
-                repeat
-                    CopyVATEntriesByDocNoAndPostingDateToBuffer(TempVATEntry, SelectedVATEntry, AllVATEntry);
-                    DoExport(TempVATEntry, TempErrorMessage, RecordExportBuffer);
-                    if not RecordExportBuffer."File Content".HasValue() then
-                        IsMissingFileContent := true;
-                    if StartID = 0 then
-                        StartID := RecordExportBuffer.ID;
-                    EndID := RecordExportBuffer.ID;
-                until Next() = 0;
+        SelectedVATEntry.SetCurrentKey("Document No.", "Posting Date", "Unrealized VAT Entry No.");
+        if SelectedVATEntry.FindSet() then
+            repeat
+                CopyVATEntriesByDocNoAndPostingDateToBuffer(TempVATEntry, SelectedVATEntry, AllVATEntry);
+                DoExport(TempVATEntry, TempErrorMessage, RecordExportBuffer);
+                if not RecordExportBuffer."File Content".HasValue() then
+                    IsMissingFileContent := true;
+                if StartID = 0 then
+                    StartID := RecordExportBuffer.ID;
+                EndID := RecordExportBuffer.ID;
+            until SelectedVATEntry.Next() = 0;
 
-            TempErrorMessage.ShowErrorMessages(true);
-            if IsMissingFileContent then
-                Error(SelfBillingDocumentNotExportedErr);
+        TempErrorMessage.ShowErrorMessages(true);
+        if IsMissingFileContent then
+            Error(SelfBillingDocumentNotExportedErr);
 
-            RecordExportBuffer.SetRange(ID, StartID, EndID);
-            if RecordExportBuffer.Count > 1 then begin
-                ClientFileName := CopyStr(RecordExportBuffer.ZipFileName, 1, 250);
-                TempBlob.CreateOutStream(ZipFileOutStream);
-                DataCompression.CreateZipArchive();
-                RecordExportBuffer.FindSet();
-                repeat
-                    RecordExportBuffer.GetFileContent(EntryTempBlob);
-                    EntryTempBlob.CreateInStream(ServerTempFileInStream);
-                    DataCompression.AddEntry(ServerTempFileInStream, RecordExportBuffer.ClientFileName);
-                until RecordExportBuffer.Next() = 0;
-                DataCompression.SaveZipArchive(ZipFileOutStream);
-                DataCompression.CloseZipArchive();
-            end else
-                if RecordExportBuffer.FindFirst() then begin
-                    RecordExportBuffer.GetFileContent(TempBlob);
-                    ClientFileName := RecordExportBuffer.ClientFileName;
-                end;
+        RecordExportBuffer.SetRange(ID, StartID, EndID);
+        if RecordExportBuffer.Count > 1 then begin
+            ClientFileName := CopyStr(RecordExportBuffer.ZipFileName, 1, 250);
+            TempBlob.CreateOutStream(ZipFileOutStream);
+            DataCompression.CreateZipArchive();
+            RecordExportBuffer.FindSet();
+            repeat
+                RecordExportBuffer.GetFileContent(EntryTempBlob);
+                EntryTempBlob.CreateInStream(ServerTempFileInStream);
+                DataCompression.AddEntry(ServerTempFileInStream, RecordExportBuffer.ClientFileName);
+            until RecordExportBuffer.Next() = 0;
+            DataCompression.SaveZipArchive(ZipFileOutStream);
+            DataCompression.CloseZipArchive();
+        end else
+            if RecordExportBuffer.FindFirst() then begin
+                RecordExportBuffer.GetFileContent(TempBlob);
+                ClientFileName := RecordExportBuffer.ClientFileName;
+            end;
 
-            RecordExportBuffer.DeleteAll();
-        end;
+        RecordExportBuffer.DeleteAll();
     end;
 
     local procedure CopyVATEntriesByDocNoAndPostingDateToBuffer(var TempVATEntry: Record "VAT Entry" temporary; var SelectedVATEntry: Record "VAT Entry"; var AllVATEntry: Record "VAT Entry")
@@ -107,32 +105,30 @@ codeunit 12185 "Export Self-Billing Documents"
     begin
         TempVATEntry.Reset();
         TempVATEntry.DeleteAll();
-        with SelectedVATEntry do begin
-            SetRange("Document No.", "Document No.");
-            SetRange("Posting Date", "Posting Date");
-            repeat
-                TempVATEntry := SelectedVATEntry;
-                TempVATEntry.Insert();
-                if TempVATEntry."Related Entry No." = 0 then
-                    HeaderEntryNo := TempVATEntry."Entry No.";
-            until Next() = 0;
+        SelectedVATEntry.SetRange("Document No.", SelectedVATEntry."Document No.");
+        SelectedVATEntry.SetRange("Posting Date", SelectedVATEntry."Posting Date");
+        repeat
+            TempVATEntry := SelectedVATEntry;
+            TempVATEntry.Insert();
+            if TempVATEntry."Related Entry No." = 0 then
+                HeaderEntryNo := TempVATEntry."Entry No.";
+        until SelectedVATEntry.Next() = 0;
 
-            CopyFilter("Document No.", AllVATEntry."Document No.");
-            CopyFilter("Posting Date", AllVATEntry."Posting Date");
-            AllVATEntry.SetRange("Related Entry No.", HeaderEntryNo);
-            if not AllVATEntry.IsEmpty() then
-                if Confirm(MultipleEntriesQst, false) then begin
-                    AllVATEntry.FindSet();
-                    repeat
-                        TempVATEntry := AllVATEntry;
-                        if TempVATEntry.Insert() then;
-                    until AllVATEntry.Next() = 0;
-                end;
-            AllVATEntry.SetRange("Related Entry No.");
+        SelectedVATEntry.CopyFilter("Document No.", AllVATEntry."Document No.");
+        SelectedVATEntry.CopyFilter("Posting Date", AllVATEntry."Posting Date");
+        AllVATEntry.SetRange("Related Entry No.", HeaderEntryNo);
+        if not AllVATEntry.IsEmpty() then
+            if Confirm(MultipleEntriesQst, false) then begin
+                AllVATEntry.FindSet();
+                repeat
+                    TempVATEntry := AllVATEntry;
+                    if TempVATEntry.Insert() then;
+                until AllVATEntry.Next() = 0;
+            end;
+        AllVATEntry.SetRange("Related Entry No.");
 
-            SetRange("Document No.");
-            SetRange("Posting Date");
-        end;
+        SelectedVATEntry.SetRange("Document No.");
+        SelectedVATEntry.SetRange("Posting Date");
     end;
 
     local procedure DoExport(var TempVATEntry: Record "VAT Entry" temporary; var TempErrorMessage: Record "Error Message" temporary; var RecordExportBuffer: Record "Record Export Buffer")

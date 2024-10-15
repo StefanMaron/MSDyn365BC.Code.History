@@ -127,6 +127,7 @@ page 6057 "Contract Line Selection"
         Rec.FilterGroup(2);
         Rec.SetRange("Customer No.", CustomerNo);
         Rec.SetFilter(Status, '<>%1', Rec.Status::Defective);
+        Rec.SetRange(Blocked, Rec.Blocked::" ");
         Rec.FilterGroup(0);
         Rec.SetRange("Ship-to Code", ShipToCode);
         SetSelectionFilter();

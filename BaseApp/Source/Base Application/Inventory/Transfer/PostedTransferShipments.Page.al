@@ -12,7 +12,7 @@ page 5752 "Posted Transfer Shipments"
     PageType = List;
     SourceTable = "Transfer Shipment Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout

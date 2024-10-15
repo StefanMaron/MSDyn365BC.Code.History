@@ -56,7 +56,7 @@ codeunit 144184 "ERM Registration No."
         REPORT.Run(REPORT::"Customer Bills List");
 
         // Verify: Verify values on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CustomerLedgerEntryLCYCap, SalesHeader."Amount Including VAT");
         LibraryReportDataset.AssertElementWithValueExists(TotalForCustomerCap, 0);  // 0 for TotalForCustomer.
     end;
@@ -86,7 +86,7 @@ codeunit 144184 "ERM Registration No."
         REPORT.Run(REPORT::"Vendor Account Bills List");
 
         // Verify: Verify values on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendorLedgerEntryLCYCap, -PurchaseHeader."Amount Including VAT");
         LibraryReportDataset.AssertElementWithValueExists(TotalForVendorCap, 0);  // 0 for TotalForVendor.
     end;
@@ -151,7 +151,7 @@ codeunit 144184 "ERM Registration No."
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Using random for Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -163,7 +163,7 @@ codeunit 144184 "ERM Registration No."
         Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Using random for Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -179,7 +179,7 @@ codeunit 144184 "ERM Registration No."
         LibraryITLocalization.CreateBill(Bill);
         Bill.Validate("Allow Issue", true);
         Bill.Validate("Bills for Coll. Temp. Acc. No.", GLAccount."No.");
-        Bill.Validate("List No.", LibraryERM.CreateNoSeriesCode);
+        Bill.Validate("List No.", LibraryERM.CreateNoSeriesCode());
         Bill.Validate("Temporary Bill No.", Bill."List No.");
         Bill.Validate("Final Bill No.", Bill."List No.");
         Bill.Validate("Vendor Bill List", Bill."List No.");
@@ -193,7 +193,7 @@ codeunit 144184 "ERM Registration No."
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Method Code", CreatePaymentMethod);
+        Customer.Validate("Payment Method Code", CreatePaymentMethod());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -203,7 +203,7 @@ codeunit 144184 "ERM Registration No."
         PaymentMethod: Record "Payment Method";
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
-        PaymentMethod.Validate("Bill Code", CreateBill);
+        PaymentMethod.Validate("Bill Code", CreateBill());
         PaymentMethod.Modify(true);
         exit(PaymentMethod.Code);
     end;
@@ -213,7 +213,7 @@ codeunit 144184 "ERM Registration No."
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Method Code", CreatePaymentMethod);
+        Vendor.Validate("Payment Method Code", CreatePaymentMethod());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -247,7 +247,7 @@ codeunit 144184 "ERM Registration No."
         LibraryVariableStorage.Dequeue(No);
         CustomerBillsList."Ending Date".SetValue(WorkDate());
         CustomerBillsList.Customer.SetFilter("No.", No);
-        CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -259,7 +259,7 @@ codeunit 144184 "ERM Registration No."
         LibraryVariableStorage.Dequeue(No);
         VendorAccountBillsList.Vendor.SetFilter("No.", No);
         VendorAccountBillsList.EndingDate.SetValue(WorkDate());
-        VendorAccountBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorAccountBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

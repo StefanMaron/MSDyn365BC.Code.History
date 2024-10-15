@@ -5,6 +5,7 @@
 namespace Microsoft.Sales.Reports;
 
 using Microsoft.Finance.Analysis;
+using Microsoft.Foundation.Enums;
 using Microsoft.Sales.Customer;
 using System.Utilities;
 
@@ -26,7 +27,6 @@ page 12147 "Customer Aging"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the rounding factor.';
                 }
             }
@@ -37,7 +37,6 @@ page 12147 "Customer Aging"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View By';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies how you want to see the data.';
 
                     trigger OnValidate()
@@ -50,7 +49,6 @@ page 12147 "Customer Aging"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View as';
-                    OptionCaption = 'Period Balance,Balance at Date';
                     ToolTip = 'Specifies how you want to see the data.';
                 }
                 field(MATRIX_CaptionRange; MATRIX_CaptionRange)
@@ -80,7 +78,7 @@ page 12147 "Customer Aging"
                     MatrixForm: Page "Customer Aging Matrix";
                 begin
                     Clear(MatrixForm);
-                    MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, RoundingFactor, AmountType,
+                    MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, RoundingFactor.AsInteger(), AmountType.AsInteger(),
                       Rec.GetFilter("Global Dimension 1 Filter"), Rec.GetFilter("Global Dimension 2 Filter"));
                     MatrixForm.RunModal();
                 end;
@@ -140,9 +138,9 @@ page 12147 "Customer Aging"
         MATRIX_CaptionRange: Text[1024];
         MATRIX_PrimKeyFirstCaptionInCu: Text[1024];
         MATRIX_CurrentNoOfColumns: Integer;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Period Balance","Balance at Date";
-        RoundingFactor: Option "None","1","1000","1000000";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         MATRIX_CurrentSetLength: Integer;
         SetWanted: Option Initial,Previous,Same,Next;
 

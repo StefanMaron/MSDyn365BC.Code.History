@@ -9,6 +9,7 @@ using Microsoft.Finance.VAT.Ledger;
 table 12149 "Reprint Info Fiscal Reports"
 {
     Caption = 'Reprint Info Fiscal Reports';
+    DataClassification = CustomerContent;
 
     fields
     {

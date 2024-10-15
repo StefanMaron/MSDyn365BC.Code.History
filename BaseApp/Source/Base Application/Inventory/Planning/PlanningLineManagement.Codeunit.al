@@ -98,38 +98,37 @@ codeunit 99000809 "Planning Line Management"
         SubcontractorPrices: Record "Subcontractor Prices";
         SubcontractingPricesMgt: Codeunit SubcontractingPricesMgt;
     begin
-        with PlanningRoutingLine do begin
-            TransferFromReqLine(ReqLine);
-            TransferFromRoutingLine(RoutingLine);
+        PlanningRoutingLine.TransferFromReqLine(ReqLine);
+        PlanningRoutingLine.TransferFromRoutingLine(RoutingLine);
 
-            OnTransferRoutingLineOnBeforeCalcRoutingCostPerUnit(PlanningRoutingLine, ReqLine, RoutingLine);
-            if RoutingLine.Type = RoutingLine.Type::"Work Center" then
-                WorkCenter.Get(RoutingLine."Work Center No.");
+        OnTransferRoutingLineOnBeforeCalcRoutingCostPerUnit(PlanningRoutingLine, ReqLine, RoutingLine);
 
-            if (RoutingLine.Type = RoutingLine.Type::"Work Center") and (WorkCenter."Subcontractor No." <> '') then begin
-                SubcontractorPrices."Vendor No." := WorkCenter."Subcontractor No.";
-                SubcontractorPrices."Item No." := ReqLine."No.";
-                SubcontractorPrices."Standard Task Code" := "Standard Task Code";
-                SubcontractorPrices."Work Center No." := WorkCenter."No.";
-                SubcontractorPrices."Variant Code" := ReqLine."Variant Code";
-                SubcontractorPrices."Unit of Measure Code" := ReqLine."Unit of Measure Code";
-                SubcontractorPrices."Start Date" := ReqLine."Order Date";
-                SubcontractorPrices."Currency Code" := '';
-                SubcontractingPricesMgt.RoutingPricelistCost(
-                  SubcontractorPrices, WorkCenter,
-                  "Direct Unit Cost", "Indirect Cost %", "Overhead Rate", "Unit Cost per", "Unit Cost Calculation",
-                  ReqLine.Quantity, ReqLine."Qty. per Unit of Measure", ReqLine."Quantity (Base)");
-            end else
-                CostCalcMgt.CalcRoutingCostPerUnit(
-                  Type, "No.", "Direct Unit Cost", "Indirect Cost %", "Overhead Rate", "Unit Cost per", "Unit Cost Calculation");
+        if RoutingLine.Type = RoutingLine.Type::"Work Center" then
+            WorkCenter.Get(RoutingLine."Work Center No.");
 
-            OnTransferRoutingLineOnBeforeValidateDirectUnitCost(ReqLine, RoutingLine, PlanningRoutingLine);
-            Validate("Direct Unit Cost");
+        if (RoutingLine.Type = RoutingLine.Type::"Work Center") and (WorkCenter."Subcontractor No." <> '') then begin
+            SubcontractorPrices."Vendor No." := WorkCenter."Subcontractor No.";
+            SubcontractorPrices."Item No." := ReqLine."No.";
+            SubcontractorPrices."Standard Task Code" := PlanningRoutingLine."Standard Task Code";
+            SubcontractorPrices."Work Center No." := WorkCenter."No.";
+            SubcontractorPrices."Variant Code" := ReqLine."Variant Code";
+            SubcontractorPrices."Unit of Measure Code" := ReqLine."Unit of Measure Code";
+            SubcontractorPrices."Start Date" := ReqLine."Order Date";
+            SubcontractorPrices."Currency Code" := '';
+            SubcontractingPricesMgt.GetRoutingPricelistCost(
+              SubcontractorPrices, WorkCenter,
+              PlanningRoutingLine."Direct Unit Cost", PlanningRoutingLine."Indirect Cost %", PlanningRoutingLine."Overhead Rate", PlanningRoutingLine."Unit Cost per", PlanningRoutingLine."Unit Cost Calculation",
+              ReqLine.Quantity, ReqLine."Qty. per Unit of Measure", ReqLine."Quantity (Base)");
+        end else
+            CostCalcMgt.CalcRoutingCostPerUnit(
+              PlanningRoutingLine.Type, PlanningRoutingLine."No.", PlanningRoutingLine."Direct Unit Cost", PlanningRoutingLine."Indirect Cost %", PlanningRoutingLine."Overhead Rate", PlanningRoutingLine."Unit Cost per", PlanningRoutingLine."Unit Cost Calculation");
 
-            UpdateDatetime();
-            OnAfterTransferRtngLine(ReqLine, RoutingLine, PlanningRoutingLine);
-            Insert();
-        end;
+        OnTransferRoutingLineOnBeforeValidateDirectUnitCost(ReqLine, RoutingLine, PlanningRoutingLine);
+        PlanningRoutingLine.Validate("Direct Unit Cost");
+
+        PlanningRoutingLine.UpdateDatetime();
+        OnAfterTransferRtngLine(ReqLine, RoutingLine, PlanningRoutingLine);
+        PlanningRoutingLine.Insert();
     end;
 
     local procedure TransferBOM(ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal)
@@ -381,8 +380,7 @@ codeunit 99000809 "Planning Line Management"
                 PlanningComponent.SetRequisitionLine(ReqLine);
                 PlanningComponent.Validate("Routing Link Code");
                 PlanningComponent.Modify();
-                with PlanningComponent do
-                    PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "Location Code", "Due Date");
+                PlanningAssignment.ChkAssignOne(PlanningComponent."Item No.", PlanningComponent."Variant Code", PlanningComponent."Location Code", PlanningComponent."Due Date");
             until PlanningComponent.Next() = 0;
     end;
 
@@ -601,52 +599,50 @@ codeunit 99000809 "Planning Line Management"
     var
         Item2: Record Item;
     begin
-        with PlanningComponent do begin
-            Reset();
-            Init();
-            BlockDynamicTracking(Blocked);
-            SetRequisitionLine(ReqLine);
-            "Worksheet Template Name" := ReqLine."Worksheet Template Name";
-            "Worksheet Batch Name" := ReqLine."Journal Batch Name";
-            "Worksheet Line No." := ReqLine."Line No.";
-            "Line No." := NextPlanningCompLineNo;
-            Validate("Item No.", ProdBOMLine."No.");
-            "Variant Code" := ProdBOMLine."Variant Code";
-            if IsInventoryItem(ProdBOMLine."No.") then
-                "Location Code" := SKU."Components at Location";
-            Description := ProdBOMLine.Description;
-            "Planning Line Origin" := ReqLine."Planning Line Origin";
-            Validate("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");
-            "Quantity per" := ProdBOMLine."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM;
-            Validate("Routing Link Code", ProdBOMLine."Routing Link Code");
-            OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine, ReqLine, SKU);
-            GetDefaultBin();
-            Length := ProdBOMLine.Length;
-            Width := ProdBOMLine.Width;
-            Weight := ProdBOMLine.Weight;
-            Depth := ProdBOMLine.Depth;
-            Quantity := ProdBOMLine.Quantity;
-            Position := ProdBOMLine.Position;
-            "Position 2" := ProdBOMLine."Position 2";
-            "Position 3" := ProdBOMLine."Position 3";
-            "Lead-Time Offset" := ProdBOMLine."Lead-Time Offset";
-            Validate("Scrap %", ProdBOMLine."Scrap %");
-            Validate("Calculation Formula", ProdBOMLine."Calculation Formula");
+        PlanningComponent.Reset();
+        PlanningComponent.Init();
+        PlanningComponent.BlockDynamicTracking(Blocked);
+        PlanningComponent.SetRequisitionLine(ReqLine);
+        PlanningComponent."Worksheet Template Name" := ReqLine."Worksheet Template Name";
+        PlanningComponent."Worksheet Batch Name" := ReqLine."Journal Batch Name";
+        PlanningComponent."Worksheet Line No." := ReqLine."Line No.";
+        PlanningComponent."Line No." := NextPlanningCompLineNo;
+        PlanningComponent.Validate("Item No.", ProdBOMLine."No.");
+        PlanningComponent."Variant Code" := ProdBOMLine."Variant Code";
+        if IsInventoryItem(ProdBOMLine."No.") then
+            PlanningComponent."Location Code" := SKU."Components at Location";
+        PlanningComponent.Description := ProdBOMLine.Description;
+        PlanningComponent."Planning Line Origin" := ReqLine."Planning Line Origin";
+        PlanningComponent.Validate("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");
+        PlanningComponent."Quantity per" := ProdBOMLine."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM;
+        PlanningComponent.Validate("Routing Link Code", ProdBOMLine."Routing Link Code");
+        OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine, ReqLine, SKU);
+        PlanningComponent.GetDefaultBin();
+        PlanningComponent.Length := ProdBOMLine.Length;
+        PlanningComponent.Width := ProdBOMLine.Width;
+        PlanningComponent.Weight := ProdBOMLine.Weight;
+        PlanningComponent.Depth := ProdBOMLine.Depth;
+        PlanningComponent.Quantity := ProdBOMLine.Quantity;
+        PlanningComponent.Position := ProdBOMLine.Position;
+        PlanningComponent."Position 2" := ProdBOMLine."Position 2";
+        PlanningComponent."Position 3" := ProdBOMLine."Position 3";
+        PlanningComponent."Lead-Time Offset" := ProdBOMLine."Lead-Time Offset";
+        PlanningComponent.Validate("Scrap %", ProdBOMLine."Scrap %");
+        PlanningComponent.Validate("Calculation Formula", ProdBOMLine."Calculation Formula");
 
-            GetPlanningParameters.AtSKU(CompSKU, "Item No.", "Variant Code", "Location Code");
-            if Item2.Get("Item No.") then
-                Critical := Item2.Critical;
+        GetPlanningParameters.AtSKU(CompSKU, PlanningComponent."Item No.", PlanningComponent."Variant Code", PlanningComponent."Location Code");
+        if Item2.Get(PlanningComponent."Item No.") then
+            PlanningComponent.Critical := Item2.Critical;
 
-            "Flushing Method" := CompSKU."Flushing Method";
-            if SetPlanningLevelCode(PlanningComponent, ProdBOMLine, SKU, CompSKU) then
-                "Planning Level Code" := ReqLine."Planning Level" + 1;
+        PlanningComponent."Flushing Method" := CompSKU."Flushing Method";
+        if SetPlanningLevelCode(PlanningComponent, ProdBOMLine, SKU, CompSKU) then
+            PlanningComponent."Planning Level Code" := ReqLine."Planning Level" + 1;
 
-            "Ref. Order Type" := ReqLine."Ref. Order Type";
-            "Ref. Order Status" := Enum::"Production Order Status".FromInteger(ReqLine."Ref. Order Status");
-            "Ref. Order No." := ReqLine."Ref. Order No.";
-            OnBeforeInsertPlanningComponent(ReqLine, ProdBOMLine, PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
-            Insert();
-        end;
+        PlanningComponent."Ref. Order Type" := ReqLine."Ref. Order Type";
+        PlanningComponent."Ref. Order Status" := Enum::"Production Order Status".FromInteger(ReqLine."Ref. Order Status");
+        PlanningComponent."Ref. Order No." := ReqLine."Ref. Order No.";
+        OnBeforeInsertPlanningComponent(ReqLine, ProdBOMLine, PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
+        PlanningComponent.Insert();
     end;
 
     local procedure SetPlanningLevelCode(var PlanningComponent: Record "Planning Component"; var ProdBOMLine: Record "Production BOM Line"; var SKU: Record "Stockkeeping Unit"; var ComponentSKU: Record "Stockkeeping Unit") Result: Boolean
@@ -909,86 +905,76 @@ codeunit 99000809 "Planning Line Management"
     var
         PlanningComp2: Record "Planning Component";
     begin
-        with PlanningComp do begin
-            PlanningComp2 := PlanningComp;
+        PlanningComp2 := PlanningComp;
 
-            SetCurrentKey(
-              "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Item No.");
-            SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-            SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-            SetRange("Worksheet Line No.", ReqLine."Line No.");
-            SetRange("Item No.", ProdBOMLine."No.");
-            if Find('-') then
-                repeat
-                    if IsPlannedCompFound(PlanningComp, ProdBOMLine) then
-                        exit(true);
-                until Next() = 0;
+        PlanningComp.SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Item No.");
+        PlanningComp.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+        PlanningComp.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+        PlanningComp.SetRange("Worksheet Line No.", ReqLine."Line No.");
+        PlanningComp.SetRange("Item No.", ProdBOMLine."No.");
+        if PlanningComp.Find('-') then
+            repeat
+                if IsPlannedCompFound(PlanningComp, ProdBOMLine) then
+                    exit(true);
+            until PlanningComp.Next() = 0;
 
-            PlanningComp := PlanningComp2;
-            exit(false);
-        end;
+        PlanningComp := PlanningComp2;
+        exit(false);
     end;
 
     local procedure IsPlannedCompFound(PlanningComp: Record "Planning Component"; ProdBOMLine: Record "Production BOM Line"): Boolean
     var
         IsFound: Boolean;
     begin
-        with PlanningComp do begin
-            IsFound :=
-              ("Variant Code" = ProdBOMLine."Variant Code") and
-              ("Routing Link Code" = ProdBOMLine."Routing Link Code") and
-              (Position = ProdBOMLine.Position) and
-              ("Position 2" = ProdBOMLine."Position 2") and
-              ("Position 3" = ProdBOMLine."Position 3") and
-              (Length = ProdBOMLine.Length) and
-              (Width = ProdBOMLine.Width) and
-              (Weight = ProdBOMLine.Weight) and
-              (Depth = ProdBOMLine.Depth) and
-              ("Unit of Measure Code" = ProdBOMLine."Unit of Measure Code") and
-              ("Calculation Formula" = ProdBOMLine."Calculation Formula");
-            OnAfterIsPlannedCompFound(PlanningComp, ProdBOMLine, IsFound, SKU);
-            exit(IsFound);
-        end;
+        IsFound :=
+            (PlanningComp."Variant Code" = ProdBOMLine."Variant Code") and
+            (PlanningComp."Routing Link Code" = ProdBOMLine."Routing Link Code") and
+            (PlanningComp.Position = ProdBOMLine.Position) and
+            (PlanningComp."Position 2" = ProdBOMLine."Position 2") and
+            (PlanningComp."Position 3" = ProdBOMLine."Position 3") and
+            (PlanningComp.Length = ProdBOMLine.Length) and
+            (PlanningComp.Width = ProdBOMLine.Width) and
+            (PlanningComp.Weight = ProdBOMLine.Weight) and
+            (PlanningComp.Depth = ProdBOMLine.Depth) and
+            (PlanningComp."Unit of Measure Code" = ProdBOMLine."Unit of Measure Code") and
+            (PlanningComp."Calculation Formula" = ProdBOMLine."Calculation Formula");
+        OnAfterIsPlannedCompFound(PlanningComp, ProdBOMLine, IsFound, SKU);
+        exit(IsFound);
     end;
 
     local procedure IsPlannedAsmComp(var PlanningComp: Record "Planning Component"; ReqLine: Record "Requisition Line"; AsmBOMComp: Record "BOM Component"): Boolean
     var
         PlanningComp2: Record "Planning Component";
     begin
-        with PlanningComp do begin
-            PlanningComp2 := PlanningComp;
+        PlanningComp2 := PlanningComp;
 
-            SetCurrentKey(
-              "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Item No.");
-            SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-            SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-            SetRange("Worksheet Line No.", ReqLine."Line No.");
-            SetRange("Item No.", AsmBOMComp."No.");
-            if Find('-') then
-                repeat
-                    if IsPlannedAsmCompFound(PlanningComp, AsmBOMComp) then
-                        exit(true);
-                until Next() = 0;
+        PlanningComp.SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Item No.");
+        PlanningComp.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+        PlanningComp.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+        PlanningComp.SetRange("Worksheet Line No.", ReqLine."Line No.");
+        PlanningComp.SetRange("Item No.", AsmBOMComp."No.");
+        if PlanningComp.Find('-') then
+            repeat
+                if IsPlannedAsmCompFound(PlanningComp, AsmBOMComp) then
+                    exit(true);
+            until PlanningComp.Next() = 0;
 
-            PlanningComp := PlanningComp2;
-            exit(false);
-        end;
+        PlanningComp := PlanningComp2;
+        exit(false);
     end;
 
     local procedure IsPlannedAsmCompFound(PlanningComp: Record "Planning Component"; AsmBOMComp: Record "BOM Component"): Boolean
     var
         IsFound: Boolean;
     begin
-        with PlanningComp do begin
-            IsFound :=
-              ("Variant Code" = AsmBOMComp."Variant Code") and
-              (Position = AsmBOMComp.Position) and
-              ("Position 2" = AsmBOMComp."Position 2") and
-              ("Position 3" = AsmBOMComp."Position 3") and
-              ("Unit of Measure Code" = AsmBOMComp."Unit of Measure Code");
-            OnAfterIsPlannedAsmCompFound(PlanningComp, AsmBOMComp, IsFound);
-            exit(IsFound);
-        end;
+        IsFound :=
+            (PlanningComp."Variant Code" = AsmBOMComp."Variant Code") and
+            (PlanningComp.Position = AsmBOMComp.Position) and
+            (PlanningComp."Position 2" = AsmBOMComp."Position 2") and
+            (PlanningComp."Position 3" = AsmBOMComp."Position 3") and
+            (PlanningComp."Unit of Measure Code" = AsmBOMComp."Unit of Measure Code");
+        OnAfterIsPlannedAsmCompFound(PlanningComp, AsmBOMComp, IsFound);
+        exit(IsFound);
     end;
 
     procedure SetResiliencyOn(WkshTemplName: Code[10]; JnlBatchName: Code[10]; ItemNo: Code[20])

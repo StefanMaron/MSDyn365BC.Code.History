@@ -71,7 +71,7 @@ codeunit 136129 "Service Order Tracking"
         Initialize();
         // Test Order Tracking Entries from Service Line with Item having Order Tracking Policy Tracking Only.
         // Variation: Tracking Only, Location Equal, Service Order
-        ServiceOrderWithTracking(LocationA, Item."Order Tracking Policy"::"Tracking Only");
+        ServiceOrderWithTracking(LocationA(), Item."Order Tracking Policy"::"Tracking Only");
 
         // 2. Exercise: Run Order Tracking page from Service Line.
         ServiceLine.ShowTracking(); // Page Handler ServiceOrderTrackingPage
@@ -79,7 +79,7 @@ codeunit 136129 "Service Order Tracking"
         // 3. Verification will happen through the Test Page for Order Tracking,
         // The global ServiceLine and PurchaseLine is used for verification.
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -93,7 +93,7 @@ codeunit 136129 "Service Order Tracking"
         Initialize();
         // Test Order Tracking Entries from Purchase Line with Item having Order Tracking Policy Tracking Only.
         // Variation: Tracking Only, Location Equal, Purchase Order
-        ServiceOrderWithTracking(LocationA, Item."Order Tracking Policy"::"Tracking Only");
+        ServiceOrderWithTracking(LocationA(), Item."Order Tracking Policy"::"Tracking Only");
 
         // 2. Exercise: Run Order Tracking page from Purchase Line.
         PurchaseOrderSubform.SetRecord(PurchaseLine);
@@ -102,7 +102,7 @@ codeunit 136129 "Service Order Tracking"
         // 3. Verification will happen through the Test Page for Order Tracking,
         // The global ServiceLine and PurchaseLine is used for verification.
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 136129 "Service Order Tracking"
         Initialize();
         // Test Order Tracking Entries from Service Line with Item having Order Tracking Policy None.
         // Variation: Tracking None, Location Equal, Service Order
-        ServiceOrderWithTracking(LocationA, Item."Order Tracking Policy"::None);
+        ServiceOrderWithTracking(LocationA(), Item."Order Tracking Policy"::None);
 
         // 2. Exercise: Run Order Tracking page from Service Line.
         ServiceLine.ShowTracking(); // Page Handler NoTrackingPage
@@ -123,7 +123,7 @@ codeunit 136129 "Service Order Tracking"
         // 3. Verification will happen through the Test Page for Order Tracking,
         // The global ServiceLine and PurchaseLine is used for verification.
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -136,7 +136,7 @@ codeunit 136129 "Service Order Tracking"
         Initialize();
         // Verify that two orders with different locations cannot be used for Order Tracking
         // Variation: Tracking Only, Location Different, Service Order
-        ServiceOrderWithTracking(LocationB, Item."Order Tracking Policy"::"Tracking Only");
+        ServiceOrderWithTracking(LocationB(), Item."Order Tracking Policy"::"Tracking Only");
 
         // 2. Exercise: Run Order Tracking page from Service Line.
         ServiceLine.ShowTracking(); // Page Handler NoTrackingPage
@@ -144,7 +144,7 @@ codeunit 136129 "Service Order Tracking"
         // 3. Verification will happen through the Test Page for Order Tracking,
         // The global ServiceLine and PurchaseLine is used for verification.
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -541,7 +541,7 @@ codeunit 136129 "Service Order Tracking"
         Item: Record Item;
     begin
         CreateItemWithTrackingPolicy(Item, TrackingPolicy);
-        CreatePurchaseLine(PurchaseLine, FindVendor, Item."No.");
+        CreatePurchaseLine(PurchaseLine, FindVendor(), Item."No.");
         CreateServiceOrder(ServiceLine, PurchaseLine, ServiceLocation);
         Commit();
     end;
@@ -552,10 +552,10 @@ codeunit 136129 "Service Order Tracking"
         AssignSerialNoInItemJournal: Option "None",AssignSerialNo,AssignLotNo,SelectEntries,EnterValues,VerifyValues;
     begin
         Commit();  // Commit is used to avoid Test failure.
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLineBatchName);
         LibraryVariableStorage.Enqueue(AssignSerialNoInItemJournal::AssignSerialNo);
-        ItemJournal.ItemTrackingLines.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
     end;
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20])
@@ -609,8 +609,8 @@ codeunit 136129 "Service Order Tracking"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Item Tracking Code", ItemTrackingCode);
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -619,7 +619,7 @@ codeunit 136129 "Service Order Tracking"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, FindVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, FindVendor());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithItemTrackingCode(FindItemTrackingCode(LotSpecific, SNSpecific)),
           LibraryRandom.RandInt(10));
@@ -692,7 +692,7 @@ codeunit 136129 "Service Order Tracking"
     local procedure UpdateServiceLine(var ServiceLine: Record "Service Line"; LocationCode: Code[10]; Quantity: Decimal)
     begin
         ServiceLine.Validate("Location Code", LocationCode);
-        ServiceLine.Validate(Quantity, Quantity * LibraryUtility.GenerateRandomFraction);
+        ServiceLine.Validate(Quantity, Quantity * LibraryUtility.GenerateRandomFraction());
         ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         ServiceLine.Modify(true);
     end;
@@ -745,7 +745,7 @@ codeunit 136129 "Service Order Tracking"
 
     local procedure FindVendor(): Code[20]
     begin
-        exit(LibraryPurchase.CreateVendorNo);
+        exit(LibraryPurchase.CreateVendorNo());
     end;
 
     local procedure LocationA(): Code[10]
@@ -779,34 +779,34 @@ codeunit 136129 "Service Order Tracking"
         Commit();
         case TrackingAction of
             TrackingAction::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             TrackingAction::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             TrackingAction::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReserveFromCurrentLineHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
+        Reservation."Reserve from Current Line".Invoke();
     end;
 
     [ModalPageHandler]
@@ -814,7 +814,7 @@ codeunit 136129 "Service Order Tracking"
     procedure LotNoItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
         ItemTrackingList."Lot No.".AssertEquals(LotNo);
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -822,9 +822,9 @@ codeunit 136129 "Service Order Tracking"
     procedure SerialNoItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
         ItemTrackingList.FILTER.SetFilter("Serial No.", SerialNo);
-        ItemTrackingList.First;
+        ItemTrackingList.First();
         ItemTrackingList."Serial No.".AssertEquals(SerialNo);
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -835,7 +835,7 @@ codeunit 136129 "Service Order Tracking"
         ItemTrackingSummary."Total Requested Quantity".AssertEquals(0);
         ItemTrackingSummary."Total Available Quantity".AssertEquals(Quantity);
         ItemTrackingSummary."Selected Quantity".AssertEquals(Quantity);
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -843,7 +843,7 @@ codeunit 136129 "Service Order Tracking"
     procedure SetSelectedQuantityOnItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary."Selected Quantity".SetValue(Quantity + 1);  // Added 1 to take the value more than Quantity.
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -852,11 +852,11 @@ codeunit 136129 "Service Order Tracking"
     begin
         case TrackingAction of
             TrackingAction::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             TrackingAction::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             TrackingAction::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             TrackingAction::VerifyValues:
                 begin
                     ItemTrackingLines.Quantity_ItemTracking.AssertEquals(Quantity);
@@ -864,7 +864,7 @@ codeunit 136129 "Service Order Tracking"
                     ItemTrackingLines."Qty. to Invoice (Base)".AssertEquals(Quantity);
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -875,7 +875,7 @@ codeunit 136129 "Service Order Tracking"
         ItemTrackingSummary.MaxQuantity1.AssertEquals(Quantity);
         ItemTrackingSummary.Selected1.AssertEquals(Quantity - 1);  // (Quantity - 1) taken here as Selected Quantityfield value.
         ItemTrackingSummary.Undefined1.AssertEquals(Quantity - (Quantity - 1));  // (Quantity - 1) taken here as Selected1 field value.
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -886,7 +886,7 @@ codeunit 136129 "Service Order Tracking"
         ItemTrackingSummary.MaxQuantity1.AssertEquals(Quantity);
         ItemTrackingSummary.Selected1.AssertEquals(Quantity - 1);  // (Quantity - 1) taken here as Selected Quantityfield value.
         ItemTrackingSummary.Undefined1.AssertEquals(Quantity - (Quantity - 1));  // (Quantity - 1) taken here as Selected1 field value.
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -894,7 +894,7 @@ codeunit 136129 "Service Order Tracking"
     procedure NegativeSelectedQuantityOnItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary."Selected Quantity".SetValue(-Quantity);  // Taken negative value because value is important.
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -908,11 +908,11 @@ codeunit 136129 "Service Order Tracking"
         AssignedValue := AssignValueForTracking;  // Assign TrackingActionOfEntries2(Variant) to TrackingActionOfEntries(Option).
         case AssignedValue of
             AssignedValue::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             AssignedValue::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -921,9 +921,9 @@ codeunit 136129 "Service Order Tracking"
     var
         NumberOfLines: Integer;
     begin
-        NumberOfLines := LibraryVariableStorage.DequeueInteger;
+        NumberOfLines := LibraryVariableStorage.DequeueInteger();
 
-        PostedItemTrackingLines.First;
+        PostedItemTrackingLines.First();
         repeat
             NumberOfLines -= 1;
         until not PostedItemTrackingLines.Next();

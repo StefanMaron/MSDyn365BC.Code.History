@@ -7,12 +7,12 @@ codeunit 143000 "Library - IT Localization"
 
     var
         LibraryUtility: Codeunit "Library - Utility";
-        VATPeriodTxt: Label '%1/%2', Comment = '%1=Field Value,%2=Field Value';
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
+        VATPeriodTxt: Label '%1/%2', Comment = '%1=Field Value,%2=Field Value';
 
     [Scope('OnPrem')]
     procedure CreateAppointmentCode(var AppointmentCode: Record "Appointment Code")
@@ -174,25 +174,24 @@ codeunit 143000 "Library - IT Localization"
         VATStatementName: Record "VAT Statement Name";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        FindVATPostingSetup(VATPostingSetup, 0);
         LibraryERM.CreateVATStatementTemplate(VATStatementTemplate);
         LibraryERM.CreateVATStatementName(VATStatementName, VATStatementTemplate.Name);
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementTemplate.Name, VATStatementName.Name);
-        with VATStatementLine do begin
-            Validate(
-              "Row No.",
-              CopyStr(LibraryUtility.GenerateRandomCode(FieldNo("Row No."), DATABASE::"VAT Statement Line"),
-                1, LibraryUtility.GetFieldLength(DATABASE::"VAT Statement Line", FieldNo("Row No."))));
-            Validate(Description, "Row No.");
-            Validate(Type, Type::"VAT Entry Totaling");
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Purchase);
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Validate("Amount Type", "Amount Type"::"Blacklist Amount");
-            Validate("Blacklist Country Transaction", true);
-            Validate("Blacklisted Comm. Field", 'A20'); // A certain code required for blacklist functionality
-            Modify(true);
-        end;
+        VATStatementLine.Validate(
+            "Row No.",
+            CopyStr(LibraryUtility.GenerateRandomCode(VATStatementLine.FieldNo("Row No."), DATABASE::"VAT Statement Line"),
+                1, LibraryUtility.GetFieldLength(DATABASE::"VAT Statement Line", VATStatementLine.FieldNo("Row No."))));
+        VATStatementLine.Validate(Description, VATStatementLine."Row No.");
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
+        VATStatementLine.Validate("Gen. Posting Type", VATStatementLine."Gen. Posting Type"::Purchase);
+        VATStatementLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATStatementLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::"Blacklist Amount");
+        VATStatementLine.Validate("Blacklist Country Transaction", true);
+        VATStatementLine.Validate("Blacklisted Comm. Field", 'A20');
+        // A certain code required for blacklist functionality
+        VATStatementLine.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -270,22 +269,20 @@ codeunit 143000 "Library - IT Localization"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(LibrarySales.CreateCustomerNo);
-            Validate("PA Code", PACode);
-            LibraryUtility.GenerateRandomCode(FieldNo(Address), DATABASE::Customer);
-            Validate("Country/Region Code", 'IT');
-            Validate(Address, LibraryUtility.GenerateRandomCode(FieldNo(Address), DATABASE::Customer));
-            Validate(City, LibraryUtility.GenerateRandomCode(FieldNo(City), DATABASE::Customer));
-            Validate("Post Code", CopyStr(LibraryUtility.GenerateRandomNumericText(5), 1, MaxStrLen("Post Code")));
-            Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo('IT'));
-            Validate("Fiscal Code", '02876990587');
-            Validate(County, 'IT');
-            Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
-            Validate("PEC E-Mail Address", LibraryUtility.GenerateRandomEmail);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Get(LibrarySales.CreateCustomerNo());
+        Customer.Validate("PA Code", PACode);
+        LibraryUtility.GenerateRandomCode(Customer.FieldNo(Address), DATABASE::Customer);
+        Customer.Validate("Country/Region Code", 'IT');
+        Customer.Validate(Address, LibraryUtility.GenerateRandomCode(Customer.FieldNo(Address), DATABASE::Customer));
+        Customer.Validate(City, LibraryUtility.GenerateRandomCode(Customer.FieldNo(City), DATABASE::Customer));
+        Customer.Validate("Post Code", CopyStr(LibraryUtility.GenerateRandomNumericText(5), 1, MaxStrLen(Customer."Post Code")));
+        Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo('IT'));
+        Customer.Validate("Fiscal Code", '02876990587');
+        Customer.Validate(County, 'IT');
+        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        Customer.Validate("PEC E-Mail Address", LibraryUtility.GenerateRandomEmail());
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     procedure CreateFatturaProjectCode(): Code[15]
@@ -315,13 +312,11 @@ codeunit 143000 "Library - IT Localization"
         exit(FatturaProjectInfo.Code);
     end;
 
-    local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATPercentage: Integer)
+    local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPercentage: Integer)
     begin
-        with VATPostingSetup do begin
-            LibraryERM.FindVATPostingSetup(VATPostingSetup, "VAT Calculation Type"::"Normal VAT");
-            SetRange("VAT %", VATPercentage);
-            FindFirst();
-        end;
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.SetRange("VAT %", VATPercentage);
+        VATPostingSetup.FindFirst();
     end;
 
     procedure FilterFatturaDocumentTypeNoDefaultValues(var FatturaDocumentType: Record "Fattura Document Type")
@@ -345,7 +340,7 @@ codeunit 143000 "Library - IT Localization"
         exit('MRTMTT25D09F205Z');
     end;
 
-    procedure GetRandomFatturaCode(TypeValue: Option): Code[4]
+    procedure GetRandomFatturaCode(TypeValue: Enum "Fattura Code Type"): Code[4]
     var
         FatturaCode: Record "Fattura Code";
     begin
@@ -431,15 +426,13 @@ codeunit 143000 "Library - IT Localization"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        UpdateFatturaCompanyInformation;
-        ClearAllXMLFilesInTempFolder;
-        with SalesReceivablesSetup do begin
-            Get();
-            "Fattura PA Nos." := InsertFatturaNoSeries;
-        end;
+        UpdateFatturaCompanyInformation();
+        ClearAllXMLFilesInTempFolder();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Fattura PA Nos." := InsertFatturaNoSeries();
 
         InsertFatturaElectronicFormats(FatturaPA_ElectronicFormatTxt);
-        SetupFatturaDocumentSendingProfile;
+        SetupFatturaDocumentSendingProfile();
     end;
 
     local procedure SetupFatturaDocumentSendingProfile()
@@ -459,21 +452,21 @@ codeunit 143000 "Library - IT Localization"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate(IBAN, 'IT60X0542811101000000123456'); // valid IBAN needed
-            Validate("Fiscal Code", 'VNTRTR89B16Z154M'); // valid Fiscal Code needed
-            Validate("Country/Region Code", 'IT');
-            Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo("Country/Region Code"));
-            Validate("REA No.", LibraryUtility.GenerateRandomText(10));
-            Validate("Registry Office Province", LibraryUtility.GenerateRandomAlphabeticText(2, 0));
-            Validate("Company Type", GetRandomCompanyType);
-            Validate(Address, LibraryUtility.GenerateRandomText(10));
-            Validate("Post Code", CopyStr(LibraryUtility.GenerateRandomNumericText(5), 1, MaxStrLen("Post Code")));
-            Validate(County, LibraryUtility.GenerateRandomAlphabeticText(2, 0));
-            Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate(IBAN, 'IT60X0542811101000000123456');
+        // valid IBAN needed
+        CompanyInformation.Validate("Fiscal Code", 'VNTRTR89B16Z154M');
+        // valid Fiscal Code needed
+        CompanyInformation.Validate("Country/Region Code", 'IT');
+        CompanyInformation.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code"));
+        CompanyInformation.Validate("REA No.", LibraryUtility.GenerateRandomText(10));
+        CompanyInformation.Validate("Registry Office Province", LibraryUtility.GenerateRandomAlphabeticText(2, 0));
+        CompanyInformation.Validate("Company Type", GetRandomCompanyType());
+        CompanyInformation.Validate(Address, LibraryUtility.GenerateRandomText(10));
+        CompanyInformation.Validate("Post Code", CopyStr(LibraryUtility.GenerateRandomNumericText(5), 1, MaxStrLen(CompanyInformation."Post Code")));
+        CompanyInformation.Validate(County, LibraryUtility.GenerateRandomAlphabeticText(2, 0));
+        CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        CompanyInformation.Modify(true);
     end;
 
     procedure UpdatePaidInCapitalInCompanyInformation(PaidInCapital: Decimal)
@@ -490,7 +483,7 @@ codeunit 143000 "Library - IT Localization"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeries.Get(LibraryERM.CreateNoSeriesCode);
+        NoSeries.Get(LibraryERM.CreateNoSeriesCode());
         NoSeriesLine.SetRange("Series Code", NoSeries.Code);
         NoSeriesLine.FindFirst();
         NoSeriesLine.Validate("Starting No.", '1001');

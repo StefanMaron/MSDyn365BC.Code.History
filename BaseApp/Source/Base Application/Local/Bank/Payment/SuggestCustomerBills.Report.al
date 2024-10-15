@@ -134,7 +134,6 @@ report 12176 "Suggest Customer Bills"
     end;
 
     var
-        CustomerBillHeader: Record "Customer Bill Header";
         CustomerBillLine: Record "Customer Bill Line";
         CustBankAcc: Record "Customer Bank Account";
         BankAcc: Record "Bank Account";
@@ -145,6 +144,8 @@ report 12176 "Suggest Customer Bills"
         UseSameABI: Boolean;
         PartnerType: Enum "Partner Type";
 
+    protected var
+        CustomerBillHeader: Record "Customer Bill Header";
 
     procedure InitValues(var NewCustomerBillHeader: Record "Customer Bill Header"; OkIssue: Boolean)
     begin

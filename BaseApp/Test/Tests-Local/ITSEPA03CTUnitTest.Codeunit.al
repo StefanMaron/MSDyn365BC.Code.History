@@ -13,13 +13,10 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         LibraryERM: Codeunit "Library - ERM";
         LibraryITLocalization: Codeunit "Library - IT Localization";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        FileManagement: Codeunit "File Management";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
-        PaymentExportSetupCode: Code[20];
         FieldBlankErr: Label 'The Recipient Bank Account field must be filled.', Comment = '%1=table name, %2=field name. Example: Customer must have a value in Name.';
         LegacyExpError: Label 'The value "" can''t be evaluated into type Integer.';
         GenJnlLineExpError: Label 'Your export format is not set up to export vendor bills with this function. Use the function in the Vendor Bill List Sent Card window instead.';
@@ -56,7 +53,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         GenJnlLine.Modify();
 
         // Exercise.
-        asserterror VendorBillHeader.ExportToFile;
+        asserterror VendorBillHeader.ExportToFile();
 
         // Verify.
         Assert.ExpectedError(HasErrorsErr);
@@ -79,7 +76,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         VendorBillLine.Next(LibraryRandom.RandInt(VendorBillLine.Count));
         VendorBillLine."Vendor Bank Acc. No." := '';
         VendorBillLine.Modify();
-        asserterror VendorBillHeader.ExportToFile;
+        asserterror VendorBillHeader.ExportToFile();
 
         // Exercise.
         VendorBillLine.Delete(true);
@@ -105,13 +102,13 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         VendorBillLine.Next(LibraryRandom.RandInt(VendorBillLine.Count));
         VendorBillLine."Vendor Bank Acc. No." := '';
         VendorBillLine.Modify();
-        asserterror VendorBillHeader.ExportToFile;
+        asserterror VendorBillHeader.ExportToFile();
         VerifyPaymentErrors(VendorBillHeader."No.", VendorBillLine."Line No.", FieldBlankErr, 1);
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Vendor Bills Floppy", 0);
         BankAccount.Get(VendorBillHeader."Bank Account No.");
         BankAccount."Payment Export Format" := BankExportImportSetup.Code;
         BankAccount.Modify();
-        asserterror VendorBillHeader.ExportToFile;
+        asserterror VendorBillHeader.ExportToFile();
 
         // Verify.
         VerifyPaymentErrors(VendorBillHeader."No.", VendorBillLine."Line No.", FieldBlankErr, 0);
@@ -151,7 +148,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         CreateVendorBill(VendorBillHeader, TempVendorBillLine, BankExportImportSetup.Code, false);
 
         // Exercise.
-        asserterror VendorBillHeader.ExportToFile;
+        asserterror VendorBillHeader.ExportToFile();
 
         // Verify.
         Assert.ExpectedError(LegacyExpError);
@@ -277,7 +274,6 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         TempVendorBillLine: Record "Vendor Bill Line" temporary;
         VendorBillLine: Record "Vendor Bill Line";
         PaymentExportData: Record "Payment Export Data";
-        TotalFirstBankAcc: Decimal;
         TotalLastBankAcc: Decimal;
         i: Integer;
     begin
@@ -466,7 +462,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account");
         BankAccount."SWIFT Code" :=
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account");
-        BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         BankAccount.Modify();
         VendorBillHeader."Bank Account No." := BankAccount."No.";
         VendorBillHeader."List Status" := VendorBillHeader."List Status"::Sent;
@@ -536,12 +532,12 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
 
     procedure DequeueFileName(var FileName: Text)
     begin
-        FileName := LibraryVariableStorage.DequeueText;
+        FileName := LibraryVariableStorage.DequeueText();
     end;
 
     procedure AssertVariableStorageIsEmpty()
     begin
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Normal]

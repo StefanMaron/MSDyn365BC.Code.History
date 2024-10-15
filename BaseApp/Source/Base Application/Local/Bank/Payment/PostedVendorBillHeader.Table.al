@@ -14,6 +14,7 @@ table 12183 "Posted Vendor Bill Header"
 {
     Caption = 'Posted Vendor Bill Header';
     LookupPageID = "List of Posted Vend. Bill List";
+    DataClassification = CustomerContent;
 
     fields
     {

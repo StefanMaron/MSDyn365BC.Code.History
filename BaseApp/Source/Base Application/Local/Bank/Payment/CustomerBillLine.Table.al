@@ -15,6 +15,7 @@ using Microsoft.Sales.Reminder;
 table 12175 "Customer Bill Line"
 {
     Caption = 'Customer Bill Line';
+    DataClassification = CustomerContent;
 
     fields
     {

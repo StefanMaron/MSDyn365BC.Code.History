@@ -7,6 +7,7 @@ table 410 "IC G/L Account"
 {
     Caption = 'IC G/L Account';
     LookupPageID = "IC G/L Account List";
+    DataClassification = CustomerContent;
 
     fields
     {

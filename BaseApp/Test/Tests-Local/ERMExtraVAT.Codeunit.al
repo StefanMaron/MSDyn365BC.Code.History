@@ -113,7 +113,7 @@ codeunit 144078 "ERM Extra VAT"
         VATPeriodClosedErr: Label 'VAT Period Closed must be equal to ''No''  in Periodic Settlement VAT Entry: VAT Period=%1/%2. Current value is ''Yes''.', Comment = '%1=Field Value,%2=Field Value';
         VATFieldErr: Label 'Field %1 contains wrong value';
         LibraryJournals: Codeunit "Library - Journals";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         IsInitialized: Boolean;
 
     [Test]
@@ -221,7 +221,7 @@ codeunit 144078 "ERM Extra VAT"
         // Setup: Set Unrealized VAT true, Unrealized VAT Type as Percentage, Create Periodic VAT Settlement Entry and Sales Invoice.
         Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
-        CreatePeriodicVATSettlementEntry;
+        CreatePeriodicVATSettlementEntry();
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, '', '', false);  // Using blank for Payment Terms Code and Currency Code. False for Prices Including VAT.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -233,7 +233,7 @@ codeunit 144078 "ERM Extra VAT"
           StrSubstNo(VATPeriodClosedErr, Date2DMY(WorkDate(), 3), ConvertStr(Format(Date2DMY(WorkDate(), 2), 2), ' ', '0')));  // Value Zero required for VAT Period.
 
         // Tear Down.
-        DeletePeriodicSettlementVATEntry;
+        DeletePeriodicSettlementVATEntry();
     end;
 
     [Test]
@@ -249,7 +249,7 @@ codeunit 144078 "ERM Extra VAT"
         // Setup: Set Unrealized VAT true, Unrealized VAT Type as Percentage, Create Periodic VAT Settlement Entry and Purchase Invoice.
         Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
-        CreatePeriodicVATSettlementEntry;
+        CreatePeriodicVATSettlementEntry();
         CreatePurchaseInvoice(
           PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", '', '', PurchaseLine.Type::Item,
           CreateItem(VATPostingSetup."VAT Prod. Posting Group"));  // Blank value used for Payment Terms Code and Currency Code.
@@ -263,7 +263,7 @@ codeunit 144078 "ERM Extra VAT"
           StrSubstNo(VATPeriodClosedErr, Date2DMY(WorkDate(), 3), ConvertStr(Format(Date2DMY(WorkDate(), 2), 2), ' ', '0')));  // Value Zero required for VAT Period.
 
         // Tear Down.
-        DeletePeriodicSettlementVATEntry;
+        DeletePeriodicSettlementVATEntry();
     end;
 
     [Test]
@@ -278,10 +278,10 @@ codeunit 144078 "ERM Extra VAT"
         // Setup: Set Unrealized VAT true, Unrealized VAT Type as Percentage, Create Periodic VAT Settlement Entry and Gen. Journal Line.
         Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
-        CreatePeriodicVATSettlementEntry;
+        CreatePeriodicVATSettlementEntry();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, -LibraryRandom.RandDec(100, 2),
+          LibraryERM.CreateGLAccountWithSalesSetup(), -LibraryRandom.RandDec(100, 2),
           GenJournalLine."Applies-to Doc. Type"::" ", '');  // Using random for Amount and blank for Applies-to Doc. No.
 
         // Exercise.
@@ -312,7 +312,7 @@ codeunit 144078 "ERM Extra VAT"
           GenJournalLine."Document Type"::" ", '');  // Using random for Amount and blank for Payment Terms Code, Currency Code,Applies-to Doc. No and False for Price Including VAT.
         UpdateBalAccountNoInGenJournalLine(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        CreatePeriodicVATSettlementEntry;
+        CreatePeriodicVATSettlementEntry();
 
         // Exercise.
         asserterror ReversalEntry.ReverseRegister(FindGLRegister(GenJournalLine."Journal Batch Name"));
@@ -338,7 +338,7 @@ codeunit 144078 "ERM Extra VAT"
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, '', '', false);  // Using blank value for Payment Terms Code and Currency Code. False for Prices Including VAT.
         AppliesToDocNo := PostSalesDocument(SalesLine);
-        CreatePeriodicVATSettlementEntry;
+        CreatePeriodicVATSettlementEntry();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
           SalesLine."Sell-to Customer No.", -SalesLine."Amount Including VAT", GenJournalLine."Applies-to Doc. Type"::Invoice,
@@ -352,7 +352,7 @@ codeunit 144078 "ERM Extra VAT"
           StrSubstNo(VATPeriodClosedErr, Date2DMY(WorkDate(), 3), ConvertStr(Format(Date2DMY(WorkDate(), 2), 2), ' ', '0')));  // Value Zero required for VAT Period.
 
         // Tear Down.
-        DeletePeriodicSettlementVATEntry;
+        DeletePeriodicSettlementVATEntry();
     end;
 
     [Test]
@@ -377,7 +377,7 @@ codeunit 144078 "ERM Extra VAT"
         CreateAndPostGenJournalLine(
           GenJournalLine."Account Type"::Customer, SalesLine."Sell-to Customer No.", -SalesLine."Amount Including VAT", AppliesToDocNo,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        CreatePeriodicVATSettlementEntry;
+        CreatePeriodicVATSettlementEntry();
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, SalesLine."Document Type"::Invoice, AppliesToDocNo);
 
         // Exercise.
@@ -407,19 +407,19 @@ codeunit 144078 "ERM Extra VAT"
         Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreatePurchaseInvoice(
-          PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", FindPaymentTermsCode, '', PurchaseLine.Type::Item,
+          PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", FindPaymentTermsCode(), '', PurchaseLine.Type::Item,
           CreateItem(VATPostingSetup."VAT Prod. Posting Group"));  // Blank value used for Currency.
         AppliesToDocNo := PostPurchaseInvoice(PurchaseLine."Document No.");
         DocumentNo :=
           CreateAndPostGenJournalLine(
             GenJournalLine."Account Type"::Vendor, PurchaseLine."Buy-from Vendor No.",
-            PurchaseLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms, AppliesToDocNo,
+            PurchaseLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms(), AppliesToDocNo,
             GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        Base := PurchaseLine.Amount / GetPaymentNosFromPaymentTerms;
-        Amount := (PurchaseLine.Amount * VATPostingSetup."VAT %") / (GetPaymentNosFromPaymentTerms * 100);
+        Base := PurchaseLine.Amount / GetPaymentNosFromPaymentTerms();
+        Amount := (PurchaseLine.Amount * VATPostingSetup."VAT %") / (GetPaymentNosFromPaymentTerms() * 100);
 
         // Exercise.
-        CurrencyCode := RunAddReportingCurrencyReport;
+        CurrencyCode := RunAddReportingCurrencyReport();
 
         // Verify.
         VerifyVATEntry(
@@ -444,7 +444,7 @@ codeunit 144078 "ERM Extra VAT"
         CreateUnrealVATPostingSetup(VATPostingSetup);
         LibraryPurchase.SetInvoiceRounding(false);  // Set False for Invoice Rounding to avoid creating Rounding entry on Posting Invoice.
         CreatePurchaseInvoice(
-          PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", FindPaymentTermsCode, CreateCurrencyWithExchangeRate,
+          PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", FindPaymentTermsCode(), CreateCurrencyWithExchangeRate(),
           PurchaseLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
         AppliesToDocNo := PostPurchaseInvoice(PurchaseLine."Document No.");
 
@@ -452,16 +452,16 @@ codeunit 144078 "ERM Extra VAT"
         DocumentNo :=
           CreateAndPostGenJournalLine(
             GenJournalLine."Account Type"::Vendor, PurchaseLine."Buy-from Vendor No.",
-            PurchaseLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms, AppliesToDocNo,
+            PurchaseLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms(), AppliesToDocNo,
             GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // Verify.
         VerifyVATEntry(
           DocumentNo,
-          LibraryERM.ConvertCurrency(PurchaseLine.Amount / GetPaymentNosFromPaymentTerms, PurchaseLine."Currency Code", '', WorkDate()),
+          LibraryERM.ConvertCurrency(PurchaseLine.Amount / GetPaymentNosFromPaymentTerms(), PurchaseLine."Currency Code", '', WorkDate()),
           LibraryERM.ConvertCurrency(
-            PurchaseLine.Amount * VATPostingSetup."VAT %" / (100 * GetPaymentNosFromPaymentTerms), PurchaseLine."Currency Code", '',
-            WorkDate), 0, 0);  // Value 0 used for Additional Currency Base and Additional Currency Amount, Blank value used for To Currency.
+            PurchaseLine.Amount * VATPostingSetup."VAT %" / (100 * GetPaymentNosFromPaymentTerms()), PurchaseLine."Currency Code", '',
+            WorkDate()), 0, 0);  // Value 0 used for Additional Currency Base and Additional Currency Amount, Blank value used for To Currency.
     end;
 
     [Test]
@@ -480,22 +480,22 @@ codeunit 144078 "ERM Extra VAT"
         Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         LibrarySales.SetInvoiceRounding(false);  // Set False for Invoice Rounding to avoid creating Rounding entry on Posting Invoice.
-        CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, FindPaymentTermsCode,
-          CreateCurrencyWithExchangeRate, false);  // Using False for Prices Including VAT.
+        CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, FindPaymentTermsCode(),
+          CreateCurrencyWithExchangeRate(), false);  // Using False for Prices Including VAT.
         AppliesToDocNo := PostSalesDocument(SalesLine);
 
         // Exercise: Post Payment applied to One Installment of Invoice.
         DocumentNo :=
           CreateAndPostGenJournalLine(
             GenJournalLine."Account Type"::Customer, SalesLine."Sell-to Customer No.",
-            -SalesLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms, AppliesToDocNo,
+            -SalesLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms(), AppliesToDocNo,
             GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // Verify.
         VerifyVATEntry(
-          DocumentNo, LibraryERM.ConvertCurrency(-SalesLine.Amount / GetPaymentNosFromPaymentTerms, SalesLine."Currency Code", '', WorkDate()),
+          DocumentNo, LibraryERM.ConvertCurrency(-SalesLine.Amount / GetPaymentNosFromPaymentTerms(), SalesLine."Currency Code", '', WorkDate()),
           LibraryERM.ConvertCurrency(
-            -(SalesLine.Amount * VATPostingSetup."VAT %") / (GetPaymentNosFromPaymentTerms * 100), SalesLine."Currency Code", '', WorkDate()),
+            -(SalesLine.Amount * VATPostingSetup."VAT %") / (GetPaymentNosFromPaymentTerms() * 100), SalesLine."Currency Code", '', WorkDate()),
           0, 0);  // Value 0 used for Additional Currency Base and Additional Currency Amount, Blank value used for To Currency.
     end;
 
@@ -517,18 +517,18 @@ codeunit 144078 "ERM Extra VAT"
         // Setup: Set Unrealized VAT True on General Ledger Setup. Find and Update VAT Posting Setup. Post Sales Invoice and Post Payment applied to One Installment of Invoice.
         Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
-        CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, FindPaymentTermsCode, '', false);  // Using blank value for Currency Code and False for Prices Including VAT.
+        CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, FindPaymentTermsCode(), '', false);  // Using blank value for Currency Code and False for Prices Including VAT.
         AppliesToDocNo := PostSalesDocument(SalesLine);
         DocumentNo :=
           CreateAndPostGenJournalLine(
             GenJournalLine."Account Type"::Customer, SalesLine."Sell-to Customer No.",
-            -SalesLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms, AppliesToDocNo,
+            -SalesLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms(), AppliesToDocNo,
             GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        Base := -SalesLine.Amount / GetPaymentNosFromPaymentTerms;
-        Amount := -SalesLine.Amount * VATPostingSetup."VAT %" / (GetPaymentNosFromPaymentTerms * 100);
+        Base := -SalesLine.Amount / GetPaymentNosFromPaymentTerms();
+        Amount := -SalesLine.Amount * VATPostingSetup."VAT %" / (GetPaymentNosFromPaymentTerms() * 100);
 
         // Exercise.
-        CurrencyCode := RunAddReportingCurrencyReport;
+        CurrencyCode := RunAddReportingCurrencyReport();
 
         // Verify.
         VerifyVATEntry(
@@ -551,21 +551,21 @@ codeunit 144078 "ERM Extra VAT"
         Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         LibrarySales.SetInvoiceRounding(false);  // Set False for Invoice Rounding to avoid creating Rounding entry on Posting Invoice.
-        CreateAndPostServiceInvoice(ServiceLine, VATPostingSetup, CreateCurrencyWithExchangeRate);
+        CreateAndPostServiceInvoice(ServiceLine, VATPostingSetup, CreateCurrencyWithExchangeRate());
 
         // Exercise: Post Payment applied to One Installment of Invoice.
         DocumentNo :=
           CreateAndPostGenJournalLine(
             GenJournalLine."Account Type"::Customer, ServiceLine."Customer No.",
-            -ServiceLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms, GetPostedServiceDocumentNo(ServiceLine."Document No."),
+            -ServiceLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms(), GetPostedServiceDocumentNo(ServiceLine."Document No."),
             GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // Verify.
         VerifyVATEntry(
           DocumentNo, LibraryERM.ConvertCurrency(
-            -ServiceLine.Amount / GetPaymentNosFromPaymentTerms, ServiceLine."Currency Code", '', WorkDate()), LibraryERM.ConvertCurrency(
-            -ServiceLine.Amount * VATPostingSetup."VAT %" / (GetPaymentNosFromPaymentTerms * 100), ServiceLine."Currency Code", '',
-            WorkDate), 0, 0);  // Value 0 used for Additional Currency Base and Additional Currency Amount, Blank value used for To Currency.
+            -ServiceLine.Amount / GetPaymentNosFromPaymentTerms(), ServiceLine."Currency Code", '', WorkDate()), LibraryERM.ConvertCurrency(
+            -ServiceLine.Amount * VATPostingSetup."VAT %" / (GetPaymentNosFromPaymentTerms() * 100), ServiceLine."Currency Code", '',
+            WorkDate()), 0, 0);  // Value 0 used for Additional Currency Base and Additional Currency Amount, Blank value used for To Currency.
     end;
 
     [Test]
@@ -589,13 +589,13 @@ codeunit 144078 "ERM Extra VAT"
         DocumentNo :=
           CreateAndPostGenJournalLine(
             GenJournalLine."Account Type"::Customer, ServiceLine."Customer No.",
-            -ServiceLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms, GetPostedServiceDocumentNo(ServiceLine."Document No."),
+            -ServiceLine."Amount Including VAT" / GetPaymentNosFromPaymentTerms(), GetPostedServiceDocumentNo(ServiceLine."Document No."),
             GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
-        Base := -ServiceLine.Amount / GetPaymentNosFromPaymentTerms;
-        Amount := -(ServiceLine.Amount * VATPostingSetup."VAT %") / (GetPaymentNosFromPaymentTerms * 100);
+        Base := -ServiceLine.Amount / GetPaymentNosFromPaymentTerms();
+        Amount := -(ServiceLine.Amount * VATPostingSetup."VAT %") / (GetPaymentNosFromPaymentTerms() * 100);
 
         // Exercise.
-        CurrencyCode := RunAddReportingCurrencyReport;
+        CurrencyCode := RunAddReportingCurrencyReport();
 
         // Verify.
         VerifyVATEntry(
@@ -630,7 +630,7 @@ codeunit 144078 "ERM Extra VAT"
         // [GIVEN] Balance Gen. Journal Line for G/L Account = "GLA" with Amount = "100", "VAT Calculation Type" = "Reverse Charge VAT"
         // [WHEN] Post Journal Lines
         VendorNo := LibraryPurchase.CreateVendorNo();
-        ExpectedDocumentNo := NoSeriesManagement.GetNextNo(PurchOperationNoSeries."Reverse Sales VAT No. Series", WorkDate(), false);
+        ExpectedDocumentNo := NoSeriesBatch.GetNextNo(PurchOperationNoSeries."Reverse Sales VAT No. Series");
         CreateAndPostMultiGenJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice,
           LibraryRandom.RandDec(1000, 2), GLAccount."No.", VendorNo);
 
@@ -716,7 +716,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify that Reverse Charge VAT and Non-deductible reverse charge vat should be split into two different accounts that are Reverse Charge VAT Account and Nondeductible VAT Account with Random Deductible Pct.
         Initialize();
         PurchaseInvoiceWithDeductiblePct(
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandDecInRange(10, 50, 2));  // Using Random value.
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandDecInRange(10, 50, 2));  // Using Random value.
     end;
 
     [Test]
@@ -725,7 +725,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         // Verify that Reverse Charge VAT and Non-deductible reverse charge vat should be split into two different accounts that are Reverse Charge VAT Account and Nondeductible VAT Account with 100 Deductible Pct.
         Initialize();
-        PurchaseInvoiceWithDeductiblePct(LibraryERM.CreateGLAccountWithSalesSetup, 100);  // Using 100 for Deductible Percent.
+        PurchaseInvoiceWithDeductiblePct(LibraryERM.CreateGLAccountWithSalesSetup(), 100);  // Using 100 for Deductible Percent.
     end;
 
     [Test]
@@ -809,7 +809,6 @@ codeunit 144078 "ERM Extra VAT"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
         GenJournalLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
         DocAmount: Decimal;
@@ -838,7 +837,6 @@ codeunit 144078 "ERM Extra VAT"
     var
         SalesLineInvoice: Record "Sales Line";
         SalesLineCreditMemo: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
         DocumentNo: Code[20];
         CustomerNo: Code[20];
@@ -883,11 +881,9 @@ codeunit 144078 "ERM Extra VAT"
         CreateCustomUnrealVATPostingSetup(VATPostingSetup, 20);
         CustNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group", '', '', false);
         LineAmount := LibraryRandom.RandDec(1000, 2);
-        CreateSalesDocumentWithMultipleLines(
-          SalesLine, VATPostingSetup, SalesHeader."Document Type"::Invoice, '', '', false, CustNo, LineAmount);
+        CreateSalesDocumentWithMultipleLines(SalesLine, VATPostingSetup, SalesHeader."Document Type"::Invoice, CustNo, LineAmount);
         DocumentNo := PostSalesDocument(SalesLine);
-        CreateSalesDocumentWithMultipleLines(
-          SalesLine, VATPostingSetup, SalesHeader."Document Type"::"Credit Memo", '', '', false, CustNo, LineAmount / 2);
+        CreateSalesDocumentWithMultipleLines(SalesLine, VATPostingSetup, SalesHeader."Document Type"::"Credit Memo", CustNo, LineAmount / 2);
 
         // Excercise:
         DocumentNo := ApplyAndPostDocument(SalesLine, DocumentNo);
@@ -959,7 +955,7 @@ codeunit 144078 "ERM Extra VAT"
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Full VAT";
         VATPostingSetup.Insert();
 
-        VATPostingSetupCard.Trap;
+        VATPostingSetupCard.Trap();
         PAGE.Run(PAGE::"VAT Posting Setup Card", VATPostingSetup);
 
         VATPostingSetupCard."VAT Calculation Type".AssertEquals(VATPostingSetup."VAT Calculation Type");
@@ -1136,7 +1132,7 @@ codeunit 144078 "ERM Extra VAT"
 
         // [THEN] Document posting preview page with the single entry has been shown
         Assert.ExpectedError('');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1434,8 +1430,8 @@ codeunit 144078 "ERM Extra VAT"
     local procedure CreateAndPostGenJournalLineWithSavingLastNoUsed(var GeneralJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PurchOperationNoSeries: Record "No. Series"; var ExpectedReverseSalesNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Quantity: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(GeneralJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          DocumentType, GeneralJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, Quantity);
-        ExpectedReverseSalesNo := NoSeriesManagement.GetNextNo(PurchOperationNoSeries."Reverse Sales VAT No. Series", WorkDate(), false);
+          DocumentType, GeneralJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), Quantity);
+        ExpectedReverseSalesNo := NoSeriesBatch.GetNextNo(PurchOperationNoSeries."Reverse Sales VAT No. Series");
         LibraryERM.PostGeneralJnlLine(GeneralJournalLine);
     end;
 
@@ -1481,7 +1477,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         LibraryService.CreateServiceHeader(
           ServiceHeader, ServiceHeader."Document Type"::Invoice,
-          CreateCustomer(VATPostingSetup."VAT Bus. Posting Group", FindPaymentTermsCode, CurrencyCode, false));  // Using False for Prices Including VAT.
+          CreateCustomer(VATPostingSetup."VAT Bus. Posting Group", FindPaymentTermsCode(), CurrencyCode, false));  // Using False for Prices Including VAT.
         LibraryService.CreateServiceLine(
           ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
@@ -1507,8 +1503,8 @@ codeunit 144078 "ERM Extra VAT"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Residual Gains Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        Currency.Validate("Residual Losses Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        Currency.Validate("Residual Gains Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        Currency.Validate("Residual Losses Account", LibraryERM.CreateGLAccountWithSalesSetup());
         Currency.Modify(true);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
@@ -1673,11 +1669,9 @@ codeunit 144078 "ERM Extra VAT"
         exit(LineAmount1 + LineAmount2);
     end;
 
-    local procedure CreateSalesDocumentWithMultipleLines(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type"; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CustNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateSalesDocumentWithMultipleLines(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type"; CustNo: Code[20]; LineAmount: Decimal)
     var
         SalesHeader: Record "Sales Header";
-        "Count": Integer;
-        Qty: Decimal;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustNo);
         CreateSalesLine(SalesHeader, SalesLine, VATPostingSetup, LineAmount, 1);
@@ -1723,8 +1717,8 @@ codeunit 144078 "ERM Extra VAT"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 30));
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -1734,8 +1728,8 @@ codeunit 144078 "ERM Extra VAT"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPercent);
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -1868,7 +1862,7 @@ codeunit 144078 "ERM Extra VAT"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Get(FindPaymentTermsCode);
+        PaymentTerms.Get(FindPaymentTermsCode());
         PaymentTerms.CalcFields("Payment Nos.");
         exit(PaymentTerms."Payment Nos.");
     end;
@@ -1885,11 +1879,11 @@ codeunit 144078 "ERM Extra VAT"
     local procedure GetExpectedRevChargeVATDocNos(var PurchDocNo: Code[20]; var ReverseSalesDocNo: Code[20]; PrepmtNoSeriesCode: Code[20])
     var
         NoSeries: Record "No. Series";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
     begin
         NoSeries.Get(PrepmtNoSeriesCode);
-        PurchDocNo := NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate(), false);
-        ReverseSalesDocNo := NoSeriesMgt.GetNextNo(NoSeries."Reverse Sales VAT No. Series", WorkDate(), false);
+        PurchDocNo := NoSeriesBatch.GetNextNo(NoSeries.Code);
+        ReverseSalesDocNo := NoSeriesBatch.GetNextNo(NoSeries."Reverse Sales VAT No. Series");
     end;
 
     local procedure CreatingGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; GLAccountNo: Code[20]; NoSeriesCode: Code[20])
@@ -1919,9 +1913,9 @@ codeunit 144078 "ERM Extra VAT"
 
     local procedure RunAddReportingCurrencyReport() CurrencyCode: Code[10]
     begin
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         LibraryERM.RunAddnlReportingCurrency(
-          CurrencyCode, Format(LibraryRandom.RandInt(100)), LibraryERM.CreateGLAccountWithSalesSetup);
+          CurrencyCode, Format(LibraryRandom.RandInt(100)), LibraryERM.CreateGLAccountWithSalesSetup());
     end;
 
     local procedure SalesDocumentApplyAndUnApply(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AmountIncludingVAT: Decimal; Base: Decimal; Amount: Decimal; AppliesToDocNo: Code[20])
@@ -1950,7 +1944,7 @@ codeunit 144078 "ERM Extra VAT"
 
     local procedure UpdateBalAccountNoInGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         GenJournalLine.Modify(true);
     end;
 
@@ -1974,7 +1968,7 @@ codeunit 144078 "ERM Extra VAT"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 30));
         VATPostingSetup.Get(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         VATPostingSetup.Validate("Nondeductible VAT Account", GLAccountNo);
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Deductible %", DeductiblePct);
         VATPostingSetup.Modify(true);
     end;
@@ -2001,9 +1995,6 @@ codeunit 144078 "ERM Extra VAT"
     end;
 
     local procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; NewUnitPrice: Decimal; VATPostingSetup: Record "VAT Posting Setup")
-    var
-        SalesHeader: Record "Sales Header";
-        GLAccount: Record "G/L Account";
     begin
         with SalesLine do begin
             Validate("Unit Price", NewUnitPrice);
@@ -2131,13 +2122,13 @@ codeunit 144078 "ERM Extra VAT"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount2, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount2, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount2, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyValuesOnOrderConfirmationReport(YourReference: Text[35]; PrepmtAmountIncludingVAT: Decimal; PrepmtVATAmount: Decimal; PrepmtVATBaseAmount: Decimal)
     begin
-        LibraryReportDataSet.LoadDataSetFile;
+        LibraryReportDataSet.LoadDataSetFile();
         LibraryReportDataSet.AssertElementWithValueExists(YourReferenceCap, YourReference);
         LibraryReportDataSet.AssertElementWithValueExists(PrepmtVATBaseAmountCap, PrepmtVATBaseAmount);
         LibraryReportDataSet.AssertElementWithValueExists(PrepmtVATAmountCap, PrepmtVATAmount);
@@ -2150,10 +2141,10 @@ codeunit 144078 "ERM Extra VAT"
     begin
         VerifyVATEntryWithVATPostingSetup(VATEntry, DocumentNo, Amount, Base);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision,
+          AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption("Additional-Currency Base"), AdditionalCurrencyBase, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
+          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, VATEntry.TableCaption()));
         VATEntry.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
     end;
@@ -2187,10 +2178,10 @@ codeunit 144078 "ERM Extra VAT"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount2, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
+          Amount2, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount2, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption()));
     end;
 
@@ -2202,7 +2193,7 @@ codeunit 144078 "ERM Extra VAT"
         VATBookEntry.FindFirst();
         VATBookEntry.CalcFields(Base);
         Assert.AreNearlyEqual(
-          Amount, VATBookEntry.Base, LibraryERM.GetAmountRoundingPrecision,
+          Amount, VATBookEntry.Base, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATBookEntry.FieldCaption(Base), Amount, VATBookEntry.TableCaption()));
         VATBookEntry.TestField("VAT Calculation Type", VATBookEntry."VAT Calculation Type"::"Normal VAT");
     end;
@@ -2239,7 +2230,6 @@ codeunit 144078 "ERM Extra VAT"
     local procedure VerifyVATEntryForCreditMemo(DocumentNo: Code[20]; VATAmt: Decimal; BaseAmt: Decimal)
     var
         VATEntryInvoice: Record "VAT Entry";
-        VATEntryPayment: Record "VAT Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
@@ -2252,7 +2242,7 @@ codeunit 144078 "ERM Extra VAT"
                   Abs(Amount), VATAmt, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(VATFieldErr, FieldCaption(Amount)));
                 Assert.AreNearlyEqual(
                   Abs(Base), BaseAmt, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(VATFieldErr, FieldCaption(Base)));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2266,7 +2256,7 @@ codeunit 144078 "ERM Extra VAT"
             FindSet();
             Assert.AreEqual(PurchDocNo, "Document No.", StrSubstNo(VATFieldErr, FieldCaption("Document No.")));
             Assert.AreEqual(Type::Purchase, Type, StrSubstNo(VATFieldErr, FieldCaption(Type)));
-            Next;
+            Next();
             Assert.AreEqual(ReverseSalesDocNo, "Document No.", StrSubstNo(VATFieldErr, FieldCaption("Document No.")));
             Assert.AreEqual(Type::Sale, Type, StrSubstNo(VATFieldErr, FieldCaption(Type)));
         end;
@@ -2336,7 +2326,7 @@ codeunit 144078 "ERM Extra VAT"
     var
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
         Assert.AreNearlyEqual(
           ExpectedBase, VATEntry."Unrealized Base", AmountRoundingPrecision,
           VATEntry.FieldCaption("Unrealized Base"));
@@ -2355,7 +2345,7 @@ codeunit 144078 "ERM Extra VAT"
     var
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
         Assert.AreNearlyEqual(
           ExpectedBase, VATEntry.Base, AmountRoundingPrecision, VATEntry.FieldCaption(Base));
         Assert.AreNearlyEqual(
@@ -2377,7 +2367,7 @@ codeunit 144078 "ERM Extra VAT"
                 VerifyUnrealizedVATEntryAmounts(
                   VATEntry, -SalesLine[i].Amount, -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount), 0, 0);
                 VATEntryNo[ArrayLen(SalesLine) - i + 1] := "Entry No.";
-                Next;
+                Next();
             end;
         end;
     end;
@@ -2402,7 +2392,7 @@ codeunit 144078 "ERM Extra VAT"
                   VATEntry,
                   -SalesLine[i].Amount * VATPart,
                   -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount) * VATPart);
-                Next;
+                Next();
             end;
         end;
     end;
@@ -2422,7 +2412,7 @@ codeunit 144078 "ERM Extra VAT"
                 VerifyUnrealizedVATEntryAmounts(
                   VATEntry, PurchaseLine[i].Amount, PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount, 0, 0);
                 VATEntryNo[ArrayLen(PurchaseLine) - i + 1] := "Entry No.";
-                Next;
+                Next();
             end;
         end;
     end;
@@ -2447,7 +2437,7 @@ codeunit 144078 "ERM Extra VAT"
                   VATEntry,
                   PurchaseLine[i].Amount * VATPart,
                   (PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount) * VATPart);
-                Next;
+                Next();
             end;
         end;
     end;
@@ -2619,7 +2609,7 @@ codeunit 144078 "ERM Extra VAT"
     [Scope('OnPrem')]
     procedure ReverseEntriesModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
         ReverseTransactionEntries.Close();
     end;
 
@@ -2627,7 +2617,7 @@ codeunit 144078 "ERM Extra VAT"
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesModalPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
         UnapplyCustomerEntries.Close();
     end;
 
@@ -2642,8 +2632,8 @@ codeunit 144078 "ERM Extra VAT"
     [Scope('OnPrem')]
     procedure GLPostingPreviewHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
     begin
-        GLPostingPreview."No. of Records".AssertEquals(LibraryVariableStorage.DequeueInteger);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview."No. of Records".AssertEquals(LibraryVariableStorage.DequeueInteger());
+        GLPostingPreview.OK().Invoke();
     end;
 }
 

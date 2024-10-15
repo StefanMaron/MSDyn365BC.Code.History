@@ -90,7 +90,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank Company Address.
         Initialize();
-        VATRegisterPrintWithError(LibraryUTUtility.GetNewCode, '', '', '', '', '');  // Only Company Name is filled rest all blank Company Information Fields.
+        VATRegisterPrintWithError(LibraryUTUtility.GetNewCode(), '', '', '', '', '');  // Only Company Name is filled rest all blank Company Information Fields.
     end;
 
     [Test]
@@ -101,7 +101,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank Company Post Code.
         Initialize();
-        VATRegisterPrintWithError(LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '', '', '');  // All blank Company Information Fields except Name and Address.
+        VATRegisterPrintWithError(LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '', '', '');  // All blank Company Information Fields except Name and Address.
     end;
 
     [Test]
@@ -112,7 +112,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank Register Company Number.
         Initialize();
-        VATRegisterPrintWithError(LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, '', '', '');  // All blank Company Information Fields except Name, Address, Post Code.
+        VATRegisterPrintWithError(LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(), '', '', '');  // All blank Company Information Fields except Name, Address, Post Code.
     end;
 
     [Test]
@@ -124,7 +124,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank VAT Registration Number.
         Initialize();
         VATRegisterPrintWithError(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode, '', '');  // Blank VAT Registration, Fiscal Code.
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(), LibraryUTUtility.GetNewCode(), '', '');  // Blank VAT Registration, Fiscal Code.
     end;
 
     [Test]
@@ -136,8 +136,8 @@ codeunit 144074 "UT REP Fiscal Book"
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank Fiscal Code.
         Initialize();
         VATRegisterPrintWithError(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '');  // Blank Fiscal Code.
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '');  // Blank Fiscal Code.
     end;
 
     local procedure VATRegisterPrintWithError(Name: Text[50]; Address: Text[50]; PostCode: Code[10]; RegisterCompanyNo: Text[50]; VATRegistrationNo: Text[20]; FiscalCode: Code[20])
@@ -190,7 +190,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Setup.
         Initialize();
         CreateAccountingPeriod(WorkDate());
-        CreateGLBookEntry;
+        CreateGLBookEntry();
         EnqueueValuesInGLBookPrintRequestPageHandler(
           ReportType::"Test Print", WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Enqueue WORKDATE as Starting Date and a random greater date as Ending Date for GLBookPrintRequestPageHandler.
 
@@ -198,7 +198,7 @@ codeunit 144074 "UT REP Fiscal Book"
         REPORT.Run(REPORT::"G/L Book - Print");
 
         // Verify: Verify LastNo on XML of Report 12121 - G/L Book - Print.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(LastNoCap, 1);  // Last No must be 1.
     end;
 
@@ -261,7 +261,7 @@ codeunit 144074 "UT REP Fiscal Book"
         Initialize();
 
         // [GIVEN] Bank Account Ledger Entry earlier than WORKDATE and Amount = "X"
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
         Amount :=
           CreateBankAccountLedgerEntry(
             BankAccountNo, LibraryRandom.RandDecInRange(100, 500, 2), LibraryRandom.RandDecInRange(100, 500, 2),
@@ -272,7 +272,7 @@ codeunit 144074 "UT REP Fiscal Book"
         REPORT.Run(REPORT::"Bank Sheet - Print");
 
         // [THEN] StartOnHand value is equal to "X"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(BankSheetPrintStartOnHandTok, Abs(Amount));
     end;
 
@@ -282,7 +282,7 @@ codeunit 144074 "UT REP Fiscal Book"
         Amount: Decimal;
     begin
         // Setup: Create Bank Ledger Entry With Random Debit and Credit Amounts.
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
         Amount := CreateBankAccountLedgerEntry(BankAccountNo, CreditAmountLCY, DebitAmountLCY, WorkDate());
         LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue Value in BankSheetPrintRequestPageHandler.
 
@@ -290,7 +290,7 @@ codeunit 144074 "UT REP Fiscal Book"
         REPORT.Run(REPORT::"Bank Sheet - Print");
 
         // Verify: Verify Bank Account No. on Report 12112 (Bank Sheet - Print).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmountCap, Amount);
         LibraryReportDataset.AssertElementWithValueExists(DebitCreditAmountCaption, Abs(Amount));
     end;
@@ -319,7 +319,7 @@ codeunit 144074 "UT REP Fiscal Book"
 
         // Verify.
         GeneralLedgerSetup.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PageNoPrefixCap, PageCap + Format(Date2DMY(CalcDate('<CY-1Y>', WorkDate()), 3)));
         LibraryReportDataset.AssertElementWithValueExists(LastPrintedPageNoCap, GeneralLedgerSetup."Last Printed G/L Book Page");
     end;
@@ -351,7 +351,7 @@ codeunit 144074 "UT REP Fiscal Book"
 
         // Verify.
         GeneralLedgerSetup.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PageNoPrefixCap, PageCap + Format(Date2DMY(CalcDate('<CY>', WorkDate()), 3)));
         LibraryReportDataset.AssertElementWithValueExists(LastPrintedPageNoCap, 0);  // 0 is used test Last Printed Page No.
     end;
@@ -367,9 +367,9 @@ codeunit 144074 "UT REP Fiscal Book"
         // Setup.
         Initialize();
         UpdateCompanyInformation(
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
-        CreateVATRegisterBuffer;
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode10(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());
+        CreateVATRegisterBuffer();
         EnqueueValuesInVATRegisterGroupedHandler(CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         LibraryVariableStorage.Enqueue(false); // Enqueue False for Print Company Information on VAT Register Grouped Request Page Handler.
 
@@ -377,7 +377,7 @@ codeunit 144074 "UT REP Fiscal Book"
         REPORT.Run(REPORT::"VAT Register Grouped");  // Opens handler - VATRegisterGroupedRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PrintCompanyInformationsCap, false);
     end;
 
@@ -393,7 +393,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Setup: Create Sales Header with blank Posting Number and Detailed Customer Ledger Entry.
         Initialize();
         CreateCustomerEntries(
-          DetailedCustLedgEntry, CreateSalesHeader(''), LibraryUTUtility.GetNewCode,
+          DetailedCustLedgEntry, CreateSalesHeader(''), LibraryUTUtility.GetNewCode(),
           DetailedCustLedgEntry."Entry Type"::"Initial Entry");  // Document Number, Blank Posting Number.
         LibraryVariableStorage.Enqueue(DetailedCustLedgEntry."Customer No.");  // Enqueue value for handler - CustomerSheetPrintRequestPageHandler.
         Commit();
@@ -430,7 +430,7 @@ codeunit 144074 "UT REP Fiscal Book"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount."Date Filter" := WorkDate();
         BankAccount.Insert();
         exit(BankAccount."No.");
@@ -442,7 +442,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         BankAccountLedgerEntry."Entry No." := LibraryRandom.RandInt(10);
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
-        BankAccountLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        BankAccountLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         BankAccountLedgerEntry."Posting Date" := PostingDate;
         BankAccountLedgerEntry."Credit Amount (LCY)" := -CreditAmountLCY;
         BankAccountLedgerEntry."Debit Amount (LCY)" := DebitAmountLCY;
@@ -464,14 +464,14 @@ codeunit 144074 "UT REP Fiscal Book"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Name := Customer."No.";
         Customer."Date Filter" := WorkDate();
         Customer.Insert();
         exit(Customer."No.");
     end;
 
-    local procedure CreateCustomerEntries(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Option)
+    local procedure CreateCustomerEntries(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -482,7 +482,7 @@ codeunit 144074 "UT REP Fiscal Book"
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Document No." := DocumentNo;
-        CustLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10;
+        CustLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10();
         CustLedgerEntry.Amount := LibraryRandom.RandDec(10, 2);
         CustLedgerEntry."Amount (LCY)" := CustLedgerEntry.Amount + LibraryRandom.RandDec(10, 2);
         CustLedgerEntry.Insert();
@@ -517,8 +517,8 @@ codeunit 144074 "UT REP Fiscal Book"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := CreateCustomer;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := CreateCustomer();
         SalesHeader."Posting No." := PostingNo;
         SalesHeader.Insert();
         exit(SalesHeader."Sell-to Customer No.");
@@ -528,7 +528,7 @@ codeunit 144074 "UT REP Fiscal Book"
     var
         VATRegister: Record "VAT Register";
     begin
-        VATRegister.Code := LibraryUTUtility.GetNewCode10;
+        VATRegister.Code := LibraryUTUtility.GetNewCode10();
         VATRegister.Insert();
         exit(VATRegister.Code);
     end;
@@ -539,8 +539,8 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         VATRegisterBuffer."Period Start Date" := WorkDate();
         VATRegisterBuffer."Period End Date" := WorkDate();
-        VATRegisterBuffer."VAT Register Code" := CreateVATRegister;
-        VATRegisterBuffer."VAT Identifier" := LibraryUTUtility.GetNewCode10;
+        VATRegisterBuffer."VAT Register Code" := CreateVATRegister();
+        VATRegisterBuffer."VAT Identifier" := LibraryUTUtility.GetNewCode10();
         VATRegisterBuffer.Insert();
     end;
 
@@ -581,7 +581,7 @@ codeunit 144074 "UT REP Fiscal Book"
     var
         AccPeriod: Record "Accounting Period";
     begin
-        AccPeriod.SetFilter("Starting Date", '>%1', GetLastPostingDate);
+        AccPeriod.SetFilter("Starting Date", '>%1', GetLastPostingDate());
         AccPeriod.SetRange("New Fiscal Year", NewFiscalYear);
         if not AccPeriod.FindFirst() then
             CreateAccountingPeriod(AccPeriod."Starting Date");
@@ -616,7 +616,7 @@ codeunit 144074 "UT REP Fiscal Book"
 
     local procedure VerifyValuesOnCustSheetPrintReport(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CustomerNumberCap, DetailedCustLedgEntry."Customer No.");
         LibraryReportDataset.AssertElementWithValueExists(AmountLCYCap, DetailedCustLedgEntry."Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(PrintedEntriesTotalCap, Format(PrintedEntriesTotalTxt));
@@ -636,7 +636,7 @@ codeunit 144074 "UT REP Fiscal Book"
         LibraryVariableStorage.Dequeue(No);
         BankSheetPrint."Bank Account".SetFilter("No.", No);
         BankSheetPrint."Bank Account".SetFilter("Date Filter", Format(WorkDate()));
-        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -654,7 +654,7 @@ codeunit 144074 "UT REP Fiscal Book"
         GLBookPrint.ReportType.SetValue(ReportType);
         GLBookPrint.StartingDate.SetValue(StartingDate);
         GLBookPrint.EndingDate.SetValue(EndingDate);
-        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -671,7 +671,7 @@ codeunit 144074 "UT REP Fiscal Book"
         VATRegisterGrouped.PeriodStartingDate.SetValue(Format(PeriodStartingDate));
         VATRegisterGrouped.PeriodEndingDate.SetValue(Format(PeriodEndingDate));
         VATRegisterGrouped.PrintCompanyInformations.SetValue(PrintCompanyInformations);
-        VATRegisterGrouped.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterGrouped.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -681,7 +681,7 @@ codeunit 144074 "UT REP Fiscal Book"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        VATRegisterPrint.VATRegister.SetValue(CreateVATRegister);
+        VATRegisterPrint.VATRegister.SetValue(CreateVATRegister());
         VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate());
         VATRegisterPrint.Name.SetValue(CompanyInformation.Name);
         VATRegisterPrint.Address.SetValue(CompanyInformation.Address);
@@ -689,7 +689,7 @@ codeunit 144074 "UT REP Fiscal Book"
         VATRegisterPrint.RegisterCompanyNo.SetValue(CompanyInformation."Register Company No.");
         VATRegisterPrint.VATRegistrationNo.SetValue(CompanyInformation."VAT Registration No.");
         VATRegisterPrint.FiscalCode.SetValue(CompanyInformation."Fiscal Code");
-        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -701,7 +701,7 @@ codeunit 144074 "UT REP Fiscal Book"
         LibraryVariableStorage.Dequeue(No);
         CustomerSheetPrint.Customer.SetFilter("No.", No);
         CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate()));
-        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -714,7 +714,7 @@ codeunit 144074 "UT REP Fiscal Book"
         VATRegisterGrouped.Name.AssertEquals(CompanyInformation.Name);
         VATRegisterGrouped.Address.AssertEquals(CompanyInformation.Address);
         VATRegisterGrouped.VATRegistrationNo.AssertEquals(CompanyInformation."VAT Registration No.");
-        VATRegisterGrouped.Cancel.Invoke;
+        VATRegisterGrouped.Cancel().Invoke();
     end;
 }
 

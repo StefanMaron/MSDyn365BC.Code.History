@@ -5,6 +5,7 @@ using System.Reflection;
 table 856 "Cash Flow Report Selection"
 {
     Caption = 'Cash Flow Report Selection';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -25,7 +26,7 @@ table 856 "Cash Flow Report Selection"
         }
         field(4; "Report Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Report ID")));
             Caption = 'Report Caption';
             Editable = false;

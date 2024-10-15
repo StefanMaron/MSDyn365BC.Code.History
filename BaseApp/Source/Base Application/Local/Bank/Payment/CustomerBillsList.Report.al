@@ -538,12 +538,11 @@ report 12117 "Customer Bills List"
 
     local procedure IsPaymentDocumentType(CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
     begin
-        with CustLedgerEntry do
-            exit(
-              "Document Type" in ["Document Type"::" ",
-                                  "Document Type"::Payment,
-                                  "Document Type"::Dishonored,
-                                  "Document Type"::"Credit Memo"]);
+        exit(
+              CustLedgerEntry."Document Type" in [CustLedgerEntry."Document Type"::" ",
+                                  CustLedgerEntry."Document Type"::Payment,
+                                  CustLedgerEntry."Document Type"::Dishonored,
+                                  CustLedgerEntry."Document Type"::"Credit Memo"]);
     end;
 }
 

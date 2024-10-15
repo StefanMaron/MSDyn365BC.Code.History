@@ -11,6 +11,7 @@ using Microsoft.Foundation.AuditCodes;
 table 12100 "Compress Depreciation"
 {
     Caption = 'Compress Depreciation';
+    DataClassification = CustomerContent;
 
     fields
     {

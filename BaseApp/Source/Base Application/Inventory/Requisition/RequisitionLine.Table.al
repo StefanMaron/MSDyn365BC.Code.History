@@ -46,6 +46,7 @@ table 246 "Requisition Line"
     Permissions = TableData "Prod. Order Capacity Need" = rimd,
                   TableData "Routing Header" = r,
                   TableData "Production BOM Header" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -622,8 +623,11 @@ table 246 "Requisition Line"
                 ItemVend: Record "Item Vendor";
                 ShouldGetDefaultBin: Boolean;
             begin
-                if "Variant Code" <> '' then
+                if "Variant Code" <> '' then begin
                     TestField(Type, Type::Item);
+                    GetItemVariant();
+                    ErrorIfItemVariantIsBlocked();
+                end;
                 CheckActionMessageNew();
                 ReserveReqLine.VerifyChange(Rec, xRec);
 
@@ -998,9 +1002,8 @@ table 246 "Requisition Line"
                    ("No." <> '') and
                    ("Prod. Order No." <> '') and
                    (xRec."Standard Task Code" <> "Standard Task Code")
-                then begin
-                    GetSubcontractorPrice;
-                end;
+                then
+                    GetSubcontractorPrice();
             end;
         }
         field(12181; "Base UM Qty/Pricelist UM Qty"; Decimal)
@@ -1022,7 +1025,7 @@ table 246 "Requisition Line"
                    (Type = Type::Item) and
                    ("Pricelist UM Qty/Base UM Qty" <> xRec."Pricelist UM Qty/Base UM Qty")
                 then begin
-                    "Base UM Qty/Pricelist UM Qty" := GetQtyBase / "Pricelist UM Qty/Base UM Qty";
+                    "Base UM Qty/Pricelist UM Qty" := GetQtyBase() / "Pricelist UM Qty/Base UM Qty";
                     Validate("Pricelist Cost");
                 end;
             end;
@@ -1038,13 +1041,12 @@ table 246 "Requisition Line"
 
             trigger OnValidate()
             var
-                ItemUoM: Record "Item Unit of Measure";
             begin
                 if (CurrFieldNo = FieldNo("UoM for Pricelist")) and
                    ("Prod. Order No." <> '') and
                    (Type = Type::Item)
                 then
-                    GetSubcontractorPriceUOM;
+                    GetSubcontractorPriceUOM();
             end;
         }
         field(12187; "Pricelist Cost"; Decimal)
@@ -1754,6 +1756,8 @@ table 246 "Requisition Line"
 
     fieldgroups
     {
+        fieldgroup(Brick; "No.", Description, Quantity, "Replenishment System", "Order Date")
+        { }
     }
 
     trigger OnDelete()
@@ -1821,6 +1825,7 @@ table 246 "Requisition Line"
         ReqWkshName: Record "Requisition Wksh. Name";
         ReqLine: Record "Requisition Line";
         Item: Record Item;
+        ItemVariant: Record "Item Variant";
         WorkCenter: Record "Work Center";
         ManufacturingSetup: Record "Manufacturing Setup";
         Location: Record Location;
@@ -1842,18 +1847,12 @@ table 246 "Requisition Line"
         Text032: Label '%1 %2 has no %3 defined.';
         Text033: Label '%1 %2 %3 is not certified.';
         Text034: Label '%1 %2 %3 %4 %5 is not certified.';
-        Text035: Label '%1 %2 %3 specified on %4 %5 does not exist.';
-        Text036: Label '%1 %2 %3 does not allow default numbering.';
         Text037: Label 'The currency exchange rate for the %1 %2 that vendor %3 uses on the order date %4, does not have an %5 specified.';
         Text038: Label 'The currency exchange rate for the %1 %2 that vendor %3 uses on the order date %4, does not exist.';
-        Text039: Label 'You cannot assign new numbers from the number series %1 on %2.';
-        Text040: Label 'You cannot assign new numbers from the number series %1.';
-        Text041: Label 'You cannot assign new numbers from the number series %1 on a date before %2.';
-        Text042: Label 'You cannot assign new numbers from the number series %1 line %2 because the %3 is not defined.';
-        Text043: Label 'The number %1 on number series %2 cannot be extended to more than 20 characters.';
-        Text044: Label 'You cannot assign numbers greater than %1 from the number series %2.';
         ReplenishmentErr: Label 'Requisition Worksheet cannot be used to create Prod. Order replenishment.';
         ConfirmDeleteAllLinesQst: Label 'Go ahead and delete all lines?';
+        BlockedErr: Label 'You cannot choose %1 %2 because the %3 check box is selected on its %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
+        ItemVariantPrimaryKeyLbl: Label '%1, %2', Comment = '%1 - Item No., %2 - Variant Code', Locked = true;
 
     protected var
         TempPlanningErrorLog: Record "Planning Error Log" temporary;
@@ -2070,7 +2069,7 @@ table 246 "Requisition Line"
 
     procedure UpdateDescription()
     var
-        ItemVariant: Record "Item Variant";
+        ItemVariantLocal: Record "Item Variant";
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
@@ -2086,10 +2085,10 @@ table 246 "Requisition Line"
             "Description 2" := Item."Description 2";
             OnUpdateDescriptionFromItem(Rec, Item);
         end else begin
-            ItemVariant.Get("No.", "Variant Code");
-            Description := ItemVariant.Description;
-            "Description 2" := ItemVariant."Description 2";
-            OnUpdateDescriptionFromItemVariant(Rec, ItemVariant);
+            ItemVariantLocal.Get("No.", "Variant Code");
+            Description := ItemVariantLocal.Description;
+            "Description 2" := ItemVariantLocal."Description 2";
+            OnUpdateDescriptionFromItemVariant(Rec, ItemVariantLocal);
         end;
 
         if SalesLine.Get(SalesLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No.") then begin
@@ -2100,7 +2099,7 @@ table 246 "Requisition Line"
 
         if "Vendor No." <> '' then
             UpdateItemReferenceDescription();
-        OnAfterUpdateDescription(Rec, Item, ItemVariant, CurrFieldNo);
+        OnAfterUpdateDescription(Rec, Item, ItemVariantLocal, CurrFieldNo);
     end;
 
     local procedure ValidateItemDescriptionAndQuantity(Vendor: Record Vendor)
@@ -2643,7 +2642,7 @@ table 246 "Requisition Line"
         "Planning Flexibility" := ProdOrderLine."Planning Flexibility";
         "Ref. Order No." := ProdOrderLine."Prod. Order No.";
         "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-        "Ref. Order Status" := ProdOrderLine.Status;
+        "Ref. Order Status" := ProdOrderLine.Status.AsInteger();
         "Ref. Line No." := ProdOrderLine."Line No.";
 
         OnAfterTransferFromProdOrderLine(Rec, ProdOrderLine);
@@ -2740,7 +2739,7 @@ table 246 "Requisition Line"
         "MPS Order" := AsmHeader."MPS Order";
         "Planning Flexibility" := AsmHeader."Planning Flexibility";
         "Ref. Order Type" := "Ref. Order Type"::Assembly;
-        "Ref. Order Status" := AsmHeader."Document Type";
+        "Ref. Order Status" := AsmHeader."Document Type".AsInteger();
         "Ref. Order No." := AsmHeader."No.";
         "Ref. Line No." := 0;
 
@@ -2817,7 +2816,7 @@ table 246 "Requisition Line"
                 begin
                     IsHandled := false;
                     OnGetDimFromRefOrderLineOnBeforeSetDimSetIDTypeTransfer(Rec, DimSetIDArr, i, IsHandled);
-                    If not IsHandled then
+                    if not IsHandled then
                         if TransferLine.Get("Ref. Order No.", "Ref. Line No.") then
                             DimSetIDArr[i] := TransferLine."Dimension Set ID";
                 end;
@@ -2922,7 +2921,7 @@ table 246 "Requisition Line"
         if ("Replenishment System" = "Replenishment System"::Purchase) and not Subcontracting then begin
             IsHandled := false;
             OnGetDirectCostOnBeforePriceCalculation(Rec, IsHandled);
-            If not IsHandled then begin
+            if not IsHandled then begin
                 GetLineWithPrice(LineWithPrice);
                 LineWithPrice.SetLine(PriceType::Purchase, Rec);
                 PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
@@ -3043,7 +3042,7 @@ table 246 "Requisition Line"
 
         IsHandled := false;
         OnCalcStartingDateOnBeforeValidateOrderDate(Rec, LeadTime, IsHandled);
-        If not IsHandled then
+        if not IsHandled then
             Validate("Order Date", "Starting Date");
 
         if "Ref. Order Type" = "Ref. Order Type"::Transfer then
@@ -3058,7 +3057,7 @@ table 246 "Requisition Line"
     begin
         IsHandled := false;
         OnBeforeCalcTransferShipmentDate(Rec, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         Evaluate(DateFormula, LeadTimeMgt.WhseOutBoundHandlingTime("Transfer-from Code"));
@@ -3279,85 +3278,6 @@ table 246 "Requisition Line"
         end;
     end;
 
-    local procedure CheckNoSeries(NoSeriesCode: Code[20]; SeriesDate: Date)
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-    begin
-        case true of
-            not NoSeries.Get(NoSeriesCode):
-                TempPlanningErrorLog.SetError(
-                  StrSubstNo(
-                    Text035,
-                    NoSeries.TableCaption(), NoSeries.FieldCaption(Code), NoSeriesCode,
-                    ManufacturingSetup.TableCaption(), ManufacturingSetup.FieldCaption("Planned Order Nos.")),
-                  Database::"No. Series", NoSeries.GetPosition());
-            not NoSeries."Default Nos.":
-                TempPlanningErrorLog.SetError(
-                  StrSubstNo(Text036, NoSeries.TableCaption(), NoSeries.FieldCaption(Code), NoSeries.Code),
-                  Database::"No. Series", NoSeries.GetPosition());
-            else
-                if SeriesDate = 0D then
-                    SeriesDate := WorkDate();
-
-                NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
-                if not NoSeriesLine.FindFirst() then begin
-                    NoSeriesLine.SetRange("Starting Date");
-                    if NoSeriesLine.FindFirst() then begin
-                        TempPlanningErrorLog.SetError(
-                          StrSubstNo(Text039, NoSeriesCode, SeriesDate), Database::"No. Series", NoSeries.GetPosition());
-                        exit;
-                    end;
-                    TempPlanningErrorLog.SetError(
-                      StrSubstNo(Text040, NoSeriesCode), Database::"No. Series", NoSeries.GetPosition());
-                    exit;
-                end;
-
-                if NoSeries."Date Order" and (SeriesDate < NoSeriesLine."Last Date Used") then begin
-                    TempPlanningErrorLog.SetError(
-                      StrSubstNo(Text041, NoSeries.Code, NoSeriesLine."Last Date Used"),
-                      Database::"No. Series", NoSeries.GetPosition());
-                    exit;
-                end;
-                NoSeriesLine."Last Date Used" := SeriesDate;
-                if NoSeriesLine."Last No. Used" = '' then begin
-                    if NoSeriesLine."Starting No." = '' then begin
-                        TempPlanningErrorLog.SetError(
-                          StrSubstNo(
-                            Text042,
-                            NoSeries.Code, NoSeriesLine."Line No.", NoSeriesLine.FieldCaption("Starting No.")),
-                          Database::"No. Series", NoSeries.GetPosition());
-                        exit;
-                    end;
-                    NoSeriesLine."Last No. Used" := NoSeriesLine."Starting No.";
-                end else
-                    if NoSeriesLine."Increment-by No." <= 1 then begin
-                        if StrLen(IncStr(NoSeriesLine."Last No. Used")) > 20 then begin
-                            TempPlanningErrorLog.SetError(
-                              StrSubstNo(
-                                Text043, NoSeriesLine."Last No. Used", NoSeriesCode),
-                              Database::"No. Series", NoSeries.GetPosition());
-                            exit;
-                        end;
-                        NoSeriesLine."Last No. Used" := IncStr(NoSeriesLine."Last No. Used")
-                    end else
-                        if not IncrementNoText(NoSeriesLine."Last No. Used", NoSeriesLine."Increment-by No.") then begin
-                            TempPlanningErrorLog.SetError(
-                              StrSubstNo(
-                                Text043, NoSeriesLine."Last No. Used", NoSeriesCode),
-                              Database::"No. Series", NoSeries.GetPosition());
-                            exit;
-                        end;
-                if (NoSeriesLine."Ending No." <> '') and
-                   (NoSeriesLine."Last No. Used" > NoSeriesLine."Ending No.")
-                then
-                    TempPlanningErrorLog.SetError(
-                      StrSubstNo(Text044, NoSeriesLine."Ending No.", NoSeriesCode),
-                      Database::"No. Series", NoSeries.GetPosition());
-        end;
-    end;
-
     local procedure CheckVendorBlocked(Vend: Record Vendor)
     var
         IsHandled: Boolean;
@@ -3373,66 +3293,6 @@ table 246 "Requisition Line"
                   StrSubstNo(Text031, Vend.TableCaption(), Vend."No."),
                   Database::Vendor, Vend.GetPosition());
             Vend.VendBlockedErrorMessage(Vend, false);
-        end;
-    end;
-
-    local procedure IncrementNoText(var No: Code[20]; IncrementByNo: Decimal): Boolean
-    var
-        DecimalNo: Decimal;
-        StartPos: Integer;
-        EndPos: Integer;
-        NewNo: Text[30];
-    begin
-        GetIntegerPos(No, StartPos, EndPos);
-        Evaluate(DecimalNo, CopyStr(No, StartPos, EndPos - StartPos + 1));
-        NewNo := Format(DecimalNo + IncrementByNo, 0, 1);
-        if not ReplaceNoText(No, NewNo, 0, StartPos, EndPos) then
-            exit(false);
-        exit(true);
-    end;
-
-    local procedure ReplaceNoText(var No: Code[20]; NewNo: Code[20]; FixedLength: Integer; StartPos: Integer; EndPos: Integer): Boolean
-    var
-        StartNo: Code[20];
-        EndNo: Code[20];
-        ZeroNo: Code[20];
-        NewLength: Integer;
-        OldLength: Integer;
-    begin
-        if StartPos > 1 then
-            StartNo := CopyStr(No, 1, StartPos - 1);
-        if EndPos < StrLen(No) then
-            EndNo := CopyStr(No, EndPos + 1);
-        NewLength := StrLen(NewNo);
-        OldLength := EndPos - StartPos + 1;
-        if FixedLength > OldLength then
-            OldLength := FixedLength;
-        if OldLength > NewLength then
-            ZeroNo := PadStr('', OldLength - NewLength, '0');
-        if StrLen(StartNo) + StrLen(ZeroNo) + StrLen(NewNo) + StrLen(EndNo) > 20 then
-            exit(false);
-        No := StartNo + ZeroNo + NewNo + EndNo;
-        exit(true);
-    end;
-
-    local procedure GetIntegerPos(No: Code[20]; var StartPos: Integer; var EndPos: Integer)
-    var
-        IsDigit: Boolean;
-        i: Integer;
-    begin
-        StartPos := 0;
-        EndPos := 0;
-        if No <> '' then begin
-            i := StrLen(No);
-            repeat
-                IsDigit := No[i] in ['0' .. '9'];
-                if IsDigit then begin
-                    if EndPos = 0 then
-                        EndPos := i;
-                    StartPos := i;
-                end;
-                i := i - 1;
-            until (i = 0) or (StartPos <> 0) and not IsDigit;
         end;
     end;
 
@@ -3506,14 +3366,6 @@ table 246 "Requisition Line"
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
-#if not CLEAN21
-    [Obsolete('This procedure is discontinued because the TimelineVisualizer control has been deprecated.', '21.0')]
-    procedure ShowTimeline(ReqLine: Record "Requisition Line")
-    begin
-        Item.ShowTimelineFromItem(Item); // shows a deprecation message
-    end;
-#endif
-
     procedure GetOriginalQtyBase(): Decimal
     begin
         exit(UOMMgt.CalcBaseQty("Original Quantity", "Qty. per Unit of Measure"));
@@ -3536,7 +3388,7 @@ table 246 "Requisition Line"
                 "Ref. Order Type"::"Prod. Order":
                     begin
                         if "Bin Code" = '' then
-                            "Bin Code" := ProdOrderWarehouseMgt.GetLastOperationFromBinCode("Routing No.", "Routing Version Code", "Location Code", false, 0);
+                            "Bin Code" := ProdOrderWarehouseMgt.GetLastOperationFromBinCode("Routing No.", "Routing Version Code", "Location Code", false, "Flushing Method"::Manual);
                         if "Bin Code" = '' then
                             "Bin Code" := Location."From-Production Bin Code";
                     end;
@@ -3746,7 +3598,10 @@ table 246 "Requisition Line"
 
     local procedure SetReplenishmentSystemFromProdOrder(StockkeepingUnit: Record "Stockkeeping Unit")
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
         ProductionBOMNo: Code[20];
         RoutingNo: Code[20];
@@ -3775,10 +3630,26 @@ table 246 "Requisition Line"
                       Database::"Manufacturing Setup", ManufacturingSetup.GetPosition());
                 ManufacturingSetup.TestField("Planned Order Nos.");
                 if PlanningResiliency then
-                    CheckNoSeries(ManufacturingSetup."Planned Order Nos.", "Due Date");
-                if not Subcontracting then
-                    NoSeriesMgt.InitSeries(
-                      ManufacturingSetup."Planned Order Nos.", xRec."No. Series", "Due Date", "Ref. Order No.", "No. Series");
+                    NoSeries.PeekNextNo(ManufacturingSetup."Planned Order Nos.", "Due Date");
+                if not Subcontracting then begin
+#if not CLEAN24
+                    NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(ManufacturingSetup."Planned Order Nos.", xRec."No. Series", "Due Date", "Ref. Order No.", "No. Series", IsHandled);
+                    if not IsHandled then begin
+                        if NoSeries.AreRelated(ManufacturingSetup."Planned Order Nos.", xRec."No. Series") then
+                            "No. Series" := xRec."No. Series"
+                        else
+                            "No. Series" := ManufacturingSetup."Planned Order Nos.";
+                        "Ref. Order No." := NoSeries.GetNextNo("No. Series", "Due Date");
+                        NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", ManufacturingSetup."Planned Order Nos.", "Due Date", "Ref. Order No.");
+                    end;
+#else
+                    if NoSeries.AreRelated(ManufacturingSetup."Planned Order Nos.", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series"
+                    else
+                        "No. Series" := ManufacturingSetup."Planned Order Nos.";
+                    "Ref. Order No." := NoSeries.GetNextNo("No. Series", "Due Date");
+#endif
+                end;
             end;
         Validate("Vendor No.", '');
 
@@ -3860,7 +3731,7 @@ table 246 "Requisition Line"
         Item.TestField("Base Unit of Measure");
         if "Ref. Order No." = '' then begin
             "Ref. Order Type" := "Ref. Order Type"::Assembly;
-            "Ref. Order Status" := AssemblyHeader."Document Type"::Order;
+            "Ref. Order Status" := AssemblyHeader."Document Type"::Order.AsInteger();
         end;
         Validate("Vendor No.", '');
         Validate("Production BOM No.", '');
@@ -3996,6 +3867,25 @@ table 246 "Requisition Line"
             DimSetIDArr[2] := DimMgt.CreateDimSetFromJobTaskDim(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+
+    local procedure GetItemVariant()
+    begin
+        if Rec."Variant Code" = '' then begin
+            Clear(ItemVariant);
+            exit;
+        end;
+
+        if (ItemVariant."Item No." <> Rec."No.") or (ItemVariant.Code <> Rec."Variant Code") then begin
+            ItemVariant.SetLoadFields("Blocked");
+            ItemVariant.Get(Rec."No.", Rec."Variant Code");
+        end;
+    end;
+
+    local procedure ErrorIfItemVariantIsBlocked()
+    begin
+        if ItemVariant.Blocked then
+            Error(BlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption(Blocked));
     end;
 
     [IntegrationEvent(false, false)]

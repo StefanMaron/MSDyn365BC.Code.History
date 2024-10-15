@@ -181,7 +181,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VerifyIncludeVAT(DocumentType, GenJournalLine."Document No.", SetIncludeInVATTransRep);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -262,10 +262,10 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // [FEATURE] [Release]
         // [SCENARIO 228087] Cassie can release VAT Report at date without Spesometro Appointment entries
         Initialize();
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
 
         // [GIVEN] Date without VAT Entries 15.03.2019
-        PostingDate := GetLastVATEntryOpOccrDate + 1;
+        PostingDate := GetLastVATEntryOpOccrDate() + 1;
 
         // [GIVEN] VAT Report on 15.03.2019..15.03.2019 with "VAT Report Config. Code" = Datifattura
         LibraryVATUtils.CreateVATReport(
@@ -292,7 +292,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // [FEATURE] [Release]
         // [SCENARIO 251924] Cassie can release VAT Report when individual Vendor as Tax Representative in Company Inf. with filled First and Last Name
         Initialize();
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
 
         // [GIVEN] Individual Vendor "Vend" with filled First and Last Name
         CreateIndividualVendor(Vendor);
@@ -301,7 +301,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         UpdateCompanyInformationTaxRepresentative(Vendor."No.");
 
         // [GIVEN] Date without VAT Entries 15.03.2019
-        PostingDate := GetLastVATEntryOpOccrDate + 1;
+        PostingDate := GetLastVATEntryOpOccrDate() + 1;
 
         // [GIVEN] VAT Report on 15.03.2019..15.03.2019 with "VAT Report Config. Code" = Datifattura
         LibraryVATUtils.CreateVATReport(
@@ -329,7 +329,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // [FEATURE] [Release]
         // [SCENARIO 251924] Error must appear when releasing VAT Report when individual Vendor as Tax Representative in Company Inf. without First and Last Name
         Initialize();
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
 
         // [GIVEN] Individual Vendor "Vend" without First and Last Name
         CreateIndividualVendor(Vendor);
@@ -341,7 +341,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         UpdateCompanyInformationTaxRepresentative(Vendor."No.");
 
         // [GIVEN] Date without VAT Entries 15.03.2019
-        PostingDate := GetLastVATEntryOpOccrDate + 1;
+        PostingDate := GetLastVATEntryOpOccrDate() + 1;
 
         // [GIVEN] VAT Report on 15.03.2019..15.03.2019 with "VAT Report Config. Code" = Datifattura
         LibraryVATUtils.CreateVATReport(
@@ -354,8 +354,8 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // [THEN] The first error: "First Name" in Vendor "Vend" must not be blank.
         // [THEN] The second error: "Last Name" in Vendor "Vend" must not be blank.
         // Values are remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Vendor.FieldName("First Name"), LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(Vendor.FieldName("Last Name"), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Vendor.FieldName("First Name"), LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(Vendor.FieldName("Last Name"), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -371,7 +371,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // [FEATURE] [Release]
         // [SCENARIO 251924] Cassie can release VAT Report when non-individual Vendor as Tax Representative in Company Inf. with filled Name
         Initialize();
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
 
         // [GIVEN] Non-individual Vendor "Vend" with filled Name
         Vendor.Get(CreateVendor(false, Vendor.Resident::"Non-Resident", true, false));
@@ -380,7 +380,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         UpdateCompanyInformationTaxRepresentative(Vendor."No.");
 
         // [GIVEN] Date without VAT Entries 15.03.2019
-        PostingDate := GetLastVATEntryOpOccrDate + 1;
+        PostingDate := GetLastVATEntryOpOccrDate() + 1;
 
         // [GIVEN] VAT Report on 15.03.2019..15.03.2019 with "VAT Report Config. Code" = Datifattura
         LibraryVATUtils.CreateVATReport(
@@ -408,7 +408,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // [FEATURE] [Release]
         // [SCENARIO 251924] Cassie can release VAT Report when non-individual Vendor as Tax Representative in Company Inf. without Name
         Initialize();
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
 
         // [GIVEN] Non-individual Vendor "Vend" without Name
         Vendor.Get(CreateVendor(false, Vendor.Resident::"Non-Resident", true, false));
@@ -419,7 +419,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         UpdateCompanyInformationTaxRepresentative(Vendor."No.");
 
         // [GIVEN] Date without VAT Entries 15.03.2019
-        PostingDate := GetLastVATEntryOpOccrDate + 1;
+        PostingDate := GetLastVATEntryOpOccrDate() + 1;
 
         // [GIVEN] VAT Report on 15.03.2019..15.03.2019 with "VAT Report Config. Code" = Datifattura
         LibraryVATUtils.CreateVATReport(
@@ -431,12 +431,12 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // [THEN] "Error Messages" pages opens
         // [THEN] Error: "Name" in Vendor "Vend" must not be blank.
         // Value is remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Vendor.FieldName(Name), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Vendor.FieldName(Name), LibraryVariableStorage.DequeueText());
     end;
 
     local procedure Initialize()
     begin
-        TearDown; // Cleanup.
+        TearDown(); // Cleanup.
         LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
         LibrarySetupStorage.Restore();
@@ -445,11 +445,11 @@ codeunit 144011 "IT - VAT Reporting - Other"
             exit;
 
         isInitialized := true;
-        CreateVATReportSetup;
+        CreateVATReportSetup();
         Commit();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
-        TearDown; // Cleanup for the first test.
+        TearDown(); // Cleanup for the first test.
     end;
 
     local procedure AdjustAmountSign(Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"): Decimal
@@ -508,7 +508,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
 
         if ReqFlds then begin
             if Resident = Customer.Resident::"Non-Resident" then
-                Customer.Validate("Country/Region Code", GetCountryCode);
+                Customer.Validate("Country/Region Code", GetCountryCode());
             if not IndividualPerson then
                 Customer.Validate("VAT Registration No.", LibraryUtility.GenerateRandomCode(Customer.FieldNo("VAT Registration No."), DATABASE::Customer))
             else
@@ -575,7 +575,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
 
         if ReqFlds then begin
             if Resident = Vendor.Resident::"Non-Resident" then
-                Vendor.Validate("Country/Region Code", GetCountryCode);
+                Vendor.Validate("Country/Region Code", GetCountryCode());
 
             if not IndividualPerson then
                 Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("VAT Registration No."), DATABASE::Vendor))
@@ -615,12 +615,12 @@ codeunit 144011 "IT - VAT Reporting - Other"
         BalAccountType: Enum "Gen. Journal Account Type";
         BalAccountNo: Code[20];
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         case AccountType of
             GenJournalLine."Account Type"::"G/L Account":
                 begin
                     BalAccountType := GenJournalLine."Bal. Account Type"::"Bank Account";
-                    BalAccountNo := FindBankAccount;
+                    BalAccountNo := FindBankAccount();
                 end;
             GenJournalLine."Account Type"::Customer:
                 begin
@@ -649,7 +649,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
         PurchaseLine.Modify(true);
         Amount := PurchaseLine."Amount Including VAT";
@@ -664,7 +664,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Modify(true);
         Amount := SalesLine."Amount Including VAT";
@@ -690,7 +690,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // Create VAT Report Setup.
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
-        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         VATReportSetup.Modify(true);
     end;
 
@@ -853,7 +853,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         // Update fields required for posting when Incl. in VAT Transac. Report is TRUE.
         with GenJournalLine do begin
             if Resident = Resident::"Non-Resident" then
-                Validate("Country/Region Code", GetCountryCode);
+                Validate("Country/Region Code", GetCountryCode());
 
             if "Individual Person" and (Resident = Resident::"Non-Resident") then begin
                 Validate("First Name", LibraryUtility.GenerateRandomCode(FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
@@ -884,7 +884,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
 
     local procedure VerifyVendorAccountBillsListRefundAndCreditMemo(RefundNo: Code[20]; CreditMemoNo: Code[20])
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(16, 2, RefundTok);
         LibraryReportValidation.VerifyCellValue(16, 5, RefundNo);
         LibraryReportValidation.VerifyCellValue(18, 2, CreditMemoTok);
@@ -893,7 +893,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
 
     local procedure VerifyCustomerBillsListRefundAndCreditMemo(RefundNo: Code[20]; CreditMemoNo: Code[20])
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(17, 3, RefundTok);
         LibraryReportValidation.VerifyCellValue(17, 5, RefundNo);
         LibraryReportValidation.VerifyCellValue(18, 4, CreditMemoTok);
@@ -938,7 +938,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         ErrorMessage: Record "Error Message";
     begin
         ErrorMessages.FILTER.SetFilter("Message Type", Format(ErrorMessage."Message Type"::Error));
-        ErrorMessages.First;
+        ErrorMessages.First();
         repeat
             LibraryVariableStorage.Enqueue(ErrorMessages.Description.Value);
         until ErrorMessages.Next() = false;
@@ -949,7 +949,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     procedure RequestHandlerVendorAccountBillsList(var VendorAccountBillsList: TestRequestPage "Vendor Account Bills List")
     begin
         VendorAccountBillsList.EndingDate.SetValue(LibraryRandom.RandDate(LibraryRandom.RandInt(10)));
-        VendorAccountBillsList.SaveAsExcel(LibraryReportValidation.GetFileName);
+        VendorAccountBillsList.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -957,7 +957,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     procedure RequestHandlerCustomerBillsList(var CustomerBillsList: TestRequestPage "Customer Bills List")
     begin
         CustomerBillsList."Ending Date".SetValue(LibraryRandom.RandDate(LibraryRandom.RandInt(10)));
-        CustomerBillsList.SaveAsExcel(LibraryReportValidation.GetFileName);
+        CustomerBillsList.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

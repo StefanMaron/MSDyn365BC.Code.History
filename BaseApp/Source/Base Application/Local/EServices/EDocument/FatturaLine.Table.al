@@ -11,6 +11,7 @@ using Microsoft.Sales.Document;
 table 12204 "Fattura Line"
 {
     Caption = 'Fattura Line';
+    DataClassification = CustomerContent;
 
     fields
     {

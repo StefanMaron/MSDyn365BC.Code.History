@@ -15,7 +15,6 @@ codeunit 135800 "User List Tests"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         PlanIds: Codeunit "Plan Ids";
         Users: TestPage "Users";
-        AzureADPlan: Codeunit "Azure AD Plan";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         User: Record User;
     begin

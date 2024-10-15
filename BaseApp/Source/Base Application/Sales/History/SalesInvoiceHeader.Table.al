@@ -33,7 +33,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Receivables;
-using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Automation;
 using System.Globalization;
@@ -49,6 +48,7 @@ table 112 "Sales Invoice Header"
     DataCaptionFields = "No.", "Sell-to Customer Name";
     DrillDownPageID = "Posted Sales Invoices";
     LookupPageID = "Posted Sales Invoices";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -291,7 +291,7 @@ table 112 "Sales Invoice Header"
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Invoice Line".Amount where("Document No." = field("No.")));
+            CalcFormula = sum("Sales Invoice Line".Amount where("Document No." = field("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -300,7 +300,7 @@ table 112 "Sales Invoice Header"
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Invoice Line"."Amount Including VAT" where("Document No." = field("No.")));
+            CalcFormula = sum("Sales Invoice Line"."Amount Including VAT" where("Document No." = field("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -308,6 +308,11 @@ table 112 "Sales Invoice Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+        }
+        field(72; "Registration Number"; Text[50])
+        {
+            Caption = 'Registration No.';
+            DataClassification = CustomerContent;
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -454,10 +459,22 @@ table 112 "Sales Invoice Header"
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
         }
+#if not CLEAN24
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            ObsoleteReason = 'Field length will be increased to 50.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(106; "Package Tracking No."; Text[50])
+        {
+            Caption = 'Package Tracking No.';
+        }
+#pragma warning restore AS0086
+#endif
         field(107; "Pre-Assigned No. Series"; Code[20])
         {
             Caption = 'Pre-Assigned No. Series';
@@ -543,75 +560,6 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
-        }
-        field(166; "Last Email Sent Time"; DateTime)
-        {
-            CalcFormula = max("O365 Document Sent History"."Created Date-Time" where("Document Type" = const(Invoice),
-                                                                                      "Document No." = field("No."),
-                                                                                      Posted = const(true)));
-            Caption = 'Last Email Sent Time';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-#if CLEAN21
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
-        }
-        field(167; "Last Email Sent Status"; Option)
-        {
-            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" where("Document Type" = const(Invoice),
-                                                                                       "Document No." = field("No."),
-                                                                                       Posted = const(true),
-                                                                                       "Created Date-Time" = field("Last Email Sent Time")));
-            Caption = 'Last Email Sent Status';
-            FieldClass = FlowField;
-            OptionCaption = 'Not Sent,In Process,Finished,Error';
-            OptionMembers = "Not Sent","In Process",Finished,Error;
-            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-#if CLEAN21
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
-        }
-        field(168; "Sent as Email"; Boolean)
-        {
-            CalcFormula = exist("O365 Document Sent History" where("Document Type" = const(Invoice),
-                                                                    "Document No." = field("No."),
-                                                                    Posted = const(true),
-                                                                    "Job Last Status" = const(Finished)));
-            Caption = 'Sent as Email';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-#if CLEAN21
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
-        }
-        field(169; "Last Email Notif Cleared"; Boolean)
-        {
-            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared where("Document Type" = const(Invoice),
-                                                                                         "Document No." = field("No."),
-                                                                                         Posted = const(true),
-                                                                                         "Created Date-Time" = field("Last Email Sent Time")));
-            Caption = 'Last Email Notif Cleared';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-#if CLEAN21
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
         }
         field(171; "Sell-to Phone No."; Text[30])
         {
@@ -705,7 +653,7 @@ table 112 "Sales Invoice Header"
         }
         field(1302; Closed; Boolean)
         {
-            CalcFormula = - Exist("Cust. Ledger Entry" where("Entry No." = field("Cust. Ledger Entry No."),
+            CalcFormula = - exist("Cust. Ledger Entry" where("Entry No." = field("Cust. Ledger Entry No."),
                                                              Open = filter(true)));
             Caption = 'Closed';
             Editable = false;
@@ -715,7 +663,7 @@ table 112 "Sales Invoice Header"
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount where("Cust. Ledger Entry No." = field("Cust. Ledger Entry No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Cust. Ledger Entry No." = field("Cust. Ledger Entry No.")));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -729,7 +677,7 @@ table 112 "Sales Invoice Header"
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Invoice Line"."Inv. Discount Amount" where("Document No." = field("No.")));
+            CalcFormula = sum("Sales Invoice Line"."Inv. Discount Amount" where("Document No." = field("No.")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -756,6 +704,21 @@ table 112 "Sales Invoice Header"
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Cust. Ledger Entry".Reversed where("Entry No." = field("Cust. Ledger Entry No.")));
+        }
+        field(1340; "Dispute Status"; Code[10])
+        {
+            Caption = 'Dispute Status';
+            TableRelation = "Dispute Status";
+            DataClassification = CustomerContent;
+            trigger OnValidate()
+            begin
+                UpdateDisputeStatusId();
+            end;
+        }
+        field(1341; "Promised Pay Date"; Date)
+        {
+            Caption = 'Promised Pay Date';
+            DataClassification = CustomerContent;
         }
         field(5050; "Campaign No."; Code[20])
         {
@@ -805,6 +768,15 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Draft Invoice SystemId';
             DataClassification = SystemMetadata;
+        }
+        field(8010; "Dispute Status Id"; Guid)
+        {
+            Caption = 'Dispute Status Id';
+            TableRelation = "Dispute Status".SystemId;
+            trigger OnValidate()
+            begin
+                UpdateDisputeStatus();
+            end;
         }
         field(12100; "Operation Type"; Code[20])
         {
@@ -982,13 +954,12 @@ table 112 "Sales Invoice Header"
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
 
         PostedDeferralHeader.DeleteForDoc(
-            "Deferral Document Type"::Sales.AsInteger(), '', '',
+            Enum::"Deferral Document Type"::Sales.AsInteger(), '', '',
             SalesCommentLine."Document Type"::"Posted Invoice".AsInteger(), "No.");
     end;
 
     var
         SalesCommentLine: Record "Sales Comment Line";
-        SalesSetup: Record "Sales & Receivables Setup";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -1068,6 +1039,28 @@ table 112 "Sales Invoice Header"
         if not IsHandled then
             DocumentSendingProfile.TrySendToPrinter(
               DummyReportSelections.Usage::"S.Invoice".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
+    end;
+
+    procedure UpdateDisputeStatus()
+    var
+        DisputeStatus: Record "Dispute Status";
+    begin
+        if not IsNullGuid("Dispute Status Id") then
+            DisputeStatus.GetBySystemId("Dispute Status Id");
+        Validate("Dispute Status", DisputeStatus.Code);
+    end;
+
+    procedure UpdateDisputeStatusId()
+    var
+        DisputeStatus: Record "Dispute Status";
+    begin
+        if "Dispute Status" = '' then begin
+            Clear("Dispute Status Id");
+            exit;
+        end;
+        if not DisputeStatus.Get("Dispute Status") then
+            exit;
+        "Dispute Status Id" := DisputeStatus.SystemId;
     end;
 
     procedure PrintToDocumentAttachment(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1433,7 +1426,7 @@ table 112 "Sales Invoice Header"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnGetPaymentReference(var PaymentReference: Text)
     begin
     end;

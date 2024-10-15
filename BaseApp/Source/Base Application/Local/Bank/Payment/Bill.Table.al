@@ -15,6 +15,7 @@ table 12180 Bill
     Caption = 'Bill';
     DrillDownPageID = Bill;
     LookupPageID = Bill;
+    DataClassification = CustomerContent;
 
     fields
     {

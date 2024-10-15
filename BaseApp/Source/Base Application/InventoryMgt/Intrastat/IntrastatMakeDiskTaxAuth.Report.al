@@ -750,13 +750,11 @@ report 593 "Intrastat - Make Disk Tax Auth"
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        with IntrastatJnlLine do begin
-            SetRange("Journal Template Name", "Intra - form Buffer"."Journal Template Name");
-            SetRange("Journal Batch Name", "Intra - form Buffer"."Journal Batch Name");
-            SetRange("Document No.", "Intra - form Buffer"."Document No.");
-            if FindFirst() then
-                exit("Corrected Document No.");
-        end;
+        IntrastatJnlLine.SetRange("Journal Template Name", "Intra - form Buffer"."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", "Intra - form Buffer"."Journal Batch Name");
+        IntrastatJnlLine.SetRange("Document No.", "Intra - form Buffer"."Document No.");
+        if IntrastatJnlLine.FindFirst() then
+            exit(IntrastatJnlLine."Corrected Document No.");
     end;
 
     [Scope('OnPrem')]

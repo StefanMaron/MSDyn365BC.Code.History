@@ -25,7 +25,7 @@ codeunit 130610 "Library - Mock CRM Connection"
         if SetTestAsDefaultConnection then begin
             ConnectionName := 'TEST';
             if not HasTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName) then
-                RegisterTestConnection;
+                RegisterTestConnection();
         end;
         Assert.IsTrue(
           HasTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName),

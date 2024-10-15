@@ -446,15 +446,6 @@
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType VATAmountMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 70057887 - NamedType 1739754389" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VAT Date is not correct based on GL setup]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType VatDateComparisonErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 70057887 - NamedType 547209558" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT date on document do not mach VAT Entry]]></Val>
@@ -462,15 +453,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType VATDateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 70057887 - NamedType 357299751" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VAT Return Period is closed for the selected date. Please select another date.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType VATDateNotChangedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 70057887 - NamedType 1438512474" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -561,6 +543,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Setup - NamedType FormatError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3701225578 - NamedType 1107352067" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The entered VAT Registration number for %1 %2 is not in agreement with the format specified for Country/Region Code %3.\The following formats are acceptable: %4]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Record Type, %2 - Record No., %3 - Country Region Code, %4 - VAT Format]D;]A;(LookupHint=Codeunit ERM VAT Setup - NamedType FormatError2)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3701225578 - NamedType 2010301580" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

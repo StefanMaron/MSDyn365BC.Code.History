@@ -83,6 +83,12 @@ page 973 "Time Sheet Card"
                 Caption = 'Actual/Budgeted Summary';
                 Visible = true;
             }
+            part(TimeSheetLineDetailsFactBox; "TimeSheet Line Details FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Provider = TimeSheetLines;
+                SubPageLink = "Time Sheet No." = field("Time Sheet No."), "Line No." = field("Line No.");
+            }
         }
     }
 
@@ -111,7 +117,7 @@ page 973 "Time Sheet Card"
                 Enabled = SubmitEnabled;
                 Visible = not ManagerTimeSheet;
                 ShortCutKey = 'F9';
-                ToolTip = 'Submit all open time sheet lines for approval. For dedicated line approval use action Submit on the subform Lines.';
+                ToolTip = 'Submit all open time sheet lines for approval. Each line must have a Type defined. For dedicated line approval select the Submit action on the lines section.';
 
                 trigger OnAction()
                 begin
@@ -125,7 +131,7 @@ page 973 "Time Sheet Card"
                 Image = ReOpen;
                 Enabled = ReopenSubmittedEnabled;
                 Visible = not ManagerTimeSheet;
-                ToolTip = 'Reopen all submitted or rejected time sheet lines. For dedicated line reopen use action Reopen on the subform Lines.';
+                ToolTip = 'Reopen all submitted or rejected time sheet lines. Each line must have a Type defined. For dedicated line reopen select the Reopen action on the lines section.';
 
                 trigger OnAction()
                 begin
@@ -139,7 +145,7 @@ page 973 "Time Sheet Card"
                 Image = ReleaseDoc;
                 Enabled = ApproveEnabled;
                 Visible = ManagerTimeSheet;
-                ToolTip = 'Approve all submitted time sheet lines. For dedicated line approval use action Approve on the subform Lines.';
+                ToolTip = 'Approve all submitted time sheet lines. Each line must have a Type defined. For dedicated line approval select the Approve action on the lines section.';
 
                 trigger OnAction()
                 begin
@@ -153,7 +159,7 @@ page 973 "Time Sheet Card"
                 Image = ReOpen;
                 Enabled = ReopenApprovedEnabled;
                 Visible = ManagerTimeSheet;
-                ToolTip = 'Reopen all approved or rejected time sheet lines. For dedicated line reopen use action Reopen on the subform Lines.';
+                ToolTip = 'Reopen all approved or rejected time sheet lines. Each line must have a Type defined. For dedicated line reopen select the Reopen action on the lines section.';
 
                 trigger OnAction()
                 begin
@@ -167,7 +173,7 @@ page 973 "Time Sheet Card"
                 Image = Reject;
                 Enabled = ApproveEnabled;
                 Visible = ManagerTimeSheet;
-                ToolTip = 'Reject all submitted time sheet lines. For dedicated line rejection use action Reject on the subform Lines.';
+                ToolTip = 'Reject all submitted time sheet lines. Each line must have a Type defined. For dedicated line rejection select the Reject action on the lines section.';
 
                 trigger OnAction()
                 begin
@@ -178,25 +184,56 @@ page 973 "Time Sheet Card"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+#if not CLEAN24
                 action(CopyLinesFromPrevTS)
                 {
                     ApplicationArea = Jobs;
                     Caption = '&Copy lines from previous time sheet';
                     Image = Copy;
-                    ToolTip = 'Copy information from the previous time sheet, such as type and description, and then modify the lines. If a line is related to a job, the job number is copied.';
+                    ToolTip = 'Copy information from the previous time sheet, such as type and description, and then modify the lines. If a line is related to a project, the project number is copied.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by SelectAndCopyLinesFromTS.';
+                    ObsoleteTag = '24.0';
+
+                    trigger OnAction()
+                    begin
+                        Message('Not in use anymore');
+                    end;
+                }
+#endif
+                action(CopyLinesFromTS)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Copy lines from time sheet';
+                    Image = Copy;
+                    ToolTip = 'Copy information from the selected time sheet, such as type and description, and then modify the lines. If a line is related to a project, the project number is copied.';
                     Visible = not ManagerTimeSheet;
 
                     trigger OnAction()
                     begin
-                        TimeSheetMgt.CheckCopyPrevTimeSheetLines(Rec);
+                        TimeSheetMgt.SelectAndCopyTimeSheetLines(Rec, false);
+                    end;
+                }
+                action(CopyLinesFromTSWithComments)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Copy lines from time sheet with comments';
+                    Image = Copy;
+                    ToolTip = 'Copy information from the selected time sheet, such as type and description, and then modify the lines. If a line is related to a project, the project number is copied. Comments will be copied as well.';
+                    Visible = not ManagerTimeSheet;
+
+                    trigger OnAction()
+                    begin
+                        TimeSheetMgt.SelectAndCopyTimeSheetLines(Rec, true);
                     end;
                 }
                 action(CreateLinesFromJobPlanning)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Create lines from &job planning';
+                    Caption = 'Create lines from &project planning';
                     Image = CreateLinesFromJob;
-                    ToolTip = 'Create time sheet lines that are based on job planning lines.';
+                    ToolTip = 'Create time sheet lines that are based on project planning lines.';
                     Visible = not ManagerTimeSheet;
 
                     trigger OnAction()
@@ -235,8 +272,26 @@ page 973 "Time Sheet Card"
             {
                 Caption = 'Prepare';
 
-                actionref(CopyLinesFromPrevTS_Promoted; CopyLinesFromPrevTS)
+                group(Category_CopyTSLines)
                 {
+                    Caption = 'Copy lines from time sheet';
+                    ShowAs = SplitButton;
+
+                    actionref(SelectAndCopyLinesFromTS_Promoted; CopyLinesFromTS)
+                    {
+                    }
+                    actionref(SelectAndCopyLinesFromTSWithComments_Promoted; CopyLinesFromTSWithComments)
+                    {
+                    }
+#if not CLEAN24
+                    actionref(CopyLinesFromPrevTS_Promoted; CopyLinesFromPrevTS)
+                    {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by CopyLinesFromTS.';
+                        ObsoleteTag = '24.0';
+                        Visible = false;
+                    }
+#endif
                 }
                 actionref(CreateLinesFromJobPlanning_Promoted; CreateLinesFromJobPlanning)
                 {
@@ -248,6 +303,7 @@ page 973 "Time Sheet Card"
     trigger OnOpenPage()
     begin
         CheckSetDefaultOwnerFilter();
+        RemoveFilterFromLinesExistField();
 
         OnAfterOnOpenPage(Rec);
     end;
@@ -313,6 +369,7 @@ page 973 "Time Sheet Card"
     protected procedure Process(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
     var
         TimeSheetLine: Record "Time Sheet Line";
+        TimeSheetAction: Enum "Time Sheet Action";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
         OnProcessOnAfterTimeSheetLinesFiltered(TimeSheetLine, ActionType);
@@ -320,7 +377,22 @@ page 973 "Time Sheet Card"
         if TimeSheetLine.FindSet() then
             repeat
                 TimeSheetApprovalMgt.ProcessAction(TimeSheetLine, ActionType);
-            until TimeSheetLine.Next() = 0;
+            until TimeSheetLine.Next() = 0
+        else begin
+            case ActionType of
+                RefActionType::Submit:
+                    TimeSheetAction := TimeSheetAction::Submit;
+                RefActionType::ReopenSubmitted:
+                    TimeSheetAction := TimeSheetAction::"Reopen Submitted";
+                RefActionType::Approve:
+                    TimeSheetAction := TimeSheetAction::Approve;
+                RefActionType::ReopenApproved:
+                    TimeSheetAction := TimeSheetAction::"Reopen Approved";
+                RefActionType::Reject:
+                    TimeSheetAction := TimeSheetAction::Reject;
+            end;
+            TimeSheetApprovalMgt.NoTimeSheetLinesToProcess(TimeSheetAction);
+        end;
         CurrPage.Update(true);
 
         OnAfterProcess(Rec, ActionType);
@@ -412,6 +484,12 @@ page 973 "Time Sheet Card"
     begin
         TimeSheetLine.SetRange("Time Sheet No.", Rec."No.");
         TimeSheetMgt.FilterAllTimeSheetLines(TimeSheetLine, ActionType);
+    end;
+
+    local procedure RemoveFilterFromLinesExistField()
+    begin
+        if Rec.GetFilter("Lines Exist") <> '' then
+            Rec.SetRange("Lines Exist");
     end;
 
     local procedure GetDataCaption(): Text

@@ -169,7 +169,6 @@
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Customer: Record Customer;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
         Amount: Decimal;
@@ -483,7 +482,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -517,7 +516,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -548,7 +547,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -580,7 +579,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -616,7 +615,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -651,7 +650,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := CopyStr(GenerateExtDocNo, 1, 3);
+        ExtDocNo := CopyStr(GenerateExtDocNo(), 1, 3);
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -682,7 +681,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -717,7 +716,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
@@ -752,7 +751,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
@@ -786,7 +785,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
@@ -825,7 +824,7 @@
         Customer.Validate(Name, StrSubstNo('%1 %2', FirstName, LastName));
         Customer.Modify(true);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
@@ -863,7 +862,7 @@
         Customer1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
@@ -901,7 +900,7 @@
         Customer1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
@@ -939,7 +938,7 @@
         Customer1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
@@ -974,7 +973,7 @@
         Customer.Name := GenerateRandomSmallLettersWithSpaces(50);
         Customer.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, '', '');
@@ -1007,7 +1006,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, Customer.Name, '');
@@ -1044,7 +1043,7 @@
         Customer1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, Customer.Name, '');
@@ -1077,7 +1076,7 @@
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2,
@@ -1115,7 +1114,7 @@
         Customer1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2,
@@ -1151,7 +1150,7 @@
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         Length := Round(MatchBankPayments.GetExactMatchTreshold() / MatchBankPayments.GetNormalizingFactor() *
             StrLen(Customer.Name) + 1, 1);
@@ -1195,7 +1194,7 @@
         Customer.Modify();
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2,
@@ -1237,7 +1236,7 @@
         BankPmtApplSettings.Modify();
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2,
@@ -1276,7 +1275,7 @@
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2,
@@ -1300,7 +1299,6 @@
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Customer: Record Customer;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
         Amount: Decimal;
@@ -1315,7 +1313,7 @@
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount,
@@ -1348,8 +1346,8 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
@@ -1384,7 +1382,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
@@ -1419,7 +1417,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2, DocumentNo, '');
@@ -1453,7 +1451,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -1489,7 +1487,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -1527,7 +1525,7 @@
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         Tolerance := Round(Amount / 4, 0.01);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount - Tolerance);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
@@ -1562,7 +1560,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine1, Amount / 2, DocumentNo, '');
@@ -1592,7 +1590,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine1, Amount / 2, DocumentNo, '');
@@ -1624,13 +1622,13 @@
         CreateCustomer(Customer);
         TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount * 2, TextMapper, '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo(), '');
 
         RunMatch(BankAccReconciliation, true);
 
@@ -1657,7 +1655,7 @@
         CreateCustomer(Customer);
         TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        SalesInvoiceNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        SalesInvoiceNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount * 2, TextMapper, '');
@@ -1673,9 +1671,9 @@
         end;
 
         // Exercise
-        PaymentReconciliationJournal.Trap;
+        PaymentReconciliationJournal.Trap();
         OpenPaymentRecJournal(BankAccReconciliation);
-        PaymentReconciliationJournal.AddMappingRule.Invoke;
+        PaymentReconciliationJournal.AddMappingRule.Invoke();
 
         // Verify
         VerifyEntryApplied(BankAccReconciliationLine, true);
@@ -1716,14 +1714,14 @@
         CreateCustomer(Customer);
         TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, TextMapper, DocumentNo);
         UpdateBankReconciliationLine(BankAccReconciliationLine, '', Customer.Name, '', '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo(), '');
 
         RunMatch(BankAccReconciliation, true);
 
@@ -1750,7 +1748,7 @@
         CreateCustomer(Customer);
         TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount * 2, TextMapper, '');
@@ -1786,7 +1784,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', DocumentNo);
@@ -1834,8 +1832,8 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -1897,10 +1895,10 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateCustomer(Customer2);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer2."No.", GenerateExtDocNo, Amount);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer2."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -1969,10 +1967,10 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount2);
 
         AppliedAmount := Amount + Amount2;
 
@@ -2034,10 +2032,10 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount2);
 
         AppliedAmount := Amount + Amount2;
         StatementAmount := 2 * AppliedAmount;
@@ -2099,12 +2097,12 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount2);
 
-        AppliedAmount := Amount + Amount2 - Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Amount + Amount2 - Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, AppliedAmount, '', DocumentNo + ' ' + DocumentNo2);
@@ -2135,7 +2133,7 @@
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(
-          AppliedPaymentEntry, Quality, Amount2 - Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision), CustLedgerEntry2."Entry No.");
+          AppliedPaymentEntry, Quality, Amount2 - Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision()), CustLedgerEntry2."Entry No.");
     end;
 
     [Test]
@@ -2163,10 +2161,10 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount2);
 
         AppliedAmount := Amount;
 
@@ -2223,12 +2221,12 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, AppliedAmount, '', DocumentNo + ' ' + DocumentNo2);
@@ -2298,11 +2296,11 @@
         DueDate2 := CalcDate('<-3D>', DueDate);
         DueDate3 := CalcDate('<1D>', DueDate2);
 
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine2(Customer."No.", GenerateExtDocNo, Amount, DueDate);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine2(Customer."No.", GenerateExtDocNo, Amount2, DueDate2);
-        DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine2(Customer."No.", GenerateExtDocNo, Amount3, DueDate3);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine2(Customer."No.", GenerateExtDocNo(), Amount, DueDate);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine2(Customer."No.", GenerateExtDocNo(), Amount2, DueDate2);
+        DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine2(Customer."No.", GenerateExtDocNo(), Amount3, DueDate3);
 
-        AppliedAmount := Amount2 + Round(Amount3 / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Amount2 + Round(Amount3 / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(
@@ -2360,10 +2358,10 @@
         // Setup
         CreateCustomer(Customer);
         TextMapper := GenerateTextToAccountMapping();
-        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo(), '');
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, TextMapper, DocumentNo);
@@ -2375,7 +2373,7 @@
         // Verify
         Difference := 0;
         ExpectedNoOfEntries := 1;
-        Quality := TempBankPmtApplRule.GetTextMapperScore;
+        Quality := TempBankPmtApplRule.GetTextMapperScore();
 
         VerifyMultipleApplicationsBankAccReconciliationLine(
           BankAccReconciliationLine, Quality, Difference, Amount, BankAccReconciliationLine."Account Type"::"G/L Account",
@@ -2410,11 +2408,11 @@
 
         // Setup
         CreateCustomer(Customer);
-        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo(), '');
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         TextMapper := GenerateTextToAccountMapping();
 
@@ -2466,8 +2464,8 @@
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, 2 * Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -2513,9 +2511,9 @@
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, 2 * Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), 2 * Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, 2 * Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -2572,10 +2570,10 @@
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo4 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo4 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, 2 * Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -2633,10 +2631,10 @@
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
-        DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, 2 * Amount);
-        DocumentNo4 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
+        DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), 2 * Amount);
+        DocumentNo4 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, 2 * Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -2727,10 +2725,10 @@
 
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount2);
 
         AppliedAmount := Amount + Amount2;
         StatementAmount := 2 * AppliedAmount;
@@ -2785,7 +2783,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         GetCustLedgerEntry(CustLedgerEntry, Customer, DocumentNo);
 
@@ -2826,7 +2824,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         GetCustLedgerEntry(CustLedgerEntry, Customer, DocumentNo);
 
@@ -2860,7 +2858,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         GetCustLedgerEntry(CustLedgerEntry, Customer, DocumentNo);
 
@@ -2903,7 +2901,7 @@
         // Setup
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo(), Amount);
 
         GetCustLedgerEntry(CustLedgerEntry, Customer, DocumentNo);
 
@@ -2935,7 +2933,7 @@
 
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
         // Setup
 
@@ -2967,7 +2965,7 @@
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         Tolerance := Round(Amount / 4, 0.01);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + Tolerance + 0.01);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
@@ -2997,9 +2995,9 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + 1);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3034,10 +3032,10 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         Tolerance := Round(Amount / 4, 0.01);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + Tolerance);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + 5 * Tolerance);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
@@ -3072,10 +3070,10 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         Tolerance := Round(Amount / 4, 0.01);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + Tolerance);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + 5 * Tolerance);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
@@ -3110,10 +3108,10 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         Tolerance := LibraryRandom.RandDecInRange(1, 99, 1);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount * (1 + Tolerance / 100));
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + 5 * Tolerance);
 
         CreateBankReconciliationPercentageTolerance(BankAccReconciliation, Tolerance);
@@ -3147,9 +3145,9 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3185,9 +3183,9 @@
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         Tolerance := Round(Amount / 4, 0.01);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + Tolerance);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount + Tolerance / 3);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
@@ -3222,7 +3220,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3257,7 +3255,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3292,7 +3290,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3326,7 +3324,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3357,7 +3355,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3389,7 +3387,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3425,7 +3423,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3460,7 +3458,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := CopyStr(GenerateExtDocNo, 1, 3);
+        ExtDocNo := CopyStr(GenerateExtDocNo(), 1, 3);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3491,7 +3489,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -3526,9 +3524,9 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', DocumentNo);
@@ -3561,7 +3559,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
@@ -3597,7 +3595,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
@@ -3636,7 +3634,7 @@
         Vendor.Validate(Name, StrSubstNo('%1 %2', FirstName, LastName));
         Vendor.Modify(true);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
@@ -3674,7 +3672,7 @@
         Vendor1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
@@ -3712,7 +3710,7 @@
         Vendor1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
@@ -3750,7 +3748,7 @@
         Vendor1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
@@ -3785,7 +3783,7 @@
         Vendor.Name := GenerateRandomSmallLettersWithSpaces(50);
         Vendor.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, '', '');
@@ -3818,7 +3816,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, Vendor.Name, '');
@@ -3855,7 +3853,7 @@
         Vendor1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, Vendor.Name, '');
@@ -3895,7 +3893,7 @@
         Vendor.Modify();
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2,
@@ -3937,7 +3935,7 @@
         BankPmtApplSettings.Modify();
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2,
@@ -3976,7 +3974,7 @@
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2,
@@ -4009,7 +4007,7 @@
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2,
@@ -4047,7 +4045,7 @@
         Vendor1.Modify(true);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2,
@@ -4083,7 +4081,7 @@
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         Length := Round(MatchBankPayments.GetExactMatchTreshold() / MatchBankPayments.GetNormalizingFactor() *
             StrLen(Vendor.Name) + 1, 1);
@@ -4120,8 +4118,8 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
@@ -4158,7 +4156,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
@@ -4195,7 +4193,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2, DocumentNo, '');
@@ -4229,7 +4227,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -4265,7 +4263,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -4303,7 +4301,7 @@
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         Tolerance := Round(Amount / 4, 0.01);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount - Tolerance);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
@@ -4338,7 +4336,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine1, -Amount / 2, DocumentNo, '');
@@ -4368,7 +4366,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine1, -Amount / 2, DocumentNo, '');
@@ -4400,13 +4398,13 @@
         CreateVendor(Vendor);
         TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount * 2, TextMapper, '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo(), '');
 
         RunMatch(BankAccReconciliation, true);
 
@@ -4430,7 +4428,7 @@
         CreateVendor(Vendor);
         TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount * 2, TextMapper, '');
@@ -4443,9 +4441,9 @@
         end;
 
         // Exercise
-        PaymentReconciliationJournal.Trap;
+        PaymentReconciliationJournal.Trap();
         OpenPaymentRecJournal(BankAccReconciliation);
-        PaymentReconciliationJournal.AddMappingRule.Invoke;
+        PaymentReconciliationJournal.AddMappingRule.Invoke();
 
         // Verify
         VerifyEntryApplied(BankAccReconciliationLine, true);
@@ -4486,14 +4484,14 @@
         CreateVendor(Vendor);
         TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, TextMapper, DocumentNo);
         UpdateBankReconciliationLine(BankAccReconciliationLine, '', Vendor.Name, '', '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo(), '');
 
         RunMatch(BankAccReconciliation, true);
 
@@ -4520,7 +4518,7 @@
         CreateVendor(Vendor);
         TextMapper := GenerateTextToAccountMapping();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount * 2, TextMapper, '');
@@ -4556,7 +4554,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', DocumentNo);
@@ -4604,8 +4602,8 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -4667,10 +4665,10 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateVendor(Vendor2);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor2."No.", GenerateExtDocNo, Amount);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor2."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -4738,10 +4736,10 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount2);
 
         AppliedAmount := -Amount - Amount2;
 
@@ -4803,10 +4801,10 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount2);
 
         AppliedAmount := -Amount - Amount2;
         StatementAmount := 2 * AppliedAmount;
@@ -4868,12 +4866,12 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount2);
 
-        AppliedAmount := -Amount - Amount2 + Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := -Amount - Amount2 + Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, AppliedAmount, '', DocumentNo + ' ' + DocumentNo2);
@@ -4904,7 +4902,7 @@
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
         AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(
-          AppliedPaymentEntry, Quality, -Amount2 + Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision),
+          AppliedPaymentEntry, Quality, -Amount2 + Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision()),
           VendorLedgerEntry2."Entry No.");
     end;
 
@@ -4933,10 +4931,10 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount2);
 
         AppliedAmount := -Amount;
 
@@ -4993,12 +4991,12 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount2);
 
-        AppliedAmount := Round(-Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(-Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, AppliedAmount, '', DocumentNo + ' ' + DocumentNo2);
@@ -5068,11 +5066,11 @@
         DueDate2 := CalcDate('<-3D>', DueDate);
         DueDate3 := CalcDate('<1D>', DueDate2);
 
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine2(Vendor."No.", GenerateExtDocNo, Amount, DueDate);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine2(Vendor."No.", GenerateExtDocNo, Amount2, DueDate2);
-        DocumentNo3 := CreateAndPostPurchaseInvoiceWithOneLine2(Vendor."No.", GenerateExtDocNo, Amount3, DueDate3);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine2(Vendor."No.", GenerateExtDocNo(), Amount, DueDate);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine2(Vendor."No.", GenerateExtDocNo(), Amount2, DueDate2);
+        DocumentNo3 := CreateAndPostPurchaseInvoiceWithOneLine2(Vendor."No.", GenerateExtDocNo(), Amount3, DueDate3);
 
-        AppliedAmount := -Amount2 - Round(Amount3 / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := -Amount2 - Round(Amount3 / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(
@@ -5130,10 +5128,10 @@
         // Setup
         CreateVendor(Vendor);
         TextMapper := GenerateTextToAccountMapping();
-        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo(), '');
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, TextMapper, DocumentNo);
@@ -5145,7 +5143,7 @@
         // Verify
         Difference := 0;
         ExpectedNoOfEntries := 1;
-        Quality := TempBankPmtApplRule.GetTextMapperScore;
+        Quality := TempBankPmtApplRule.GetTextMapperScore();
 
         VerifyMultipleApplicationsBankAccReconciliationLine(
           BankAccReconciliationLine, Quality, Difference, -Amount, BankAccReconciliationLine."Account Type"::"G/L Account",
@@ -5181,11 +5179,11 @@
         // Setup
         CreateVendor(Vendor);
         TextMapper := GenerateTextToAccountMapping();
-        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo(), '');
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(
@@ -5235,8 +5233,8 @@
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -2 * Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -5282,9 +5280,9 @@
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo3 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, 2 * Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo3 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), 2 * Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -2 * Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -5341,10 +5339,10 @@
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo3 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo4 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo3 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo4 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -2 * Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -5378,7 +5376,6 @@
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Vendor: Record Vendor;
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
         Amount: Decimal;
@@ -5393,7 +5390,7 @@
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        ExtDocNo := GenerateExtDocNo;
+        ExtDocNo := GenerateExtDocNo();
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -5444,10 +5441,10 @@
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
-        DocumentNo3 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, 2 * Amount);
-        DocumentNo4 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
+        DocumentNo3 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), 2 * Amount);
+        DocumentNo4 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -2 * Amount, '', DocumentNo + ' ' + DocumentNo2);
@@ -5538,10 +5535,10 @@
 
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount2);
+        DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount2);
 
         AppliedAmount := -Amount - Amount2;
         StatementAmount := 2 * AppliedAmount;
@@ -5596,7 +5593,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         GetVendorLedgerEntry(VendorLedgerEntry, Vendor, DocumentNo);
 
@@ -5637,7 +5634,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         GetVendorLedgerEntry(VendorLedgerEntry, Vendor, DocumentNo);
 
@@ -5671,7 +5668,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         GetVendorLedgerEntry(VendorLedgerEntry, Vendor, DocumentNo);
 
@@ -5714,7 +5711,7 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo(), Amount);
 
         GetVendorLedgerEntry(VendorLedgerEntry, Vendor, DocumentNo);
 
@@ -5843,8 +5840,8 @@
         // Setup
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        InvoiceNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID, Amount);
-        InvoiceNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID, Amount + 1);
+        InvoiceNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID(), Amount);
+        InvoiceNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID(), Amount + 1);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
@@ -5888,8 +5885,8 @@
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         Tolerance := Round(Amount / 4, 0.01);
-        InvoiceNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID, Amount + Tolerance);
-        InvoiceNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID, Amount + Tolerance / 3);
+        InvoiceNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID(), Amount + Tolerance);
+        InvoiceNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", LibraryUtility.GenerateGUID(), Amount + Tolerance / 3);
         VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
         VendorLedgerEntry.FindFirst();
         VendorLedgerEntry2.SetRange("Document No.", InvoiceNo2);
@@ -6053,12 +6050,125 @@
         PaymentReconciliationJournal.AddMappingRule.Invoke();
 
         // [THEN] On opened page "Mapping Text" = "TT", "Debit Acc. No." = '', "Credit Acc. No." = '', "Bal. Source Type" = "Bank Account", "Bal. Source No." = ''.
-        Assert.AreEqual(BankAccReconciliationLine."Transaction Text", LibraryVariableStorage.DequeueText, '');
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, '');
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, '');
-        Assert.AreEqual(Format(BankAccReconciliationLine."Account Type"::"Bank Account"), LibraryVariableStorage.DequeueText, '');
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(BankAccReconciliationLine."Transaction Text", LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(Format(BankAccReconciliationLine."Account Type"::"Bank Account"), LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), '');
     end;
+
+    [Test]
+    [HandlerFunctions('PaymentApplicationShouldBeEmptyHandler')]
+    procedure ExcludeCustomerEntriesFromApplyManually()
+    var
+        Customer: Record Customer;
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        Amount: Decimal;
+        ExtDocNo: Code[20];
+    begin
+        Initialize();
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Apply Man. Disable Suggestions" := true;
+        BankPmtApplSettings."Cust Ledg Hidden In Apply Man" := true;
+        BankPmtApplSettings.Modify();
+        CreateCustomer(Customer);
+
+        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ExtDocNo := '';
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
+
+        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
+        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
+
+        BankAccReconciliationLine.DisplayApplication();
+    end;
+
+    [Test]
+    [HandlerFunctions('PaymentApplicationShouldNotBeEmptyHandler')]
+    procedure IncludeCustomerEntriesFromApplyManually()
+    var
+        Customer: Record Customer;
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        Amount: Decimal;
+        ExtDocNo: Code[20];
+    begin
+        Initialize();
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Apply Man. Disable Suggestions" := true;
+        BankPmtApplSettings."Cust Ledg Hidden In Apply Man" := false;
+        BankPmtApplSettings.Modify();
+        CreateCustomer(Customer);
+
+        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ExtDocNo := '';
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount);
+
+        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
+        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
+
+        BankAccReconciliationLine.DisplayApplication();
+    end;
+
+    [Test]
+    [HandlerFunctions('PaymentApplicationShouldBeEmptyHandler')]
+    procedure ExcludeVendorEntriesFromApplyManually()
+    var
+        Vendor: Record Vendor;
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        Amount: Decimal;
+        ExtDocNo: Code[20];
+    begin
+        Initialize();
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Apply Man. Disable Suggestions" := true;
+        BankPmtApplSettings."Vend Ledg Hidden In Apply Man" := true;
+        BankPmtApplSettings.Modify();
+        CreateVendor(Vendor);
+
+        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ExtDocNo := LibraryRandom.RandText(20);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
+
+        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
+        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
+
+        BankAccReconciliationLine.DisplayApplication();
+    end;
+
+    [Test]
+    [HandlerFunctions('PaymentApplicationShouldNotBeEmptyHandler')]
+    procedure IncludeVendorEntriesFromApplyManually()
+    var
+        Vendor: Record Vendor;
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        Amount: Decimal;
+        ExtDocNo: Code[20];
+    begin
+        Initialize();
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Apply Man. Disable Suggestions" := true;
+        BankPmtApplSettings."Vend Ledg Hidden In Apply Man" := false;
+        BankPmtApplSettings.Modify();
+        CreateVendor(Vendor);
+
+        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        ExtDocNo := LibraryRandom.RandText(20);
+        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
+
+        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
+        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
+
+        BankAccReconciliationLine.DisplayApplication();
+    end;
+
 
     local procedure Initialize()
     var
@@ -6066,11 +6176,11 @@
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm");
-        CleanupPreviousTestData;
-        ClearGlobals;
+        CleanupPreviousTestData();
+        ClearGlobals();
         LibraryVariableStorage.Clear();
         BankPmtApplRule.DeleteAll();
-        BankPmtApplRule.InsertDefaultMatchingRules;
+        BankPmtApplRule.InsertDefaultMatchingRules();
         BankPmtApplSettings.DeleteAll();
 
         if isInitialized then
@@ -6286,7 +6396,7 @@
     begin
         TempBankStatementMatchingBuffer.AddMatchCandidate(
           BankAccReconciliationLine."Statement Line No.", TempLedgerEntryMatchingBuffer."Entry No.",
-          LibraryRandom.RandIntInRange(1, BankPmtApplRule.GetHighestPossibleScore - 1), AccountType,
+          LibraryRandom.RandIntInRange(1, BankPmtApplRule.GetHighestPossibleScore() - 1), AccountType,
           TempLedgerEntryMatchingBuffer."Account No.");
 
         TempBankStatementMatchingBuffer.InsertOrUpdateOneToManyRule(
@@ -6381,7 +6491,7 @@
         exit(GenerateRandomSmallLetters(10) + LibraryUtility.GenerateGUID());
     end;
 
-    local procedure GenerateRandomSmallLettersWithSpaces(Length: Integer) String: Text
+    local procedure GenerateRandomSmallLettersWithSpaces(Length: Integer): Text
     var
         TextWithSpaces: Text;
         SpacePosition: Integer;
@@ -6434,9 +6544,9 @@
     var
         PmtReconciliationJournals: TestPage "Pmt. Reconciliation Journals";
     begin
-        PmtReconciliationJournals.OpenView;
+        PmtReconciliationJournals.OpenView();
         PmtReconciliationJournals.GotoRecord(BankAccReconciliation);
-        PmtReconciliationJournals.EditJournal.Invoke;
+        PmtReconciliationJournals.EditJournal.Invoke();
     end;
 
     local procedure GetVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor; DocumentNo: Code[20])
@@ -6499,7 +6609,7 @@
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
         TempBankStatementMatchingBuffer.FindFirst();
 
-        Assert.AreEqual(TempBankPmtApplRule.GetTextMapperScore,
+        Assert.AreEqual(TempBankPmtApplRule.GetTextMapperScore(),
           TempBankStatementMatchingBuffer.Quality, 'Matching is wrong for statement line ' + Format(StatementLineNo));
     end;
 
@@ -6507,9 +6617,9 @@
     begin
         TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
-        TempBankStatementMatchingBuffer.SetRange(Quality, TempBankPmtApplRule.GetTextMapperScore);
+        TempBankStatementMatchingBuffer.SetRange(Quality, TempBankPmtApplRule.GetTextMapperScore());
 
-        Assert.IsTrue(TempBankStatementMatchingBuffer.FindFirst, 'Text mapper should have been considered.');
+        Assert.IsTrue(TempBankStatementMatchingBuffer.FindFirst(), 'Text mapper should have been considered.');
     end;
 
     local procedure VerifyNoMatch(LineNo: Integer)
@@ -6521,7 +6631,7 @@
 
         TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", LineNo);
-        Assert.IsFalse(TempBankStatementMatchingBuffer.FindFirst, 'Temp statement matching buffer should be empty in case of No Match');
+        Assert.IsFalse(TempBankStatementMatchingBuffer.FindFirst(), 'Temp statement matching buffer should be empty in case of No Match');
     end;
 
     local procedure VerifyEntryApplied(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TextMapperMatch: Boolean)
@@ -6533,7 +6643,7 @@
         AppliedPaymentEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
         AppliedPaymentEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
 
-        Assert.IsTrue(AppliedPaymentEntry.FindFirst, 'Wrong application. Filters: ' + AppliedPaymentEntry.GetFilters);
+        Assert.IsTrue(AppliedPaymentEntry.FindFirst(), 'Wrong application. Filters: ' + AppliedPaymentEntry.GetFilters);
 
         if TextMapperMatch then begin
             Assert.AreEqual(0, AppliedPaymentEntry."Applies-to Entry No.", 'Applies-to Entry No.  should be 0 for Text Mapper ' +
@@ -6574,7 +6684,7 @@
     var
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
     begin
-        PaymentReconciliationJournal.Trap;
+        PaymentReconciliationJournal.Trap();
         OpenPaymentRecJournal(BankAccReconciliation);
 
         LibraryVariableStorage.Enqueue(Format(BankPmtApplRule."Match Confidence"));
@@ -6591,8 +6701,8 @@
         if GoToEntroNo then
             LibraryVariableStorage.Enqueue(EntryNo);
 
-        PaymentReconciliationJournal.First;
-        PaymentReconciliationJournal.ApplyEntries.Invoke;
+        PaymentReconciliationJournal.First();
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
 
         PaymentReconciliationJournal.Close();
     end;
@@ -6602,9 +6712,9 @@
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
         EntryRemainingAmount: Decimal;
     begin
-        CustomerLedgerEntries.Trap;
-        PaymentApplication.Control2.NoOfLedgerEntriesWithinAmount.DrillDown;
-        if CustomerLedgerEntries.First then
+        CustomerLedgerEntries.Trap();
+        PaymentApplication.Control2.NoOfLedgerEntriesWithinAmount.DrillDown();
+        if CustomerLedgerEntries.First() then
             repeat
                 Evaluate(EntryRemainingAmount, CustomerLedgerEntries."Remaining Amount".Value);
                 Assert.IsTrue(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
@@ -6612,9 +6722,9 @@
             until not CustomerLedgerEntries.Next();
         CustomerLedgerEntries.Close();
 
-        CustomerLedgerEntries.Trap;
-        PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown;
-        if CustomerLedgerEntries.First then
+        CustomerLedgerEntries.Trap();
+        PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown();
+        if CustomerLedgerEntries.First() then
             repeat
                 Evaluate(EntryRemainingAmount, CustomerLedgerEntries."Remaining Amount".Value);
                 Assert.IsFalse(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
@@ -6628,9 +6738,9 @@
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
         EntryRemainingAmount: Decimal;
     begin
-        VendorLedgerEntries.Trap;
-        PaymentApplication.Control2.NoOfLedgerEntriesWithinAmount.DrillDown;
-        if VendorLedgerEntries.First then
+        VendorLedgerEntries.Trap();
+        PaymentApplication.Control2.NoOfLedgerEntriesWithinAmount.DrillDown();
+        if VendorLedgerEntries.First() then
             repeat
                 Evaluate(EntryRemainingAmount, VendorLedgerEntries."Remaining Amount".Value);
                 Assert.IsTrue(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
@@ -6638,9 +6748,9 @@
             until not VendorLedgerEntries.Next();
 
         VendorLedgerEntries.Close();
-        VendorLedgerEntries.Trap;
-        PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown;
-        if VendorLedgerEntries.First then
+        VendorLedgerEntries.Trap();
+        PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown();
+        if VendorLedgerEntries.First() then
             repeat
                 Evaluate(EntryRemainingAmount, VendorLedgerEntries."Remaining Amount".Value);
                 Assert.IsFalse(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
@@ -6654,9 +6764,9 @@
         BankAccountLedgerEntries: TestPage "Bank Account Ledger Entries";
         EntryRemainingAmount: Decimal;
     begin
-        BankAccountLedgerEntries.Trap;
-        PaymentApplication.Control2.NoOfLedgerEntriesWithinAmount.DrillDown;
-        if BankAccountLedgerEntries.First then
+        BankAccountLedgerEntries.Trap();
+        PaymentApplication.Control2.NoOfLedgerEntriesWithinAmount.DrillDown();
+        if BankAccountLedgerEntries.First() then
             repeat
                 EntryRemainingAmount := LibraryERMCountryData.AmountOnBankAccountLedgerEntriesPage(BankAccountLedgerEntries);
                 Assert.IsTrue(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
@@ -6664,9 +6774,9 @@
             until not BankAccountLedgerEntries.Next();
 
         BankAccountLedgerEntries.Close();
-        BankAccountLedgerEntries.Trap;
-        PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown;
-        if BankAccountLedgerEntries.First then
+        BankAccountLedgerEntries.Trap();
+        PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown();
+        if BankAccountLedgerEntries.First() then
             repeat
                 EntryRemainingAmount := LibraryERMCountryData.AmountOnBankAccountLedgerEntriesPage(BankAccountLedgerEntries);
                 Assert.IsFalse(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
@@ -6746,9 +6856,9 @@
     [Scope('OnPrem')]
     procedure TextMapperModalPageHandler(var TexttoAccountMapping: TestPage "Text-to-Account Mapping")
     begin
-        TexttoAccountMapping."Debit Acc. No.".SetValue(LibraryERM.CreateGLAccountNo);
-        TexttoAccountMapping."Credit Acc. No.".SetValue(LibraryERM.CreateGLAccountNo);
-        TexttoAccountMapping.OK.Invoke;
+        TexttoAccountMapping."Debit Acc. No.".SetValue(LibraryERM.CreateGLAccountNo());
+        TexttoAccountMapping."Credit Acc. No.".SetValue(LibraryERM.CreateGLAccountNo());
+        TexttoAccountMapping.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -6760,7 +6870,7 @@
         LibraryVariableStorage.Enqueue(TexttoAccountMapping."Credit Acc. No.".Value);
         LibraryVariableStorage.Enqueue(TexttoAccountMapping."Bal. Source Type".Value);
         LibraryVariableStorage.Enqueue(TexttoAccountMapping."Bal. Source No.".Value);
-        TexttoAccountMapping.OK.Invoke;
+        TexttoAccountMapping.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -6773,6 +6883,18 @@
         PaymentApplication.SortEntriesBasedOnProbability.Invoke();
         Assert.IsTrue(PaymentApplication.First(), 'Page must not be empty, suggestions should have been loaded');
         Assert.AreEqual(PaymentApplication."Match Confidence".Value(), LibraryVariableStorage.DequeueText(), 'No confidence should be set on the line');
+    end;
+
+    [ModalPageHandler]
+    procedure PaymentApplicationShouldBeEmptyHandler(var PaymentApplication: TestPage "Payment Application")
+    begin
+        Assert.IsFalse(PaymentApplication.First(), 'Page must be empty, no suggestions should have been loaded');
+    end;
+
+    [ModalPageHandler]
+    procedure PaymentApplicationShouldNotBeEmptyHandler(var PaymentApplication: TestPage "Payment Application")
+    begin
+        Assert.IsTrue(PaymentApplication.First(), 'Page should not be empty, suggestions should have been loaded');
     end;
 
     [ModalPageHandler]
@@ -6895,7 +7017,7 @@
         TempBankStatementMatchingBuffer.SetRange("Entry No.", EntryNo);
         TempBankStatementMatchingBuffer.SetRange("One to Many Match", false);
 
-        Assert.IsTrue(TempBankStatementMatchingBuffer.FindFirst,
+        Assert.IsTrue(TempBankStatementMatchingBuffer.FindFirst(),
           'Single Match TempBankStatementMatchingBuffer was removed by calling Insert One to Many rule');
         Assert.AreEqual(
           0, TempBankStatementMatchingBuffer."No. of Entries",

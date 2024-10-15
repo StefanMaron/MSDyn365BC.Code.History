@@ -11,6 +11,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(GetFixRemainingAmountCLEUpgradeTag());
         PerCompanyUpgradeTags.Add(GetFixRemainingAmountVLEUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATReportTaxAuthDocNoUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetNoSeriesITUpgradeTag());
     end;
 
     procedure GetFixRemainingAmountCLEUpgradeTag(): Code[250]
@@ -26,6 +27,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     procedure GetVATReportTaxAuthDocNoUpgradeTag(): Code[250]
     begin
         exit('MS-402795-VATReportHeaderTaxAuthDocNo-20210527');
+    end;
+
+    internal procedure GetNoSeriesITUpgradeTag(): Code[250]
+    begin
+        exit('MS-471519-NoSeriesITUpgradeTag-20230606')
     end;
 }
 

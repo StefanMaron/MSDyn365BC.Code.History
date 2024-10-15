@@ -391,7 +391,7 @@ page 542 "Default Dimensions-Multiple"
         NoFieldRef := MasterRecordRef.Field(NoField);
         if MasterRecordRef.FindSet() then
             repeat
-                No := NoFieldRef.Value;
+                No := NoFieldRef.Value();
                 CopyDefaultDimToDefaultDim(MasterRecordRef.Number, No);
             until MasterRecordRef.Next() = 0;
     end;
@@ -400,11 +400,10 @@ page 542 "Default Dimensions-Multiple"
     begin
         //DEPRECATED - TO BE REMOVED FOR FALL 19
         ClearTempDefaultDim();
-        with Employee do
-            if Find('-') then
-                repeat
-                    CopyDefaultDimToDefaultDim(Database::Employee, "No.");
-                until Next() = 0;
+        if Employee.Find('-') then
+            repeat
+                CopyDefaultDimToDefaultDim(Database::Employee, Employee."No.");
+            until Employee.Next() = 0;
     end;
 
     local procedure UpdateTempDimValuePerAcount(var DimValuePerAcc: Record "Dim. Value per Account")

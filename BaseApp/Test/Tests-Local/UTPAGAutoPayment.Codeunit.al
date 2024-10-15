@@ -95,11 +95,11 @@ codeunit 144055 "UT PAG Auto Payment"
         // Setup.
         Initialize();
         CreateVendorBillHeaderWithLine(VendorBillLine, false, 0);  // FALSE for manual Line, 0 for Dimension Set ID.
-        VendorBillListSentCard.OpenEdit;
+        VendorBillListSentCard.OpenEdit();
         VendorBillListSentCard.FILTER.SetFilter("No.", VendorBillLine."Vendor Bill List No.");
 
         // Exercise.
-        asserterror VendorBillListSentCard.ExportBillListToFile.Invoke;
+        asserterror VendorBillListSentCard.ExportBillListToFile.Invoke();
 
         // Verify: Verify expected error code.
         Assert.ExpectedError(MissingBankAccErr);
@@ -182,11 +182,11 @@ codeunit 144055 "UT PAG Auto Payment"
         CreateDimensionSetEntry(DimensionSetEntry);
         CreateVendorBillHeaderWithLine(VendorBillLine, ManualLine, DimensionSetEntry."Dimension Set ID");
         LibraryVariableStorage.Enqueue(DimensionSetEntry."Dimension Code");  // Enqueue for DimensionSetEntriesModalPageHandler and EditDimensionSetEntriesModalPageHandler.
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", VendorBillLine."Vendor Bill List No.");
 
         // Exercise.
-        VendorBillCard.VendorBillLines.Dimension.Invoke;
+        VendorBillCard.VendorBillLines.Dimension.Invoke();
 
         // Verify: Verify Dimension Code on DimensionSetEntriesModalPageHandler and EditDimensionSetEntriesModalPageHandler.
 
@@ -250,7 +250,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup & Exercise.
         Initialize();
-        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, '', CreatePaymentMethod);  // Using blank value for Bank Account No.
+        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, '', CreatePaymentMethod());  // Using blank value for Bank Account No.
 
         // Verify.
         CustomerBillCard.Control1901848907.TotalPayments.AssertEquals(0);  // Value 0 required for TotalPayments.
@@ -282,7 +282,7 @@ codeunit 144055 "UT PAG Auto Payment"
         CalcBalanceOnCustomerBillCard(CustomerBillHeader.Type::"Bills Subject To Collection");
     end;
 
-    local procedure CalcBalanceOnCustomerBillCard(Type: Option)
+    local procedure CalcBalanceOnCustomerBillCard(Type: Enum "Customer Bill Type")
     var
         CustomerBillHeader: Record "Customer Bill Header";
         GLAccount: Record "G/L Account";
@@ -293,9 +293,9 @@ codeunit 144055 "UT PAG Auto Payment"
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLAccount."No.");
         GLAccount.CalcFields(Balance);
-        CreateCustomerBillHeaderWithLine(CustomerBillHeader, CreateBankAccount, CreatePaymentMethod, Type);
+        CreateCustomerBillHeaderWithLine(CustomerBillHeader, CreateBankAccount(), CreatePaymentMethod(), Type);
         CreateBillPostingGroup(GLAccount."No.", CustomerBillHeader."Bank Account No.", CustomerBillHeader."Payment Method Code");
-        CustomerBillCard.OpenEdit;
+        CustomerBillCard.OpenEdit();
 
         // Exercise.
         CustomerBillCard.FILTER.SetFilter("No.", CustomerBillHeader."No.");
@@ -322,7 +322,7 @@ codeunit 144055 "UT PAG Auto Payment"
     begin
         // Purpose of the test is to validate OnAction SuggestCustomerBill trigger of Page - 12175 Customer Bill Card without Bank Account No.
         Initialize();
-        SuggestCustomerBillOnCustomerBillCard(CreatePaymentMethod);
+        SuggestCustomerBillOnCustomerBillCard(CreatePaymentMethod());
     end;
 
     local procedure SuggestCustomerBillOnCustomerBillCard(PaymentMethod: Code[10])
@@ -333,7 +333,7 @@ codeunit 144055 "UT PAG Auto Payment"
         CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, '', PaymentMethod);  // Using blank value for Bank Account No.
 
         // Exercise.
-        asserterror CustomerBillCard.SuggestCustomerBill.Invoke;
+        asserterror CustomerBillCard.SuggestCustomerBill.Invoke();
 
         // Verify: Verify expected error code, actual error:"XXXX must have a value in Customer Bill Header:XXXX. It cannot be zero or empty."
         Assert.ExpectedErrorCode(TestFieldErr);
@@ -352,10 +352,10 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup.
         Initialize();
-        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
+        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount(), CreatePaymentMethod());
 
         // Exercise.
-        CustomerBillCard.SuggestCustomerBill.Invoke;  // Opens SuggestCustomerBillsRequestPageHandler
+        CustomerBillCard.SuggestCustomerBill.Invoke();  // Opens SuggestCustomerBillsRequestPageHandler
 
         // Verify: SuggestCustomerBillsRequestPageHandler successfully opened.
         CustomerBillCard.Close();
@@ -375,10 +375,10 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup.
         Initialize();
-        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
+        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount(), CreatePaymentMethod());
 
         // Exercise.
-        DirectDebitCollection.CreateRecord(CustomerBillCard."No.".Value, '', 0);
+        DirectDebitCollection.CreateRecord(CustomerBillCard."No.".Value, '', "Partner Type"::" ");
         DirectDebitCollection."Source Table ID" := DATABASE::"Customer Bill Header";
         DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
@@ -400,10 +400,10 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup.
         Initialize();
-        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
+        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount(), CreatePaymentMethod());
 
         // Exercise.
-        asserterror CustomerBillCard.TestReport.Invoke;
+        asserterror CustomerBillCard.TestReport.Invoke();
 
         // Verify: Verify expected error code, actual error:"Line XXXX has Amount equal to 0."
         Assert.ExpectedErrorCode(DialogErr);
@@ -425,7 +425,7 @@ codeunit 144055 "UT PAG Auto Payment"
         CustomerBillCard.OpenNew();
 
         // Exercise.
-        CustomerBillCard."No.".AssistEdit;
+        CustomerBillCard."No.".AssistEdit();
 
         // Verify.
         Assert.AreNotEqual('', Format(CustomerBillCard."No."), StrSubstNo(FieldMustNotBeEmptyErr, CustomerBillCard."No.".Caption));  // Using blank value for Customer Bill Card No.
@@ -442,10 +442,10 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup.
         Initialize();
-        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
+        CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount(), CreatePaymentMethod());
 
         // Exercise.
-        asserterror CustomerBillCard.CustomerBillLine.SelectBillToRecall.Invoke;
+        asserterror CustomerBillCard.CustomerBillLine.SelectBillToRecall.Invoke();
 
         // Verify: Verify expected error code, actual error:"You can run this function only when field Allow Issue in table Bill is Yes."
         Assert.ExpectedErrorCode(DialogErr);
@@ -464,11 +464,11 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup.
         Initialize();
-        VendorBillListSentCard.OpenEdit;
-        VendorBillListSentCard."No.".AssistEdit;
+        VendorBillListSentCard.OpenEdit();
+        VendorBillListSentCard."No.".AssistEdit();
 
         // Exercise.
-        VendorBillListSentCard.Print.Invoke;  // Opens VendorBillReportHandler.
+        VendorBillListSentCard.Print.Invoke();  // Opens VendorBillReportHandler.
 
         // Verify: VendorBillReportHandler successfully opened.
         VendorBillListSentCard.Close();
@@ -486,10 +486,10 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup.
         Initialize();
-        VendorBillListSentCard.OpenEdit;
+        VendorBillListSentCard.OpenEdit();
 
         // Exercise.
-        VendorBillListSentCard.CancelList.Invoke;
+        VendorBillListSentCard.CancelList.Invoke();
 
         // Verify: Verification is done in ConfirmHandler.
         VendorBillListSentCard.Close();
@@ -507,11 +507,11 @@ codeunit 144055 "UT PAG Auto Payment"
 
         // Setup.
         Initialize();
-        VendorBillCard.OpenEdit;
-        VendorBillCard."No.".AssistEdit;
+        VendorBillCard.OpenEdit();
+        VendorBillCard."No.".AssistEdit();
 
         // Exercise.
-        VendorBillCard.Print.Invoke;  // Opens VendorBillReportHandler.
+        VendorBillCard.Print.Invoke();  // Opens VendorBillReportHandler.
 
         // Verify: VendorBillReportHandler successfully opened.
         VendorBillCard.Close();
@@ -580,8 +580,8 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
-        BankAccount."Bank Acc. Posting Group" := CreateBankAccountPostingGroup;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
+        BankAccount."Bank Acc. Posting Group" := CreateBankAccountPostingGroup();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -590,7 +590,7 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        BankAccountPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        BankAccountPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         BankAccountPostingGroup.Insert();
         exit(BankAccountPostingGroup.Code);
     end;
@@ -599,7 +599,7 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         Bill: Record Bill;
     begin
-        Bill.Code := LibraryUTUtility.GetNewCode;
+        Bill.Code := LibraryUTUtility.GetNewCode();
         Bill."Allow Issue" := false;  // As required by the test case using FALSE for Allow Issue.
         Bill.Insert();
         exit(Bill.Code);
@@ -621,15 +621,15 @@ codeunit 144055 "UT PAG Auto Payment"
         CustomerBillHeader: Record "Customer Bill Header";
     begin
         CreateCustomerBillHeaderWithLine(CustomerBillHeader, BankAccountNo, PaymentMethodCode, CustomerBillHeader.Type::" ");
-        CustomerBillCard.OpenEdit;
+        CustomerBillCard.OpenEdit();
         CustomerBillCard.FILTER.SetFilter("No.", CustomerBillHeader."No.");
     end;
 
-    local procedure CreateCustomerBillHeaderWithLine(var CustomerBillHeader: Record "Customer Bill Header"; BankAccountNo: Code[20]; PaymentMethodCode: Code[10]; Type: Option)
+    local procedure CreateCustomerBillHeaderWithLine(var CustomerBillHeader: Record "Customer Bill Header"; BankAccountNo: Code[20]; PaymentMethodCode: Code[10]; Type: Enum "Customer Bill Type")
     var
         CustomerBillLine: Record "Customer Bill Line";
     begin
-        CustomerBillHeader."No." := LibraryUTUtility.GetNewCode;
+        CustomerBillHeader."No." := LibraryUTUtility.GetNewCode();
         CustomerBillHeader."Bank Account No." := BankAccountNo;
         CustomerBillHeader.Type := Type;
         CustomerBillHeader."Payment Method Code" := PaymentMethodCode;
@@ -643,8 +643,8 @@ codeunit 144055 "UT PAG Auto Payment"
         DimensionSetEntry2: Record "Dimension Set Entry";
         DimensionValue: Record "Dimension Value";
     begin
-        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
-        DimensionValue.Code := LibraryUTUtility.GetNewCode;
+        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode();
+        DimensionValue.Code := LibraryUTUtility.GetNewCode();
         DimensionValue.Insert();
         DimensionSetEntry2.FindLast();
         DimensionSetEntry."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID" + LibraryRandom.RandInt(10);
@@ -656,7 +656,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
     end;
 
@@ -673,7 +673,7 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         IssuedCustomerBillHeader: Record "Issued Customer Bill Header";
     begin
-        IssuedCustomerBillHeader."No." := LibraryUTUtility.GetNewCode;
+        IssuedCustomerBillHeader."No." := LibraryUTUtility.GetNewCode();
         IssuedCustomerBillHeader.Insert();
         IssuedCustomerBillLine."Customer Bill No." := IssuedCustomerBillHeader."No.";
         IssuedCustomerBillLine."Line No." := LibraryRandom.RandInt(10);
@@ -686,7 +686,7 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -695,13 +695,13 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         VendorBillHeader: Record "Vendor Bill Header";
     begin
-        VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
-        VendorBillHeader."Bank Account No." := CreateBankAccount;
-        VendorBillHeader."Vendor Bill List No." := LibraryUTUtility.GetNewCode;
+        VendorBillHeader."No." := LibraryUTUtility.GetNewCode();
+        VendorBillHeader."Bank Account No." := CreateBankAccount();
+        VendorBillHeader."Vendor Bill List No." := LibraryUTUtility.GetNewCode();
         VendorBillHeader.Insert();
         VendorBillLine."Vendor Bill List No." := VendorBillHeader."No.";
-        VendorBillLine."Document No." := LibraryUTUtility.GetNewCode;
-        VendorBillLine."Vendor No." := CreateVendor;
+        VendorBillLine."Document No." := LibraryUTUtility.GetNewCode();
+        VendorBillLine."Vendor No." := CreateVendor();
         VendorBillLine."Dimension Set ID" := DimensionSetID;
         VendorBillLine."Manual Line" := ManualLine;
         VendorBillLine.Insert();
@@ -711,8 +711,8 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        PaymentMethod.Code := LibraryUTUtility.GetNewCode10;
-        PaymentMethod."Bill Code" := CreateBill;
+        PaymentMethod.Code := LibraryUTUtility.GetNewCode10();
+        PaymentMethod."Bill Code" := CreateBill();
         PaymentMethod.Insert();
         exit(PaymentMethod.Code);
     end;
@@ -721,11 +721,11 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         PostedVendorBillHeader: Record "Posted Vendor Bill Header";
     begin
-        PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode;
+        PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode();
         PostedVendorBillHeader.Insert();
         PostedVendorBillLine."Vendor Bill No." := PostedVendorBillHeader."No.";
-        PostedVendorBillLine."Document No." := LibraryUTUtility.GetNewCode;
-        PostedVendorBillLine."Vendor No." := CreateVendor;
+        PostedVendorBillLine."Document No." := LibraryUTUtility.GetNewCode();
+        PostedVendorBillLine."Vendor No." := CreateVendor();
         PostedVendorBillLine."Manual Line" := ManualLine;
         PostedVendorBillLine.Insert();
     end;
@@ -743,9 +743,9 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         VendorBillCard: TestPage "Vendor Bill Card";
     begin
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", No);
-        VendorBillCard.VendorBillLines.InvoiceCard.Invoke;  // Invokes PostedPurchaseInvoiceModalPageHandler.
+        VendorBillCard.VendorBillLines.InvoiceCard.Invoke();  // Invokes PostedPurchaseInvoiceModalPageHandler.
         VendorBillCard.Close();
     end;
 
@@ -753,9 +753,9 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         PostedVendorBillCard: TestPage "Posted Vendor Bill Card";
     begin
-        PostedVendorBillCard.OpenEdit;
+        PostedVendorBillCard.OpenEdit();
         PostedVendorBillCard.FILTER.SetFilter("No.", No);
-        PostedVendorBillCard.SubformPostedVendBillLines.InvoiceCard.Invoke;  // Invokes PostedPurchaseInvoiceModalPageHandler.
+        PostedVendorBillCard.SubformPostedVendBillLines.InvoiceCard.Invoke();  // Invokes PostedPurchaseInvoiceModalPageHandler.
         PostedVendorBillCard.Close();
     end;
 
@@ -763,17 +763,17 @@ codeunit 144055 "UT PAG Auto Payment"
     var
         IssuedCustomerBillCard: TestPage "Issued Customer Bill Card";
     begin
-        IssuedCustomerBillCard.OpenEdit;
+        IssuedCustomerBillCard.OpenEdit();
         IssuedCustomerBillCard.FILTER.SetFilter("No.", No);
-        IssuedCustomerBillCard.BankReceiptsLines.SelectBillToRecall.Invoke;
-        IssuedCustomerBillCard.Close
+        IssuedCustomerBillCard.BankReceiptsLines.SelectBillToRecall.Invoke();
+        IssuedCustomerBillCard.Close();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestCustomerBillsRequestPageHandler(var SuggestCustomerBills: TestRequestPage "Suggest Customer Bills")
     begin
-        SuggestCustomerBills.OK.Invoke;
+        SuggestCustomerBills.OK().Invoke();
     end;
 
     [ReportHandler]
@@ -806,7 +806,7 @@ codeunit 144055 "UT PAG Auto Payment"
     [Scope('OnPrem')]
     procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
-        NoSeriesList.OK.Invoke;
+        NoSeriesList.OK().Invoke();
     end;
 
     [ModalPageHandler]

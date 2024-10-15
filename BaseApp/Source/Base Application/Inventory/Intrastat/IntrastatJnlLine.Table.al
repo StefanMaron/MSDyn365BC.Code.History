@@ -6,12 +6,10 @@ namespace Microsoft.Inventory.Intrastat;
 
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Shipping;
-#if not CLEAN22
-using Microsoft.Inventory.Item;
-#endif
-using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 #if not CLEAN22
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -21,9 +19,7 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Projects.Project.Job;
-#endif
 using Microsoft.Projects.Project.Ledger;
-#if not CLEAN22
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
@@ -45,6 +41,7 @@ table 263 "Intrastat Jnl. Line"
     ObsoleteTag = '25.0';
 #endif
     ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -585,7 +582,6 @@ table 263 "Intrastat Jnl. Line"
         EntryExitPoint: Record "Entry/Exit Point";
         Text12100: Label 'There is no %1 with in the filter.\\Filters: %2';
         Text12101: Label '%1 %2 does not exist.';
-        CompanyInfo: Record "Company Information";
 
     local procedure GetItemDescription()
     var
@@ -731,18 +727,16 @@ table 263 "Intrastat Jnl. Line"
         IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         CalcStartEndDate(StartDate, EndDate);
         DateFilter := Format(StartDate) + '..' + Format(EndDate);
-        with VATEntry do begin
-            SetFilter("Operation Occurred Date", DateFilter);
-            SetRange("EU Service", true);
-            if IntrastatJnlBatch.Type = IntrastatJnlBatch.Type::Purchases then
-                SetRange(Type, VATEntry.Type::Purchase)
-            else
-                SetRange(Type, VATEntry.Type::Sale);
-            if IntrastatJnlBatch."Corrective Entry" then
-                SetRange("Document Type", VATEntry."Document Type"::"Credit Memo")
-            else
-                SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        end;
+        VATEntry.SetFilter("Operation Occurred Date", DateFilter);
+        VATEntry.SetRange("EU Service", true);
+        if IntrastatJnlBatch.Type = IntrastatJnlBatch.Type::Purchases then
+            VATEntry.SetRange(Type, VATEntry.Type::Purchase)
+        else
+            VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        if IntrastatJnlBatch."Corrective Entry" then
+            VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo")
+        else
+            VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
     end;
 
     procedure CalcStartEndDate(var StartDate: Date; var EndDate: Date)
@@ -862,32 +856,28 @@ table 263 "Intrastat Jnl. Line"
         case VATEntry.Type of
             VATEntry.Type::Purchase:
                 begin
-                    with VendLedgEntry do begin
-                        SetCurrentKey("Transaction No.");
-                        SetRange("Transaction No.", VATEntry."Transaction No.");
-                        SetRange("Document No.", VATEntry."Document No.");
-                        SetFilter("Posting Date", '..%1', EndDate);
-                        if FindFirst() then begin
-                            TotalAppliedAmount :=
-                              GetTotalBaseAmount("Transaction No.", "Document No.", VATEntry.Type::Purchase, StartDate, EndDate, IsCorrective);
-                            ClosedEntry := "Closed by Entry No." <> 0;
-                            exit(CalcApplnDtldVendLedgEntry(VendLedgEntry, StartDate, EndDate, ClosedEntry, IsCorrective, TotalAppliedAmount));
-                        end;
+                    VendLedgEntry.SetCurrentKey("Transaction No.");
+                    VendLedgEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
+                    VendLedgEntry.SetRange("Document No.", VATEntry."Document No.");
+                    VendLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
+                    if VendLedgEntry.FindFirst() then begin
+                        TotalAppliedAmount :=
+                          GetTotalBaseAmount(VendLedgEntry."Transaction No.", VendLedgEntry."Document No.", VATEntry.Type::Purchase, StartDate, EndDate, IsCorrective);
+                        ClosedEntry := VendLedgEntry."Closed by Entry No." <> 0;
+                        exit(CalcApplnDtldVendLedgEntry(VendLedgEntry, StartDate, EndDate, ClosedEntry, IsCorrective, TotalAppliedAmount));
                     end;
                 end;
             VATEntry.Type::Sale:
                 begin
-                    with CustLedgEntry do begin
-                        SetCurrentKey("Transaction No.");
-                        SetRange("Transaction No.", VATEntry."Transaction No.");
-                        SetRange("Document No.", VATEntry."Document No.");
-                        SetFilter("Posting Date", '..%1', EndDate);
-                        if FindFirst() then begin
-                            TotalAppliedAmount :=
-                              GetTotalBaseAmount("Transaction No.", "Document No.", VATEntry.Type::Sale, StartDate, EndDate, IsCorrective);
-                            ClosedEntry := "Closed by Entry No." <> 0;
-                            exit(CalcApplnDtldCustLedgEntry(CustLedgEntry, StartDate, EndDate, ClosedEntry, IsCorrective, TotalAppliedAmount));
-                        end;
+                    CustLedgEntry.SetCurrentKey("Transaction No.");
+                    CustLedgEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
+                    CustLedgEntry.SetRange("Document No.", VATEntry."Document No.");
+                    CustLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
+                    if CustLedgEntry.FindFirst() then begin
+                        TotalAppliedAmount :=
+                          GetTotalBaseAmount(CustLedgEntry."Transaction No.", CustLedgEntry."Document No.", VATEntry.Type::Sale, StartDate, EndDate, IsCorrective);
+                        ClosedEntry := CustLedgEntry."Closed by Entry No." <> 0;
+                        exit(CalcApplnDtldCustLedgEntry(CustLedgEntry, StartDate, EndDate, ClosedEntry, IsCorrective, TotalAppliedAmount));
                     end;
                 end;
         end;
@@ -958,23 +948,21 @@ table 263 "Intrastat Jnl. Line"
         VendLedgEntry: Record "Vendor Ledger Entry";
         VATEntry: Record "VAT Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Entry No.", EntryNo);
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            if IsCorrective then
-                SetFilter("Posting Date", '..%1', EndDate)
-            else
-                SetRange("Posting Date", StartDate, EndDate);
+        VendLedgEntry.SetRange("Entry No.", EntryNo);
+        VendLedgEntry.SetFilter("Document Type", '%1|%2', VendLedgEntry."Document Type"::Invoice, VendLedgEntry."Document Type"::"Credit Memo");
+        if IsCorrective then
+            VendLedgEntry.SetFilter("Posting Date", '..%1', EndDate)
+        else
+            VendLedgEntry.SetRange("Posting Date", StartDate, EndDate);
 
-            if FindFirst() then begin
-                if IsCorrective then
-                    ClosedEntry := ClosedEntry and ("Closed by Entry No." <> 0);
-                if ClosedEntry then
-                    TotalAppliedAmount := 0
-                else
-                    TotalAppliedAmount +=
-                      GetTotalBaseAmount("Transaction No.", "Document No.", VATEntry.Type::Purchase, StartDate, EndDate, IsCorrective);
-            end;
+        if VendLedgEntry.FindFirst() then begin
+            if IsCorrective then
+                ClosedEntry := ClosedEntry and (VendLedgEntry."Closed by Entry No." <> 0);
+            if ClosedEntry then
+                TotalAppliedAmount := 0
+            else
+                TotalAppliedAmount +=
+                  GetTotalBaseAmount(VendLedgEntry."Transaction No.", VendLedgEntry."Document No.", VATEntry.Type::Purchase, StartDate, EndDate, IsCorrective);
         end;
     end;
 
@@ -983,23 +971,21 @@ table 263 "Intrastat Jnl. Line"
         CustLedgEntry: Record "Cust. Ledger Entry";
         VATEntry: Record "VAT Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Entry No.", EntryNo);
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            if IsCorrective then
-                SetFilter("Posting Date", '..%1', EndDate)
-            else
-                SetRange("Posting Date", StartDate, EndDate);
+        CustLedgEntry.SetRange("Entry No.", EntryNo);
+        CustLedgEntry.SetFilter("Document Type", '%1|%2', CustLedgEntry."Document Type"::Invoice, CustLedgEntry."Document Type"::"Credit Memo");
+        if IsCorrective then
+            CustLedgEntry.SetFilter("Posting Date", '..%1', EndDate)
+        else
+            CustLedgEntry.SetRange("Posting Date", StartDate, EndDate);
 
-            if FindFirst() then begin
-                if IsCorrective then
-                    ClosedEntry := ClosedEntry and ("Closed by Entry No." <> 0);
-                if ClosedEntry then
-                    TotalAppliedAmount := 0
-                else
-                    TotalAppliedAmount +=
-                      GetTotalBaseAmount("Transaction No.", "Document No.", VATEntry.Type::Sale, StartDate, EndDate, IsCorrective);
-            end;
+        if CustLedgEntry.FindFirst() then begin
+            if IsCorrective then
+                ClosedEntry := ClosedEntry and (CustLedgEntry."Closed by Entry No." <> 0);
+            if ClosedEntry then
+                TotalAppliedAmount := 0
+            else
+                TotalAppliedAmount +=
+                  GetTotalBaseAmount(CustLedgEntry."Transaction No.", CustLedgEntry."Document No.", VATEntry.Type::Sale, StartDate, EndDate, IsCorrective);
         end;
     end;
 
@@ -1007,20 +993,18 @@ table 263 "Intrastat Jnl. Line"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange(Type, TypeFilter);
-            SetRange("Transaction No.", TransactionNo);
-            SetRange("Document No.", DocumentNo);
-            if IsCorrective then
-                SetFilter("Posting Date", '..%1', EndDate)
-            else
-                SetRange("Posting Date", StartDate, EndDate);
+        VATEntry.SetRange(Type, TypeFilter);
+        VATEntry.SetRange("Transaction No.", TransactionNo);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        if IsCorrective then
+            VATEntry.SetFilter("Posting Date", '..%1', EndDate)
+        else
+            VATEntry.SetRange("Posting Date", StartDate, EndDate);
 
-            if FindSet() then
-                repeat
-                    Result += (Base + "Nondeductible Base");
-                until Next() = 0;
-        end;
+        if VATEntry.FindSet() then
+            repeat
+                Result += (VATEntry.Base + VATEntry."Nondeductible Base");
+            until VATEntry.Next() = 0;
     end;
 
     procedure IsOpenedFromBatch(): Boolean

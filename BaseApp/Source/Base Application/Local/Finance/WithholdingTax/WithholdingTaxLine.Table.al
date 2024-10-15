@@ -7,6 +7,7 @@ namespace Microsoft.Finance.WithholdingTax;
 table 12210 "Withholding Tax Line"
 {
     Caption = 'Withholding Tax Line';
+    DataClassification = CustomerContent;
 
     fields
     {

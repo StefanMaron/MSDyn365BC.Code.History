@@ -5,6 +5,7 @@ using Microsoft.Finance.Dimension;
 table 364 "Analysis View Filter"
 {
     Caption = 'Analysis View Filter';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -47,11 +48,9 @@ table 364 "Analysis View Filter"
     begin
         AnalysisView.Get("Analysis View Code");
         AnalysisView.TestField(Blocked, false);
-        with AnalysisView do begin
-            ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Code"));
-            AnalysisViewReset();
-            Modify();
-        end;
+        AnalysisView.ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Code"));
+        AnalysisView.AnalysisViewReset();
+        AnalysisView.Modify();
     end;
 
     trigger OnInsert()
@@ -80,20 +79,18 @@ table 364 "Analysis View Filter"
         AnalysisView.Get("Analysis View Code");
         AnalysisView.TestField(Blocked, false);
         if (AnalysisView."Last Entry No." <> 0) and (xRec."Dimension Code" <> "Dimension Code")
-        then
-            with AnalysisView do begin
-                ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Code"));
-                AnalysisViewReset();
-                "Dimension Value Filter" := '';
-                Modify();
-            end;
+        then begin
+            AnalysisView.ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Code"));
+            AnalysisView.AnalysisViewReset();
+            "Dimension Value Filter" := '';
+            AnalysisView.Modify();
+        end;
         if (AnalysisView."Last Entry No." <> 0) and (xRec."Dimension Value Filter" <> "Dimension Value Filter")
-        then
-            with AnalysisView do begin
-                ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Value Filter"));
-                AnalysisViewReset();
-                Modify();
-            end;
+        then begin
+            AnalysisView.ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Value Filter"));
+            AnalysisView.AnalysisViewReset();
+            AnalysisView.Modify();
+        end;
     end;
 }
 

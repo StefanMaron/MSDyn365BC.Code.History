@@ -32,11 +32,11 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         Initialize();
 
         LibraryApplicationArea.EnableFoundationSetup();
-        SalesReceivablesSetupPage.OpenEdit;
-        Assert.IsTrue(SalesReceivablesSetupPage."Fattura PA Electronic Format".Editable, '');
-        Assert.IsTrue(SalesReceivablesSetupPage."Fattura PA Electronic Format".Visible, '');
-        Assert.IsTrue(SalesReceivablesSetupPage."Validate Document On Posting".Editable, '');
-        Assert.IsTrue(SalesReceivablesSetupPage."Validate Document On Posting".Visible, '');
+        SalesReceivablesSetupPage.OpenEdit();
+        Assert.IsTrue(SalesReceivablesSetupPage."Fattura PA Electronic Format".Editable(), '');
+        Assert.IsTrue(SalesReceivablesSetupPage."Fattura PA Electronic Format".Visible(), '');
+        Assert.IsTrue(SalesReceivablesSetupPage."Validate Document On Posting".Editable(), '');
+        Assert.IsTrue(SalesReceivablesSetupPage."Validate Document On Posting".Visible(), '');
 
         // Default demo data values: "Fattura PA Electronic Format" = "FATTURAPA", "Validate Document On Posting" = FALSE
         SalesReceivablesSetupPage."Fattura PA Electronic Format".AssertEquals(FatturaPATxt);
@@ -54,10 +54,10 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [SCENARIO 259342] Page 5919 "Service Mgt. Setup" has field "Validate Document On Posting"
         Initialize();
 
-        LibraryApplicationArea.EnableServiceManagementSetup;
-        ServiceMgtSetup.OpenEdit;
-        Assert.IsTrue(ServiceMgtSetup."Validate Document On Posting".Editable, '');
-        Assert.IsTrue(ServiceMgtSetup."Validate Document On Posting".Visible, '');
+        LibraryApplicationArea.EnableServiceManagementSetup();
+        ServiceMgtSetup.OpenEdit();
+        Assert.IsTrue(ServiceMgtSetup."Validate Document On Posting".Editable(), '');
+        Assert.IsTrue(ServiceMgtSetup."Validate Document On Posting".Visible(), '');
 
         // Default demo data value: "Validate Document On Posting" = FALSE
         ServiceMgtSetup."Validate Document On Posting".AssertEquals(false);
@@ -77,7 +77,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
 
         SalesReceivablesSetup.Get();
         asserterror SalesReceivablesSetup.Validate("Validate Document On Posting", true);
-        VerifyTestFieldOnFatturaPACode;
+        VerifyTestFieldOnFatturaPACode();
     end;
 
     [Test]
@@ -99,7 +99,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Validate Document On Posting", false);
         asserterror SalesReceivablesSetup.Validate("Validate Document On Posting", true);
-        VerifyRecordNotFoundSalesValidation;
+        VerifyRecordNotFoundSalesValidation();
     end;
 
     [Test]
@@ -166,7 +166,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
 
         ServiceMgtSetup.Get();
         asserterror ServiceMgtSetup.Validate("Validate Document On Posting", true);
-        VerifyTestFieldOnFatturaPACode;
+        VerifyTestFieldOnFatturaPACode();
     end;
 
     [Test]
@@ -188,7 +188,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         ServiceMgtSetup.Get();
         ServiceMgtSetup.TestField("Validate Document On Posting", false);
         asserterror ServiceMgtSetup.Validate("Validate Document On Posting", true);
-        VerifyRecordNotFoundServiceValidation;
+        VerifyRecordNotFoundServiceValidation();
     end;
 
     [Test]
@@ -259,7 +259,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
 
         // [GIVEN] Sales invoice for customer with typed "PA Code", typed Payment Method
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -287,7 +287,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), '');
 
         // [WHEN] Post the document
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostSalesInvoiceUI(SalesHeader);
 
         // [THEN] An Error Message Log is shown with "Payment Method Code" field
@@ -311,7 +311,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
 
         // [GIVEN] Sales invoice for customer with blanked "PA Code", typed Payment Method
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo(''), CreatePaymentMethod);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo(''), CreatePaymentMethod());
 
         // [WHEN] Post the document
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -362,13 +362,13 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibrarySales.SetFatturaPAElectronicFormat('');
 
         // [GIVEN] Sales invoice for customer with typed "PA Code", typed Payment Method
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] There is a TestField error on blanked "Fattura PA Electronic Format"
-        VerifyTestFieldOnFatturaPACode;
+        VerifyTestFieldOnFatturaPACode();
     end;
 
     [Test]
@@ -389,13 +389,13 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
             ElectronicDocumentFormat.Delete();
 
         // [GIVEN] Sales invoice for customer with typed "PA Code", typed Payment Method
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] There is a RecordNotFound error on GET Electronic Document Format with Code="Fattura PA Electronic Format", Usage="Sales Validation"
-        VerifyRecordNotFoundSalesValidation;
+        VerifyRecordNotFoundSalesValidation();
 
         // Tear Down
         LibraryITLocalization.InsertFatturaElectronicFormats(FatturaPATxt);
@@ -418,7 +418,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibrarySales.SetValidateDocumentOnPosting(false);
 
         // [GIVEN] Sales invoice for customer with typed "PA Code", typed Payment Method
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -470,7 +470,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibrarySales.SetValidateDocumentOnPosting(false);
 
         // [GIVEN] Sales invoice for customer with blanked "PA Code", typed Payment Method
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo(''), CreatePaymentMethod);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo(''), CreatePaymentMethod());
 
         // [WHEN] Post the document
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -522,7 +522,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
 
         // [GIVEN] Sales credit memo for customer with typed "PA Code", typed Payment Method
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -550,7 +550,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomerNo('1234567'), '');
 
         // [WHEN] Post the document
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostSalesCrMemoUI(SalesHeader);
 
         // [THEN] An Error Message Log is shown with "Payment Method Code" field
@@ -572,7 +572,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
 
         // [GIVEN] Service invoice for customer with typed "PA Code", typed Payment Method
-        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -600,7 +600,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), '');
 
         // [WHEN] Post the document
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostServiceInvoiceUI(ServiceHeader);
 
         // [THEN] An Error Message Log is shown with "Payment Method Code" field
@@ -622,7 +622,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
 
         // [GIVEN] Service invoice for customer with blanked "PA Code", typed Payment Method
-        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo(''), CreatePaymentMethod);
+        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo(''), CreatePaymentMethod());
 
         // [WHEN] Post the document
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -671,13 +671,13 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibrarySales.SetFatturaPAElectronicFormat('');
 
         // [GIVEN] Service invoice for customer with typed "PA Code", typed Payment Method
-        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [THEN] There is a TestField error on blanked "Fattura PA Electronic Format"
-        VerifyTestFieldOnFatturaPACode;
+        VerifyTestFieldOnFatturaPACode();
     end;
 
     [Test]
@@ -698,13 +698,13 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
             ElectronicDocumentFormat.Delete();
 
         // [GIVEN] Service invoice for customer with typed "PA Code", typed Payment Method
-        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [THEN] There is a RecordNotFound error on GET Electronic Document Format with Code="Fattura PA Electronic Format", Usage="Service Validation"
-        VerifyRecordNotFoundServiceValidation;
+        VerifyRecordNotFoundServiceValidation();
 
         // Tear Down
         LibraryITLocalization.InsertFatturaElectronicFormats(FatturaPATxt);
@@ -725,7 +725,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibraryService.SetValidateDocumentOnPosting(false);
 
         // [GIVEN] Service invoice for customer with typed "PA Code", typed Payment Method
-        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod);
+        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -773,7 +773,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibraryService.SetValidateDocumentOnPosting(false);
 
         // [GIVEN] Service invoice for customer with blanked "PA Code", typed Payment Method
-        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo(''), CreatePaymentMethod);
+        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNo(''), CreatePaymentMethod());
 
         // [WHEN] Post the document
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -822,7 +822,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
 
         // [GIVEN] Service credit memo for customer with typed "PA Code", typed Payment Method
         CreateServiceDocument(
-          ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCustomerNo('1234567'), CreatePaymentMethod);
+          ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCustomerNo('1234567'), CreatePaymentMethod());
 
         // [WHEN] Post the document
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -850,7 +850,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCustomerNo('1234567'), '');
 
         // [WHEN] Post the document
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostServiceCrMemoUI(ServiceHeader);
 
         // [THEN] An Error Message Log is shown with "Payment Method Code" field
@@ -865,7 +865,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
             exit;
         IsInitialized := true;
 
-        LibraryITLocalization.SetupFatturaPA;
+        LibraryITLocalization.SetupFatturaPA();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
     end;
@@ -876,10 +876,10 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Payment Method Code", PaymentMethodCode);
-        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         SalesHeader.Modify(true);
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
@@ -890,11 +890,11 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
         ServiceHeader.Validate("Payment Method Code", PaymentMethodCode);
-        ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         ServiceHeader.Modify(true);
 
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         ServiceLine.Modify(true);
     end;
@@ -906,48 +906,48 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
 
     local procedure CreatePaymentMethod(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode());
     end;
 
     local procedure CreatePaymentTerms(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode());
     end;
 
     local procedure PostSalesInvoiceUI(SalesHeader: Record "Sales Header")
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.Post.Invoke;
+        SalesInvoice.Post.Invoke();
     end;
 
     local procedure PostSalesCrMemoUI(SalesHeader: Record "Sales Header")
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.Post.Invoke;
+        SalesCreditMemo.Post.Invoke();
     end;
 
     local procedure PostServiceInvoiceUI(ServiceHeader: Record "Service Header")
     var
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.GotoRecord(ServiceHeader);
-        ServiceInvoice.Post.Invoke;
+        ServiceInvoice.Post.Invoke();
     end;
 
     local procedure PostServiceCrMemoUI(ServiceHeader: Record "Service Header")
     var
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        ServiceCreditMemo.Post.Invoke;
+        ServiceCreditMemo.Post.Invoke();
     end;
 
     local procedure VerifyTestFieldOnFatturaPACode()
@@ -1005,7 +1005,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         DummyErrorMessage: Record "Error Message";
         DummySalesHeader: Record "Sales Header";
     begin
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           RecordVariant, DummySalesHeader.FieldNo("Payment Method Code"), DummyErrorMessage."Message Type"::Error);
     end;

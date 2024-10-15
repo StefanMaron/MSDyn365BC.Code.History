@@ -24,7 +24,7 @@ codeunit 144200 "FatturaPA Test"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryErrorMessage: Codeunit "Library - Error Message";
         LibrarySplitVAT: Codeunit "Library - Split VAT";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryITLocalization: Codeunit "Library - IT Localization";
         FatturaDocHelper: Codeunit "Fattura Doc. Helper";
@@ -86,8 +86,8 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Sales Invoice (Customer with "PA Code" = "123456") with no currency
-        CustomerNo := CreateCustomer;
-        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+        CustomerNo := CreateCustomer();
+        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [GIVEN] "LCY Code" is "EUR" in "General Ledger Setup"
@@ -131,8 +131,8 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Sales Invoice with blank item GTIN
-        CustomerNo := CreateCustomer;
-        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+        CustomerNo := CreateCustomer();
+        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
         SalesInvoiceLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
@@ -171,9 +171,9 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Sales Credit Memo and a certificate
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo :=
-          CreateAndPostSalesCrMemo(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+          CreateAndPostSalesCrMemo(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -208,9 +208,9 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Service Invoice
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo :=
-          CreateAndPostServiceInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+          CreateAndPostServiceInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         ServiceInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -245,8 +245,8 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Service Credit Memo
-        CustomerNo := CreateCustomer;
-        DocumentNo := CreateAndPostServiceCrMemo(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms,
+        CustomerNo := CreateCustomer();
+        DocumentNo := CreateAndPostServiceCrMemo(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(),
             CustomerNo);
         ServiceCrMemoHeader.SetRange("No.", DocumentNo);
 
@@ -282,12 +282,12 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Sales] [Invoice] [Batch]
         Initialize();
         // [GIVEN] Two posted Sales Invoices
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo1 :=
-          CreateAndPostSalesInvoice(DocumentRecRef1, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+          CreateAndPostSalesInvoice(DocumentRecRef1, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
 
         DocumentNo2 :=
-          CreateAndPostSalesInvoice(DocumentRecRef2, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+          CreateAndPostSalesInvoice(DocumentRecRef2, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         SalesInvoiceHeader.SetFilter("No.", '%1|%2', DocumentNo1, DocumentNo2);
 
         // [WHEN] The documents are exported to FatturaPA
@@ -297,8 +297,7 @@ codeunit 144200 "FatturaPA Test"
         // [THEN] A zip file is exported
         // [THEN] The zip file contains two FatturaPA XML files
         // [THEN] The two FatturaPA files contains values according to the documents
-        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName,
-          TempBlob, ExportFromType::Sales, CustLedgerEntry."Document Type"::Invoice);
+        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, TempBlob, ExportFromType::Sales, CustLedgerEntry."Document Type"::Invoice);
     end;
 
     [Test]
@@ -321,13 +320,13 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] Two posted Service Invoices
-        CustomerNo1 := CreateCustomer;
+        CustomerNo1 := CreateCustomer();
         DocumentNo1 :=
-          CreateAndPostServiceInvoice(DocumentRecRef1, CreatePaymentMethod, CreatePaymentTerms, CustomerNo1);
+          CreateAndPostServiceInvoice(DocumentRecRef1, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo1);
 
-        CustomerNo2 := CreateCustomer;
+        CustomerNo2 := CreateCustomer();
         DocumentNo2 :=
-          CreateAndPostServiceInvoice(DocumentRecRef2, CreatePaymentMethod, CreatePaymentTerms, CustomerNo2);
+          CreateAndPostServiceInvoice(DocumentRecRef2, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo2);
         ServiceInvoiceHeader.SetFilter("No.", '%1|%2', DocumentNo1, DocumentNo2);
 
         // [WHEN] The documents are exported to FatturaPA
@@ -337,8 +336,7 @@ codeunit 144200 "FatturaPA Test"
         // [THEN] A zip file is exported
         // [THEN] The zip file contains two FatturaPA XML files
         // [THEN] The two FatturaPA files contains values according to the documents
-        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName,
-          TempBlob, ExportFromType::Service, CustLedgerEntry."Document Type"::Invoice);
+        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, TempBlob, ExportFromType::Service, CustLedgerEntry."Document Type"::Invoice);
     end;
 
     [Test]
@@ -359,12 +357,12 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Sales] [Credit Memo] [Batch]
         Initialize();
         // [GIVEN] Two posted Sales Credit Memos
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo1 :=
-          CreateAndPostSalesCrMemo(DocumentRecRef1, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+          CreateAndPostSalesCrMemo(DocumentRecRef1, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
 
         DocumentNo2 :=
-          CreateAndPostSalesCrMemo(DocumentRecRef2, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+          CreateAndPostSalesCrMemo(DocumentRecRef2, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         SalesCrMemoHeader.SetFilter("No.", '%1|%2', DocumentNo1, DocumentNo2);
 
         // [WHEN] The documents are exported to FatturaPA
@@ -374,8 +372,7 @@ codeunit 144200 "FatturaPA Test"
         // [THEN] A zip file is exported
         // [THEN] The zip file contains two FatturaPA XML files
         // [THEN] The two FatturaPA files contains values according to the documents
-        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName, TempBlob,
-          ExportFromType::Sales, CustLedgerEntry."Document Type"::"Credit Memo");
+        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, TempBlob, ExportFromType::Sales, CustLedgerEntry."Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -398,13 +395,13 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] Two posted Service Credit Memos
-        CustomerNo1 := CreateCustomer;
+        CustomerNo1 := CreateCustomer();
         DocumentNo1 :=
-          CreateAndPostServiceCrMemo(DocumentRecRef1, CreatePaymentMethod, CreatePaymentTerms, CustomerNo1);
+          CreateAndPostServiceCrMemo(DocumentRecRef1, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo1);
 
-        CustomerNo2 := CreateCustomer;
+        CustomerNo2 := CreateCustomer();
         DocumentNo2 :=
-          CreateAndPostServiceCrMemo(DocumentRecRef2, CreatePaymentMethod, CreatePaymentTerms, CustomerNo2);
+          CreateAndPostServiceCrMemo(DocumentRecRef2, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo2);
         ServiceCrMemoHeader.SetFilter("No.", '%1|%2', DocumentNo1, DocumentNo2);
 
         // [WHEN] The documents are exported to FatturaPA
@@ -414,8 +411,7 @@ codeunit 144200 "FatturaPA Test"
         // [THEN] A zip file is exported
         // [THEN] The zip file contains two FatturaPA XML files
         // [THEN] The two FatturaPA files contains values according to the documents
-        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName, TempBlob,
-          ExportFromType::Service, CustLedgerEntry."Document Type"::"Credit Memo");
+        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, TempBlob, ExportFromType::Service, CustLedgerEntry."Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -518,8 +514,8 @@ codeunit 144200 "FatturaPA Test"
         // TFS 388373: Fiscal code of length 16 is allowed
         // TFS 393032: VAT Registration no. is optional
         CreateCleanCustomer(Customer);
-        ClearCompanyInformation;
-        ClearFatturaPANoSeries;
+        ClearCompanyInformation();
+        ClearFatturaPANoSeries();
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CreateCleanTransmissionIntermediary(TransmissionIntermediaryVendor);
 
@@ -528,15 +524,15 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] A sales invoice for the given customer has been PostAndSend
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", '', 5, '', 0D);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostAndSendSalesInvoice(SalesHeader);
 
         // [THEN] Errors are logged for all mandatory fields
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
         AssertSalesHeaderErrorMessages(SalesHeader);
-        AssertCompanyErrorMessages;
+        AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
@@ -562,8 +558,8 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] A clean Tax Representative and transmission intermediary
         // TFS 388373: Fiscal code of length 16 is allowed
         CreateCleanCustomer(Customer);
-        ClearCompanyInformation;
-        ClearFatturaPANoSeries;
+        ClearCompanyInformation();
+        ClearFatturaPANoSeries();
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CreateCleanTransmissionIntermediary(TransmissionIntermediaryVendor);
 
@@ -573,15 +569,15 @@ codeunit 144200 "FatturaPA Test"
         // [WHEN] A sales Credit Memo for the given customer has been PostAndSend
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", Customer."No.", '', 5, '', 0D);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostAndSendSalesCreditMemo(SalesHeader);
 
         // [THEN] Errors are logged for all mandatory fields
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
         AssertSalesHeaderErrorMessages(SalesHeader);
-        AssertCompanyErrorMessages;
+        AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
@@ -606,8 +602,8 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] A clean Tax Representative and transmission intermediary
         // TFS 388373: Fiscal code of length 16 is allowed
         CreateCleanCustomer(Customer);
-        ClearCompanyInformation;
-        ClearFatturaPANoSeries;
+        ClearCompanyInformation();
+        ClearFatturaPANoSeries();
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CreateCleanTransmissionIntermediary(TransmissionIntermediaryVendor);
 
@@ -616,15 +612,15 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] A service invoice for the given customer has been PostAndSend
         CreateServiceHeaderWithoutPaymentInformation(ServiceHeader, Customer."No.", ServiceHeader."Document Type"::Invoice);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostAndSendServiceInvoice(ServiceHeader);
 
         // [THEN] Errors are logged for all mandatory fields
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
         AssertServiceHeaderErrorMessages(ServiceHeader);
-        AssertCompanyErrorMessages;
+        AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
@@ -649,8 +645,8 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] A clean Tax Representative and transmission intermediary
         // TFS 388373: Fiscal code of length 16 is allowed
         CreateCleanCustomer(Customer);
-        ClearCompanyInformation;
-        ClearFatturaPANoSeries;
+        ClearCompanyInformation();
+        ClearFatturaPANoSeries();
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CreateCleanTransmissionIntermediary(TransmissionIntermediaryVendor);
 
@@ -659,15 +655,15 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] A service Credit Memo for the given customer has been PostAndSend
         CreateServiceHeaderWithoutPaymentInformation(ServiceHeader, Customer."No.", ServiceHeader."Document Type"::"Credit Memo");
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostAndSendServiceCreditMemo(ServiceHeader);
 
         // [THEN] Errors are logged for all mandatory fields
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
         AssertServiceHeaderErrorMessages(ServiceHeader);
-        AssertCompanyErrorMessages;
+        AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
@@ -694,8 +690,8 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] Field Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
         CreateCleanCustomer(Customer);
-        ClearCompanyInformation;
-        ClearFatturaPANoSeries;
+        ClearCompanyInformation();
+        ClearFatturaPANoSeries();
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CreateCleanTransmissionIntermediary(TransmissionIntermediaryVendor);
 
@@ -707,16 +703,16 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         asserterror ElectronicDocumentFormat.SendElectronically(TempBlob,
             ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Errors are logged for all mandatory fields
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
         AssertPostedDocumentHeaderErrorMessages(DocumentRecRef);
-        AssertCompanyErrorMessages;
+        AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
@@ -745,8 +741,8 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] No Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
         CreateCleanCustomer(Customer);
-        ClearCompanyInformation;
-        ClearFatturaPANoSeries;
+        ClearCompanyInformation();
+        ClearFatturaPANoSeries();
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CreateCleanTransmissionIntermediary(TransmissionIntermediaryVendor);
 
@@ -758,15 +754,15 @@ codeunit 144200 "FatturaPA Test"
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         asserterror ElectronicDocumentFormat.SendElectronically(TempBlob,
             ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Errors are logged for all mandatory fields
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
-        AssertCompanyErrorMessages;
+        AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
@@ -798,8 +794,8 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] Field Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
         CreateCleanCustomer(Customer);
-        ClearCompanyInformation;
-        ClearFatturaPANoSeries;
+        ClearCompanyInformation();
+        ClearFatturaPANoSeries();
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CreateCleanTransmissionIntermediary(TransmissionIntermediaryVendor);
 
@@ -811,16 +807,16 @@ codeunit 144200 "FatturaPA Test"
         ServiceInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         asserterror ElectronicDocumentFormat.SendElectronically(TempBlob,
             ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Errors are logged for all mandatory fields
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
         AssertPostedDocumentHeaderErrorMessages(DocumentRecRef);
-        AssertCompanyErrorMessages;
+        AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
@@ -849,8 +845,8 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] No Fattura PA Nos is clear in Sales & Receivables Setup
         // [GIVEN] A clean Tax Representative and transmission intermediary
         CreateCleanCustomer(Customer);
-        ClearCompanyInformation;
-        ClearFatturaPANoSeries;
+        ClearCompanyInformation();
+        ClearFatturaPANoSeries();
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CreateCleanTransmissionIntermediary(TransmissionIntermediaryVendor);
 
@@ -862,15 +858,15 @@ codeunit 144200 "FatturaPA Test"
         ServiceCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         asserterror ElectronicDocumentFormat.SendElectronically(TempBlob,
             ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Errors are logged for all mandatory fields
-        LibraryErrorMessage.LoadErrorMessages;
+        LibraryErrorMessage.LoadErrorMessages();
         LibraryErrorMessage.AssertLogIfMessageExists(
           SalesReceivablesSetup, SalesReceivablesSetup.FieldNo("Fattura PA Nos."), ErrorMessage."Message Type"::Error);
-        AssertCompanyErrorMessages;
+        AssertCompanyErrorMessages();
         AssertCustomerErrorMessages(Customer);
         AssertTaxRepresentativeErrorMessages(TaxRepresentativeVendor);
         AssertTransmissionIntermediaryErrorMessages(TransmissionIntermediaryVendor);
@@ -898,8 +894,8 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Sales Invoice.
-        CustomerNo := CreateCustomer;
-        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+        CustomerNo := CreateCustomer();
+        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [GIVEN] The document is exported to FatturaPA.
@@ -928,7 +924,7 @@ codeunit 144200 "FatturaPA Test"
         // [SCENARIO 269121] DatiGenerali has two DatiOrdineAcquisto with RiferimentoNumeroLinea and IdDocumento each when Sales Invoice is posted for two different Shipments.
         // TFS 284906: IDDocumento reported with Customer Purchase Order No. of Sales Invoice
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] Create and post two Sales Orders "SO1" and "SO2" as Shipments.
         // [GIVEN] "SO1" has one Sales Line, "SO2" has two Sales Lines.
@@ -969,7 +965,7 @@ codeunit 144200 "FatturaPA Test"
         // TFS 284906: IDDocumento reported with Customer Purchase Order No. of Sales Invoice
 
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] Create and post Sales Order "SO" with two lines as Shipments.
         CreateAndPostSalesOrderAsShipment(CustomerNo, 2);
@@ -1011,10 +1007,10 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Sales Invoice with "Unit Price" = 150 and "Line Discount %" = 30
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo :=
           CreateAndPostSalesInvWithLineDisc(
-            DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+            DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -1047,10 +1043,10 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Service Invoice with "Unit Price" = 150 and "Line Discount %" = 30
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo :=
           CreateAndPostServiceInvoiceWithLineDisc(
-            DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+            DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         ServiceInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -1084,10 +1080,10 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Sales Credit Memo with "Unit Price" = 150 and "Line Discount %" = 30
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo :=
           CreateAndPostSalesCrMemoWithLineDisc(
-            DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+            DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -1121,10 +1117,10 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Service Invoice with "Unit Price" = 150 and "Line Discount %" = 30
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo :=
           CreateAndPostServiceCrMemoWithLineDisc(
-            DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+            DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         ServiceCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -1153,19 +1149,19 @@ codeunit 144200 "FatturaPA Test"
         Assert.AreEqual(7, MaxStrLen(Customer."PA Code"), '');
 
         // Customer.IsPublicCompany() returns FALSE in case of "PA Code" = ""
-        Assert.IsFalse(Customer.IsPublicCompany, '');
+        Assert.IsFalse(Customer.IsPublicCompany(), '');
 
         // Customer.IsPublicCompany() returns FALSE in case of "PA Code" = "0000000"
         Customer."PA Code" := '0000000';
-        Assert.IsFalse(Customer.IsPublicCompany, '');
+        Assert.IsFalse(Customer.IsPublicCompany(), '');
 
         // Customer.IsPublicCompany() returns FALSE in case of "PA Code" = "1234567"
         Customer."PA Code" := '1234567';
-        Assert.IsFalse(Customer.IsPublicCompany, '');
+        Assert.IsFalse(Customer.IsPublicCompany(), '');
 
         // Customer.IsPublicCompany() returns TRUE in case of "PA Code" = "123456"
         Customer."PA Code" := '123456';
-        Assert.IsTrue(Customer.IsPublicCompany, '');
+        Assert.IsTrue(Customer.IsPublicCompany(), '');
     end;
 
     [Test]
@@ -1187,8 +1183,8 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Sales Invoice (Customer with "PA Code" = "1234567")
-        CustomerNo := CreatePrivateCompanyCustomer;
-        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+        CustomerNo := CreatePrivateCompanyCustomer();
+        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         DummySalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -1225,7 +1221,7 @@ codeunit 144200 "FatturaPA Test"
 
         // [GIVEN] A posted Sales Invoice (Customer with "PA Code" = "0000000", "PEC E-Mail Address" = "private@customer.com")
         CustomerNo := LibraryITLocalization.CreateFatturaCustomerNo(PadStr('', 7, '0'));
-        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo);
+        DocumentNo := CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo);
         DummySalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -1262,7 +1258,7 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] A posted Sales Invoice with 2 lines, one with positive Quantity, second with negative Quantity, both have Unit Price = X
-        CreateAndPostSalesInvoiceWithNegativeLine(UnitPrice, Quantity, DocumentNo, CreatePaymentMethod, CreatePaymentTerms, CreateCustomer);
+        CreateAndPostSalesInvoiceWithNegativeLine(UnitPrice, Quantity, DocumentNo, CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer());
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] A Fattura PA document is created for this Sales Invoice
@@ -1302,8 +1298,8 @@ codeunit 144200 "FatturaPA Test"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice for a local customer
-        CustomerNo := CreateCustomer;
-        SalesInvoiceHeader.SetRange("No.", CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo));
+        CustomerNo := CreateCustomer();
+        SalesInvoiceHeader.SetRange("No.", CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo));
 
         // [WHEN] A Fattura PA document is created for this Sales Invoice
         ElectronicDocumentFormat.SendElectronically(
@@ -1336,7 +1332,7 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] Posted Sales Invoice for a foreign customer
         LibraryERM.CreateCountryRegion(CountryRegion);
         CustomerNo := CreateForeignCustomer(CountryRegion.Code);
-        SalesInvoiceHeader.SetRange("No.", CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo));
+        SalesInvoiceHeader.SetRange("No.", CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo));
 
         // [WHEN] A Fattura PA document is created for this Sales Invoice
         ElectronicDocumentFormat.SendElectronically(
@@ -1630,7 +1626,7 @@ codeunit 144200 "FatturaPA Test"
         CreateCleanTaxRepresentative(TaxRepresentativeVendor);
         CompanyInformation.Get();
         TaxRepresentativeVendor.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
-        TaxRepresentativeVendor.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode);
+        TaxRepresentativeVendor.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode());
         TaxRepresentativeVendor.Modify(true);
 
         // [GIVEN] Sales Invoice with Item.
@@ -1863,8 +1859,8 @@ codeunit 144200 "FatturaPA Test"
         if IsInitialized then
             exit;
 
-        LibraryITLocalization.SetupFatturaPA;
-        InitializeFieldNo;
+        LibraryITLocalization.SetupFatturaPA();
+        InitializeFieldNo();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
@@ -1889,7 +1885,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         for i := 1 to LinesNo do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
             SalesLine.Modify(true);
         end;
@@ -2092,7 +2088,7 @@ codeunit 144200 "FatturaPA Test"
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         Customer.Validate("Country/Region Code", CountryRegionCode);
         Customer.Validate(City, LibraryUtility.GenerateGUID());
         Customer.Validate("Post Code", LibraryUtility.GenerateGUID());
@@ -2113,7 +2109,7 @@ codeunit 144200 "FatturaPA Test"
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         Customer.Validate("VAT Bus. Posting Group", VATBussPostingGroup);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -2134,7 +2130,7 @@ codeunit 144200 "FatturaPA Test"
         SplitVATPostingSetup.Modify(true);
         LibrarySplitVAT.UpdateVATPostingSetupFullVAT(SplitVATPostingSetup);
         CreateInvoiceWithVATPostingSetup(SalesHeader, VATPostingSetup);
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
     end;
 
     local procedure CreateInvoiceWithVATPostingSetup(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup") DocumentNo: Code[20]
@@ -2143,21 +2139,21 @@ codeunit 144200 "FatturaPA Test"
     begin
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithVATBussPostGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod);
-        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod());
+        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         SalesHeader.Modify(true);
         CreateSalesLineWithVATPostingGroup(SalesLine, SalesHeader, SalesLine.Type::Item, VATPostingSetup."VAT Prod. Posting Group");
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);
+        DocumentNo := NoSeriesBatch.GetNextNo(SalesHeader."Posting No. Series");
     end;
 
     local procedure CreatePaymentMethod(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode());
     end;
 
     local procedure CreatePaymentTerms(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode());
     end;
 
     local procedure CreateSalesLineWithVATPostingGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; VATProdPostingGroup: Code[20])
@@ -2181,8 +2177,8 @@ codeunit 144200 "FatturaPA Test"
         SalesGetShipment: Codeunit "Sales-Get Shipment";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod);
-        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod());
+        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         SalesHeader.Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
 
@@ -2204,8 +2200,8 @@ codeunit 144200 "FatturaPA Test"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code,
           VATProductPostingGroup.Code);
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("VAT Transaction Nature", LibrarySplitVAT.CreateVATTransactionNatureCode);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("VAT Transaction Nature", LibrarySplitVAT.CreateVATTransactionNatureCode());
         VATPostingSetup.Modify(true);
     end;
 
@@ -2221,19 +2217,15 @@ codeunit 144200 "FatturaPA Test"
     begin
         case DocumentType of
             CustLedgerEntry."Document Type"::Invoice:
-                begin
-                    if ExportFromType = ExportFromType::Sales then
-                        LineRecRef.Open(DATABASE::"Sales Invoice Line")
-                    else
-                        LineRecRef.Open(DATABASE::"Service Invoice Line");
-                end;
+                if ExportFromType = ExportFromType::Sales then
+                    LineRecRef.Open(DATABASE::"Sales Invoice Line")
+                else
+                    LineRecRef.Open(DATABASE::"Service Invoice Line");
             CustLedgerEntry."Document Type"::"Credit Memo":
-                begin
-                    if ExportFromType = ExportFromType::Sales then
-                        LineRecRef.Open(DATABASE::"Sales Cr.Memo Line")
-                    else
-                        LineRecRef.Open(DATABASE::"Service Cr.Memo Line");
-                end;
+                if ExportFromType = ExportFromType::Sales then
+                    LineRecRef.Open(DATABASE::"Sales Cr.Memo Line")
+                else
+                    LineRecRef.Open(DATABASE::"Service Cr.Memo Line");
         end;
 
         FieldRef := LineRecRef.Field(DocNoFieldNo);
@@ -2339,7 +2331,7 @@ codeunit 144200 "FatturaPA Test"
     local procedure VerifyXMLDefinitionPublicCompany(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
         with TempXMLBuffer do begin
-            Assert.AreEqual(GetElementName, 'p:FatturaElettronica', '');
+            Assert.AreEqual(GetElementName(), 'p:FatturaElettronica', '');
             Assert.AreEqual(GetAttributeValue('versione'), 'FPA12', '');
         end;
     end;
@@ -2347,7 +2339,7 @@ codeunit 144200 "FatturaPA Test"
     local procedure VerifyXMLDefinitionPrivateCompany(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
         with TempXMLBuffer do begin
-            Assert.AreEqual(GetElementName, 'p:FatturaElettronica', '');
+            Assert.AreEqual(GetElementName(), 'p:FatturaElettronica', '');
             Assert.AreEqual(GetAttributeValue('versione'), 'FPR12', '');
         end;
     end;
@@ -2370,7 +2362,7 @@ codeunit 144200 "FatturaPA Test"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        DocNo := HeaderRecRef.Field(DocNoFieldNo).Value;
+        DocNo := HeaderRecRef.Field(DocNoFieldNo).Value();
         case HeaderRecRef.Number of
             DATABASE::"Sales Invoice Header":
                 begin
@@ -2761,7 +2753,7 @@ codeunit 144200 "FatturaPA Test"
             AssertElementValue(TempXMLBuffer, 'UnitaMisura', Format(LineRecRef.Field(UnitOfMeasureFieldNo).Value));
             AssertElementValue(TempXMLBuffer, 'PrezzoUnitario', FormatAmountFromFieldRef(LineRecRef.Field(UnitPriceFieldNo)));
 
-            LineDiscountPct := LineRecRef.Field(LineDiscountPercFieldNo).Value;
+            LineDiscountPct := LineRecRef.Field(LineDiscountPercFieldNo).Value();
             LineDiscountAmount :=
               FatturaDocHelper.CalcInvDiscAmountDividedByQty(LineRecRef, QuantityFieldNo, LineInvDiscAmountFieldNo);
             if (LineDiscountAmount <> 0) or (LineDiscountPct <> 0) then begin
@@ -2790,9 +2782,9 @@ codeunit 144200 "FatturaPA Test"
         with TempXMLBuffer do begin
             FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo');
 
-            Quantity := LineRecRef.Field(QuantityFieldNo).Value;
-            LineAmountIncludingVAT := LineRecRef.Field(LineAmountIncludingVATFieldNo).Value;
-            VATBaseAmount := LineRecRef.Field(VATBaseAmountFieldNo).Value;
+            Quantity := LineRecRef.Field(QuantityFieldNo).Value();
+            LineAmountIncludingVAT := LineRecRef.Field(LineAmountIncludingVATFieldNo).Value();
+            VATBaseAmount := LineRecRef.Field(VATBaseAmountFieldNo).Value();
 
             if (Quantity <> 0) and (LineAmountIncludingVAT <> 0) then begin
                 VatPercFieldNo := 25;
@@ -2851,7 +2843,7 @@ codeunit 144200 "FatturaPA Test"
         end;
     end;
 
-    local procedure VerifyZipArchive(DocumentRecRef1: RecordRef; DocumentRecRef2: RecordRef; ZipClientFileName: Text[250]; TempBlob: Codeunit "Temp Blob"; ExportFromType: Option Sales,Service; DocumentType: Enum "Gen. Journal Document Type")
+    local procedure VerifyZipArchive(DocumentRecRef1: RecordRef; DocumentRecRef2: RecordRef; TempBlob: Codeunit "Temp Blob"; ExportFromType: Option Sales,Service; DocumentType: Enum "Gen. Journal Document Type")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         ZipTempBlob: Codeunit "Temp Blob";
@@ -2873,7 +2865,7 @@ codeunit 144200 "FatturaPA Test"
         ZipTempBlob.CreateInStream(FirstFileInStream);
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(1)));
         TempXMLBuffer.LoadFromStream(FirstFileInStream);
-        CustomerNo1 := DocumentRecRef1.Field(CustomerNoFieldNo).Value;
+        CustomerNo1 := DocumentRecRef1.Field(CustomerNoFieldNo).Value();
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef1, CustomerNo1);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef1, DocumentType, ExportFromType, '', true, '');
         VerifyXSDSchemaForStream(FirstFileInStream);
@@ -2888,7 +2880,7 @@ codeunit 144200 "FatturaPA Test"
         ZipTempBlob.CreateInStream(SecondFileInStream);
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(2)));
         TempXMLBuffer.LoadFromStream(SecondFileInStream);
-        CustomerNo2 := DocumentRecRef2.Field(CustomerNoFieldNo).Value;
+        CustomerNo2 := DocumentRecRef2.Field(CustomerNoFieldNo).Value();
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef2, CustomerNo2);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef2, DocumentType, ExportFromType, '', true, '');
         VerifyXSDSchemaForStream(SecondFileInStream);
@@ -2904,7 +2896,7 @@ codeunit 144200 "FatturaPA Test"
         XsdPath: Text;
         InetRoot: Text;
     BEGIN
-        InetRoot := LibraryUtility.GetInetRoot + InetRootRelativePathTxt;
+        InetRoot := LibraryUtility.GetInetRoot() + InetRootRelativePathTxt;
         SignatureXsdPath := InetRoot + SignatureXSDRelativePathTxt;
         XsdPath := InetRoot + XSDRelativePathTxt;
         LibraryVerifyXMLSchema.SetAdditionalSchemaPath(SignatureXsdPath);
@@ -2959,7 +2951,7 @@ codeunit 144200 "FatturaPA Test"
         LineDiscountAmount: Decimal;
         PricesIncludingVAT: Boolean;
     begin
-        PricesIncludingVAT := LineRecRef.Field(PricesIncludingVATFieldNo).Value;
+        PricesIncludingVAT := LineRecRef.Field(PricesIncludingVATFieldNo).Value();
         if Evaluate(LineDiscountAmount, Format(LineRecRef.Field(LineDiscountAmountFieldNo).Value)) then;
         if PricesIncludingVAT then begin
             if Evaluate(DiscountPerc, Format(LineRecRef.Field(LineDiscountPercFieldNo).Value)) then;
@@ -2972,22 +2964,22 @@ codeunit 144200 "FatturaPA Test"
     begin
         FindNextElement(TempXMLBuffer);
         Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName(),
-          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
+          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName()));
         Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
     end;
 
     local procedure FindNextElement(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
-        if TempXMLBuffer.HasChildNodes then
+        if TempXMLBuffer.HasChildNodes() then
             TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
             if not (TempXMLBuffer.Next() > 0) then begin
-                TempXMLBuffer.GetParent;
+                TempXMLBuffer.GetParent();
                 TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
                 if not (TempXMLBuffer.Next() > 0) then
                     repeat
-                        TempXMLBuffer.GetParent;
+                        TempXMLBuffer.GetParent();
                         TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
                     until (TempXMLBuffer.Next() > 0);
             end;
@@ -3011,43 +3003,43 @@ codeunit 144200 "FatturaPA Test"
     var
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
-        SalesInvoiceList.OpenView;
+        SalesInvoiceList.OpenView();
         SalesInvoiceList.GotoRecord(SalesHeader);
-        SalesInvoiceList.PostAndSend.Invoke;
+        SalesInvoiceList.PostAndSend.Invoke();
     end;
 
     local procedure PostAndSendSalesCreditMemo(SalesHeader: Record "Sales Header")
     var
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
-        SalesCreditMemos.OpenView;
+        SalesCreditMemos.OpenView();
         SalesCreditMemos.GotoRecord(SalesHeader);
-        SalesCreditMemos.PostAndSend.Invoke;
+        SalesCreditMemos.PostAndSend.Invoke();
     end;
 
     local procedure PostAndSendServiceInvoice(ServiceHeader: Record "Service Header")
     var
         ServiceInvoices: TestPage "Service Invoices";
     begin
-        ServiceInvoices.OpenView;
+        ServiceInvoices.OpenView();
         ServiceInvoices.GotoRecord(ServiceHeader);
-        ServiceInvoices.PostAndSend.Invoke;
+        ServiceInvoices.PostAndSend.Invoke();
     end;
 
     local procedure PostAndSendServiceCreditMemo(ServiceHeader: Record "Service Header")
     var
         ServiceCreditMemos: TestPage "Service Credit Memos";
     begin
-        ServiceCreditMemos.OpenView;
+        ServiceCreditMemos.OpenView();
         ServiceCreditMemos.GotoRecord(ServiceHeader);
-        ServiceCreditMemos.PostAndSend.Invoke;
+        ServiceCreditMemos.PostAndSend.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndSendHandlerYes(var PostandSendConfirmation: TestPage "Post and Send Confirmation")
     begin
-        PostandSendConfirmation.Yes.Invoke;
+        PostandSendConfirmation.Yes().Invoke();
     end;
 
     local procedure CreateCleanCustomer(var Customer: Record Customer)
@@ -3202,7 +3194,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
 
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, LibraryRandom.RandIntInRange(1, 100));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInDecimalRange(1, 1000, 2));
         ServiceLine.Modify(true);

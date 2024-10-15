@@ -30,14 +30,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        UpdateAddCurrencySetup;
+        UpdateAddCurrencySetup();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         PmtAmount := InvAmount + LibraryRandom.RandInt(10);  // Over Payment and Before Discount Date.
         DiscountAmount := GetDiscountAmount(InvAmount);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          '', '', CalcDate('<-1D>', GetDueDate));
+          '', '', CalcDate('<-1D>', GetDueDate()));
 
         // Apply Payment Amount more than Invoice value and Verify Discount Amount and Additional-Currency Amount in GL Entry.
         BeforeDiscountDateEntry(
@@ -57,14 +57,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Credit Memo Amount using RANDOM, it can be anything between 10 and 1000, Amount need to always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
         RefAmount := CrMemoAmount + LibraryRandom.RandInt(10);  // Over Refund and Before Discount Date.
         DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate()));
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
-          CurrencyCode, CurrencyCode, CalcDate('<-1D>', GetDueDate));
+          CurrencyCode, CurrencyCode, CalcDate('<-1D>', GetDueDate()));
 
         // Apply Refund Amount more than Credit Memo value and Verify Discount Amount and Additional-Currency Amount in GL Entry.
         BeforeDiscountDateEntry(
@@ -87,8 +87,8 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
-        CurrencyCode2 := CreateCurrency;
+        CurrencyCode := UpdateAddCurrencySetup();
+        CurrencyCode2 := CreateCurrency();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate());
         DiscountAmountLCY := GetDiscountAmount(InvAmountLCY);
@@ -96,7 +96,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmountFCY,
-          CurrencyCode, CurrencyCode2, CalcDate('<-1D>', GetDueDate));
+          CurrencyCode, CurrencyCode2, CalcDate('<-1D>', GetDueDate()));
 
         // Apply Payment Amount more than Invoice value and Verify Discount Amount and Additional-Currency Amount in GL Entry.
         BeforeDiscountDateEntry(
@@ -115,13 +115,13 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        UpdateAddCurrencySetup;
+        UpdateAddCurrencySetup();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -InvAmount,
-          '', '', CalcDate('<-1D>', GetDueDate));
+          '', '', CalcDate('<-1D>', GetDueDate()));
 
         // Apply Payment Amount Equal Invoice value and Verify Discount Amount and Additional-Currency Amount in GL Entry.
         BeforeDiscountDateEntry(
@@ -141,13 +141,13 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        UpdateAddCurrencySetup;
+        UpdateAddCurrencySetup();
         ComputeUnderAmountForMinValue(InvAmount, PmtAmount);
         DiscountAmount := GetDiscountAmount(InvAmount);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          '', '', CalcDate('<-1D>', GetDueDate));
+          '', '', CalcDate('<-1D>', GetDueDate()));
 
         // Apply Payment Amount Equal Invoice value and Verify Discount Amount and Additional-Currency Amount in GL Entry.
         // Watch Expected Discount value calculated as per Delta amount.
@@ -158,7 +158,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         ApplyAndPostCustomerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
 
         // Verify: Verify Discount Amount and Additional-Currency Amount in GL Entry.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
         VerifyCustomerLedgerEntryDisc(DiscountAmount, GenJournalLine."Document No.");
     end;
 
@@ -177,14 +177,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         ComputeUnderAmountForMaxValue(CrMemoAmount, RefAmount);
         CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate());
         DiscountAmountFCY := GetDiscountAmount(CrMemoAmountFCY);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
-          CurrencyCode, CurrencyCode, CalcDate('<-1D>', GetDueDate));
+          CurrencyCode, CurrencyCode, CalcDate('<-1D>', GetDueDate()));
 
         // Apply Refund Amount Under Credit Memo value and Verify Discount Amount and Additional-Currency Amount in GL Entry.
 
@@ -196,7 +196,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         ApplyAndPostCustomerEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document No.");
 
         // Verify: Verify Discount Amount and Additional-Currency Amount in GL Entry.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
 
         VerifyCreditMemoAmountDiscount(-DiscountAmountFCY, GenJournalLine."Document No.");
     end;
@@ -217,19 +217,19 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
-        CurrencyCode2 := CreateCurrency;
+        CurrencyCode := UpdateAddCurrencySetup();
+        CurrencyCode2 := CreateCurrency();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate());
         DiscountAmountLCY := GetDiscountAmount(InvAmountLCY);
         PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate());
 
         // Calculate Payment Amount under Invoice Amount
-        PmtAmount := PmtAmountFCY - (PmtAmountFCY * GetPaymentTolerancePercent / 100) + 1;
+        PmtAmount := PmtAmountFCY - (PmtAmountFCY * GetPaymentTolerancePercent() / 100) + 1;
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          CurrencyCode, CurrencyCode2, CalcDate('<-1D>', GetDueDate));
+          CurrencyCode, CurrencyCode2, CalcDate('<-1D>', GetDueDate()));
 
         // Apply Payment Amount Under Invoice value and Verify Discount Amount and Additional-Currency Amount in GL Entry.
         BeforeDiscountDateEntry(
@@ -251,14 +251,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 1 and 499, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         InvAmount := LibraryRandom.RandInt(499); // To Check Payment Tolerance % taking 499 maximum value.
-        PmtTolAmount := InvAmount * GetPaymentTolerancePercent / 100;
-        PmtAmount := InvAmount - ((InvAmount * GetPaymentTolerancePercent / 100) + GetDiscountAmount(InvAmount));
+        PmtTolAmount := InvAmount * GetPaymentTolerancePercent() / 100;
+        PmtAmount := InvAmount - ((InvAmount * GetPaymentTolerancePercent() / 100) + GetDiscountAmount(InvAmount));
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          '', '', CalcDate('<-1D>', GetDueDate));
+          '', '', CalcDate('<-1D>', GetDueDate()));
 
         // Apply Payment less from Invoice value and Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
         ToleranceDiscountEntry(
@@ -282,17 +282,17 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 500 and 2500, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         CrMemoAmount := 500 * LibraryRandom.RandInt(5); // To check "Max. Payment Tolerance Amount" using 500 to 2500 range.
         CrMemoAmountFCY := LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate());
         DiscountAmount := GetDiscountAmount(CrMemoAmount);
-        RefAmount := CrMemoAmount - (GetMaxPaymentToleranceAmount + DiscountAmount);
+        RefAmount := CrMemoAmount - (GetMaxPaymentToleranceAmount() + DiscountAmount);
         RefAmountFCY := LibraryERM.ConvertCurrency(RefAmount, CurrencyCode, '', WorkDate());
         PmtTolAmount := CrMemoAmountFCY - (RefAmountFCY + GetDiscountAmount(CrMemoAmountFCY));
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
-          CurrencyCode, CurrencyCode, CalcDate('<-1D>', GetDueDate));
+          CurrencyCode, CurrencyCode, CalcDate('<-1D>', GetDueDate()));
 
         // Apply Refund Amount Less Credit Memo value and Verify Discount Amount and Additional-Currency Amount in GL Entry.
         BeforeDiscountDateEntry(
@@ -313,14 +313,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
         PmtAmount := InvAmount + LibraryRandom.RandInt(10);  // Over Payment and within Payment Tolerance Date.
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          '', '', CalcDate('<1D>', GetDueDate));
+          '', '', CalcDate('<1D>', GetDueDate()));
 
         // Apply Payment Over from Invoice value and Verify Payment Discount Tolerance Amount and Additional-Currency Amount in GL Entry.
         ToleranceDiscountEntry(
@@ -342,14 +342,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         CrMemoAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate()));
         RefAmount := CrMemoAmount + LibraryRandom.RandInt(10);  // Over Refund and within Payment Tolerance Date.
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
-          CurrencyCode, CurrencyCode, CalcDate('<1D>', GetDueDate));
+          CurrencyCode, CurrencyCode, CalcDate('<1D>', GetDueDate()));
 
         // Apply Refund Over from Credit Memo value and Verify Payment Discount Tolerance Amount
         // and Additional-Currency Amount in GL Entry.
@@ -375,17 +375,17 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
-        CurrencyCode2 := CreateCurrency;
+        CurrencyCode := UpdateAddCurrencySetup();
+        CurrencyCode2 := CreateCurrency();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate());
-        PmtTolAmount := InvAmountLCY * GetPaymentTolerancePercent / 100;
+        PmtTolAmount := InvAmountLCY * GetPaymentTolerancePercent() / 100;
         PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate()) + (PmtTolAmount + 1);
         DiscountAmount := GetDiscountAmount(InvAmountLCY);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmountFCY,
-          CurrencyCode, CurrencyCode2, CalcDate('<1D>', GetDueDate));
+          CurrencyCode, CurrencyCode2, CalcDate('<1D>', GetDueDate()));
 
         // Apply Payment Over from Invoice value and Verify Payment Discount Tolerance Amount
         // and Additional-Currency Amount in GL Entry.
@@ -407,13 +407,13 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -InvAmount,
-          '', '', CalcDate('<1D>', GetDueDate));
+          '', '', CalcDate('<1D>', GetDueDate()));
 
         // Apply Payment Equal from Invoice value and Verify Payment Discount Tolerance Amount
         // and Additional-Currency Amount in GL Entry.
@@ -436,13 +436,13 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         ComputeUnderAmountForMinValue(InvAmount, PmtAmount);
         DiscountAmount := GetDiscountAmount(InvAmount);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          '', '', CalcDate('<-1D>', ComputeDueDateForGracePeriod));
+          '', '', CalcDate('<-1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Payment Under from Invoice value and Verify Payment Discount Tolerance Amount
         // and Additional-Currency Amount in GL Entry.
@@ -467,13 +467,13 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         ComputeUnderAmountForMaxValue(CrMemoAmount, RefAmount);
         DiscountAmountFCY := GetDiscountAmount(LibraryERM.ConvertCurrency(CrMemoAmount, CurrencyCode, '', WorkDate()));
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
-          CurrencyCode, CurrencyCode, CalcDate('<-1D>', ComputeDueDateForGracePeriod));
+          CurrencyCode, CurrencyCode, CalcDate('<-1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Refund Under from Credit Memo value and Verify Payment Discount Tolerance Amount
         // and Additional-Currency Amount in GL Entry.       
@@ -502,17 +502,17 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
-        CurrencyCode2 := CreateCurrency;
+        CurrencyCode := UpdateAddCurrencySetup();
+        CurrencyCode2 := CreateCurrency();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         InvAmountLCY := LibraryERM.ConvertCurrency(InvAmount, CurrencyCode, '', WorkDate());
         PmtAmountFCY := LibraryERM.ConvertCurrency(InvAmountLCY, '', CurrencyCode2, WorkDate());
         DiscountAmount := GetDiscountAmount(InvAmountLCY);
-        PmtAmount := PmtAmountFCY - (PmtAmountFCY * GetPaymentTolerancePercent / 100) + 1;
+        PmtAmount := PmtAmountFCY - (PmtAmountFCY * GetPaymentTolerancePercent() / 100) + 1;
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          CurrencyCode, CurrencyCode2, CalcDate('<-1D>', ComputeDueDateForGracePeriod));
+          CurrencyCode, CurrencyCode2, CalcDate('<-1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Payment Under from Invoice value and Verify Payment Discount Tolerance Amount
         // and Additional-Currency Amount in GL Entry.
@@ -535,14 +535,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 10 and 1000, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         InvAmount := 10 * LibraryRandom.RandInt(100);
         DiscountAmount := GetDiscountAmount(InvAmount);
         PmtAmount := InvAmount - DiscountAmount;
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          '', '', CalcDate('<-1D>', ComputeDueDateForGracePeriod));
+          '', '', CalcDate('<-1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Payment Equal to Invoice value and Verify Payment Discount Tolerance Amount and Additional-Currency Amount in GL Entry.
         ToleranceDiscountEntry(
@@ -564,14 +564,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 501 and 2500, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         InvAmount := 501 * LibraryRandom.RandInt(5);
-        PmtAmount := InvAmount + GetMaxPaymentToleranceAmount;
-        PmtTolAmount := GetMaxPaymentToleranceAmount;
+        PmtAmount := InvAmount + GetMaxPaymentToleranceAmount();
+        PmtTolAmount := GetMaxPaymentToleranceAmount();
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          '', '', CalcDate('<1D>', ComputeDueDateForGracePeriod));
+          '', '', CalcDate('<1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Payment Over from Invoice value and Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
         ToleranceDiscountEntry(
@@ -594,15 +594,15 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 1 and 499, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         CrMemoAmount := LibraryRandom.RandInt(499); // To Check Payment Tolerance % taking 499 maximum value.
-        RefAmount := CrMemoAmount + (CrMemoAmount * GetPaymentTolerancePercent / 100);
-        RefTolAmount := CrMemoAmount * GetPaymentTolerancePercent / 100;
+        RefAmount := CrMemoAmount + (CrMemoAmount * GetPaymentTolerancePercent() / 100);
+        RefTolAmount := CrMemoAmount * GetPaymentTolerancePercent() / 100;
         RefTolAmountFCY := LibraryERM.ConvertCurrency(RefTolAmount, CurrencyCode, '', WorkDate());
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
-          CurrencyCode, CurrencyCode, CalcDate('<1D>', ComputeDueDateForGracePeriod));
+          CurrencyCode, CurrencyCode, CalcDate('<1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Refund Over from Credit Memo value and Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
         ToleranceDiscountEntry(
@@ -622,12 +622,12 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Maximum Payment Tolerance Amount.
         Initialize();
         GeneralLedgerSetup.Get();
-        UpdateAddCurrencySetup;
+        UpdateAddCurrencySetup();
         InvAmount := 10 * LibraryRandom.RandInt(100);
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -InvAmount,
-          '', '', CalcDate('<1D>', ComputeDueDateForGracePeriod));
+          '', '', CalcDate('<1D>', ComputeDueDateForGracePeriod()));
 
         // Exercise: Apply Payment on Invoice.
         ApplyAndPostCustomerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
@@ -651,14 +651,14 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 500 and 2500, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         InvAmount := 500 * LibraryRandom.RandInt(5); // To Check Max Payment Tolerance Amount taking minimum 500 value.
-        PmtAmount := InvAmount - GetMaxPaymentToleranceAmount;
-        PmtTolAmount := GetMaxPaymentToleranceAmount;
+        PmtAmount := InvAmount - GetMaxPaymentToleranceAmount();
+        PmtTolAmount := GetMaxPaymentToleranceAmount();
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, -PmtAmount,
-          '', '', CalcDate('<1D>', ComputeDueDateForGracePeriod));
+          '', '', CalcDate('<1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Payment Under Invoice value and Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
         ToleranceDiscountEntry(
@@ -681,15 +681,15 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Setup: Calculate Invoice Amount using RANDOM, it can be anything between 1 and 499, Amount always greater than
         // Maximum Payment Tolerance Amount.
         Initialize();
-        CurrencyCode := UpdateAddCurrencySetup;
+        CurrencyCode := UpdateAddCurrencySetup();
         CrMemoAmount := LibraryRandom.RandInt(499); // To Check Payment Tolerance % taking 499 maximum value.
-        RefAmount := CrMemoAmount - (CrMemoAmount * GetPaymentTolerancePercent / 100);
-        RefTolAmount := CrMemoAmount * GetPaymentTolerancePercent / 100;
+        RefAmount := CrMemoAmount - (CrMemoAmount * GetPaymentTolerancePercent() / 100);
+        RefTolAmount := CrMemoAmount * GetPaymentTolerancePercent() / 100;
         RefTolAmountFCY := LibraryERM.ConvertCurrency(RefTolAmount, CurrencyCode, '', WorkDate());
 
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CrMemoAmount, RefAmount,
-          CurrencyCode, CurrencyCode, CalcDate('<1D>', ComputeDueDateForGracePeriod));
+          CurrencyCode, CurrencyCode, CalcDate('<1D>', ComputeDueDateForGracePeriod()));
 
         // Apply Refund Under Credit Memo value and Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
         ToleranceDiscountEntry(
@@ -712,7 +712,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // [SCENARIO 277758] No application post if user choose "No" in "Payment Discount Tolerance Warning" window when apply payment to invoice with discount
 
         Initialize();
-        UpdateAddCurrencySetup;
+        UpdateAddCurrencySetup();
 
         // [GIVEN] Payment Discount Tolerance Warning is set in General Ledger Setup
         LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
@@ -724,13 +724,13 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // [GIVEN] Payment and invoice with possible payment discount tolerance
         CreateAndPostDocumentLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
-          InvAmount, -InvAmount + DiscountAmount, '', '', ComputeDueDateForGracePeriod - 1);
+          InvAmount, -InvAmount + DiscountAmount, '', '', ComputeDueDateForGracePeriod() - 1);
 
         // [GIVEN] "Post Application" invoked from "Apply Customer Ledger Entries" where payment applied to invoice
-        CustomerLedgerEntries.OpenEdit;
+        CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
         CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(GenJournalLine."Document Type"::Payment));
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
 
         // [WHEN] Choose "No" in "Payment Discount Tolerance Warning" window
         // Handles by CancelPaymentDiscToleranceWarningModalPageHandler
@@ -776,7 +776,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         ApplyAndPostCustomerEntry(DocumentType, DocumentNo);
 
         // Verify: Verify Discount Amount and Additional-Currency Amount in GL Entry.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
         VerifyGLEntry(Amount2, DocumentNo);
     end;
 
@@ -867,7 +867,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         LibrarySales: Codeunit "Library - Sales";
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Terms Code", GetPaymentTerms);
+        Customer.Validate("Payment Terms Code", GetPaymentTerms());
         Customer.Modify(true);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         exit(Customer."No.");
@@ -895,7 +895,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // Select Journal Batch Name and Template Name.
         LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, DocumentType, CreateCustomer, Amount, WorkDate(), CurrencyCode);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, DocumentType, CreateCustomer(), Amount, WorkDate(), CurrencyCode);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, DocumentType2, GenJournalLine."Account No.", Amount2, PostingDate, CurrencyCode2);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -915,7 +915,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // To Calculate Payment/Refund value using "Payment Tolerance %" field value from General Ledger Setup need to take fixed
         // higher seed value to 499.
         Amount := LibraryRandom.RandInt(499);
-        Amount2 := Amount - (GetPaymentTolerancePercent + 1);
+        Amount2 := Amount - (GetPaymentTolerancePercent() + 1);
     end;
 
     local procedure ComputeUnderAmountForMaxValue(var Amount: Decimal; var Amount2: Decimal)
@@ -923,7 +923,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         // To Calculate Payment/Refund value using "Max. Payment Tolerance Amount" field value from General Ledger Setup need to take fixed
         // lower seed value to 500.
         Amount := 500 * LibraryRandom.RandInt(5);
-        Amount2 := Amount - ((Amount * GetPaymentTolerancePercent / 100) + 1);
+        Amount2 := Amount - ((Amount * GetPaymentTolerancePercent() / 100) + 1);
     end;
 
     local procedure GetPaymentTerms(): Code[10]
@@ -942,20 +942,20 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     var
         PaymentLines: Record "Payment Lines";
     begin
-        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
+        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms());
         exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate()));
     end;
 
     local procedure GetDiscountAmount(Amount: Decimal): Decimal
     begin
-        exit(Amount * GetDiscountPercent / 100);
+        exit(Amount * GetDiscountPercent() / 100);
     end;
 
     local procedure GetDiscountPercent(): Decimal
     var
         PaymentLines: Record "Payment Lines";
     begin
-        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms);
+        LibraryERM.GetPaymentLines(PaymentLines, GetPaymentTerms());
         exit(PaymentLines."Discount %");
     end;
 
@@ -980,7 +980,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        exit(CalcDate(GeneralLedgerSetup."Payment Discount Grace Period", GetDueDate));
+        exit(CalcDate(GeneralLedgerSetup."Payment Discount Grace Period", GetDueDate()));
     end;
 
     local procedure UpdateAddCurrencySetup() CurrencyCode: Code[10]
@@ -988,7 +988,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Setup 5D for Payment Discount Grace Period, 1 for Payment Tolerance % and 5 for Tolerance Amount.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UpdatePmtTolInGenLedgerSetup(
           CurrencyCode, '<5D>', 1, 5, GeneralLedgerSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts",
           GeneralLedgerSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts");
@@ -1039,16 +1039,16 @@ codeunit 134005 "ERM Payment Tolerance Customer"
     [Scope('OnPrem')]
     procedure ApplyCustLedgerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationModalPageHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     local procedure VerifyPaymentDiscountTolAmount(DocumentNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; EntryType: Enum "Detailed CV Ledger Entry Type")
@@ -1098,7 +1098,6 @@ codeunit 134005 "ERM Payment Tolerance Customer"
 
     local procedure VerifyCustomerLedgerEntryDisc(Amount: Decimal; DocumentNo: Code[20])
     var
-        GLRegister: Record "G/L Register";
         CustomerLedgerEntry: Record "Cust. Ledger Entry";
         Currency: Record Currency;
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1124,7 +1123,6 @@ codeunit 134005 "ERM Payment Tolerance Customer"
 
     local procedure VerifyCreditMemoAmountDiscount(Amount: Decimal; DocumentNo: Code[20])
     var
-        GLRegister: Record "G/L Register";
         CustomerLedgerEntry: Record "Cust. Ledger Entry";
         Currency: Record Currency;
         GeneralLedgerSetup: Record "General Ledger Setup";

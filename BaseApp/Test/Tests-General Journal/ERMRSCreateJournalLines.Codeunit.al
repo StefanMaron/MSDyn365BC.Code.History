@@ -64,7 +64,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with Direct Posting and Account Type as Posting of G/L Account.
         LibraryERM.SetGLAccountDirectPostingFilter(GLAccount);
-        RunCreateGLAccountJournalLines(GLAccount, GenJournalBatch, GenJournalLine."Document Type"::" ", WorkDate(), StandardGeneralJournal.Code);
+        RunCreateGLAccountJournalLines(
+          GLAccount,
+          GenJournalBatch,
+          GenJournalLine."Document Type"::" ",
+          WorkDate(),
+          StandardGeneralJournal.Code);
 
         // 3. Verify: Verify Number of line in General Journal Line.
         VerifyCountGeneralJournalLine(GenJournalBatch, GLAccount.Count);
@@ -139,7 +144,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
         LibraryERM.CreateStandardItemJournal(StandardItemJournal, ItemJournalBatch."Journal Template Name");
 
         // 2. Exercise: Run Report Create Item Journal Lines without any filter.
-        RunCreateItemJournalLines(Item, ItemJournalBatch, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), StandardItemJournal.Code);
+        RunCreateItemJournalLines(
+          Item,
+          ItemJournalBatch,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          WorkDate(),
+          StandardItemJournal.Code);
 
         // 3. Verify: Verify Number of line in Item Journal Line.
         VerifyCountItemJournalLine(ItemJournalBatch, Item.Count);
@@ -165,7 +175,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with G/L Account filter.
         GLAccount.SetRange("No.", GLAccount."No.");
-        RunCreateGLAccountJournalLines(GLAccount, GenJournalBatch, GenJournalLine."Document Type"::" ", WorkDate(), StandardGeneralJournal.Code);
+        RunCreateGLAccountJournalLines(
+          GLAccount,
+          GenJournalBatch,
+          GenJournalLine."Document Type"::" ",
+          WorkDate(),
+          StandardGeneralJournal.Code);
 
         // 3. Verify: Verify Number of line in General Journal Line.
         VerifyCountGeneralJournalLine(GenJournalBatch, GLAccount.Count);
@@ -243,7 +258,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create Item Journal Lines with Item filter.
         Item.SetRange("No.", Item."No.");
-        RunCreateItemJournalLines(Item, ItemJournalBatch, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), StandardItemJournal.Code);
+        RunCreateItemJournalLines(
+          Item,
+          ItemJournalBatch,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          WorkDate(),
+          StandardItemJournal.Code);
 
         // 3. Verify: Verify Number of line in Item Journal Line.
         VerifyCountItemJournalLine(ItemJournalBatch, Item.Count);
@@ -623,7 +643,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create Item Journal Lines with Standard Item Journal.
         Item.SetRange("No.", Item."No.");
-        RunCreateItemJournalLines(Item, ItemJournalBatch, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), StandardItemJournal.Code);
+        RunCreateItemJournalLines(
+          Item,
+          ItemJournalBatch,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          WorkDate(),
+          StandardItemJournal.Code);
 
         // 3. Verify: Verify Number of line in Item Journal Line.
         VerifyCountItemJournalLine(ItemJournalBatch, LineCount);
@@ -650,7 +675,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with G/L Account Filter.
         GLAccount.SetRange("No.", DefaultDimension."No.");
-        RunCreateGLAccountJournalLines(GLAccount, GenJournalBatch, GenJournalLine."Document Type"::" ", WorkDate(), StandardGeneralJournal.Code);
+        RunCreateGLAccountJournalLines(
+          GLAccount,
+          GenJournalBatch,
+          GenJournalLine."Document Type"::" ",
+          WorkDate(),
+          StandardGeneralJournal.Code);
 
         // 3. Verify: Verify Dimension in General Journal Line.
         VerifyDimensionInLine(GenJournalBatch, DefaultDimension);
@@ -732,7 +762,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create Item Journal Lines with Item Filter.
         Item.SetRange("No.", DefaultDimension."No.");
-        RunCreateItemJournalLines(Item, ItemJournalBatch, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), StandardItemJournal.Code);
+        RunCreateItemJournalLines(
+          Item,
+          ItemJournalBatch,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          WorkDate(),
+          StandardItemJournal.Code);
 
         // 3. Verify: Verify Dimension in Item Journal Line.
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch);
@@ -846,7 +881,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with Standard General Journal.
         GLAccount2.SetRange("No.", GLAccount2."No.");
-        RunCreateGLAccountJournalLines(GLAccount2, GenJournalBatch, GenJournalLine."Document Type"::" ", WorkDate(), StandardGeneralJournal.Code);
+        RunCreateGLAccountJournalLines(
+          GLAccount2,
+          GenJournalBatch,
+          GenJournalLine."Document Type"::" ",
+          WorkDate(),
+          StandardGeneralJournal.Code);
 
         // 3. Verify:  Verify Account Number in General Journal Line.
         VerifyAccountInLine(GenJournalBatch, GLAccount2."No.");
@@ -879,7 +919,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create Customer Journal Lines with Standard General Journal.
         Customer2.SetRange("No.", Customer2."No.");
-        RunCreateCustomerJournalLines(Customer2, GenJournalBatch, GenJournalLine."Document Type"::" ", WorkDate(), StandardGeneralJournal.Code);
+        RunCreateCustomerJournalLines(
+          Customer2,
+          GenJournalBatch,
+          GenJournalLine."Document Type"::" ",
+          WorkDate(),
+          StandardGeneralJournal.Code);
 
         // 3. Verify: Verify Account Number in General Journal Line.
         VerifyAccountInLine(GenJournalBatch, Customer2."No.");
@@ -945,7 +990,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create Item Journal Lines with Standard Item Journal.
         Item2.SetRange("No.", Item2."No.");
-        RunCreateItemJournalLines(Item2, ItemJournalBatch, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), StandardItemJournal.Code);
+        RunCreateItemJournalLines(
+          Item2,
+          ItemJournalBatch,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          WorkDate(),
+          StandardItemJournal.Code);
 
         // 3. Verify: Verify Item Number in Item Journal Line.
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch);
@@ -976,7 +1026,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with Document Type.
         GLAccount.SetRange("No.", GLAccount."No.");
-        RunCreateGLAccountJournalLines(GLAccount, GenJournalBatch, GenJournalLine."Document Type"::Invoice, WorkDate(), StandardGeneralJournal.Code);
+        RunCreateGLAccountJournalLines(
+          GLAccount,
+          GenJournalBatch,
+          GenJournalLine."Document Type"::Invoice,
+          WorkDate(),
+          StandardGeneralJournal.Code);
 
         // 3. Verify: Verify Document Type in Item Journal Line.
         VerifyDocumentTypeInLine(GenJournalBatch, GenJournalLine."Document Type"::Invoice);
@@ -1067,7 +1122,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create Item Journal Lines with Entry Type.
         Item.SetRange("No.", Item."No.");
-        RunCreateItemJournalLines(Item, ItemJournalBatch, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), StandardItemJournal.Code);
+        RunCreateItemJournalLines(
+          Item,
+          ItemJournalBatch,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          WorkDate(),
+          StandardItemJournal.Code);
 
         // 3. Verify: Verify Entry Type in Item Journal Line.
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch);
@@ -1102,7 +1162,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with Standard General Journal.
         GLAccount2.SetRange("No.", GLAccount2."No.");
-        RunCreateGLAccountJournalLines(GLAccount2, GenJournalBatch, GenJournalLine."Document Type"::" ", WorkDate(), StandardGeneralJournal.Code);
+        RunCreateGLAccountJournalLines(
+          GLAccount2,
+          GenJournalBatch,
+          GenJournalLine."Document Type"::" ",
+          WorkDate(),
+          StandardGeneralJournal.Code);
 
         // 3. Verify: Verify Blank Dimension in General Journal Line.
         VerifyBlankDimensionInLine(GenJournalBatch);
@@ -1136,7 +1201,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // 2. Exercise: Run Report Create Customer Journal Lines with Standard General Journal.
         Customer2.SetRange("No.", Customer2."No.");
-        RunCreateCustomerJournalLines(Customer2, GenJournalBatch, GenJournalLine."Document Type"::" ", WorkDate(), StandardGeneralJournal.Code);
+        RunCreateCustomerJournalLines(
+          Customer2,
+          GenJournalBatch,
+          GenJournalLine."Document Type"::" ",
+          WorkDate(),
+          StandardGeneralJournal.Code);
 
         // 3. Verify: Verify Blank Dimension in General Journal Line.
         VerifyBlankDimensionInLine(GenJournalBatch);
@@ -1284,10 +1354,10 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // Setup: Find Vendor Posting Group.
         Initialize();
-        VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup);
+        VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup());
 
         // Exercise: Validate Payables Account from G/L Account With Account Type Heading.
-        asserterror VendorPostingGroup.Validate("Payables Account", CreateGLAccWithAccountTypeHeading);
+        asserterror VendorPostingGroup.Validate("Payables Account", CreateGLAccWithAccountTypeHeading());
 
         // Verify: Verify Account Type Error Message.
         Assert.ExpectedError(AccTypeErr);
@@ -1304,7 +1374,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // Setup: Find Vendor Posting Group and Create G/L Account.
         Initialize();
-        VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup);
+        VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup());
         LibraryERM.CreateGLAccount(GLAccount);
 
         // Exercise: Validate Payables Account from G/L Account With Account Type Posting.
@@ -1324,10 +1394,10 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // Setup: Find Vendor Posting Group.
         Initialize();
-        VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup);
+        VendorPostingGroup.Get(LibraryPurchase.FindVendorPostingGroup());
 
         // Exercise: Validate Payables Account from  Blocked G/L Account.
-        asserterror VendorPostingGroup.Validate("Payables Account", CreateBlockedGLAccount);
+        asserterror VendorPostingGroup.Validate("Payables Account", CreateBlockedGLAccount());
 
         // Verify: Verify Account No. in Payables Account.
         Assert.ExpectedError(BlockedErr);
@@ -1337,7 +1407,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
     var
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
-        LibraryDimension: Codeunit "Library - Dimension";
     begin
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
@@ -1440,15 +1509,12 @@ codeunit 136602 "ERM RS Create Journal Lines"
     local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
     var
         ItemJournalTemplate: Record "Item Journal Template";
-        LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
     end;
 
     local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
-    var
-        LibraryInventory: Codeunit "Library - Inventory";
     begin
         // Using the random Amount because value is not important.
         LibraryInventory.CreateItemJournalLine(
@@ -1465,8 +1531,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
         Item: Record Item;
         DimensionValue: Record "Dimension Value";
         Dimension: Record Dimension;
-        LibraryDimension: Codeunit "Library - Dimension";
-        LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryInventory.CreateItem(Item);
         LibraryDimension.FindDimension(Dimension);
@@ -1478,7 +1542,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
     var
         ItemJournalLine: Record "Item Journal Line";
         Item: Record Item;
-        LibraryInventory: Codeunit "Library - Inventory";
         Counter: Integer;
     begin
         LibraryInventory.CreateItem(Item);
@@ -1568,7 +1631,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
     local procedure GetDiscountDate(PaymentTermsCode: Code[10]; DocumentDate: Date): Date
     var
         PaymentLines: Record "Payment Lines";
-        LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.GetPaymentLines(PaymentLines, PaymentTermsCode);
         exit(CalcDate(PaymentLines."Discount Date Calculation", DocumentDate));
@@ -1577,7 +1639,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
     local procedure GetDueDate(PaymentTermsCode: Code[10]; DocumentDate: Date): Date
     var
         PaymentLines: Record "Payment Lines";
-        LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.GetPaymentLines(PaymentLines, PaymentTermsCode);
         exit(CalcDate(PaymentLines."Due Date Calculation", DocumentDate));
@@ -1588,7 +1649,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
     var
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
-        LibraryDimension: Codeunit "Library - Dimension";
     begin
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
@@ -1670,15 +1730,15 @@ codeunit 136602 "ERM RS Create Journal Lines"
     local procedure SaveAsStandardItemJournal(ItemJournalBatch: Record "Item Journal Batch"; "Code": Code[10])
     var
         ItemJournalLine: Record "Item Journal Line";
-        SaveAsStandardItemJournal: Report "Save as Standard Item Journal";
+        SaveAsStandardItemJournalReport: Report "Save as Standard Item Journal";
     begin
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        Clear(SaveAsStandardItemJournal);
-        SaveAsStandardItemJournal.Initialise(ItemJournalLine, ItemJournalBatch);
-        SaveAsStandardItemJournal.InitializeRequest(Code, '', true, true);
-        SaveAsStandardItemJournal.UseRequestPage(false);
-        SaveAsStandardItemJournal.RunModal();
+        Clear(SaveAsStandardItemJournalReport);
+        SaveAsStandardItemJournalReport.Initialise(ItemJournalLine, ItemJournalBatch);
+        SaveAsStandardItemJournalReport.InitializeRequest(Code, '', true, true);
+        SaveAsStandardItemJournalReport.UseRequestPage(false);
+        SaveAsStandardItemJournalReport.RunModal();
     end;
 
     local procedure VerifyAccountInLine(GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20])
@@ -1728,7 +1788,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
         DimensionSetEntry: Record "Dimension Set Entry";
-        LibraryDimension: Codeunit "Library - Dimension";
     begin
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, GenJournalLine."Dimension Set ID");
@@ -1799,7 +1858,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // For this test, we need a direct posting g/l account in the customer posting group and a bank account as a balancing account.
         LibrarySales.CreateCustomer(Customer);
-        Customer."Customer Posting Group" := CreateCustomerPostingGroupWithDirectPostingAccount;
+        Customer."Customer Posting Group" := CreateCustomerPostingGroupWithDirectPostingAccount();
         Customer.Modify(true);
 
         Customer.SetRange("No.", Customer."No.");
@@ -1812,13 +1871,13 @@ codeunit 136602 "ERM RS Create Journal Lines"
 
         // For this test, we need a direct posting g/l account in the customer posting group and a bank account as a balancing account.
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor."Vendor Posting Group" := CreateVendorPostingGroupWithDirectPostingAccount;
+        Vendor."Vendor Posting Group" := CreateVendorPostingGroupWithDirectPostingAccount();
         Vendor.Modify(true);
 
         Vendor.SetRange("No.", Vendor."No.");
     end;
 
-    local procedure CreateCustomerPostingGroupWithDirectPostingAccount(): Code[10]
+    local procedure CreateCustomerPostingGroupWithDirectPostingAccount(): Code[20]
     var
         GLAccount: Record "G/L Account";
         CustomerPostingGroup: Record "Customer Posting Group";
@@ -1833,7 +1892,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         exit(CustomerPostingGroup.Code);
     end;
 
-    local procedure CreateVendorPostingGroupWithDirectPostingAccount(): Code[10]
+    local procedure CreateVendorPostingGroupWithDirectPostingAccount(): Code[20]
     var
         GLAccount: Record "G/L Account";
         VendorPostingGroup: Record "Vendor Posting Group";
@@ -1882,7 +1941,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
     procedure StandardItemJournalHandler(var StandardItemJournal: TestPage "Standard Item Journal")
     var
         Item: Record Item;
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
     begin
         StandardItemJournal.StdItemJnlLines."Item No.".SetValue(LibraryInventory.CreateItem(Item));
@@ -1895,7 +1953,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
     var
         Item: Record Item;
     begin
-        StandardItemJournal.StdItemJnlLines.New; // A new record will be inserted between 1st and the other lines.
+        StandardItemJournal.StdItemJnlLines.New(); // A new record will be inserted between 1st and the other lines.
         StandardItemJournal.StdItemJnlLines."Item No.".SetValue(LibraryInventory.CreateItem(Item));
         StandardItemJournal.StdItemJnlLines.Quantity.SetValue(LibraryRandom.RandDec(100, 2));
     end;

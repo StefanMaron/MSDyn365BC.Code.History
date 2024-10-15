@@ -10,10 +10,10 @@ codeunit 5943 "Lock-OpenServContract"
     end;
 
     var
+        SignServContractDoc: Codeunit SignServContractDoc;
         Text000: Label 'It is not possible to lock this %1 Service %2 because some lines have zero %3.';
         Text001: Label 'It is not possible to open a %1 service contract';
         Text002: Label 'New lines have been added to this contract.\Would you like to continue?';
-        SignServContractDoc: Codeunit SignServContractDoc;
         Text003: Label 'You cannot lock service contract with negative annual amount.';
         Text004: Label 'You cannot lock service contract with zero annual amount when invoice period is different from None.';
 
@@ -27,66 +27,64 @@ codeunit 5943 "Lock-OpenServContract"
         OnBeforeLockServContract(FromServContractHeader);
 
         ServContractHeader := FromServContractHeader;
-        with ServContractHeader do begin
-            if "Change Status" = "Change Status"::Locked then
-                exit;
+        if ServContractHeader."Change Status" = ServContractHeader."Change Status"::Locked then
+            exit;
 
-            IsHandled := false;
-            OnLockServContractOnBeforeCheckAmounts(ServContractHeader, IsHandled);
-            if not IsHandled then begin
-                CalcFields("Calcd. Annual Amount");
-                TestField("Annual Amount", "Calcd. Annual Amount");
-                if "Annual Amount" < 0 then
-                    Error(Text003);
-            end;
-
-            IsHandled := false;
-            OnLockServContractOnBeforeCheckZeroAnnualAmount(ServContractHeader, IsHandled);
-            if not IsHandled then
-                if IsInvoicePeriodInTimeSegment() then
-                    if "Annual Amount" = 0 then
-                        Error(Text004);
-
-            LockTable();
-            IsHandled := false;
-            OnLockServContractOnAfterLockTable(ServContractHeader, IsHandled);
-            if not IsHandled then
-                if ("Contract Type" = "Contract Type"::Contract) and (Status = Status::Signed) then begin
-                    ServContractLine.Reset();
-                    ServContractLine.SetRange("Contract Type", "Contract Type");
-                    ServContractLine.SetRange("Contract No.", "Contract No.");
-                    ServContractLine.SetRange("Line Amount", 0);
-                    ServContractLine.SetFilter("Line Discount %", '<%1', 100);
-                    RaiseError := not ServContractLine.IsEmpty();
-                    OnErrorIfServContractLinesHaveZeroAmount(ServContractHeader, ServContractLine, RaiseError);
-                    if RaiseError then
-                        Error(Text000, Status, "Contract Type", ServContractLine.FieldCaption("Line Amount"));
-                    ServContractLine.Reset();
-                    ServContractLine.SetRange("Contract Type", "Contract Type");
-                    ServContractLine.SetRange("Contract No.", "Contract No.");
-                    ServContractLine.SetRange("New Line", true);
-                    if not ServContractLine.IsEmpty() then
-                        SignServContract(ServContractHeader);
-                end;
-            Get(FromServContractHeader."Contract Type", FromServContractHeader."Contract No.");
-            "Change Status" := "Change Status"::Locked;
-            Modify();
+        IsHandled := false;
+        OnLockServContractOnBeforeCheckAmounts(ServContractHeader, IsHandled);
+        if not IsHandled then begin
+            ServContractHeader.CalcFields("Calcd. Annual Amount");
+            ServContractHeader.TestField("Annual Amount", ServContractHeader."Calcd. Annual Amount");
+            if ServContractHeader."Annual Amount" < 0 then
+                Error(Text003);
         end;
+
+        IsHandled := false;
+        OnLockServContractOnBeforeCheckZeroAnnualAmount(ServContractHeader, IsHandled);
+        if not IsHandled then
+            if ServContractHeader.IsInvoicePeriodInTimeSegment() then
+                if ServContractHeader."Annual Amount" = 0 then
+                    Error(Text004);
+
+        CheckServiceItemBlockedForServiceContractAndItemServiceBlocked(ServContractHeader);
+
+        ServContractHeader.LockTable();
+        IsHandled := false;
+        OnLockServContractOnAfterLockTable(ServContractHeader, IsHandled);
+        if not IsHandled then
+            if (ServContractHeader."Contract Type" = ServContractHeader."Contract Type"::Contract) and (ServContractHeader.Status = ServContractHeader.Status::Signed) then begin
+                ServContractLine.Reset();
+                ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
+                ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
+                ServContractLine.SetRange("Line Amount", 0);
+                ServContractLine.SetFilter("Line Discount %", '<%1', 100);
+                RaiseError := not ServContractLine.IsEmpty();
+                OnErrorIfServContractLinesHaveZeroAmount(ServContractHeader, ServContractLine, RaiseError);
+                if RaiseError then
+                    Error(Text000, ServContractHeader.Status, ServContractHeader."Contract Type", ServContractLine.FieldCaption("Line Amount"));
+                ServContractLine.Reset();
+                ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
+                ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
+                ServContractLine.SetRange("New Line", true);
+                if not ServContractLine.IsEmpty() then
+                    SignServContract(ServContractHeader);
+            end;
+        ServContractHeader.Get(FromServContractHeader."Contract Type", FromServContractHeader."Contract No.");
+        ServContractHeader."Change Status" := ServContractHeader."Change Status"::Locked;
+        ServContractHeader.Modify();
 
         OnAfterLockServContract(ServContractHeader, FromServContractHeader);
     end;
 
     procedure OpenServContract(ServContractHeader: Record "Service Contract Header")
     begin
-        with ServContractHeader do begin
-            if "Change Status" = "Change Status"::Open then
-                exit;
-            LockTable();
-            if (Status = Status::Cancelled) and ("Contract Type" = "Contract Type"::Contract) then
-                Error(Text001, Status);
-            "Change Status" := "Change Status"::Open;
-            Modify();
-        end;
+        if ServContractHeader."Change Status" = ServContractHeader."Change Status"::Open then
+            exit;
+        ServContractHeader.LockTable();
+        if (ServContractHeader.Status = ServContractHeader.Status::Cancelled) and (ServContractHeader."Contract Type" = ServContractHeader."Contract Type"::Contract) then
+            Error(Text001, ServContractHeader.Status);
+        ServContractHeader."Change Status" := ServContractHeader."Change Status"::Open;
+        ServContractHeader.Modify();
 
         OnAfterOpenServContract(ServContractHeader);
     end;
@@ -108,6 +106,21 @@ codeunit 5943 "Lock-OpenServContract"
                 exit;
 
         SignServContractDoc.AddendumToContract(ServContractHeader);
+    end;
+
+    local procedure CheckServiceItemBlockedForServiceContractAndItemServiceBlocked(var ServiceContractHeader: Record "Service Contract Header")
+    var
+        ServiceContractLine: Record "Service Contract Line";
+        ServContractManagement: Codeunit ServContractManagement;
+    begin
+        ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
+        ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceContractLine.SetFilter("Service Item No.", '<>%1', '');
+        if ServiceContractLine.FindSet() then
+            repeat
+                ServContractManagement.CheckServiceItemBlockedForServiceContract(ServiceContractLine);
+                ServContractManagement.CheckItemServiceBlocked(ServiceContractLine);
+            until ServiceContractLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

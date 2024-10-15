@@ -91,7 +91,7 @@ codeunit 143002 "Library - VAT Utils"
             if UsingFiscalCode then
                 Customer."Fiscal Code" := LibraryUtility.GenerateRandomCode(Customer.FieldNo("Fiscal Code"), DATABASE::Customer);
             if Resident = Customer.Resident::"Non-Resident" then
-                Customer.Validate("Country/Region Code", GetCountryCode);
+                Customer.Validate("Country/Region Code", GetCountryCode());
             if not IndividualPerson then
                 Customer.Validate(
                   "VAT Registration No.", LibraryUtility.GenerateRandomCode(Customer.FieldNo("VAT Registration No."), DATABASE::Customer))
@@ -143,12 +143,12 @@ codeunit 143002 "Library - VAT Utils"
         BalAccountType: Enum "Gen. Journal Account Type";
         BalAccountNo: Code[20];
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         case AccountType of
             GenJournalLine."Account Type"::"G/L Account":
                 begin
                     BalAccountType := GenJournalLine."Bal. Account Type"::"Bank Account";
-                    BalAccountNo := FindBankAccount;
+                    BalAccountNo := FindBankAccount();
                 end;
             GenJournalLine."Account Type"::Customer:
                 begin
@@ -213,16 +213,14 @@ codeunit 143002 "Library - VAT Utils"
     [Scope('OnPrem')]
     procedure CreateVATReportHeader(var VATReportHeader: Record "VAT Report Header"; VATReportConfigCode: Option; VATReportType: Option; StartDate: Date; EndDate: Date)
     begin
-        with VATReportHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert(true);
-            Validate("VAT Report Config. Code", VATReportConfigCode);
-            Validate("VAT Report Type", VATReportType);
-            Validate("Start Date", StartDate);
-            Validate("End Date", EndDate);
-            Modify(true);
-        end;
+        VATReportHeader.Init();
+        VATReportHeader."No." := LibraryUtility.GenerateGUID();
+        VATReportHeader.Insert(true);
+        VATReportHeader.Validate("VAT Report Config. Code", VATReportConfigCode);
+        VATReportHeader.Validate("VAT Report Type", VATReportType);
+        VATReportHeader.Validate("Start Date", StartDate);
+        VATReportHeader.Validate("End Date", EndDate);
+        VATReportHeader.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -245,13 +243,13 @@ codeunit 143002 "Library - VAT Utils"
     begin
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
-        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         VATReportSetup.Validate(
           "Intermediary VAT Reg. No.", Format(LibraryRandom.RandIntInRange(10000, 99999)) +
           Format(LibraryRandom.RandIntInRange(100000, 999999)));
         VATReportSetup.Modify(true);
 
-        SetupCompanyInformation;
+        SetupCompanyInformation();
     end;
 
     [Scope('OnPrem')]
@@ -279,7 +277,7 @@ codeunit 143002 "Library - VAT Utils"
             if UsingFiscalCode then
                 Vendor."Fiscal Code" := LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Fiscal Code"), DATABASE::Vendor);
             if Resident = Vendor.Resident::"Non-Resident" then
-                Vendor.Validate("Country/Region Code", GetCountryCode);
+                Vendor.Validate("Country/Region Code", GetCountryCode());
             if not IndividualPerson then
                 Vendor.Validate(
                   "VAT Registration No.", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("VAT Registration No."), DATABASE::Vendor))
@@ -341,18 +339,16 @@ codeunit 143002 "Library - VAT Utils"
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            SetRange("Account Type", "Account Type"::Posting);
-            SetRange("Direct Posting", true);
-            SetRange("Gen. Posting Type", "Gen. Posting Type"::" ");
-            SetRange("Gen. Posting Type", "Gen. Posting Type"::" ");
-            SetFilter("Gen. Bus. Posting Group", '');
-            SetFilter("Gen. Prod. Posting Group", '');
-            SetFilter("VAT Bus. Posting Group", '');
-            SetFilter("VAT Prod. Posting Group", VATProdGroup);
-            FindFirst();
-            exit("No.");
-        end;
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.SetRange("Direct Posting", true);
+        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::" ");
+        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::" ");
+        GLAccount.SetFilter("Gen. Bus. Posting Group", '');
+        GLAccount.SetFilter("Gen. Prod. Posting Group", '');
+        GLAccount.SetFilter("VAT Bus. Posting Group", '');
+        GLAccount.SetFilter("VAT Prod. Posting Group", VATProdGroup);
+        GLAccount.FindFirst();
+        exit(GLAccount."No.");
     end;
 
     [Scope('OnPrem')]
@@ -430,19 +426,17 @@ codeunit 143002 "Library - VAT Utils"
     [Scope('OnPrem')]
     procedure IsCreditMemo(VATEntry: Record "VAT Entry"): Boolean
     begin
-        with VATEntry do
-            exit(
-              ((Type = Type::Sale) and (TotalVATEntryBase(VATEntry) > 0)) or
-              ((Type = Type::Purchase) and (TotalVATEntryBase(VATEntry) < 0)));
+        exit(
+              ((VATEntry.Type = VATEntry.Type::Sale) and (TotalVATEntryBase(VATEntry) > 0)) or
+              ((VATEntry.Type = VATEntry.Type::Purchase) and (TotalVATEntryBase(VATEntry) < 0)));
     end;
 
     [Scope('OnPrem')]
     procedure IsInvoice(VATEntry: Record "VAT Entry"): Boolean
     begin
-        with VATEntry do
-            exit(
-              ((Type = Type::Sale) and (TotalVATEntryBase(VATEntry) < 0)) or
-              ((Type = Type::Purchase) and (TotalVATEntryBase(VATEntry) > 0)));
+        exit(
+              ((VATEntry.Type = VATEntry.Type::Sale) and (TotalVATEntryBase(VATEntry) < 0)) or
+              ((VATEntry.Type = VATEntry.Type::Purchase) and (TotalVATEntryBase(VATEntry) > 0)));
     end;
 
     [Scope('OnPrem')]
@@ -450,15 +444,13 @@ codeunit 143002 "Library - VAT Utils"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            "Fiscal Code" := LibraryUtility.GenerateRandomCode(FieldNo("Fiscal Code"), DATABASE::"Company Information");
-            "VAT Registration No." := Format(LibraryRandom.RandIntInRange(10000, 99999)) +
-              Format(LibraryRandom.RandIntInRange(100000, 999999));
-            Validate(County, LibraryUtility.GenerateRandomCode(FieldNo(County), DATABASE::"Company Information"));
-            Validate("Industrial Classification", '35.11.00');
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation."Fiscal Code" := LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("Fiscal Code"), DATABASE::"Company Information");
+        CompanyInformation."VAT Registration No." := Format(LibraryRandom.RandIntInRange(10000, 99999)) +
+          Format(LibraryRandom.RandIntInRange(100000, 999999));
+        CompanyInformation.Validate(County, LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo(County), DATABASE::"Company Information"));
+        CompanyInformation.Validate("Industrial Classification", '35.11.00');
+        CompanyInformation.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -490,53 +482,47 @@ codeunit 143002 "Library - VAT Utils"
     begin
         EnableUnrealizedVAT(true);
 
-        with VATPostingSetup do begin
-            SetRange("Include in VAT Transac. Rep.", true);
-            FindFirst();
-            Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Sales VAT Unreal. Account", FindGLAccount(''));
-            Validate("Purch. VAT Unreal. Account", FindGLAccount(''));
-            Modify(true);
-        end;
+        VATPostingSetup.SetRange("Include in VAT Transac. Rep.", true);
+        VATPostingSetup.FindFirst();
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", FindGLAccount(''));
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", FindGLAccount(''));
+        VATPostingSetup.Modify(true);
     end;
 
     [Scope('OnPrem')]
     procedure TotalVATEntryBase(VATEntry: Record "VAT Entry"): Decimal
     begin
-        with VATEntry do
-            exit(Base + "Nondeductible Base" + "Unrealized Base");
+        exit(VATEntry.Base + VATEntry."Nondeductible Base" + VATEntry."Unrealized Base");
     end;
 
     [Scope('OnPrem')]
     procedure TotalVATEntryAmount(VATEntry: Record "VAT Entry"): Decimal
     begin
-        with VATEntry do
-            exit(Amount + "Nondeductible Amount" + "Unrealized Amount");
+        exit(VATEntry.Amount + VATEntry."Nondeductible Amount" + VATEntry."Unrealized Amount");
     end;
 
     [Scope('OnPrem')]
     procedure UpdateReqFldsGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; UsingFiscalCode: Boolean)
     begin
         // Update fields required for posting when Incl. in VAT Transac. Report is TRUE.
-        with GenJournalLine do begin
-            if Resident = Resident::"Non-Resident" then
-                Validate("Country/Region Code", GetCountryCode);
+        if GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident" then
+            GenJournalLine.Validate("Country/Region Code", GetCountryCode());
 
-            if "Individual Person" and (Resident = Resident::"Non-Resident") then begin
-                Validate("First Name", LibraryUtility.GenerateRandomCode(FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
-                Validate("Last Name", LibraryUtility.GenerateRandomCode(FieldNo("Last Name"), DATABASE::"Gen. Journal Line"));
-                Validate("Date of Birth", CalcDate('<-' + Format(LibraryRandom.RandInt(100)) + 'Y>'));
-                Validate("Place of Birth", LibraryUtility.GenerateRandomCode(FieldNo("Place of Birth"), DATABASE::"Gen. Journal Line"));
-            end;
-
-            if "Individual Person" and (Resident = Resident::Resident) and UsingFiscalCode then
-                "Fiscal Code" := LibraryUtility.GenerateRandomCode(FieldNo("Fiscal Code"), DATABASE::"Gen. Journal Line"); // Validation skipped.
-
-            if not "Individual Person" and (Resident = Resident::Resident) then
-                "VAT Registration No." := LibraryUtility.GenerateRandomCode(FieldNo("VAT Registration No."), DATABASE::"Gen. Journal Line"); // Validation skipped.
-
-            Modify(true);
+        if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") then begin
+            GenJournalLine.Validate("First Name", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
+            GenJournalLine.Validate("Last Name", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Last Name"), DATABASE::"Gen. Journal Line"));
+            GenJournalLine.Validate("Date of Birth", CalcDate('<-' + Format(LibraryRandom.RandInt(100)) + 'Y>'));
+            GenJournalLine.Validate("Place of Birth", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Place of Birth"), DATABASE::"Gen. Journal Line"));
         end;
+
+        if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::Resident) and UsingFiscalCode then
+            GenJournalLine."Fiscal Code" := LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Fiscal Code"), DATABASE::"Gen. Journal Line");
+        // Validation skipped.
+        if not GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::Resident) then
+            GenJournalLine."VAT Registration No." := LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("VAT Registration No."), DATABASE::"Gen. Journal Line");
+        // Validation skipped.
+        GenJournalLine.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -563,7 +549,7 @@ codeunit 143002 "Library - VAT Utils"
         VATReportLine: Record "VAT Report Line";
     begin
         // Setup.
-        WorkDate(GetPostingDate);
+        WorkDate(GetPostingDate());
 
         SetupThresholdAmount(WorkDate(), UseThreshold);
 
@@ -587,31 +573,27 @@ codeunit 143002 "Library - VAT Utils"
     begin
         // Find VAT Entry.
         VATEntry.Get(VATReportLine."VAT Entry No.");
-
         // Verify VAT Report Line using VAT Entry (W1 fields).
-        with VATReportLine do begin
-            TestField("Posting Date", VATEntry."Posting Date");
-            TestField("Document No.", VATEntry."Document No.");
-            TestField("Document Type", VATEntry."Document Type");
-            TestField(Type, VATEntry.Type);
-            TestField(Base, TotalVATEntryBase(VATEntry));
-            TestField(Amount, TotalVATEntryAmount(VATEntry));
-            TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
-            TestField("Bill-to/Pay-to No.", VATEntry."Bill-to/Pay-to No.");
-            TestField("EU 3-Party Trade", VATEntry."EU 3-Party Trade");
-            TestField("Source Code", VATEntry."Source Code");
-            TestField("Reason Code", VATEntry."Reason Code");
-            TestField("Country/Region Code", VATEntry."Country/Region Code");
-            TestField("Internal Ref. No.", VATEntry."Internal Ref. No.");
-            TestField("Unrealized Amount", 0);
-            TestField("Unrealized Base", 0);
-            TestField("External Document No.", VATEntry."External Document No.");
-            TestField("VAT Registration No.", VATEntry."VAT Registration No.");
-
-            // Verify VAT Report Line using VAT Entry (IT fields).
-            TestField("Operation Occurred Date", VATEntry."Operation Occurred Date");
-            TestField("Amount Incl. VAT", TotalVATEntryBase(VATEntry) + TotalVATEntryAmount(VATEntry));
-        end;
+        VATReportLine.TestField("Posting Date", VATEntry."Posting Date");
+        VATReportLine.TestField("Document No.", VATEntry."Document No.");
+        VATReportLine.TestField("Document Type", VATEntry."Document Type");
+        VATReportLine.TestField(Type, VATEntry.Type);
+        VATReportLine.TestField(Base, TotalVATEntryBase(VATEntry));
+        VATReportLine.TestField(Amount, TotalVATEntryAmount(VATEntry));
+        VATReportLine.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
+        VATReportLine.TestField("Bill-to/Pay-to No.", VATEntry."Bill-to/Pay-to No.");
+        VATReportLine.TestField("EU 3-Party Trade", VATEntry."EU 3-Party Trade");
+        VATReportLine.TestField("Source Code", VATEntry."Source Code");
+        VATReportLine.TestField("Reason Code", VATEntry."Reason Code");
+        VATReportLine.TestField("Country/Region Code", VATEntry."Country/Region Code");
+        VATReportLine.TestField("Internal Ref. No.", VATEntry."Internal Ref. No.");
+        VATReportLine.TestField("Unrealized Amount", 0);
+        VATReportLine.TestField("Unrealized Base", 0);
+        VATReportLine.TestField("External Document No.", VATEntry."External Document No.");
+        VATReportLine.TestField("VAT Registration No.", VATEntry."VAT Registration No.");
+        // Verify VAT Report Line using VAT Entry (IT fields).
+        VATReportLine.TestField("Operation Occurred Date", VATEntry."Operation Occurred Date");
+        VATReportLine.TestField("Amount Incl. VAT", TotalVATEntryBase(VATEntry) + TotalVATEntryAmount(VATEntry));
 
         VerifyVatReportLineRecordId(VATEntry, VATReportLine);
     end;
@@ -648,18 +630,16 @@ codeunit 143002 "Library - VAT Utils"
         VATTransactionReportAmount: Record "VAT Transaction Report Amount";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetRange("Include in VAT Transac. Rep.", true);
-            ModifyAll("Sales Prepayments Account", '', true);
-            ModifyAll("Purch. Prepayments Account", '', true);
-            ModifyAll("Include in VAT Transac. Rep.", false, true);
+        VATPostingSetup.SetRange("Include in VAT Transac. Rep.", true);
+        VATPostingSetup.ModifyAll("Sales Prepayments Account", '', true);
+        VATPostingSetup.ModifyAll("Purch. Prepayments Account", '', true);
+        VATPostingSetup.ModifyAll("Include in VAT Transac. Rep.", false, true);
 
-            Reset();
-            SetFilter("Unrealized VAT Type", '<>%1', "Unrealized VAT Type"::" ");
-            ModifyAll("Sales VAT Unreal. Account", '', true);
-            ModifyAll("Purch. VAT Unreal. Account", '', true);
-            ModifyAll("Unrealized VAT Type", "Unrealized VAT Type"::" ", true);
-        end;
+        VATPostingSetup.Reset();
+        VATPostingSetup.SetFilter("Unrealized VAT Type", '<>%1', VATPostingSetup."Unrealized VAT Type"::" ");
+        VATPostingSetup.ModifyAll("Sales VAT Unreal. Account", '', true);
+        VATPostingSetup.ModifyAll("Purch. VAT Unreal. Account", '', true);
+        VATPostingSetup.ModifyAll("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ", true);
 
         VATTransactionReportAmount.DeleteAll(true);
         EnableUnrealizedVAT(false);

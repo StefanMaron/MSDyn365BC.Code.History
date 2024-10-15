@@ -50,7 +50,7 @@ codeunit 144088 "Decl. of Intent Export Test"
         AmountToDeclare := 1234.56;
 
         // [WHEN] The Declaration of Intent is exported
-        FileName := TemporaryPath + LibraryUtility.GenerateGUID + '.ivi';
+        FileName := TemporaryPath + LibraryUtility.GenerateGUID() + '.ivi';
         ExportFlags[1] := false;
         ExportFlags[2] := false;
         ExportFlags[3] := false;
@@ -154,21 +154,21 @@ codeunit 144088 "Decl. of Intent Export Test"
         CreateCompanyOfficial(SigningCompanyOfficials);
 
         // [GIVEN] "Declaration Of Intent Export" page is open with VAT Exemption for Vendor "B"
-        VendorCard.OpenView;
+        VendorCard.OpenView();
         VendorCard.GotoRecord(Vendor[2]);
-        VATExemptions.Trap;
-        VendorCard."VAT E&xemption".Invoke;
-        DeclarationOfIntentExport.Trap;
-        VATExemptions."Export Decl. of Intent".Invoke;
+        VATExemptions.Trap();
+        VendorCard."VAT E&xemption".Invoke();
+        DeclarationOfIntentExport.Trap();
+        VATExemptions."Export Decl. of Intent".Invoke();
         DeclarationOfIntentExport."Signing Company Officials".SetValue(SigningCompanyOfficials."No.");
         DeclarationOfIntentExport."Amount To Declare".SetValue(1234.56);
         Commit();
 
         // [WHEN] Export file and Print Report "Declaration Of Intent Export"
-        DeclarationOfIntentExport.ExportFileAndPrintReport.Invoke;
+        DeclarationOfIntentExport.ExportFileAndPrintReport.Invoke();
 
         // [THEN] "VAT Exemption Int. Registry No." printed in report is "Y"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('VATExemptIntRegistryNo_Value', VATExemption[2]."VAT Exempt. Int. Registry No.");
     end;
@@ -205,7 +205,7 @@ codeunit 144088 "Decl. of Intent Export Test"
         AmountToDeclare := 1234.56;
 
         // [WHEN] The Declaration of Intent is exported
-        FileName := TemporaryPath + LibraryUtility.GenerateGUID + '.ivi';
+        FileName := TemporaryPath + LibraryUtility.GenerateGUID() + '.ivi';
         ExportFlags[1] := false;
         ExportFlags[2] := false;
         ExportFlags[3] := false;
@@ -308,7 +308,7 @@ codeunit 144088 "Decl. of Intent Export Test"
         B30, B31, B40 : Text[10];
     begin
         CompanyInformation.Get();
-        GetCustomAuthorityValues(B30, B31, B40, Vendor.IsCustomAuthorityVendor);
+        GetCustomAuthorityValues(B30, B31, B40, Vendor.IsCustomAuthorityVendor());
         LibrarySpesometro.VerifyValue(TextFile, 'B', LineNo, 1, 1, ConstFormat::AN); // B-1
         // Assuming the Fiscal Code is set on Company Information:
         LibrarySpesometro.VerifyValue(TextFile, CompanyInformation."Fiscal Code", LineNo, 2, 16, ConstFormat::CF); // B-2
@@ -494,10 +494,10 @@ codeunit 144088 "Decl. of Intent Export Test"
 
     local procedure VerifyDeclOfIntentReport(VATExemption: Record "VAT Exemption"; Vendor: Record Vendor; VendorTaxRepresentative: Record Vendor; SigningCompanyOfficials: Record "Company Officials"; AmountToDeclare: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyDates(VATExemption);
-        VerifyCompanyInfo;
+        VerifyCompanyInfo();
         VerifyVendor(Vendor);
         VerifyVendorTaxRepresentative(VendorTaxRepresentative);
         VerifySigningCompanyOfficials(SigningCompanyOfficials);
@@ -580,14 +580,14 @@ codeunit 144088 "Decl. of Intent Export Test"
         VendorCustomAuthorityFlag: Text[10];
         VendorVATRegNo: Text[20];
     begin
-        if not Vendor.IsCustomAuthorityVendor then
+        if not Vendor.IsCustomAuthorityVendor() then
             if Vendor."Fiscal Code" <> '' then
                 VendorFiscalCode := Vendor."Fiscal Code" // B-41
             else
                 if Vendor."VAT Registration No." <> '' then
                     VendorFiscalCode := Vendor."VAT Registration No."; // B-41
 
-        if not Vendor.IsCustomAuthorityVendor and (Vendor."Last Name" <> '') then begin
+        if not Vendor.IsCustomAuthorityVendor() and (Vendor."Last Name" <> '') then begin
             VendorFirstName := Vendor."First Name";
             VendorName := Vendor."Last Name";
             VendorGender := GetVendorGender(Vendor);
@@ -638,7 +638,7 @@ codeunit 144088 "Decl. of Intent Export Test"
     [Scope('OnPrem')]
     procedure DeclOfIntentReportHandler(var DeclarationOfIntentRequestPage: TestRequestPage "Declaration of Intent Report")
     begin
-        DeclarationOfIntentRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DeclarationOfIntentRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

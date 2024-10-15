@@ -42,21 +42,19 @@ codeunit 134924 "ERM Cues"
 
         // [GIVEN] Several not shipped sales documents with different types and statuses, covering all activities shown in Sales Cue and SB Owner Cue.
         // [GIVEN] Partially and fully shipped sales orders.
-        CreateResponsibilityCenterAndUserSetup;
-        with SalesHeader do begin
-            MockSalesHeader(SalesHeader, "Document Type"::Order, Status::Open);
-            MockSalesHeader(SalesHeader, "Document Type"::Quote, Status::Open);
-            MockSalesHeader(SalesHeader, "Document Type"::Order, Status::Released);
-            MockSalesHeader(SalesHeader, "Document Type"::"Credit Memo", Status::Open);
-            MockSalesHeader(SalesHeader, "Document Type"::"Return Order", Status::Open);
-            CreateShippedSalesOrder(SalesHeader, ShipStatus::Full);
-            CreateShippedSalesOrder(SalesHeader, ShipStatus::Partial);
-        end;
+        CreateResponsibilityCenterAndUserSetup();
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader.Status::Open);
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, SalesHeader.Status::Open);
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader.Status::Released);
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader.Status::Open);
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesHeader.Status::Open);
+        CreateShippedSalesOrder(SalesHeader, ShipStatus::Full);
+        CreateShippedSalesOrder(SalesHeader, ShipStatus::Partial);
 
         // [WHEN] Calculate flow fields in Sales Cue and SB Owner Cue.
         // [THEN] All cues display correct number of corresponding sales documents.
-        VerifySalesCueFlowFields;
-        VerifySBOwnerCueNestedFlowField;
+        VerifySalesCueFlowFields();
+        VerifySBOwnerCueNestedFlowField();
 
         // Bug: 410793
         Parameters.Add('View', SalesCue.GetView());
@@ -77,19 +75,17 @@ codeunit 134924 "ERM Cues"
         Initialize();
 
         // [GIVEN] Several purchase documents with different types and statutes, covering all activities shown in Purchase Cue.
-        CreateResponsibilityCenterAndUserSetup;
-        with PurchHeader do begin
-            CreatePurchDocument("Document Type"::Order, Status::Open, false, false, false);
-            CreatePurchDocument("Document Type"::Order, Status::Released, false, false, false);
-            CreatePurchDocument("Document Type"::Order, Status::Released, true, false, false);
-            CreatePurchDocument("Document Type"::"Return Order", Status::Released, false, false, false);
-            CreatePurchDocument("Document Type"::Order, Status::Released, false, true, false);
-            CreatePurchDocument("Document Type"::Order, Status::Released, false, true, true);
-        end;
+        CreateResponsibilityCenterAndUserSetup();
+        CreatePurchDocument(PurchHeader."Document Type"::Order, PurchHeader.Status::Open, false, false, false);
+        CreatePurchDocument(PurchHeader."Document Type"::Order, PurchHeader.Status::Released, false, false, false);
+        CreatePurchDocument(PurchHeader."Document Type"::Order, PurchHeader.Status::Released, true, false, false);
+        CreatePurchDocument(PurchHeader."Document Type"::"Return Order", PurchHeader.Status::Released, false, false, false);
+        CreatePurchDocument(PurchHeader."Document Type"::Order, PurchHeader.Status::Released, false, true, false);
+        CreatePurchDocument(PurchHeader."Document Type"::Order, PurchHeader.Status::Released, false, true, true);
 
         // [WHEN] Calculate flow fields in Purchase Cue.
         // [THEN] All cues display correct number of corresponding purchase documents.
-        VerifyPurchCueFlowFields;
+        VerifyPurchCueFlowFields();
     end;
 
     [Test]
@@ -98,14 +94,13 @@ codeunit 134924 "ERM Cues"
     procedure ServCueFlowFields()
     var
         ServHeader: Record "Service Header";
-        ServContractHeader: Record "Service Contract Header";
     begin
         // [FEATURE] [Service Cue]
         // [SCENARIO 347046] Cues in Service Cue display number of service documents and service contracts of corresponding type and status.
         Initialize();
 
         // [GIVEN] Several service documents and service contrancts with different types and statutes, covering all activities shown in Service Cue.
-        CreateResponsibilityCenterAndUserSetup;
+        CreateResponsibilityCenterAndUserSetup();
         with ServHeader do begin
             CreateServDocument("Document Type"::Order, Status::"In Process");
             CreateServDocument("Document Type"::Order, Status::Finished);
@@ -117,7 +112,7 @@ codeunit 134924 "ERM Cues"
 
         // [WHEN] Calculate flow fields in Service Cue.
         // [THEN] All cues display correct number of corresponding service documents and service contracts.
-        VerifyServCueFlowFields;
+        VerifyServCueFlowFields();
     end;
 
     [Test]
@@ -131,12 +126,12 @@ codeunit 134924 "ERM Cues"
         Initialize();
 
         // [GIVEN] Create Sales Order, shipped partially, then invoice partially.
-        CreateResponsibilityCenterAndUserSetup;
+        CreateResponsibilityCenterAndUserSetup();
         CreateShippedSalesOrder(SalesHeader, ShipStatus::Partial);
 
         // [WHEN] Calculate flow field "Partially Shipped" in Sales Cue.
         // [THEN] Sales Cue "Partially Shipped" shows total number of 1.
-        VerifySalesCueFlowFieldsPartiallyShipped;
+        VerifySalesCueFlowFieldsPartiallyShipped();
     end;
 
     [Test]
@@ -294,16 +289,16 @@ codeunit 134924 "ERM Cues"
         CreateTwoSalesOrdersWithVariedDateAndShipLines(SalesHeader, Delays);
 
         // [WHEN] Show the list of delayed orders.
-        SalesOrderList.Trap;
+        SalesOrderList.Trap();
         SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
         SalesCue.ShowOrders(SalesCue.FieldNo(Delayed));
 
         // [THEN] Sales Order "S1" is on the list.
-        SalesOrderList.First;
+        SalesOrderList.First();
         SalesOrderList."No.".AssertEquals(SalesHeader[1]."No.");
 
         // [THEN] No more Sales Orders are on the list.
-        Assert.IsFalse(SalesOrderList.Next, RedundantSalesOnListErr);
+        Assert.IsFalse(SalesOrderList.Next(), RedundantSalesOnListErr);
     end;
 
     [Test]
@@ -330,7 +325,7 @@ codeunit 134924 "ERM Cues"
 
         // [WHEN] Calculate "Average Days Delayed".
         SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
-        AverageDelayActual := SalesCue.CalculateAverageDaysDelayed;
+        AverageDelayActual := SalesCue.CalculateAverageDaysDelayed();
 
         // [THEN] "Average Days Delayed" is equal to average delay of "X1" and "Y1"
         // [THEN] (In the example, average delay of "X1" = max(3, 8) = 8, "X2" = max(10, 20) = 20. "Average Days Delayed" = (8 + 20) / 2 = 14 days).
@@ -355,11 +350,11 @@ codeunit 134924 "ERM Cues"
         // [GIVEN] Released Sales Order with fully shipped Sales Line and "Shipment Date" < WORKDATE.
         Qty := LibraryRandom.RandInt(10);
         MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader.Status::Released);
-        MockSalesLine(SalesHeader, SalesLine, WorkDate - LibraryRandom.RandInt(10), Qty, Qty);
+        MockSalesLine(SalesHeader, SalesLine, WorkDate() - LibraryRandom.RandInt(10), Qty, Qty);
 
         // [WHEN] Calculate "Average Days Delayed".
         SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
-        AverageDaysDelayed := SalesCue.CalculateAverageDaysDelayed;
+        AverageDaysDelayed := SalesCue.CalculateAverageDaysDelayed();
 
         // [THEN] "Average Days Delayed" = 0.
         Assert.AreEqual(0, AverageDaysDelayed, AverageDaysDelayedErr);
@@ -385,7 +380,7 @@ codeunit 134924 "ERM Cues"
 
         // [WHEN] Calculate "Average Days Delayed".
         SalesCue.SetRange("Date Filter", 0D, WorkDate() - 1);
-        AverageDaysDelayed := SalesCue.CalculateAverageDaysDelayed;
+        AverageDaysDelayed := SalesCue.CalculateAverageDaysDelayed();
 
         // [THEN] "Average Days Delayed" = 0.
         Assert.AreEqual(0, AverageDaysDelayed, AverageDaysDelayedErr);
@@ -400,11 +395,11 @@ codeunit 134924 "ERM Cues"
         Initialize();
 
         // [GIVEN] Posted Whse. Shipment. Posting Date = WORKDATE.
-        MockPostedWhseShipmentHeader;
+        MockPostedWhseShipmentHeader();
 
         // [WHEN] Calculate flow field "Posted Shipments - Today" in Warehouse WMS Cue.
         // [THEN] There is one Posted Whse. Shipment within the period "Date Filter2" and no Posted Whse. Shipments within the period "Date Filter".
-        VerifyWarehouseWMSCueFlowFields;
+        VerifyWarehouseWMSCueFlowFields();
     end;
 
     [Test]
@@ -418,10 +413,10 @@ codeunit 134924 "ERM Cues"
         Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Due Date <= WORKDATE.
-        MockVendorLedgerEntry(WorkDate - LibraryRandom.RandIntInRange(0, 10));
+        MockVendorLedgerEntry(WorkDate() - LibraryRandom.RandIntInRange(0, 10));
 
         // [WHEN] Small Business Owner Act page is shown.
-        SmallBusinessOwnerAct.OpenView;
+        SmallBusinessOwnerAct.OpenView();
 
         // [THEN] "Purchase Invoices Due Today" = 1.
         SmallBusinessOwnerAct."Purchase Documents Due Today".AssertEquals(1);
@@ -438,10 +433,10 @@ codeunit 134924 "ERM Cues"
         Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Due Date > WORKDATE.
-        MockVendorLedgerEntry(WorkDate + LibraryRandom.RandInt(10));
+        MockVendorLedgerEntry(WorkDate() + LibraryRandom.RandInt(10));
 
         // [WHEN] Small Business Owner Act page is shown.
-        SmallBusinessOwnerAct.OpenView;
+        SmallBusinessOwnerAct.OpenView();
 
         // [THEN] "Purchase Invoices Due Today" = 0.
         SmallBusinessOwnerAct."Purchase Documents Due Today".AssertEquals(0);
@@ -608,7 +603,7 @@ codeunit 134924 "ERM Cues"
         // [GIVEN] Three released Sales Orders "S1", "S2", "S3".
         // [GIVEN] "S1" has Sales Line with "Shipment Date" = WorkDate() - 1.
         // [GIVEN] "S2" has Sales Line with "Shipment Date" = WorkDate.
-        // [GIVEN] "S3" has Sales Line with "Shipment Date" = WorkDate + 1.
+        // [GIVEN] "S3" has Sales Line with "Shipment Date" = WorkDate() + 1.
         ShipmentDates.AddRange(WorkDate() - 1, WorkDate(), WorkDate() + 1);
         for i := 1 to ShipmentDates.Count do begin
             LibrarySales.CreateSalesOrder(SalesHeader);
@@ -859,13 +854,13 @@ codeunit 134924 "ERM Cues"
         Delays[2] := LibraryRandom.RandInt(10);
 
         MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, SalesHeader[1].Status::Released);
-        MockSalesLine(SalesHeader[1], SalesLine, WorkDate - Delays[1], Qty, Qty - LibraryRandom.RandInt(5));
-        MockSalesLine(SalesHeader[1], SalesLine, WorkDate - Delays[2], Qty, Qty - LibraryRandom.RandInt(5));
+        MockSalesLine(SalesHeader[1], SalesLine, WorkDate() - Delays[1], Qty, Qty - LibraryRandom.RandInt(5));
+        MockSalesLine(SalesHeader[1], SalesLine, WorkDate() - Delays[2], Qty, Qty - LibraryRandom.RandInt(5));
         MockSalesLine(SalesHeader[1], SalesLine, 0D, Qty, Qty - LibraryRandom.RandInt(5));
 
         MockSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Order, SalesHeader[2].Status::Released);
-        MockSalesLine(SalesHeader[2], SalesLine, WorkDate - LibraryRandom.RandInt(10), Qty, Qty);
-        MockSalesLine(SalesHeader[2], SalesLine, WorkDate + LibraryRandom.RandInt(10), Qty, Qty - LibraryRandom.RandInt(5));
+        MockSalesLine(SalesHeader[2], SalesLine, WorkDate() - LibraryRandom.RandInt(10), Qty, Qty);
+        MockSalesLine(SalesHeader[2], SalesLine, WorkDate() + LibraryRandom.RandInt(10), Qty, Qty - LibraryRandom.RandInt(5));
     end;
 
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; NewStatus: Enum "Sales Document Status")
@@ -930,7 +925,7 @@ codeunit 134924 "ERM Cues"
         end;
     end;
 
-    local procedure MockProdOrderRoutingLine(ProdOrderStatus: Enum "Production Order Status"; RoutingStatus: Option)
+    local procedure MockProdOrderRoutingLine(ProdOrderStatus: Enum "Production Order Status"; RoutingStatus: Enum "Prod. Order Routing Status")
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
@@ -961,13 +956,11 @@ codeunit 134924 "ERM Cues"
     var
         SalesCue: Record "Sales Cue";
     begin
-        with SalesCue do begin
-            SetRespCenterFilter;
-            CalcFields(
-              "Sales Quotes - Open", "Sales Orders - Open", "Ready to Ship",
-              Delayed, "Sales Return Orders - Open", "Sales Credit Memos - Open", "Partially Shipped");
-            "Average Days Delayed" := CalculateAverageDaysDelayed;
-        end;
+        SalesCue.SetRespCenterFilter();
+        SalesCue.CalcFields(
+          "Sales Quotes - Open", "Sales Orders - Open", "Ready to Ship",
+          Delayed, "Sales Return Orders - Open", "Sales Credit Memos - Open", "Partially Shipped");
+        SalesCue."Average Days Delayed" := SalesCue.CalculateAverageDaysDelayed();
 
         VerifySalesCueFields(SalesCue);
     end;
@@ -1012,12 +1005,10 @@ codeunit 134924 "ERM Cues"
     var
         SalesCue: Record "Sales Cue";
     begin
-        with SalesCue do begin
-            SetRespCenterFilter;
-            CalcFields("Partially Shipped");
-            Assert.AreEqual(
-              1, "Partially Shipped", StrSubstNo(WrongValueErr, FieldCaption("Partially Shipped"), TableCaption));
-        end;
+        SalesCue.SetRespCenterFilter();
+        SalesCue.CalcFields("Partially Shipped");
+        Assert.AreEqual(
+          1, SalesCue."Partially Shipped", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Partially Shipped"), SalesCue.TableCaption));
     end;
 
     local procedure VerifySBOwnerCueNestedFlowField()
@@ -1028,7 +1019,7 @@ codeunit 134924 "ERM Cues"
         SalesHeader.SetRange("Completely Shipped", true);
         SalesHeader.SetRange("Shipped Not Invoiced", true);
         Assert.AreEqual(
-          SalesHeader.Count, SBOwnerCue.CountSalesOrdersShippedNotInvoiced,
+          SalesHeader.Count, SBOwnerCue.CountSalesOrdersShippedNotInvoiced(),
           StrSubstNo(WrongValueErr, 'CountSOShippedNotInvoiced', SBOwnerCue.TableCaption()));
     end;
 
@@ -1036,63 +1027,58 @@ codeunit 134924 "ERM Cues"
     var
         PurchCue: Record "Purchase Cue";
     begin
-        with PurchCue do begin
-            SetRespCenterFilter;
-            CalcFields(
-              "To Send or Confirm", "Upcoming Orders", "Outstanding Purchase Orders", "Purchase Return Orders - All",
-              "Not Invoiced", "Partially Invoiced");
-            Assert.AreEqual(
-              1, "To Send or Confirm", StrSubstNo(WrongValueErr, FieldCaption("To Send or Confirm"), TableCaption));
-            Assert.AreEqual(
-              4, "Upcoming Orders", StrSubstNo(WrongValueErr, FieldCaption("Upcoming Orders"), TableCaption));
-            Assert.AreEqual(
-              2, "Outstanding Purchase Orders", StrSubstNo(WrongValueErr, FieldCaption("Outstanding Purchase Orders"), TableCaption));
-            Assert.AreEqual(
-              1, "Purchase Return Orders - All", StrSubstNo(WrongValueErr, FieldCaption("Purchase Return Orders - All"), TableCaption));
-            Assert.AreEqual(
-              1, "Not Invoiced", StrSubstNo(WrongValueErr, FieldCaption("Not Invoiced"), TableCaption));
-            Assert.AreEqual(
-              1, "Partially Invoiced", StrSubstNo(WrongValueErr, FieldCaption("Partially Invoiced"), TableCaption));
-
-            // Verify replacement for nested FlowFields
-            Assert.AreEqual(
-              "Outstanding Purchase Orders", CountOrders(FieldNo("Outstanding Purchase Orders")),
-              StrSubstNo(WrongValueErr, 'CountOutstandingOrders', TableCaption));
-            Assert.AreEqual(
-              "Not Invoiced", CountOrders(FieldNo("Not Invoiced")), StrSubstNo(WrongValueErr, 'CountNotInvoicedOrders', TableCaption));
-            Assert.AreEqual(
-              "Partially Invoiced", CountOrders(FieldNo("Partially Invoiced")),
-              StrSubstNo(WrongValueErr, 'CountPartiallyInvoicedOrders', TableCaption));
-        end;
+        PurchCue.SetRespCenterFilter();
+        PurchCue.CalcFields(
+          "To Send or Confirm", "Upcoming Orders", "Outstanding Purchase Orders", "Purchase Return Orders - All",
+          "Not Invoiced", "Partially Invoiced");
+        Assert.AreEqual(
+          1, PurchCue."To Send or Confirm", StrSubstNo(WrongValueErr, PurchCue.FieldCaption("To Send or Confirm"), PurchCue.TableCaption));
+        Assert.AreEqual(
+          4, PurchCue."Upcoming Orders", StrSubstNo(WrongValueErr, PurchCue.FieldCaption("Upcoming Orders"), PurchCue.TableCaption));
+        Assert.AreEqual(
+          2, PurchCue."Outstanding Purchase Orders", StrSubstNo(WrongValueErr, PurchCue.FieldCaption("Outstanding Purchase Orders"), PurchCue.TableCaption));
+        Assert.AreEqual(
+          1, PurchCue."Purchase Return Orders - All", StrSubstNo(WrongValueErr, PurchCue.FieldCaption("Purchase Return Orders - All"), PurchCue.TableCaption));
+        Assert.AreEqual(
+          1, PurchCue."Not Invoiced", StrSubstNo(WrongValueErr, PurchCue.FieldCaption("Not Invoiced"), PurchCue.TableCaption));
+        Assert.AreEqual(
+          1, PurchCue."Partially Invoiced", StrSubstNo(WrongValueErr, PurchCue.FieldCaption("Partially Invoiced"), PurchCue.TableCaption));
+        // Verify replacement for nested FlowFields
+        Assert.AreEqual(
+          PurchCue."Outstanding Purchase Orders", PurchCue.CountOrders(PurchCue.FieldNo("Outstanding Purchase Orders")),
+          StrSubstNo(WrongValueErr, 'CountOutstandingOrders', PurchCue.TableCaption));
+        Assert.AreEqual(
+          PurchCue."Not Invoiced", PurchCue.CountOrders(PurchCue.FieldNo("Not Invoiced")), StrSubstNo(WrongValueErr, 'CountNotInvoicedOrders', PurchCue.TableCaption));
+        Assert.AreEqual(
+          PurchCue."Partially Invoiced", PurchCue.CountOrders(PurchCue.FieldNo("Partially Invoiced")),
+          StrSubstNo(WrongValueErr, 'CountPartiallyInvoicedOrders', PurchCue.TableCaption));
     end;
 
     local procedure VerifyServCueFlowFields()
     var
         ServCue: Record "Service Cue";
     begin
-        with ServCue do begin
-            SetRespCenterFilter;
-            CalcFields(
-              "Service Orders - in Process", "Service Orders - Finished", "Service Orders - Inactive",
-              "Open Service Quotes", "Open Service Contract Quotes", "Service Contracts to Expire",
-              "Service Orders - Today", "Service Orders - to Follow-up");
-            Assert.AreEqual(
-              1, "Service Orders - in Process", StrSubstNo(WrongValueErr, FieldCaption("Service Orders - in Process"), TableCaption));
-            Assert.AreEqual(
-              1, "Service Orders - Finished", StrSubstNo(WrongValueErr, FieldCaption("Service Orders - Finished"), TableCaption));
-            Assert.AreEqual(
-              1, "Service Orders - Inactive", StrSubstNo(WrongValueErr, FieldCaption("Service Orders - Inactive"), TableCaption));
-            Assert.AreEqual(
-              1, "Open Service Quotes", StrSubstNo(WrongValueErr, FieldCaption("Open Service Quotes"), TableCaption));
-            Assert.AreEqual(
-              1, "Open Service Contract Quotes", StrSubstNo(WrongValueErr, FieldCaption("Open Service Contract Quotes"), TableCaption));
-            Assert.AreEqual(
-              1, "Service Contracts to Expire", StrSubstNo(WrongValueErr, FieldCaption("Service Contracts to Expire"), TableCaption));
-            Assert.AreEqual(
-              3, "Service Orders - Today", StrSubstNo(WrongValueErr, FieldCaption("Service Orders - Today"), TableCaption));
-            Assert.AreEqual(
-              1, "Service Orders - to Follow-up", StrSubstNo(WrongValueErr, FieldCaption("Service Orders - to Follow-up"), TableCaption));
-        end;
+        ServCue.SetRespCenterFilter();
+        ServCue.CalcFields(
+          "Service Orders - in Process", "Service Orders - Finished", "Service Orders - Inactive",
+          "Open Service Quotes", "Open Service Contract Quotes", "Service Contracts to Expire",
+          "Service Orders - Today", "Service Orders - to Follow-up");
+        Assert.AreEqual(
+          1, ServCue."Service Orders - in Process", StrSubstNo(WrongValueErr, ServCue.FieldCaption("Service Orders - in Process"), ServCue.TableCaption));
+        Assert.AreEqual(
+          1, ServCue."Service Orders - Finished", StrSubstNo(WrongValueErr, ServCue.FieldCaption("Service Orders - Finished"), ServCue.TableCaption));
+        Assert.AreEqual(
+          1, ServCue."Service Orders - Inactive", StrSubstNo(WrongValueErr, ServCue.FieldCaption("Service Orders - Inactive"), ServCue.TableCaption));
+        Assert.AreEqual(
+          1, ServCue."Open Service Quotes", StrSubstNo(WrongValueErr, ServCue.FieldCaption("Open Service Quotes"), ServCue.TableCaption));
+        Assert.AreEqual(
+          1, ServCue."Open Service Contract Quotes", StrSubstNo(WrongValueErr, ServCue.FieldCaption("Open Service Contract Quotes"), ServCue.TableCaption));
+        Assert.AreEqual(
+          1, ServCue."Service Contracts to Expire", StrSubstNo(WrongValueErr, ServCue.FieldCaption("Service Contracts to Expire"), ServCue.TableCaption));
+        Assert.AreEqual(
+          3, ServCue."Service Orders - Today", StrSubstNo(WrongValueErr, ServCue.FieldCaption("Service Orders - Today"), ServCue.TableCaption));
+        Assert.AreEqual(
+          1, ServCue."Service Orders - to Follow-up", StrSubstNo(WrongValueErr, ServCue.FieldCaption("Service Orders - to Follow-up"), ServCue.TableCaption));
     end;
 
     local procedure VerifyWarehouseWMSCueFlowFields()

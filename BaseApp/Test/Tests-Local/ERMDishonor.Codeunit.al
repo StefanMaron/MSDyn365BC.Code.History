@@ -298,7 +298,7 @@ codeunit 144133 "ERM Dishonor"
         REPORT.Run(REPORT::"Customer Bills List");
 
         // Verify: Verify values on Report - Customer Bills List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalCustLedgrEntries_', TempSalesLine."Line Amount");
         LibraryReportDataset.AssertElementWithValueExists('ClosedByAmountLCY', TempSalesLine."Line Amount");
         LibraryReportDataset.AssertElementWithValueExists('TotalClosedByAmntLCY', TempSalesLine."Line Amount");
@@ -424,7 +424,7 @@ codeunit 144133 "ERM Dishonor"
 
         // Setup: Create and post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored Entry.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, FindPaymentTermsCode);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, FindPaymentTermsCode());
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
 
@@ -434,7 +434,7 @@ codeunit 144133 "ERM Dishonor"
             TempSalesLine."Sell-to Customer No.", -TempSalesLine."Line Amount", GenJournalLine."Document Type"::Payment);
 
         // Verify: Verify Amount on Customer Ledger Entry.
-        VerifyAmountOnCustomerLedgerEntry(TempSalesLine."Sell-to Customer No.", DocumentNo, -TempSalesLine."Line Amount");
+        VerifyAmountOnCustomerLedgerEntry(DocumentNo, -TempSalesLine."Line Amount");
     end;
 
     [Test]
@@ -465,7 +465,7 @@ codeunit 144133 "ERM Dishonor"
             GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // Verify: Verify Amount on VendorLedger Entry.
-        VerifyAmountOnVendorLedgerEntry(TempPurchaseLine."Buy-from Vendor No.", DocumentNo3, TempPurchaseLine.Amount);
+        VerifyAmountOnVendorLedgerEntry(DocumentNo3, TempPurchaseLine.Amount);
     end;
 
     [Test]
@@ -527,9 +527,7 @@ codeunit 144133 "ERM Dishonor"
     procedure ApplyNonBankRcptPaymentWithDishonored()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        TempPurchaseLine: Record "Purchase Line" temporary;
         TempSalesLine: Record "Sales Line" temporary;
-        PaymentMethodCode: Code[20];
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
         DocumentNo3: Code[20];
@@ -552,7 +550,7 @@ codeunit 144133 "ERM Dishonor"
           GenJournalLine."Document Type"::Dishonored, GenJournalLine."Applies-to Doc. Type"::Payment);
 
         // [THEN] it should allow user to apply payment entry and post the journal line withour any error.
-        VerifyAmountOnCustomerLedgerEntryForDishonorPayment(TempSalesLine."Sell-to Customer No.", DocumentNo2, -TempSalesLine.Amount);
+        VerifyAmountOnCustomerLedgerEntryForDishonorPayment(DocumentNo2, -TempSalesLine.Amount);
     end;
 
     local procedure Initialize()
@@ -575,10 +573,10 @@ codeunit 144133 "ERM Dishonor"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         Commit();  // COMMIT is required for Write Transaction Error.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;  // Invoke ApplyCustomerEntriesModalPageHandler.
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();  // Invoke ApplyCustomerEntriesModalPageHandler.
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure ApplyPostedEntries(CustomerNo: Code[20]; DocumentNo: Code[20])
@@ -623,7 +621,7 @@ codeunit 144133 "ERM Dishonor"
     begin
         // Find Bank Account No for the Payment Method and Create Customer Bill.
         DocumentNo := IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, '');  // Payment Terms Code as blank.
-        BillPostingGroup.SetRange("Payment Method", FindPaymentMethod);
+        BillPostingGroup.SetRange("Payment Method", FindPaymentMethod());
         BillPostingGroup.FindFirst();
         LibrarySales.CreateCustomerBillHeader(
           CustomerBillHeader, BillPostingGroup."No.", BillPostingGroup."Payment Method", CustomerBillHeader.Type::"Bills For Collection");
@@ -637,7 +635,7 @@ codeunit 144133 "ERM Dishonor"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(PaymentTermsCode));
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         CopySalesLineToTempSalesLine(TempSalesLine, SalesLine);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -685,7 +683,7 @@ codeunit 144133 "ERM Dishonor"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Method Code", FindPaymentMethod);
+        Customer.Validate("Payment Method Code", FindPaymentMethod());
         Customer.Validate("Payment Terms Code", PaymentTermsCode);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -729,7 +727,7 @@ codeunit 144133 "ERM Dishonor"
         PaymentMethod: Record "Payment Method";
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
-        PaymentMethod.Validate("Bill Code", FindBillCode);
+        PaymentMethod.Validate("Bill Code", FindBillCode());
         PaymentMethod.Modify(true);
         exit(PaymentMethod.Code);
     end;
@@ -737,7 +735,7 @@ codeunit 144133 "ERM Dishonor"
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Method Code", CreatePaymentMethod);
+        Vendor.Validate("Payment Method Code", CreatePaymentMethod());
         Vendor.Modify(true);
     end;
 
@@ -767,7 +765,7 @@ codeunit 144133 "ERM Dishonor"
         Bill.SetRange("Allow Issue", true);
         Bill.SetRange("Bank Receipt", true);
         Bill.FindFirst();
-        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode);
+        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode());
         Bill.Validate("Vendor Bill List", Bill."List No.");
         Bill.Validate("Vendor Bill No.", Bill."List No.");
         Bill.Modify(true);
@@ -785,7 +783,7 @@ codeunit 144133 "ERM Dishonor"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        PaymentMethod.SetRange("Bill Code", FindBillCode);
+        PaymentMethod.SetRange("Bill Code", FindBillCode());
         LibraryERM.FindPaymentMethod(PaymentMethod);
         exit(PaymentMethod.Code);
     end;
@@ -809,9 +807,9 @@ codeunit 144133 "ERM Dishonor"
     var
         VendorBillCard: TestPage "Vendor Bill Card";
     begin
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", No);
-        VendorBillCard."&Create List".Invoke;
+        VendorBillCard."&Create List".Invoke();
     end;
 
     local procedure RunIssueBankReceipt(CustomerNo: Code[20])
@@ -904,9 +902,9 @@ codeunit 144133 "ERM Dishonor"
     var
         VendorBillListSentCard: TestPage "Vendor Bill List Sent Card";
     begin
-        VendorBillListSentCard.OpenEdit;
+        VendorBillListSentCard.OpenEdit();
         VendorBillListSentCard.FILTER.SetFilter("Payment Method Code", PaymentMethodCode);
-        VendorBillListSentCard.Post.Invoke;
+        VendorBillListSentCard.Post.Invoke();
     end;
 
     local procedure UnapplyCustomerLedgerEntry(DocumentNo: Code[20])
@@ -1029,26 +1027,26 @@ codeunit 144133 "ERM Dishonor"
         end;
     end;
 
-    local procedure VerifyAmountOnCustomerLedgerEntry(CustomerNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyAmountOnCustomerLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
         CustLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(
-          Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
         CustLedgerEntry.TestField(Open, true);
     end;
 
-    local procedure VerifyAmountOnVendorLedgerEntry(BuyFromVendorNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyAmountOnVendorLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, DocumentNo);
         VendorLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(
-          Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption()));
         VendorLedgerEntry.TestField(Open, false);
     end;
@@ -1057,7 +1055,7 @@ codeunit 144133 "ERM Dishonor"
     var
         CustomerEntryStatistics: TestPage "Customer Entry Statistics";
     begin
-        CustomerEntryStatistics.OpenView;
+        CustomerEntryStatistics.OpenView();
         CustomerEntryStatistics.FILTER.SetFilter("No.", No);
         CustomerEntryStatistics.AvgCollectionPeriodDays_ThisYear.AssertEquals(0);
         CustomerEntryStatistics.AvgCollectionPeriodDays_ThisPeriod.AssertEquals(0);
@@ -1065,7 +1063,7 @@ codeunit 144133 "ERM Dishonor"
         CustomerEntryStatistics.Close();
     end;
 
-    local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Open: Boolean; DocumentTypeToClose: Option; DocumentNoToClose: Code[20])
+    local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Open: Boolean; DocumentTypeToClose: Enum "Gen. Journal Document Type"; DocumentNoToClose: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1141,14 +1139,14 @@ codeunit 144133 "ERM Dishonor"
         DocumentNo := GenJournalLine."Document No.";
     end;
 
-    local procedure VerifyAmountOnCustomerLedgerEntryForDishonorPayment(CustomerNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyAmountOnCustomerLedgerEntryForDishonorPayment(DocumentNo: Code[20]; Amount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
         CustLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(
-          Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
         CustLedgerEntry.TestField(Open, false);
     end;
@@ -1165,7 +1163,7 @@ codeunit 144133 "ERM Dishonor"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1177,7 +1175,7 @@ codeunit 144133 "ERM Dishonor"
         LibraryVariableStorage.Dequeue(CustomerNo);
         ClosingBankReceipts.ConfirmPerApplication.SetValue(true);
         ClosingBankReceipts.CustEntry1.SetFilter("Customer No.", CustomerNo);
-        ClosingBankReceipts.OK.Invoke;
+        ClosingBankReceipts.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1191,7 +1189,7 @@ codeunit 144133 "ERM Dishonor"
         LibraryVariableStorage.Dequeue(EndingDate);
         CustomerBillsListReport.Customer.SetFilter("No.", No);
         CustomerBillsListReport."Ending Date".SetValue(EndingDate);
-        CustomerBillsListReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerBillsListReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

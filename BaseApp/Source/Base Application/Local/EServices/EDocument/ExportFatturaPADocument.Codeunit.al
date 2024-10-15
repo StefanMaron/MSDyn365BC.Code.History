@@ -183,49 +183,41 @@ codeunit 12179 "Export FatturaPA Document"
     begin
         PopulateDocGeneralData(TempFatturaHeader);
         PopulateDocDiscountData(TempFatturaHeader);
+        // fill in General, Order Data
+        PopulateOrderData(TempFatturaLine, TempFatturaHeader);
 
-        with TempXMLBuffer do begin
-            // fill in General, Order Data
-            PopulateOrderData(TempFatturaLine, TempFatturaHeader);
-
-            PopulateApplicationData(TempFatturaHeader);
-
-            // 2.1.8 DatiDDT
-            PopulateShipmentData(TempFatturaLine);
-
-            // 2.2 DatiBeniServizi - Goods/Services data
-            GetParent();
-            AddGroupElement('DatiBeniServizi');
-            TempFatturaLine.Reset();
-            TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Document);
-            OnTryCreateFatturaElettronicaBodyOnAfterTempFatturaLineSetFiltersForDocument(TempFatturaLine, TempFatturaHeader);
-            if TempFatturaLine.FindSet() then
-                repeat
-                    PopulateLineData(TempFatturaLine);
-                until TempFatturaLine.Next() = 0;
-
-            // fill in LineVATData
-            TempFatturaLine.Reset();
-            TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::VAT);
-            if TempFatturaLine.FindSet() then
-                repeat
-                    PopulateLineVATData(TempFatturaLine);
-                until TempFatturaLine.Next() = 0;
-            GetParent();
-            PopulatePaymentData(TempFatturaLine, TempFatturaHeader);
-            PopulateDocumentAttachments(TempFatturaHeader);
-        end;
+        PopulateApplicationData(TempFatturaHeader);
+        // 2.1.8 DatiDDT
+        PopulateShipmentData(TempFatturaLine);
+        // 2.2 DatiBeniServizi - Goods/Services data
+        TempXMLBuffer.GetParent();
+        TempXMLBuffer.AddGroupElement('DatiBeniServizi');
+        TempFatturaLine.Reset();
+        TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Document);
+        OnTryCreateFatturaElettronicaBodyOnAfterTempFatturaLineSetFiltersForDocument(TempFatturaLine, TempFatturaHeader);
+        if TempFatturaLine.FindSet() then
+            repeat
+                PopulateLineData(TempFatturaLine);
+            until TempFatturaLine.Next() = 0;
+        // fill in LineVATData
+        TempFatturaLine.Reset();
+        TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::VAT);
+        if TempFatturaLine.FindSet() then
+            repeat
+                PopulateLineVATData(TempFatturaLine);
+            until TempFatturaLine.Next() = 0;
+        TempXMLBuffer.GetParent();
+        PopulatePaymentData(TempFatturaLine, TempFatturaHeader);
+        PopulateDocumentAttachments(TempFatturaHeader);
     end;
 
     local procedure CreateXMLDefinition(TempFatturaHeader: Record "Fattura Header" temporary)
     begin
-        with TempXMLBuffer do begin
-            CreateRootElement('p:FatturaElettronica');
-            AddAttribute('versione', TempFatturaHeader."Transmission Type");
-            AddNamespace('ds', 'http://www.w3.org/2000/09/xmldsig#');
-            AddNamespace('p', 'http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2');
-            AddNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-        end;
+        TempXMLBuffer.CreateRootElement('p:FatturaElettronica');
+        TempXMLBuffer.AddAttribute('versione', TempFatturaHeader."Transmission Type");
+        TempXMLBuffer.AddNamespace('ds', 'http://www.w3.org/2000/09/xmldsig#');
+        TempXMLBuffer.AddNamespace('p', 'http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2');
+        TempXMLBuffer.AddNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
     end;
 
     local procedure IsValidFatturaCharacter(InputChar: Char): Boolean
@@ -330,78 +322,70 @@ codeunit 12179 "Export FatturaPA Document"
         if CompanyInformation."Transmission Intermediary No." <> '' then
             if TransmissionIntermediaryVendor.Get(CompanyInformation."Transmission Intermediary No.") then;
 
-        with TempXMLBuffer do begin
-            AddGroupElement('FatturaElettronicaHeader');
-            AddGroupElement('DatiTrasmissione');
+        TempXMLBuffer.AddGroupElement('FatturaElettronicaHeader');
+        TempXMLBuffer.AddGroupElement('DatiTrasmissione');
 
-            AddGroupElement('IdTrasmittente');
-            if TransmissionIntermediaryVendor."No." = '' then begin
-                AddNonEmptyElement('IdPaese', CompanyInformation."Country/Region Code");
-                if CompanyInformation."Fiscal Code" = '' then
-                    AddNonEmptyLastElement('IdCodice', CompanyInformation."VAT Registration No.")
-                else
-                    AddNonEmptyLastElement('IdCodice', CompanyInformation."Fiscal Code");
-            end else begin
-                AddNonEmptyElement('IdPaese', TransmissionIntermediaryVendor."Country/Region Code");
-                AddNonEmptyLastElement('IdCodice', TransmissionIntermediaryVendor."Fiscal Code");
-            end;
-
-            AddNonEmptyElement('ProgressivoInvio', TempFatturaHeader."Progressive No.");
-            AddNonEmptyElement('FormatoTrasmissione', TempFatturaHeader."Transmission Type");
-            AddNonEmptyElement('CodiceDestinatario', Customer."PA Code");
-            if Customer."PA Code" = '0000000' then
-                AddNonEmptyElement('PECDestinatario', Customer."PEC E-Mail Address");
-            GetParent();
+        TempXMLBuffer.AddGroupElement('IdTrasmittente');
+        if TransmissionIntermediaryVendor."No." = '' then begin
+            TempXMLBuffer.AddNonEmptyElement('IdPaese', CompanyInformation."Country/Region Code");
+            if CompanyInformation."Fiscal Code" = '' then
+                TempXMLBuffer.AddNonEmptyLastElement('IdCodice', CompanyInformation."VAT Registration No.")
+            else
+                TempXMLBuffer.AddNonEmptyLastElement('IdCodice', CompanyInformation."Fiscal Code");
+        end else begin
+            TempXMLBuffer.AddNonEmptyElement('IdPaese', TransmissionIntermediaryVendor."Country/Region Code");
+            TempXMLBuffer.AddNonEmptyLastElement('IdCodice', TransmissionIntermediaryVendor."Fiscal Code");
         end;
+
+        TempXMLBuffer.AddNonEmptyElement('ProgressivoInvio', TempFatturaHeader."Progressive No.");
+        TempXMLBuffer.AddNonEmptyElement('FormatoTrasmissione', TempFatturaHeader."Transmission Type");
+        TempXMLBuffer.AddNonEmptyElement('CodiceDestinatario', Customer."PA Code");
+        if Customer."PA Code" = '0000000' then
+            TempXMLBuffer.AddNonEmptyElement('PECDestinatario', Customer."PEC E-Mail Address");
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure PopulateCompanyInformation(Customer: Record Customer)
     begin
-        with TempXMLBuffer do begin
-            // 1.2 CedentePrestatore - Seller
-            AddGroupElement('CedentePrestatore');
-            AddGroupElement('DatiAnagrafici');
-            AddGroupElement('IdFiscaleIVA');
-            AddNonEmptyElement('IdPaese', CompanyInformation."Country/Region Code");
-            AddNonEmptyLastElement('IdCodice', CompanyInformation."VAT Registration No.");
-            AddNonEmptyElement('CodiceFiscale', CompanyInformation."Fiscal Code");
+        // 1.2 CedentePrestatore - Seller
+        TempXMLBuffer.AddGroupElement('CedentePrestatore');
+        TempXMLBuffer.AddGroupElement('DatiAnagrafici');
+        TempXMLBuffer.AddGroupElement('IdFiscaleIVA');
+        TempXMLBuffer.AddNonEmptyElement('IdPaese', CompanyInformation."Country/Region Code");
+        TempXMLBuffer.AddNonEmptyLastElement('IdCodice', CompanyInformation."VAT Registration No.");
+        TempXMLBuffer.AddNonEmptyElement('CodiceFiscale', CompanyInformation."Fiscal Code");
 
-            AddGroupElement('Anagrafica');
-            AddNonEmptyLastElement('Denominazione', CopyStr(CompanyInformation.Name, 1, GetDenominazioneMaxLength()));
-            AddNonEmptyLastElement('RegimeFiscale', 'RF' + CompanyInformation."Company Type");
+        TempXMLBuffer.AddGroupElement('Anagrafica');
+        TempXMLBuffer.AddNonEmptyLastElement('Denominazione', CopyStr(CompanyInformation.Name, 1, GetDenominazioneMaxLength()));
+        TempXMLBuffer.AddNonEmptyLastElement('RegimeFiscale', 'RF' + CompanyInformation."Company Type");
+        // 1.2.2 Sede
+        TempXMLBuffer.AddGroupElement('Sede');
+        TempXMLBuffer.AddNonEmptyElement('Indirizzo', CopyStr(CompanyInformation.Address, 1, 60));
+        TempXMLBuffer.AddNonEmptyElement('CAP', CompanyInformation."Post Code");
+        TempXMLBuffer.AddNonEmptyElement('Comune', CompanyInformation.City);
+        TempXMLBuffer.AddNonEmptyElement('Provincia', CompanyInformation.County);
+        TempXMLBuffer.AddNonEmptyLastElement('Nazione', CompanyInformation."Country/Region Code");
+        // 1.2.4 IscrizioneREA
+        TempXMLBuffer.AddGroupElement('IscrizioneREA');
+        TempXMLBuffer.AddNonEmptyElement('Ufficio', CompanyInformation."Registry Office Province");
+        TempXMLBuffer.AddNonEmptyElement('NumeroREA', CompanyInformation."REA No.");
+        TempXMLBuffer.AddNonEmptyElement('CapitaleSociale', FormatAmount(CompanyInformation."Paid-In Capital"));
+        if CompanyInformation."Shareholder Status" = CompanyInformation."Shareholder Status"::"One Shareholder" then
+            TempXMLBuffer.AddNonEmptyElement('SocioUnico', 'SU')
+        else
+            TempXMLBuffer.AddNonEmptyElement('SocioUnico', 'SM');
 
-            // 1.2.2 Sede
-            AddGroupElement('Sede');
-            AddNonEmptyElement('Indirizzo', CopyStr(CompanyInformation.Address, 1, 60));
-            AddNonEmptyElement('CAP', CompanyInformation."Post Code");
-            AddNonEmptyElement('Comune', CompanyInformation.City);
-            AddNonEmptyElement('Provincia', CompanyInformation.County);
-            AddNonEmptyLastElement('Nazione', CompanyInformation."Country/Region Code");
-
-            // 1.2.4 IscrizioneREA
-            AddGroupElement('IscrizioneREA');
-            AddNonEmptyElement('Ufficio', CompanyInformation."Registry Office Province");
-            AddNonEmptyElement('NumeroREA', CompanyInformation."REA No.");
-            AddNonEmptyElement('CapitaleSociale', FormatAmount(CompanyInformation."Paid-In Capital"));
-            if CompanyInformation."Shareholder Status" = CompanyInformation."Shareholder Status"::"One Shareholder" then
-                AddNonEmptyElement('SocioUnico', 'SU')
-            else
-                AddNonEmptyElement('SocioUnico', 'SM');
-
-            if CompanyInformation."Liquidation Status" = CompanyInformation."Liquidation Status"::"Not in Liquidation" then
-                AddNonEmptyLastElement('StatoLiquidazione', 'LN')
-            else
-                AddNonEmptyLastElement('StatoLiquidazione', 'LS');
-
-            // 1.2.5 Contatti
-            AddGroupElement('Contatti');
-            AddNonEmptyElement('Telefono', DelChr(CompanyInformation."Phone No.", '=', '-'));
-            AddNonEmptyElement('Fax', DelChr(CompanyInformation."Fax No.", '=', '-'));
-            AddNonEmptyLastElement('Email', CompanyInformation."E-Mail");
-
-            // 1.2.6. RiferimentoAmministrazione
-            AddNonEmptyLastElement('RiferimentoAmministrazione', Customer."Our Account No.");
-        end;
+        if CompanyInformation."Liquidation Status" = CompanyInformation."Liquidation Status"::"Not in Liquidation" then
+            TempXMLBuffer.AddNonEmptyLastElement('StatoLiquidazione', 'LN')
+        else
+            TempXMLBuffer.AddNonEmptyLastElement('StatoLiquidazione', 'LS');
+        // 1.2.5 Contatti
+        TempXMLBuffer.AddGroupElement('Contatti');
+        TempXMLBuffer.AddNonEmptyElement('Telefono', DelChr(CompanyInformation."Phone No.", '=', '-'));
+        TempXMLBuffer.AddNonEmptyElement('Fax', DelChr(CompanyInformation."Fax No.", '=', '-'));
+        TempXMLBuffer.AddNonEmptyLastElement('Email', CompanyInformation."E-Mail");
+        // 1.2.6. RiferimentoAmministrazione
+        TempXMLBuffer.AddNonEmptyLastElement('RiferimentoAmministrazione', Customer."Our Account No.");
     end;
 
     local procedure PopulateTaxRepresentative(TempFatturaHeader: Record "Fattura Header" temporary)
@@ -413,117 +397,99 @@ codeunit 12179 "Export FatturaPA Document"
         if not TempFatturaHeader.GetTaxRepresentative(TempVendor) then
             exit;
 
-        with TempXMLBuffer do begin
-            AddGroupElement('RappresentanteFiscale');
-            AddGroupElement('DatiAnagrafici');
-            AddGroupElement('IdFiscaleIVA');
-            AddNonEmptyElement('IdPaese', TempVendor."Country/Region Code");
-            AddNonEmptyLastElement('IdCodice', TempVendor."VAT Registration No.");
+        TempXMLBuffer.AddGroupElement('RappresentanteFiscale');
+        TempXMLBuffer.AddGroupElement('DatiAnagrafici');
+        TempXMLBuffer.AddGroupElement('IdFiscaleIVA');
+        TempXMLBuffer.AddNonEmptyElement('IdPaese', TempVendor."Country/Region Code");
+        TempXMLBuffer.AddNonEmptyLastElement('IdCodice', TempVendor."VAT Registration No.");
 
-            AddGroupElement('Anagrafica');
-            if TempVendor."Individual Person" then begin
-                AddNonEmptyElement('Nome', TempVendor."First Name");
-                AddNonEmptyLastElement('Cognome', TempVendor."Last Name");
-            end else
-                AddNonEmptyLastElement('Denominazione', CopyStr(TempVendor.Name, 1, GetDenominazioneMaxLength()));
+        TempXMLBuffer.AddGroupElement('Anagrafica');
+        if TempVendor."Individual Person" then begin
+            TempXMLBuffer.AddNonEmptyElement('Nome', TempVendor."First Name");
+            TempXMLBuffer.AddNonEmptyLastElement('Cognome', TempVendor."Last Name");
+        end else
+            TempXMLBuffer.AddNonEmptyLastElement('Denominazione', CopyStr(TempVendor.Name, 1, GetDenominazioneMaxLength()));
 
-            GetParent();
-            GetParent();
-        end;
+        TempXMLBuffer.GetParent();
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure PopulateCustomerDataWithHeader(Customer: Record Customer)
     begin
         // 1.4 CessionarioCommittente
-        with TempXMLBuffer do begin
-            AddGroupElement('CessionarioCommittente');
-            PopulateCustomerData(Customer);
-            GetParent();
-        end;
+        TempXMLBuffer.AddGroupElement('CessionarioCommittente');
+        PopulateCustomerData(Customer);
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure PopulateCustomerData(Customer: Record Customer)
     begin
         // 1.4 CessionarioCommittente
-        with TempXMLBuffer do begin
-            AddGroupElement('DatiAnagrafici');
-            if (Customer."VAT Registration No." <> '') and (not Customer."Individual Person") then begin
-                AddGroupElement('IdFiscaleIVA');
-                AddNonEmptyElement('IdPaese', Customer."Country/Region Code");
-                AddNonEmptyLastElement('IdCodice', Customer."VAT Registration No.");
-            end;
-            if CompanyInformation."Country/Region Code" = Customer."Country/Region Code" then
-                AddNonEmptyElement('CodiceFiscale', Customer."Fiscal Code");
-
-            // 1.4.1.3 Anagrafica
-            AddGroupElement('Anagrafica');
-            if Customer."Individual Person" then begin
-                AddNonEmptyElement('Nome', Customer."First Name");
-                AddNonEmptyLastElement('Cognome', Customer."Last Name");
-            end else
-                AddNonEmptyLastElement('Denominazione', CopyStr(Customer.Name, 1, GetDenominazioneMaxLength()));
-            GetParent();
-
-            // 1.4.2. Sede
-            AddGroupElement('Sede');
-            AddNonEmptyElement('Indirizzo', CopyStr(Customer.Address, 1, 60));
-            if Customer."Country/Region Code" <> CompanyInformation."Country/Region Code" then
-                AddNonEmptyElement('CAP', '00000')
-            else
-                AddNonEmptyElement('CAP', Customer."Post Code");
-            AddNonEmptyElement('Comune', Customer.City);
-            AddNonEmptyElement('Provincia', Customer.County);
-            AddNonEmptyLastElement('Nazione', Customer."Country/Region Code");
-            GetParent();
+        TempXMLBuffer.AddGroupElement('DatiAnagrafici');
+        if (Customer."VAT Registration No." <> '') and (not Customer."Individual Person") then begin
+            TempXMLBuffer.AddGroupElement('IdFiscaleIVA');
+            TempXMLBuffer.AddNonEmptyElement('IdPaese', Customer."Country/Region Code");
+            TempXMLBuffer.AddNonEmptyLastElement('IdCodice', Customer."VAT Registration No.");
         end;
+        if CompanyInformation."Country/Region Code" = Customer."Country/Region Code" then
+            TempXMLBuffer.AddNonEmptyElement('CodiceFiscale', Customer."Fiscal Code");
+        // 1.4.1.3 Anagrafica
+        TempXMLBuffer.AddGroupElement('Anagrafica');
+        if Customer."Individual Person" then begin
+            TempXMLBuffer.AddNonEmptyElement('Nome', Customer."First Name");
+            TempXMLBuffer.AddNonEmptyLastElement('Cognome', Customer."Last Name");
+        end else
+            TempXMLBuffer.AddNonEmptyLastElement('Denominazione', CopyStr(Customer.Name, 1, GetDenominazioneMaxLength()));
+        TempXMLBuffer.GetParent();
+        // 1.4.2. Sede
+        TempXMLBuffer.AddGroupElement('Sede');
+        TempXMLBuffer.AddNonEmptyElement('Indirizzo', CopyStr(Customer.Address, 1, 60));
+        if Customer."Country/Region Code" <> CompanyInformation."Country/Region Code" then
+            TempXMLBuffer.AddNonEmptyElement('CAP', '00000')
+        else
+            TempXMLBuffer.AddNonEmptyElement('CAP', Customer."Post Code");
+        TempXMLBuffer.AddNonEmptyElement('Comune', Customer.City);
+        TempXMLBuffer.AddNonEmptyElement('Provincia', Customer.County);
+        TempXMLBuffer.AddNonEmptyLastElement('Nazione', Customer."Country/Region Code");
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure PopulateDocGeneralData(TempFatturaHeader: Record "Fattura Header" temporary)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with TempXMLBuffer do begin
-            AddGroupElement('FatturaElettronicaBody');
-            AddGroupElement('DatiGenerali');
-
-            // 2.1.1   DatiGeneraliDocumento - general details
-            AddGroupElement('DatiGeneraliDocumento');
-            AddNonEmptyElement('TipoDocumento', TempFatturaHeader."Fattura Document Type");
-
-            // 2.1.1.2 Divisa
-            GeneralLedgerSetup.Get();
-            AddNonEmptyElement('Divisa', GeneralLedgerSetup."LCY Code");
-
-            // 2.1.1.3  Data
-            AddNonEmptyElement('Data', FormatDate(TempFatturaHeader."Posting Date"));
-
-            // 2.1.1.4   Numero
-            AddNonEmptyElement('Numero', TempFatturaHeader."Document No.");
-
-            // 2.1.1.6   DatiBollo
-            if TempFatturaHeader."Fattura Stamp" then begin
-                AddGroupElement('DatiBollo');
-                AddNonEmptyElement('BolloVirtuale', YesTok);
-                AddNonEmptyElement('ImportoBollo', FormatAmount(TempFatturaHeader."Fattura Stamp Amount"));
-                GetParent();
-            end;
+        TempXMLBuffer.AddGroupElement('FatturaElettronicaBody');
+        TempXMLBuffer.AddGroupElement('DatiGenerali');
+        // 2.1.1   DatiGeneraliDocumento - general details
+        TempXMLBuffer.AddGroupElement('DatiGeneraliDocumento');
+        TempXMLBuffer.AddNonEmptyElement('TipoDocumento', TempFatturaHeader."Fattura Document Type");
+        // 2.1.1.2 Divisa
+        GeneralLedgerSetup.Get();
+        TempXMLBuffer.AddNonEmptyElement('Divisa', GeneralLedgerSetup."LCY Code");
+        // 2.1.1.3  Data
+        TempXMLBuffer.AddNonEmptyElement('Data', FormatDate(TempFatturaHeader."Posting Date"));
+        // 2.1.1.4   Numero
+        TempXMLBuffer.AddNonEmptyElement('Numero', TempFatturaHeader."Document No.");
+        // 2.1.1.6   DatiBollo
+        if TempFatturaHeader."Fattura Stamp" then begin
+            TempXMLBuffer.AddGroupElement('DatiBollo');
+            TempXMLBuffer.AddNonEmptyElement('BolloVirtuale', YesTok);
+            TempXMLBuffer.AddNonEmptyElement('ImportoBollo', FormatAmount(TempFatturaHeader."Fattura Stamp Amount"));
+            TempXMLBuffer.GetParent();
         end;
     end;
 
     local procedure PopulateDocDiscountData(TempFatturaHeader: Record "Fattura Header" temporary)
     begin
-        with TempXMLBuffer do begin
-            // 2.1.1.8 - ScontoMaggiorazione - Discount - Extra charge
-            if TempFatturaHeader."Total Inv. Discount" <> 0 then begin
-                AddGroupElement('ScontoMaggiorazione');
-                AddNonEmptyElement('Tipo', 'SC');
-                AddNonEmptyLastElement(
-                  'Importo', FormatAmountEightDecimalPlaces(TempFatturaHeader."Total Inv. Discount"));
-            end;
-
-            // 2.1.1.9   ImportoTotaleDocumento
-            AddNonEmptyLastElement('ImportoTotaleDocumento', FormatAmount(TempFatturaHeader."Total Amount"));
+        // 2.1.1.8 - ScontoMaggiorazione - Discount - Extra charge
+        if TempFatturaHeader."Total Inv. Discount" <> 0 then begin
+            TempXMLBuffer.AddGroupElement('ScontoMaggiorazione');
+            TempXMLBuffer.AddNonEmptyElement('Tipo', 'SC');
+            TempXMLBuffer.AddNonEmptyLastElement(
+              'Importo', FormatAmountEightDecimalPlaces(TempFatturaHeader."Total Inv. Discount"));
         end;
+        // 2.1.1.9   ImportoTotaleDocumento
+        TempXMLBuffer.AddNonEmptyLastElement('ImportoTotaleDocumento', FormatAmount(TempFatturaHeader."Total Amount"));
     end;
 
     local procedure PopulateLineData(var TempFatturaLine: Record "Fattura Line" temporary)
@@ -532,52 +498,48 @@ codeunit 12179 "Export FatturaPA Document"
         UoMMaxLength: Integer;
     begin
         UoMMaxLength := 10;
-        with TempXMLBuffer do begin
-            // 2.2.1 DettaglioLinee
-            AddGroupElement('DettaglioLinee');
-            AddNonEmptyElement('NumeroLinea', Format(TempFatturaLine."Line No."));
+        // 2.2.1 DettaglioLinee
+        TempXMLBuffer.AddGroupElement('DettaglioLinee');
+        TempXMLBuffer.AddNonEmptyElement('NumeroLinea', Format(TempFatturaLine."Line No."));
 
-            if TempFatturaLine.GetItem(Item) then begin
-                AddGroupElement('CodiceArticolo');
-                AddNonEmptyElement('CodiceTipo', 'GTIN');
-                AddNonEmptyLastElement('CodiceValore', Item.GTIN);
-            end;
-            AddNonEmptyElement('Descrizione', TempFatturaLine.Description);
-            AddNonEmptyElement('Quantita', FormatQuantity(TempFatturaLine.Quantity));
-            AddNonEmptyElement('UnitaMisura', CopyStr(TempFatturaLine."Unit of Measure", 1, UoMMaxLength));
-            AddNonEmptyElement('PrezzoUnitario', FormatNonBlankQuantity(TempFatturaLine."Unit Price"));
-            if (TempFatturaLine."Discount Percent" <> 0) or (TempFatturaLine."Discount Amount" <> 0) then begin
-                AddGroupElement('ScontoMaggiorazione');
-                AddNonEmptyElement('Tipo', 'SC');
-                AddNonEmptyElement('Percentuale', FormatAmount(TempFatturaLine."Discount Percent"));
-                if TempFatturaLine."Discount Percent" = 0 then
-                    AddNonEmptyElement('Importo', FormatAmountEightDecimalPlaces(TempFatturaLine."Discount Amount"));
-                GetParent();
-            end;
-
-            AddNonEmptyElement('PrezzoTotale', FormatAmount(TempFatturaLine.Amount));
-            AddNonEmptyElement('AliquotaIVA', FormatAmount(TempFatturaLine."VAT %"));
-            AddNonEmptyElement('Natura', TempFatturaLine."VAT Transaction Nature");
-            if TempFatturaLine.Type <> '' then
-                PopulateAttachedToLinesExtText(TempFatturaLine);
-            GetParent();
+        if TempFatturaLine.GetItem(Item) then begin
+            TempXMLBuffer.AddGroupElement('CodiceArticolo');
+            TempXMLBuffer.AddNonEmptyElement('CodiceTipo', 'GTIN');
+            TempXMLBuffer.AddNonEmptyLastElement('CodiceValore', Item.GTIN);
         end;
+        TempXMLBuffer.AddNonEmptyElement('Descrizione', TempFatturaLine.Description);
+        TempXMLBuffer.AddNonEmptyElement('Quantita', FormatQuantity(TempFatturaLine.Quantity));
+        TempXMLBuffer.AddNonEmptyElement('UnitaMisura', CopyStr(TempFatturaLine."Unit of Measure", 1, UoMMaxLength));
+        TempXMLBuffer.AddNonEmptyElement('PrezzoUnitario', FormatNonBlankQuantity(TempFatturaLine."Unit Price"));
+        if (TempFatturaLine."Discount Percent" <> 0) or (TempFatturaLine."Discount Amount" <> 0) then begin
+            TempXMLBuffer.AddGroupElement('ScontoMaggiorazione');
+            TempXMLBuffer.AddNonEmptyElement('Tipo', 'SC');
+            TempXMLBuffer.AddNonEmptyElement('Percentuale', FormatAmount(TempFatturaLine."Discount Percent"));
+            if TempFatturaLine."Discount Percent" = 0 then
+                TempXMLBuffer.AddNonEmptyElement('Importo', FormatAmountEightDecimalPlaces(TempFatturaLine."Discount Amount"));
+            TempXMLBuffer.GetParent();
+        end;
+
+        TempXMLBuffer.AddNonEmptyElement('PrezzoTotale', FormatAmount(TempFatturaLine.Amount));
+        TempXMLBuffer.AddNonEmptyElement('AliquotaIVA', FormatAmount(TempFatturaLine."VAT %"));
+        TempXMLBuffer.AddNonEmptyElement('Natura', TempFatturaLine."VAT Transaction Nature");
+        if TempFatturaLine.Type <> '' then
+            PopulateAttachedToLinesExtText(TempFatturaLine);
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure PopulateLineVATData(var TempFatturaLine: Record "Fattura Line" temporary)
     begin
         // 2.2.2 DatiRiepilogo - summary data for every VAT rate
-        with TempXMLBuffer do begin
-            AddGroupElement('DatiRiepilogo');
-            AddNonEmptyElement('AliquotaIVA', FormatAmount(TempFatturaLine."VAT %"));
-            AddNonEmptyElement('Natura', TempFatturaLine."VAT Transaction Nature");
-            AddNonEmptyElement(
-              'ImponibileImporto', FormatAmount(TempFatturaLine."VAT Base"));
-            AddNonEmptyElement('Imposta', FormatAmount(TempFatturaLine."VAT Amount"));
-            AddNonEmptyElement('EsigibilitaIVA', TempFatturaLine.Description);
-            AddNonEmptyElement('RiferimentoNormativo', TempFatturaLine."VAT Nature Description");
-            GetParent();
-        end;
+        TempXMLBuffer.AddGroupElement('DatiRiepilogo');
+        TempXMLBuffer.AddNonEmptyElement('AliquotaIVA', FormatAmount(TempFatturaLine."VAT %"));
+        TempXMLBuffer.AddNonEmptyElement('Natura', TempFatturaLine."VAT Transaction Nature");
+        TempXMLBuffer.AddNonEmptyElement(
+          'ImponibileImporto', FormatAmount(TempFatturaLine."VAT Base"));
+        TempXMLBuffer.AddNonEmptyElement('Imposta', FormatAmount(TempFatturaLine."VAT Amount"));
+        TempXMLBuffer.AddNonEmptyElement('EsigibilitaIVA', TempFatturaLine.Description);
+        TempXMLBuffer.AddNonEmptyElement('RiferimentoNormativo', TempFatturaLine."VAT Nature Description");
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure PopulateOrderData(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
@@ -599,34 +561,33 @@ codeunit 12179 "Export FatturaPA Document"
         if not TempFatturaLine.FindSet() then
             exit;
 
-        with TempXMLBuffer do
+        repeat
+            TempXMLBuffer.AddGroupElement('DatiOrdineAcquisto');
+            OrderNo := TempFatturaLine."Document No.";
             repeat
-                AddGroupElement('DatiOrdineAcquisto');
-                OrderNo := TempFatturaLine."Document No.";
-                repeat
-                    if TempFatturaLine."Related Line No." <> 0 then
-                        AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Related Line No."));
-                    if TempFatturaLine."Customer Purchase Order No." <> '' then begin
-                        AddNonEmptyElement('IdDocumento', CopyStr(TempFatturaLine."Customer Purchase Order No.", 1, 20));
-                        LineInfoExists := true;
-                    end;
-                    if TempFatturaLine."Fattura Project Code" <> '' then begin
-                        AddNonEmptyElement('CodiceCUP', TempFatturaLine."Fattura Project Code");
-                        LineInfoExists := true;
-                    end;
-                    if TempFatturaLine."Fattura Tender Code" <> '' then begin
-                        AddNonEmptyElement('CodiceCIG', TempFatturaLine."Fattura Tender Code");
-                        LineInfoExists := true;
-                    end;
-                    Finished := TempFatturaLine.Next() = 0;
-                until Finished or (OrderNo <> TempFatturaLine."Document No.");
-                if not LineInfoExists then begin
-                    AddNonEmptyElement('IdDocumento', CopyStr(TempFatturaHeader."Customer Purchase Order No.", 1, 20));
-                    AddNonEmptyElement('CodiceCUP', TempFatturaHeader."Fattura Project Code");
-                    AddNonEmptyElement('CodiceCIG', TempFatturaHeader."Fattura Tender Code");
+                if TempFatturaLine."Related Line No." <> 0 then
+                    TempXMLBuffer.AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Related Line No."));
+                if TempFatturaLine."Customer Purchase Order No." <> '' then begin
+                    TempXMLBuffer.AddNonEmptyElement('IdDocumento', CopyStr(TempFatturaLine."Customer Purchase Order No.", 1, 20));
+                    LineInfoExists := true;
                 end;
-                GetParent();
-            until Finished;
+                if TempFatturaLine."Fattura Project Code" <> '' then begin
+                    TempXMLBuffer.AddNonEmptyElement('CodiceCUP', TempFatturaLine."Fattura Project Code");
+                    LineInfoExists := true;
+                end;
+                if TempFatturaLine."Fattura Tender Code" <> '' then begin
+                    TempXMLBuffer.AddNonEmptyElement('CodiceCIG', TempFatturaLine."Fattura Tender Code");
+                    LineInfoExists := true;
+                end;
+                Finished := TempFatturaLine.Next() = 0;
+            until Finished or (OrderNo <> TempFatturaLine."Document No.");
+            if not LineInfoExists then begin
+                TempXMLBuffer.AddNonEmptyElement('IdDocumento', CopyStr(TempFatturaHeader."Customer Purchase Order No.", 1, 20));
+                TempXMLBuffer.AddNonEmptyElement('CodiceCUP', TempFatturaHeader."Fattura Project Code");
+                TempXMLBuffer.AddNonEmptyElement('CodiceCIG', TempFatturaHeader."Fattura Tender Code");
+            end;
+            TempXMLBuffer.GetParent();
+        until Finished;
     end;
 
     local procedure PopulatePaymentData(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
@@ -637,24 +598,21 @@ codeunit 12179 "Export FatturaPA Document"
         OnBeforePopulatePaymentData(TempFatturaLine, TempFatturaHeader, TempXMLBuffer, IsHandled);
         if IsHandled then
             exit;
-
         // 2.4. DatiPagamento - Payment Data
-        with TempXMLBuffer do begin
-            TempFatturaLine.Reset();
-            TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Payment);
-            if TempFatturaLine.FindSet() then begin
-                AddGroupElement('DatiPagamento');
-                AddNonEmptyElement('CondizioniPagamento', TempFatturaHeader."Fattura Payment Terms Code");
-                repeat
-                    AddGroupElement('DettaglioPagamento');
-                    AddNonEmptyElement('ModalitaPagamento', TempFatturaHeader."Fattura PA Payment Method");
-                    AddNonEmptyElement(
-                      'DataScadenzaPagamento', FormatDate(TempFatturaLine."Due Date"));
-                    AddNonEmptyElement('ImportoPagamento', FormatAmount(TempFatturaLine.Amount));
-                    AddNonEmptyLastElement('IBAN', CompanyInformation.IBAN);
-                until TempFatturaLine.Next() = 0;
-                GetParent();
-            end;
+        TempFatturaLine.Reset();
+        TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Payment);
+        if TempFatturaLine.FindSet() then begin
+            TempXMLBuffer.AddGroupElement('DatiPagamento');
+            TempXMLBuffer.AddNonEmptyElement('CondizioniPagamento', TempFatturaHeader."Fattura Payment Terms Code");
+            repeat
+                TempXMLBuffer.AddGroupElement('DettaglioPagamento');
+                TempXMLBuffer.AddNonEmptyElement('ModalitaPagamento', TempFatturaHeader."Fattura PA Payment Method");
+                TempXMLBuffer.AddNonEmptyElement(
+                  'DataScadenzaPagamento', FormatDate(TempFatturaLine."Due Date"));
+                TempXMLBuffer.AddNonEmptyElement('ImportoPagamento', FormatAmount(TempFatturaLine.Amount));
+                TempXMLBuffer.AddNonEmptyLastElement('IBAN', CompanyInformation.IBAN);
+            until TempFatturaLine.Next() = 0;
+            TempXMLBuffer.GetParent();
         end;
     end;
 
@@ -665,15 +623,14 @@ codeunit 12179 "Export FatturaPA Document"
         if not TempFatturaLine.FindSet() then
             exit;
 
-        with TempXMLBuffer do
-            repeat
-                AddGroupElement('DatiDDT');
-                AddNonEmptyElement('NumeroDDT', TempFatturaLine."Document No.");
-                AddNonEmptyElement('DataDDT', FormatDate(TempFatturaLine."Posting Date"));
-                if TempFatturaLine."Related Line No." <> 0 then
-                    AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Line No."));
-                GetParent();
-            until TempFatturaLine.Next() = 0;
+        repeat
+            TempXMLBuffer.AddGroupElement('DatiDDT');
+            TempXMLBuffer.AddNonEmptyElement('NumeroDDT', TempFatturaLine."Document No.");
+            TempXMLBuffer.AddNonEmptyElement('DataDDT', FormatDate(TempFatturaLine."Posting Date"));
+            if TempFatturaLine."Related Line No." <> 0 then
+                TempXMLBuffer.AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Line No."));
+            TempXMLBuffer.GetParent();
+        until TempFatturaLine.Next() = 0;
     end;
 
     local procedure PopulateExtendedTextData(FatturaLine: Record "Fattura Line")
@@ -726,28 +683,26 @@ codeunit 12179 "Export FatturaPA Document"
         OutStream: OutStream;
         InStream: InStream;
     begin
-        with DocumentAttachment do begin
-            SetRange("Table ID", TempFatturaHeader.GetTableID());
-            SetRange("No.", TempFatturaHeader."Document No.");
-            if FindSet() then
-                repeat
-                    if not "Document Reference ID".HasValue() then
-                        exit;
+        DocumentAttachment.SetRange("Table ID", TempFatturaHeader.GetTableID());
+        DocumentAttachment.SetRange("No.", TempFatturaHeader."Document No.");
+        if DocumentAttachment.FindSet() then
+            repeat
+                if not DocumentAttachment."Document Reference ID".HasValue() then
+                    exit;
 
-                    TempXMLBuffer.AddGroupElement('Allegati');
-                    TempXMLBuffer.AddNonEmptyElement('NomeAttachment', "File Name");
-                    TempXMLBuffer.AddNonEmptyElement('FormatoAttachment', "File Extension");
-                    TempXMLBuffer.Get(TempXMLBuffer.AddElement('Attachment', ''));
+                TempXMLBuffer.AddGroupElement('Allegati');
+                TempXMLBuffer.AddNonEmptyElement('NomeAttachment', DocumentAttachment."File Name");
+                TempXMLBuffer.AddNonEmptyElement('FormatoAttachment', DocumentAttachment."File Extension");
+                TempXMLBuffer.Get(TempXMLBuffer.AddElement('Attachment', ''));
 
-                    TempBlob.CreateOutStream(OutStream);
-                    "Document Reference ID".ExportStream(OutStream);
-                    TempBlob.CreateInStream(InStream);
-                    TempXMLBuffer.SetValue(Base64Convert.ToBase64(InStream));
+                TempBlob.CreateOutStream(OutStream);
+                DocumentAttachment."Document Reference ID".ExportStream(OutStream);
+                TempBlob.CreateInStream(InStream);
+                TempXMLBuffer.SetValue(Base64Convert.ToBase64(InStream));
 
-                    TempXMLBuffer.GetParent();
-                    TempXMLBuffer.GetParent();
-                until Next() = 0;
-        end;
+                TempXMLBuffer.GetParent();
+                TempXMLBuffer.GetParent();
+            until DocumentAttachment.Next() = 0;
     end;
 
     local procedure PopulateApplicationData(TempFatturaHeader: Record "Fattura Header" temporary)
@@ -762,14 +717,12 @@ codeunit 12179 "Export FatturaPA Document"
         if AppliedDocNo = '' then
             exit;
 
-        with TempXMLBuffer do begin
-            AddGroupElement('DatiFattureCollegate');
-            AddNonEmptyElement('IdDocumento', AppliedDocNo);
-            AddNonEmptyElement('Data', FormatDate(TempFatturaHeader."Applied Posting Date"));
-            AddNonEmptyElement('CodiceCUP', TempFatturaHeader."Appl. Fattura Project Code");
-            AddNonEmptyElement('CodiceCIG', TempFatturaHeader."Appl. Fattura Tender Code");
-            GetParent();
-        end;
+        TempXMLBuffer.AddGroupElement('DatiFattureCollegate');
+        TempXMLBuffer.AddNonEmptyElement('IdDocumento', AppliedDocNo);
+        TempXMLBuffer.AddNonEmptyElement('Data', FormatDate(TempFatturaHeader."Applied Posting Date"));
+        TempXMLBuffer.AddNonEmptyElement('CodiceCUP', TempFatturaHeader."Appl. Fattura Project Code");
+        TempXMLBuffer.AddNonEmptyElement('CodiceCIG', TempFatturaHeader."Appl. Fattura Tender Code");
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure SubstituteInvalidCharacters(var InputValue: Text)

@@ -22,7 +22,6 @@ codeunit 144003 "IT - Activity Code"
         IncorrectFieldLengthErr: Label '%1 should be of length %2 only';
         MissingActivityCodeErr: Label '%1 must have a value in %2: %3=%4, %5=%6. It cannot be zero or empty.';
         MissingActivityCodeOnJournalErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.';
-        FieldNotFoundErr: Label '%1 is not available on %2';
 
     [Test]
     [Scope('OnPrem')]
@@ -374,7 +373,7 @@ codeunit 144003 "IT - Activity Code"
         GenJournalBatch.Modify(true);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, LibraryRandom.RandDec(1000, 2));
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(1000, 2));
     end;
 
     local procedure CreateGLAccount(): Code[20]
@@ -433,7 +432,7 @@ codeunit 144003 "IT - Activity Code"
         GenJournalBatch.Modify(true);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, LibraryRandom.RandDec(1000, 2));
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(1000, 2));
         GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"F  Fixed");
         EVALUATE(RecurringFrequency, '1M');
         GenJournalLine.Validate("Recurring Frequency", RecurringFrequency);

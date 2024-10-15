@@ -792,7 +792,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
                 BOMBuf.FindSet();
                 repeat
                     if TempItem."No." = Item."No." then begin
-                        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision;
+                        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision();
                         Assert.AreNearlyEqual(Item."Unit Cost", BOMBuf."Unit Cost", RoundingFactor,
                           StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Unit Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Rolled-up Material Cost", BOMBuf."Rolled-up Material Cost", RoundingFactor,
@@ -862,7 +862,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         BOMBuf.SetRange("No.", Item."No.");
         BOMBuf.FindFirst();
 
-        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision;
+        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision();
         Assert.AreNearlyEqual(RolledUpMaterialCost, BOMBuf."Rolled-up Material Cost", RoundingFactor,
           StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Rolled-up Material Cost"), Item."No."));
         Assert.AreNearlyEqual(RolledUpCapacityCost, BOMBuf."Rolled-up Capacity Cost", RoundingFactor,
@@ -893,9 +893,9 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         BOMBuf.FindFirst();
 
         // Seem the verification of Scrap cost is wrong here
-        // Assert.AreNearlyEqual(SglLevelScrapCost,BOMBuf."Single-Level Scrap Cost",LibraryERM.GetAmountRoundingPrecision,
+        // Assert.AreNearlyEqual(SglLevelScrapCost,BOMBuf."Single-Level Scrap Cost",LibraryERM.GetAmountRoundingPrecision(),
         // STRSUBSTNO(ERRWrongCostShareCalc,BOMBuf.FIELDCAPTION("Single-Level Scrap Cost"),Item."No."));
-        // Assert.AreNearlyEqual(RolledUpTreeCostWithScrap,BOMBuf."Unit Cost",LibraryERM.GetAmountRoundingPrecision,
+        // Assert.AreNearlyEqual(RolledUpTreeCostWithScrap,BOMBuf."Unit Cost",LibraryERM.GetAmountRoundingPrecision(),
         // STRSUBSTNO(ERRWrongCostShareCalc,BOMBuf.FIELDCAPTION("Rolled-up Scrap Cost"),Item."No."));
     end;
 

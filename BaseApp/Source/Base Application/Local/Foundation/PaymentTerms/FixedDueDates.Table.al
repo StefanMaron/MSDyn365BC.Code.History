@@ -10,6 +10,7 @@ using Microsoft.Sales.Customer;
 table 12172 "Fixed Due Dates"
 {
     Caption = 'Fixed Due Dates';
+    DataClassification = CustomerContent;
 
     fields
     {

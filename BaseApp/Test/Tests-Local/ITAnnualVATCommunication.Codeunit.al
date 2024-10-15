@@ -627,11 +627,11 @@ codeunit 144190 "IT - Annual VAT Communication"
         Initialize();
 
         // Exercise: Open VAT Statement Template page.
-        VATStatementTemplatesPage.OpenView;
+        VATStatementTemplatesPage.OpenView();
 
         // Verify: Verify field 'VAT Stat. Export Report ID' on VAT Statement Template page.
         Assert.IsTrue(
-          VATStatementTemplatesPage."VAT Stat. Export Report ID".Visible,
+          VATStatementTemplatesPage."VAT Stat. Export Report ID".Visible(),
           StrSubstNo(FieldNotFoundErr, VATStatementTemplate.FieldCaption("VAT Stat. Export Report ID")));
 
         // Tear Down: Close VAT Statement Template page.
@@ -920,7 +920,7 @@ codeunit 144190 "IT - Annual VAT Communication"
           VATStatementName."Statement Template Name", VATStatementName.Name, AppointmentCode.Code,
           DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), DMY2Date(31, 12, Date2DMY(WorkDate(), 3)));
         LibraryReportValidation.SetFileName(VATStatementName."Statement Template Name");
-        AnnualVATComm2010.SaveAsExcel(LibraryReportValidation.GetFileName);
+        AnnualVATComm2010.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     local procedure RunReportExpAnnualVATCommunicationAndSaveTheExportedFile(StatementName: Code[10]; SeparateLedger: Boolean; GroupSettlement: Boolean; ExceptionalEvent: Boolean) ExportedFileName: Text
@@ -937,7 +937,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         ExpAnnualVATComm2010.UseRequestPage(false);
         ExpAnnualVATComm2010.InitializeRequest('', AppointmentCode.Code, SeparateLedger, GroupSettlement, ExceptionalEvent, true);
         ExpAnnualVATComm2010.RunModal();
-        ExportedFileName := ExpAnnualVATComm2010.GetServerFileName;
+        ExportedFileName := ExpAnnualVATComm2010.GetServerFileName();
     end;
 
     local procedure SetupTransactionData(var VATStatementName: Record "VAT Statement Name"; AnnualVATCommType: Option) Amount: Decimal
@@ -946,7 +946,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         VATStatementLine: Record "VAT Statement Line";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateVATStatementTemplateAndName(VATStatementName);
         CreateVATStatementLine(
@@ -972,7 +972,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor."Fiscal Code" := GenerateFiscalCode;
+        Vendor."Fiscal Code" := GenerateFiscalCode();
         Vendor.Validate(
           "VAT Registration No.",
           CopyStr(LibraryUtility.GenerateRandomCode(Vendor.FieldNo("VAT Registration No."), DATABASE::Vendor),
@@ -987,14 +987,14 @@ codeunit 144190 "IT - Annual VAT Communication"
 
     local procedure VerifyDecimalInReportAnnualVATCommunication(ExpectedValue: Decimal)
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(
           LibraryReportValidation.CheckIfDecimalValueExists(ExpectedValue), StrSubstNo(WrongValueInReportErr, ExpectedValue));
     end;
 
     local procedure VerifyDetailsInReportAnnualVATCommunication(ExpectedValue: Text)
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(ExpectedValue), StrSubstNo(WrongValueInReportErr, ExpectedValue));
     end;
 

@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 12196 "Incl. in VAT Report Error Log"
 {
     Caption = 'Incl. in VAT Report Error Log';
+    DataClassification = CustomerContent;
 
     fields
     {

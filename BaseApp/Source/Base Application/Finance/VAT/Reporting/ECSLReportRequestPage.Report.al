@@ -25,13 +25,16 @@ report 323 "ECSL Report Request Page"
             area(content)
             {
                 field("""VAT Report Header"".""Start Date"""; "VAT Report Header"."Start Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = BasicEU;
                     Caption = 'Start Date';
                     Importance = Additional;
                     ToolTip = 'Specifies the start date for the EU Sales Report you want to view.';
                 }
+#pragma warning disable AA0100
                 field("""VAT Report Header"".""End Date"""; "VAT Report Header"."End Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = BasicEU;
                     Caption = 'End Date';

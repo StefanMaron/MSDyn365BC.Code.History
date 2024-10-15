@@ -311,16 +311,6 @@ page 27 "Vendor List"
                               "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 Visible = false;
             }
-#if not CLEAN21
-            part("Power BI Report FactBox"; "Power BI Report FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false;
-                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -529,7 +519,7 @@ page 27 "Vendor List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -550,7 +540,7 @@ page 27 "Vendor List"
                     end;
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
@@ -679,7 +669,7 @@ page 27 "Vendor List"
                     RunObject = Page "Vendor Ledger Entries";
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -992,7 +982,7 @@ page 27 "Vendor List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
 
@@ -1008,7 +998,7 @@ page 27 "Vendor List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1100,32 +1090,6 @@ page 27 "Vendor List"
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
-#if not CLEAN21
-            group(Display)
-            {
-                Caption = 'Display';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
-                ObsoleteTag = '21.0';
-                action(ReportFactBoxVisibility)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Show/Hide Power BI Reports';
-                    Image = "Report";
-                    ToolTip = 'Select if the Power BI FactBox is visible or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
-                    ObsoleteTag = '21.0';
-                    trigger OnAction()
-                    begin
-                        // save visibility value into the table
-                        CurrPage."Power BI Report FactBox".PAGE.SetFactBoxVisibility(PowerBIVisible);
-                    end;
-                }
-            }
-#endif
             group(OCR)
             {
                 Caption = 'OCR';
@@ -1382,24 +1346,6 @@ page 27 "Vendor List"
                 actionref("Return Orders_Promoted"; "Return Orders")
                 {
                 }
-#if not CLEAN21
-                actionref("Payment Journal_Promoted"; "Payment Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Purchase Journal_Promoted"; "Purchase Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group("Category_Prices & Discounts")
             {
@@ -1414,7 +1360,7 @@ page 27 "Vendor List"
                 actionref(DiscountLines_Promoted; DiscountLines)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -1422,7 +1368,7 @@ page 27 "Vendor List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
                     ObsoleteState = Pending;
@@ -1487,10 +1433,6 @@ page 27 "Vendor List"
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
 
-#if not CLEAN21
-        // Contextual Power BI FactBox: send data to filter the report in the FactBox
-        CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection(Rec."No.", false, PowerBIVisible);
-#endif
         CurrPage.SetSelectionFilter(Vendor);
         CanSendEmail := Vendor.Count() = 1;
 
@@ -1499,10 +1441,6 @@ page 27 "Vendor List"
 
     trigger OnInit()
     begin
-#if not CLEAN21
-        PowerBIVisible := false;
-        CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
-#endif
         CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
@@ -1535,9 +1473,6 @@ page 27 "Vendor List"
         CanSendEmail: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
-#if not CLEAN21
-        PowerBIVisible: Boolean;
-#endif
         ResyncVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;

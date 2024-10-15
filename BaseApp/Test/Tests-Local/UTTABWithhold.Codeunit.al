@@ -38,7 +38,7 @@ codeunit 144092 "UT TAB Withhold"
         LibraryVariableStorage.Enqueue(PurchInvHeader."Buy-from Vendor Name");
 
         // Exercise & Verify: Verify Purchase Invoice Header - Number and Buy From Vendor Number on handler - PostedPurchaseInvoiceModalPageHandler.
-        PostedVendorBillLine.ShowInvoice;
+        PostedVendorBillLine.ShowInvoice();
     end;
 
     [Test]
@@ -260,7 +260,7 @@ codeunit 144092 "UT TAB Withhold"
 
         // Verify: Verify Document Number and Document Date on Inserted record - Withholding Tax.
         WithholdingTax.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
-        Assert.IsTrue(WithholdingTax.FindFirst, StrSubstNo(ValueMustExistMsg, WithholdingTax.TableCaption()));
+        Assert.IsTrue(WithholdingTax.FindFirst(), StrSubstNo(ValueMustExistMsg, WithholdingTax.TableCaption()));
         WithholdingTax.TestField("Document No.", VendorLedgerEntry."Document No.");
         WithholdingTax.TestField("Document Date", VendorLedgerEntry."Document Date");
     end;
@@ -452,16 +452,16 @@ codeunit 144092 "UT TAB Withhold"
         Contributions."Entry No." := 1;
         if Contributions2.FindLast() then
             Contributions."Entry No." := Contributions2."Entry No." + 1;
-        Contributions."Social Security Code" := LibraryUTUtility.GetNewCode;
-        Contributions."INAIL Code" := LibraryUTUtility.GetNewCode;
+        Contributions."Social Security Code" := LibraryUTUtility.GetNewCode();
+        Contributions."INAIL Code" := LibraryUTUtility.GetNewCode();
         Contributions.Insert();
     end;
 
     local procedure CreateWithholdingTax(var WithholdingTax: Record "Withholding Tax")
     begin
         CreateEmptyWithholdingTax(WithholdingTax);
-        WithholdingTax."Vendor No." := CreateVendor;
-        WithholdingTax."Withholding Tax Code" := CreateWithholdCodeCode;
+        WithholdingTax."Vendor No." := CreateVendor();
+        WithholdingTax."Withholding Tax Code" := CreateWithholdCodeCode();
         WithholdingTax."Posting Date" := WorkDate();
         WithholdingTax."Total Amount" := LibraryRandom.RandDec(10, 2);
         WithholdingTax.Modify();
@@ -487,7 +487,7 @@ codeunit 144092 "UT TAB Withhold"
 
     local procedure CreateWithholdCode(var WithholdCode: Record "Withhold Code")
     begin
-        WithholdCode.Code := LibraryUTUtility.GetNewCode;
+        WithholdCode.Code := LibraryUTUtility.GetNewCode();
         WithholdCode.Insert();
     end;
 
@@ -504,15 +504,15 @@ codeunit 144092 "UT TAB Withhold"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode10;
+        BankAccount."No." := LibraryUTUtility.GetNewCode10();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
 
     local procedure CreatePurchaseInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchInvHeader."Buy-from Vendor No." := CreateVendor;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchInvHeader."Buy-from Vendor No." := CreateVendor();
         PurchInvHeader.Insert();
     end;
 
@@ -520,8 +520,8 @@ codeunit 144092 "UT TAB Withhold"
     var
         PostedVendorBillHeader: Record "Posted Vendor Bill Header";
     begin
-        PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode;
-        PostedVendorBillHeader."Bank Account No." := CreateBankAccount;
+        PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode();
+        PostedVendorBillHeader."Bank Account No." := CreateBankAccount();
         PostedVendorBillHeader.Insert();
 
         PostedVendorBillLine."Vendor Bill No." := PostedVendorBillHeader."No.";
@@ -535,8 +535,8 @@ codeunit 144092 "UT TAB Withhold"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."Withholding Tax Code" := CreateWithholdCodeCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor."Withholding Tax Code" := CreateWithholdCodeCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -547,8 +547,8 @@ codeunit 144092 "UT TAB Withhold"
     begin
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
-        VendorLedgerEntry."Vendor No." := CreateVendor;
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Vendor No." := CreateVendor();
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Document Date" := WorkDate();
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Insert();
@@ -579,7 +579,7 @@ codeunit 144092 "UT TAB Withhold"
         LibraryVariableStorage.Dequeue(BuyFromVendorName);
         PostedPurchaseInvoice.FILTER.SetFilter("No.", No);
         PostedPurchaseInvoice."Buy-from Vendor Name".AssertEquals(BuyFromVendorName);
-        PostedPurchaseInvoice.OK.Invoke;
+        PostedPurchaseInvoice.OK().Invoke();
     end;
 
     [ConfirmHandler]

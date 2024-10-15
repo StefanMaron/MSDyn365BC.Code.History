@@ -1,5 +1,6 @@
 table 143000 "Split VAT Test"
 {
+    DataClassification = CustomerContent;
 
     fields
     {

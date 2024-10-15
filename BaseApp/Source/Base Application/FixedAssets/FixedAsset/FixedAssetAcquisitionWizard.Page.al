@@ -28,8 +28,10 @@ page 5551 "Fixed Asset Acquisition Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND (Step <> Step::Done);
+                Visible = TopBannerVisible and (Step <> Step::Done);
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
@@ -40,8 +42,10 @@ page 5551 "Fixed Asset Acquisition Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND (Step = Step::Done);
+                Visible = TopBannerVisible and (Step = Step::Done);
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = FixedAssets;
                     Editable = false;
@@ -278,7 +282,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
             {
                 ApplicationArea = FixedAssets;
                 Caption = 'Next';
-                Enabled = (Step <> Step::Done) AND (CurrStepIsValid);
+                Enabled = (Step <> Step::Done) and (CurrStepIsValid);
                 Image = NextRecord;
                 InFooterBar = true;
                 Visible = Step <> Step::"Already In Journal";
@@ -292,7 +296,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
             {
                 ApplicationArea = FixedAssets;
                 Caption = 'Finish';
-                Enabled = (Step = Step::Done) OR (Step = Step::"Already In Journal");
+                Enabled = (Step = Step::Done) or (Step = Step::"Already In Journal");
                 Image = Approve;
                 InFooterBar = true;
 

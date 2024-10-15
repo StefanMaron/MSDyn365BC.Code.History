@@ -57,7 +57,7 @@ codeunit 144172 "ERM Prepayment IT"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Verify Report 412 Purchase Prepmt. Doc. - Test when Purchase Prepayment Account is specified.
-        SetupAndRunPurchasePrepmtDocumentTestReport(PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup);
+        SetupAndRunPurchasePrepmtDocumentTestReport(PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup());
 
         // Verify: Verify Saved Report Data.
         VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
@@ -89,7 +89,7 @@ codeunit 144172 "ERM Prepayment IT"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Verify Report 212 Sales Prepmt. Document Test when Sales Prepayment Account is specified.
-        SetupAndRunSalesPrepmtDocumentTestReport(SalesLine, LibraryERM.CreateGLAccountWithSalesSetup);
+        SetupAndRunSalesPrepmtDocumentTestReport(SalesLine, LibraryERM.CreateGLAccountWithSalesSetup());
 
         // Verify: Verify Saved Report Data.
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
@@ -813,9 +813,9 @@ codeunit 144172 "ERM Prepayment IT"
     begin
         GetPostedPaymentLineForDocument(PostedPaymentLines, SalesPurchase, DocumentType, DocumentNo);
 
-        PostedPaymentsPage.OpenView;
+        PostedPaymentsPage.OpenView();
         PostedPaymentsPage.GotoRecord(PostedPaymentLines);
-        PostedPaymentsPage.RecalcAmount.Invoke;
+        PostedPaymentsPage.RecalcAmount.Invoke();
 
         PostedPaymentLines.Find();
     end;
@@ -852,7 +852,7 @@ codeunit 144172 "ERM Prepayment IT"
             repeat
                 LineAmount := "Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
-            until Next = 0;
+            until Next() = 0;
             exit(TotalAmount);
         end;
     end;
@@ -878,7 +878,7 @@ codeunit 144172 "ERM Prepayment IT"
                 else
                     PrepmtLineAmount := "Prepmt. Line Amount" * (1 + PrepmtVATPct / 100);
                 PrepmtTotalAmount += PrepmtLineAmount;
-            until Next = 0;
+            until Next() = 0;
 
             exit(PrepmtTotalAmount);
         end;
@@ -963,7 +963,7 @@ codeunit 144172 "ERM Prepayment IT"
         GLAccount: Record "G/L Account";
     begin
         GLAccount.Get(AccountNo);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, AccountNo);
         LibraryReportDataset.AssertElementWithValueExists(DescriptionCap, GLAccount.Name);
         LibraryReportDataset.AssertElementWithValueExists(AmountCap, PrepmtLineAmount);
@@ -978,7 +978,7 @@ codeunit 144172 "ERM Prepayment IT"
 
     local procedure VerifyWarningMessageOnReport(WarningCaption: Text; WarningCaption2: Text; WarningMsg2: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(WarningCaption, StrSubstNo(WarningMsg2));
         LibraryReportDataset.AssertElementWithValueExists(WarningCaption2, StrSubstNo(WarningMsg));
     end;
@@ -1003,7 +1003,7 @@ codeunit 144172 "ERM Prepayment IT"
             repeat
                 TestField("Remaining Unrealized Amount", 0);
                 TestField("Remaining Unrealized Base", 0);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1063,14 +1063,14 @@ codeunit 144172 "ERM Prepayment IT"
     [Scope('OnPrem')]
     procedure PurchasePrepmtDocTestReportHandler(var PurchasePrepmtDocTest: TestRequestPage "Purchase Prepmt. Doc. - Test")
     begin
-        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesPrepmtDocumentTestReportHandler(var SalesPrepmtDocumentTest: TestRequestPage "Sales Prepmt. Document Test")
     begin
-        SalesPrepmtDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesPrepmtDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

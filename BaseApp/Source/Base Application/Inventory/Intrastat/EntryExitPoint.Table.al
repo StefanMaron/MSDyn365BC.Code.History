@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,6 +9,7 @@ table 282 "Entry/Exit Point"
     Caption = 'Entry/Exit Point';
     DrillDownPageID = "Entry/Exit Points";
     LookupPageID = "Entry/Exit Points";
+    DataClassification = CustomerContent;
 
     fields
     {

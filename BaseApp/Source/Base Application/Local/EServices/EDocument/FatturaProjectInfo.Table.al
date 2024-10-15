@@ -9,6 +9,7 @@ table 12199 "Fattura Project Info"
     Caption = 'Fattura Project Info';
     DrillDownPageID = "Fattura Project Info";
     LookupPageID = "Fattura Project Info";
+    DataClassification = CustomerContent;
 
     fields
     {

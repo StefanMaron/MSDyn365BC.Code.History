@@ -17,6 +17,7 @@ table 12159 "Company Officials"
     DataCaptionFields = "No.", "First Name", "Middle Name", "Last Name";
     DrillDownPageID = "Company Officials";
     LookupPageID = "Company Officials";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -25,10 +26,12 @@ table 12159 "Company Officials"
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." <> xRec."No." then begin
                     GLSetup.Get();
-                    NoSeriesMgt.TestManual(GLSetup."Company Officials Nos.");
+                    NoSeries.TestManual(GLSetup."Company Officials Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -266,11 +269,28 @@ table 12159 "Company Officials"
     }
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             GLSetup.Get();
             GLSetup.TestField("Company Officials Nos.");
-            NoSeriesMgt.InitSeries(GLSetup."Company Officials Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(GLSetup."Company Officials Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := GLSetup."Company Officials Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GLSetup."Company Officials Nos.", 0D, "No.");
+            end;
+#endif
         end;
     end;
 
@@ -289,22 +309,19 @@ table 12159 "Company Officials"
         Employee: Record Employee;
         PostCode: Record "Post Code";
         CompanyOfficials: Record "Company Officials";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
 
     [Scope('OnPrem')]
     procedure AssistEdit(CompanyOfficials2: Record "Company Officials"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with CompanyOfficials do begin
-            CompanyOfficials := Rec;
-            GLSetup.Get();
-            GLSetup.TestField("Company Officials Nos.");
-            if NoSeriesMgt.SelectSeries(GLSetup."Company Officials Nos.", CompanyOfficials2."No. Series", "No. Series") then begin
-                GLSetup.Get();
-                GLSetup.TestField("Company Officials Nos.");
-                NoSeriesMgt.SetSeries("No.");
-                Rec := CompanyOfficials;
-                exit(true);
-            end;
+        CompanyOfficials := Rec;
+        GLSetup.Get();
+        GLSetup.TestField("Company Officials Nos.");
+        if NoSeries.LookupRelatedNoSeries(GLSetup."Company Officials Nos.", CompanyOfficials2."No. Series", CompanyOfficials."No. Series") then begin
+            CompanyOfficials."No." := NoSeries.GetNextNo(CompanyOfficials."No. Series");
+            Rec := CompanyOfficials;
+            exit(true);
         end;
     end;
 

@@ -21,7 +21,6 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Foundation.PaymentTerms;
@@ -83,8 +82,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Identifier");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Book Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GL Book Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"No. Series Line Sales");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"No. Series Line Purchase");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Register");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reprint Info Fiscal Reports");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Subcontractor Prices");

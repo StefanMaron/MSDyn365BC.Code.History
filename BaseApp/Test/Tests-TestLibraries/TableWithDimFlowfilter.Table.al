@@ -2,6 +2,7 @@ table 134484 "Table With Dim Flowfilter"
 {
 
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

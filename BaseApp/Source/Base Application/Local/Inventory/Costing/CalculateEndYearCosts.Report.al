@@ -115,81 +115,75 @@ report 12115 "Calculate End Year Costs"
         if ReferenceDate = 0D then
             Error(Text005);
 
-        with AccountingPeriod do begin
-            Reset();
-            SetRange("New Fiscal Year", true);
-            SetFilter("Starting Date", '<=%1', ReferenceDate);
-            Find('+');
-            FiscalYearStartDate := "Starting Date";
-            LastFiscalYearEndDate := "Starting Date" - 1;
-            StartingDate := FiscalYearStartDate;
+        AccountingPeriod.Reset();
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetFilter("Starting Date", '<=%1', ReferenceDate);
+        AccountingPeriod.Find('+');
+        FiscalYearStartDate := AccountingPeriod."Starting Date";
+        LastFiscalYearEndDate := AccountingPeriod."Starting Date" - 1;
+        StartingDate := FiscalYearStartDate;
 
-            Reset();
-            SetRange("New Fiscal Year", true);
-            "Starting Date" := FiscalYearStartDate;
-            Find();
-            if Next() <> 0 then
-                FiscalYearEndDate := "Starting Date" - 1
-            else
-                FiscalYearEndDate := CalcDate('<12M-1D>', FiscalYearStartDate);
-        end;
+        AccountingPeriod.Reset();
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod."Starting Date" := FiscalYearStartDate;
+        AccountingPeriod.Find();
+        if AccountingPeriod.Next() <> 0 then
+            FiscalYearEndDate := AccountingPeriod."Starting Date" - 1
+        else
+            FiscalYearEndDate := CalcDate('<12M-1D>', FiscalYearStartDate);
         if not ((ReferenceDate >= FiscalYearStartDate) and (ReferenceDate <= FiscalYearEndDate)) then
             Error(Text009, ReferenceDate);
 
-        with ItemCostHistory do begin
-            SetItemCostHistFilter(ReferenceDate, '>=%1', true);
-            if FindLast() then
-                Error(Text008, Date2DMY("Competence Year", 3), Date2DMY(ReferenceDate, 3));
+        SetItemCostHistFilter(ReferenceDate, '>=%1', true);
+        if ItemCostHistory.FindLast() then
+            Error(Text008, Date2DMY(ItemCostHistory."Competence Year", 3), Date2DMY(ReferenceDate, 3));
 
-            SetItemCostHistFilter(LastFiscalYearEndDate, '<=%1', false);
-            if FindFirst() then
+        SetItemCostHistFilter(LastFiscalYearEndDate, '<=%1', false);
+        if ItemCostHistory.FindFirst() then
+            Error(Text007, Date2DMY(LastFiscalYearEndDate, 3));
+
+        SetItemCostHistFilter(LastFiscalYearEndDate, '<=%1', false);
+        if ItemCostHistory.FindLast() then begin
+            if ItemCostHistory."Competence Year" <> LastFiscalYearEndDate then
                 Error(Text007, Date2DMY(LastFiscalYearEndDate, 3));
-
-            SetItemCostHistFilter(LastFiscalYearEndDate, '<=%1', false);
-            if FindLast() then begin
-                if "Competence Year" <> LastFiscalYearEndDate then
-                    Error(Text007, Date2DMY(LastFiscalYearEndDate, 3));
-            end;
-
-            if DefinitiveCosts and
-               (ReferenceDate <> FiscalYearEndDate)
-            then
-                Error(Text006, FiscalYearEndDate);
-
-            Reset();
-            SetRange("Competence Year", FiscalYearStartDate, FiscalYearEndDate);
-            SetRange(Definitive, false);
-            DeleteAll();
         end;
 
-        with LIFOBand do begin
-            Reset();
-            SetRange(Definitive, false);
-            if FindSet() then
-                repeat
-                    if not Positive then
-                        if LIFOBand2.Get("Closed by Entry No.") then begin
-                            LIFOBand2."Absorbed Quantity" := LIFOBand2."Absorbed Quantity" + "Increment Quantity";
-                            LIFOBand2."Residual Quantity" := LIFOBand2."Increment Quantity" - LIFOBand2."Absorbed Quantity";
-                            LIFOBand2."Increment Value" := LIFOBand2."Increment Value" - "Increment Value";
-                            LIFOBand3.Reset();
-                            LIFOBand3.SetRange(Definitive, true);
-                            LIFOBand3.SetRange("Closed by Entry No.", LIFOBand2."Entry No.");
-                            if LIFOBand3.FindLast() then
-                                LIFOBand2."Closed by Entry No." := LIFOBand3."Entry No."
-                            else
-                                LIFOBand2."Closed by Entry No." := 0;
-                            LIFOBand2.Modify();
-                        end;
-                until Next() = 0;
+        if DefinitiveCosts and
+           (ReferenceDate <> FiscalYearEndDate)
+        then
+            Error(Text006, FiscalYearEndDate);
 
-            Reset();
-            SetRange(Definitive, false);
-            DeleteAll();
+        ItemCostHistory.Reset();
+        ItemCostHistory.SetRange("Competence Year", FiscalYearStartDate, FiscalYearEndDate);
+        ItemCostHistory.SetRange(Definitive, false);
+        ItemCostHistory.DeleteAll();
 
-            Reset();
-            NextEntryNo := GetLastEntryNo() + 1;
-        end;
+        LIFOBand.Reset();
+        LIFOBand.SetRange(Definitive, false);
+        if LIFOBand.FindSet() then
+            repeat
+                if not LIFOBand.Positive then
+                    if LIFOBand2.Get(LIFOBand."Closed by Entry No.") then begin
+                        LIFOBand2."Absorbed Quantity" := LIFOBand2."Absorbed Quantity" + LIFOBand."Increment Quantity";
+                        LIFOBand2."Residual Quantity" := LIFOBand2."Increment Quantity" - LIFOBand2."Absorbed Quantity";
+                        LIFOBand2."Increment Value" := LIFOBand2."Increment Value" - LIFOBand."Increment Value";
+                        LIFOBand3.Reset();
+                        LIFOBand3.SetRange(Definitive, true);
+                        LIFOBand3.SetRange("Closed by Entry No.", LIFOBand2."Entry No.");
+                        if LIFOBand3.FindLast() then
+                            LIFOBand2."Closed by Entry No." := LIFOBand3."Entry No."
+                        else
+                            LIFOBand2."Closed by Entry No." := 0;
+                        LIFOBand2.Modify();
+                    end;
+            until LIFOBand.Next() = 0;
+
+        LIFOBand.Reset();
+        LIFOBand.SetRange(Definitive, false);
+        LIFOBand.DeleteAll();
+
+        LIFOBand.Reset();
+        NextEntryNo := LIFOBand.GetLastEntryNo() + 1;
         Window.Open(ProgressBarTxt);
     end;
 
@@ -220,36 +214,35 @@ report 12115 "Calculate End Year Costs"
         Window.Update(2, StrSubstNo('%1', Item."No."));
         Window.Update(3, StrSubstNo('%1', Item."Lifo Category"));
         Window.Update(4, StrSubstNo('%1', Item."Low-Level Code"));
-        with ItemCostHistory do begin
-            Init();
-            "Item No." := Item."No.";
-            Description := Item.Description;
-            "Competence Year" := ReferenceDate;
-            Description := Item.Description;
-            "Base Unit of Measure" := Item."Base Unit of Measure";
-            "Inventory Valuation" := Item."Inventory Valuation";
-            "Start Year Inventory" := CalcStartYearInv();
-            "End Year Inventory" := CalcEndYearInv();
-            if Item."Replenishment System" = Item."Replenishment System"::Purchase then begin
-                InitPurchFields();
-                if "Purchase Quantity" <> 0 then
-                    "Year Average Cost" := "Purchase Amount" / "Purchase Quantity";
-                "FIFO Cost" := CalcPurchFIFOCost();
-                "LIFO Cost" := CalcPurchLIFOCost();
-            end else
-                if Item."Replenishment System" = Item."Replenishment System"::"Prod. Order" then begin
-                    "Components Valuation" := ItemCostingSetup."Components Valuation";
-                    "Estimated WIP Consumption" := ItemCostingSetup."Estimated WIP Consumption";
-                    InitProdFields();
-                    if "Production Quantity" <> 0 then
-                        "Year Average Cost" := "Production Amount" / "Production Quantity";
-                    "LIFO Cost" := CalcProdLIFOCost();
-                end;
-            "Weighted Average Cost" := CalcWeighAvgCost();
-            Definitive := DefinitiveCosts;
-            "Expected Cost Exist" := ExpectedCostExist;
-            Insert();
-        end;
+
+        ItemCostHistory.Init();
+        ItemCostHistory."Item No." := Item."No.";
+        ItemCostHistory.Description := Item.Description;
+        ItemCostHistory."Competence Year" := ReferenceDate;
+        ItemCostHistory.Description := Item.Description;
+        ItemCostHistory."Base Unit of Measure" := Item."Base Unit of Measure";
+        ItemCostHistory."Inventory Valuation" := Item."Inventory Valuation";
+        ItemCostHistory."Start Year Inventory" := CalcStartYearInv();
+        ItemCostHistory."End Year Inventory" := CalcEndYearInv();
+        if Item."Replenishment System" = Item."Replenishment System"::Purchase then begin
+            InitPurchFields();
+            if ItemCostHistory."Purchase Quantity" <> 0 then
+                ItemCostHistory."Year Average Cost" := ItemCostHistory."Purchase Amount" / ItemCostHistory."Purchase Quantity";
+            ItemCostHistory."FIFO Cost" := CalcPurchFIFOCost();
+            ItemCostHistory."LIFO Cost" := CalcPurchLIFOCost();
+        end else
+            if Item."Replenishment System" = Item."Replenishment System"::"Prod. Order" then begin
+                ItemCostHistory."Components Valuation" := ItemCostingSetup."Components Valuation";
+                ItemCostHistory."Estimated WIP Consumption" := ItemCostingSetup."Estimated WIP Consumption";
+                InitProdFields();
+                if ItemCostHistory."Production Quantity" <> 0 then
+                    ItemCostHistory."Year Average Cost" := ItemCostHistory."Production Amount" / ItemCostHistory."Production Quantity";
+                ItemCostHistory."LIFO Cost" := CalcProdLIFOCost();
+            end;
+        ItemCostHistory."Weighted Average Cost" := CalcWeighAvgCost();
+        ItemCostHistory.Definitive := DefinitiveCosts;
+        ItemCostHistory."Expected Cost Exist" := ExpectedCostExist;
+        ItemCostHistory.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -618,44 +611,42 @@ report 12115 "Calculate End Year Costs"
         GetAdjCosts(TotInvoicedQty, TotInvoicedAmt, NotInvoicedQty, NotInvoicedAmt);
         ItemCostingSetup.Get();
         ItemCostHistory.Get(Item."No.", ReferenceDate);
-        with LIFOBand do begin
-            Init();
-            "Entry No." := NextEntryNo;
-            "Item No." := Item."No.";
-            "Lifo Category" := Item."Lifo Category";
-            "Competence Year" := ReferenceDate;
-            Validate("Increment Quantity", NewQuantity);
-            "Absorbed Quantity" := 0;
-            Validate(CMP, ItemCostHistory."Weighted Average Cost");
-            Positive := "Increment Quantity" > 0;
-            if Positive then
-                Validate("Year Average Cost", ItemCostHistory."Year Average Cost")
+        LIFOBand.Init();
+        LIFOBand."Entry No." := NextEntryNo;
+        LIFOBand."Item No." := Item."No.";
+        LIFOBand."Lifo Category" := Item."Lifo Category";
+        LIFOBand."Competence Year" := ReferenceDate;
+        LIFOBand.Validate("Increment Quantity", NewQuantity);
+        LIFOBand."Absorbed Quantity" := 0;
+        LIFOBand.Validate(CMP, ItemCostHistory."Weighted Average Cost");
+        LIFOBand.Positive := LIFOBand."Increment Quantity" > 0;
+        if LIFOBand.Positive then
+            LIFOBand.Validate("Year Average Cost", ItemCostHistory."Year Average Cost")
+        else
+            if LinkedLIFOBand.Get(ClosedBy) then
+                LIFOBand.Validate("Year Average Cost", LinkedLIFOBand."Year Average Cost");
+        LIFOBand.Definitive := DefinitiveCosts;
+        LIFOBand."Qty not Invoiced" := NotInvoicedQty;
+        if Item."Replenishment System" = Item."Replenishment System"::Purchase then
+            LIFOBand."Amount not Invoiced" := NotInvoicedAmt
+        else begin
+            if not ItemCostingSetup."Estimated WIP Consumption" then
+                LIFOBand."Amount not Invoiced" := NotInvAmtForWIP
             else
-                if LinkedLIFOBand.Get(ClosedBy) then
-                    Validate("Year Average Cost", LinkedLIFOBand."Year Average Cost");
-            Definitive := DefinitiveCosts;
-            "Qty not Invoiced" := NotInvoicedQty;
-            if Item."Replenishment System" = Item."Replenishment System"::Purchase then
-                "Amount not Invoiced" := NotInvoicedAmt
-            else begin
-                if not ItemCostingSetup."Estimated WIP Consumption" then
-                    "Amount not Invoiced" := NotInvAmtForWIP
-                else
-                    "Amount not Invoiced" := NotInvAmtForEstWIP;
-            end;
-            "Closed by Entry No." := ClosedBy;
-            "Invoiced Quantity" := TotInvoicedQty;
-            if Item."Replenishment System" = Item."Replenishment System"::Purchase then
-                "Invoiced Amount" := TotInvoicedAmt
-            else
-                if not ItemCostingSetup."Estimated WIP Consumption" then
-                    "Invoiced Amount" := ItemCostHistory."Production Amount" - NotInvAmtForWIP
-                else
-                    "Invoiced Amount" := ItemCostHistory."Production Amount" - NotInvAmtForEstWIP;
-            "User ID" := UserId;
-            Insert();
-            NextEntryNo := NextEntryNo + 1;
+                LIFOBand."Amount not Invoiced" := NotInvAmtForEstWIP;
         end;
+        LIFOBand."Closed by Entry No." := ClosedBy;
+        LIFOBand."Invoiced Quantity" := TotInvoicedQty;
+        if Item."Replenishment System" = Item."Replenishment System"::Purchase then
+            LIFOBand."Invoiced Amount" := TotInvoicedAmt
+        else
+            if not ItemCostingSetup."Estimated WIP Consumption" then
+                LIFOBand."Invoiced Amount" := ItemCostHistory."Production Amount" - NotInvAmtForWIP
+            else
+                LIFOBand."Invoiced Amount" := ItemCostHistory."Production Amount" - NotInvAmtForEstWIP;
+        LIFOBand."User ID" := UserId;
+        LIFOBand.Insert();
+        NextEntryNo := NextEntryNo + 1;
     end;
 
     [Scope('OnPrem')]
@@ -665,24 +656,21 @@ report 12115 "Calculate End Year Costs"
         ItemCostHistory2: Record "Item Cost History";
         LIFOAmount: Decimal;
     begin
-        with LIFOBand do begin
-            Reset();
-            SetRange("Item No.", Item."No.");
-            if FindSet() then
-                repeat
-                    if "Residual Quantity" > 0 then
-                        LIFOAmount += "Year Average Cost" * "Residual Quantity";
-                    UpdateExpCostExist("Competence Year", StartingDate);
-                until Next() = 0;
-        end;
+        LIFOBand.Reset();
+        LIFOBand.SetRange("Item No.", Item."No.");
+        if LIFOBand.FindSet() then
+            repeat
+                if LIFOBand."Residual Quantity" > 0 then
+                    LIFOAmount += LIFOBand."Year Average Cost" * LIFOBand."Residual Quantity";
+                UpdateExpCostExist(LIFOBand."Competence Year", StartingDate);
+            until LIFOBand.Next() = 0;
 
-        with ItemCostHistory2 do
-            if Get(Item."No.", ReferenceDate) then
-                if "End Year Inventory" <> 0 then begin
-                    "Discrete LIFO Cost" := LIFOAmount / "End Year Inventory";
-                    "Expected Cost Exist" := ExpectedCostExist;
-                    Modify();
-                end;
+        if ItemCostHistory2.Get(Item."No.", ReferenceDate) then
+            if ItemCostHistory2."End Year Inventory" <> 0 then begin
+                ItemCostHistory2."Discrete LIFO Cost" := LIFOAmount / ItemCostHistory2."End Year Inventory";
+                ItemCostHistory2."Expected Cost Exist" := ExpectedCostExist;
+                ItemCostHistory2.Modify();
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -692,27 +680,25 @@ report 12115 "Calculate End Year Costs"
         QtyToAbsorbe: Decimal;
     begin
         QtyToAbsorbe := TotalBandQty - (TotalBandQty + Item."Net Change");
-        with LIFOBand do begin
-            Reset();
-            SetRange("Item No.", Item."No.");
-            SetRange(Positive, true);
-            SetFilter("Residual Quantity", '<>0');
-            if Find('+') then
-                repeat
-                    if QtyToAbsorbe > "Residual Quantity" then begin
-                        NewQuantity := -"Residual Quantity";
-                        QtyToAbsorbe := QtyToAbsorbe - "Residual Quantity";
-                        Validate("Absorbed Quantity", ("Absorbed Quantity" + "Residual Quantity"));
-                    end else begin
-                        Validate("Absorbed Quantity", "Absorbed Quantity" + QtyToAbsorbe);
-                        NewQuantity := -QtyToAbsorbe;
-                        QtyToAbsorbe := 0;
-                    end;
-                    "Closed by Entry No." := NextEntryNo;
-                    NewLIFOBand("Entry No.");
-                    Modify();
-                until (QtyToAbsorbe = 0) or (Next(-1) = 0);
-        end;
+        LIFOBand.Reset();
+        LIFOBand.SetRange("Item No.", Item."No.");
+        LIFOBand.SetRange(Positive, true);
+        LIFOBand.SetFilter("Residual Quantity", '<>0');
+        if LIFOBand.Find('+') then
+            repeat
+                if QtyToAbsorbe > LIFOBand."Residual Quantity" then begin
+                    NewQuantity := -LIFOBand."Residual Quantity";
+                    QtyToAbsorbe := QtyToAbsorbe - LIFOBand."Residual Quantity";
+                    LIFOBand.Validate("Absorbed Quantity", (LIFOBand."Absorbed Quantity" + LIFOBand."Residual Quantity"));
+                end else begin
+                    LIFOBand.Validate("Absorbed Quantity", LIFOBand."Absorbed Quantity" + QtyToAbsorbe);
+                    NewQuantity := -QtyToAbsorbe;
+                    QtyToAbsorbe := 0;
+                end;
+                LIFOBand."Closed by Entry No." := NextEntryNo;
+                NewLIFOBand(LIFOBand."Entry No.");
+                LIFOBand.Modify();
+            until (QtyToAbsorbe = 0) or (LIFOBand.Next(-1) = 0);
     end;
 
     [Scope('OnPrem')]
@@ -737,36 +723,34 @@ report 12115 "Calculate End Year Costs"
         PurchLine: Record "Purchase Line";
         CapacityLedgEntry: Record "Capacity Ledger Entry";
     begin
-        with CapacityLedgEntry do begin
-            Reset();
-            SetCurrentKey("Item No.", "Order Type", "Order No.");
-            SetRange("Item No.", Item."No.");
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ItemLedgEntry."Order No.");
-            if not ItemCostingSetup."Estimated WIP Consumption" then
-                SetRange("Posting Date", StartingDate, ReferenceDate);
-            if FindSet() then
-                repeat
-                    CalcFields("Direct Cost", "Overhead Cost");
-                    if "Direct Cost" <> 0 then begin
-                        if not Subcontracting then
-                            DirectRtgAmt += "Direct Cost"
+        CapacityLedgEntry.Reset();
+        CapacityLedgEntry.SetCurrentKey("Item No.", "Order Type", "Order No.");
+        CapacityLedgEntry.SetRange("Item No.", Item."No.");
+        CapacityLedgEntry.SetRange("Order Type", CapacityLedgEntry."Order Type"::Production);
+        CapacityLedgEntry.SetRange("Order No.", ItemLedgEntry."Order No.");
+        if not ItemCostingSetup."Estimated WIP Consumption" then
+            CapacityLedgEntry.SetRange("Posting Date", StartingDate, ReferenceDate);
+        if CapacityLedgEntry.FindSet() then
+            repeat
+                CapacityLedgEntry.CalcFields("Direct Cost", "Overhead Cost");
+                if CapacityLedgEntry."Direct Cost" <> 0 then begin
+                    if not CapacityLedgEntry.Subcontracting then
+                        DirectRtgAmt += CapacityLedgEntry."Direct Cost"
+                    else
+                        SubconAmt += (CapacityLedgEntry."Direct Cost" + CapacityLedgEntry."Overhead Cost");
+                end else begin
+                    PurchLine.Reset();
+                    PurchLine.SetRange("Prod. Order No.", CapacityLedgEntry."Order No.");
+                    PurchLine.SetRange("No.", CapacityLedgEntry."Item No.");
+                    if PurchLine.FindFirst() then
+                        if not CapacityLedgEntry.Subcontracting then
+                            DirectRtgAmt += CapacityLedgEntry.Quantity * PurchLine."Direct Unit Cost"
                         else
-                            SubconAmt += ("Direct Cost" + "Overhead Cost");
-                    end else begin
-                        PurchLine.Reset();
-                        PurchLine.SetRange("Prod. Order No.", "Order No.");
-                        PurchLine.SetRange("No.", "Item No.");
-                        if PurchLine.FindFirst() then
-                            if not Subcontracting then
-                                DirectRtgAmt += Quantity * PurchLine."Direct Unit Cost"
-                            else
-                                SubconAmt += (Quantity * PurchLine."Direct Unit Cost") + "Overhead Cost";
-                    end;
-                    OverheadRtgAmt += "Overhead Cost";
-                    UpdateExpCostExist("Posting Date", StartingDate);
-                until Next() = 0;
-        end;
+                            SubconAmt += (CapacityLedgEntry.Quantity * PurchLine."Direct Unit Cost") + CapacityLedgEntry."Overhead Cost";
+                end;
+                OverheadRtgAmt += CapacityLedgEntry."Overhead Cost";
+                UpdateExpCostExist(CapacityLedgEntry."Posting Date", StartingDate);
+            until CapacityLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -812,11 +796,9 @@ report 12115 "Calculate End Year Costs"
     [Scope('OnPrem')]
     procedure SetBefStItemFilters(var BefStartItemCost: Record "Before Start Item Cost"; StartDate: Date; EndDate: Date)
     begin
-        with BefStartItemCost do begin
-            Reset();
-            SetRange("Item No.", Item."No.");
-            SetRange("Starting Date", StartDate, EndDate);
-        end;
+        BefStartItemCost.Reset();
+        BefStartItemCost.SetRange("Item No.", Item."No.");
+        BefStartItemCost.SetRange("Starting Date", StartDate, EndDate);
     end;
 
     [Obsolete('Replaced by SetItemLedgerEntryFilters().', '17.0')]
@@ -829,25 +811,21 @@ report 12115 "Calculate End Year Costs"
     [Scope('OnPrem')]
     procedure SetItemLedgerEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; StartDate: Date; EndDate: Date; FilterTxt: Text[5]; EntryType: Enum "Item Ledger Entry Type")
     begin
-        with ItemLedgEntry do begin
-            Reset();
-            SetCurrentKey("Item No.", "Posting Date");
-            SetRange("Item No.", Item."No.");
-            SetRange("Posting Date", StartDate, EndDate);
-            SetFilter("Entry Type", FilterTxt, EntryType);
-        end;
+        ItemLedgEntry.Reset();
+        ItemLedgEntry.SetCurrentKey("Item No.", "Posting Date");
+        ItemLedgEntry.SetRange("Item No.", Item."No.");
+        ItemLedgEntry.SetRange("Posting Date", StartDate, EndDate);
+        ItemLedgEntry.SetFilter("Entry Type", FilterTxt, EntryType);
     end;
 
     [Scope('OnPrem')]
     procedure ItemLedgEntryExist(): Boolean
     begin
-        with ItemLedgEntry do begin
-            Reset();
-            SetCurrentKey("Item No.", "Posting Date", "Location Code");
-            SetRange("Item No.", Item."No.");
-            SetRange("Posting Date", StartingDate, ReferenceDate);
-            exit(FindFirst());
-        end;
+        ItemLedgEntry.Reset();
+        ItemLedgEntry.SetCurrentKey("Item No.", "Posting Date", "Location Code");
+        ItemLedgEntry.SetRange("Item No.", Item."No.");
+        ItemLedgEntry.SetRange("Posting Date", StartingDate, ReferenceDate);
+        exit(ItemLedgEntry.FindFirst());
     end;
 
     [Scope('OnPrem')]
@@ -870,26 +848,24 @@ report 12115 "Calculate End Year Costs"
         ItemCostHistory2: Record "Item Cost History";
         ItemCompCost: Decimal;
     begin
-        with ItemLedgEntry2 do begin
-            Reset();
-            SetCurrentKey("Entry Type", "Order Type", "Order No.", "Posting Date", "Source No.");
-            SetRange("Entry Type", "Entry Type"::Consumption);
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ItemLedgEntry."Order No.");
+        ItemLedgEntry2.Reset();
+        ItemLedgEntry2.SetCurrentKey("Entry Type", "Order Type", "Order No.", "Posting Date", "Source No.");
+        ItemLedgEntry2.SetRange("Entry Type", ItemLedgEntry2."Entry Type"::Consumption);
+        ItemLedgEntry2.SetRange("Order Type", ItemLedgEntry2."Order Type"::Production);
+        ItemLedgEntry2.SetRange("Order No.", ItemLedgEntry."Order No.");
 
-            SetRange("Source No.", Item."No.");
-            if not ItemCostingSetup."Estimated WIP Consumption" then
-                SetRange("Posting Date", StartingDate, ReferenceDate);
-            if FindSet() then
-                repeat
-                    if ItemCostHistory2.Get("Item No.", ReferenceDate) then
-                        ItemCompCost +=
-                          Abs(Quantity) *
-                          ItemCostHistory2.GetCompCost(ItemCostingSetup."Components Valuation");
-                    UpdateExpCostExist("Posting Date", StartingDate);
-                until Next() = 0;
-            exit(ItemCompCost);
-        end;
+        ItemLedgEntry2.SetRange("Source No.", Item."No.");
+        if not ItemCostingSetup."Estimated WIP Consumption" then
+            ItemLedgEntry2.SetRange("Posting Date", StartingDate, ReferenceDate);
+        if ItemLedgEntry2.FindSet() then
+            repeat
+                if ItemCostHistory2.Get(ItemLedgEntry2."Item No.", ReferenceDate) then
+                    ItemCompCost +=
+                      Abs(ItemLedgEntry2.Quantity) *
+                      ItemCostHistory2.GetCompCost(ItemCostingSetup."Components Valuation");
+                UpdateExpCostExist(ItemLedgEntry2."Posting Date", StartingDate);
+            until ItemLedgEntry2.Next() = 0;
+        exit(ItemCompCost);
     end;
 
     [Scope('OnPrem')]
@@ -933,28 +909,26 @@ report 12115 "Calculate End Year Costs"
         ItemLedgEntry2: Record "Item Ledger Entry";
         ProdOrdOutput: Decimal;
     begin
-        with ItemLedgEntry2 do begin
-            Reset();
-            SetCurrentKey("Item No.", "Entry Type");
-            SetRange("Item No.", ItemLedgEntry."Item No.");
-            SetRange("Entry Type", "Entry Type"::Output);
-            if ItemCostingSetup."Estimated WIP Consumption" then begin
-                SetRange("Order Type", "Order Type"::Production);
-                SetRange("Order No.", ItemLedgEntry."Order No.");
-            end else
-                SetRange("Posting Date", StartingDate, ReferenceDate);
-            if FindSet() then
-                repeat
-                    if not ItemCostingSetup."Estimated WIP Consumption" then begin
-                        if ("Item No." = ItemLedgEntry."Item No.") and
-                           ("Order No." = ItemLedgEntry."Order No.")
-                        then
-                            ProdOrdOutput += Quantity
-                    end else
-                        ProdOrdOutput += Quantity
-                until Next() = 0;
-            exit(ProdOrdOutput)
-        end;
+        ItemLedgEntry2.Reset();
+        ItemLedgEntry2.SetCurrentKey("Item No.", "Entry Type");
+        ItemLedgEntry2.SetRange("Item No.", ItemLedgEntry."Item No.");
+        ItemLedgEntry2.SetRange("Entry Type", ItemLedgEntry2."Entry Type"::Output);
+        if ItemCostingSetup."Estimated WIP Consumption" then begin
+            ItemLedgEntry2.SetRange("Order Type", ItemLedgEntry2."Order Type"::Production);
+            ItemLedgEntry2.SetRange("Order No.", ItemLedgEntry."Order No.");
+        end else
+            ItemLedgEntry2.SetRange("Posting Date", StartingDate, ReferenceDate);
+        if ItemLedgEntry2.FindSet() then
+            repeat
+                if not ItemCostingSetup."Estimated WIP Consumption" then begin
+                    if (ItemLedgEntry2."Item No." = ItemLedgEntry."Item No.") and
+                       (ItemLedgEntry2."Order No." = ItemLedgEntry."Order No.")
+                    then
+                        ProdOrdOutput += ItemLedgEntry2.Quantity
+                end else
+                    ProdOrdOutput += ItemLedgEntry2.Quantity
+            until ItemLedgEntry2.Next() = 0;
+        exit(ProdOrdOutput)
     end;
 
     [Scope('OnPrem')]
@@ -996,11 +970,9 @@ report 12115 "Calculate End Year Costs"
     [Scope('OnPrem')]
     procedure SetItemCostHistFilter(CompYearDate: Date; FilterTxt: Text[4]; Def: Boolean)
     begin
-        with ItemCostHistory do begin
-            Reset();
-            SetFilter("Competence Year", FilterTxt, CompYearDate);
-            SetRange(Definitive, Def);
-        end;
+        ItemCostHistory.Reset();
+        ItemCostHistory.SetFilter("Competence Year", FilterTxt, CompYearDate);
+        ItemCostHistory.SetRange(Definitive, Def);
     end;
 
     [IntegrationEvent(false, false)]

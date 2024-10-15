@@ -245,44 +245,49 @@ report 12193 "Export VAT Transactions"
         OrgVATReportHeader: Record "VAT Report Header";
         PeriodType: Option Month,Quarter,Year,Hide;
     begin
-        with Spesometro do begin
-            Initialize(DetailedExport, "VAT Report Header"."Start Date", "VAT Report Header"."End Date", PeriodType::Hide);
-            SetTotalNumberOfRecords(EstimateNumberOfRecords());
+        Spesometro.Initialize(DetailedExport, "VAT Report Header"."Start Date", "VAT Report Header"."End Date", PeriodType::Hide);
+        Spesometro.SetTotalNumberOfRecords(EstimateNumberOfRecords());
 
-            if "VAT Report Header"."VAT Report Type" <> "VAT Report Header"."VAT Report Type"::Standard then begin
-                OrgVATReportHeader.Get("VAT Report Header"."Original Report No.");
-                SetReportTypeData(MapVATReportType("VAT Report Header"."VAT Report Type"),
-                  OrgVATReportHeader."Tax Auth. Document No.", OrgVATReportHeader."Tax Auth. Receipt No.");
-            end;
-
-            // Set framework count
-            if not DetailedExport then begin
-                SetTotalFrameworkCount(ConstFrameworkGroup::FA, EstimateNumberOfFARecords()); // FA
-                SetTotalFrameworkCount(ConstFrameworkGroup::BL, EstimateNumberOfBLRecords()); // BL
-            end else begin
-                FEInvoicesIssued.SetRange("VAT Report No.", "VAT Report Header"."No.");
-                FEInvoicesIssued.SetRange("Incl. in Report", true);
-                FRInvoicesReceived.SetRange("VAT Report No.", "VAT Report Header"."No.");
-                FRInvoicesReceived.SetRange("Incl. in Report", true);
-                NECreditMemoIssued.SetRange("VAT Report No.", "VAT Report Header"."No.");
-                NECreditMemoIssued.SetRange("Incl. in Report", true);
-                NRCreditMemoReceived.SetRange("VAT Report No.", "VAT Report Header"."No.");
-                NRCreditMemoReceived.SetRange("Incl. in Report", true);
-                FNNonResidentInvoices.SetRange("VAT Report No.", "VAT Report Header"."No.");
-                FNNonResidentInvoices.SetRange("Incl. in Report", true);
-                SEServicePurchase.SetRange("VAT Report No.", "VAT Report Header"."No.");
-                SEServicePurchase.SetRange("Incl. in Report", true);
-
-                SetTotalFrameworkCount(ConstFrameworkGroup::FE, FEInvoicesIssued.Count); // FE
-                SetTotalFrameworkCount(ConstFrameworkGroup::FR, FRInvoicesReceived.Count); // FR
-                SetTotalFrameworkCount(ConstFrameworkGroup::NE, NECreditMemoIssued.Count); // NE
-                SetTotalFrameworkCount(ConstFrameworkGroup::NR, NRCreditMemoReceived.Count); // NR
-                SetTotalFrameworkCount(ConstFrameworkGroup::FN, FNNonResidentInvoices.Count); // FN
-                SetTotalFrameworkCount(ConstFrameworkGroup::SE, SEServicePurchase.Count); // SE
-            end;
-
-            StartNewFile();
+        if "VAT Report Header"."VAT Report Type" <> "VAT Report Header"."VAT Report Type"::Standard then begin
+            OrgVATReportHeader.Get("VAT Report Header"."Original Report No.");
+            Spesometro.SetReportTypeData(Spesometro.MapVATReportType("VAT Report Header"."VAT Report Type"),
+              OrgVATReportHeader."Tax Auth. Document No.", OrgVATReportHeader."Tax Auth. Receipt No.");
         end;
+        // Set framework count
+        if not DetailedExport then begin
+            Spesometro.SetTotalFrameworkCount(ConstFrameworkGroup::FA, EstimateNumberOfFARecords());
+            // FA
+            Spesometro.SetTotalFrameworkCount(ConstFrameworkGroup::BL, EstimateNumberOfBLRecords());
+            // BL
+        end else begin
+            FEInvoicesIssued.SetRange("VAT Report No.", "VAT Report Header"."No.");
+            FEInvoicesIssued.SetRange("Incl. in Report", true);
+            FRInvoicesReceived.SetRange("VAT Report No.", "VAT Report Header"."No.");
+            FRInvoicesReceived.SetRange("Incl. in Report", true);
+            NECreditMemoIssued.SetRange("VAT Report No.", "VAT Report Header"."No.");
+            NECreditMemoIssued.SetRange("Incl. in Report", true);
+            NRCreditMemoReceived.SetRange("VAT Report No.", "VAT Report Header"."No.");
+            NRCreditMemoReceived.SetRange("Incl. in Report", true);
+            FNNonResidentInvoices.SetRange("VAT Report No.", "VAT Report Header"."No.");
+            FNNonResidentInvoices.SetRange("Incl. in Report", true);
+            SEServicePurchase.SetRange("VAT Report No.", "VAT Report Header"."No.");
+            SEServicePurchase.SetRange("Incl. in Report", true);
+
+            Spesometro.SetTotalFrameworkCount(ConstFrameworkGroup::FE, FEInvoicesIssued.Count);
+            // FE
+            Spesometro.SetTotalFrameworkCount(ConstFrameworkGroup::FR, FRInvoicesReceived.Count);
+            // FR
+            Spesometro.SetTotalFrameworkCount(ConstFrameworkGroup::NE, NECreditMemoIssued.Count);
+            // NE
+            Spesometro.SetTotalFrameworkCount(ConstFrameworkGroup::NR, NRCreditMemoReceived.Count);
+            // NR
+            Spesometro.SetTotalFrameworkCount(ConstFrameworkGroup::FN, FNNonResidentInvoices.Count);
+            // FN
+            Spesometro.SetTotalFrameworkCount(ConstFrameworkGroup::SE, SEServicePurchase.Count);
+            // SE
+        end;
+
+        Spesometro.StartNewFile();
     end;
 
     local procedure ProcessFEInvoicesIssued()
@@ -291,38 +296,36 @@ report 12193 "Export VAT Transactions"
         Customer: Record Customer;
         SummaryDocument: Boolean;
     begin
-        with FEInvoicesIssued do begin
-            VATEntry.Get("VAT Entry No.");
-            if Customer.Get(VATEntry."Bill-to/Pay-to No.") then;
+        VATEntry.Get(FEInvoicesIssued."VAT Entry No.");
+        if Customer.Get(VATEntry."Bill-to/Pay-to No.") then;
 
-            Spesometro.StartNewRecord(ConstRecordType::D);
-            if GetCustomerVATRegNo(Customer, VATEntry) <> '' then
-                WriteBlockValue('FE001001', ConstFormat::PI, GetCustomerVATRegNo(Customer, VATEntry))
+        Spesometro.StartNewRecord(ConstRecordType::D);
+        if GetCustomerVATRegNo(Customer, VATEntry) <> '' then
+            WriteBlockValue('FE001001', ConstFormat::PI, GetCustomerVATRegNo(Customer, VATEntry))
+        else
+            if GetCustomerFiscalCode(Customer, VATEntry) <> '' then
+                WriteBlockValue('FE001002', ConstFormat::CF, GetCustomerFiscalCode(Customer, VATEntry))
             else
-                if GetCustomerFiscalCode(Customer, VATEntry) <> '' then
-                    WriteBlockValue('FE001002', ConstFormat::CF, GetCustomerFiscalCode(Customer, VATEntry))
-                else
-                    SummaryDocument := true;
+                SummaryDocument := true;
 
-            if SummaryDocument then begin
-                WriteBlockValue('FE001003', ConstFormat::CB, '1');
-                Spesometro.IncrementCount(ConstModuleGroup::TA004002);
-            end else
-                Spesometro.IncrementCount(ConstModuleGroup::TA004001);
+        if SummaryDocument then begin
+            WriteBlockValue('FE001003', ConstFormat::CB, '1');
+            Spesometro.IncrementCount(ConstModuleGroup::TA004002);
+        end else
+            Spesometro.IncrementCount(ConstModuleGroup::TA004001);
 
-            if IsSelfBilled(GetCustomerVATRegNo(Customer, VATEntry)) then
-                WriteBlockValue('FE001006', ConstFormat::CB, '1');
+        if IsSelfBilled(GetCustomerVATRegNo(Customer, VATEntry)) then
+            WriteBlockValue('FE001006', ConstFormat::CB, '1');
 
-            WriteBlockValue('FE001007', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
-            WriteBlockValue('FE001008', ConstFormat::DT, FormatDate(VATEntry."Posting Date", ConstFormat::DT));
-            WriteBlockValue('FE001009', ConstFormat::AN, "Document No.");
-            WriteBlockValue('FE001010', ConstFormat::NP, FormatNum(Base, ConstFormat::NP));
-            WriteBlockValue('FE001011', ConstFormat::NP, FormatNum(Amount, ConstFormat::NP));
-            if CheckBase(Base) then
-                WriteBlockValue('FE001012', ConstFormat::CB, '1')
-            else
-                WriteBlockValue('FE001012', ConstFormat::CB, '0');
-        end;
+        WriteBlockValue('FE001007', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
+        WriteBlockValue('FE001008', ConstFormat::DT, FormatDate(VATEntry."Posting Date", ConstFormat::DT));
+        WriteBlockValue('FE001009', ConstFormat::AN, FEInvoicesIssued."Document No.");
+        WriteBlockValue('FE001010', ConstFormat::NP, FormatNum(FEInvoicesIssued.Base, ConstFormat::NP));
+        WriteBlockValue('FE001011', ConstFormat::NP, FormatNum(FEInvoicesIssued.Amount, ConstFormat::NP));
+        if CheckBase(FEInvoicesIssued.Base) then
+            WriteBlockValue('FE001012', ConstFormat::CB, '1')
+        else
+            WriteBlockValue('FE001012', ConstFormat::CB, '0');
     end;
 
     local procedure ProcessFRInvoicesReceived()
@@ -330,38 +333,36 @@ report 12193 "Export VAT Transactions"
         VATEntry: Record "VAT Entry";
         Vendor: Record Vendor;
     begin
-        with FRInvoicesReceived do begin
-            VATEntry.Get("VAT Entry No.");
-            if Vendor.Get(VATEntry."Bill-to/Pay-to No.") then;
+        VATEntry.Get(FRInvoicesReceived."VAT Entry No.");
+        if Vendor.Get(VATEntry."Bill-to/Pay-to No.") then;
 
-            Spesometro.StartNewRecord(ConstRecordType::D);
-            if GetVendorVATRegNo(Vendor, VATEntry) <> '' then begin
-                WriteBlockValue('FR001001', ConstFormat::PI, GetVendorVATRegNo(Vendor, VATEntry));
-                Spesometro.IncrementCount(ConstModuleGroup::TA005001);
-            end else begin
-                WriteBlockValue('FR001002', ConstFormat::CB, '1');
-                Spesometro.IncrementCount(ConstModuleGroup::TA005002);
-            end;
-
-            WriteBlockValue('FR001003', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
-            WriteBlockValue('FR001004', ConstFormat::DT, FormatDate(VATEntry."Posting Date", ConstFormat::DT));
-
-            if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
-                WriteBlockValue('FR001006', ConstFormat::CB, '1')
-            else
-                WriteBlockValue('FR001006', ConstFormat::CB, '0');
-
-            if IsSelfBilled(GetVendorVATRegNo(Vendor, VATEntry)) then
-                WriteBlockValue('FR001007', ConstFormat::CB, '1');
-
-            WriteBlockValue('FR001008', ConstFormat::NP, FormatNum(Base, ConstFormat::NP));
-            WriteBlockValue('FR001009', ConstFormat::NP, FormatNum(Amount, ConstFormat::NP));
-
-            if CheckBase(Base) then
-                WriteBlockValue('FR001010', ConstFormat::CB, '1')
-            else
-                WriteBlockValue('FR001010', ConstFormat::CB, '0');
+        Spesometro.StartNewRecord(ConstRecordType::D);
+        if GetVendorVATRegNo(Vendor, VATEntry) <> '' then begin
+            WriteBlockValue('FR001001', ConstFormat::PI, GetVendorVATRegNo(Vendor, VATEntry));
+            Spesometro.IncrementCount(ConstModuleGroup::TA005001);
+        end else begin
+            WriteBlockValue('FR001002', ConstFormat::CB, '1');
+            Spesometro.IncrementCount(ConstModuleGroup::TA005002);
         end;
+
+        WriteBlockValue('FR001003', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
+        WriteBlockValue('FR001004', ConstFormat::DT, FormatDate(VATEntry."Posting Date", ConstFormat::DT));
+
+        if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
+            WriteBlockValue('FR001006', ConstFormat::CB, '1')
+        else
+            WriteBlockValue('FR001006', ConstFormat::CB, '0');
+
+        if IsSelfBilled(GetVendorVATRegNo(Vendor, VATEntry)) then
+            WriteBlockValue('FR001007', ConstFormat::CB, '1');
+
+        WriteBlockValue('FR001008', ConstFormat::NP, FormatNum(FRInvoicesReceived.Base, ConstFormat::NP));
+        WriteBlockValue('FR001009', ConstFormat::NP, FormatNum(FRInvoicesReceived.Amount, ConstFormat::NP));
+
+        if CheckBase(FRInvoicesReceived.Base) then
+            WriteBlockValue('FR001010', ConstFormat::CB, '1')
+        else
+            WriteBlockValue('FR001010', ConstFormat::CB, '0');
     end;
 
     local procedure ProcessNECreditMemoIssued()
@@ -369,29 +370,27 @@ report 12193 "Export VAT Transactions"
         VATEntry: Record "VAT Entry";
         Customer: Record Customer;
     begin
-        with NECreditMemoIssued do begin
-            VATEntry.Get("VAT Entry No.");
-            if Customer.Get(VATEntry."Bill-to/Pay-to No.") then;
+        VATEntry.Get(NECreditMemoIssued."VAT Entry No.");
+        if Customer.Get(VATEntry."Bill-to/Pay-to No.") then;
 
-            Spesometro.StartNewRecord(ConstRecordType::D);
-            if GetCustomerVATRegNo(Customer, VATEntry) <> '' then
-                WriteBlockValue('NE001001', ConstFormat::PI, GetCustomerVATRegNo(Customer, VATEntry))
-            else
-                WriteBlockValue('NE001002', ConstFormat::CF, GetCustomerFiscalCode(Customer, VATEntry));
+        Spesometro.StartNewRecord(ConstRecordType::D);
+        if GetCustomerVATRegNo(Customer, VATEntry) <> '' then
+            WriteBlockValue('NE001001', ConstFormat::PI, GetCustomerVATRegNo(Customer, VATEntry))
+        else
+            WriteBlockValue('NE001002', ConstFormat::CF, GetCustomerFiscalCode(Customer, VATEntry));
 
-            WriteBlockValue('NE001003', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
-            WriteBlockValue('NE001004', ConstFormat::DT, FormatDate(VATEntry."Posting Date", ConstFormat::DT));
-            WriteBlockValue('NE001005', ConstFormat::AN, "Document No.");
-            WriteBlockValue('NE001006', ConstFormat::NP, FormatNum(Base, ConstFormat::NP));
-            WriteBlockValue('NE001007', ConstFormat::NP, FormatNum(Amount, ConstFormat::NP));
+        WriteBlockValue('NE001003', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
+        WriteBlockValue('NE001004', ConstFormat::DT, FormatDate(VATEntry."Posting Date", ConstFormat::DT));
+        WriteBlockValue('NE001005', ConstFormat::AN, NECreditMemoIssued."Document No.");
+        WriteBlockValue('NE001006', ConstFormat::NP, FormatNum(NECreditMemoIssued.Base, ConstFormat::NP));
+        WriteBlockValue('NE001007', ConstFormat::NP, FormatNum(NECreditMemoIssued.Amount, ConstFormat::NP));
 
-            if CheckBase(Base) then
-                WriteBlockValue('NE001008', ConstFormat::CB, '1')
-            else
-                WriteBlockValue('NE001008', ConstFormat::CB, '0');
+        if CheckBase(NECreditMemoIssued.Base) then
+            WriteBlockValue('NE001008', ConstFormat::CB, '1')
+        else
+            WriteBlockValue('NE001008', ConstFormat::CB, '0');
 
-            Spesometro.IncrementCount(ConstModuleGroup::TA006001);
-        end;
+        Spesometro.IncrementCount(ConstModuleGroup::TA006001);
     end;
 
     local procedure ProcessNRCreditMemoReceived()
@@ -399,25 +398,23 @@ report 12193 "Export VAT Transactions"
         VATEntry: Record "VAT Entry";
         Vendor: Record Vendor;
     begin
-        with NRCreditMemoReceived do begin
-            VATEntry.Get("VAT Entry No.");
-            if Vendor.Get(VATEntry."Bill-to/Pay-to No.") then;
+        VATEntry.Get(NRCreditMemoReceived."VAT Entry No.");
+        if Vendor.Get(VATEntry."Bill-to/Pay-to No.") then;
 
-            Spesometro.StartNewRecord(ConstRecordType::D);
-            WriteBlockValue('NR001001', ConstFormat::PI, GetVendorVATRegNo(Vendor, VATEntry));
-            WriteBlockValue('NR001002', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
-            WriteBlockValue('NR001003', ConstFormat::DT, FormatDate(VATEntry."Posting Date", ConstFormat::DT));
+        Spesometro.StartNewRecord(ConstRecordType::D);
+        WriteBlockValue('NR001001', ConstFormat::PI, GetVendorVATRegNo(Vendor, VATEntry));
+        WriteBlockValue('NR001002', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
+        WriteBlockValue('NR001003', ConstFormat::DT, FormatDate(VATEntry."Posting Date", ConstFormat::DT));
 
-            WriteBlockValue('NR001004', ConstFormat::NP, FormatNum(Base, ConstFormat::NP));
-            WriteBlockValue('NR001005', ConstFormat::NP, FormatNum(Amount, ConstFormat::NP));
+        WriteBlockValue('NR001004', ConstFormat::NP, FormatNum(NRCreditMemoReceived.Base, ConstFormat::NP));
+        WriteBlockValue('NR001005', ConstFormat::NP, FormatNum(NRCreditMemoReceived.Amount, ConstFormat::NP));
 
-            if CheckBase(Base) then
-                WriteBlockValue('NR001006', ConstFormat::CB, '1')
-            else
-                WriteBlockValue('NR001006', ConstFormat::CB, '0');
+        if CheckBase(NRCreditMemoReceived.Base) then
+            WriteBlockValue('NR001006', ConstFormat::CB, '1')
+        else
+            WriteBlockValue('NR001006', ConstFormat::CB, '0');
 
-            Spesometro.IncrementCount(ConstModuleGroup::TA007001);
-        end;
+        Spesometro.IncrementCount(ConstModuleGroup::TA007001);
     end;
 
     local procedure ProcessFNNonResidentInvoices()
@@ -426,38 +423,36 @@ report 12193 "Export VAT Transactions"
         Customer: Record Customer;
         CountryRegion: Record "Country/Region";
     begin
-        with FNNonResidentInvoices do begin
-            VATEntry.Get("VAT Entry No.");
-            if Customer.Get("Bill-to/Pay-to No.") then
-                CountryRegion.Get(Customer."Country/Region Code");
+        VATEntry.Get(FNNonResidentInvoices."VAT Entry No.");
+        if Customer.Get(FNNonResidentInvoices."Bill-to/Pay-to No.") then
+            CountryRegion.Get(Customer."Country/Region Code");
 
-            Spesometro.StartNewRecord(ConstRecordType::D);
-            if VATEntry."Individual Person" then begin
-                WriteBlockValue('FN001001', ConstFormat::AN, VATEntry."Last Name");
-                WriteBlockValue('FN001002', ConstFormat::AN, VATEntry."First Name");
-                WriteBlockValue('FN001003', ConstFormat::DT, FormatDate(VATEntry."Date of Birth", ConstFormat::DT));
-                WriteBlockValue('FN001004', ConstFormat::AN, VATEntry."Place of Birth");
-                WriteBlockValue('FN001005', ConstFormat::PN, Customer.County);
-                WriteBlockValue('FN001006', ConstFormat::NU, CountryRegion."Foreign Country/Region Code");
-            end else begin
-                WriteBlockValue('FN001007', ConstFormat::AN, Customer.Name);
-                WriteBlockValue('FN001008', ConstFormat::AN, Customer.City);
-                WriteBlockValue('FN001009', ConstFormat::NU, CountryRegion."Foreign Country/Region Code");
-                WriteBlockValue('FN001010', ConstFormat::AN, Customer.Address);
-            end;
-
-            WriteBlockValue('FN001011', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
-            WriteBlockValue('FN001012', ConstFormat::DT, FormatDate("Posting Date", ConstFormat::DT));
-            WriteBlockValue('FN001013', ConstFormat::AN, "Document No.");
-            WriteBlockValue('FN001015', ConstFormat::NP, FormatNum(Base, ConstFormat::NP));
-            WriteBlockValue('FN001016', ConstFormat::NP, FormatNum(Amount, ConstFormat::NP));
-            if CheckBase(Base) then
-                WriteBlockValue('FN001017', ConstFormat::CB, '1')
-            else
-                WriteBlockValue('FN001017', ConstFormat::CB, '0');
-
-            Spesometro.IncrementCount(ConstModuleGroup::TA009001);
+        Spesometro.StartNewRecord(ConstRecordType::D);
+        if VATEntry."Individual Person" then begin
+            WriteBlockValue('FN001001', ConstFormat::AN, VATEntry."Last Name");
+            WriteBlockValue('FN001002', ConstFormat::AN, VATEntry."First Name");
+            WriteBlockValue('FN001003', ConstFormat::DT, FormatDate(VATEntry."Date of Birth", ConstFormat::DT));
+            WriteBlockValue('FN001004', ConstFormat::AN, VATEntry."Place of Birth");
+            WriteBlockValue('FN001005', ConstFormat::PN, Customer.County);
+            WriteBlockValue('FN001006', ConstFormat::NU, CountryRegion."Foreign Country/Region Code");
+        end else begin
+            WriteBlockValue('FN001007', ConstFormat::AN, Customer.Name);
+            WriteBlockValue('FN001008', ConstFormat::AN, Customer.City);
+            WriteBlockValue('FN001009', ConstFormat::NU, CountryRegion."Foreign Country/Region Code");
+            WriteBlockValue('FN001010', ConstFormat::AN, Customer.Address);
         end;
+
+        WriteBlockValue('FN001011', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
+        WriteBlockValue('FN001012', ConstFormat::DT, FormatDate(FNNonResidentInvoices."Posting Date", ConstFormat::DT));
+        WriteBlockValue('FN001013', ConstFormat::AN, FNNonResidentInvoices."Document No.");
+        WriteBlockValue('FN001015', ConstFormat::NP, FormatNum(FNNonResidentInvoices.Base, ConstFormat::NP));
+        WriteBlockValue('FN001016', ConstFormat::NP, FormatNum(FNNonResidentInvoices.Amount, ConstFormat::NP));
+        if CheckBase(FNNonResidentInvoices.Base) then
+            WriteBlockValue('FN001017', ConstFormat::CB, '1')
+        else
+            WriteBlockValue('FN001017', ConstFormat::CB, '0');
+
+        Spesometro.IncrementCount(ConstModuleGroup::TA009001);
     end;
 
     local procedure ProcessSEServicePurchase()
@@ -466,41 +461,39 @@ report 12193 "Export VAT Transactions"
         Vendor: Record Vendor;
         CountryRegion: Record "Country/Region";
     begin
-        with SEServicePurchase do begin
-            VATEntry.Get("VAT Entry No.");
-            if Vendor.Get("Bill-to/Pay-to No.") then
-                CountryRegion.Get(Vendor."Country/Region Code");
+        VATEntry.Get(SEServicePurchase."VAT Entry No.");
+        if Vendor.Get(SEServicePurchase."Bill-to/Pay-to No.") then
+            CountryRegion.Get(Vendor."Country/Region Code");
 
-            Spesometro.StartNewRecord(ConstRecordType::D);
-            if VATEntry."Individual Person" then begin
-                WriteBlockValue('SE001001', ConstFormat::AN, VATEntry."Last Name");
-                WriteBlockValue('SE001002', ConstFormat::AN, VATEntry."First Name");
-                WriteBlockValue('SE001003', ConstFormat::DT, FormatDate(VATEntry."Date of Birth", ConstFormat::DT));
-                WriteBlockValue('SE001004', ConstFormat::AN, VATEntry."Place of Birth");
-                WriteBlockValue('SE001005', ConstFormat::PN, Vendor.County);
-                WriteBlockValue('SE001006', ConstFormat::NU, CountryRegion."Foreign Country/Region Code");
-                WriteBlockValue('SE001011', ConstFormat::AN, GetVendorFiscalCode(Vendor, VATEntry));
-            end else begin
-                WriteBlockValue('SE001007', ConstFormat::AN, Vendor.Name);
-                WriteBlockValue('SE001008', ConstFormat::AN, Vendor.City);
-                WriteBlockValue('SE001009', ConstFormat::NU, CountryRegion."Foreign Country/Region Code");
-                WriteBlockValue('SE001010', ConstFormat::AN, Vendor.Address);
-            end;
-            if CountryRegion."Foreign Country/Region Code" in ['37', '037', ' 37', '37 '] then
-                WriteBlockValue('SE001011', ConstFormat::AN, GetVendorVATRegNo(Vendor, VATEntry));
-
-            WriteBlockValue('SE001012', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
-            WriteBlockValue('SE001013', ConstFormat::DT, FormatDate("Posting Date", ConstFormat::DT));
-            WriteBlockValue('SE001014', ConstFormat::AN, "Document No.");
-            WriteBlockValue('SE001015', ConstFormat::NP, FormatNum(Base, ConstFormat::NP));
-            WriteBlockValue('SE001016', ConstFormat::NP, FormatNum(Amount, ConstFormat::NP));
-            if CheckBase(Base) then
-                WriteBlockValue('SE001017', ConstFormat::CB, '1')
-            else
-                WriteBlockValue('SE001017', ConstFormat::CB, '0');
-
-            Spesometro.IncrementCount(ConstModuleGroup::TA010001);
+        Spesometro.StartNewRecord(ConstRecordType::D);
+        if VATEntry."Individual Person" then begin
+            WriteBlockValue('SE001001', ConstFormat::AN, VATEntry."Last Name");
+            WriteBlockValue('SE001002', ConstFormat::AN, VATEntry."First Name");
+            WriteBlockValue('SE001003', ConstFormat::DT, FormatDate(VATEntry."Date of Birth", ConstFormat::DT));
+            WriteBlockValue('SE001004', ConstFormat::AN, VATEntry."Place of Birth");
+            WriteBlockValue('SE001005', ConstFormat::PN, Vendor.County);
+            WriteBlockValue('SE001006', ConstFormat::NU, CountryRegion."Foreign Country/Region Code");
+            WriteBlockValue('SE001011', ConstFormat::AN, GetVendorFiscalCode(Vendor, VATEntry));
+        end else begin
+            WriteBlockValue('SE001007', ConstFormat::AN, Vendor.Name);
+            WriteBlockValue('SE001008', ConstFormat::AN, Vendor.City);
+            WriteBlockValue('SE001009', ConstFormat::NU, CountryRegion."Foreign Country/Region Code");
+            WriteBlockValue('SE001010', ConstFormat::AN, Vendor.Address);
         end;
+        if CountryRegion."Foreign Country/Region Code" in ['37', '037', ' 37', '37 '] then
+            WriteBlockValue('SE001011', ConstFormat::AN, GetVendorVATRegNo(Vendor, VATEntry));
+
+        WriteBlockValue('SE001012', ConstFormat::DT, FormatDate(VATEntry."Document Date", ConstFormat::DT));
+        WriteBlockValue('SE001013', ConstFormat::DT, FormatDate(SEServicePurchase."Posting Date", ConstFormat::DT));
+        WriteBlockValue('SE001014', ConstFormat::AN, SEServicePurchase."Document No.");
+        WriteBlockValue('SE001015', ConstFormat::NP, FormatNum(SEServicePurchase.Base, ConstFormat::NP));
+        WriteBlockValue('SE001016', ConstFormat::NP, FormatNum(SEServicePurchase.Amount, ConstFormat::NP));
+        if CheckBase(SEServicePurchase.Base) then
+            WriteBlockValue('SE001017', ConstFormat::CB, '1')
+        else
+            WriteBlockValue('SE001017', ConstFormat::CB, '0');
+
+        Spesometro.IncrementCount(ConstModuleGroup::TA010001);
     end;
 
     local procedure PreProcessFAInvoices()
@@ -515,49 +508,49 @@ report 12193 "Export VAT Transactions"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with FAInvoices do begin
-            if ("VAT Group Identifier" <> CurrentVATEntityIdentifier) and
-               IsVATEntityInitialized
-            then begin
-                WriteFALine(CurrentVATEntity);
-                CurrentVATEntity.Reset();
-                Clear(FASumUp);
-                CurrentVATEntityIdentifier := '';
-            end;
+        if (FAInvoices."VAT Group Identifier" <> CurrentVATEntityIdentifier) and IsVATEntityInitialized then begin
+            WriteFALine(CurrentVATEntity);
+            CurrentVATEntity.Reset();
+            Clear(FASumUp);
+            CurrentVATEntityIdentifier := '';
+        end;
 
-            if CurrentVATEntityIdentifier = '' then begin
-                CurrentVATEntity.Get("VAT Entry No.");
-                CurrentVATEntityIdentifier := "VAT Group Identifier";
-            end;
-            IsVATEntityInitialized := true;
+        if CurrentVATEntityIdentifier = '' then begin
+            CurrentVATEntity.Get(FAInvoices."VAT Entry No.");
+            CurrentVATEntityIdentifier := FAInvoices."VAT Group Identifier";
+        end;
+        IsVATEntityInitialized := true;
 
-            VATEntry.Get("VAT Entry No.");
-            case "Record Identifier" of
-                'FE': // Invoice Active
-                    begin
-                        FASumUp[FASumUpIndex::NoActiveOpr] += 1;
-                        FASumUp[FASumUpIndex::BaseInvoiceActive] += Base;
-                        FASumUp[FASumUpIndex::VATInvoiceActive] += Amount;
-                    end;
-                'FR': // Invoice Passive
-                    begin
-                        FASumUp[FASumUpIndex::NoPassOpr] += 1;
-                        FASumUp[FASumUpIndex::BaseInvoicePassive] += Base;
-                        FASumUp[FASumUpIndex::VATInvoicePassive] += Amount;
-                    end;
-                'NE': // Credit Memo Passive
-                    begin
-                        FASumUp[FASumUpIndex::NoPassOpr] += 1;
-                        FASumUp[FASumUpIndex::BaseCMPassive] += Base;
-                        FASumUp[FASumUpIndex::VATCMPassive] += Amount;
-                    end;
-                'NR': // Credit Memo Active
-                    begin
-                        FASumUp[FASumUpIndex::NoActiveOpr] += 1;
-                        FASumUp[FASumUpIndex::BaseCMActive] += Base;
-                        FASumUp[FASumUpIndex::VATCMActive] += Amount;
-                    end;
-            end;
+        VATEntry.Get(FAInvoices."VAT Entry No.");
+        case FAInvoices."Record Identifier" of
+            'FE':
+                // Invoice Active
+                begin
+                    FASumUp[FASumUpIndex::NoActiveOpr] += 1;
+                    FASumUp[FASumUpIndex::BaseInvoiceActive] += FAInvoices.Base;
+                    FASumUp[FASumUpIndex::VATInvoiceActive] += FAInvoices.Amount;
+                end;
+            'FR':
+                // Invoice Passive
+                begin
+                    FASumUp[FASumUpIndex::NoPassOpr] += 1;
+                    FASumUp[FASumUpIndex::BaseInvoicePassive] += FAInvoices.Base;
+                    FASumUp[FASumUpIndex::VATInvoicePassive] += FAInvoices.Amount;
+                end;
+            'NE':
+                // Credit Memo Passive
+                begin
+                    FASumUp[FASumUpIndex::NoPassOpr] += 1;
+                    FASumUp[FASumUpIndex::BaseCMPassive] += FAInvoices.Base;
+                    FASumUp[FASumUpIndex::VATCMPassive] += FAInvoices.Amount;
+                end;
+            'NR':
+                // Credit Memo Active
+                begin
+                    FASumUp[FASumUpIndex::NoActiveOpr] += 1;
+                    FASumUp[FASumUpIndex::BaseCMActive] += FAInvoices.Base;
+                    FASumUp[FASumUpIndex::VATCMActive] += FAInvoices.Amount;
+                end;
         end;
     end;
 
@@ -573,39 +566,39 @@ report 12193 "Export VAT Transactions"
 
     local procedure ProcessBLTransactions()
     begin
-        with BLTransactions do begin
-            if ((("VAT Group Identifier" <> CurrentVATEntityIdentifier) or
-                 ("Record Identifier" <> CurrentBLRecordIdentifier)) and (CurrentVATEntityIdentifier <> '')) or
-               CurrLineDiffNonResidentCust(BLTransactions, CurrentBillToPayTo)
-            then begin
-                WriteBLLine(CurrentVATEntity, CurrentBLRecordIdentifier);
-                CurrentVATEntity.Reset();
-                CurrentVATEntityIdentifier := '';
-                CurrentBLRecordIdentifier := '';
-                CurrentBillToPayTo := '';
-                Clear(BLSumUp);
-            end;
+        if (((BLTransactions."VAT Group Identifier" <> CurrentVATEntityIdentifier) or
+             (BLTransactions."Record Identifier" <> CurrentBLRecordIdentifier)) and (CurrentVATEntityIdentifier <> '')) or
+              CurrLineDiffNonResidentCust(BLTransactions, CurrentBillToPayTo)
+        then begin
+            WriteBLLine(CurrentVATEntity, CurrentBLRecordIdentifier);
+            CurrentVATEntity.Reset();
+            CurrentVATEntityIdentifier := '';
+            CurrentBLRecordIdentifier := '';
+            CurrentBillToPayTo := '';
+            Clear(BLSumUp);
+        end;
 
-            if CurrentVATEntityIdentifier = '' then begin
-                CurrentVATEntity.Get("VAT Entry No.");
-                CurrentVATEntityIdentifier := "VAT Group Identifier";
-                CurrentBLRecordIdentifier := "Record Identifier";
-                CurrentBillToPayTo := "Bill-to/Pay-to No.";
-            end;
+        if CurrentVATEntityIdentifier = '' then begin
+            CurrentVATEntity.Get(BLTransactions."VAT Entry No.");
+            CurrentVATEntityIdentifier := BLTransactions."VAT Group Identifier";
+            CurrentBLRecordIdentifier := BLTransactions."Record Identifier";
+            CurrentBillToPayTo := BLTransactions."Bill-to/Pay-to No.";
+        end;
 
-            case "Record Identifier" of
-                'FN': // Invoice Active (sales)
-                    begin
-                        BLSumUp[BLSumUpIndex::ActiveBase] += Base;
-                        BLSumUp[BLSumUpIndex::ActiveVAT] += Amount;
-                    end;
-                // Note: Missing credit memos for non-resident as it is not specified by the file format
-                'SE': // Purchase of services from non-residents
-                    begin
-                        BLSumUp[BLSumUpIndex::PassiveBase] += Base;
-                        BLSumUp[BLSumUpIndex::PassiveVAT] += Amount;
-                    end;
-            end;
+        case BLTransactions."Record Identifier" of
+            'FN':
+                // Invoice Active (sales)
+                begin
+                    BLSumUp[BLSumUpIndex::ActiveBase] += BLTransactions.Base;
+                    BLSumUp[BLSumUpIndex::ActiveVAT] += BLTransactions.Amount;
+                end;
+            // Note: Missing credit memos for non-resident as it is not specified by the file format
+            'SE':
+                // Purchase of services from non-residents
+                begin
+                    BLSumUp[BLSumUpIndex::PassiveBase] += BLTransactions.Base;
+                    BLSumUp[BLSumUpIndex::PassiveVAT] += BLTransactions.Amount;
+                end;
         end;
     end;
 

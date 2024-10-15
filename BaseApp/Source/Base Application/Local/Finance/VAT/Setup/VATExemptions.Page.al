@@ -58,10 +58,10 @@ page 12100 "VAT Exemptions"
 
                     trigger OnAssistEdit()
                     var
-                        NoSeriesMgt: Codeunit NoSeriesManagement;
+                        NoSeries: Codeunit "No. Series";
                     begin
-                        NoSeriesMgt.LookupSeries(GetVATExemptionNos(), Rec."No. Series");
-                        NoSeriesMgt.SetSeries(Rec."VAT Exempt. Int. Registry No.");
+                        NoSeries.LookupRelatedNoSeries(GetVATExemptionNos(), Rec."No. Series");
+                        Rec."VAT Exempt. Int. Registry No." := NoSeries.GetNextNo(Rec."No. Series");
                     end;
                 }
                 field("VAT Exempt. Int. Registry Date"; Rec."VAT Exempt. Int. Registry Date")

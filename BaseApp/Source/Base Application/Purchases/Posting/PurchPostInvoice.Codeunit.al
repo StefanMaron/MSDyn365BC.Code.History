@@ -546,38 +546,36 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         I: Integer;
     begin
         CreateTempFA(GenJnlLine, SplitNo);
-        with GenJnlLine do begin
-            TotalGenJnlLine := GenJnlLine;
-            Clear(GenJnlLine2);
-            Clear(TempFA);
-            TempFA."No." := '';
-            for I := 1 to SplitNo do begin
-                TempFA.Next();
-                "Account No." := TempFA."No.";
-                CalcSplitAmount(
-                    Amount, GenJnlLine2.Amount, TotalGenJnlLine.Amount, I, SplitNo);
-                CalcSplitAmount(
-                    "Source Currency Amount", GenJnlLine2."Source Currency Amount",
-                    TotalGenJnlLine."Source Currency Amount", I, SplitNo);
-                CalcSplitAmount(
-                    Quantity, GenJnlLine2.Quantity, TotalGenJnlLine.Quantity, I, SplitNo);
-                CalcSplitAmount(
-                    "VAT Base Amount", GenJnlLine2."VAT Base Amount", TotalGenJnlLine."VAT Base Amount", I, SplitNo);
-                CalcSplitAmount(
-                    "Source Curr. VAT Amount",
-                    GenJnlLine2."Source Curr. VAT Amount", TotalGenJnlLine."Source Curr. VAT Amount", I, SplitNo);
-                CalcSplitAmount(
-                    "VAT Amount", GenJnlLine2."VAT Amount", TotalGenJnlLine."VAT Amount", I, SplitNo);
-                CalcSplitAmount(
-                    "Source Curr. VAT Amount",
-                    GenJnlLine2."Source Curr. VAT Amount", TotalGenJnlLine."Source Curr. VAT Amount", I, SplitNo);
-                CalcSplitAmount(
-                    "VAT Difference", GenJnlLine2."VAT Difference", TotalGenJnlLine."VAT Difference", I, SplitNo);
-                CalcSplitAmount(
-                    "Salvage Value", GenJnlLine2."Salvage Value", TotalGenJnlLine."Salvage Value", I, SplitNo);
+        TotalGenJnlLine := GenJnlLine;
+        Clear(GenJnlLine2);
+        Clear(TempFA);
+        TempFA."No." := '';
+        for I := 1 to SplitNo do begin
+            TempFA.Next();
+            GenJnlLine."Account No." := TempFA."No.";
+            CalcSplitAmount(
+                GenJnlLine.Amount, GenJnlLine2.Amount, TotalGenJnlLine.Amount, I, SplitNo);
+            CalcSplitAmount(
+                GenJnlLine."Source Currency Amount", GenJnlLine2."Source Currency Amount",
+                TotalGenJnlLine."Source Currency Amount", I, SplitNo);
+            CalcSplitAmount(
+                GenJnlLine.Quantity, GenJnlLine2.Quantity, TotalGenJnlLine.Quantity, I, SplitNo);
+            CalcSplitAmount(
+                GenJnlLine."VAT Base Amount", GenJnlLine2."VAT Base Amount", TotalGenJnlLine."VAT Base Amount", I, SplitNo);
+            CalcSplitAmount(
+                GenJnlLine."Source Curr. VAT Amount",
+                GenJnlLine2."Source Curr. VAT Amount", TotalGenJnlLine."Source Curr. VAT Amount", I, SplitNo);
+            CalcSplitAmount(
+                GenJnlLine."VAT Amount", GenJnlLine2."VAT Amount", TotalGenJnlLine."VAT Amount", I, SplitNo);
+            CalcSplitAmount(
+                GenJnlLine."Source Curr. VAT Amount",
+                GenJnlLine2."Source Curr. VAT Amount", TotalGenJnlLine."Source Curr. VAT Amount", I, SplitNo);
+            CalcSplitAmount(
+                GenJnlLine."VAT Difference", GenJnlLine2."VAT Difference", TotalGenJnlLine."VAT Difference", I, SplitNo);
+            CalcSplitAmount(
+                GenJnlLine."Salvage Value", GenJnlLine2."Salvage Value", TotalGenJnlLine."Salvage Value", I, SplitNo);
 
-                GenJnlPostLine.RunWithCheck(GenJnlLine);
-            end;
+            GenJnlPostLine.RunWithCheck(GenJnlLine);
         end;
     end;
 
@@ -669,6 +667,12 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         JobPurchLine.SetRange("VAT Bus. Posting Group", InvoicePostingBuffer."VAT Bus. Posting Group");
         JobPurchLine.SetRange("VAT Prod. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
         JobPurchLine.SetRange("Dimension Set ID", InvoicePostingBuffer."Dimension Set ID");
+
+        if InvoicePostingBuffer."Fixed Asset Line No." <> 0 then begin
+            PurchSetup.Get();
+            if PurchSetup."Copy Line Descr. to G/L Entry" then
+                JobPurchLine.SetRange("Line No.", InvoicePostingBuffer."Fixed Asset Line No.");
+        end;
 
         PurchPostInvoiceEvents.RunOnAfterSetJobLineFilters(JobPurchLine, InvoicePostingBuffer);
     end;

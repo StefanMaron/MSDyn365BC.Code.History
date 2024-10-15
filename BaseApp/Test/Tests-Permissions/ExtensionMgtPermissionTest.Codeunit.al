@@ -10,7 +10,6 @@ codeunit 139455 "Extension Mgt. Permission Test"
 
     var
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        LibraryUtility: Codeunit "Library - Utility";
 
     [Test]
     [Scope('OnPrem')]

@@ -1,9 +1,13 @@
 ﻿#if not CLEAN23
+#pragma warning disable AS0072
 codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not Used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -91,7 +95,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Setup: Modify Exchange Rate and Run Adjust Exchange Rate Batch after Create and Post General Journal Line for Customer.
         Initialize();
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()),
           GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2), -LibraryRandom.RandInt(50));
         RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate());
         Amount :=
@@ -127,10 +131,10 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // Setup: Create General Journal Line with Random value and update Bal. Account No.
         Initialize();
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount(CreateCurrency));
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount(CreateCurrency()));
         GenJournalLine.Modify(true);
         BankAccount.Get(GenJournalLine."Bal. Account No.");
         BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
@@ -228,7 +232,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
 
         // Setup: Create Currency with different Exchange Rate and Starting Date. Taken Random value to set Exchange rate amount and next Date.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         ExchRateAmount := LibraryRandom.RandDec(100, 2);
         FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
         DeleteExistingExchangeRates(CurrencyCode);
@@ -797,7 +801,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // [GIVEN] Sales Invoice with Amount = 39008 posted with exch.rate = 1,0887
         ExchRateAmt := LibraryRandom.RandDec(10, 2);
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()),
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), 2 * ExchRateAmt);
 
         // [GIVEN] Exch. rates is changed to 1,0541 and adjustment completed.
@@ -835,7 +839,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         // [GIVEN] Sales Invoice with Amount = 39008 posted with exch.rate = 1,0887
         ExchRateAmt := LibraryRandom.RandDec(10, 2);
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()),
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), -2 * ExchRateAmt);
 
         // [GIVEN] Exch. rates is changed to 1,0541 and adjustment completed.
@@ -877,7 +881,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 4000, Amount LCY = 4720 is posted with exch.rate = 1.18
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         FindCurrencyExchRate(CurrencyExchangeRate, Currency.Code);
         ExchRateAmt := CurrencyExchangeRate."Relational Exch. Rate Amount";
         k := 0.1;
@@ -930,7 +934,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 4000, Amount LCY = 4720 is posted with exch.rate = 1.18
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         FindCurrencyExchRate(CurrencyExchangeRate, Currency.Code);
         ExchRateAmt := CurrencyExchangeRate."Relational Exch. Rate Amount";
         k := 0.1;
@@ -997,7 +1001,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // Setup: Modify Exchange Rate after Create and Post General Journal Line for Bank.
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(CreateCurrency()),
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), ExchRateAmt);
         FindCurrencyExchRate(CurrencyExchangeRate, GenJournalLine."Currency Code");
         Amount := GenJournalLine.Amount * ExchRateAmt / CurrencyExchangeRate."Exchange Rate Amount";
@@ -1021,7 +1025,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         // Setup: Modify Exchange Rate after Create and Post General Journal Line for Customer.
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()),
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), ExchRateAmt);
         FindCurrencyExchRate(CurrencyExchangeRate, GenJournalLine."Currency Code");
         Amount :=
@@ -1072,7 +1076,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         BankAccount.Get(BankAccountNo);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           GenJournalLine."Document Type"::" ", Amount);
         GenJournalLine.Validate("Currency Code", BankAccount."Currency Code");
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
@@ -1101,7 +1105,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     local procedure CreateCurrencyAndExchRates(FirstStartingDate: Date; RelExchRateAmount: Decimal) CurrencyCode: Code[10]
     begin
         // Create Currency with different exchange Rate and Starting Date. Take Random for Relational Exchange Rate Amount.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         DeleteExistingExchangeRates(CurrencyCode);
         CreateExchangeRateWithFixExchRateAmount(CurrencyCode, WorkDate(), RelExchRateAmount);
         CreateExchangeRateWithFixExchRateAmount(CurrencyCode, FirstStartingDate, 2 * RelExchRateAmount);
@@ -1433,26 +1437,26 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         if SetHandler then
-            CustomerLedgerEntries.UnapplyEntries.Invoke
+            CustomerLedgerEntries.UnapplyEntries.Invoke()
         else
-            CustomerLedgerEntries."Apply Entries".Invoke;
+            CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     local procedure OpenVendorLedgerEntries(VendorNo: Code[20]; DocumentNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNo);
         VendorLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         if SetHandler then
-            VendorLedgerEntries.UnapplyEntries.Invoke
+            VendorLedgerEntries.UnapplyEntries.Invoke()
         else
-            VendorLedgerEntries.ActionApplyEntries.Invoke;
+            VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure RunAdjustExchRate("Code": Code[10]; EndDate: Date)
@@ -1620,16 +1624,16 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ConfirmHandler]
@@ -1644,7 +1648,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     procedure PostApplicationPageHandler(var PostApplication: TestPage "Post Application")
     begin
         PostApplication.PostingDate.SetValue(Format(PostingDate));
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

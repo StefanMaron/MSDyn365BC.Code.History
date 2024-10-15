@@ -172,7 +172,7 @@ codeunit 136106 "Service Response Time"
         // 1. Setup: Create Service Order for a Working Day that is followed by another working day - Service Item, Service Header,
         // Service Item Line.
         Initialize();
-        OrderDate := GetTwoSimultaneousWorkingDays;
+        OrderDate := GetTwoSimultaneousWorkingDays();
         CreateServiceHeaderGivenDate(ServiceItemLine, OrderDate);
 
         // 2. Exercise: Get Service Hour for the relevant Date and validate Response Time (Hours) on Service Item Line as
@@ -203,7 +203,7 @@ codeunit 136106 "Service Response Time"
         // 1. Setup: Create Service Order for a Working Day that is followed by non working day - Service Item, Service Header,
         // Service Item Line.
         Initialize();
-        OrderDate := GetWorkingFollowedByNonWorking;
+        OrderDate := GetWorkingFollowedByNonWorking();
         CreateServiceHeaderGivenDate(ServiceItemLine, OrderDate);
 
         // 2. Exercise: Get Service Hour for the relevant Date and validate Response Time (Hours)) on Service Item Line as time falling
@@ -234,7 +234,7 @@ codeunit 136106 "Service Response Time"
         // 1. Setup: Create Service Order for a non working day that is followed by a working day - Service Item, Service Header,
         // Service Item Line.
         Initialize();
-        OrderDate := LibraryService.GetNonWrkngDayFollwdByWrkngDay;
+        OrderDate := LibraryService.GetNonWrkngDayFollwdByWrkngDay();
         CreateServiceHeaderGivenDate(ServiceItemLine, OrderDate);
 
         // 2. Exercise: Get Service Hour for the relevant Date. Validate Response Time (Hours) on Service Item Line as
@@ -263,7 +263,7 @@ codeunit 136106 "Service Response Time"
 
         // 1. Setup: Create Service Order for a non working day that has Valid on Holidays checked.
         Initialize();
-        OrderDate := CreateNonWorkingDayWithHoliday;
+        OrderDate := CreateNonWorkingDayWithHoliday();
         CreateServiceHeaderGivenDate(ServiceItemLine, OrderDate);
 
         // 2. Exercise: Get Service Hour for the relevant Date and validate Response Time (Hours) on Service Item Line as a time
@@ -293,7 +293,7 @@ codeunit 136106 "Service Response Time"
         // 1. Setup: Create Service Contract Header, Service Contract Line, Get Service Hour for the Working Day that is followed by another working day,
         // Validate Response Time (Hours) on Service Contract Line as time falling outside of the Service Hours and Sign Service Contract.
         Initialize();
-        OrderDate := GetTwoSimultaneousWorkingDays;
+        OrderDate := GetTwoSimultaneousWorkingDays();
         LibraryService.GetServiceHourForDate(ServiceHour, OrderDate);
         CreateAndSignServiceContract(
           ServiceContractLine, LibraryUtility.ConvertMilliSecToHours(ServiceHour."Ending Time" - ServiceHour."Starting Time") + 1);  // Value is important for test to have response time hours more than service hours.

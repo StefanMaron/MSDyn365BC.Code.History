@@ -900,49 +900,49 @@ page 344 Navigate
             GLBookEntry.SetCurrentKey("Document No.", "Posting Date");
             GLBookEntry.SetFilter("Document No.", DocNoFilter);
             GLBookEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"GL Book Entry", 0, GLBookEntry.TableCaption(), GLBookEntry.Count);
+            InsertIntoDocEntry(Rec, Database::"GL Book Entry", GLBookEntry.TableCaption(), GLBookEntry.Count);
         end;
         if VATBookEntry.ReadPermission then begin
             VATBookEntry.Reset();
             VATBookEntry.SetCurrentKey("Document No.", "Posting Date");
             VATBookEntry.SetFilter("Document No.", DocNoFilter);
             VATBookEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"VAT Book Entry", 0, VATBookEntry.TableCaption(), VATBookEntry.Count);
+            InsertIntoDocEntry(Rec, Database::"VAT Book Entry", VATBookEntry.TableCaption(), VATBookEntry.Count);
         end;
         if CompWithhTax.ReadPermission then begin
             CompWithhTax.Reset();
             CompWithhTax.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
             CompWithhTax.SetFilter("Document No.", DocNoFilter);
             CompWithhTax.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"Computed Withholding Tax", 0, CompWithhTax.TableCaption(), CompWithhTax.Count);
+            InsertIntoDocEntry(Rec, Database::"Computed Withholding Tax", CompWithhTax.TableCaption(), CompWithhTax.Count);
         end;
         if WithHTax.ReadPermission then begin
             WithHTax.Reset();
             WithHTax.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
             WithHTax.SetFilter("Document No.", DocNoFilter);
             WithHTax.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"Withholding Tax", 0, WithHTax.TableCaption(), WithHTax.Count);
+            InsertIntoDocEntry(Rec, Database::"Withholding Tax", WithHTax.TableCaption(), WithHTax.Count);
         end;
         if CompSocSec.ReadPermission then begin
             CompSocSec.Reset();
             CompSocSec.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
             CompSocSec.SetFilter("Document No.", DocNoFilter);
             CompSocSec.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"Computed Contribution", 0, CompSocSec.TableCaption(), CompSocSec.Count);
+            InsertIntoDocEntry(Rec, Database::"Computed Contribution", CompSocSec.TableCaption(), CompSocSec.Count);
         end;
         if SocSec.ReadPermission then begin
             SocSec.Reset();
             SocSec.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
             SocSec.SetFilter("Document No.", DocNoFilter);
             SocSec.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::Contributions, 0, SocSec.TableCaption(), SocSec.Count);
+            InsertIntoDocEntry(Rec, Database::Contributions, SocSec.TableCaption(), SocSec.Count);
         end;
         if IssuedCustBillHeader.ReadPermission then begin
             IssuedCustBillHeader.Reset();
             IssuedCustBillHeader.SetCurrentKey("Posting Date", "No.");
             IssuedCustBillHeader.SetFilter("No.", DocNoFilter);
             IssuedCustBillHeader.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"Issued Customer Bill Header", 0, IssuedCustBillHeader.TableCaption(), IssuedCustBillHeader.Count);
+            InsertIntoDocEntry(Rec, Database::"Issued Customer Bill Header", IssuedCustBillHeader.TableCaption(), IssuedCustBillHeader.Count);
         end;
 
         OnAfterNavigateFindRecords(Rec, DocNoFilter, PostingDateFilter, NewSourceRecVar, ExtDocNo, HideDialog);
@@ -2358,13 +2358,6 @@ page 344 Navigate
         Window.Close();
     end;
 
-    [Obsolete('Replaced by SetTracking with ItemTrackingSetup parameter.', '18.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50])
-    begin
-        NewItemTrackingSetup."Serial No." := SerialNo;
-        NewItemTrackingSetup."Lot No." := LotNo;
-    end;
-
     procedure SetTracking(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         NewItemTrackingSetup := ItemTrackingSetup;
@@ -2548,14 +2541,6 @@ page 344 Navigate
     local procedure OnAfterFindPurchRcptHeader(var DocumentEntry: Record "Document Entry"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('No. of documents is not checked anymore', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterGetDocumentCount(var DocCount: Integer)
-    begin
-    end;
-#endif    
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)

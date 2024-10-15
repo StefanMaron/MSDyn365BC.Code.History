@@ -65,6 +65,7 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "FA Register" = Rim,
                   tabledata "Fixed Asset" = R,
                   tabledata "G/L Account" = r,
+                  tabledata "G/L Account Source Currency" = ri,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Ri,
                   tabledata "G/L Register" = Rim,

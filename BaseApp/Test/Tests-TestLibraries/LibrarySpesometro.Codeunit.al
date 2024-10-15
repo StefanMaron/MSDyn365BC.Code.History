@@ -32,7 +32,7 @@ codeunit 143001 "Library - Spesometro"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate(Address, LibraryUtility.GenerateRandomCode(Customer.FieldNo(Address), DATABASE::Customer));
         Customer.Validate(Name, LibraryUtility.GenerateRandomCode(Customer.FieldNo(Name), DATABASE::Customer));
-        Customer.Validate("Country/Region Code", GetCountryCode);
+        Customer.Validate("Country/Region Code", GetCountryCode());
         Customer.Validate(City, LibraryUtility.GenerateRandomCode(Customer.FieldNo(City), DATABASE::Customer));
         Customer.Validate("Individual Person", IndividualPerson);
         Customer.Validate(Resident, Resident);
@@ -67,7 +67,7 @@ codeunit 143001 "Library - Spesometro"
         Vendor.Validate(Name, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Name), DATABASE::Vendor));
         Vendor.Validate("Individual Person", IndividualPerson);
         Vendor.Validate(Resident, Resident);
-        Vendor.Validate("Country/Region Code", GetCountryCode);
+        Vendor.Validate("Country/Region Code", GetCountryCode());
 
         CountryRegion.SetFilter("Foreign Country/Region Code", '<>%1', '');
         CountryRegion.FindFirst();
@@ -90,7 +90,7 @@ codeunit 143001 "Library - Spesometro"
             Vendor.Validate(
               "Birth County", CopyStr(LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Birth County"), DATABASE::Vendor), 1, 2));
             if Resident = Vendor.Resident::"Non-Resident" then
-                Vendor.Validate("Birth Country/Region Code", GetCountryCode);
+                Vendor.Validate("Birth Country/Region Code", GetCountryCode());
         end;
 
         Vendor.Modify(true);
@@ -191,10 +191,10 @@ codeunit 143001 "Library - Spesometro"
             Error(InvalidRecordTypeErr, RecordType);
 
         if RecordType in ['B', 'C', 'E'] then
-            VerifyValue(TextFile, GetCompanyRegNo, LineNo, 2, 16, ConstFormat::AN);
+            VerifyValue(TextFile, GetCompanyRegNo(), LineNo, 2, 16, ConstFormat::AN);
         CompanyInformation.Get();
         if RecordType in ['D'] then
-            VerifyValue(TextFile, CompanyInformation.GetTaxCode, LineNo, 2, 16, ConstFormat::AN);
+            VerifyValue(TextFile, CompanyInformation.GetTaxCode(), LineNo, 2, 16, ConstFormat::AN);
 
         LastCtrlChar[1] := 'A';
         LastCtrlChar[2] := 13;
@@ -206,7 +206,6 @@ codeunit 143001 "Library - Spesometro"
     procedure VerifyHeader(TextFile: BigText; LineNo: Integer; TransNo: Integer; TotalTransNo: Integer; StartDate: Date; EndDate: Date)
     var
         CompanyInformation: Record "Company Information";
-        VATReportSetup: Record "VAT Report Setup";
         SpesometroAppointment: Record "Spesometro Appointment";
         AppointmentFieldName: Option "First Name","Last Name",Gender,"Date of Birth",Municipality,Province,"Fiscal Code";
     begin
@@ -231,7 +230,7 @@ codeunit 143001 "Library - Spesometro"
                 if GetSpesometroAppointment(SpesometroAppointment, StartDate, EndDate) then
                     VerifyValue(TextFile, SpesometroAppointment.GetValueOf(AppointmentFieldName::"Fiscal Code"), LineNo, 23, 16, ConstFormat::AN)
                 else
-                    VerifyValue(TextFile, CompanyInformation.GetTaxCode, LineNo, 23, 16, ConstFormat::AN);
+                    VerifyValue(TextFile, CompanyInformation.GetTaxCode(), LineNo, 23, 16, ConstFormat::AN);
         end;
 
         VerifyValue(TextFile, PadStr(' ', 14), LineNo, 2, 14, ConstFormat::AN);
@@ -253,7 +252,7 @@ codeunit 143001 "Library - Spesometro"
     begin
         CompanyInfo.Get();
         VerifyValue(TextFile, 'B', LineNo, 1, 1, ConstFormat::AN);
-        VerifyValue(TextFile, GetCompanyRegNo, LineNo, 2, 16, ConstFormat::CF);
+        VerifyValue(TextFile, GetCompanyRegNo(), LineNo, 2, 16, ConstFormat::CF);
         VerifyValue(TextFile, '08106710158', LineNo, 74, 16, ConstFormat::AN);
 
         case ReportType of
@@ -329,7 +328,6 @@ codeunit 143001 "Library - Spesometro"
     procedure VerifyERecord(var TextFile: BigText; LineNo: Integer)
     var
         CompanyInfo: Record "Company Information";
-        VATReportSetup: Record "VAT Report Setup";
         Index: Integer;
         TypeCount: array[17] of Integer;
         Type: Text;
@@ -337,7 +335,7 @@ codeunit 143001 "Library - Spesometro"
         CompanyInfo.Get();
         VATReportSetup.Get();
         VerifyValue(TextFile, 'E', LineNo, 1, 1, ConstFormat::AN);
-        VerifyValue(TextFile, GetCompanyRegNo, LineNo, 2, 16, ConstFormat::CF);
+        VerifyValue(TextFile, GetCompanyRegNo(), LineNo, 2, 16, ConstFormat::CF);
         VerifyValue(TextFile, '08106710158', LineNo, 74, 16, ConstFormat::AN);
 
         for Index := 1 to ArrayLen(TypeCount) do
@@ -360,19 +358,15 @@ codeunit 143001 "Library - Spesometro"
                                 TypeCount[ConstType::BL2 + 1] += 1;
                         end;
                     ConstType::FE:
-                        begin
-                            if VerifyBlockValue(TextFile, Index, 'FE001003', FormatPadding(ConstFormat::CB, '1', 16), true, false) then
-                                TypeCount[ConstType::FE2 + 1] += 1
-                            else
-                                TypeCount[ConstType::FE1 + 1] += 1
-                        end;
+                        if VerifyBlockValue(TextFile, Index, 'FE001003', FormatPadding(ConstFormat::CB, '1', 16), true, false) then
+                            TypeCount[ConstType::FE2 + 1] += 1
+                        else
+                            TypeCount[ConstType::FE1 + 1] += 1;
                     ConstType::FR:
-                        begin
-                            if VerifyBlockValue(TextFile, Index, 'FR001002', FormatPadding(ConstFormat::CB, '1', 16), true, false) then
-                                TypeCount[ConstType::FR2 + 1] += 1
-                            else
-                                TypeCount[ConstType::FR1 + 1] += 1
-                        end;
+                        if VerifyBlockValue(TextFile, Index, 'FR001002', FormatPadding(ConstFormat::CB, '1', 16), true, false) then
+                            TypeCount[ConstType::FR2 + 1] += 1
+                        else
+                            TypeCount[ConstType::FR1 + 1] += 1;
                     else
                         TypeCount[ConstType + 1] += 1;
                 end;
@@ -534,14 +528,12 @@ codeunit 143001 "Library - Spesometro"
     procedure InsertSpesometroAppointment(var SpesometroAppointment: Record "Spesometro Appointment"; AppointmentCode: Code[2]; VendorNo: Code[20]; StartingDate: Date; EndingDate: Date)
     begin
         Clear(SpesometroAppointment);
-        with SpesometroAppointment do begin
-            Validate("Appointment Code", AppointmentCode);
-            Validate("Vendor No.", VendorNo);
-            Validate("Starting Date", StartingDate);
-            Validate("Ending Date", EndingDate);
-            Validate(Designation, 'Designation');
-            Insert(true);
-        end;
+        SpesometroAppointment.Validate("Appointment Code", AppointmentCode);
+        SpesometroAppointment.Validate("Vendor No.", VendorNo);
+        SpesometroAppointment.Validate("Starting Date", StartingDate);
+        SpesometroAppointment.Validate("Ending Date", EndingDate);
+        SpesometroAppointment.Validate(Designation, 'Designation');
+        SpesometroAppointment.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -594,7 +586,7 @@ codeunit 143001 "Library - Spesometro"
             Position := Position + 1;
             Character := CopyStr(FullText, Position, 1);
             if Character in ['0' .. '9'] then
-                Number := Number + CopyStr(FullText, Position, 1)
+                Number := Number + CopyStr(FullText, Position, 1);
         until Position >= StrLen(FullText);
         exit(Number);
     end;

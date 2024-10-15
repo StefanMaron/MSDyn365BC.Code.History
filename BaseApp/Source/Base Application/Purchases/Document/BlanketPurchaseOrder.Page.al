@@ -51,7 +51,7 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnValidate()
                     begin
-                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable;
+                        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
                         Rec.OnAfterValidateBuyFromVendorNo(Rec, xRec);
                         CurrPage.Update();
                     end;
@@ -968,7 +968,7 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist;
+                    Enabled = not OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1136,15 +1136,6 @@ page 509 "Blanket Purchase Order"
                 actionref(Approvals_Promoted; Approvals)
                 {
                 }
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Report)
             {

@@ -188,13 +188,13 @@ codeunit 144176 "ERM Reverse"
 
         // Setup.
         Initialize();
-        StartDate := GetStartDate;
+        StartDate := GetStartDate();
         CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', StartDate));  // Random Date within period.
         RunGLBookReport(ReportType::Final, StartDate, CalcDate('<CM>', StartDate));  // Confirm final printing
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
-        asserterror GLRegisters.ReverseRegister.Invoke;
+        asserterror GLRegisters.ReverseRegister.Invoke();
 
         // Verify: Verify error message.
         Assert.ExpectedError(StrSubstNo(ProgressiveNoErr, GLRegisters."From Entry No.".Value));
@@ -214,14 +214,14 @@ codeunit 144176 "ERM Reverse"
 
         // Setup.
         Initialize();
-        StartDate := GetStartDate;
+        StartDate := GetStartDate();
         CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', StartDate));  // Random Date within period.
         RunGLBookReport(ReportType::Final, StartDate, CalcDate('<CM>', StartDate));  // Confirm final printing
         RunGLBookReport(ReportType::Reprint, StartDate, CalcDate('<CM>', StartDate));
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
-        asserterror GLRegisters.ReverseRegister.Invoke;
+        asserterror GLRegisters.ReverseRegister.Invoke();
 
         // Verify: Verify error message.
         Assert.ExpectedError(StrSubstNo(ProgressiveNoErr, GLRegisters."From Entry No.".Value));
@@ -241,13 +241,13 @@ codeunit 144176 "ERM Reverse"
 
         // Setup.
         Initialize();
-        StartDate := GetStartDate;
+        StartDate := GetStartDate();
         CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', StartDate));  // Random Date within period.
         RunGLBookReport(ReportType::Test, StartDate, CalcDate('<CM>', StartDate));  // Confirm final printing
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
-        GLRegisters.ReverseRegister.Invoke;  // Opens ReverseEntriesPageHandler.
+        GLRegisters.ReverseRegister.Invoke();  // Opens ReverseEntriesPageHandler.
 
         // Verify.
         VerifyReversedGeneralLedgerEntry(GenJournalLine);
@@ -269,7 +269,7 @@ codeunit 144176 "ERM Reverse"
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
-        GLRegisters.ReverseRegister.Invoke;  // Opens ReverseEntriesPageHandler.
+        GLRegisters.ReverseRegister.Invoke();  // Opens ReverseEntriesPageHandler.
 
         // Verify.
         VerifyReversedGeneralLedgerEntry(GenJournalLine);
@@ -303,11 +303,11 @@ codeunit 144176 "ERM Reverse"
         GLRegisters: TestPage "G/L Registers";
     begin
         // Setup.
-        CreateAndPostGeneralJournalLine(DocumentType, GenJournalLine."Account Type"::Customer, CreateCustomer, Amount);
+        CreateAndPostGeneralJournalLine(DocumentType, GenJournalLine."Account Type"::Customer, CreateCustomer(), Amount);
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
-        asserterror GLRegisters.ReverseRegister.Invoke;
+        asserterror GLRegisters.ReverseRegister.Invoke();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(DocumentErr, GLRegisters."From Entry No.".Value));
@@ -341,12 +341,12 @@ codeunit 144176 "ERM Reverse"
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
         // Setup.
-        CreateAndPostGeneralJournalLine(DocumentType, GenJournalLine."Account Type"::Customer, CreateCustomer, Amount);
-        CustomerLedgerEntries.OpenEdit;
-        CustomerLedgerEntries.First;
+        CreateAndPostGeneralJournalLine(DocumentType, GenJournalLine."Account Type"::Customer, CreateCustomer(), Amount);
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.First();
 
         // Exercise.
-        asserterror CustomerLedgerEntries.ReverseTransaction.Invoke;
+        asserterror CustomerLedgerEntries.ReverseTransaction.Invoke();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(DocumentErr, CustomerLedgerEntries."Entry No.".Value));
@@ -383,11 +383,11 @@ codeunit 144176 "ERM Reverse"
         // Setup.
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostGeneralJournalLine(DocumentType, GenJournalLine."Account Type"::Vendor, Vendor."No.", Amount);
-        VendorLedgerEntries.OpenEdit;
-        VendorLedgerEntries.First;
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.First();
 
         // Exercise.
-        asserterror VendorLedgerEntries.ReverseTransaction.Invoke;
+        asserterror VendorLedgerEntries.ReverseTransaction.Invoke();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(DocumentErr, VendorLedgerEntries."Entry No.".Value));
@@ -409,15 +409,12 @@ codeunit 144176 "ERM Reverse"
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
         GLAccountNo := CreateGLAccountWithProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
         NoOfLines := LibraryRandom.RandIntInRange(2, 5);
-        CreateAndPostGeneralJournalLines(
-          GenJournalTemplate.Type::General, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
-          GLAccountNo, GenJournalLine."Gen. Posting Type"::Sale, VATPostingSetup."VAT Bus. Posting Group",
-          LibraryRandom.RandDecInRange(10, 1000, 2), NoOfLines);
+        CreateAndPostGeneralJournalLines(GenJournalTemplate.Type::General, GenJournalLine."Document Type"::" ", GLAccountNo, GenJournalLine."Gen. Posting Type"::Sale, VATPostingSetup."VAT Bus. Posting Group", LibraryRandom.RandDecInRange(10, 1000, 2), NoOfLines);
 
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
-        GLRegisters.ReverseRegister.Invoke;
+        GLRegisters.ReverseRegister.Invoke();
 
         // Verify.
         VerifyNoOfVATEntries(NoOfLines * 2, VATPostingSetup);
@@ -454,7 +451,7 @@ codeunit 144176 "ERM Reverse"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostGeneralJournalLines(TemplateType: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; VATBusPostingGroupCode: Code[20]; Amount: Decimal; NoOfLines: Integer)
+    local procedure CreateAndPostGeneralJournalLines(TemplateType: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; VATBusPostingGroupCode: Code[20]; Amount: Decimal; NoOfLines: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -462,15 +459,12 @@ codeunit 144176 "ERM Reverse"
     begin
         FindGenJournalBatch(GenJournalBatch, TemplateType);
         for Counter := 1 to NoOfLines do begin
-            CreateGeneralJournalLineWithBatch(
-              GenJournalBatch, GenJournalLine, AccountType, DocumentType, TemplateType, AccountNo, Amount);
-            with GenJournalLine do begin
-                Validate("Gen. Posting Type", GenPostingType);
-                Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-                Validate("Posting Date", CalcDate('<CY>', WorkDate()));
-                Validate("Operation Occurred Date", CalcDate('<CY>', WorkDate()));
-                Modify(true);
-            end;
+            CreateGeneralJournalLineWithBatch(GenJournalBatch, GenJournalLine, DocumentType, TemplateType, AccountNo, Amount);
+            GenJournalLine.Validate(GenJournalLine."Gen. Posting Type", GenPostingType);
+            GenJournalLine.Validate(GenJournalLine."VAT Bus. Posting Group", VATBusPostingGroupCode);
+            GenJournalLine.Validate(GenJournalLine."Posting Date", CalcDate('<CY>', WorkDate()));
+            GenJournalLine.Validate(GenJournalLine."Operation Occurred Date", CalcDate('<CY>', WorkDate()));
+            GenJournalLine.Modify(true);
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -503,7 +497,7 @@ codeunit 144176 "ERM Reverse"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
     end;
 
-    local procedure CreateGeneralJournalLineWithBatch(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; TemplateType: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLineWithBatch(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
@@ -548,11 +542,11 @@ codeunit 144176 "ERM Reverse"
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount(),
           LibraryRandom.RandDec(1000, 2));  // Using Random Value.
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -623,7 +617,7 @@ codeunit 144176 "ERM Reverse"
     local procedure FindAndUpdateGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
     begin
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        GeneralPostingSetup.Validate("Sales Account", CreateGLAccount);
+        GeneralPostingSetup.Validate("Sales Account", CreateGLAccount());
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -657,7 +651,7 @@ codeunit 144176 "ERM Reverse"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        AccountingPeriod.SetFilter("Starting Date", '>%1', GetLastPostingDate);
+        AccountingPeriod.SetFilter("Starting Date", '>%1', GetLastPostingDate());
         AccountingPeriod.SetRange("New Fiscal Year", false);
         AccountingPeriod.FindFirst();
         StartDate := AccountingPeriod."Starting Date";
@@ -684,8 +678,8 @@ codeunit 144176 "ERM Reverse"
 
     local procedure OpenGLRegistersPage(var GLRegisters: TestPage "G/L Registers")
     begin
-        GLRegisters.OpenEdit;
-        GLRegisters.First;
+        GLRegisters.OpenEdit();
+        GLRegisters.First();
     end;
 
     local procedure RunGLBookReport(ReportType: Option; StartDate: Date; EndDate: Date)
@@ -831,14 +825,14 @@ codeunit 144176 "ERM Reverse"
         GLBookPrint.PrintCompanyInformations.SetValue(true);
         GLBookPrint.RegisterCompanyNo.SetValue(Format(LibraryRandom.RandInt(10)));
         GLBookPrint.FiscalCode.SetValue('01369030935 '); // Valid Fiscal Code.
-        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReverseEntriesPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
     end;
 
     [ConfirmHandler]

@@ -8,6 +8,7 @@ table 12129 "Lifo Category"
 {
     Caption = 'Lifo Category';
     LookupPageID = "Lifo Category";
+    DataClassification = CustomerContent;
 
     fields
     {

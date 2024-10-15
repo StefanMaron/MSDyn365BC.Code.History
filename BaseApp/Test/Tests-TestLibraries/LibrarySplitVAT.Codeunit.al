@@ -101,7 +101,7 @@ codeunit 143003 "Library - Split VAT"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
         VATPostingSetup."Sales VAT Account" := LibraryERM.CreateGLAccountNo();
-        VATPostingSetup."VAT Transaction Nature" := CreateVATTransactionNatureCode;
+        VATPostingSetup."VAT Transaction Nature" := CreateVATTransactionNatureCode();
         VATPostingSetup.Modify(true);
     end;
 
@@ -123,14 +123,12 @@ codeunit 143003 "Library - Split VAT"
     var
         VATTransactionNature: Record "VAT Transaction Nature";
     begin
-        with VATTransactionNature do begin
-            Init();
-            Code := CopyStr(LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Transaction Nature"), 1, MaxStrLen(Code));
-            Description := LibraryUtility.GenerateGUID();
-            Insert(true);
+        VATTransactionNature.Init();
+        VATTransactionNature.Code := CopyStr(LibraryUtility.GenerateRandomCode(VATTransactionNature.FieldNo(Code), DATABASE::"VAT Transaction Nature"), 1, MaxStrLen(VATTransactionNature.Code));
+        VATTransactionNature.Description := LibraryUtility.GenerateGUID();
+        VATTransactionNature.Insert(true);
 
-            exit(Code);
-        end;
+        exit(VATTransactionNature.Code);
     end;
 
     [Scope('OnPrem')]
@@ -143,23 +141,19 @@ codeunit 143003 "Library - Split VAT"
     [Scope('OnPrem')]
     procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; AutomaticallyGenerated: Boolean)
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange("Automatically Generated", AutomaticallyGenerated);
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Automatically Generated", AutomaticallyGenerated);
+        SalesLine.FindFirst();
     end;
 
     [Scope('OnPrem')]
     procedure FindServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; AutomaticallyGenerated: Boolean)
     begin
-        with ServiceLine do begin
-            SetRange("Document Type", ServiceHeader."Document Type");
-            SetRange("Document No.", ServiceHeader."No.");
-            SetRange("Automatically Generated", AutomaticallyGenerated);
-            FindFirst();
-        end;
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange("Automatically Generated", AutomaticallyGenerated);
+        ServiceLine.FindFirst();
     end;
 }
 

@@ -152,7 +152,7 @@ codeunit 30178 "Shpfy Product Export"
                     Result.Append(Translator.GetAttributeTitle(Shop."Language Code"));
                     Result.Append('  </div>');
                     Result.Append('  <table>');
-                    Repeat
+                    repeat
                         if ItemAttribute.Get(ItemAttributeValueMapping."Item Attribute ID") and (not ItemAttribute.Blocked) then begin
                             Result.Append('    <tr>');
                             Result.Append('      <td class="attributeName">');

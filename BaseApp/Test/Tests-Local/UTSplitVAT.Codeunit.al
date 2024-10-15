@@ -129,11 +129,11 @@ codeunit 144560 "UT Split VAT"
         TotalingSalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         LibrarySales.CreateSalesLine(
-          TotalingSalesLine, SalesHeader, TotalingSalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          TotalingSalesLine, SalesHeader, TotalingSalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         SalesLine."Amount Including VAT" := 1200;
         SalesLine.Amount := 1000;
@@ -177,7 +177,7 @@ codeunit 144560 "UT Split VAT"
         CreateServiceDoc(ServiceHeader, ServiceHeader."Document Type"::Invoice);
 
         // Execute and verify
-        Assert.IsTrue(ServiceHeader.ServiceLinesExist, 'Incorrect implementation of ServiceHeader.ServiceLinesExist');
+        Assert.IsTrue(ServiceHeader.ServiceLinesExist(), 'Incorrect implementation of ServiceHeader.ServiceLinesExist');
     end;
 
     [Test]
@@ -190,7 +190,7 @@ codeunit 144560 "UT Split VAT"
         MockServiceHeader(ServiceHeader);
 
         // Execute and verify
-        Assert.IsFalse(ServiceHeader.ServiceLinesExist, 'Incorrect implementation of ServiceHeader.ServiceLinesExist');
+        Assert.IsFalse(ServiceHeader.ServiceLinesExist(), 'Incorrect implementation of ServiceHeader.ServiceLinesExist');
     end;
 
     [Test]
@@ -325,9 +325,9 @@ codeunit 144560 "UT Split VAT"
         ServiceLine: Record "Service Line";
         TotalingServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        LibraryService.CreateServiceLine(TotalingServiceLine, ServiceHeader, TotalingServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        LibraryService.CreateServiceLine(TotalingServiceLine, ServiceHeader, TotalingServiceLine.Type::Item, LibraryInventory.CreateItemNo());
 
         ServiceLine."Amount Including VAT" := 1200;
         ServiceLine.Amount := 1000;
@@ -359,7 +359,7 @@ codeunit 144560 "UT Split VAT"
         ServiceLine.Insert(true);
 
         // [WHEN] Split Service line
-        ServiceHeader.AddSplitVATLines;
+        ServiceHeader.AddSplitVATLines();
 
         // [THEN] Total count of Service Lines is equal to 3 (2 initial lines and one split line)
         ServiceLine.Reset();

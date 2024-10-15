@@ -35,12 +35,12 @@ codeunit 131001 "Library - Dimension"
     var
         ChangeGlobalDimHeader: Record "Change Global Dim. Header";
     begin
-        InitGlobalDimChange;
+        InitGlobalDimChange();
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", GlobalDimension1Code);
         ChangeGlobalDimHeader.Validate("Global Dimension 2 Code", GlobalDimension2Code);
         ChangeGlobalDimHeader.Modify();
-        ChangeGlobalDimensions.StartSequential;
+        ChangeGlobalDimensions.StartSequential();
     end;
 
     procedure RunChangeGlobalDimensionsParallel(GlobalDimension1Code: Code[20]; GlobalDimension2Code: Code[20])
@@ -49,20 +49,20 @@ codeunit 131001 "Library - Dimension"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
         LibraryDimension: Codeunit "Library - Dimension";
     begin
-        InitGlobalDimChange;
+        InitGlobalDimChange();
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader."Parallel Processing" := true;
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", GlobalDimension1Code);
         ChangeGlobalDimHeader.Validate("Global Dimension 2 Code", GlobalDimension2Code);
         ChangeGlobalDimHeader.Modify();
         BindSubscription(LibraryDimension); // to mock taks scheduling and single session
-        ChangeGlobalDimensions.Prepare;
-        ChangeGlobalDimensions.Start;
+        ChangeGlobalDimensions.Prepare();
+        ChangeGlobalDimensions.Start();
         if ChangeGlobalDimensions.FindTablesForScheduling(ChangeGlobalDimLogEntry) then
             repeat
                 CODEUNIT.Run(CODEUNIT::"Change Global Dimensions", ChangeGlobalDimLogEntry);
             until ChangeGlobalDimLogEntry.Next() = 0;
-        InitGlobalDimChange;
+        InitGlobalDimChange();
     end;
 
     procedure CreateDimension(var Dimension: Record Dimension)
@@ -234,7 +234,7 @@ codeunit 131001 "Library - Dimension"
     procedure CreateSelectedDimension(var SelectedDimension: Record "Selected Dimension"; ObjectType: Option; ObjectID: Integer; AnalysisViewCode: Code[10]; DimensionCode: Text[30])
     begin
         Clear(SelectedDimension);
-        SelectedDimension."User ID" := UserId;
+        SelectedDimension."User ID" := CopyStr(UserId(), 1, MaxStrLen(SelectedDimension."User ID"));
         SelectedDimension.Validate("Object Type", ObjectType);
         SelectedDimension.Validate("Object ID", ObjectID);
         SelectedDimension.Validate("Analysis View Code", AnalysisViewCode);
@@ -244,21 +244,19 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateDimensionsTemplate(var DimensionsTemplate: Record "Dimensions Template"; TemplateCode: Code[10]; TableID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20])
     begin
-        with DimensionsTemplate do begin
-            Init();
-            Validate(
-              Code,
-              CopyStr(
-                LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Dimensions Template"),
-                1,
-                LibraryUtility.GetFieldLength(DATABASE::"Dimensions Template", FieldNo(Code))));
-            Validate("Master Record Template Code", TemplateCode);
-            Validate("Dimension Code", DimensionCode);
-            Validate("Dimension Value Code", DimensionValueCode);
-            Validate("Table Id", TableID);
-            SetRange("Master Record Template Code", "Master Record Template Code");
-            Insert(true);
-        end;
+        DimensionsTemplate.Init();
+        DimensionsTemplate.Validate(
+          Code,
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(DimensionsTemplate.FieldNo(Code), DATABASE::"Dimensions Template"),
+            1,
+            LibraryUtility.GetFieldLength(DATABASE::"Dimensions Template", DimensionsTemplate.FieldNo(Code))));
+        DimensionsTemplate.Validate("Master Record Template Code", TemplateCode);
+        DimensionsTemplate.Validate("Dimension Code", DimensionCode);
+        DimensionsTemplate.Validate("Dimension Value Code", DimensionValueCode);
+        DimensionsTemplate.Validate("Table Id", TableID);
+        DimensionsTemplate.SetRange("Master Record Template Code", DimensionsTemplate."Master Record Template Code");
+        DimensionsTemplate.Insert(true);
     end;
 
     procedure EditDimSet(DimSetID: Integer; DimCode: Code[20]; DimValCode: Code[20]): Integer

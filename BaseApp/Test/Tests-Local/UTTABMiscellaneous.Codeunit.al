@@ -153,9 +153,9 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnDelete Trigger of Table Bill(12180).
         // Setup.
         Initialize();
-        Bill.Code := LibraryUTUtility.GetNewCode;
+        Bill.Code := LibraryUTUtility.GetNewCode();
         Bill.Insert();
-        PaymentMethod.Code := LibraryUTUtility.GetNewCode10;
+        PaymentMethod.Code := LibraryUTUtility.GetNewCode10();
         PaymentMethod."Bill Code" := Bill.Code;
         PaymentMethod.Insert();
 
@@ -177,7 +177,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnDelete Trigger of Table Contribution Bracket(12108).
         // Setup.
         Initialize();
-        ContributionBracket.Code := LibraryUTUtility.GetNewCode10;
+        ContributionBracket.Code := LibraryUTUtility.GetNewCode10();
         ContributionBracket.Insert();
         ContributionBracketLine.Code := ContributionBracket.Code;
         ContributionBracketLine.Insert();
@@ -200,7 +200,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnInsert Trigger of Table Deferring Due Dates(12173).
         // Setup.
         Initialize();
-        DeferringDueDates."No." := CreateDeferringDueDates;
+        DeferringDueDates."No." := CreateDeferringDueDates();
         DeferringDueDates."From-Date" := WorkDate();
 
         // Exercise.
@@ -220,7 +220,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnInsert Trigger of Table Deferring Due Dates(12173) when To-Date conflicts with another period.
         // Setup.
         Initialize();
-        DeferringDueDates."No." := CreateDeferringDueDates;
+        DeferringDueDates."No." := CreateDeferringDueDates();
         DeferringDueDates."From-Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
         DeferringDueDates."To-Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
 
@@ -242,7 +242,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnDelete Trigger of Table Contribution Code(12106).
         // Setup.
         Initialize();
-        ContributionCode.Code := LibraryUTUtility.GetNewCode;
+        ContributionCode.Code := LibraryUTUtility.GetNewCode();
         ContributionCode.Insert();
         ContributionCodeLine.Code := ContributionCode.Code;
         ContributionCodeLine.Insert();
@@ -266,7 +266,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnDelete Trigger of Table Withhold Code(12104).
         // Setup.
         Initialize();
-        WithholdCode.Code := LibraryUTUtility.GetNewCode;
+        WithholdCode.Code := LibraryUTUtility.GetNewCode();
         WithholdCode.Insert();
         WithholdCodeLine."Withhold Code" := WithholdCode.Code;
         WithholdCodeLine.Insert();
@@ -290,7 +290,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnValidate - SourceWithholdingTax Trigger of Table Withhold Code(12104).
         // Setup.
         Initialize();
-        WithholdCode.Code := LibraryUTUtility.GetNewCode;
+        WithholdCode.Code := LibraryUTUtility.GetNewCode();
         WithholdCode."Recipient May Report Income" := true;
 
         // Exercise.
@@ -310,7 +310,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnValidate - RecipientMayReportIncome Trigger of Table Withhold Code(12104).
         // Setup.
         Initialize();
-        WithholdCode.Code := LibraryUTUtility.GetNewCode;
+        WithholdCode.Code := LibraryUTUtility.GetNewCode();
 
         // Exercise.
         WithholdCode.Validate("Recipient May Report Income", true);
@@ -336,7 +336,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         REPORT.Run(REPORT::"List of Bank Receipts");
 
         // Verify: Verify values of No_CustBillHdr, CustNo_CustBillLine on Report List of Bank Receipts(12170).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_CustBillHdr', CustomerBillLine."Customer Bill No.");
         LibraryReportDataset.AssertElementWithValueExists('CustNo_CustBillLine', CustomerBillLine."Customer No.");
     end;
@@ -351,7 +351,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnValidate - DueDatePaymentLine Trigger of Table Payment Line(12170).
         // Setup.
         Initialize();
-        CreatePaymentLine(PaymentLines, PaymentLines."Sales/Purchase"::Sales, CreateSalesHeader);
+        CreatePaymentLine(PaymentLines, PaymentLines."Sales/Purchase"::Sales, CreateSalesHeader());
 
         // Exercise.
         asserterror PaymentLines.Validate("Due Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
@@ -370,7 +370,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnValidate - PrepmtDueDatePaymentLine Trigger of Table Payment Line(12170).
         // Setup.
         Initialize();
-        CreatePaymentLine(PaymentLines, PaymentLines."Sales/Purchase"::Purchase, CreatePurchaseHeader);
+        CreatePaymentLine(PaymentLines, PaymentLines."Sales/Purchase"::Purchase, CreatePurchaseHeader());
 
         // Exercise.
         asserterror
@@ -390,7 +390,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnValidate - BankAccountNo Trigger of Table Vendor Bill Header(12181).
         // Setup.
         Initialize();
-        VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
+        VendorBillHeader."No." := LibraryUTUtility.GetNewCode();
 
         // Exercise.
         asserterror VendorBillHeader.Validate("Bank Account No.", CreateBankAccount(true));  // Blocekd as True.
@@ -409,7 +409,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnValidate - ListDate Trigger of Table Vendor Bill Header(12181).
         // Setup.
         Initialize();
-        VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
+        VendorBillHeader."No." := LibraryUTUtility.GetNewCode();
         VendorBillHeader."Posting Date" := WorkDate();
 
         // Exercise.
@@ -429,10 +429,10 @@ codeunit 144126 "UT TAB Miscellaneous"
         // Purpose of the test is to validate OnValidate - CurrencyCode Trigger of Table Vendor Bill Header(12181).
         // Setup.
         Initialize();
-        VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
+        VendorBillHeader."No." := LibraryUTUtility.GetNewCode();
 
         // Exercise.
-        asserterror VendorBillHeader.Validate("Currency Code", LibraryUTUtility.GetNewCode10);
+        asserterror VendorBillHeader.Validate("Currency Code", LibraryUTUtility.GetNewCode10());
 
         // Verify actual error: "It's not possible to change Currency Code because there are Vendor Bill Line associated to this Vendor Bill Header."
         Assert.ExpectedErrorCode('DB:PrimRecordNotFound');
@@ -783,7 +783,7 @@ codeunit 144126 "UT TAB Miscellaneous"
             ExpectedAmount += Amount;
         end;
         // [GIVEN] Customer ledger entry with customer "XX", Posting Date = 01.01.2022, "Document No." = "Y" and amount = 10
-        MockInvCustLedgEntry(LibrarySales.CreateCustomerNo, WorkDate(), DocNo, LibraryRandom.RandDec(100, 2));
+        MockInvCustLedgEntry(LibrarySales.CreateCustomerNo(), WorkDate(), DocNo, LibraryRandom.RandDec(100, 2));
         // [GIVEN] Customer ledger entry with customer "X", Posting Date = 02.01.2022, "Document No." = "Y" and amount = 20
         MockInvCustLedgEntry(CustNo, WorkDate() + 1, DocNo, LibraryRandom.RandDec(100, 2));
         // [GIVEN] Customer ledger entry with customer "X", Posting Date = 01.01.2022, "Document No." = "YY" and amount = 30
@@ -810,7 +810,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Blocked := Blocked;
         BankAccount.Insert();
         exit(BankAccount."No.");
@@ -820,7 +820,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -829,11 +829,11 @@ codeunit 144126 "UT TAB Miscellaneous"
     var
         CustomerBillHeader: Record "Customer Bill Header";
     begin
-        CustomerBillHeader."No." := LibraryUTUtility.GetNewCode;
+        CustomerBillHeader."No." := LibraryUTUtility.GetNewCode();
         CustomerBillHeader."Bank Account No." := CreateBankAccount(false);  // Blocked as false.
         CustomerBillHeader.Insert();
         CustomerBillLine."Customer Bill No." := CustomerBillHeader."No.";
-        CustomerBillLine."Customer No." := CreateCustomer;
+        CustomerBillLine."Customer No." := CreateCustomer();
         CustomerBillLine.Insert();
     end;
 
@@ -841,7 +841,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     var
         DeferringDueDates: Record "Deferring Due Dates";
     begin
-        DeferringDueDates."No." := LibraryUTUtility.GetNewCode;
+        DeferringDueDates."No." := LibraryUTUtility.GetNewCode();
         DeferringDueDates."From-Date" := WorkDate();
         DeferringDueDates."To-Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Use random Date.
         DeferringDueDates.Insert();
@@ -861,7 +861,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Document Date" := WorkDate();
         PurchaseHeader.Insert();
         exit(PurchaseHeader."No.");
@@ -872,7 +872,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Document Date" := WorkDate();
         SalesHeader.Insert();
         exit(SalesHeader."No.");
@@ -948,15 +948,15 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         LibraryVariableStorage.Dequeue(No);
         ListOfBankReceipts."Customer Bill Header".SetFilter("No.", No);
-        ListOfBankReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ListOfBankReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerWithDequeue(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, ValueMatchErr);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Question, ValueMatchErr);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

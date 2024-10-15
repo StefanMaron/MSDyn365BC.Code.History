@@ -650,7 +650,7 @@ page 42 "Sales Order"
                         group(Control4)
                         {
                             ShowCaption = false;
-                            Visible = NOT (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
+                            Visible = not (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
                             field("Ship-to Code"; Rec."Ship-to Code")
                             {
                                 ApplicationArea = Basic, Suite;
@@ -828,7 +828,7 @@ page 42 "Sales Order"
                     group(Control82)
                     {
                         ShowCaption = false;
-                        Visible = NOT (BillToOptions = BillToOptions::"Default (Customer)");
+                        Visible = not (BillToOptions = BillToOptions::"Default (Customer)");
                         field("Bill-to Name"; Rec."Bill-to Name")
                         {
                             ApplicationArea = Basic, Suite;
@@ -1117,7 +1117,7 @@ page 42 "Sales Order"
 
                     trigger OnValidate()
                     begin
-                        PrepmtCMReferstoPeriodOnAfterV;
+                        PrepmtCMReferstoPeriodOnAfterV();
                     end;
                 }
             }
@@ -1392,7 +1392,7 @@ page 42 "Sales Order"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Order';
-                    Enabled = CRMIntegrationEnabled AND CRMIsCoupledToRecord;
+                    Enabled = CRMIntegrationEnabled and CRMIsCoupledToRecord;
                     Image = CoupledOrder;
                     ToolTip = 'View the selected sales order.';
 
@@ -1906,7 +1906,7 @@ page 42 "Sales Order"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create Incoming Document from File';
                         Ellipsis = true;
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = Attach;
                         ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
@@ -1963,7 +1963,7 @@ page 42 "Sales Order"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Demand Overview';
                     Image = Forecast;
-                    ToolTip = 'Get an overview of demand for your items when planning sales, production, jobs, or service management and when they will be available.';
+                    ToolTip = 'Get an overview of demand for your items when planning sales, production, projects, or service management and when they will be available.';
 
                     trigger OnAction()
                     var
@@ -1998,7 +1998,7 @@ page 42 "Sales Order"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -2014,7 +2014,7 @@ page 42 "Sales Order"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -2066,20 +2066,6 @@ page 42 "Sales Order"
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter());
                             FlowTemplateSelector.Run();
                         end;
-                    }
-#endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        Visible = false;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
                     }
 #endif
                 }
@@ -2392,7 +2378,7 @@ page 42 "Sales Order"
                         Ellipsis = true;
                         Image = Print;
                         ToolTip = 'Print a sales order confirmation.';
-                        Visible = NOT IsOfficeHost;
+                        Visible = not IsOfficeHost;
 
                         trigger OnAction()
                         begin
@@ -2549,24 +2535,6 @@ page 42 "Sales Order"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category8)
             {
@@ -2749,11 +2717,11 @@ page 42 "Sales Order"
 
         SetDocNoVisible();
 
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
             IsBidirectionalSyncEnabled := CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled();
-        IsOfficeHost := OfficeMgt.IsAvailable;
-        IsSaas := EnvironmentInfo.IsSaaS;
+        IsOfficeHost := OfficeMgt.IsAvailable();
+        IsSaas := EnvironmentInfo.IsSaaS();
 
         if (Rec."No." <> '') and (Rec."Sell-to Customer No." = '') then
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
@@ -2872,12 +2840,6 @@ page 42 "Sales Order"
     begin
         GeneralLedgerSetup.Get();
         IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
-    end;
-
-    [Obsolete('Replaced by PostSalesOrder().', '18.0')]
-    procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
-    begin
-        PostSalesOrder(PostingCodeunitID, Enum::"Navigate After Posting".FromInteger(Navigate));
     end;
 
     protected procedure PostSalesOrder(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
@@ -3009,7 +2971,6 @@ page 42 "Sales Order"
 
     local procedure SetControlVisibility()
     var
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
@@ -3063,7 +3024,7 @@ page 42 "Sales Order"
 
     procedure UpdateShipToBillToGroupVisibility()
     begin
-        CustomerMgt.CalculateShipToBillToOptions(ShipToOptions, BillToOptions, Rec);
+        CustomerMgt.CalculateShipBillToOptions(ShipToOptions, BillToOptions, Rec);
     end;
 
     procedure SetPostingGroupEditable()

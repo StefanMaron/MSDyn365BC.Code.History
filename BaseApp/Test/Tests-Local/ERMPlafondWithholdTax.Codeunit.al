@@ -108,7 +108,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
 
         // Setup & Exercise: Create Vendor with Withhold Code, create Vendor Bill Header Insert Vendor Bill Line Manual from Vendor Bill Card.
         Initialize();
-        VendorBillHeaderNo := CreateVendorBillWithholdCodeAndInsertVendBillLineManual;
+        VendorBillHeaderNo := CreateVendorBillWithholdCodeAndInsertVendBillLineManual();
 
         // Verify: Verify that a Vendor Bill Line must be created after Insert Vendor Bill Line from Vendor Bill Card.
         FindVendorBillLine(VendorBillLine, VendorBillHeaderNo);
@@ -128,15 +128,15 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
 
         // Setup: Create Vendor with Withhold Code, create Vendor Bill Header and Invoke InsertVendBillLineManual from Vendor Bill Card.
         Initialize();
-        VendorBillHeaderNo := CreateVendorBillWithholdCodeAndInsertVendBillLineManual;
+        VendorBillHeaderNo := CreateVendorBillWithholdCodeAndInsertVendBillLineManual();
         FindVendorBillLine(VendorBillLine, VendorBillHeaderNo);
         LibraryVariableStorage.Enqueue(VendorBillLine."Withholding Tax Amount");  // Enqueue value for VendorBillWithholdTaxModalPageHandler.
         LibraryVariableStorage.Enqueue(VendorBillLine."Instalment Amount");  // Enqueue value for VendorBillWithholdTaxModalPageHandler.
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", VendorBillHeaderNo);
 
         // Exercise.
-        VendorBillCard.VendorBillLines.WithholdingINPS.Invoke;
+        VendorBillCard.VendorBillLines.WithholdingINPS.Invoke();
 
         // Verify: Verify VendorBillWithholTax menu presence on Vendor Bill Line, verification done in VendorBillWithholdTaxModalPageHandler.
     end;
@@ -159,7 +159,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         CreateAndPostPurchaseInvoice(PurchaseHeader);
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
         WithholdCode.Get(Vendor."Withholding Tax Code");
-        VendorBillHeaderNo := CreateVendorBillHeader;
+        VendorBillHeaderNo := CreateVendorBillHeader();
         SuggestPaymentAndChangeStatusOnVendorBill(VendorBillHeaderNo);
         FindVendorBillLine(VendorBillLine, VendorBillHeaderNo);
 
@@ -186,7 +186,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         // Setup: Create Vendor with Withhold Code and Suggest Payments on Vendor Bills.
         Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader);
-        VendorBillHeaderNo := CreateVendorBillHeader;
+        VendorBillHeaderNo := CreateVendorBillHeader();
         SuggestPaymentAndChangeStatusOnVendorBill(VendorBillHeaderNo);
         FindVendorBillLine(VendorBillLine, VendorBillHeaderNo);
 
@@ -210,7 +210,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         // Setup: Create Vendor with Withhold Code and Suggest Payments on Vendor Bills.
         Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader);
-        VendorBillHeaderNo := CreateVendorBillHeader;
+        VendorBillHeaderNo := CreateVendorBillHeader();
         SuggestPaymentOnVendorBill(VendorBillCard, VendorBillHeaderNo);
 
         // Exercise: Run Vendor Bill Report for Open Status of Vendor Bill.
@@ -234,7 +234,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         // Setup: Create and Post Purchase Invoice, create Vendor with Withhold Code, Suggest Payment on Vendor Bills and Change Status to sent.
         Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader);
-        VendorBillHeaderNo := CreateVendorBillHeader;
+        VendorBillHeaderNo := CreateVendorBillHeader();
         SuggestPaymentAndChangeStatusOnVendorBill(VendorBillHeaderNo);
 
         // Exercise: Run Vendor Bill Report for Sent Status of Vendor Bill.
@@ -260,16 +260,16 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         // Setup: Create and Post Purchase Invoice with Dimension on Vendor, create Vendor with Withhold Code and Post Vendor Bill.
         Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader);
-        VendorBillHeaderNo := CreateVendorBillHeader;
+        VendorBillHeaderNo := CreateVendorBillHeader();
         InsertVendorBillLineManualWithChangeStatus(VendorBillHeaderNo);
         PostVendorBill(VendorBillHeaderNo);
         FindPostedVendorBillLine(PostedVendorBillLine, PurchaseHeader."Buy-from Vendor No.");
         LibraryVariableStorage.Enqueue(FindDefaultDimension(PurchaseHeader."Buy-from Vendor No."));  // Required inside DimensionSetEntriesPageHandler.
-        PostedVendorBillCard.OpenEdit;
+        PostedVendorBillCard.OpenEdit();
         PostedVendorBillCard.FILTER.SetFilter("No.", PostedVendorBillLine."Vendor Bill No.");
 
         // Exercise: Show Dimension on Posted Vendor Bill Line Page.
-        PostedVendorBillCard.SubformPostedVendBillLines.Dimension.Invoke;  // Opens DimensionSetEntriesPageHandler.
+        PostedVendorBillCard.SubformPostedVendBillLines.Dimension.Invoke();  // Opens DimensionSetEntriesPageHandler.
 
         // Verify: Verify Dimension updated on Posted Vendor Bill Line in DimensionSetEntriesPageHandler.
     end;
@@ -294,7 +294,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         VendorBillNo := CreateLineOnVendorBillWithInsertLine(Vendor."No.", TotalAmount);
 
         // Verify: Verify that a Vendor Bill Line Created Correct Vendor Number and Amount after Insert Vendor Bill Line from Vendor Bill Card.
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", VendorBillNo);
         VendorBillCard.VendorBillLines."Vendor No.".AssertEquals(Vendor."No.");
         VendorBillCard.VendorBillLines."Instalment Amount".AssertEquals(TotalAmount);
@@ -318,8 +318,8 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         // Setup: Create and post Purchase Invoice with and without Withhold Tax.
         Initialize();
         Amount := CreateAndPostPurchaseInvoice(PurchaseHeader);
-        VendorNo := PostPurchaseInvoiceWithoutWithHoldTax;
-        VendorBillHeaderNo := CreateVendorBillHeader;
+        VendorNo := PostPurchaseInvoiceWithoutWithHoldTax();
+        VendorBillHeaderNo := CreateVendorBillHeader();
 
         // Exercise: Run Suggest Payment on Vendor Bill.
         SuggestPaymentOnVendorBill(VendorBillCard, VendorBillHeaderNo);
@@ -349,7 +349,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         Amount := CreateAndPostPurchaseInvoiceForVendor(PurchaseHeader, Vendor."No.", Vendor."Withholding Tax Code");
 
         // [GIVEN] Issued Vendor Bill for Purchase Invoice with "Non Taxable Amount" = Invoice Amount = "A"
-        VendorBillHeader.Get(CreateVendorBillHeader);
+        VendorBillHeader.Get(CreateVendorBillHeader());
         RunSuggestVendorBills(VendorBillHeader, Vendor."No.");
         LibraryITLocalization.IssueVendorBill(VendorBillHeader);
 
@@ -381,7 +381,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         CreateAndPostPurchaseInvoiceForVendor(PurchaseHeader, Vendor."No.", Vendor."Withholding Tax Code");
 
         // [GIVEN] Issued Vendor Bill for Purchase Invoice
-        VendorBillHeader.Get(CreateVendorBillHeader);
+        VendorBillHeader.Get(CreateVendorBillHeader());
         RunSuggestVendorBills(VendorBillHeader, Vendor."No.");
         LibraryITLocalization.IssueVendorBill(VendorBillHeader);
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
@@ -544,7 +544,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         WithholdCode: Record "Withhold Code";
     begin
         LibraryITLocalization.CreateWithholdCode(WithholdCode);
-        WithholdCode.Validate("Withholding Taxes Payable Acc.", CreateGLAccount);
+        WithholdCode.Validate("Withholding Taxes Payable Acc.", CreateGLAccount());
         WithholdCode.Validate("Tax Code", Format(LibraryRandom.RandIntInRange(100, 9999)));  // Using Random value for Tax Code.
         WithholdCode.Validate("770 Code", StringTxt);
         WithholdCode.Modify(true);
@@ -573,7 +573,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount, LibraryRandom.RandDecInRange(100, 500, 2));  // Using Random value for Quantity.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount(), LibraryRandom.RandDecInRange(100, 500, 2));  // Using Random value for Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 500, 2));
         PurchaseLine.Validate("Line Discount %", LibraryRandom.RandInt(10));
         PurchaseLine.Modify(true);
@@ -612,11 +612,11 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     var
         WithholdCodeLine: Record "Withhold Code Line";
     begin
-        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, CreateWithholdCode, WorkDate());
+        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, CreateWithholdCode(), WorkDate());
         WithholdCodeLine.Validate("Withholding Tax %", LibraryRandom.RandInt(10));
         WithholdCodeLine.Validate("Taxable Base %", TaxableBase);
         WithholdCodeLine.Modify(true);
-        CreateVendor(Vendor, WithholdCodeLine."Withhold Code", FindPaymentMethod);
+        CreateVendor(Vendor, WithholdCodeLine."Withhold Code", FindPaymentMethod());
     end;
 
     local procedure CreateVendorBillWithholdCodeAndInsertVendBillLineManual() VendorBillHeaderNo: Code[20]
@@ -624,7 +624,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         Vendor: Record Vendor;
     begin
         CreateVendorWithholdCode(Vendor);
-        VendorBillHeaderNo := CreateVendorBillHeader;
+        VendorBillHeaderNo := CreateVendorBillHeader();
         InsertVendBillLineManualUsingVendorBillCardPage(VendorBillHeaderNo);
     end;
 
@@ -635,7 +635,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         VendorBillHeader: Record "Vendor Bill Header";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccount."No.", FindPaymentMethod);
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccount."No.", FindPaymentMethod());
         LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
         VendorBillHeader.Validate("Bank Account No.", BankAccount."No.");
         VendorBillHeader.Validate("Payment Method Code", BillPostingGroup."Payment Method");
@@ -645,9 +645,9 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
 
     local procedure InsertVendorBillLineManual(var VendorBillCard: TestPage "Vendor Bill Card"; No: Code[20])
     begin
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", No);
-        VendorBillCard.InsertVendBillLineManual.Invoke;  // Opens ManualVendorPaymentLinePageHandler.
+        VendorBillCard.InsertVendBillLineManual.Invoke();  // Opens ManualVendorPaymentLinePageHandler.
     end;
 
     local procedure InsertVendBillLineManualUsingVendorBillCardPage(No: Code[20])
@@ -694,12 +694,12 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         PurchaseInvoice: TestPage "Purchase Invoice";
         WithhTaxesContributionCard: TestPage "Withh. Taxes-Contribution Card";
     begin
-        WithhTaxesContributionCard.Trap;
-        PurchaseInvoice.OpenEdit;
+        WithhTaxesContributionCard.Trap();
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", No);
-        PurchaseInvoice."With&hold Taxes-Soc. Sec.".Invoke;
+        PurchaseInvoice."With&hold Taxes-Soc. Sec.".Invoke();
         WithhTaxesContributionCard."Withholding Tax Code".SetValue(WithholdCode);
-        WithhTaxesContributionCard.OK.Invoke;
+        WithhTaxesContributionCard.OK().Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -716,7 +716,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
     begin
-        CreateVendor(Vendor, '', FindPaymentMethod);
+        CreateVendor(Vendor, '', FindPaymentMethod());
         CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         exit(Vendor."No.");
@@ -725,9 +725,9 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     local procedure SuggestPaymentOnVendorBill(var VendorBillCard: TestPage "Vendor Bill Card"; No: Code[20])
     begin
         Commit();  // Commit required.
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", No);
-        VendorBillCard.SuggestPayment.Invoke;  // Opens SuggestVendorBillsRequestPageHandler.
+        VendorBillCard.SuggestPayment.Invoke();  // Opens SuggestVendorBillsRequestPageHandler.
     end;
 
     local procedure SuggestPaymentAndChangeStatusOnVendorBill(No: Code[20])
@@ -796,7 +796,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
 
     local procedure VerifyBillReference(BillReference: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(BillReferenceCap, BillReference);
     end;
 
@@ -829,7 +829,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         ManualVendorPaymentLine.DocumentNo.SetValue(LibraryUtility.GenerateGUID());
         ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate());
         ManualVendorPaymentLine.TotalAmount.SetValue(LibraryRandom.RandInt(100));
-        ManualVendorPaymentLine.InsertLine.Invoke;
+        ManualVendorPaymentLine.InsertLine.Invoke();
     end;
 
     local procedure CreateLineOnVendorBillWithInsertLine(VendorNo: Code[20]; TotalAmount: Decimal) VendorBillHeaderNo: Code[20]
@@ -837,14 +837,14 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         ManualVendorPaymentLine: TestPage "Manual vendor Payment Line";
         VendorBillCard: TestPage "Vendor Bill Card";
     begin
-        VendorBillCard.OpenEdit;
-        ManualVendorPaymentLine.Trap;
-        VendorBillCard.FILTER.SetFilter("No.", CreateVendorBillHeader);
-        VendorBillCard.InsertVendBillLineManual.Invoke;
+        VendorBillCard.OpenEdit();
+        ManualVendorPaymentLine.Trap();
+        VendorBillCard.FILTER.SetFilter("No.", CreateVendorBillHeader());
+        VendorBillCard.InsertVendBillLineManual.Invoke();
         ManualVendorPaymentLine.VendorNo.SetValue(VendorNo);
         ManualVendorPaymentLine.TotalAmount.SetValue(TotalAmount);
-        ManualVendorPaymentLine.InsertLine.Invoke;
-        VendorBillHeaderNo := VendorBillCard."No.".Value;
+        ManualVendorPaymentLine.InsertLine.Invoke();
+        VendorBillHeaderNo := VendorBillCard."No.".Value();
         VendorBillCard.Close();
     end;
 
@@ -877,7 +877,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         SuggestVendorBills."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
-        SuggestVendorBills.OK.Invoke;
+        SuggestVendorBills.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -891,21 +891,21 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         LibraryVariableStorage.Dequeue(TotalAmount);
         VendorBillWithhTax."Withholding Tax Amount".AssertEquals(WithholdingTaxAmount);
         VendorBillWithhTax."Total Amount".AssertEquals(TotalAmount);
-        VendorBillWithhTax.OK.Invoke;
+        VendorBillWithhTax.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorBillWithholdTaxNoCheckModalPageHandler(var VendorBillWithhTax: TestPage "Vendor Bill Withh. Tax")
     begin
-        VendorBillWithhTax.OK.Invoke();
+        VendorBillWithhTax.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorBillReportRequestPageHandler(var VendorBillReport: TestRequestPage "Vendor Bill Report")
     begin
-        VendorBillReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorBillReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -916,7 +916,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     begin
         LibraryVariableStorage.Dequeue(DimensionCode);
         DimensionSetEntries."Dimension Code".AssertEquals(DimensionCode);
-        DimensionSetEntries.OK.Invoke;
+        DimensionSetEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -928,10 +928,10 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     begin
         VendorBillWithhTax."Total Amount".SetValue(LibraryRandom.RandInt(100));
         WithholdingTaxAmount :=
-          Round(VendorBillWithhTax."Taxable Base".AsDEcimal * VendorBillWithhTax."Withholding Tax %".AsDEcimal / 100,
+          Round(VendorBillWithhTax."Taxable Base".AsDecimal() * VendorBillWithhTax."Withholding Tax %".AsDecimal() / 100,
             Currency."Amount Rounding Precision");
         VendorBillWithhTax."Withholding Tax Amount".AssertEquals(WithholdingTaxAmount);
-        VendorBillWithhTax.OK.Invoke;
+        VendorBillWithhTax.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -958,7 +958,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     [Scope('OnPrem')]
     procedure SuggestVendBillsRequestPageHandler(var SuggestVendorBills: TestRequestPage "Suggest Vendor Bills")
     begin
-        SuggestVendorBills.OK.Invoke;
+        SuggestVendorBills.OK().Invoke();
     end;
 }
 

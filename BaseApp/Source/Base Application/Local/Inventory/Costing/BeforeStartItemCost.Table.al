@@ -9,6 +9,7 @@ using Microsoft.Inventory.Item;
 table 12133 "Before Start Item Cost"
 {
     Caption = 'Before Start Item Cost';
+    DataClassification = CustomerContent;
 
     fields
     {

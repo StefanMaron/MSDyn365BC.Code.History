@@ -19,8 +19,6 @@ codeunit 144009 "IT - VAT Reporting - Service"
         LibraryVATUtils: Codeunit "Library - VAT Utils";
         isInitialized: Boolean;
         YouMustSpecifyValueErr: Label 'You must specify a value for the %1 field';
-        YouCanOnlySelectErr: Label 'You can only select the %1 field when the %2 field is %3 in the %4 window';
-        RefersToPeriodErr: Label 'The Refers to Period field is required for documents of type Credit Memo';
         ConfirmTextContractTemplateQst: Label 'Do you want to create the contract using a contract template?';
 
     [Test]
@@ -121,7 +119,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine.TestField("Include in VAT Transac. Rep.", InclInVATSetup); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -204,7 +202,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine.TestField("Include in VAT Transac. Rep.", InclInVATSetup);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -264,7 +262,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine.TestField("Include in VAT Transac. Rep.", true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -323,14 +321,14 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine.TestField("Include in VAT Transac. Rep.", true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure EUCountryServInv()
     begin
-        VerifyCountryServInv(CreateCountry); // EU Country.
+        VerifyCountryServInv(CreateCountry()); // EU Country.
     end;
 
     local procedure VerifyCountryServInv(CountryRegionCode: Code[10])
@@ -359,7 +357,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine.TestField("Include in VAT Transac. Rep.", false);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -377,7 +375,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceInvoiceTestPage.OpenNew();
         ServiceInvoiceTestPage.GotoRecord(ServiceHeader);
         Assert.IsTrue(
-            ServiceInvoiceTestPage.ServLines."Include in VAT Transac. Rep.".Editable,
+            ServiceInvoiceTestPage.ServLines."Include in VAT Transac. Rep.".Editable(),
             'EDITABLE should be TRUE for the field ' + ServiceInvoiceTestPage.ServLines."Include in VAT Transac. Rep.".Caption);
         ServiceInvoiceTestPage.Close();
 
@@ -387,7 +385,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceCreditMemoTestPage.OpenNew();
         ServiceCreditMemoTestPage.GoToRecord(ServiceHeader);
         Assert.IsTrue(
-            ServiceCreditMemoTestPage.ServLines."Include in VAT Transac. Rep.".Editable,
+            ServiceCreditMemoTestPage.ServLines."Include in VAT Transac. Rep.".Editable(),
             'EDITABLE should be TRUE for the field ' + ServiceCreditMemoTestPage.ServLines."Include in VAT Transac. Rep.".Caption());
         ServiceCreditMemoTestPage.Close();
     end;
@@ -466,7 +464,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Service Header", DocumentType.AsInteger()), DocumentNo, true); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -554,7 +552,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
             VerifyContractNo(ServiceHeader."Document Type"::Invoice, DocumentNo, -ServiceLine."Line Amount", ServiceContractHeader."Contract No.");
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -702,7 +700,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Service Header", DocumentType.AsInteger()), DocumentNo, true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -743,7 +741,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         case TaxRepType of
             Customer."Tax Representative Type"::Contact:
                 begin
-                    TaxRepNo := CreateContact;
+                    TaxRepNo := CreateContact();
                     ExpectedTaxRepType := VATEntry."Tax Representative Type"::Contact;
                 end;
             Customer."Tax Representative Type"::Customer:
@@ -765,7 +763,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyTaxRep(GetDocumentTypeVATEntry(DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger()), DocumentNo, ExpectedTaxRepType, TaxRepNo);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -907,7 +905,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Assert.ExpectedError(StrSubstNo(YouMustSpecifyValueErr, FieldRef.Caption));
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -977,22 +975,22 @@ codeunit 144009 "IT - VAT Reporting - Service"
         PostServiceHeader(ServiceHeader);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     local procedure Initialize()
     begin
-        TearDown; // Cleanup.
+        TearDown(); // Cleanup.
         LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
 
         isInitialized := true;
-        CreateVATReportSetup;
+        CreateVATReportSetup();
         Commit();
 
-        TearDown; // Cleanup for the first test.
+        TearDown(); // Cleanup for the first test.
     end;
 
     local procedure CalculateAmount(StartingDate: Date; InclVAT: Boolean; InclInVATTransRep: Boolean) Amount: Decimal
@@ -1054,7 +1052,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
 
         if ReqFlds then begin
             if Resident = Customer.Resident::"Non-Resident" then
-                Customer.Validate("Country/Region Code", GetCountryCode);
+                Customer.Validate("Country/Region Code", GetCountryCode());
             if not IndividualPerson then
                 Customer.Validate("VAT Registration No.", LibraryUtility.GenerateRandomCode(Customer.FieldNo("VAT Registration No."), DATABASE::Customer))
             else
@@ -1124,7 +1122,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         // Create Service Contract Header.
         LibraryVariableStorage.Enqueue(ConfirmTextContractTemplateQst); // Passing expected message to Confirm Handler.
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, CustomerNo);
-        ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", CreateServiceContractAccGroup);
+        ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", CreateServiceContractAccGroup());
         ServiceContractHeader.Modify(true);
 
         // Create Service Item.
@@ -1188,7 +1186,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         // Create VAT Report Setup.
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
-        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         VATReportSetup.Modify(true);
     end;
 
@@ -1262,9 +1260,9 @@ codeunit 144009 "IT - VAT Reporting - Service"
 
     local procedure GetServiceDocumentNo(ServiceHeader: Record "Service Header") DocumentNo: Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        DocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate(), false);
+        DocumentNo := NoSeries.PeekNextNo(ServiceHeader."Posting No. Series");
     end;
 
     local procedure GetServiceItemNo(CustomerNo: Code[20]): Code[20]
@@ -1289,7 +1287,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
             Amount := VATTransactionReportAmount."Threshold Amount Excl. VAT";
     end;
 
-    local procedure FindServiceDocumentRegister(var ServiceDocumentRegister: Record "Service Document Register"; SourceDocumentType: Option; SourceDocumentNo: Code[20]; DestinationDocumentType: Option)
+    local procedure FindServiceDocumentRegister(var ServiceDocumentRegister: Record "Service Document Register"; SourceDocumentType: Enum "Service Source Document Type"; SourceDocumentNo: Code[20]; DestinationDocumentType: Enum "Service Destination Document Type")
     begin
         ServiceDocumentRegister.SetRange("Source Document Type", SourceDocumentType);
         ServiceDocumentRegister.SetRange("Source Document No.", SourceDocumentNo);

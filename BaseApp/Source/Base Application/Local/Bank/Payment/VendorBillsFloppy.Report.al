@@ -19,7 +19,7 @@ report 12175 "Vendor Bills Floppy"
     {
         dataitem("Vendor Bill Header"; "Vendor Bill Header")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             dataitem("Vendor Bill Line"; "Vendor Bill Line")
             {
                 DataItemLink = "Vendor Bill List No." = field("No.");
@@ -44,25 +44,25 @@ report 12175 "Vendor Bills Floppy"
                         then begin
                             OldVendor := "Vendor No.";
                             OldBankAcc := "Vendor Bank Acc. No.";
-                            if (OldLines."Vendor Bank Acc. No." <> '') and
+                            if (OldVendorBillLine."Vendor Bank Acc. No." <> '') and
                                (CumAmount <> 0)
                             then
-                                WriteRecord(OldLines);
+                                WriteRecord(OldVendorBillLine);
                             CumAmount := "Amount to Pay";
                         end else begin
                             CumAmount := CumAmount + "Amount to Pay";
-                            OldLines := "Vendor Bill Line";
+                            OldVendorBillLine := "Vendor Bill Line";
                         end
                     else begin
                         if CumAmount <> 0 then begin
-                            if OldLines."Vendor Bank Acc. No." <> '' then
-                                WriteRecord(OldLines);
+                            if OldVendorBillLine."Vendor Bank Acc. No." <> '' then
+                                WriteRecord(OldVendorBillLine);
                             CumAmount := 0;
                         end;
                         WriteRecord("Vendor Bill Line");
                     end;
 
-                    OldLines := "Vendor Bill Line";
+                    OldVendorBillLine := "Vendor Bill Line";
                 end;
 
                 trigger OnPostDataItem()
@@ -160,7 +160,7 @@ report 12175 "Vendor Bills Floppy"
         BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
         VendorBankAccount: Record "Vendor Bank Account";
-        OldLines: Record "Vendor Bill Line";
+        OldVendorBillLine: Record "Vendor Bill Line";
         RBMgt: Codeunit "File Management";
         FormVendorBillListSentCard: Page "Vendor Bill List Sent Card";
         OutFile: File;
@@ -235,228 +235,212 @@ report 12175 "Vendor Bills Floppy"
     end;
 
     [Scope('OnPrem')]
-    procedure RECORD10(Lines: Record "Vendor Bill Line")
+    procedure RECORD10(VendorBillLine: Record "Vendor Bill Line")
     var
         PostingDate: Date;
         BeneficiaryValueDate: Date;
     begin
-        with Lines do begin
-            if "Cumulative Transfers" then
-                LineAmount := Round(CumAmount, 0.01) * 100
-            else
-                LineAmount := Round("Amount to Pay", 0.01) * 100;
+        if VendorBillLine."Cumulative Transfers" then
+            LineAmount := Round(CumAmount, 0.01) * 100
+        else
+            LineAmount := Round(VendorBillLine."Amount to Pay", 0.01) * 100;
 
-            TotAmount := TotAmount + LineAmount;
-            if "Beneficiary Value Date" <> 0D then
-                BeneficiaryValueDate := "Beneficiary Value Date"
-            else
-                PostingDate := "Vendor Bill Header"."Posting Date";
+        TotAmount := TotAmount + LineAmount;
+        if VendorBillLine."Beneficiary Value Date" <> 0D then
+            BeneficiaryValueDate := VendorBillLine."Beneficiary Value Date"
+        else
+            PostingDate := "Vendor Bill Header"."Posting Date";
 
-            OutText := ' 10' +
-              ConvertStr(Format(TransfProgr, 7), ' ', '0') +
-              CopyStr(Dummy, 11, 6) +
-              Format(PostingDate, 6, 5) +
-              Format(BeneficiaryValueDate, 6, 5);
+        OutText := ' 10' +
+          ConvertStr(Format(TransfProgr, 7), ' ', '0') +
+          CopyStr(Dummy, 11, 6) +
+          Format(PostingDate, 6, 5) +
+          Format(BeneficiaryValueDate, 6, 5);
 
-            if "Transfer Type" = "Transfer Type"::Transfer then
-                OutText := OutText + '48000'
-            else
-                OutText := OutText + '27000';
+        if VendorBillLine."Transfer Type" = VendorBillLine."Transfer Type"::Transfer then
+            OutText := OutText + '48000'
+        else
+            OutText := OutText + '27000';
 
-            if StrLen(BankAccount.BBAN) < 12 then
-                Error(InvalidBBANBankCodeErr, BankAccount.BBAN, BankAccount."No.");
+        if StrLen(BankAccount.BBAN) < 12 then
+            Error(InvalidBBANBankCodeErr, BankAccount.BBAN, BankAccount."No.");
 
+        OutText := OutText +
+          ConvertStr(Format(Abs(LineAmount), 13, 1), ' ', '0') +
+          '+' +
+          ConvertStr(Format(ABI, 5), ' ', '0') +
+          ConvertStr(Format(CAB, 5), ' ', '0') +
+          ConvertStr(CopyStr(BankAccount.BBAN, StrLen(BankAccount.BBAN) - 11, 12), ' ', '0');
+
+        if VendorBankAccount.Get(VendorBillLine."Vendor No.", VendorBillLine."Vendor Bank Acc. No.") then begin
+            if (VendorBankAccount.ABI = '') or
+               (VendorBankAccount.CAB = '')
+            then
+                Error(Text014,
+                  VendorBankAccount.FieldCaption(ABI),
+                  VendorBankAccount.FieldCaption(CAB),
+                  VendorBillLine.FieldCaption("Vendor Bank Acc. No."),
+                  VendorBillLine."Vendor Bank Acc. No.");
+
+            Evaluate(VendABI, VendorBankAccount.ABI);
+            Evaluate(VendCAB, VendorBankAccount.CAB);
+            if StrLen(VendorBankAccount.BBAN) < 12 then
+                Error(InvalidBBANVendorBankCodeErr, VendorBankAccount.BBAN, VendorBankAccount."Vendor No.", VendorBankAccount.Code);
             OutText := OutText +
-              ConvertStr(Format(Abs(LineAmount), 13, 1), ' ', '0') +
-              '+' +
-              ConvertStr(Format(ABI, 5), ' ', '0') +
-              ConvertStr(Format(CAB, 5), ' ', '0') +
-              ConvertStr(CopyStr(BankAccount.BBAN, StrLen(BankAccount.BBAN) - 11, 12), ' ', '0');
+              ConvertStr(Format(VendABI, 5), ' ', '0') +
+              ConvertStr(Format(VendCAB, 5), ' ', '0') +
+              ConvertStr(CopyStr(VendorBankAccount.BBAN, StrLen(VendorBankAccount.BBAN) - 11, 12), ' ', '0');
+        end else
+            OutText := OutText + CopyStr(Dummy, 70, 22);
 
-            if VendorBankAccount.Get("Vendor No.", "Vendor Bank Acc. No.") then begin
-                if (VendorBankAccount.ABI = '') or
-                   (VendorBankAccount.CAB = '')
-                then
-                    Error(Text014,
-                      VendorBankAccount.FieldCaption(ABI),
-                      VendorBankAccount.FieldCaption(CAB),
-                      FieldCaption("Vendor Bank Acc. No."),
-                      "Vendor Bank Acc. No.");
+        OutText := OutText +
+          Format(CompanyInfo."SIA Code", 5) +
+          '5' +
+          PadStr('', 16 - StrLen(Vendor."No."), ' ') + Vendor."No." +
+          '1' +
+          CopyStr(Dummy, 115, 5) +
+          CurrCode;
 
+        OutText := PadStr(OutText, 120, FillChar);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RECORD16(VendorBillLine: Record "Vendor Bill Line")
+    begin
+        OutText := ' 16' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
+
+        OutText += DelChr(BankAccount.IBAN);
+
+        OutText := PadStr(OutText, 120, FillChar);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RECORD17(VendorBillLine: Record "Vendor Bill Line")
+    begin
+        OutText := ' 17' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
+
+        OutText += DelChr(VendorBankAccount.IBAN);
+
+        OutText := PadStr(OutText, 120, FillChar);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RECORD20(VendorBillLine: Record "Vendor Bill Line")
+    begin
+        OutText := ' 20' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
+
+        OutText := OutText +
+          Format(CompanyInfo.Name, 30) +
+          Format(CompanyInfo.Address, 30) +
+          Format(CompanyInfo."Post Code", 5) +
+          Format(CompanyInfo.City, 25) +
+          Format(CompanyInfo."VAT Registration No.", 15);
+
+        OutText := PadStr(OutText, 120, FillChar);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RECORD30(VendorBillLine: Record "Vendor Bill Line")
+    begin
+        OutText := ' 30' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
+
+        OutText := OutText + Format(Vendor.Name, 30) + Format(Vendor."Name 2", 30) + CopyStr(Dummy, 71, 30);
+
+        if Vendor."VAT Registration No." <> '' then
+            OutText := OutText + Format(Vendor."VAT Registration No.", 16)
+        else
+            OutText := OutText + Format(Vendor."Fiscal Code", 16);
+
+        OutText := PadStr(OutText, 120, FillChar);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RECORD40(VendorBillLine: Record "Vendor Bill Line")
+    begin
+        OutText := ' 40' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
+
+        if Vendor.Address = '' then
+            OutText := OutText + ConvertStr(CopyStr(Dummy, 11, 30), ' ', '.')
+        else
+            OutText := OutText + Format(Vendor.Address, 30);
+
+        OutText := OutText +
+          Format(Vendor."Post Code", 5) +
+          Format(Vendor.City, 23) +
+          Format(Vendor.County, 2);
+
+        if VendorBankAccount.Get(VendorBillLine."Vendor No.", VendorBillLine."Vendor Bank Acc. No.") then
+            if (VendorBankAccount.ABI <> '') and
+               (VendorBankAccount.CAB <> '')
+            then begin
                 Evaluate(VendABI, VendorBankAccount.ABI);
                 Evaluate(VendCAB, VendorBankAccount.CAB);
-                if StrLen(VendorBankAccount.BBAN) < 12 then
-                    Error(InvalidBBANVendorBankCodeErr, VendorBankAccount.BBAN, VendorBankAccount."Vendor No.", VendorBankAccount.Code);
                 OutText := OutText +
-                  ConvertStr(Format(VendABI, 5), ' ', '0') +
-                  ConvertStr(Format(VendCAB, 5), ' ', '0') +
-                  ConvertStr(CopyStr(VendorBankAccount.BBAN, StrLen(VendorBankAccount.BBAN) - 11, 12), ' ', '0');
+                  ConvertStr(Format(VendABI, 5), ' ', '0') + ' ' +
+                  ConvertStr(Format(VendCAB, 5), ' ', '0')
             end else
-                OutText := OutText + CopyStr(Dummy, 70, 22);
+                OutText := OutText + Format(VendorBankAccount.Name + ' ' + VendorBankAccount.City, 50);
 
-            OutText := OutText +
-              Format(CompanyInfo."SIA Code", 5) +
-              '5' +
-              PadStr('', 16 - StrLen(Vendor."No."), ' ') + Vendor."No." +
-              '1' +
-              CopyStr(Dummy, 115, 5) +
-              CurrCode;
-
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
+        OutText := PadStr(OutText, 120, FillChar);
     end;
 
     [Scope('OnPrem')]
-    procedure RECORD16(Lines: Record "Vendor Bill Line")
-    begin
-        with Lines do begin
-            OutText := ' 16' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
-
-            OutText += DelChr(BankAccount.IBAN);
-
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure RECORD17(Lines: Record "Vendor Bill Line")
-    begin
-        with Lines do begin
-            OutText := ' 17' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
-
-            OutText += DelChr(VendorBankAccount.IBAN);
-
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure RECORD20(Lines: Record "Vendor Bill Line")
-    begin
-        with Lines do begin
-            OutText := ' 20' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
-
-            OutText := OutText +
-              Format(CompanyInfo.Name, 30) +
-              Format(CompanyInfo.Address, 30) +
-              Format(CompanyInfo."Post Code", 5) +
-              Format(CompanyInfo.City, 25) +
-              Format(CompanyInfo."VAT Registration No.", 15);
-
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure RECORD30(Lines: Record "Vendor Bill Line")
-    begin
-        with Lines do begin
-            OutText := ' 30' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
-
-            OutText := OutText + Format(Vendor.Name, 30) + Format(Vendor."Name 2", 30) + CopyStr(Dummy, 71, 30);
-
-            if Vendor."VAT Registration No." <> '' then
-                OutText := OutText + Format(Vendor."VAT Registration No.", 16)
-            else
-                OutText := OutText + Format(Vendor."Fiscal Code", 16);
-
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure RECORD40(Lines: Record "Vendor Bill Line")
-    begin
-        with Lines do begin
-            OutText := ' 40' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
-
-            if Vendor.Address = '' then
-                OutText := OutText + ConvertStr(CopyStr(Dummy, 11, 30), ' ', '.')
-            else
-                OutText := OutText + Format(Vendor.Address, 30);
-
-            OutText := OutText +
-              Format(Vendor."Post Code", 5) +
-              Format(Vendor.City, 23) +
-              Format(Vendor.County, 2);
-
-            if VendorBankAccount.Get("Vendor No.", "Vendor Bank Acc. No.") then
-                if (VendorBankAccount.ABI <> '') and
-                   (VendorBankAccount.CAB <> '')
-                then begin
-                    Evaluate(VendABI, VendorBankAccount.ABI);
-                    Evaluate(VendCAB, VendorBankAccount.CAB);
-                    OutText := OutText +
-                      ConvertStr(Format(VendABI, 5), ' ', '0') + ' ' +
-                      ConvertStr(Format(VendCAB, 5), ' ', '0')
-                end else
-                    OutText := OutText + Format(VendorBankAccount.Name + ' ' + VendorBankAccount.City, 50);
-
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure RECORD50(Lines: Record "Vendor Bill Line")
+    procedure RECORD50(VendorBillLine: Record "Vendor Bill Line")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRECORD50(Lines, TransfProgr, OutText, IsHandled);
+        OnBeforeRECORD50(VendorBillLine, TransfProgr, OutText, IsHandled);
         if IsHandled then
             exit;
 
-        with Lines do begin
-            OutText := ' 50' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
-            if "Vendor Bill Line"."Cumulative Transfers" then
-                OutText := OutText + Format(Text012, 60)
-            else
-                OutText := OutText +
-                  Format(Description, 30) +
-                  Format("Description 2", 30);
+        OutText := ' 50' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
+        if "Vendor Bill Line"."Cumulative Transfers" then
+            OutText := OutText + Format(Text012, 60)
+        else
+            OutText := OutText +
+              Format(VendorBillLine.Description, 30) +
+              Format(VendorBillLine."Description 2", 30);
 
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
+        OutText := PadStr(OutText, 120, FillChar);
     end;
 
     [Scope('OnPrem')]
-    procedure RECORD70(Lines: Record "Vendor Bill Line")
+    procedure RECORD70(VendorBillLine: Record "Vendor Bill Line")
     begin
-        with Lines do begin
-            OutText := ' 70' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
+        OutText := ' 70' + ConvertStr(Format(TransfProgr, 7), ' ', '0');
+        OutText := PadStr(OutText, 120, FillChar);
     end;
 
     [Scope('OnPrem')]
-    procedure WriteRecord(Lines: Record "Vendor Bill Line")
+    procedure WriteRecord(VendorBillLine: Record "Vendor Bill Line")
     begin
         TransfProgr := TransfProgr + 1;
 
-        Vendor.Get(Lines."Vendor No.");
+        Vendor.Get(VendorBillLine."Vendor No.");
 
-        RECORD10(Lines);
+        RECORD10(VendorBillLine);
         OutFile.Write(OutText);
 
-        RECORD16(Lines);
+        RECORD16(VendorBillLine);
         OutFile.Write(OutText);
 
-        RECORD17(Lines);
+        RECORD17(VendorBillLine);
         OutFile.Write(OutText);
 
-        RECORD20(Lines);
+        RECORD20(VendorBillLine);
         OutFile.Write(OutText);
 
-        RECORD30(Lines);
+        RECORD30(VendorBillLine);
         OutFile.Write(OutText);
 
-        RECORD40(Lines);
+        RECORD40(VendorBillLine);
         OutFile.Write(OutText);
 
-        RECORD50(Lines);
+        RECORD50(VendorBillLine);
         OutFile.Write(OutText);
 
-        RECORD70(Lines);
+        RECORD70(VendorBillLine);
         OutFile.Write(OutText);
     end;
 

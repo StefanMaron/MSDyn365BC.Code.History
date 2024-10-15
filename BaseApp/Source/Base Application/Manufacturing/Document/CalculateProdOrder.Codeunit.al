@@ -144,7 +144,7 @@ codeunit 99000773 "Calculate Prod. Order"
             SubcPrices."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
             SubcPrices."Start Date" := WorkDate();
             SubcPrices."Currency Code" := '';
-            SubcontractingPriceMgt.RoutingPricelistCost(
+            SubcontractingPriceMgt.GetRoutingPricelistCost(
                 SubcPrices, WorkCenter,
                 ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
                 ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation",
@@ -833,13 +833,12 @@ codeunit 99000773 "Calculate Prod. Order"
 
     local procedure GetDefaultBin() BinCode: Code[20]
     begin
-        with ProdOrderComp do
-            if "Location Code" <> '' then begin
-                if Location.Code <> "Location Code" then
-                    Location.Get("Location Code");
-                if Location."Bin Mandatory" and (not Location."Directed Put-away and Pick") then
-                    ProdOrderWarehouseMgt.GetDefaultBin("Item No.", "Variant Code", "Location Code", BinCode);
-            end;
+        if ProdOrderComp."Location Code" <> '' then begin
+            if Location.Code <> ProdOrderComp."Location Code" then
+                Location.Get(ProdOrderComp."Location Code");
+            if Location."Bin Mandatory" and (not Location."Directed Put-away and Pick") then
+                ProdOrderWarehouseMgt.GetDefaultBin(ProdOrderComp."Item No.", ProdOrderComp."Variant Code", ProdOrderComp."Location Code", BinCode);
+        end;
     end;
 
     procedure SetProdOrderLineBinCodeFromRoute(var ProdOrderLine: Record "Prod. Order Line"; ParentLocationCode: Code[10]; RoutingNo: Code[20])
@@ -852,7 +851,7 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderLine."Routing Version Code",
             ProdOrderLine."Location Code",
             false,
-            0);
+            "Flushing Method"::Manual);
         SetProdOrderLineBinCode(ProdOrderLine, RouteBinCode, ParentLocationCode);
     end;
 

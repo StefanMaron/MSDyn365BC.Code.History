@@ -68,8 +68,8 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
-        UnpostedSalesDocumentsMsg: Label 'An unposted sales document with posting number %1 exists.\\%2.', Comment='%1=Posting No.,%2=Sales Header RecordID';
-        UnpostedPurchDocumentsMsg: Label 'An unposted puchase document with posting number %1 exists.\\%2.', Comment='%1=Posting No.,%2=Purchase Header RecordID';
+        UnpostedSalesDocumentsMsg: Label 'An unposted sales document with posting number %1 exists.\\%2.', Comment = '%1=Posting No.,%2=Sales Header RecordID';
+        UnpostedPurchDocumentsMsg: Label 'An unposted puchase document with posting number %1 exists.\\%2.', Comment = '%1=Posting No.,%2=Purchase Header RecordID';
         isInitialized: Boolean;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [GIVEN] Create Sales Header with blank Posting Number and Detailed Customer Ledger Entry.
         Initialize();
         CreateCustomerEntries(
-          DetailedCustLedgEntry, CreateSalesHeader(''), LibraryUTUtility.GetNewCode,
+          DetailedCustLedgEntry, CreateSalesHeader(''), LibraryUTUtility.GetNewCode(),
           DetailedCustLedgEntry."Entry Type"::"Correction of Remaining Amount");  // Document Number, Blank Posting Number.
         LibraryVariableStorage.Enqueue(DetailedCustLedgEntry."Customer No.");  // Enqueue value for handler - CustomerSheetPrintRequestPageHandler.
 
@@ -109,7 +109,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         // Setup.
         Initialize();
-        CreatePurchaseHeader(LibraryUTUtility.GetNewCode);  // Code value for Posting Number.
+        CreatePurchaseHeader(LibraryUTUtility.GetNewCode());  // Code value for Posting Number.
 
         // [WHEN] Run report "VAT Register Grouped"
         asserterror REPORT.Run(REPORT::"VAT Register Grouped");  // Opens handler - VATRegisterGroupedRequestPageHandler.
@@ -171,12 +171,12 @@ codeunit 144068 "UT REP Posting Routine"
         VATRegisterBuffer: Record "VAT Register - Buffer";
     begin
         Initialize();
-        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
+        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode());
         CreateVATRegisterBuffer(VATRegisterBuffer, RegisterType);
 
         REPORT.Run(REPORT::"VAT Register Grouped");  // Opens handler - VATRegisterGroupedRequestPageHandler.
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VATRegisterCodeCap, VATRegisterBuffer."VAT Register Code");
         LibraryReportDataset.AssertElementWithValueExists(SignumCap, SignFactor);
         LibraryReportDataset.AssertElementWithValueExists(SignumAmountCap, SignFactor * VATRegisterBuffer.Amount);
@@ -195,7 +195,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [GIVEN] Create Purchase Header with Posting Number.
         Initialize();
         CreatePurchaseHeaderWithNo(PurchHeader);
-        LibraryVariableStorage.Enqueue(CreateGLAccount);  // Enqueue value for handler - AccountBookSheetPrintRequestPageHandler.
+        LibraryVariableStorage.Enqueue(CreateGLAccount());  // Enqueue value for handler - AccountBookSheetPrintRequestPageHandler.
 
         // [WHEN] Run report "Account Book Sheet - Print"
         REPORT.Run(REPORT::"Account Book Sheet - Print");  // Opens handler - AccountBookSheetPrintRequestPageHandler.
@@ -204,9 +204,9 @@ codeunit 144068 "UT REP Posting Routine"
         // TFSID: 314849
         Assert.ExpectedMessage(
           StrSubstNo(
-            UnpostedPurchDocumentsMsg,PurchHeader."Posting No.", PurchHeader.RecordId),
-          LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+            UnpostedPurchDocumentsMsg, PurchHeader."Posting No.", PurchHeader.RecordId),
+          LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -223,7 +223,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [GIVEN] Create General Ledger Book Entry and General Ledger Entry.
         Initialize();
         CreateGLBookEntry(
-          GLBookEntry, GLBookEntry."Source Type", LibraryUTUtility.GetNewCode,
+          GLBookEntry, GLBookEntry."Source Type", LibraryUTUtility.GetNewCode(),
           CalcDate('<' + Format(-LibraryRandom.RandIntInRange(2, 10)) + 'D>', WorkDate()), LibraryRandom.RandInt(10), '');  // Source Number, Official Date less than WORKDATE and Progressive Number.
         CreateGLEntry(GLEntry, GLBookEntry);
         LibraryVariableStorage.Enqueue(GLEntry."G/L Account No.");  // Enqueue values for handler - AccountBookSheetPrintRequestPageHandler.
@@ -251,7 +251,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         Initialize();
         GLBookEntry.DeleteAll();
-        AccNo := CreateGLAccount;
+        AccNo := CreateGLAccount();
 
         for i := 1 to 2 do begin
             CreateGLBookEntryWithAccNo(GLBookEntry, AccNo, LibraryRandom.RandDec(10, 2));
@@ -261,7 +261,7 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryVariableStorage.Enqueue(AccNo);
         REPORT.Run(REPORT::"Account Book Sheet - Print");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         for i := 1 to 2 do begin
             AssertElementsWithValuesExists(
               GLAccountNumberCap, GLBookEntryNumberCap, GLBookEntryAmountCap,
@@ -285,7 +285,7 @@ codeunit 144068 "UT REP Posting Routine"
         Initialize();
         CreateVendorEntries(
           DetailedVendorLedgEntry, CreatePurchaseHeader(''), DetailedVendorLedgEntry."Entry Type"::"Correction of Remaining Amount",
-          LibraryUTUtility.GetNewCode10); // Blank Posting Number.
+          LibraryUTUtility.GetNewCode10()); // Blank Posting Number.
         LibraryVariableStorage.Enqueue(DetailedVendorLedgEntry."Vendor No.");  // Enqueue value for handler - VendorSheetPrintRequestPageHandler.
 
         // [WHEN] Run report "Vendor Sheet - Print"
@@ -320,8 +320,8 @@ codeunit 144068 "UT REP Posting Routine"
         Assert.ExpectedMessage(
           StrSubstNo(
             UnpostedSalesDocumentsMsg, SalesHeader."Posting No.", SalesHeader.RecordId),
-          LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+          LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -346,8 +346,8 @@ codeunit 144068 "UT REP Posting Routine"
         Assert.ExpectedMessage(
           StrSubstNo(
             UnpostedPurchDocumentsMsg, PurchHeader."Posting No.", PurchHeader.RecordId),
-          LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+          LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -360,8 +360,8 @@ codeunit 144068 "UT REP Posting Routine"
 
         // [GIVEN] Create Purchase Header with Posting Number.
         Initialize();
-        CreatePurchaseHeader(LibraryUTUtility.GetNewCode);
-        LibraryVariableStorage.Enqueue(CreateVATRegister);  // Enqueue value for handler - VATRegisterPrintRequestPageHandler.
+        CreatePurchaseHeader(LibraryUTUtility.GetNewCode());
+        LibraryVariableStorage.Enqueue(CreateVATRegister());  // Enqueue value for handler - VATRegisterPrintRequestPageHandler.
 
         // [WHEN] Run report "VAT Register - Print"
         asserterror REPORT.Run(REPORT::"VAT Register - Print");  // Opens handler - VATRegisterPrintRequestPageHandler.
@@ -379,7 +379,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print. with Posting Number with unposted document
         // [GIVEN] Create Purchase Header with Posting Number.
         Initialize();
-        CreatePurchaseHeader(LibraryUTUtility.GetNewCode);
+        CreatePurchaseHeader(LibraryUTUtility.GetNewCode());
         EnqueueStartingDateAndEndingDate(WorkDate(), WorkDate());  // Enqueue values for handler - GLBookPrintRequestPageHandler.
 
         // [WHEN] Run report "G/L Book - Print"
@@ -428,7 +428,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print. with blank Ending Date
         Initialize();
-        OnPreReportStartingEndingDateGLBookPrint(WorkDate(), 0D);  // Starting Date - WORKDATE, blank Ending Date.
+        OnPreReportStartingEndingDateGLBookPrint(WorkDate(), 0D);  // Starting Date - WorkDate(), blank Ending Date.
     end;
 
     [Test]
@@ -439,7 +439,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print with Ending Date less than Work Date
         Initialize();
-        OnPreReportStartingEndingDateGLBookPrint(WorkDate(), CalcDate('<' + Format(-LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Starting Date - WORKDATE, Ending Date less than WORKDATE.
+        OnPreReportStartingEndingDateGLBookPrint(WorkDate(), CalcDate('<' + Format(-LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Starting Date - WorkDate(), Ending Date less than WORKDATE.
     end;
 
     local procedure OnPreReportStartingEndingDateGLBookPrint(StartingDate: Date; EndingDate: Date)
@@ -502,11 +502,11 @@ codeunit 144068 "UT REP Posting Routine"
 
         // [GIVEN] Update Company Information - Register Company Number, G/L Setup - Last General Journal Printing Date. Create G/L Book Entry and G/ L Entry.
         Initialize();
-        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
+        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode());
         UpdateGLSetupLastGenJourPrintingDate(WorkDate());
         CreateGLBookEntry(
           GLBookEntry, GLBookEntry."Source Type", '',
-          CalcDate('<' + Format(-LibraryRandom.RandIntInRange(2, 10)) + 'D>', WorkDate()), 0, '');  // Blank Source Number, Official Date less than WORKDATE, Progressive Number - 0.
+          CalcDate('<' + Format(-LibraryRandom.RandIntInRange(2, 10)) + 'D>', WorkDate()), 0, '');  // Blank Source Number, Official Date less than WorkDate(), Progressive Number - 0.
         CreateGLEntry(GLEntry, GLBookEntry);
         LibraryVariableStorage.Enqueue(WorkDate()); // Enqueue values for handler - ReprintGLBookPrintRequestPageHandler.
 
@@ -531,13 +531,13 @@ codeunit 144068 "UT REP Posting Routine"
 
         // [GIVEN] Update Company Information - Register Company Number, G/L Setup - Last General Journal Printing Date. Create G/L Book Entry.
         Initialize();
-        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
+        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode());
         UpdateGLSetupLastGenJourPrintingDate(WorkDate());
         CreateGLBookEntry(
           GLBookEntry, GLBookEntry."Source Type", '', CalcDate('<' + Format(-LibraryRandom.RandIntInRange(2, 10)) + 'D>', WorkDate()),
-          LibraryRandom.RandInt(10), '');  // Blank Source Number, Official Date less than WORKDATE, and Random value for Progressive Number.
+          LibraryRandom.RandInt(10), '');  // Blank Source Number, Official Date less than WorkDate(), and Random value for Progressive Number.
         CreateGLEntry(GLEntry, GLBookEntry);
-        CreateReprintInfoFiscalReports;
+        CreateReprintInfoFiscalReports();
         LibraryVariableStorage.Enqueue(WorkDate()); // Enqueue values for handler - ReprintGLBookPrintRequestPageHandler.
 
         // [WHEN] Run report "G/L Book - Print"
@@ -545,7 +545,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         // [THEN] Verify Register Company Number and Fiscal Code Caption on XML of Report -  G/L Book - Print.
         CompanyInformation.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CompanyInfoRegisterNumberCap, CompanyInformation."Register Company No.");
         LibraryReportDataset.AssertElementWithValueExists(CompanyInfoFiscalCodeCap, CompanyInformation.FieldCaption("Fiscal Code"));
     end;
@@ -560,7 +560,7 @@ codeunit 144068 "UT REP Posting Routine"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Validate GL Book Entry - OnAfterGetRecord of Report - 12121 G/L Book - Print. for Customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         GLBookEntryOnAfterGetRecordSourceTypeGLBookPrint(
           GLBookEntry."Source Type"::Customer, CustomerNo, CreateSalesInvHeader(CustomerNo));
     end;
@@ -575,7 +575,7 @@ codeunit 144068 "UT REP Posting Routine"
         VendorNo: Code[20];
     begin
         // [SCENARIO] Validate GL Book Entry - OnAfterGetRecord of Report - 12121 G/L Book - Print. for Vendor
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         GLBookEntryOnAfterGetRecordSourceTypeGLBookPrint(GLBookEntry."Source Type"::Vendor, VendorNo, CreatePurchInvHeader(VendorNo));
     end;
 
@@ -588,7 +588,7 @@ codeunit 144068 "UT REP Posting Routine"
         GLBookEntry: Record "GL Book Entry";
     begin
         // [SCENARIO] Validate GL Book Entry - OnAfterGetRecord of Report - 12121 G/L Book - Print for Bank
-        GLBookEntryOnAfterGetRecordSourceTypeGLBookPrint(GLBookEntry."Source Type"::"Bank Account", CreateBankAccont, '');
+        GLBookEntryOnAfterGetRecordSourceTypeGLBookPrint(GLBookEntry."Source Type"::"Bank Account", CreateBankAccont(), '');
     end;
 
     [Test]
@@ -600,10 +600,10 @@ codeunit 144068 "UT REP Posting Routine"
         GLBookEntry: Record "GL Book Entry";
     begin
         // [SCENARIO] Validate GL Book Entry - OnAfterGetRecord of Report - 12121 G/L Book - Print. for Fixed Asset
-        GLBookEntryOnAfterGetRecordSourceTypeGLBookPrint(GLBookEntry."Source Type"::"Fixed Asset", CreateFixedAsset, '');
+        GLBookEntryOnAfterGetRecordSourceTypeGLBookPrint(GLBookEntry."Source Type"::"Fixed Asset", CreateFixedAsset(), '');
     end;
 
-    local procedure GLBookEntryOnAfterGetRecordSourceTypeGLBookPrint(SourceType: Option; SourceNo: Code[20]; DocumentNo: Code[20])
+    local procedure GLBookEntryOnAfterGetRecordSourceTypeGLBookPrint(SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]; DocumentNo: Code[20])
     var
         GLBookEntry: Record "GL Book Entry";
         GLEntry: Record "G/L Entry";
@@ -611,19 +611,19 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // Setup: Update Company Information - Register Company Number, G/L Setup - Last General Journal Printing Date. Create G/L Book Entry, G/L Entry.
         Initialize();
-        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
+        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode());
         UpdateGLSetupLastGenJourPrintingDate(WorkDate());
         CreateGLBookEntry(GLBookEntry, SourceType, SourceNo, WorkDate(), LibraryRandom.RandInt(10), DocumentNo);  // Random value for Progressive Number.
         CreateGLEntry(GLEntry, GLBookEntry);
-        CreateReprintInfoFiscalReports;
+        CreateReprintInfoFiscalReports();
         LibraryVariableStorage.Enqueue(WorkDate()); // Enqueue values for handler - ReprintGLBookPrintRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"G/L Book - Print");  // Opens handler - ReprintGLBookPrintRequestPageHandler.
 
         // Verify: Verify Page No, Last Printed Page No,Source Number, G/L Entry - G/L Account Number and Debit Amount on XML of Report - G/L Book - Print.
-        ReprintInfoFiscalReports.Get(ReprintInfoFiscalReports.Report::"G/L Book - Print", WorkDate(), WorkDate, '');  // Using blank VAT Register Code.
-        LibraryReportDataset.LoadDataSetFile;
+        ReprintInfoFiscalReports.Get(ReprintInfoFiscalReports.Report::"G/L Book - Print", WorkDate(), WorkDate(), '');  // Using blank VAT Register Code.
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DescriptionCap, SourceNo);
         LibraryReportDataset.AssertElementWithValueExists(GLBookEntryGLAccountNumberCap, GLEntry."G/L Account No.");
         LibraryReportDataset.AssertElementWithValueExists(GLBookEntryDebitAmountCap, GLEntry."Debit Amount");
@@ -657,7 +657,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate Print Company Information - OnPreDataItem Trigger of Report - 12120 VAT Register - Print.
         Initialize();
         UpdateCompanyInfoRegisterCompanyNumber('');  // Blank Register Company Number.
-        LibraryVariableStorage.Enqueue(CreateVATRegister);  // Enqueue value for handler - VATRegisterPrintRequestPageHandler.
+        LibraryVariableStorage.Enqueue(CreateVATRegister());  // Enqueue value for handler - VATRegisterPrintRequestPageHandler.
 
         // [WHEN] Run report "VAT Register - Print"
         asserterror REPORT.Run(REPORT::"VAT Register - Print");  // Opens handler - VATRegisterPrintRequestPageHandler.
@@ -688,7 +688,7 @@ codeunit 144068 "UT REP Posting Routine"
         VATBookEntryTypeReverseVATEntryVATRegisterPrint(VATBookEntry.Type::Sale, true);  // Reverse VAT Entry - True.
     end;
 
-    local procedure VATBookEntryTypeReverseVATEntryVATRegisterPrint(Type: Option; ReverseVATEntry: Boolean)
+    local procedure VATBookEntryTypeReverseVATEntryVATRegisterPrint(Type: Enum "General Posting Type"; ReverseVATEntry: Boolean)
     var
         CompanyInformation: Record "Company Information";
         NoSeries: Record "No. Series";
@@ -698,9 +698,9 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // Setup: Update Company Information - Register Company Number, Create VAT Book Entries, Create Vendor entries.
         Initialize();
-        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
+        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode());
         CreateNumberSeries(NoSeries);
-        CreateVATBookEntry(VATBookEntry, Type, NoSeries.Code, ReverseVATEntry, CreateVendor);
+        CreateVATBookEntry(VATBookEntry, Type, NoSeries.Code, ReverseVATEntry, CreateVendor());
         CreateVATEntry(VATBookEntry);
         CreateVendorEntries(
           DetailedVendorLedgEntry, VATBookEntry."Sell-to/Buy-from No.", DetailedVendorLedgEntry."Entry Type"::"Initial Entry",
@@ -734,9 +734,9 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [SCENARIO] Validate VAT Book Entry - OnAfterGetRecord Trigger of Report - 12120 VAT Register - Print. without Sales Reverse VAT Entry
         Initialize();
-        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
+        UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode());
         CreateNumberSeries(NoSeries);
-        CreateVATBookEntry(VATBookEntry, VATBookEntry.Type::Sale, NoSeries.Code, false, CreateCustomer);  // Reverse VAT Entry - False.
+        CreateVATBookEntry(VATBookEntry, VATBookEntry.Type::Sale, NoSeries.Code, false, CreateCustomer());  // Reverse VAT Entry - False.
         CreateVATEntry(VATBookEntry);
         CreateCustomerEntries(
           DetailedCustLedgEntry, VATBookEntry."Sell-to/Buy-from No.", VATBookEntry."Document No.",
@@ -765,7 +765,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         Initialize();
 
-        // [GIVEN] G/L Account "A" with net change on WORKDATE - 1
+        // [GIVEN] G/L Account "A" with net change on WorkDate() - 1
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
         GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo();
         GLEntry."Posting Date" := CalcDate('<-1D>', WorkDate());
@@ -794,7 +794,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         Initialize();
 
-        // [GIVEN] Vendor "V" with net change on WORKDATE - 1
+        // [GIVEN] Vendor "V" with net change on WorkDate() - 1
         with DetailedVendorLedgEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Vendor No." := LibraryPurchase.CreateVendorNo();
@@ -825,7 +825,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         Initialize();
 
-        // [GIVEN] Customer "C" with net change on WORKDATE - 1
+        // [GIVEN] Customer "C" with net change on WorkDate() - 1
         with DetailedCustLedgEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Customer No." := LibrarySales.CreateCustomerNo();
@@ -857,7 +857,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         Initialize();
 
-        // [GIVEN] Bank Account "A" with net change on WORKDATE - 1
+        // [GIVEN] Bank Account "A" with net change on WorkDate() - 1
         BankAccLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(BankAccLedgEntry, BankAccLedgEntry.FieldNo("Entry No."));
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccLedgEntry."Bank Account No." := BankAccount."No.";
@@ -890,7 +890,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [GIVEN] GLE1 with Debit Amount "D1", Credit Amount 0;
         // [GIVEN] GLE2 with Debit Amount 0, Credit Amount "C1";
         // [GIVEN] GLE3 with Debit Amount "D2", Credit Amount 0.
-        AccNo := CreateGLAccount;
+        AccNo := CreateGLAccount();
         CreateGLBookEntryWithAccNo(GLBookEntry[1], AccNo, LibraryRandom.RandDec(10, 2));
         CreateGLEntry(GLEntry, GLBookEntry[1]);
 
@@ -906,7 +906,7 @@ codeunit 144068 "UT REP Posting Routine"
         REPORT.Run(REPORT::"Account Book Sheet - Print");
 
         // [THEN] Sum of IcreasesAmnt tag equal to "D1" + "D2", Sum of DecreasesAmnt equal to "C1".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Assert.AreEqual(GLBookEntry[1]."Debit Amount" + GLBookEntry[3]."Debit Amount", LibraryReportDataset.Sum(IcreasesAmntCap), '');
         Assert.AreEqual(GLBookEntry[2]."Credit Amount", LibraryReportDataset.Sum(DecreasesAmntCap), '');
     end;
@@ -933,12 +933,12 @@ codeunit 144068 "UT REP Posting Routine"
         GLSetup.Modify(true);
 
         // [WHEN] Run report "VAT Register - Print" and set PeriodStartingDate = '01-01-2021' in RPH
-        LibraryVariableStorage.Enqueue(CreateVATRegister);
+        LibraryVariableStorage.Enqueue(CreateVATRegister());
         REPORT.Run(REPORT::"VAT Register - Print");
 
         // [THEN] PeriodEndingDate equals '3/31/2021'
-        Assert.AreEqual('3/31/2021', LibraryVariableStorage.DequeueText, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual('3/31/2021', LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -964,7 +964,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         // [WHEN] Run report "VAT Register - Print" with proper PeriodStartingDate and PeriodEndingDate for Quarter period (set in RPH)
         // [THEN] Verify Error Code. Actual error message: There are unposted purchase documents with a reserved Posting No. Please post these before continuing.
-        LibraryVariableStorage.Enqueue(CreateVATRegister);
+        LibraryVariableStorage.Enqueue(CreateVATRegister());
         REPORT.Run(REPORT::"VAT Register - Print");
     end;
 
@@ -986,13 +986,13 @@ codeunit 144068 "UT REP Posting Routine"
         // [GIVEN] DVLE3 with Amount (LCY) "D3" < 0.
         PurchaseHeaderNo := CreatePurchaseHeader('');
         CreateVendorEntries(
-          DtldVendorLedgEntry[1], PurchaseHeaderNo, DtldVendorLedgEntry[1]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10);
+          DtldVendorLedgEntry[1], PurchaseHeaderNo, DtldVendorLedgEntry[1]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10());
         CreateVendorEntries(
-          DtldVendorLedgEntry[2], PurchaseHeaderNo, DtldVendorLedgEntry[2]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10);
+          DtldVendorLedgEntry[2], PurchaseHeaderNo, DtldVendorLedgEntry[2]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10());
         DtldVendorLedgEntry[2]."Amount (LCY)" := -LibraryRandom.RandDec(10, 2);
         DtldVendorLedgEntry[2].Modify();
         CreateVendorEntries(
-          DtldVendorLedgEntry[3], PurchaseHeaderNo, DtldVendorLedgEntry[3]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10);
+          DtldVendorLedgEntry[3], PurchaseHeaderNo, DtldVendorLedgEntry[3]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10());
 
         // [WHEN] Report "Vendor Sheet - Print" is run.
         LibraryVariableStorage.Enqueue(DtldVendorLedgEntry[1]."Vendor No.");
@@ -1000,7 +1000,7 @@ codeunit 144068 "UT REP Posting Routine"
         REPORT.Run(REPORT::"Vendor Sheet - Print");
 
         // [THEN] TotalIcreasesAmntForRTC equal to "D1" + "D2", TotalDecreasesAmntForRTC equal to "D3".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'TotalIcreasesAmntForRTC', DtldVendorLedgEntry[1]."Amount (LCY)" + DtldVendorLedgEntry[3]."Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('TotalDecreasesAmntForRTC', Abs(DtldVendorLedgEntry[2]."Amount (LCY)"));
@@ -1033,7 +1033,7 @@ codeunit 144068 "UT REP Posting Routine"
 
         // [THEN] 'IncreasesAmt' and 'DecreasesAmt' are not transferred from previous entries
         // [THEN] Total 'Amt' is calculated correctly
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportCreditDebitAmounts(
           BankAccount."No.", BankAccLedgEntry[1].Amount, BankAccLedgEntry[2].Amount, BankAccLedgEntry[3].Amount);
     end;
@@ -1073,7 +1073,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [THEN] 'IncreasesAmt' and 'DecreasesAmt' are not transferred from previous entries
         // [THEN] Total 'Amt' is calculated correctly
         // [THEN] Each Bank Account is calculated separrately and correctly
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportCreditDebitAmounts(
           BankAccount[1]."No.", BankAccLedgEntry[1].Amount, BankAccLedgEntry[2].Amount, BankAccLedgEntry[3].Amount);
 
@@ -1097,7 +1097,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Name := BankAccount."No.";
         BankAccount.Insert();
         exit(BankAccount."No.");
@@ -1116,14 +1116,14 @@ codeunit 144068 "UT REP Posting Routine"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Name := Customer."No.";
         Customer."Date Filter" := WorkDate();
         Customer.Insert();
         exit(Customer."No.");
     end;
 
-    local procedure CreateCustomerEntries(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Option)
+    local procedure CreateCustomerEntries(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -1134,7 +1134,7 @@ codeunit 144068 "UT REP Posting Routine"
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Document No." := DocumentNo;
-        CustLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10;
+        CustLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10();
         CustLedgerEntry.Amount := LibraryRandom.RandDec(10, 2);
         CustLedgerEntry."Amount (LCY)" := CustLedgerEntry.Amount + LibraryRandom.RandDec(10, 2);
         CustLedgerEntry.Insert();
@@ -1153,7 +1153,7 @@ codeunit 144068 "UT REP Posting Routine"
         DetailedCustLedgEntry.Insert(true);
     end;
 
-    local procedure CreateVendorEntries(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; EntryType: Option; DocumentNo: Code[20])
+    local procedure CreateVendorEntries(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20])
     var
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1164,7 +1164,7 @@ codeunit 144068 "UT REP Posting Routine"
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Document No." := DocumentNo;
-        VendorLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10;
+        VendorLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10();
         VendorLedgerEntry.Insert();
 
         DetailedVendorLedgEntry2.FindLast();
@@ -1185,7 +1185,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
         FixedAsset.Description := FixedAsset."No.";
         FixedAsset.Insert();
         exit(FixedAsset."No.");
@@ -1195,19 +1195,19 @@ codeunit 144068 "UT REP Posting Routine"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."Date Filter" := WorkDate();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGLBookEntry(var GLBookEntry: Record "GL Book Entry"; SourceType: Option; SourceNo: Code[20]; OfficialDate: Date; ProgressiveNo: Integer; DocumentNo: Code[20])
+    local procedure CreateGLBookEntry(var GLBookEntry: Record "GL Book Entry"; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]; OfficialDate: Date; ProgressiveNo: Integer; DocumentNo: Code[20])
     begin
         GLBookEntry.DeleteAll();  // Deleting of G/L Book Entry is required to run Report - G/L Book - Print.
         GLBookEntry."Entry No." := 1;
         GLBookEntry."Document Type" := GLBookEntry."Document Type"::Invoice;
         GLBookEntry."Document No." := DocumentNo;
-        GLBookEntry."G/L Account No." := CreateGLAccount;
+        GLBookEntry."G/L Account No." := CreateGLAccount();
         GLBookEntry."Posting Date" := WorkDate();
         GLBookEntry."Source Type" := SourceType;
         GLBookEntry."Source No." := SourceNo;
@@ -1232,7 +1232,7 @@ codeunit 144068 "UT REP Posting Routine"
         GLBookEntry."Document Type" := GLBookEntry."Document Type"::Invoice;
         GLBookEntry."G/L Account No." := AccNo;
         GLBookEntry."Posting Date" := WorkDate();
-        GLBookEntry."Source No." := LibraryUTUtility.GetNewCode;
+        GLBookEntry."Source No." := LibraryUTUtility.GetNewCode();
         GLBookEntry.Amount := EntryAmount;
         if EntryAmount > 0 then
             GLBookEntry."Debit Amount" := EntryAmount
@@ -1267,8 +1267,8 @@ codeunit 144068 "UT REP Posting Routine"
 
     local procedure CreateNumberSeries(var NoSeries: Record "No. Series")
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
-        NoSeries."VAT Register" := CreateVATRegister;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
+        NoSeries."VAT Register" := CreateVATRegister();
         NoSeries.Insert();
     end;
 
@@ -1277,8 +1277,8 @@ codeunit 144068 "UT REP Posting Routine"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Buy-from Vendor No." := CreateVendor;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Buy-from Vendor No." := CreateVendor();
         PurchaseHeader."Posting No." := PostingNo;
         PurchaseHeader.Insert();
         exit(PurchaseHeader."Buy-from Vendor No.");
@@ -1287,9 +1287,9 @@ codeunit 144068 "UT REP Posting Routine"
     local procedure CreatePurchaseHeaderWithNo(var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Buy-from Vendor No." := CreateVendor;
-        PurchaseHeader."Posting No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Buy-from Vendor No." := CreateVendor();
+        PurchaseHeader."Posting No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader.Insert();
         exit(PurchaseHeader."Buy-from Vendor No.");
     end;
@@ -1299,7 +1299,7 @@ codeunit 144068 "UT REP Posting Routine"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         with PurchInvHeader do begin
-            "No." := LibraryUTUtility.GetNewCode;
+            "No." := LibraryUTUtility.GetNewCode();
             "Pay-to Name" := BuyFromVendorNo;
             Insert();
             exit("No.");
@@ -1321,8 +1321,8 @@ codeunit 144068 "UT REP Posting Routine"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := CreateCustomer;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := CreateCustomer();
         SalesHeader."Posting No." := PostingNo;
         SalesHeader.Insert();
         exit(SalesHeader."Sell-to Customer No.");
@@ -1331,9 +1331,9 @@ codeunit 144068 "UT REP Posting Routine"
     local procedure CreateSalesHeaderWithNo(var SalesHeader: Record "Sales Header"): Code[20]
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := CreateCustomer;
-        SalesHeader."Posting No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := CreateCustomer();
+        SalesHeader."Posting No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Insert();
         exit(SalesHeader."Sell-to Customer No.");
     end;
@@ -1343,14 +1343,14 @@ codeunit 144068 "UT REP Posting Routine"
         SalesInvHeader: Record "Sales Invoice Header";
     begin
         with SalesInvHeader do begin
-            "No." := LibraryUTUtility.GetNewCode;
+            "No." := LibraryUTUtility.GetNewCode();
             "Bill-to Name" := SellToCustomerNo;
             Insert();
             exit("No.");
         end;
     end;
 
-    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; Type: Option; NoSeries: Code[20]; ReverseVATEntry: Boolean; SellToBuyFromNo: Code[20])
+    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; Type: Enum "General Posting Type"; NoSeries: Code[20]; ReverseVATEntry: Boolean; SellToBuyFromNo: Code[20])
     var
         VATBookEntry2: Record "VAT Book Entry";
     begin
@@ -1361,8 +1361,8 @@ codeunit 144068 "UT REP Posting Routine"
         VATBookEntry."Posting Date" := WorkDate();
         VATBookEntry."Sell-to/Buy-from No." := SellToBuyFromNo;
         VATBookEntry."Printing Date" := 0D;
-        VATBookEntry."Document No." := LibraryUTUtility.GetNewCode;
-        VATBookEntry."VAT Identifier" := CreateVATIdentifier;
+        VATBookEntry."Document No." := LibraryUTUtility.GetNewCode();
+        VATBookEntry."VAT Identifier" := CreateVATIdentifier();
         VATBookEntry."Reverse VAT Entry" := ReverseVATEntry;
         VATBookEntry."Unrealized VAT" := false;
         VATBookEntry.Insert();
@@ -1388,7 +1388,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         VATIdentifier: Record "VAT Identifier";
     begin
-        VATIdentifier.Code := LibraryUTUtility.GetNewCode10;
+        VATIdentifier.Code := LibraryUTUtility.GetNewCode10();
         VATIdentifier.Insert();
         exit(VATIdentifier.Code);
     end;
@@ -1397,7 +1397,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         VATRegister: Record "VAT Register";
     begin
-        VATRegister.Code := LibraryUTUtility.GetNewCode10;
+        VATRegister.Code := LibraryUTUtility.GetNewCode10();
         VATRegister.Insert();
         exit(VATRegister.Code);
     end;
@@ -1405,7 +1405,7 @@ codeunit 144068 "UT REP Posting Routine"
     local procedure CreateVATRegisterBuffer(var VATRegisterBuffer: Record "VAT Register - Buffer"; RegisterType: Option)
     begin
         VATRegisterBuffer."Period End Date" := WorkDate();
-        VATRegisterBuffer."VAT Register Code" := CreateVATRegister;
+        VATRegisterBuffer."VAT Register Code" := CreateVATRegister();
         VATRegisterBuffer."Register Type" := RegisterType;
         VATRegisterBuffer."Period Start Date" := WorkDate();
         VATRegisterBuffer."Period End Date" := WorkDate();
@@ -1417,7 +1417,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Name := Vendor."No.";
         Vendor."Date Filter" := WorkDate();
         Vendor.Insert();
@@ -1440,8 +1440,8 @@ codeunit 144068 "UT REP Posting Routine"
         GLBookPrint.StartingDate.SetValue(StartingDate);
         GLBookPrint.EndingDate.SetValue(WorkDate());
         GLBookPrint.EndingDate.SetValue(EndingDate);
-        GLBookPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);
-        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLBookPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode());
+        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure UpdateCompanyInfoRegisterCompanyNumber(RegisterCompanyNo: Text[50])
@@ -1464,7 +1464,7 @@ codeunit 144068 "UT REP Posting Routine"
 
     local procedure VerifyEntryNumberAndAmountOnReport(NumberCaption: Text; EntryNumberCaption: Text; AmountCaption: Text; ExpectedNumber: Variant; ExpectedEntryNumber: Variant; ExpectedAmount: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         AssertElementsWithValuesExists(
           NumberCaption, EntryNumberCaption, AmountCaption, ExpectedNumber, ExpectedEntryNumber, ExpectedAmount);
     end;
@@ -1492,22 +1492,22 @@ codeunit 144068 "UT REP Posting Routine"
 
     local procedure VerifyReportElement(FilterOnElementName: Text; FilterOnElementValue: Text; AssertElementName: Text; AssertElementValue: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(FilterOnElementName, FilterOnElementValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(AssertElementName, AssertElementValue);
     end;
 
     local procedure VerifyReportCreditDebitAmounts(BankNo: Code[20]; FirstAmount: Decimal; SecondAmount: Decimal; ThirdAmount: Decimal)
     begin
         LibraryReportDataset.SetRange('No_BankAccount', BankNo);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find first Bank Account entry');
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find second Bank Account entries');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find first Bank Account entry');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find second Bank Account entries');
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'IncreasesAmt', 0);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'DecreasesAmt', -SecondAmount);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find third Bank Account entry');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find third Bank Account entry');
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'IncreasesAmt', ThirdAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -1532,7 +1532,7 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryVariableStorage.Dequeue(No);
         AccountBookSheetPrint."G/L Account".SetFilter("No.", No);
         AccountBookSheetPrint."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
-        AccountBookSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AccountBookSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1544,7 +1544,7 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryVariableStorage.Dequeue(No);
         CustomerSheetPrint.Customer.SetFilter("No.", No);
         CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate()));
-        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1573,8 +1573,8 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         VATRegisterGrouped.PeriodStartingDate.SetValue(WorkDate());
         VATRegisterGrouped.PeriodEndingDate.SetValue(WorkDate());
-        VATRegisterGrouped.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);
-        VATRegisterGrouped.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterGrouped.FiscalCode.SetValue(LibraryUTUtility.GetNewCode());
+        VATRegisterGrouped.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1587,8 +1587,8 @@ codeunit 144068 "UT REP Posting Routine"
         VATRegisterPrint.VATRegister.SetValue(VATRegister);
         VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate());
         VATRegisterPrint.PeriodEndingDate.SetValue(WorkDate());
-        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);
-        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode());
+        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1614,8 +1614,8 @@ codeunit 144068 "UT REP Posting Routine"
         VATRegisterPrint.PrintCompanyInformations.SetValue(false);
         VATRegisterPrint.PeriodStartingDate.SetValue(CalcDate('<-CM>', WorkDate()));
         VATRegisterPrint.PeriodEndingDate.SetValue(CalcDate('<+CM+2M>', WorkDate()));
-        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);
-        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode());
+        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1627,7 +1627,7 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryVariableStorage.Dequeue(No);
         VendorSheetPrint.Vendor.SetFilter("No.", No);
         VendorSheetPrint.Vendor.SetFilter("Date Filter", Format(WorkDate()));
-        VendorSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1639,14 +1639,14 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryVariableStorage.Dequeue(No);
         BankSheetPrint."Bank Account".SetFilter("No.", No);
         BankSheetPrint."Bank Account".SetFilter("Date Filter", Format(WorkDate()));
-        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BankSheetPrintRPH(var BankSheetPrint: TestRequestPage "Bank Sheet - Print")
     begin
-        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

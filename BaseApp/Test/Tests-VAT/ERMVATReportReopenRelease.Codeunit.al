@@ -30,14 +30,14 @@
         CompanyInformation.Get();
         CompanyInformation."Fiscal Code" := 'x';
         CompanyInformation.County := 'x';
-        CompanyInformation."VAT Registration No." := LibraryVATUtils.GenerateVATRegistrationNumber;
+        CompanyInformation."VAT Registration No." := LibraryVATUtils.GenerateVATRegistrationNumber();
         CompanyInformation."Industrial Classification" := '35.11.00';
         CompanyInformation.Modify();
 
         VATReportReleaseReopen.Release(VATReportHdr);
 
         Assert.AreEqual(VATReportHdr.Status::Released, VATReportHdr.Status, ReleaseErr);
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -54,7 +54,7 @@
 
         Assert.AreEqual(VATReportHdr.Status::Open, VATReportHdr.Status, ReopenErr);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -76,7 +76,7 @@
         asserterror VATReportReleaseReopen.Reopen(VATReportHdr);
         Assert.ExpectedError(StrSubstNo(MissingSetupErr, VATReportSetup.TableCaption()));
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -96,7 +96,7 @@
 
         Assert.AreEqual(VATReportHdr.Status::Submitted, VATReportHdr.Status, SubmitErr);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -110,7 +110,7 @@
         asserterror VATReportReleaseReopen.Submit(VATReportHdr);
         Assert.ExpectedError(StrSubstNo(Submit2Err, VATReportHdr.TableCaption()));
 
-        TearDown;
+        TearDown();
     end;
 
     local procedure CreateVATReportHeaderAndLines(var VATReportHdr: Record "VAT Report Header")
@@ -123,7 +123,7 @@
         NoSeries.Init();
         NoSeries.FindFirst();
         VATReportSetup."No. Series" := NoSeries.Code;
-        VATReportSetup."Intermediary VAT Reg. No." := LibraryVATUtils.GenerateVATRegistrationNumber;
+        VATReportSetup."Intermediary VAT Reg. No." := LibraryVATUtils.GenerateVATRegistrationNumber();
         VATReportSetup.Modify();
 
         VATReportHdr."No." := 'Test';

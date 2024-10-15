@@ -339,7 +339,7 @@ codeunit 12133 "Flat File Management"
         if Splits > 75 then
             Error(BlockValueToBigErr);
 
-        if CurrentPosition + GetBlockLength * Splits > ConstMaxRecordLength - 10 then
+        if CurrentPosition + GetBlockLength() * Splits > ConstMaxRecordLength - 10 then
             Error(RecordToBigErr);
 
         Offset := 1;
@@ -352,8 +352,8 @@ codeunit 12133 "Flat File Management"
                 Concat := '+';
             end;
 
-            WriteValue(CurrentPosition, GetBlockLength, Code + FormatPadding(ValueFormat, Concat + CopyStr(Value, Offset, SplitSize), 16));
-            CurrentPosition += GetBlockLength;
+            WriteValue(CurrentPosition, GetBlockLength(), Code + FormatPadding(ValueFormat, Concat + CopyStr(Value, Offset, SplitSize), 16));
+            CurrentPosition += GetBlockLength();
             Offset += SplitSize;
         end
     end;
@@ -361,8 +361,8 @@ codeunit 12133 "Flat File Management"
     [Scope('OnPrem')]
     procedure WriteBlankValue(ValueFormat: Option)
     begin
-        WriteValue(CurrentPosition, GetBlockLength, FormatPadding(ValueFormat, '', GetBlockLength));
-        CurrentPosition += GetBlockLength;
+        WriteValue(CurrentPosition, GetBlockLength(), FormatPadding(ValueFormat, '', GetBlockLength()));
+        CurrentPosition += GetBlockLength();
     end;
 
     procedure WriteValue(Position: Integer; Length: Integer; Value: Text)

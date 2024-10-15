@@ -6,7 +6,6 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
-using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 
@@ -32,10 +31,8 @@ codeunit 744 "VAT Report Validate"
         EmptyFieldErr: Label 'The %1 field in the %2 window must not be empty.';
         SpecifyFieldErr: Label 'You must specify the %1 field for the %2 %3.', Comment = 'You must specify the Fiscal Code No. for Vendor 10000.';
         SpecifyEitherFieldErr: Label 'You must specify the %1 or %2 field for %3 %4.', Comment = 'You must specify the Fiscal Code or VAT Registration No. for Vendor 10000.';
-        FillAllFieldsOrNoneErr: Label 'The %1 and %2 fields must both be empty or both be filled in.';
         LineNumberErr: Label 'The error is related to line no. %1.';
         PleaseFillFieldErr: Label 'You must specify the %1 field for the country/region code %2.';
-        NumberToLongErr: Label 'The field %2 in the %3 windows must not exceed %1 characters';
         EmptyFieldOriginalReportErr: Label 'The field %1 must be filled out the original report %2. Original Report No.=%3';
 
     local procedure ClearErrorLog()
@@ -67,8 +64,6 @@ codeunit 744 "VAT Report Validate"
 
     local procedure ValidateVATReportHeader(VATReportHeader: Record "VAT Report Header")
     var
-        CompanyInformation: Record "Company Information";
-        VATReportSetup: Record "VAT Report Setup";
         OrgVATReportHeader: Record "VAT Report Header";
     begin
         if VATReportHeader."VAT Report Config. Code" = VATReportHeader."VAT Report Config. Code"::" " then

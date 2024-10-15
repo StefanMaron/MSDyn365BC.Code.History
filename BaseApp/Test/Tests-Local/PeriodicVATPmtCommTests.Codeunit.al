@@ -185,28 +185,28 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         PopulateVATEntryTable(StartDate, TotalSales, TotalPurchases, TotalSalesTax, TotalPurchaseTax);
 
         // [THEN] Check the return values
-        Assert.AreEqual('IVP18', VATPmtCommDataLookup.GetSupplyCode, 'GetSupplyCode incorrect');
-        Assert.AreEqual('', VATPmtCommDataLookup.GetSystemID, 'GetSystemID incorrect');
-        Assert.IsFalse(VATPmtCommDataLookup.HasTaxDeclarant, 'HasTaxDeclarant incorrect');
-        Assert.IsFalse(VATPmtCommDataLookup.HasChargeCode, 'HasChargeCode incorrect');
-        Assert.AreEqual('2018', VATPmtCommDataLookup.GetCurrentYear, 'GetCurrentYear incorrect');
-        Assert.AreEqual(TotalSales, VATPmtCommDataLookup.GetTotalSales,
+        Assert.AreEqual('IVP18', VATPmtCommDataLookup.GetSupplyCode(), 'GetSupplyCode incorrect');
+        Assert.AreEqual('', VATPmtCommDataLookup.GetSystemID(), 'GetSystemID incorrect');
+        Assert.IsFalse(VATPmtCommDataLookup.HasTaxDeclarant(), 'HasTaxDeclarant incorrect');
+        Assert.IsFalse(VATPmtCommDataLookup.HasChargeCode(), 'HasChargeCode incorrect');
+        Assert.AreEqual('2018', VATPmtCommDataLookup.GetCurrentYear(), 'GetCurrentYear incorrect');
+        Assert.AreEqual(TotalSales, VATPmtCommDataLookup.GetTotalSales(),
           'GetTotalSales incorrect');
-        Assert.AreEqual(TotalPurchases, VATPmtCommDataLookup.GetTotalPurchases,
+        Assert.AreEqual(TotalPurchases, VATPmtCommDataLookup.GetTotalPurchases(),
           'GetTotalPurchases incorrect');
-        Assert.AreEqual(TotalSalesTax, VATPmtCommDataLookup.GetVATSales,
+        Assert.AreEqual(TotalSalesTax, VATPmtCommDataLookup.GetVATSales(),
           'GetVATSales incorrect');
-        Assert.AreEqual(TotalPurchaseTax, VATPmtCommDataLookup.GetVATPurchases,
+        Assert.AreEqual(TotalPurchaseTax, VATPmtCommDataLookup.GetVATPurchases(),
           'GetVATPurchases incorrect');
-        Assert.AreEqual('4', VATPmtCommDataLookup.GetQuarter, 'GetQuarter incorrect');
+        Assert.AreEqual('4', VATPmtCommDataLookup.GetQuarter(), 'GetQuarter incorrect');
 
         // [WHEN] Setting values for HasCodiceFiscaleDichiarante & related nodes
         VATPmtCommDataLookup.SetTaxDeclarant('28051977200');
         VATPmtCommDataLookup.SetChargeCode('12');
 
         // [THEN] Check the return values
-        Assert.IsTrue(VATPmtCommDataLookup.HasTaxDeclarant, 'HasTaxDeclarant incorrect');
-        Assert.IsTrue(VATPmtCommDataLookup.HasChargeCode, 'HasChargeCode incorrect');
+        Assert.IsTrue(VATPmtCommDataLookup.HasTaxDeclarant(), 'HasTaxDeclarant incorrect');
+        Assert.IsTrue(VATPmtCommDataLookup.HasChargeCode(), 'HasChargeCode incorrect');
 
         // [WHEN] General manager parameters
         CompanyOfficials.Init();
@@ -224,8 +224,8 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         VATPmtCommDataLookup.Init();
 
         // [THEN] Check Dichirante
-        Assert.AreEqual('28051977200', VATPmtCommDataLookup.GetDeclarantFiscalCode, 'GetTaxDeclarant incorrect');
-        Assert.AreEqual(AppointmentCode.Code, VATPmtCommDataLookup.GetTaxDeclarantPosionCode,
+        Assert.AreEqual('28051977200', VATPmtCommDataLookup.GetDeclarantFiscalCode(), 'GetTaxDeclarant incorrect');
+        Assert.AreEqual(AppointmentCode.Code, VATPmtCommDataLookup.GetTaxDeclarantPosionCode(),
           'GetTaxDeclarantPosionCode incorrect');
 
         // [WHEN] Intermmediaries parameters
@@ -235,15 +235,15 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         VATPmtCommDataLookup.Init();
 
         // [THEN] Check intermmediaries
-        Assert.IsTrue(VATPmtCommDataLookup.HasIntermediary, 'HasIntermediary incorrect');
-        Assert.AreEqual('28051977200', VATPmtCommDataLookup.GetIntermediary, 'GetIntermediary incorrect');
+        Assert.IsTrue(VATPmtCommDataLookup.HasIntermediary(), 'HasIntermediary incorrect');
+        Assert.AreEqual('28051977200', VATPmtCommDataLookup.GetIntermediary(), 'GetIntermediary incorrect');
         Assert.AreEqual(Format(VATReportSetup."Intermediary Date", 0, '<Day,2><Month,2><Year4>'),
-          VATPmtCommDataLookup.GetIntermediaryDate, 'GetIntermediaryDate incorrect');
+          VATPmtCommDataLookup.GetIntermediaryDate(), 'GetIntermediaryDate incorrect');
 
         // [WHEN] Running the XML generator with the above data
         DestinationPath := FileManagement.ServerTempFileName('xml');
         VATPaymentCommunication.InitializeRequest(StartDate, Date2DMY(StartDate, 3) - 2000, '28051977200',
-          VATPmtCommDataLookup.GetChargeCode, false,
+          VATPmtCommDataLookup.GetChargeCode(), false,
           0, false,
           true, false,
           1, false, 0, 1, DestinationPath);
@@ -251,9 +251,9 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         VATPaymentCommunication.Run();
 
         // [THEN] XML generated conforms to the XSD
-        SignatureSchemaPath := GetInetRoot + '\GDL\IT\App\Test\XMLSchemas\xmldsig-core-schema.xsd';
+        SignatureSchemaPath := GetInetRoot() + '\GDL\IT\App\Test\XMLSchemas\xmldsig-core-schema.xsd';
         LibraryVerifyXMLSchema.SetAdditionalSchemaPath(SignatureSchemaPath);
-        SchemaPath := GetInetRoot + '\GDL\IT\App\Test\XMLSchemas\fornituraIvp_2018_v1.xsd';
+        SchemaPath := GetInetRoot() + '\GDL\IT\App\Test\XMLSchemas\fornituraIvp_2018_v1.xsd';
         Assert.IsTrue(LibraryVerifyXMLSchema.VerifyXMLAgainstSchema(DestinationPath, SchemaPath, Message), Message);
         UnbindSubscription(PeriodicVATPmtCommTests);
     end;
@@ -291,7 +291,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         // [FEATURE] [UT]
         // [SCENARIO 223234] COD 12151 "VAT Pmt. Comm. Data Lookup".GetTotalSales() returns sum of positive VATEntry."Base" excluding Reverse Charge VAT
         Initialize();
-        VATEntryDate := CalcDate('<-CM+1M>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<-CM+1M>', GetLastVATEntryOpOccrDate());
         VATPmtCommDataLookup.Init();
         VATPmtCommDataLookup.SetStartDate(VATEntryDate);
 
@@ -322,12 +322,12 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         // [THEN] GetVATPurchases() = 4020
         // [THEN] GetVATDebit() = 46280
         // [THEN] GetVATCredit() = 0
-        Assert.AreEqual(DecimalToText(100000), DecimalToText(VATPmtCommDataLookup.GetTotalSales), '');
-        Assert.AreEqual(10100, VATPmtCommDataLookup.GetTotalPurchases, '');
-        Assert.AreEqual(50300, VATPmtCommDataLookup.GetVATSales, '');
-        Assert.AreEqual(4020, VATPmtCommDataLookup.GetVATPurchases, '');
-        Assert.AreEqual(46280, VATPmtCommDataLookup.GetVATDebit, '');
-        Assert.AreEqual(0, VATPmtCommDataLookup.GetVATCredit, '');
+        Assert.AreEqual(DecimalToText(100000), DecimalToText(VATPmtCommDataLookup.GetTotalSales()), '');
+        Assert.AreEqual(10100, VATPmtCommDataLookup.GetTotalPurchases(), '');
+        Assert.AreEqual(50300, VATPmtCommDataLookup.GetVATSales(), '');
+        Assert.AreEqual(4020, VATPmtCommDataLookup.GetVATPurchases(), '');
+        Assert.AreEqual(46280, VATPmtCommDataLookup.GetVATDebit(), '');
+        Assert.AreEqual(0, VATPmtCommDataLookup.GetVATCredit(), '');
     end;
 
     [Test]
@@ -342,7 +342,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         // [FEATURE] [Report] [UT]
         // [SCENARIO 223234] REP 12150 "VAT Payment Communication" exports "TotaleOperazioniAttive" = sum of positive VATEntry."Base" excluding Reverse Charge VAT
         Initialize();
-        VATEntryDate := CalcDate('<-CY+1Y>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<-CY+1Y>', GetLastVATEntryOpOccrDate());
         VATPmtCommDataLookup.Init();
         VATPmtCommDataLookup.SetStartDate(VATEntryDate);
 
@@ -395,7 +395,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [SCENARIO 224532] Check XML when "VAT Calculation Type" = "Full VAT", "Deductible %" = 100
         Initialize();
-        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate());
         SalesVATAmount := LibraryRandom.RandDec(1000, 2);
         PurchVATAmount := -SalesVATAmount / 2;
         VATPmtCommDataLookup.Init();
@@ -424,8 +424,8 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         LibraryXMLRead.Initialize(FileName);
         LibraryXMLRead.VerifyNodeValue('IvaDovuta', DecimalToText(SalesVATAmount + PurchVATAmount));
         LibraryXMLRead.VerifyNodeValue('ImportoDaVersare', DecimalToText(SalesVATAmount + PurchVATAmount));
-        Assert.AreEqual(SalesVATAmount, VATPmtCommDataLookup.GetVATSales, 'Incorrect Sales VAT Amount');
-        Assert.AreEqual(-PurchVATAmount, VATPmtCommDataLookup.GetVATPurchases, 'Incorrect Purchase VAT Amount');
+        Assert.AreEqual(SalesVATAmount, VATPmtCommDataLookup.GetVATSales(), 'Incorrect Sales VAT Amount');
+        Assert.AreEqual(-PurchVATAmount, VATPmtCommDataLookup.GetVATPurchases(), 'Incorrect Purchase VAT Amount');
     end;
 
     [Test]
@@ -443,7 +443,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [SCENARIO 224532] Check XML when "VAT Calculation Type" differ in lines, one of lines has "VAT Calculation Type" = "Full VAT", "Deductible %" = 100
         Initialize();
-        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate());
         PrepareVATBaseAndAmountArray(Amount, Base);
         TotalVATAmount := Amount[1] + Amount[2] + Amount[3] + Amount[4] + Amount[5];
         VATPmtCommDataLookup.Init();
@@ -505,7 +505,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [SCENARIO 232382] TotaleOperazioniAttive and TotaleOperazioniPassive must absent in communication XML when "Include in VAT Comm. Rep." in VAT Posting Setup is disabled and VAT Amount = 0
         Initialize();
-        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate());
         PrepareVATBaseArray(Base);
         VATPmtCommDataLookup.Init();
         VATPmtCommDataLookup.SetStartDate(VATEntryDate);
@@ -545,7 +545,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [SCENARIO 232382] TotaleOperazioniAttive and TotaleOperazioniPassive must exist in communication XML when "Include in VAT Comm. Rep." in VAT Posting Setup is enabled and VAT Amount = 0
         Initialize();
-        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate());
         PrepareVATBaseArray(Base);
         VATPmtCommDataLookup.Init();
         VATPmtCommDataLookup.SetStartDate(VATEntryDate);
@@ -720,7 +720,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [SCENARIO 252305] Settlement VAT Entries must not be exported in VAT Settlement Communication report
         Initialize();
-        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate());
         Amount := LibraryRandom.RandDec(1000, 2);
         Base := LibraryRandom.RandDec(1000, 2);
 
@@ -758,7 +758,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         // [FEATURE] [Purchase]
         // [SCENARIO 252548] Export VAT Payment Communication Report for purchase with non-deductible VAT amount
         Initialize();
-        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate());
         PrepareVATBaseAndAmountArray(Amount, Base);
 
         // [GIVEN] VAT Posting Setup "VPS1" with "Include in VAT Comm. Rep." enabled, "VAT %" = 20, "Deductible %" = 70
@@ -813,7 +813,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [SCENARIO 255474] Amounts for the second and third months must not contain amounts for the previous months.
         Initialize();
-        VATEntryDate := VATPmtCommXMLGenerator.GetFirstDateOfQuarter(CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate));
+        VATEntryDate := VATPmtCommXMLGenerator.GetFirstDateOfQuarter(CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate()));
         PrepareVATBaseAndAmountArray(Amount, Base);
 
         // [GIVEN] VAT Posting Setup with "Include in VAT Comm. Rep." enabled
@@ -901,7 +901,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
         // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
-        VATEntryDate := CalcDate('<+1Q>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<+1Q>', GetLastVATEntryOpOccrDate());
         StartDate := CalcDate('<-CQ>', VATEntryDate);
 
         // [GIVEN] Periodic Settlement VAT Entry has "Advanced Amount" = 100
@@ -949,7 +949,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
         // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
-        VATEntryDate := CalcDate('<+1Q>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<+1Q>', GetLastVATEntryOpOccrDate());
         StartDate := CalcDate('<-CQ>', VATEntryDate);
 
         // [GIVEN] VAT Posting Setup with "Include in VAT Comm. Rep." enabled
@@ -994,7 +994,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
         // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
-        VATEntryDate := CalcDate('<+1Q>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<+1Q>', GetLastVATEntryOpOccrDate());
         StartDate := CalcDate('<-CQ>', VATEntryDate);
 
         // [GIVEN] Periodic Settlement VAT Entry has "Advanced Amount" = 100
@@ -1031,7 +1031,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
         // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
-        VATEntryDate := CalcDate('<+1Q>', GetLastVATEntryOpOccrDate);
+        VATEntryDate := CalcDate('<+1Q>', GetLastVATEntryOpOccrDate());
         StartDate := CalcDate('<-CQ>', VATEntryDate);
 
         // [GIVEN] Periodic Settlement VAT Entry has "Advanced Amount" = 100
@@ -1087,7 +1087,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
         // [GIVEN] Purchase Invoice with VAT Amount = "VA1", that was posted in a quarter Q2.
         // [GIVEN] Report "Calc. And Post VAT Settlement" was run for the quarter Q2.
-        StartDate := CalcDate('<CQ + 1D>', LibraryERM.MaxDate(GetLastVATEntryOpOccrDate, GetLastVATSettlementEndDate));
+        StartDate := CalcDate('<CQ + 1D>', LibraryERM.MaxDate(GetLastVATEntryOpOccrDate(), GetLastVATSettlementEndDate()));
         EndDate := CalcDate('<CQ>', StartDate);
         PrevPeriodVATAmount := CreateAndPostPurchaseInvoiceWithVAT(VATPostingSetup, StartDate);
         RunCalcAndPostVATSettlementReport(VATPostingSetup, StartDate, EndDate);
@@ -1133,7 +1133,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
 
         // [GIVEN] "Periodic Settlement VAT Entry" record with "VAT Settlement" = 0 for a quarter Q2.
-        StartDate := CalcDate('<CQ + 1D>', LibraryERM.MaxDate(GetLastVATEntryOpOccrDate, GetLastVATSettlementEndDate));
+        StartDate := CalcDate('<CQ + 1D>', LibraryERM.MaxDate(GetLastVATEntryOpOccrDate(), GetLastVATSettlementEndDate()));
         EndDate := CalcDate('<CQ>', StartDate);
         MockPeriodicVATSettlementEntry(EndDate);
 
@@ -1568,7 +1568,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         Assert.AreEqual('Declarant appointment code', VATPaymentCommunication.DeclarantAppointmentCode.Caption, WrongCaptionErr);
         VATPaymentCommunication.YearOfDeclaration.AssertEquals(18); // TFS ID 404191: Years of declaration is "Supply code" which is always equal to "18"
 
-        VATPaymentCommunication.Cancel.Invoke;
+        VATPaymentCommunication.Cancel().Invoke();
     end;
 }
 

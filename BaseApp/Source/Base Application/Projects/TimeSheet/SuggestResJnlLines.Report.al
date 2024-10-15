@@ -27,7 +27,7 @@ report 951 "Suggest Res. Jnl. Lines"
 
             trigger OnPostDataItem()
             var
-                NoSeriesMgt: Codeunit NoSeriesManagement;
+                NoSeries: Codeunit "No. Series";
                 NextDocNo: Code[20];
                 LineNo: Integer;
                 QtyToPost: Decimal;
@@ -39,7 +39,7 @@ report 951 "Suggest Res. Jnl. Lines"
                     if ResJnlBatch."No. Series" = '' then
                         NextDocNo := ''
                     else
-                        NextDocNo := NoSeriesMgt.GetNextNo(ResJnlBatch."No. Series", TempTimeSheetLine."Time Sheet Starting Date", false);
+                        NextDocNo := NoSeries.PeekNextNo(ResJnlBatch."No. Series", TempTimeSheetLine."Time Sheet Starting Date");
 
                     ResJnlLine.SetRange("Journal Template Name", ResJnlLine."Journal Template Name");
                     ResJnlLine.SetRange("Journal Batch Name", ResJnlLine."Journal Batch Name");

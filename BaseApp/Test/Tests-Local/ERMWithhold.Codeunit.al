@@ -537,8 +537,8 @@ codeunit 144090 "ERM Withhold"
         CalculateWithholdTaxesContributionOnPurchInvoice(WithhTaxesContributionCard, PurchaseLine."Document No.");
 
         // Verify: Verify Gross Amount same as Total amount on Page - Withh. Taxes-Contribution Card.
-        WithhTaxesContributionCard."Gross Amount".AssertEquals(WithhTaxesContributionCard.TotalAmount.AsDEcimal);
-        WithhTaxesContributionCard.OK.Invoke;
+        WithhTaxesContributionCard."Gross Amount".AssertEquals(WithhTaxesContributionCard.TotalAmount.AsDecimal());
+        WithhTaxesContributionCard.OK().Invoke();
     end;
 
     [Test]
@@ -559,8 +559,8 @@ codeunit 144090 "ERM Withhold"
         WithhTaxesContributionCard.TotalAmount.SetValue(LibraryRandom.RandDec(10, 2));
 
         // Verify: Verify Gross Amount same as Total amount on Page - Withh. Taxes-Contribution Card.
-        WithhTaxesContributionCard."Gross Amount".AssertEquals(WithhTaxesContributionCard.TotalAmount.AsDEcimal);
-        WithhTaxesContributionCard.OK.Invoke;
+        WithhTaxesContributionCard."Gross Amount".AssertEquals(WithhTaxesContributionCard.TotalAmount.AsDecimal());
+        WithhTaxesContributionCard.OK().Invoke();
     end;
 
     [Test]
@@ -781,11 +781,11 @@ codeunit 144090 "ERM Withhold"
         SetValuesOnManualVendorPaymentLinePage(ManualVendorPaymentLine);
         Vendor.Get(ManualVendorPaymentLine.VendorNo.Value);
         WithholdingTaxAmount :=
-          CalculateWithholdingTaxAmount(Vendor."Withholding Tax Code", ManualVendorPaymentLine.TaxBaseAmount.AsDEcimal);
-        AmountToPay := ManualVendorPaymentLine.TotalAmount.AsDEcimal - WithholdingTaxAmount;
+          CalculateWithholdingTaxAmount(Vendor."Withholding Tax Code", ManualVendorPaymentLine.TaxBaseAmount.AsDecimal());
+        AmountToPay := ManualVendorPaymentLine.TotalAmount.AsDecimal() - WithholdingTaxAmount;
 
         // Exercise.
-        ManualVendorPaymentLine.InsertLine.Invoke;
+        ManualVendorPaymentLine.InsertLine.Invoke();
 
         // Verify: Verify Amount To Pay and Withholding Tax Amount on Subform Vendor Bill Lines.
         VerifyAmountToPayAndWithholdingTaxAmount(Vendor."No.", AmountToPay, WithholdingTaxAmount);
@@ -897,7 +897,7 @@ codeunit 144090 "ERM Withhold"
         // Show Computed Withhold Taxes Contribution on Payment Journal Page.
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
         FindGenJournalLineForWithholdingTaxAndModifyBalAccNo(
-          GenJournalLine, PurchaseLine."Buy-from Vendor No.", LibraryERM.CreateGLAccountNo);
+          GenJournalLine, PurchaseLine."Buy-from Vendor No.", LibraryERM.CreateGLAccountNo());
 
         // Exercise: Post Gen. Jounal Line with updated Account No.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1076,7 +1076,7 @@ codeunit 144090 "ERM Withhold"
         // [WHEN] Create Purchase Invoice "PI" with Amount = 3000.
         CreatePurchaseInvoiceWithAmount(
           PurchaseHeader,
-          WorkDate,
+          WorkDate(),
           VendorNo,
           1,
           LibraryRandom.RandDecInRange(ContributionBracketLine.Amount, 10 * ContributionBracketLine.Amount, 2));
@@ -1108,7 +1108,7 @@ codeunit 144090 "ERM Withhold"
         CreateComputedContribution(VendorNo, CalcDate('<-CY - 1D>', WorkDate()), RemainingGrossAmount);
 
         // [GIVEN] Computed Contribution for Vendor "V2" with Posting Date = 28-11-2017 and Remaining Gross Amount = 100.
-        CreateComputedContribution(LibraryPurchase.CreateVendorNo, WorkDate(), RemainingGrossAmount);
+        CreateComputedContribution(LibraryPurchase.CreateVendorNo(), WorkDate(), RemainingGrossAmount);
 
         // [WHEN] Run COD 12101 "Withholding - Contribution".GetCompContribRemGrossAmtForVendorInPeriod("V1",1-1-2017,31-12-2017).
         // [THEN] Calculated "Remaining Gross Amount" is equal to the 100.
@@ -1286,10 +1286,10 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT] [UI] [WHT Amount Manual] [Withh. Taxes-Contribution Card]
         // [SCENARIO 266126] "WHT Amount Manual" is enabled, visible and editable on page "Withh. Taxes-Contribution Card"
-        WithhTaxesContributionCard.OpenEdit;
-        Assert.IsTrue(WithhTaxesContributionCard."WHT Amount Manual".Visible, '');
-        Assert.IsTrue(WithhTaxesContributionCard."WHT Amount Manual".Enabled, '');
-        Assert.IsTrue(WithhTaxesContributionCard."WHT Amount Manual".Editable, '');
+        WithhTaxesContributionCard.OpenEdit();
+        Assert.IsTrue(WithhTaxesContributionCard."WHT Amount Manual".Visible(), '');
+        Assert.IsTrue(WithhTaxesContributionCard."WHT Amount Manual".Enabled(), '');
+        Assert.IsTrue(WithhTaxesContributionCard."WHT Amount Manual".Editable(), '');
     end;
 
     [Test]
@@ -1304,9 +1304,9 @@ codeunit 144090 "ERM Withhold"
         // [SCENARIO 266126] When validate "WHT Amount Manual" = "X" <> "Withholding Tax Amount" and "Withholding Tax Amount" <> 0 then "WHT Amount Manual" = "X" in Purch. Withh. Contribution
         Initialize();
 
-        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, LibraryPurchase.CreateVendorNo());
         PurchWithhContribution.Init();
-        PurchWithhContribution."Document Type" := PurchaseHeader."Document Type";
+        PurchWithhContribution."Document Type" := PurchaseHeader."Document Type".AsInteger();
         PurchWithhContribution."No." := PurchaseHeader."No.";
 
         PurchWithhContribution.Validate("Withholding Tax Amount", LibraryRandom.RandDecInRange(10, 20, 2));
@@ -1442,7 +1442,7 @@ codeunit 144090 "ERM Withhold"
         SetupWithhAndSocSec(ContributionCode, WithholdCode);
 
         // [GIVEN] Vendor Bill Header with Payment Method Code
-        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill);
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill());
 
         // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
         CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
@@ -1485,7 +1485,7 @@ codeunit 144090 "ERM Withhold"
         SetupWithhAndSocSec(ContributionCode, WithholdCode);
 
         // [GIVEN] Vendor Bill Header with Payment Method Code
-        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill);
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill());
 
         // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
         CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
@@ -1986,7 +1986,7 @@ codeunit 144090 "ERM Withhold"
         SetupWithhAndSocSec(ContributionCode, WithholdCode);
 
         // [GIVEN] Vendor Bill Header with Payment Method Code
-        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill);
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill());
 
         // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
         CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
@@ -2026,7 +2026,7 @@ codeunit 144090 "ERM Withhold"
         SetupWithhAndSocSec(ContributionCode, WithholdCode);
 
         // [GIVEN] Vendor Bill Header with Payment Method Code
-        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill);
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill());
 
         // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
         CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
@@ -2072,7 +2072,7 @@ codeunit 144090 "ERM Withhold"
         SetupWithhAndSocSec(ContributionCode, WithholdCode);
 
         // [GIVEN] Vendor Bill Header with Payment Method Code
-        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill);
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill());
 
         // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
         CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
@@ -2286,20 +2286,20 @@ codeunit 144090 "ERM Withhold"
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        WithhTaxesContributionCard.Trap;
-        PurchaseCreditMemo.OpenEdit;
+        WithhTaxesContributionCard.Trap();
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", No);
-        PurchaseCreditMemo."With&hold Taxes-Soc. Sec.".Invoke;
+        PurchaseCreditMemo."With&hold Taxes-Soc. Sec.".Invoke();
     end;
 
     local procedure CalculateWithholdTaxesContributionOnPurchInvoice(var WithhTaxesContributionCard: TestPage "Withh. Taxes-Contribution Card"; No: Code[20])
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        WithhTaxesContributionCard.Trap;
-        PurchaseInvoice.OpenEdit;
+        WithhTaxesContributionCard.Trap();
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", No);
-        PurchaseInvoice."With&hold Taxes-Soc. Sec.".Invoke;
+        PurchaseInvoice."With&hold Taxes-Soc. Sec.".Invoke();
     end;
 
     local procedure ModifyWHTAmountManualForPurchWithhContribution(DocType: Enum "Purchase Document Type"; DocNo: Code[20]): Decimal
@@ -2381,8 +2381,8 @@ codeunit 144090 "ERM Withhold"
     local procedure CreateContributionCode(var ContributionCode: Record "Contribution Code"; ContributionType: Option)
     begin
         LibraryITLocalization.CreateContributionCode(ContributionCode, ContributionType);
-        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo);
-        ContributionCode.Validate("Social Security Charges Acc.", LibraryERM.CreateGLAccountNo);
+        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo());
+        ContributionCode.Validate("Social Security Charges Acc.", LibraryERM.CreateGLAccountNo());
         ContributionCode.Modify(true);
     end;
 
@@ -2445,7 +2445,7 @@ codeunit 144090 "ERM Withhold"
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", PostedDocumentNo);
         GenJournalLine.Modify(true);
@@ -2461,7 +2461,7 @@ codeunit 144090 "ERM Withhold"
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandIntInRange(100, 200));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandIntInRange(100, 200));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 100, 2));
         PurchaseLine.Modify(true);
         PurchaseHeader.Validate("Check Total", PurchaseLine."Amount Including VAT");
@@ -2477,7 +2477,7 @@ codeunit 144090 "ERM Withhold"
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, Quantity);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
         WithholdingContribution.CalculateWithholdingTax(PurchaseHeader, true);
@@ -2515,7 +2515,7 @@ codeunit 144090 "ERM Withhold"
 
     local procedure CreateVendor(SocialSecurityCode: Code[20]; INAILCode: Code[20]): Code[20]
     begin
-        exit(CreateVendorWithSocSecAndWithholdCodes(CreateWithholdCodeWithLine, SocialSecurityCode, INAILCode));
+        exit(CreateVendorWithSocSecAndWithholdCodes(CreateWithholdCodeWithLine(), SocialSecurityCode, INAILCode));
     end;
 
     local procedure CreateVendorWithZeroTaxableBase(SocialSecurityCode: Code[20]; INAILCode: Code[20]): Code[20]
@@ -2542,7 +2542,7 @@ codeunit 144090 "ERM Withhold"
 
     local procedure CreateVendorBillHeaderWithPaymentMethod(var VendorBillHeader: Record "Vendor Bill Header"; PaymentMethodCode: Code[10])
     begin
-        VendorBillHeader.Get(CreateVendorBillHeader);
+        VendorBillHeader.Get(CreateVendorBillHeader());
         VendorBillHeader.Validate("Payment Method Code", PaymentMethodCode);
         VendorBillHeader.Modify(true);
     end;
@@ -2587,7 +2587,7 @@ codeunit 144090 "ERM Withhold"
         WithholdCode: Record "Withhold Code";
     begin
         LibraryITLocalization.CreateWithholdCode(WithholdCode);
-        WithholdCode.Validate("Withholding Taxes Payable Acc.", LibraryERM.CreateGLAccountNo);
+        WithholdCode.Validate("Withholding Taxes Payable Acc.", LibraryERM.CreateGLAccountNo());
         WithholdCode.Validate("Tax Code", Format(LibraryRandom.RandIntInRange(1000, 9999)));  // Using Random value for Tax Code - 4 Char length.
         WithholdCode.Validate("770 Code", StringTxt);
         WithholdCode.Modify(true);
@@ -2603,7 +2603,7 @@ codeunit 144090 "ERM Withhold"
     var
         WithholdCodeLine: Record "Withhold Code Line";
     begin
-        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, CreateWithholdCode, WorkDate());  // Starting Date as Workdate.
+        LibraryITLocalization.CreateWithholdCodeLine(WithholdCodeLine, CreateWithholdCode(), WorkDate());  // Starting Date as Workdate.
         WithholdCodeLine.Validate("Withholding Tax %", WithholdingTaxRate);
         WithholdCodeLine.Validate("Taxable Base %", TaxableBase);
         WithholdCodeLine.Modify(true);
@@ -2754,13 +2754,13 @@ codeunit 144090 "ERM Withhold"
         VendorCard: TestPage "Vendor Card";
     begin
         OpenVendorCard(VendorCard, No);
-        VendorCard."INAIL Code".Lookup;
-        VendorCard.OK.Invoke;
+        VendorCard."INAIL Code".Lookup();
+        VendorCard.OK().Invoke();
     end;
 
     local procedure OpenVendorCard(var VendorCard: TestPage "Vendor Card"; No: Code[20])
     begin
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.FILTER.SetFilter("No.", No);
     end;
 
@@ -2831,21 +2831,21 @@ codeunit 144090 "ERM Withhold"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
         PaymentJournal.FILTER.SetFilter("Account No.", AccountNo);
-        PaymentJournal.Post.Invoke;
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.Post.Invoke();
+        PaymentJournal.OK().Invoke();
     end;
 
     local procedure ShowComputedWithholdContributionOnPayment(JnlBatchName: Code[10])
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(JnlBatchName);
-        PaymentJournal.Last;
-        PaymentJournal.WithhTaxSocSec.Invoke;  // Invoke Handler - ShowComputedWithholdContribModalPageHandler.
+        PaymentJournal.Last();
+        PaymentJournal.WithhTaxSocSec.Invoke();  // Invoke Handler - ShowComputedWithholdContribModalPageHandler.
         PaymentJournal.Close();
     end;
 
@@ -2853,10 +2853,10 @@ codeunit 144090 "ERM Withhold"
     var
         VendorBillCard: TestPage "Vendor Bill Card";
     begin
-        VendorBillCard.OpenEdit;
-        ManualVendorPaymentLine.Trap;
-        VendorBillCard.FILTER.SetFilter("No.", CreateVendorBillHeader);
-        VendorBillCard.InsertVendBillLineManual.Invoke;
+        VendorBillCard.OpenEdit();
+        ManualVendorPaymentLine.Trap();
+        VendorBillCard.FILTER.SetFilter("No.", CreateVendorBillHeader());
+        VendorBillCard.InsertVendBillLineManual.Invoke();
         ManualVendorPaymentLine.VendorNo.SetValue(CreateVendor('', ''));  // Blank Social Security Code, INAIL Code.
         ManualVendorPaymentLine.TotalAmount.SetValue(LibraryRandom.RandDecInRange(100, 1000, 2));
         ManualVendorPaymentLine.TaxBaseAmount.SetValue(LibraryRandom.RandDecInRange(50, 100, 2));
@@ -2867,8 +2867,8 @@ codeunit 144090 "ERM Withhold"
         VendorCard: TestPage "Vendor Card";
     begin
         OpenVendorCard(VendorCard, No);
-        VendorCard."Social Security Code".Lookup;
-        VendorCard.OK.Invoke;
+        VendorCard."Social Security Code".Lookup();
+        VendorCard.OK().Invoke();
     end;
 
     local procedure UpdateAppliesToDocOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; AppliesToDocNo: Code[20])
@@ -2938,7 +2938,7 @@ codeunit 144090 "ERM Withhold"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(DebitAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(DebitAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyGenJournalLine(No: Code[20]; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DebitAmount: Decimal)
@@ -2970,9 +2970,9 @@ codeunit 144090 "ERM Withhold"
         SubformVendorBillLines.OpenEdit();
         SubformVendorBillLines.FILTER.SetFilter("Vendor No.", VendorNo);
         Assert.AreNearlyEqual(
-          AmountToPay, SubformVendorBillLines."Amount to Pay".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          AmountToPay, SubformVendorBillLines."Amount to Pay".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          WithholdingTaxAmount, SubformVendorBillLines."Withholding Tax Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          WithholdingTaxAmount, SubformVendorBillLines."Withholding Tax Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           ValueMustBeSameMsg);
     end;
 
@@ -2982,7 +2982,7 @@ codeunit 144090 "ERM Withhold"
         WithhTaxesContributionCard."Withholding Tax Amount".AssertEquals(WithholdingTaxAmount);
         WithhTaxesContributionCard."Taxable Base".AssertEquals(TaxableBase);
         WithhTaxesContributionCard."Non Taxable Amount".AssertEquals(LineAmount - TaxableBase);
-        WithhTaxesContributionCard.OK.Invoke();
+        WithhTaxesContributionCard.OK().Invoke();
     end;
 
     local procedure VerifySocialSecurityCodeOnVendor(No: Code[20]; SocialSecurityCode: Code[20])
@@ -3007,10 +3007,10 @@ codeunit 144090 "ERM Withhold"
     begin
         FindWithholdingTax(WithholdingTax, VendorNo);
         Assert.AreNearlyEqual(
-          NonTaxableAmount, WithholdingTax."Non Taxable Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(TaxableBase, WithholdingTax."Taxable Base", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          NonTaxableAmount, WithholdingTax."Non Taxable Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(TaxableBase, WithholdingTax."Taxable Base", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          WithholdingTaxAmount, WithholdingTax."Withholding Tax Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          WithholdingTaxAmount, WithholdingTax."Withholding Tax Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreEqual(
           GetExternalDocNoFromPostedInvoice(VendorNo),
           WithholdingTax."External Document No.",
@@ -3149,7 +3149,7 @@ codeunit 144090 "ERM Withhold"
         PayableAmttxt := WithhTaxesContributionCard."Payable Amount".Value();
         Evaluate(PayableAmt, PayableAmttxt);
         Assert.AreNotEqual(0, PayableAmt, '');
-        WithhTaxesContributionCard.OK.Invoke();
+        WithhTaxesContributionCard.OK().Invoke();
     end;
 
     local procedure CreateVendorWithPaymentMethodAndWithHoldCodeWithLine(var Vendor: Record Vendor)
@@ -3191,8 +3191,8 @@ codeunit 144090 "ERM Withhold"
     var
         WithhTaxesContributionCard: TestPage "Withh. Taxes-Contribution Card";
     begin
-        PurchaseInvoice.Trap;
-        WithhTaxesContributionCard.OpenEdit;
+        PurchaseInvoice.Trap();
+        WithhTaxesContributionCard.OpenEdit();
         WithhTaxesContributionCard.Filter.SetFilter("No.", No);
         WithhTaxesContributionCard.TotalAmount.SetValue(LineAmount);
         WithhTaxesContributionCard."Base - Excluded Amount".SetValue(LineAmount);
@@ -3232,7 +3232,7 @@ codeunit 144090 "ERM Withhold"
         LibraryITLocalization.CreateBill(Bill);
         Bill.Validate("Allow Issue", true);
         Bill.Validate("Bills for Coll. Temp. Acc. No.", LibraryERM.CreateGLAccountNo());
-        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode);
+        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode());
         Bill.Validate("Temporary Bill No.", Bill."List No.");
         Bill.Validate("Final Bill No.", Bill."List No.");
         Bill.Validate("Vendor Bill List", Bill."List No.");
@@ -3269,7 +3269,7 @@ codeunit 144090 "ERM Withhold"
     begin
         LibraryVariableStorage.Dequeue(Code);
         ContributionCodesINAIL.FILTER.SetFilter(Code, Code);
-        ContributionCodesINAIL.OK.Invoke;
+        ContributionCodesINAIL.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3280,7 +3280,7 @@ codeunit 144090 "ERM Withhold"
     begin
         LibraryVariableStorage.Dequeue(Code);
         ContributionCodesINPS.FILTER.SetFilter(Code, Code);
-        ContributionCodesINPS.OK.Invoke;
+        ContributionCodesINPS.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3288,35 +3288,35 @@ codeunit 144090 "ERM Withhold"
     procedure GrossAmountShowComputedWithhContribModalPageHandler(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.")
     begin
         ShowComputedWithhContrib."Total Amount".SetValue(LibraryRandom.RandDec(10, 2));
-        ShowComputedWithhContrib."Gross Amount".AssertEquals(ShowComputedWithhContrib."Total Amount".AsDEcimal);
-        ShowComputedWithhContrib.OK.Invoke;
+        ShowComputedWithhContrib."Gross Amount".AssertEquals(ShowComputedWithhContrib."Total Amount".AsDecimal());
+        ShowComputedWithhContrib.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NewContributionCodesINAILModalPageHandler(var ContributionCodesINAIL: TestPage "Contribution Codes-INAIL")
     begin
-        ContributionCodesINAIL.New;
+        ContributionCodesINAIL.New();
         ContributionCodesINAIL.Code.SetValue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(ContributionCodesINAIL.Code.Value);
-        ContributionCodesINAIL.OK.Invoke;
+        ContributionCodesINAIL.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NewContributionCodesINPSModalPageHandler(var ContributionCodesINPS: TestPage "Contribution Codes-INPS")
     begin
-        ContributionCodesINPS.New;
+        ContributionCodesINPS.New();
         ContributionCodesINPS.Code.SetValue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(ContributionCodesINPS.Code.Value);
-        ContributionCodesINPS.OK.Invoke;
+        ContributionCodesINPS.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ShowComputedWithholdContribModalPageHandler(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.")
     begin
-        ShowComputedWithhContrib.OK.Invoke;
+        ShowComputedWithhContrib.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3327,7 +3327,7 @@ codeunit 144090 "ERM Withhold"
     begin
         Evaluate(TotalAmount, ShowComputedWithhContrib."Total Amount".Value);
         ShowComputedWithhContrib."Base - Excluded Amount".SetValue(TotalAmount);
-        ShowComputedWithhContrib.OK.Invoke;
+        ShowComputedWithhContrib.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3335,7 +3335,7 @@ codeunit 144090 "ERM Withhold"
     procedure ShowValidateWHTSocSecMPH(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.");
     begin
         ShowComputedWithhContrib."Total Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
-        ShowComputedWithhContrib.OK.Invoke();
+        ShowComputedWithhContrib.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3349,7 +3349,7 @@ codeunit 144090 "ERM Withhold"
         LibraryVariableStorage.Dequeue(NonTaxableAmount);
         ShowComputedWithhContrib."Taxable Base".AssertEquals(TaxableBase);
         ShowComputedWithhContrib."Non Taxable Amount".AssertEquals(NonTaxableAmount);
-        ShowComputedWithhContrib.OK.Invoke;
+        ShowComputedWithhContrib.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3358,7 +3358,7 @@ codeunit 144090 "ERM Withhold"
     begin
         WithholdingTaxes.FinalPrinting.SetValue(true);
         WithholdingTaxes.PrintDetails.SetValue(false);
-        WithholdingTaxes.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WithholdingTaxes.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3367,7 +3367,7 @@ codeunit 144090 "ERM Withhold"
     begin
         Certifications.FromPaymentDate.SetValue(WorkDate());
         Certifications.ToPaymentDate.SetValue(WorkDate());
-        Certifications.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Certifications.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

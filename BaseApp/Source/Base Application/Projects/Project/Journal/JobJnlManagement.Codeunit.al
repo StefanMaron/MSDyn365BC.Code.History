@@ -19,10 +19,10 @@ codeunit 1020 JobJnlManagement
         LastJobJnlLine: Record "Job Journal Line";
         OpenFromBatch: Boolean;
 
-        Text000: Label 'JOB';
-        Text001: Label 'Job Journal';
+        Text000: Label 'PROJECT';
+        Text001: Label 'Project Journal';
         Text002: Label 'RECURRING';
-        Text003: Label 'Recurring Job Journal';
+        Text003: Label 'Recurring Project Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
 
@@ -259,14 +259,12 @@ codeunit 1020 JobJnlManagement
     var
         JobEntryNo: Record "Job Entry No.";
     begin
-        with JobEntryNo do begin
-            LockTable();
-            if not Get() then
-                Insert();
-            "Entry No." := "Entry No." + 1;
-            Modify();
-            exit("Entry No.");
-        end;
+        JobEntryNo.LockTable();
+        if not JobEntryNo.Get() then
+            JobEntryNo.Insert();
+        JobEntryNo."Entry No." := JobEntryNo."Entry No." + 1;
+        JobEntryNo.Modify();
+        exit(JobEntryNo."Entry No.");
     end;
 
     [IntegrationEvent(false, false)]

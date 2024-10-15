@@ -1,7 +1,6 @@
 namespace Microsoft.Foundation.PaymentTerms;
 
 using Microsoft.Integration.Dataverse;
-using Microsoft.EServices.EDocument;
 
 page 4 "Payment Terms"
 {
@@ -265,7 +264,6 @@ page 4 "Payment Terms"
     end;
 
     var
-        FatturaCode: Record "Fattura Code";
         CDSIntegrationEnabled: Boolean;
         CDSIsCoupledToRecord: Boolean;
 }

@@ -9,6 +9,7 @@ table 12109 "Contribution Bracket Line"
     Caption = 'Contribution Bracket Line';
     DrillDownPageID = "Contribution Bracket Lines";
     LookupPageID = "Contribution Bracket Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

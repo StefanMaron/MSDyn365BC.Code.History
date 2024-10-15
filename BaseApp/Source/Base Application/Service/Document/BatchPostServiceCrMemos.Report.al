@@ -1,6 +1,7 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Sales.Setup;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Service.Posting;
 using System.Environment;
 
@@ -41,9 +42,12 @@ report 6005 "Batch Post Service Cr. Memos"
             end;
 
             trigger OnPreDataItem()
+            var
+                PostingSelectionManagement: Codeunit "Posting Selection Management";
             begin
                 if ReplacePostingDate and (PostingDateReq = 0D) then
                     Error(Text000);
+                PostingSelectionManagement.CheckUserCanInvoiceService();
                 CounterTotal := Count;
                 Window.Open(Text001);
             end;
@@ -175,12 +179,12 @@ report 6005 "Batch Post Service Cr. Memos"
         CalcInvDisc := CalcInvDiscFrom;
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostReport(var ServiceHeader: Record "Service Header")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePreReport()
     begin
     end;

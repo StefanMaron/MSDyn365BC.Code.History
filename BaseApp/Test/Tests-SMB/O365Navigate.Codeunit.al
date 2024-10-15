@@ -46,7 +46,7 @@ codeunit 138033 "O365 Navigate"
 
         ClearTable(DATABASE::Resource);
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
@@ -69,7 +69,7 @@ codeunit 138033 "O365 Navigate"
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     [Test]
@@ -85,23 +85,23 @@ codeunit 138033 "O365 Navigate"
     begin
         Initialize();
         PostSalesInvoice(PreAssignedNo);
-        PostedSalesInvoices.OpenView;
+        PostedSalesInvoices.OpenView();
         SalesInvoiceHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
         SalesInvoiceHeader.FindFirst();
         PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
 
-        Navigate.Trap;
-        PostedSalesInvoices.Navigate.Invoke;
+        Navigate.Trap();
+        PostedSalesInvoices.Navigate.Invoke();
 
-        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger(), 'There should be only one record on the first row');
 
-        PostedSalesInvoice.Trap;
-        Navigate."No. of Records".DrillDown;
+        PostedSalesInvoice.Trap();
+        Navigate."No. of Records".DrillDown();
         Assert.AreEqual(PostedSalesInvoice."Pre-Assigned No.".Value, PreAssignedNo, 'Wrong document was opened');
         PostedSalesInvoice.Close();
 
-        PostedSalesInvoice.Trap;
-        Navigate.Show.Invoke;
+        PostedSalesInvoice.Trap();
+        Navigate.Show.Invoke();
         PostedSalesInvoice.Close();
     end;
 
@@ -121,19 +121,19 @@ codeunit 138033 "O365 Navigate"
         SalesInvoiceHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
         SalesInvoiceHeader.FindFirst();
 
-        Navigate.OpenView;
-        Navigate.FindByItemReference.Invoke;
-        Navigate.FindByDocument.Invoke;
+        Navigate.OpenView();
+        Navigate.FindByItemReference.Invoke();
+        Navigate.FindByDocument.Invoke();
 
         Navigate.DocNoFilter.Value(SalesInvoiceHeader."No.");
-        Navigate.Find.Invoke;
-        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+        Navigate.Find.Invoke();
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger(), 'There should be only one record on the first row');
 
         Navigate.DocNoFilter.Value('');
         Navigate.PostingDateFilter.Value(Format(SalesInvoiceHeader."Posting Date"));
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
 
-        Assert.IsTrue(Navigate."No. of Records".AsInteger > 1, 'At least two records should be shown');
+        Assert.IsTrue(Navigate."No. of Records".AsInteger() > 1, 'At least two records should be shown');
         Navigate.Close();
     end;
 
@@ -145,7 +145,6 @@ codeunit 138033 "O365 Navigate"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Navigate: TestPage Navigate;
         PreAssignedNo: Code[20];
-        ExtDocNo: Code[20];
     begin
         Initialize();
 
@@ -154,12 +153,12 @@ codeunit 138033 "O365 Navigate"
         SalesInvoiceHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
         SalesInvoiceHeader.FindFirst();
 
-        Navigate.OpenView;
-        Navigate.FindByDocument.Invoke;
+        Navigate.OpenView();
+        Navigate.FindByDocument.Invoke();
 
         Navigate.ExtDocNo2.Value(SalesInvoiceHeader."External Document No.");
-        Navigate.Find.Invoke;
-        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+        Navigate.Find.Invoke();
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger(), 'There should be only one record on the first row');
 
         Navigate.Close();
     end;
@@ -173,7 +172,6 @@ codeunit 138033 "O365 Navigate"
         PurchInvHeader: Record "Purch. Inv. Header";
         Navigate: TestPage Navigate;
         PreAssignedNo: Code[20];
-        ExtDocNo: Code[20];
     begin
         Initialize();
 
@@ -182,12 +180,12 @@ codeunit 138033 "O365 Navigate"
         PurchInvHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
         PurchInvHeader.FindFirst();
 
-        Navigate.OpenView;
-        Navigate.FindByDocument.Invoke;
+        Navigate.OpenView();
+        Navigate.FindByDocument.Invoke();
 
         Navigate.ExtDocNo2.Value(PurchInvHeader."Vendor Invoice No.");
-        Navigate.Find.Invoke;
-        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+        Navigate.Find.Invoke();
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger(), 'There should be only one record on the first row');
 
         Navigate.Close();
     end;
@@ -211,14 +209,14 @@ codeunit 138033 "O365 Navigate"
         SalesInvoiceHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
         SalesInvoiceHeader.FindFirst();
 
-        Navigate.OpenView;
-        Navigate.FindByBusinessContact.Invoke;
+        Navigate.OpenView();
+        Navigate.FindByBusinessContact.Invoke();
 
         Navigate.ContactType.SetValue(ContactType::Customer);
         Navigate.ContactNo.SetValue(SalesInvoiceHeader."Sell-to Customer No.");
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
 
-        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger(), 'There should be only one record on the first row');
         Navigate.Close();
     end;
 
@@ -240,18 +238,18 @@ codeunit 138033 "O365 Navigate"
         PurchInvHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
         PurchInvHeader.FindFirst();
 
-        Navigate.OpenView;
-        Navigate.FindByBusinessContact.Invoke;
+        Navigate.OpenView();
+        Navigate.FindByBusinessContact.Invoke();
 
         Navigate.ContactType.SetValue(ContactType::Vendor);
         Navigate.ContactNo.SetValue(PurchInvHeader."Buy-from Vendor No.");
         Navigate.ExtDocNo.SetValue(PurchInvHeader."Vendor Invoice No.");
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
 
-        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger(), 'There should be only one record on the first row');
 
-        PostedPurchaseInvoice.Trap;
-        Navigate.Show.Invoke;
+        PostedPurchaseInvoice.Trap();
+        Navigate.Show.Invoke();
         PostedPurchaseInvoice.Close();
 
         Navigate.Close();
@@ -288,46 +286,46 @@ codeunit 138033 "O365 Navigate"
         CreateCreditMemo(MultipleCreditMemoCustomer);
         CreateCreditMemo(MultipleCreditMemoCustomer);
 
-        Navigate.OpenView;
-        Navigate.FindByBusinessContact.Invoke;
+        Navigate.OpenView();
+        Navigate.FindByBusinessContact.Invoke();
         Navigate.ContactType.SetValue(ContactType::Customer);
 
         // Test opening one sales invoice
         Navigate.ContactNo.SetValue(OneSalesInvoiceCustomer."No.");
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
 
-        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger(), 'There should be only one record on the first row');
 
-        SalesInvoice.Trap;
-        Navigate.Show.Invoke;
+        SalesInvoice.Trap();
+        Navigate.Show.Invoke();
         SalesInvoice.Close();
 
         // Test opening multiple sales invoices
         Navigate.ContactNo.SetValue(MultipleSalesInvoicesCustomer."No.");
-        Navigate.Find.Invoke;
-        Assert.AreEqual(2, Navigate."No. of Records".AsInteger, 'There should be only two record on the first row');
+        Navigate.Find.Invoke();
+        Assert.AreEqual(2, Navigate."No. of Records".AsInteger(), 'There should be only two record on the first row');
 
-        SalesList.Trap;
-        Navigate.Show.Invoke;
+        SalesList.Trap();
+        Navigate.Show.Invoke();
         SalesList.Close();
 
         // Test opening one credit memo
         Navigate.ContactNo.SetValue(OneCreditMemoCustomer."No.");
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
 
-        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger(), 'There should be only one record on the first row');
 
-        SalesCreditMemo.Trap;
-        Navigate.Show.Invoke;
+        SalesCreditMemo.Trap();
+        Navigate.Show.Invoke();
         SalesCreditMemo.Close();
 
         // Test opening multiple sales credit memos
         Navigate.ContactNo.SetValue(MultipleCreditMemoCustomer."No.");
-        Navigate.Find.Invoke;
-        Assert.AreEqual(2, Navigate."No. of Records".AsInteger, 'There should be only two record on the first row');
+        Navigate.Find.Invoke();
+        Assert.AreEqual(2, Navigate."No. of Records".AsInteger(), 'There should be only two record on the first row');
 
-        SalesList.Trap;
-        Navigate.Show.Invoke;
+        SalesList.Trap();
+        Navigate.Show.Invoke();
         SalesList.Close();
 
         Navigate.Close();
@@ -351,7 +349,7 @@ codeunit 138033 "O365 Navigate"
         SalesInvoice."External Document No.".SetValue(SalesInvoice."No.");
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         FindSalesHeader(Customer, SalesHeader);
         SalesInvoiceNo := SalesHeader."No.";
 
@@ -359,9 +357,9 @@ codeunit 138033 "O365 Navigate"
         if PostInvoice then
             LibraryVariableStorage.Enqueue(true);
 
-        PostedSalesInvoice.Trap;
-        LibrarySales.EnableConfirmOnPostingDoc;
-        SalesInvoice.Post.Invoke;
+        PostedSalesInvoice.Trap();
+        LibrarySales.EnableConfirmOnPostingDoc();
+        SalesInvoice.Post.Invoke();
         PostedSalesInvoice.Close();
     end;
 
@@ -384,14 +382,14 @@ codeunit 138033 "O365 Navigate"
 
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
 
         FindPurchaseHeader(Vendor, PurchaseHeader);
         PurchaseInvoiceNo := PurchaseHeader."No.";
 
         LibraryVariableStorage.Enqueue(PostInvoice);
         LibraryVariableStorage.Enqueue(DoNotShowPostedDocument);
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
     end;
 
     local procedure CreateSalesInvoice(Customer: Record Customer)
@@ -406,7 +404,7 @@ codeunit 138033 "O365 Navigate"
 
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
 
         SalesInvoice.Close();
     end;
@@ -423,7 +421,7 @@ codeunit 138033 "O365 Navigate"
 
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
-        SalesCreditMemo.SalesLines.New;
+        SalesCreditMemo.SalesLines.New();
 
         SalesCreditMemo.Close();
     end;

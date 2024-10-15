@@ -7,6 +7,7 @@ namespace Microsoft;
 table 12197 "Document Relation"
 {
     Caption = 'Document Relation';
+    DataClassification = CustomerContent;
 
     fields
     {

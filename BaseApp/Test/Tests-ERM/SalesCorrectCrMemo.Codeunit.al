@@ -57,7 +57,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         // [GIVEN] Blocked Customer "X"
         BlockCustomer(SalesCrMemoHeader."Bill-to Customer No.");
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(SalesCrMemoHeader);
@@ -81,7 +81,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         // [GIVEN] "Allow Posting From" = 02.01 in General Ledger Setup
         LibraryERM.SetAllowPostingFromTo(SalesCrMemoHeader."Posting Date" + 1, 0D);
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(SalesCrMemoHeader);
@@ -106,7 +106,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] Cancelled and unapplied Posted Credit Memo
         SalesCrMemoHeader.Find();
         CancelCrMemo(SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(SalesCrMemoHeader);
@@ -127,7 +127,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Initialize();
         // [GIVEN] Posted Credit Memo
         PostCrMemo(SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(SalesCrMemoHeader);
@@ -153,7 +153,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] Closed Inventoty Period with "Posting Date" = 31.01
         CreateInvtPeriod(InventoryPeriod);
         Commit();
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(SalesCrMemoHeader);
@@ -182,7 +182,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         // [GIVEN] Blocked Item "X"
         BlockItemOfSalesCrMemo(Item, SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(SalesCrMemoHeader);
@@ -240,7 +240,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] Posted Invoice "A2" cancelled Credit Memo "B1"
         CancelCrMemo(SalesCrMemoHeader);
         LibrarySmallBusiness.FindSalesCorrectiveInvoice(SalesInvHeader, SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Posted Invoice "A2"
         asserterror CancelInvoice(NewSalesCrMemoHeader, SalesInvHeader);
@@ -266,11 +266,11 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesCrMemoHeader.CalcFields("Amount Including VAT");
 
         // [GIVEN] Applied Invoice "C" to Credit Memo "B" with Amount = 50
-        TurnoffStockoutWarning; // In order to post additional invoices to credit memo
+        TurnoffStockoutWarning(); // In order to post additional invoices to credit memo
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(
           SalesCrMemoHeader, Round(SalesCrMemoHeader."Amount Including VAT" / LibraryRandom.RandIntInRange(3, 5)), false);
         Commit();
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Posted Credi Memo "B" with corrective Invoice "D"
         asserterror CancelCrMemo(SalesCrMemoHeader);
@@ -292,7 +292,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         Initialize();
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
         MockDtldCustLedgEntry(CustLedgerEntry."Entry No.", DetailedCustLedgEntry."Entry Type"::"Realized Gain");
         Commit();
@@ -314,8 +314,8 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         // [WHEN] Cancel Posted Credit Memo "B"
         CancelCrMemo(SalesCrMemoHeader);
 
@@ -358,8 +358,8 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] Posted Invoice "A" and Posted Credit Memo "B" are unapplied
         UnapplyDocument(CustLedgerEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
         Commit();
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Posted Credit Memo "B"
         CancelCrMemo(SalesCrMemoHeader);
@@ -391,12 +391,12 @@ codeunit 137026 "Sales Correct Cr. Memo"
         UnapplyDocument(CustLedgerEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
 
         // [GIVEN] Unapplied Invoice "C" to Credit Memo "B" with Amount = 100
-        TurnoffStockoutWarning; // In order to post additional invoice for credit memo
+        TurnoffStockoutWarning(); // In order to post additional invoice for credit memo
         PostApplyUnapplyInvoiceToCrMemo(SalesCrMemoHeader);
         FindLastSalesInvHeader(SalesInvHeader, SalesCrMemoHeader."Bill-to Customer No.");
         Commit();
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Posted Credit Memo "B"
         CancelCrMemo(SalesCrMemoHeader);
@@ -427,8 +427,8 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
         OrigSalesInvHeader.Get(SalesCrMemoHeader."Applies-to Doc. No.");
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [GIVEN] cancelled Posted Credit Memo "B"
         CancelCrMemo(SalesCrMemoHeader);
@@ -465,14 +465,14 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesCrMemoHeader.CalcFields("Amount Including VAT");
 
         // [GIVEN] Unapplied Invoices "C" and "D" to Credit Memo "B" with total Amount = 100
-        TurnoffStockoutWarning; // In order to post additional invoices to credit memo
+        TurnoffStockoutWarning(); // In order to post additional invoices to credit memo
         PartialAmount := Round(SalesCrMemoHeader."Amount Including VAT" / LibraryRandom.RandIntInRange(3, 5));
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(SalesCrMemoHeader, PartialAmount, true);
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(
           SalesCrMemoHeader, SalesCrMemoHeader."Amount Including VAT" - PartialAmount, true);
         Commit();
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Posted Credi Memo "B" with corrective Invoice "E"
         CancelCrMemo(SalesCrMemoHeader);
@@ -500,14 +500,14 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
         // [GIVEN] Open "Posted Sales Credit Memos" page
-        PostedSalesInvoice.Trap;
-        PostedSalesCreditMemos.OpenEdit;
+        PostedSalesInvoice.Trap();
+        PostedSalesCreditMemos.OpenEdit();
         PostedSalesCreditMemos.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Run action "Cancel Credit Memo" on "B"
-        PostedSalesCreditMemos.CancelCrMemo.Invoke;
+        PostedSalesCreditMemos.CancelCrMemo.Invoke();
 
         // [THEN] "cancelled" is Yes on "Posted Credit Memos" page, action Cancel is invisible, action 'Show Invoice' is visible
         PostedSalesCreditMemos.Cancelled.AssertEquals(true);
@@ -539,14 +539,14 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
         // [GIVEN] Open "Posted Sales Credit Memo" page
-        PostedSalesInvoice.Trap;
-        PostedSalesCreditMemo.OpenEdit;
+        PostedSalesInvoice.Trap();
+        PostedSalesCreditMemo.OpenEdit();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Run action "Cancel Credit Memo" on "B"
-        PostedSalesCreditMemo.CancelCrMemo.Invoke;
+        PostedSalesCreditMemo.CancelCrMemo.Invoke();
 
         // [THEN] "Cancelled" is Yes on "Posted Credit Memo" page, action Cancel is invisible, action 'Show Invoice' is visible
         PostedSalesCreditMemo.Cancelled.AssertEquals(true);
@@ -583,7 +583,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] Positive Adjustment "A1"
         // [GIVEN] Positive Adjustment "A2"
         // [GIVEN] Invoice "I1"
-        ItemNo := CreateItemNoWithFIFO;
+        ItemNo := CreateItemNoWithFIFO();
         CreateDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo);
         PurchItemLedgEntryNo[1] := PostPositiveAdjustment(ItemNo, SalesLine.Quantity);
         PurchItemLedgEntryNo[2] := PostPositiveAdjustment(ItemNo, SalesLine.Quantity);
@@ -602,8 +602,8 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibrarySmallBusiness.FindSalesCorrectiveInvoice(NewSalesInvHeader, SalesCrMemoHeader);
         InvItemLedgEntryNo[2] :=
           FindItemLedgEntryNo(ItemNo, ItemLedgerEntry."Entry Type"::Sale);
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Invoice "I1" second time with Corrective Credit Memo "C2"
         CancelInvoice(NewSalesCrMemoHeader, SalesInvHeader);
@@ -640,8 +640,8 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
         SalesCrMemoHeader.CalcFields("Amount Including VAT");
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Posted Credit Memo "B" with Corrective Invoice "C"
         CancelCrMemo(SalesCrMemoHeader);
@@ -675,12 +675,12 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] Posted Invoice with GLAccounts 'A' and 'B' for 200
         CreateDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup);
+          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup());
         SalesLine.Validate(Quantity, 1);
         SalesLine.Validate("Unit Price", 99.98);
         SalesLine.Modify(true);
         SalesLine."Line No." += 10000;
-        SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithPurchSetup);
+        SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithPurchSetup());
         SalesLine.Validate(Quantity, 1);
         SalesLine.Validate("Unit Price", 99.98);
         SalesLine.Insert(true);
@@ -717,18 +717,18 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
 
         // [GIVEN] Canceled Posted Credit Memo "A" with corrective Invoice "C"
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         CancelCrMemo(SalesCrMemoHeader);
         LibrarySmallBusiness.FindSalesCorrectiveInvoice(SalesInvHeader, SalesCrMemoHeader);
 
         // [GIVEN] Opened page "Posted Sales Credit Memo" with Credit Memo "B"
-        PostedSalesInvoice.Trap;
-        PostedSalesCreditMemo.OpenView;
+        PostedSalesInvoice.Trap();
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Invoice"
-        PostedSalesCreditMemo.ShowInvoice.Invoke;
+        PostedSalesCreditMemo.ShowInvoice.Invoke();
 
         // [THEN] "Posted Sales Invoice" page with Invoice "C" is opened
         PostedSalesInvoice."No.".AssertEquals(SalesInvHeader."No.");
@@ -751,18 +751,18 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
 
         // [GIVEN] Canceled Posted Credit Memo "A" with corrective Invoice "C"
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         CancelCrMemo(SalesCrMemoHeader);
         LibrarySmallBusiness.FindSalesCorrectiveInvoice(SalesInvHeader, SalesCrMemoHeader);
 
         // [GIVEN] Opened page "Posted Sales Credit Memos" with Credit Memo "B"
-        PostedSalesInvoice.Trap;
-        PostedSalesCreditMemos.OpenView;
+        PostedSalesInvoice.Trap();
+        PostedSalesCreditMemos.OpenView();
         PostedSalesCreditMemos.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Invoice"
-        PostedSalesCreditMemos.ShowInvoice.Invoke;
+        PostedSalesCreditMemos.ShowInvoice.Invoke();
 
         // [THEN] "Posted Sales Invoice" page with Invoice "C" is opened
         PostedSalesInvoice."No.".AssertEquals(SalesInvHeader."No.");
@@ -785,18 +785,18 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
 
         // [GIVEN] Canceled Posted Credit Memo "A" with corrective Invoice "C"
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         CancelCrMemo(SalesCrMemoHeader);
         LibrarySmallBusiness.FindSalesCorrectiveInvoice(SalesInvHeader, SalesCrMemoHeader);
 
         // [GIVEN] Opened page "Posted Sales Invoice" with Invoice "C"
-        PostedSalesCreditMemo.Trap;
-        PostedSalesInvoice.OpenView;
+        PostedSalesCreditMemo.Trap();
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Credit Memo"
-        PostedSalesInvoice.ShowCreditMemo.Invoke;
+        PostedSalesInvoice.ShowCreditMemo.Invoke();
 
         // [THEN] "Posted Sales Credit Memo" with Credit Memo "B" is opened
         PostedSalesCreditMemo."No.".AssertEquals(SalesCrMemoHeader."No.");
@@ -819,18 +819,18 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
 
         // [GIVEN] Canceled Posted Credit Memo "A" with corrective Invoice "C"
-        LibraryLowerPermissions.SetSalesDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddJobs();
         CancelCrMemo(SalesCrMemoHeader);
         LibrarySmallBusiness.FindSalesCorrectiveInvoice(SalesInvHeader, SalesCrMemoHeader);
 
         // [GIVEN] Opened page "Posted Sales Invoice" with Invoice "C"
-        PostedSalesCreditMemo.Trap;
-        PostedSalesInvoices.OpenView;
+        PostedSalesCreditMemo.Trap();
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.FILTER.SetFilter("No.", SalesInvHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Credit Memo"
-        PostedSalesInvoices.ShowCreditMemo.Invoke;
+        PostedSalesInvoices.ShowCreditMemo.Invoke();
 
         // [THEN] "Posted Sales Credit Memo" page with Credit Memo "B" is opened
         PostedSalesCreditMemo."No.".AssertEquals(SalesCrMemoHeader."No.");
@@ -850,14 +850,14 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         // [GIVEN] Posted Sales Credit Memo "X"
         PostCrMemo(SalesCrMemoHeader);
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Cancel Sales Credit Memo "X"
-        PostedSalesCreditMemo.OpenEdit;
+        PostedSalesCreditMemo.OpenEdit();
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
 
         // [THEN] Cancel action cannot be clicked
-        Assert.IsFalse(PostedSalesCreditMemo.CancelCrMemo.Visible, 'User can cancel a non-corrective sales credit memo.');
+        Assert.IsFalse(PostedSalesCreditMemo.CancelCrMemo.Visible(), 'User can cancel a non-corrective sales credit memo.');
     end;
 
     [Test]
@@ -873,7 +873,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Fixed Asset (Acquisition)
-        FANo := PostPurchInvWithFixedAsset;
+        FANo := PostPurchInvWithFixedAsset();
 
         // [GIVEN] Posted Sales Invoice with Fixed Asset (Disposal)
         PostSalesOrderWithFixedAsset(SalesInvHeader, FANo);
@@ -899,7 +899,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Fixed Asset (Acquisition)
-        FANo := PostPurchInvWithFixedAsset;
+        FANo := PostPurchInvWithFixedAsset();
 
         // [GIVEN] Posted Sales Invoice with Fixed Asset (Disposal)
         PostSalesOrderWithFixedAsset(SalesInvHeader, FANo);
@@ -926,7 +926,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Fixed Asset (Acquisition)
-        FANo := PostPurchInvWithFixedAsset;
+        FANo := PostPurchInvWithFixedAsset();
 
         // [GIVEN] Posted Sales Invoice with Fixed Asset (Disposal)
         PostSalesOrderWithFixedAsset(SalesInvHeader, FANo);
@@ -1026,7 +1026,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Initialize();
 
         // [GIVEN] Create Resource, create Sales Invoice and post
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryResource.CreateResourceNew(Resource);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1060,10 +1060,10 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateLocalData();
-        LibraryERMCountryData.UpdateFAPostingType;
+        LibraryERMCountryData.UpdateFAPostingType();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        NoSerieSalesCode := LibraryERM.CreateNoSeriesSalesCode;
+        NoSerieSalesCode := LibraryERM.CreateNoSeriesSalesCode();
 
         IsInitialized := true;
         Commit();
@@ -1084,7 +1084,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesLine: Record "Sales Line";
         SalesInvHeader: Record "Sales Invoice Header";
     begin
-        CreateDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, CreateItemNo);
+        CreateDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, CreateItemNo());
         SalesLine.Validate("Unit Price", 99.98);
         SalesLine.Modify(true);
         LibrarySmallBusiness.UpdateInvRoundingAccountWithSalesSetup(
@@ -1102,7 +1102,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryInventory.CreateItem(Item);
         Item.Validate(Type, ItemType);
         Item.Validate("Unit Price", LibraryRandom.RandInt(10));
@@ -1118,8 +1118,8 @@ codeunit 137026 "Sales Correct Cr. Memo"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        FANo := CreateFixedAsset;
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        FANo := CreateFixedAsset();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FANo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -1150,7 +1150,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     var
         SalesLine: Record "Sales Line";
     begin
-        CreateDocument(SalesHeader, SalesLine, DocType, SalesLine.Type::Item, CreateItemNo);
+        CreateDocument(SalesHeader, SalesLine, DocType, SalesLine.Type::Item, CreateItemNo());
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -1159,7 +1159,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesLine: Record "Sales Line";
         ItemVariant: Record "Item Variant";
     begin
-        CreateDocument(SalesHeader, SalesLine, DocType, SalesLine.Type::Item, CreateItemNo);
+        CreateDocument(SalesHeader, SalesLine, DocType, SalesLine.Type::Item, CreateItemNo());
         LibraryInventory.CreateItemVariant(ItemVariant, SalesLine."No.");
         SalesLine."Variant Code" := ItemVariant.Code;
         SalesLine.Modify();
@@ -1171,7 +1171,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Fixed Asset", FANo, LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -1180,7 +1180,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
     local procedure CreateDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; LineType: Enum "Sales Line Type"; ItemNo: Code[20])
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCustNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCustNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, ItemNo, LibraryRandom.RandInt(100));
     end;
 
@@ -1234,7 +1234,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     var
         Item: Record Item;
     begin
-        Item.Get(CreateItemNo);
+        Item.Get(CreateItemNo());
         Item.Validate("Costing Method", Item."Costing Method"::FIFO);
         Item.Modify();
         exit(Item."No.");
@@ -1350,7 +1350,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibraryJournals.CreateGenJournalLine(
           GenJnlLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Customer,
-          SalesCrMemoHeader."Bill-to Customer No.", GenJnlLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount);
+          SalesCrMemoHeader."Bill-to Customer No.", GenJnlLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::"Credit Memo");
         GenJnlLine.Validate("Applies-to Doc. No.", SalesCrMemoHeader."No.");
         GenJnlLine.Modify(true);

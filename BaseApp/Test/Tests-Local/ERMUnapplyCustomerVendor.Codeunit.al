@@ -162,8 +162,8 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         VendorNo := CreateVendor(VATPostingSetup."VAT Bus. Posting Group");
         AppliesToDocNo :=
           CreateAndPostPurchaseDocument(DocumentType, VendorNo, VATPostingSetup."VAT Prod. Posting Group");
-        RunCalcAndPostVATSettlementReport;
-        UpdatePeriodicSettlementVATEntry;
+        RunCalcAndPostVATSettlementReport();
+        UpdatePeriodicSettlementVATEntry();
 
         // Post Payment General.
         CreateGeneralJournalLine(
@@ -302,8 +302,8 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
         AppliesToDocNo :=
           CreateAndPostSalesDocument(DocumentType, CustomerNo, VATPostingSetup."VAT Prod. Posting Group");  // Use Blank value for Applies To Doc No.
-        RunCalcAndPostVATSettlementReport;
-        UpdatePeriodicSettlementVATEntry;
+        RunCalcAndPostVATSettlementReport();
+        UpdatePeriodicSettlementVATEntry();
 
         // Post Cash Receipt Journal.
         CreateGeneralJournalLine(
@@ -517,14 +517,14 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         AccountNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(AccountNo);
-        CalcAndPostVATSettlement.StartingDate.SetValue(GetStartingDate);
+        CalcAndPostVATSettlement.StartingDate.SetValue(GetStartingDate());
         CalcAndPostVATSettlement.SettlementAcc.SetValue(AccountNo);
         CalcAndPostVATSettlement.GLGainsAccount.SetValue(AccountNo);
         CalcAndPostVATSettlement.GLLossesAccount.SetValue(AccountNo);
         CalcAndPostVATSettlement.DocumentNo.SetValue(AccountNo);
         CalcAndPostVATSettlement.Post.SetValue(true);
         CalcAndPostVATSettlement.ShowVATEntries.SetValue(true);
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -544,14 +544,14 @@ codeunit 144158 "ERM Unapply Customer Vendor"
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesModalPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesModalPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 }
 

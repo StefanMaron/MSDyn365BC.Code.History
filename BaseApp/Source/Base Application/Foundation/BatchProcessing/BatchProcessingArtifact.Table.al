@@ -8,6 +8,7 @@ table 58 "Batch Processing Artifact"
 {
     Caption = 'Batch Processing Artifact';
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

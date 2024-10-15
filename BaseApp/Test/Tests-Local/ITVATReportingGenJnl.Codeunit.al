@@ -19,7 +19,6 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         LibraryVATUtils: Codeunit "Library - VAT Utils";
         isInitialized: Boolean;
         ErrorYouMustSpecify: Label 'You must specify a value for the %1 field';
-        ErrorYouCanOnlySelect: Label 'You can only select the %1 field when the %2 field is %3 in the %4 window';
 
     [Test]
     [Scope('OnPrem')]
@@ -34,7 +33,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         // Gen. Journal Line with Customer Invoice.
         // [Include in VAT Transac. Rep.] = Yes in VAT Posting Setup.
-        // Starting Date = WORKDATE, [Threshold Amount Incl. VAT.] = 0, Line Amount > 0.
+        // Starting Date = WorkDate(), [Threshold Amount Incl. VAT.] = 0, Line Amount > 0.
         // Expected Result: [Include in VAT Transac. Rep.] = Yes in Gen. Journal Line.
         Initialize();
 
@@ -57,7 +56,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         GenJournalLine.TestField("Include in VAT Transac. Rep.", true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -66,7 +65,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         // Gen. Journal Line with Customer Invoice.
         // [Include in VAT Transac. Rep.] = Yes in VAT Posting Setup.
-        // Starting Date = WORKDATE, [Threshold Amount Incl. VAT.] > Line Amount.
+        // Starting Date = WorkDate(), [Threshold Amount Incl. VAT.] > Line Amount.
         // Starting Date = +10D, [Threshold Amount Incl. VAT.] < Line Amount.
         // Expected Result: [Include in VAT Transac. Rep.] = Yes in Gen. Journal Line.
         VerifyMultipleThreshold(LibraryRandom.RandInt(10), false);
@@ -78,7 +77,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         // Gen. Journal Line with Customer Invoice.
         // [Include in VAT Transac. Rep.] = Yes in VAT Posting Setup.
-        // Starting Date = WORKDATE, [Threshold Amount Incl. VAT.] < Line Amount.
+        // Starting Date = WorkDate(), [Threshold Amount Incl. VAT.] < Line Amount.
         // Starting Date = +10D, [Threshold Amount Incl. VAT.] > Line Amount.
         // Expected Result: [Include in VAT Transac. Rep.] = Yes in Gen. Journal Line.
         VerifyMultipleThreshold(LibraryRandom.RandInt(10), true);
@@ -90,7 +89,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         // Gen. Journal Line with Customer Invoice.
         // [Include in VAT Transac. Rep.] = Yes in VAT Posting Setup.
-        // Starting Date = WORKDATE, [Threshold Amount Incl. VAT.] > Line Amount.
+        // Starting Date = WorkDate(), [Threshold Amount Incl. VAT.] > Line Amount.
         // Starting Date = -10D, [Threshold Amount Incl. VAT.] < Line Amount.
         // Expected Result: [Include in VAT Transac. Rep.] = Yes in Gen. Journal Line.
         VerifyMultipleThreshold(-LibraryRandom.RandInt(10), false);
@@ -102,7 +101,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         // Gen. Journal Line with Customer Invoice.
         // [Include in VAT Transac. Rep.] = Yes in VAT Posting Setup.
-        // Starting Date = WORKDATE, [Threshold Amount Incl. VAT.] < Line Amount.
+        // Starting Date = WorkDate(), [Threshold Amount Incl. VAT.] < Line Amount.
         // Starting Date = -10D, [Threshold Amount Incl. VAT.] > Line Amount.
         // Expected Result: [Include in VAT Transac. Rep.] = Yes in Gen. Journal Line.
         VerifyMultipleThreshold(-LibraryRandom.RandInt(10), true);
@@ -151,7 +150,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         GenJournalLine.TestField("Include in VAT Transac. Rep.", true); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -253,7 +252,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         GenJournalLine.TestField("Include in VAT Transac. Rep.", InclInVATSetup); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -264,7 +263,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         VerifyCountryGenJnlLine(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale,
-          GenJournalLine."Account Type"::Customer, false, CreateCountry);
+          GenJournalLine."Account Type"::Customer, false, CreateCountry());
     end;
 
     [Test]
@@ -275,7 +274,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         VerifyCountryGenJnlLine(
           GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale,
-          GenJournalLine."Account Type"::"G/L Account", true, CreateCountry);
+          GenJournalLine."Account Type"::"G/L Account", true, CreateCountry());
     end;
 
     [Test]
@@ -286,7 +285,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         VerifyCountryGenJnlLine(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase,
-          GenJournalLine."Account Type"::Vendor, false, CreateCountry);
+          GenJournalLine."Account Type"::Vendor, false, CreateCountry());
     end;
 
     [Test]
@@ -297,7 +296,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     begin
         VerifyCountryGenJnlLine(
           GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase,
-          GenJournalLine."Account Type"::"G/L Account", true, CreateCountry);
+          GenJournalLine."Account Type"::"G/L Account", true, CreateCountry());
     end;
 
     local procedure VerifyCountryGenJnlLine(DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type"; IndividualPerson: Boolean; CountryRegionCode: Code[10])
@@ -335,7 +334,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         GenJournalLine.TestField("Include in VAT Transac. Rep.", false);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -352,40 +351,40 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
 
         // General Journal.
         with GeneralJournalTestPage do begin
-            OpenEdit;
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable, 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close;
+            OpenEdit();
+            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
+            Close();
         end;
 
         // Cash Receipt Journal Journal.
         Commit(); // Required for Cash Receipt Journal.
         with CashReceiptJournalTestPage do begin
-            OpenEdit;
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable, 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close;
+            OpenEdit();
+            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
+            Close();
         end;
 
         // Payment Journal.
         with PaymentJournalTestPage do begin
-            OpenEdit;
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable, 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close;
+            OpenEdit();
+            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
+            Close();
         end;
 
         // Purchase Journal.
         Commit(); // Required for Purchase Journal.
         with PurchaseJournalTestPage do begin
-            OpenEdit;
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable, 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close;
+            OpenEdit();
+            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
+            Close();
         end;
 
         // Sales Journal.
         Commit(); // Required for Sales Journal.
         with SalesJournalTestPage do begin
-            OpenEdit;
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable, 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close;
+            OpenEdit();
+            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
+            Close();
         end;
     end;
 
@@ -518,7 +517,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         VerifyIncludeVAT(DocumentType, GenJournalLine."Document No.", true); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -781,7 +780,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
             Assert.ExpectedError(StrSubstNo(ErrorYouMustSpecify, FieldRef.Caption));
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -909,22 +908,22 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     local procedure Initialize()
     begin
-        TearDown; // Cleanup.
+        TearDown(); // Cleanup.
         LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
 
         isInitialized := true;
-        CreateVATReportSetup;
+        CreateVATReportSetup();
         Commit();
 
-        TearDown; // Cleanup for the first test.
+        TearDown(); // Cleanup for the first test.
     end;
 
     local procedure AdjustAmountSign(Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"): Decimal
@@ -1026,7 +1025,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
 
         if ReqFlds then begin
             if Resident = Customer.Resident::"Non-Resident" then
-                Customer.Validate("Country/Region Code", GetCountryCode);
+                Customer.Validate("Country/Region Code", GetCountryCode());
             if not IndividualPerson then
                 Customer.Validate("VAT Registration No.", LibraryUtility.GenerateRandomCode(Customer.FieldNo("VAT Registration No."), DATABASE::Customer))
             else
@@ -1093,7 +1092,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
 
         if ReqFlds then begin
             if Resident = Vendor.Resident::"Non-Resident" then
-                Vendor.Validate("Country/Region Code", GetCountryCode);
+                Vendor.Validate("Country/Region Code", GetCountryCode());
 
             if not IndividualPerson then
                 Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("VAT Registration No."), DATABASE::Vendor))
@@ -1122,12 +1121,12 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         BalAccountType: Enum "Gen. Journal Document Type";
         BalAccountNo: Code[20];
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         case AccountType of
             GenJournalLine."Account Type"::"G/L Account":
                 begin
                     BalAccountType := GenJournalLine."Bal. Account Type"::"Bank Account";
-                    BalAccountNo := FindBankAccount;
+                    BalAccountNo := FindBankAccount();
                 end;
             GenJournalLine."Account Type"::Customer:
                 begin
@@ -1155,7 +1154,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Create VAT Report Setup.
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
-        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         VATReportSetup.Modify(true);
     end;
 
@@ -1270,7 +1269,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Update fields required for posting when Incl. in VAT Transac. Report is TRUE.
         with GenJournalLine do begin
             if Resident = Resident::"Non-Resident" then
-                Validate("Country/Region Code", GetCountryCode);
+                Validate("Country/Region Code", GetCountryCode());
 
             if "Individual Person" and (Resident = Resident::"Non-Resident") then begin
                 Validate("First Name", LibraryUtility.GenerateRandomCode(FieldNo("First Name"), DATABASE::"Gen. Journal Line"));

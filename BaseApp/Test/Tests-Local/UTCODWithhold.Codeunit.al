@@ -74,8 +74,8 @@ codeunit 144091 "UT COD Withhold"
 
     local procedure CreateVendorBillHeader(var VendorBillHeader: Record "Vendor Bill Header")
     begin
-        VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
-        VendorBillHeader."Vendor Bill List No." := LibraryUTUtility.GetNewCode;
+        VendorBillHeader."No." := LibraryUTUtility.GetNewCode();
+        VendorBillHeader."Vendor Bill List No." := LibraryUTUtility.GetNewCode();
         VendorBillHeader."List Status" := VendorBillHeader."List Status"::Sent;
         VendorBillHeader.Insert();
     end;
@@ -85,7 +85,7 @@ codeunit 144091 "UT COD Withhold"
         VendorBillLine: Record "Vendor Bill Line";
     begin
         VendorBillLine."Vendor Bill List No." := VendorBillListNo;
-        VendorBillLine."Vendor Entry No." := CreateVendorLedgerEntry;
+        VendorBillLine."Vendor Entry No." := CreateVendorLedgerEntry();
         VendorBillLine."Manual Line" := ManualLine;
         VendorBillLine.Insert();
     end;

@@ -45,7 +45,7 @@
         // [FEATURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Sales Invoice
         Initialize();
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Posted shipments "A" and "B" coming from separate Sales Orders where first sales order has one lines and second sales order has three lines
         // [GIVEN] "SO1" has one Sales Line, "SO2" has two Sales Lines.
@@ -79,7 +79,7 @@
         // [FEATURE] [Service] [Invoice] [Shipment]
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Service Invoice
         Initialize();
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Posted shipments "A" and "B" coming from separate Service Orders where first service order has "X" lines and second sales order has "Y" lines
         // [GIVEN] "SO1" has one Service Line, "SO2" has two Service Lines.
@@ -113,7 +113,7 @@
         // [SCENARIO 288977] DatiGenerali has node DatiDDT with information about shipment lines after posting Sales Order
 
         Initialize();
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Sales Order with "X" lines posted as Ship and Invoice
         CreateAndPostSalesOrder(CustomerNo, LibraryRandom.RandInt(5), true, true);
@@ -141,7 +141,7 @@
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Service Order
 
         Initialize();
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Service Order with "X" lines posted as Ship and Invoice
         CreateAndPostServOrder(CustomerNo, LibraryRandom.RandInt(5), true, true);
@@ -169,7 +169,7 @@
         // [SCENARIO 288977] DatiOrdineAcquisto node has information about first shipment after posting Sales Order
 
         Initialize();
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Sales order with "X" lines shipped twice and invoice once
         PostSalesOrderSomeLinesShipped(CustomerNo);
@@ -197,7 +197,7 @@
         // [SCENARIO 288977] DatiOrdineAcquisto node has information about first shipment after posting Service Order
 
         Initialize();
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Service order with "X" lines shipped twice and invoice once
         PostServOrderSomeLinesShipped(CustomerNo);
@@ -234,7 +234,7 @@
         CompanyInformation.Modify(true);
 
         // [GIVEN] Posted Sales Invoice
-        DocumentNo := PostSalesInvoice(CreatePaymentMethod, CreatePaymentTerms);
+        DocumentNo := PostSalesInvoice(CreatePaymentMethod(), CreatePaymentTerms());
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -268,7 +268,7 @@
         CompanyInformation.Modify(true);
 
         // [GIVEN] Posted Sales Invoice
-        DocumentNo := PostSalesInvoice(CreatePaymentMethod, CreatePaymentTerms);
+        DocumentNo := PostSalesInvoice(CreatePaymentMethod(), CreatePaymentTerms());
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -295,7 +295,7 @@
         Initialize();
 
         // [GIVEN] Two customer ledger entries posted from one sales invoice with two payment terms lines, each 50%
-        DocumentNo := PostSalesInvoice(CreatePaymentMethod, CreatePaymentTermsWithMultiplePmtLines);
+        DocumentNo := PostSalesInvoice(CreatePaymentMethod(), CreatePaymentTermsWithMultiplePmtLines());
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -329,9 +329,9 @@
         // [GIVEN] Line 1 has "VAT %" = 10, "VAT Amount" = 20
         // [GIVEN] Line 2 has "VAT %" = 10, "VAT Amount" = 30
         // [GIVEN] Line 3 has "VAT %" = 15, "VAT Amount" = 60
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
         FindSalesLine(SalesLine, SalesHeader);
         ExpectedAmount[1] += Round(SalesLine."Line Amount" * SalesLine."VAT %" / 100);
         ExpectedAmount[1] += CreateSalesLineWithSalesVATPct(SalesHeader, SalesLine, SalesLine."VAT %");
@@ -370,7 +370,7 @@
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0 and "VAT Nature" = "X"
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
@@ -400,7 +400,7 @@
         Initialize();
 
         // [GIVEN] Sales Order posted as shipment
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateAndPostSalesOrder(CustomerNo, 1, true, false);
 
         // [GIVEN] Sales invoice with shipment lines from sales order and "Customer Purchase Order No." = "X"
@@ -431,7 +431,7 @@
         Initialize();
 
         // [GIVEN] Service Order posted as shipment
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateAndPostServOrder(CustomerNo, 1, true, false);
 
         // [GIVEN] Service invoice with shipment lines from service order and "Customer Purchase Order No." = "X"
@@ -456,11 +456,11 @@
         // [SCENARIO 286708] A field "Customer Purchase Order No." is visible on Sales Order page
 
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
-        SalesOrder.OpenView;
-        Assert.IsTrue(SalesOrder."Customer Purchase Order No.".Visible, FieldIsNotVisibleErr);
+        LibraryApplicationArea.EnableBasicSetup();
+        SalesOrder.OpenView();
+        Assert.IsTrue(SalesOrder."Customer Purchase Order No.".Visible(), FieldIsNotVisibleErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -472,11 +472,11 @@
         // [SCENARIO 286708] A field "Customer Purchase Order No." is visible on Sales Invoice page
 
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
-        SalesInvoice.OpenView;
-        Assert.IsTrue(SalesInvoice."Customer Purchase Order No.".Visible, FieldIsNotVisibleErr);
+        LibraryApplicationArea.EnableBasicSetup();
+        SalesInvoice.OpenView();
+        Assert.IsTrue(SalesInvoice."Customer Purchase Order No.".Visible(), FieldIsNotVisibleErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -488,11 +488,11 @@
         // [SCENARIO 286708] A field "Customer Purchase Order No." is visible on Service Order page
 
         Initialize();
-        LibraryApplicationArea.EnableServiceManagementSetup;
-        ServiceOrder.OpenView;
-        Assert.IsTrue(ServiceOrder."Customer Purchase Order No.".Visible, FieldIsNotVisibleErr);
+        LibraryApplicationArea.EnableServiceManagementSetup();
+        ServiceOrder.OpenView();
+        Assert.IsTrue(ServiceOrder."Customer Purchase Order No.".Visible(), FieldIsNotVisibleErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -504,11 +504,11 @@
         // [SCENARIO 286708] A field "Customer Purchase Order No." is visible on Service Invoice page
 
         Initialize();
-        LibraryApplicationArea.EnableServiceManagementSetup;
-        ServiceInvoice.OpenView;
-        Assert.IsTrue(ServiceInvoice."Customer Purchase Order No.".Visible, FieldIsNotVisibleErr);
+        LibraryApplicationArea.EnableServiceManagementSetup();
+        ServiceInvoice.OpenView();
+        Assert.IsTrue(ServiceInvoice."Customer Purchase Order No.".Visible(), FieldIsNotVisibleErr);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -521,11 +521,11 @@
         // [SCENARIO 287253] A field "Paid-In Capital" is visible on Company Information page
 
         Initialize();
-        LibraryApplicationArea.EnableServiceManagementSetup;
-        CompanyInformation.OpenView;
-        Assert.IsTrue(CompanyInformation."Paid-In Capital".Visible, FieldIsNotVisibleErr);
+        LibraryApplicationArea.EnableServiceManagementSetup();
+        CompanyInformation.OpenView();
+        Assert.IsTrue(CompanyInformation."Paid-In Capital".Visible(), FieldIsNotVisibleErr);
         CompanyInformation.Close();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -538,11 +538,11 @@
         // [SCENARIO 287428] A field "PEC E-mail Address" is visible on Customer Card
 
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
-        CustomerCard.OpenView;
-        Assert.IsTrue(CustomerCard."PEC E-Mail Address".Visible, FieldIsNotVisibleErr);
+        LibraryApplicationArea.EnableBasicSetup();
+        CustomerCard.OpenView();
+        Assert.IsTrue(CustomerCard."PEC E-Mail Address".Visible(), FieldIsNotVisibleErr);
         CustomerCard.Close();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -564,7 +564,7 @@
         Initialize();
 
         // [GIVEN] Item "ITEM0123456789012345" with 3 extended texts, each text has length 100
-        ItemNo := CreateItemWithMultipleExtendedText;
+        ItemNo := CreateItemWithMultipleExtendedText();
 
         // [GIVEN] Posted Sales invoice with two lines - Item and standard text with Code = "STDTEXT0123456789012" and value = "Y1"
         DocumentNo := CreateSalesDocWithItemAndStandardText(StandardText, SalesHeader."Document Type"::Invoice, ItemNo);
@@ -601,7 +601,7 @@
         Initialize();
 
         // [GIVEN] Item with 3 extended texts, each text has length 100
-        ItemNo := CreateItemWithMultipleExtendedText;
+        ItemNo := CreateItemWithMultipleExtendedText();
 
         // [GIVEN] Posted Sales Credit Memo with two lines - Item and standard text "Y1"
         DocumentNo :=
@@ -637,8 +637,8 @@
         Initialize();
 
         // [GIVEN] Item with 3 extended texts, each text has length 100
-        ItemNo := CreateItemWithMultipleExtendedText;
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        ItemNo := CreateItemWithMultipleExtendedText();
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Posted Service invoice with two lines - Item and standard text "Y1"
         CreateServDocWithItemAndStandardText(StandardText, ServiceHeader."Document Type"::Invoice, CustomerNo, ItemNo);
@@ -673,8 +673,8 @@
         Initialize();
 
         // [GIVEN] Item with 3 extended texts, each text has length 100
-        ItemNo := CreateItemWithMultipleExtendedText;
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        ItemNo := CreateItemWithMultipleExtendedText();
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Posted Service Credit Memo with two lines - Item and standard text "Y1"
         CreateServDocWithItemAndStandardText(StandardText, ServiceHeader."Document Type"::"Credit Memo", CustomerNo, ItemNo);
@@ -712,9 +712,9 @@
         LibraryITLocalization.UpdatePaidInCapitalInCompanyInformation(PaidInCapital);
 
         // [GIVEN] Posted Sales Invoice
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
@@ -743,7 +743,7 @@
         Initialize();
 
         // [GIVEN] Posted Sales Prepayment Invoice
-        CustomerNo := CreateCustomerWithPmtSetup;
+        CustomerNo := CreateCustomerWithPmtSetup();
         CreateSalesDocWithPrepmt(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, LibraryRandom.RandInt(10));
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -773,7 +773,7 @@
         Initialize();
 
         // [GIVEN] Posted Sales Prepayment Credit Memo
-        CustomerNo := CreateCustomerWithPmtSetup;
+        CustomerNo := CreateCustomerWithPmtSetup();
         CreateSalesDocWithPrepmt(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, LibraryRandom.RandInt(10));
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
@@ -804,7 +804,7 @@
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
-        CustomerNo := CreateCustomerWithPmtSetup;
+        CustomerNo := CreateCustomerWithPmtSetup();
         CreateSalesDocWithPrepmt(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, 0);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -834,7 +834,7 @@
         Initialize();
 
         // [GIVEN] Posted Sales Credit Memo
-        CustomerNo := CreateCustomerWithPmtSetup;
+        CustomerNo := CreateCustomerWithPmtSetup();
         CreateSalesDocWithPrepmt(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, 0);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -866,7 +866,7 @@
         // [GIVEN] Company Information with "VAT Registration No." = "X"
         // [GIVEN] Customer with "VAT Registration No." = "X"
         // [GIVEN] Posted Sales Invoice
-        CustomerNo := CreateCustomerWithPmtSetup;
+        CustomerNo := CreateCustomerWithPmtSetup();
         SetVATRegistrationNoInCompanyInfoFromCustomer(CustomerNo);
 
         CreateSalesDocWithPrepmt(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, 0);
@@ -900,7 +900,7 @@
         // [GIVEN] Company Information with "VAT Registration No." = "X"
         // [GIVEN] Customer with "VAT Registration No." = "X"
         // [GIVEN] Posted Sales Credit Memo
-        CustomerNo := CreateCustomerWithPmtSetup;
+        CustomerNo := CreateCustomerWithPmtSetup();
         SetVATRegistrationNoInCompanyInfoFromCustomer(CustomerNo);
         CreateSalesDocWithPrepmt(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, 0);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -935,7 +935,7 @@
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0 and "VAT Identifier" with description "X"
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
         SetVATIdentifierInSalesLine(SalesLine);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -973,10 +973,10 @@
         Initialize();
 
         // [GIVEN] Validated the VAT Exemption Nos. in Purchases & Payables Setup
-        UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode);
+        UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode());
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0, "VAT Identifier" with description "X", "VAT Exemption No." = "Y" and "VAT Exemption Date" = 01.02.2019 (dd.mm.yyyy format)
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateVATExemptionForCustomer(VATExemption, CustomerNo);
         CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
         SetVATIdentifierInSalesLine(SalesLine);
@@ -1024,10 +1024,10 @@
         Initialize();
 
         // [GIVEN] Validated the VAT Exemption Nos. in Purchases & Payables Setup
-        UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode);
+        UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode());
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0, "VAT Identifier" with description "X", "VAT Exemption No." = "Y", "Consecutive VAT Exempt. No." = "001" and "VAT Exemption Date" = 01.02.2019 (dd.mm.yyyy format)
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateVATExemptionForCustomer(VATExemption, CustomerNo);
         VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID());
         VATExemption.Modify(true);
@@ -1072,7 +1072,7 @@
         Initialize();
 
         // [GIVEN] Item with multiple extended texts
-        ItemNo := CreateItemWithMultipleExtendedText;
+        ItemNo := CreateItemWithMultipleExtendedText();
 
         // [GIVEN] Posted Sales Order with Item and extended texts as Shipment
         // [GIVEN] Removed all lines with extended texts
@@ -1110,8 +1110,8 @@
         Initialize();
 
         // [GIVEN] Item with multiple extended texts
-        CustomerNo := LibraryITLocalization.CreateCustomer;
-        ItemNo := CreateItemWithMultipleExtendedText;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
+        ItemNo := CreateItemWithMultipleExtendedText();
 
         // [GIVEN] Posted Service Order with Item and extended texts as Shipment
         // [GIVEN] Removed all lines with extended texts
@@ -1149,7 +1149,7 @@
         Initialize();
 
         // [GIVEN] Item with blank extended text
-        ItemNo := CreateItemWithBlankExtendedText;
+        ItemNo := CreateItemWithBlankExtendedText();
 
         // [GIVEN] Posted Sales invoice with extended text inserted
         CreateSalesDocWithItemAndExtendedText(SalesHeader, SalesHeader."Document Type"::Invoice, ItemNo);
@@ -1178,7 +1178,7 @@
         // [SCENARIO 295878] No DatiOrdineAcquisto node if only one shipment was posted
 
         Initialize();
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
 
         // [GIVEN] Sales order with one line shipped
         PostSalesOrderOneLineShipped(CustomerNo);
@@ -1209,7 +1209,7 @@
         Initialize();
 
         // [GIVEN] Posted sales invoice with two lines with Amounts 100, -100 (total zero)
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer());
         LineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CreateSalesLine(SalesLine[1], SalesHeader, LineAmount);
         CreateSalesLine(SalesLine[2], SalesHeader, -LineAmount);
@@ -1246,7 +1246,7 @@
         // [SCENARIO 297997] Euro specical char replaced with EUR when exported to XML
         Initialize();
 
-        ItemNo := CreateItemWithMultipleExtendedText;
+        ItemNo := CreateItemWithMultipleExtendedText();
 
         // [GIVEN] Posted Sales invoice with standard text containing 'ъ' character
         CreateSalesDocWithItemAndExtendedText(SalesHeader, SalesHeader."Document Type"::Invoice, ItemNo);
@@ -1395,9 +1395,9 @@
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with Quantity = 2.33333
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 5));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 5));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
 
@@ -1496,7 +1496,7 @@
         CompanyInformation.Modify(true);
 
         // [GIVEN] Posted Sales Invoice
-        DocumentNo := PostSalesInvoice(CreatePaymentMethod, CreatePaymentTerms);
+        DocumentNo := PostSalesInvoice(CreatePaymentMethod(), CreatePaymentTerms());
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
@@ -1877,7 +1877,7 @@
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         SpecialChar := 192;
         UnitOfMeasure.Validate(Description, Format(SpecialChar));
-        UnitOfMeasure.Modify;
+        UnitOfMeasure.Modify();
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, SalesLine."No.", UnitOfMeasure.Code, 1);
@@ -1906,10 +1906,10 @@
         if IsInitialized then
             exit;
 
-        LibraryITLocalization.SetupFatturaPA;
-        LibrarySetupStorage.SaveCompanyInformation;
-        LibrarySetupStorage.SaveSalesSetup;
-        LibrarySetupStorage.SavePurchasesSetup;
+        LibraryITLocalization.SetupFatturaPA();
+        LibrarySetupStorage.SaveCompanyInformation();
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
         IsInitialized := true;
     end;
 
@@ -1918,7 +1918,7 @@
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
     begin
-        CustomerNo := LibraryITLocalization.CreateCustomer;
+        CustomerNo := LibraryITLocalization.CreateCustomer();
         CreateSalesDocument(
           SalesHeader, PaymentMethodCode, PaymentTermsCode, CustomerNo, SalesHeader."Document Type"::Invoice);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1952,7 +1952,7 @@
         SalesLine: Record "Sales Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-        CreateSalesHeader(SalesHeader, DocType, LibraryITLocalization.CreateCustomer);
+        CreateSalesHeader(SalesHeader, DocType, LibraryITLocalization.CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -1966,15 +1966,15 @@
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
         FindSalesLine(SalesLine, SalesHeader);
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
         VATPostingSetup.Validate("VAT Identifier",
-          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetup."VAT Identifier")));
+          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode(), 1, MaxStrLen(VATPostingSetup."VAT Identifier")));
         VATPostingSetup.Validate("VAT %", 0);
-        VATPostingSetup.Validate("VAT Transaction Nature", LibrarySplitVAT.CreateVATTransactionNatureCode);
+        VATPostingSetup.Validate("VAT Transaction Nature", LibrarySplitVAT.CreateVATTransactionNatureCode());
         VATPostingSetup.Insert(true);
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Modify(true);
@@ -1985,16 +1985,16 @@
         VATProductPostingGroup: Record "VAT Product Posting Group";
         i: Integer;
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer());
         for i := 1 to ArrayLen(VATPostingSetup) do begin
             LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
             LibraryERM.CreateVATPostingSetup(VATPostingSetup[1], SalesHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
             VATPostingSetup[1].Validate("VAT %", LibraryRandom.RandDec(10, 2));
-            VATPostingSetup[1].Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            VATPostingSetup[1].Validate("VAT Transaction Nature", LibrarySplitVAT.CreateVATTransactionNatureCode);
+            VATPostingSetup[1].Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            VATPostingSetup[1].Validate("VAT Transaction Nature", LibrarySplitVAT.CreateVATTransactionNatureCode());
             VATPostingSetup[1].Modify(true);
             LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+              SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
             SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup[1]."VAT Prod. Posting Group");
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
             SalesLine.Modify(true);
@@ -2007,7 +2007,7 @@
         SalesLine: Record "Sales Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibraryITLocalization.CreateCustomer);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibraryITLocalization.CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -2028,7 +2028,7 @@
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        CreateSalesHeader(SalesHeader, DocType, LibraryITLocalization.CreateCustomer);
+        CreateSalesHeader(SalesHeader, DocType, LibraryITLocalization.CreateCustomer());
         LibraryInventory.CreateItem(Item);
         VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
         VATPostingSetup.Validate("VAT %", 22);
@@ -2048,7 +2048,7 @@
 
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; UnitPrice: Decimal)
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
     end;
@@ -2110,7 +2110,7 @@
         VATPostingSetup: Record "VAT Posting Setup";
         ServiceItem: Record "Service Item";
     begin
-        CreateServiceHeader(ServiceHeader, DocType, LibraryITLocalization.CreateCustomer);
+        CreateServiceHeader(ServiceHeader, DocType, LibraryITLocalization.CreateCustomer());
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         VATPostingSetup.Get(ServiceHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
@@ -2160,7 +2160,7 @@
     begin
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         for i := 1 to LinesNo do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
             SalesLine.Modify(true);
         end;
@@ -2186,16 +2186,16 @@
     var
         Customer: Record Customer;
     begin
-        Customer.Get(LibraryITLocalization.CreateCustomer);
-        Customer.Validate("Payment Method Code", CreatePaymentMethod);
-        Customer.Validate("Payment Terms Code", CreatePaymentTerms);
+        Customer.Get(LibraryITLocalization.CreateCustomer());
+        Customer.Validate("Payment Method Code", CreatePaymentMethod());
+        Customer.Validate("Payment Terms Code", CreatePaymentTerms());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
 
     local procedure CreateCustomerAsIndividualPerson(var Customer: Record Customer)
     begin
-        Customer.Get(CreateCustomerWithPmtSetup);
+        Customer.Get(CreateCustomerWithPmtSetup());
         Customer.Validate("Individual Person", true);
         Customer.Validate("First Name", LibraryUtility.GenerateGUID());
         Customer.Validate("Last Name", LibraryUtility.GenerateGUID());
@@ -2255,12 +2255,12 @@
 
     local procedure CreatePaymentMethod(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode());
     end;
 
     local procedure CreatePaymentTerms(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode());
     end;
 
     local procedure CreatePaymentTermsWithMultiplePmtLines(): Code[10]
@@ -2269,7 +2269,7 @@
         PmtTermsCode: Code[10];
         i: Integer;
     begin
-        PmtTermsCode := LibraryITLocalization.CreateFatturaPaymentTermsCode;
+        PmtTermsCode := LibraryITLocalization.CreateFatturaPaymentTermsCode();
         PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
         PaymentLines.SetRange(Code, PmtTermsCode);
         PaymentLines.DeleteAll(true);
@@ -2328,7 +2328,7 @@
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATProductPostingGroup.Code);
         VATPostingSetup.Validate(
-          "Sales VAT Account", LibraryERM.CreateGLAccountNo);
+          "Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("VAT %", VATPct);
         VATPostingSetup.Modify(true);
         LibrarySales.CreateSalesLine(
@@ -2355,7 +2355,7 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Qty. to Ship", QtyToShip);
         SalesLine.Modify(true);
@@ -2383,7 +2383,7 @@
         CreateSalesHeader(SalesHeader, DocType, CustomerNo);
         SalesHeader.Validate("Prepayment %", PrepmtPct);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -2411,8 +2411,8 @@
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNo);
-        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
-        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod);
+        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms());
+        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod());
         SalesHeader.Modify(true);
     end;
 
@@ -2420,8 +2420,8 @@
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerNo);
         ServiceHeader.Validate("Order Date", WorkDate());
-        ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod);
-        ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod());
+        ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         ServiceHeader.Modify(true);
     end;
 
@@ -2490,16 +2490,16 @@
         UnitPrice: Decimal;
     begin
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, LibraryITLocalization.CreateCustomer, DocType);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), LibraryITLocalization.CreateCustomer(), DocType);
         FindSalesLine(SalesLine, SalesHeader);
         VATAmount[1] := SalesLine.Amount;
         UnitPrice := SalesLine."Unit Price";
 
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, SalesHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, -1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), -1);
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
@@ -2518,10 +2518,10 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         SalesHeader.Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
-        SalesHeader.Validate("Fattura Project Code", LibraryITLocalization.CreateFatturaProjectCode);
-        SalesHeader.Validate("Fattura Tender Code", LibraryITLocalization.CreateFatturaTenderCode);
+        SalesHeader.Validate("Fattura Project Code", LibraryITLocalization.CreateFatturaProjectCode());
+        SalesHeader.Validate("Fattura Tender Code", LibraryITLocalization.CreateFatturaTenderCode());
         SalesHeader.Modify(true);
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Modify(true);
         LibrarySales.CreateSalesLine(
@@ -2545,7 +2545,7 @@
     begin
         FindNextElement(TempXMLBuffer);
         Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName(),
-          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
+          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName()));
         Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
     end;
@@ -2558,15 +2558,15 @@
 
     local procedure FindNextElement(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
-        if TempXMLBuffer.HasChildNodes then
+        if TempXMLBuffer.HasChildNodes() then
             TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
             if not (TempXMLBuffer.Next() > 0) then begin
-                TempXMLBuffer.GetParent;
+                TempXMLBuffer.GetParent();
                 TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
                 if not (TempXMLBuffer.Next() > 0) then
                     repeat
-                        TempXMLBuffer.GetParent;
+                        TempXMLBuffer.GetParent();
                         TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
                     until (TempXMLBuffer.Next() > 0);
             end;
@@ -2630,7 +2630,7 @@
             end;
             DotNet_StringBuilder.Append(SubstText);
         end;
-        InputText := CopyStr(DotNet_StringBuilder.ToString, 1, MaxStrLen(InputText));
+        InputText := CopyStr(DotNet_StringBuilder.ToString(), 1, MaxStrLen(InputText));
     end;
 
     local procedure UpdateItemGTIN(ItemNo: Code[20]; GTIN: Code[14])
@@ -3044,7 +3044,7 @@
         FindNextElement(TempXMLBuffer);
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedItemNo, 1, 10));
         FindNextElement(TempXMLBuffer);
-        XMLFieldLength := GetMaxRiferimentoTestoLength;
+        XMLFieldLength := GetMaxRiferimentoTestoLength();
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, XMLFieldLength + 1, MaxStrLen(ExtendedText) - XMLFieldLength));
     end;
 
@@ -3055,7 +3055,7 @@
         FindNextElement(TempXMLBuffer); // go to TipoDato
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedItemNo, 1, 10));
         FindNextElement(TempXMLBuffer);
-        XMLFieldLength := GetMaxRiferimentoTestoLength;
+        XMLFieldLength := GetMaxRiferimentoTestoLength();
         NormalizeText(ExtendedText);
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, 1, XMLFieldLength));
     end;

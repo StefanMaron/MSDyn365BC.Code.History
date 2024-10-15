@@ -11,6 +11,7 @@ table 5942 "Service Item Log"
     DrillDownPageID = "Service Item Log";
     LookupPageID = "Service Item Log";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -4,6 +4,7 @@ table 2000 "Time Series Buffer"
 {
     Caption = 'Time Series Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

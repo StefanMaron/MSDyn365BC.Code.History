@@ -9,6 +9,7 @@ table 12198 "Fattura Code"
     Caption = 'Fattura Code';
     DrillDownPageID = "Fattura Codes";
     LookupPageID = "Fattura Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

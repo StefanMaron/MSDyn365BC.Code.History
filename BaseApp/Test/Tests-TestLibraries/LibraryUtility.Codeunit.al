@@ -145,8 +145,8 @@ codeunit 131000 "Library - Utility"
                     if FieldRef1.Value <> FieldRef2.Value then begin
                         MismatchCount := MismatchCount + 1;
                         FieldNumbersNotMatched[MismatchCount] := FieldRef1.Number;
-                        Value1[MismatchCount] := FieldRef1.Value;
-                        Value2[MismatchCount] := FieldRef2.Value;
+                        Value1[MismatchCount] := FieldRef1.Value();
+                        Value2[MismatchCount] := FieldRef2.Value();
                     end;
                 index1 := index1 + 1;
                 index2 := index2 + 1;
@@ -315,7 +315,7 @@ codeunit 131000 "Library - Utility"
 
         if RecRef2.FindLast() then begin
             FieldRef := RecRef2.Field(FieldNo);
-            FieldCount := FieldRef.Value;
+            FieldCount := FieldRef.Value();
         end else
             FieldCount := 0;
         exit(FieldCount + 10000);  // Add 10000 to the last Line No.
@@ -342,27 +342,20 @@ codeunit 131000 "Library - Utility"
     procedure GetNextNoSeriesSalesDate(NoSeriesCode: Code[20]): Date
     var
         NoSeries: Record "No. Series";
-        NoSeriesLineSales: Record "No. Series Line Sales";
-        NoSeriesLineSales2: Record "No. Series Line";
+        NoSeriesLine: Record "No. Series Line";
         LastDateUsed: Date;
     begin
-        NoSeries.Get(NoSeriesCode);
-        if not NoSeries."Date Order" then
-            exit(WorkDate());
+        if NoSeriesCode <> '' then begin
+            NoSeries.Get(NoSeriesCode);
+            if not NoSeries."Date Order" then
+                exit(WorkDate());
 
-        NoSeriesLineSales.SetRange("Series Code", NoSeries.Code);
-        NoSeriesLineSales.SetRange("Starting Date", 0D, WorkDate());
-        NoSeriesLineSales.SetRange(Open, true);
-        if NoSeriesLineSales.FindLast() then
-            LastDateUsed := NoSeriesLineSales."Last Date Used"
-        else begin
-            NoSeriesLineSales2.SetRange("Series Code", NoSeries.Code);
-            NoSeriesLineSales2.SetRange("Starting Date", 0D, WorkDate());
-            NoSeriesLineSales2.SetRange(Open, true);
-            NoSeriesLineSales2.FindLast();
-            LastDateUsed := NoSeriesLineSales2."Last Date Used"
+            NoSeriesLine.SetRange("Series Code", NoSeries.Code);
+            NoSeriesLine.SetRange("Starting Date", 0D, WorkDate());
+            NoSeriesLine.SetRange(Open, true);
+            if NoSeriesLine.FindLast() then
+                LastDateUsed := NoSeriesLine."Last Date Used";
         end;
-
         if LastDateUsed = 0D then
             exit(WorkDate());
         exit(CalcDate('<1D>', LastDateUsed));
@@ -371,19 +364,45 @@ codeunit 131000 "Library - Utility"
     procedure GetNextNoSeriesPurchaseDate(NoSeriesCode: Code[20]): Date
     var
         NoSeries: Record "No. Series";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLine: Record "No. Series Line";
+        LastDateUsed: Date;
     begin
-        NoSeries.Get(NoSeriesCode);
-        if not NoSeries."Date Order" then
-            exit(WorkDate());
+        if NoSeriesCode <> '' then begin
+            NoSeries.Get(NoSeriesCode);
+            if not NoSeries."Date Order" then
+                exit(WorkDate());
 
-        NoSeriesLinePurchase.SetRange("Series Code", NoSeries.Code);
-        NoSeriesLinePurchase.SetRange("Starting Date", 0D, WorkDate());
-        NoSeriesLinePurchase.SetRange(Open, true);
-        NoSeriesLinePurchase.FindLast();
-        if NoSeriesLinePurchase."Last Date Used" = 0D then
+            NoSeriesLine.SetRange("Series Code", NoSeries.Code);
+            NoSeriesLine.SetRange("Starting Date", 0D, WorkDate());
+            NoSeriesLine.SetRange(Open, true);
+            if NoSeriesLine.FindLast() then
+                LastDateUsed := NoSeriesLine."Last Date Used";
+        end;
+        if LastDateUsed = 0D then
             exit(WorkDate());
-        exit(CalcDate('<1D>', NoSeriesLinePurchase."Last Date Used"));
+        exit(CalcDate('<1D>', LastDateUsed));
+    end;
+
+    procedure GetNoSeriesLastUsedDate(NoSeriesCode: Code[20]): Date
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        LastDateUsed: Date;
+    begin
+        if NoSeriesCode <> '' then begin
+            NoSeries.Get(NoSeriesCode);
+            if not NoSeries."Date Order" then
+                exit(WorkDate());
+
+            NoSeriesLine.SetRange("Series Code", NoSeries.Code);
+            NoSeriesLine.SetRange("Starting Date", 0D, WorkDate());
+            NoSeriesLine.SetRange(Open, true);
+            if NoSeriesLine.FindLast() then
+                LastDateUsed := NoSeriesLine."Last Date Used";
+        end;
+        if LastDateUsed = 0D then
+            exit(WorkDate());
+        exit(LastDateUsed);
     end;
 
     local procedure GetPropertyValue(ObjectType: Option; ObjectNo: Integer; FieldNo: Integer; PropertyName: Text[30]; SuppressError: Boolean): Text[30]
@@ -436,9 +455,9 @@ codeunit 131000 "Library - Utility"
 
     procedure GetNextNoFromNoSeries(NoSeriesCode: Code[20]; PostingDate: Date): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, PostingDate, false));
+        exit(NoSeries.PeekNextNo(NoSeriesCode, PostingDate));
     end;
 
     procedure GenerateRandomCode(FieldNo: Integer; TableNo: Integer): Code[10]
@@ -453,9 +472,9 @@ codeunit 131000 "Library - Utility"
 
         repeat
             if FieldRef.Length < 10 then
-                FieldRef.SetRange(CopyStr(GenerateGUID, 10 - FieldRef.Length + 1)) // Cut characters on the left side.
+                FieldRef.SetRange(CopyStr(GenerateGUID(), 10 - FieldRef.Length + 1)) // Cut characters on the left side.
             else
-                FieldRef.SetRange(GenerateGUID);
+                FieldRef.SetRange(GenerateGUID());
         until RecRef.IsEmpty();
 
         exit(FieldRef.GetFilter)
@@ -489,7 +508,7 @@ codeunit 131000 "Library - Utility"
         Clear(FieldRef);
         FieldRef := RecRef.Field(FieldNo);
         repeat
-            FieldRef.SetRange(PadStr(GenerateGUID, FieldRef.Length, '0'));
+            FieldRef.SetRange(PadStr(GenerateGUID(), FieldRef.Length, '0'));
         until RecRef.IsEmpty();
 
         exit(FieldRef.GetFilter);
@@ -625,7 +644,7 @@ codeunit 131000 "Library - Utility"
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         if not NoSeries.Get('GUID') then begin
             NoSeries.Init();
@@ -637,7 +656,7 @@ codeunit 131000 "Library - Utility"
             CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         end;
 
-        exit(NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate(), true));
+        exit(NoSeriesCodeunit.GetNextNo(NoSeries.Code));
     end;
 
     procedure GetEmptyGuid(): Guid
@@ -742,7 +761,7 @@ codeunit 131000 "Library - Utility"
         RecRef.Open(TableID);
         RecRef.Find();
         FieldRef := RecRef.Field(FieldID);
-        NoSeriesCode := GetGlobalNoSeriesCode;
+        NoSeriesCode := GetGlobalNoSeriesCode();
         if Format(FieldRef.Value) <> NoSeriesCode then begin
             FieldRef.Value(NoSeriesCode);
             RecRef.Modify();
@@ -861,11 +880,10 @@ codeunit 131000 "Library - Utility"
         exit(NewStr);
     end;
 
-    procedure GetNoSeriesLine(noSeries: Code[20]; var noSeriesLine: Record "No. Series Line"): Boolean
+    procedure GetNoSeriesLine(noSeriesCode: Code[20]; var noSeriesLine: Record "No. Series Line"): Boolean
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        NoSeriesMgt.SetNoSeriesLineFilter(noSeriesLine, noSeries, WorkDate());
-        exit(noSeriesLine.FindFirst());
+        exit(NoSeries.GetNoSeriesLine(noSeriesLine, noSeriesCode, WorkDate(), true));
     end;
 }

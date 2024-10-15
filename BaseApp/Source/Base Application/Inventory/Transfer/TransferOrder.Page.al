@@ -43,7 +43,7 @@ page 5740 "Transfer Order"
                 field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     ShowMandatory = true;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the location that items are transferred from.';
@@ -57,7 +57,7 @@ page 5740 "Transfer Order"
                 field("Transfer-to Code"; Rec."Transfer-to Code")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     ShowMandatory = true;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the location that the items are transferred to.';
@@ -71,7 +71,7 @@ page 5740 "Transfer Order"
                 field("Direct Transfer"; Rec."Direct Transfer")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     Importance = Promoted;
                     ToolTip = 'Specifies that the transfer does not use an in-transit location. When you transfer directly, the Qty. to Receive field will be locked with the same value as the quantity to ship.';
 
@@ -86,7 +86,7 @@ page 5740 "Transfer Order"
                     ApplicationArea = Location;
                     Editable = EnableTransferFields;
                     ShowMandatory = not Rec."Direct Transfer";
-                    Enabled = (not Rec."Direct Transfer") AND (Rec.Status = Rec.Status::Open);
+                    Enabled = (not Rec."Direct Transfer") and (Rec.Status = Rec.Status::Open);
                     ToolTip = 'Specifies the in-transit code for the transfer order, such as a shipping agent.';
 
                     trigger OnValidate()
@@ -148,7 +148,7 @@ page 5740 "Transfer Order"
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
 
                     trigger OnValidate()
@@ -159,7 +159,7 @@ page 5740 "Transfer Order"
                 field("Outbound Whse. Handling Time"; Rec."Outbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
 
                     trigger OnValidate()
@@ -170,13 +170,13 @@ page 5740 "Transfer Order"
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
                 field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
 
                     trigger OnValidate()
@@ -187,7 +187,7 @@ page 5740 "Transfer Order"
                 field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
 
@@ -199,7 +199,7 @@ page 5740 "Transfer Order"
                 field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
 
                     trigger OnValidate()
@@ -210,7 +210,7 @@ page 5740 "Transfer Order"
                 field("Shipping Advice"; Rec."Shipping Advice")
                 {
                     ApplicationArea = Location;
-                    Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                    Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                     Importance = Additional;
                     ToolTip = 'Specifies an instruction to the warehouse that ships the items, for example, that it is acceptable to do partial shipment.';
 
@@ -246,7 +246,7 @@ page 5740 "Transfer Order"
             group("Transfer-from")
             {
                 Caption = 'Transfer-from';
-                Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                 field("Transfer-from Name"; Rec."Transfer-from Name")
                 {
                     ApplicationArea = Location;
@@ -347,7 +347,7 @@ page 5740 "Transfer Order"
             group("Transfer-to")
             {
                 Caption = 'Transfer-to';
-                Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                 field("Transfer-to Name"; Rec."Transfer-to Name")
                 {
                     ApplicationArea = Location;
@@ -442,7 +442,7 @@ page 5740 "Transfer Order"
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-                Editable = (Rec.Status = Rec.Status::Open) AND EnableTransferFields;
+                Editable = (Rec.Status = Rec.Status::Open) and EnableTransferFields;
                 field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU, BasicNO;
@@ -940,16 +940,6 @@ page 5740 "Transfer Order"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
-
-#if not CLEAN21
-                actionref("Inventory - Inbound Transfer_Promoted"; "Inventory - Inbound Transfer")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
         }
     }

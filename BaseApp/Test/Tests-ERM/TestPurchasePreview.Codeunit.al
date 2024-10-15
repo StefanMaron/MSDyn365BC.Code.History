@@ -41,25 +41,29 @@
     begin
         // [SCENARIO] Posting preview of Purchase Invoice opens G/L Posting Preview with the navigatable entries to be posted.
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
+
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ExpectedCost, ExpectedQuantity);
 
         // Execute the page
-        PurchaseInvoice.Trap;
+        PurchaseInvoice.Trap();
         PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
 
-        GLPostingPreview.Trap;
-        PurchaseInvoice.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseInvoice.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
+        LibraryERM.SetEnableDataCheck(true);
         PurchaseHeader.Delete();
         asserterror Error('');
+
     end;
 
     [Test]
@@ -72,23 +76,26 @@
     begin
         // [SCENARIO] Posting preview of Purchase Order opens G/L Posting Preview with the navigatable entries to be posted.
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
+
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, ExpectedCost, ExpectedQuantity);
 
         // Execute the page
-        PurchaseOrder.Trap;
+        PurchaseOrder.Trap();
         PAGE.Run(PAGE::"Purchase Order", PurchaseHeader);
 
-        GLPostingPreview.Trap;
-        PurchaseOrder.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseOrder.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
+        LibraryERM.SetEnableDataCheck(true);
         PurchaseHeader.Delete();
         asserterror Error('');
     end;
@@ -112,16 +119,16 @@
         PurchaseHeader.Modify(true);
 
         // Execute the page
-        PurchaseCreditMemo.Trap;
+        PurchaseCreditMemo.Trap();
         PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        PurchaseCreditMemo.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseCreditMemo.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         PurchaseHeader.Delete();
@@ -147,16 +154,16 @@
         PurchaseHeader.Modify(true);
 
         // Execute the page
-        PurchaseReturnOrder.Trap;
+        PurchaseReturnOrder.Trap();
         PAGE.Run(PAGE::"Purchase Return Order", PurchaseHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        PurchaseReturnOrder.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseReturnOrder.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         PurchaseHeader.Delete();
@@ -176,15 +183,15 @@
 
         CreatePurchaseOrderWithPrepayment(PurchaseHeader);
 
-        PurchaseOrder.Trap;
+        PurchaseOrder.Trap();
         PAGE.Run(PAGE::"Purchase Order", PurchaseHeader);
 
-        GLPostingPreview.Trap;
-        PurchaseOrder.PreviewPrepmtInvoicePosting.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseOrder.PreviewPrepmtInvoicePosting.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         asserterror Error('');
@@ -206,15 +213,15 @@
         UpdateTotalCheckAmount(PurchaseHeader);
         Commit();
 
-        PurchaseOrder.Trap;
+        PurchaseOrder.Trap();
         PAGE.Run(PAGE::"Purchase Order", PurchaseHeader);
 
-        GLPostingPreview.Trap;
-        PurchaseOrder.PreviewPrepmtCrMemoPosting.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseOrder.PreviewPrepmtCrMemoPosting.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         asserterror Error('');
@@ -230,12 +237,12 @@
     begin
         // [SCENARIO] Posting preview of empty Payment Registration shows error "Nothing to post"
         Initialize();
-        DeletePaymentRegistrationSetup;
-        PaymentRegistration.Trap;
+        DeletePaymentRegistrationSetup();
+        PaymentRegistration.Trap();
         PAGE.Run(PAGE::"Payment Registration");
         Commit();
-        ErrorMessagesPage.Trap;
-        PaymentRegistration.PreviewPayments.Invoke;
+        ErrorMessagesPage.Trap();
+        PaymentRegistration.PreviewPayments.Invoke();
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
@@ -249,12 +256,12 @@
     begin
         // [SCENARIO] Posting preview of empty Payment Registration Lump shows error "Nothing to post"
         Initialize();
-        DeletePaymentRegistrationSetup;
-        PaymentRegistration.Trap;
+        DeletePaymentRegistrationSetup();
+        PaymentRegistration.Trap();
         PAGE.Run(PAGE::"Payment Registration");
         Commit();
-        ErrorMessagesPage.Trap;
-        PaymentRegistration.PreviewLump.Invoke;
+        ErrorMessagesPage.Trap();
+        PaymentRegistration.PreviewLump.Invoke();
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
@@ -274,15 +281,15 @@
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ExpectedCost, ExpectedQuantity);
 
         // Execute the page
-        PurchaseInvoices.Trap;
+        PurchaseInvoices.Trap();
         PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeader);
 
-        GLPostingPreview.Trap;
-        PurchaseInvoices.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseInvoices.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         PurchaseHeader.Delete();
@@ -305,15 +312,15 @@
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, ExpectedCost, ExpectedQuantity);
 
         // Execute the page
-        PurchaseOrderList.Trap;
+        PurchaseOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeader);
 
-        GLPostingPreview.Trap;
-        PurchaseOrderList.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseOrderList.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         PurchaseHeader.Delete();
@@ -339,16 +346,16 @@
         PurchaseHeader.Modify(true);
 
         // Execute the page
-        PurchaseCreditMemos.Trap;
+        PurchaseCreditMemos.Trap();
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        PurchaseCreditMemos.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseCreditMemos.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         PurchaseHeader.Delete();
@@ -374,16 +381,16 @@
         PurchaseHeader.Modify(true);
 
         // Execute the page
-        PurchaseReturnOrderList.Trap;
+        PurchaseReturnOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Return Order List", PurchaseHeader);
 
         Commit();
-        GLPostingPreview.Trap;
-        PurchaseReturnOrderList.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseReturnOrderList.Preview.Invoke();
 
-        if not GLPostingPreview.First then
+        if not GLPostingPreview.First() then
             Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
 
         // Cleanup
         PurchaseHeader.Delete();
@@ -407,21 +414,21 @@
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ExpectedCost, ExpectedQuantity);
 
         // Execute the preview
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview. Actual error: ' + GetLastErrorText);
         // Show the pages. Verification done in page handlers.
-        ValueEntriesPreview.Trap;
+        ValueEntriesPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Value Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
         // Verify results
         Assert.AreEqual(ExpectedQuantity,
-          ValueEntriesPreview."Valued Quantity".AsInteger, 'Valued quantity is not as expected.');
+          ValueEntriesPreview."Valued Quantity".AsInteger(), 'Valued quantity is not as expected.');
         Assert.AreEqual(
           ExpectedQuantity * ExpectedCost,
-          ValueEntriesPreview."Cost Amount (Actual)".AsDEcimal,
+          ValueEntriesPreview."Cost Amount (Actual)".AsDecimal(),
           'Posted cost amount is not as expected.');
-        Assert.AreEqual(0, ValueEntriesPreview."Cost Amount (Non-Invtbl.)".AsDEcimal, 'Non-inventoriable cost amount is non-zero.');
+        Assert.AreEqual(0, ValueEntriesPreview."Cost Amount (Non-Invtbl.)".AsDecimal(), 'Non-inventoriable cost amount is non-zero.');
 
         GLPostingPreview.Close();
 
@@ -446,21 +453,21 @@
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, ExpectedCost, ExpectedQuantity);
 
         // Execute the preview
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview. Actual error: ' + GetLastErrorText);
 
         // Show the pages. Verification done in page handlers.
-        ItemLedgerEntriesPreview.Trap;
+        ItemLedgerEntriesPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Item Ledger Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
 
-        Assert.AreEqual(ExpectedQuantity, ItemLedgerEntriesPreview.Quantity.AsInteger, 'Posted quantity is not as expected.');
+        Assert.AreEqual(ExpectedQuantity, ItemLedgerEntriesPreview.Quantity.AsInteger(), 'Posted quantity is not as expected.');
         Assert.AreEqual(
           ExpectedQuantity * ExpectedCost,
-          ItemLedgerEntriesPreview.CostAmountActual.AsDEcimal,
+          ItemLedgerEntriesPreview.CostAmountActual.AsDecimal(),
           'Posted cost amount is not as expected.');
-        Assert.AreEqual(0, ItemLedgerEntriesPreview.CostAmountNonInvtbl.AsDEcimal, 'Non-inventoriable cost amount is non-zero.');
+        Assert.AreEqual(0, ItemLedgerEntriesPreview.CostAmountNonInvtbl.AsDecimal(), 'Non-inventoriable cost amount is non-zero.');
 
         GLPostingPreview.Close();
 
@@ -492,10 +499,10 @@
         RecordRestrictionMgt.RestrictRecordUsage(PurchaseHeader, '');
         Commit();
         RestrictedRecord.SetRange("Record ID", PurchaseHeader.RecordId);
-        Assert.IsTrue(RestrictedRecord.FindFirst, 'Missing RestrictedRecord');
+        Assert.IsTrue(RestrictedRecord.FindFirst(), 'Missing RestrictedRecord');
 
         // [WHEN] Preview is executed.
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
         // [THEN] GETLASTERRORTEXT should be null
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview. Actual error: ' + GetLastErrorText);
@@ -539,11 +546,11 @@
         LibraryInventory.UpdateInventoryPostingSetup(Location);
 
         // [GIVEN] Item with Lot Tracking and Costing Method FIFO
-        ItemNo := CreateItemWithFIFO;
+        ItemNo := CreateItemWithFIFO();
         CreateAndPostItemJournalLine(ItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
 
         // [GIVEN] Create Purchase Order, Receive and Invoice partially
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandIntInRange(5, 10));
         PostPartialQuantity(PurchaseHeader, true);
@@ -554,7 +561,7 @@
         PostPartialQuantity(PurchaseHeader, false);
 
         // [WHEN] Open Post Preview
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
 
         // [THEN] Preview is open
@@ -577,7 +584,7 @@
         CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         // [WHEN] Stan calls "Post Preview" from invoice
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
         Assert.ExpectedError('');
 
@@ -601,7 +608,7 @@
         CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // [WHEN] Stan calls "Post Preview" from invoice
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
         Assert.ExpectedError('');
 
@@ -638,7 +645,7 @@
         Commit();
 
         // [WHEN] Stan calls "Post Preview" from invoice
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
         Assert.ExpectedError('');
 
@@ -678,9 +685,9 @@
         // [THEN] Three entries expected in "G/L Posting Preview" page for table "Detailed Vendor Ledger Entry"
         // [THEN] Payment Discount Tolerance and two applications (invoice -> payment and payment -> invoice)
         // Verification done in DtldVendLedgEntryPageHandler
-        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, '');
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger(), '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -700,7 +707,7 @@
         // [GIVEN] Purchase Invoice has "Payment Method Code" with Bal. Account No. filled.
         LibraryInventory.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
-        PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         PaymentMethod.Modify(true);
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
@@ -708,17 +715,17 @@
         Commit();
 
         // [WHEN] Vendor Ledger Entries Preview is opened from Posting Preview of Purchase Invoice.
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
-        VendLedgEntriesPreview.Trap;
+        VendLedgEntriesPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Vendor Ledger Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
 
         // [THEN] Vendor Ledger Entry with "Document Type" = Invoice has Open = False.
         VendLedgEntriesPreview.FILTER.SetFilter("Document Type", Format(PurchaseHeader."Document Type"::Invoice));
         VendLedgEntriesPreview.Open.AssertEquals(false);
-        VendLedgEntriesPreview.OK.Invoke;
-        GLPostingPreview.OK.Invoke;
+        VendLedgEntriesPreview.OK().Invoke();
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -787,7 +794,6 @@
     procedure ExtendedPostingPreviewVATHierarchicalView()
     var
         VATPostingSetup: array[2] of Record "VAT Posting Setup";
-        GLAccount: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
         ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview";
@@ -847,7 +853,7 @@
         Commit();
 
         // [WHEN] Run posting preview
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
         GLPostingPreview.Close();
 
@@ -1042,7 +1048,7 @@
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, -PmtAmount);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), -PmtAmount);
         GenJournalLine.Validate("Posting Date", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()) + 1); // date after "Pmt. Disc. Posting Date"
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1064,7 +1070,7 @@
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterUpdatePostingNos', '', false, false)]
-    local procedure OnAfterUpdatePostingNos(var PurchaseHeader: Record "Purchase Header"; var NoSeriesMgt: Codeunit NoSeriesManagement; CommitIsSupressed: Boolean)
+    local procedure OnAfterUpdatePostingNos(var PurchaseHeader: Record "Purchase Header"; CommitIsSupressed: Boolean)
     begin
         PurchHeaderPostingNo := PurchaseHeader."Posting No.";
     end;
@@ -1073,7 +1079,7 @@
     [Scope('OnPrem')]
     procedure PaymentRegistrationSetup(var PaymentRegistrationSetup: TestPage "Payment Registration Setup")
     begin
-        PaymentRegistrationSetup.OK.Invoke;
+        PaymentRegistrationSetup.OK().Invoke();
     end;
 
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -1158,20 +1164,20 @@
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendEntriesPreview: TestPage "Detailed Vend. Entries Preview";
     begin
-        GLPostingPreview.FILTER.SetFilter("Table ID", Format(LibraryVariableStorage.DequeueInteger));
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(LibraryVariableStorage.DequeueInteger()));
         LibraryVariableStorage.Enqueue(GLPostingPreview."No. of Records".Value);
-        DetailedVendEntriesPreview.Trap;
-        GLPostingPreview."No. of Records".DrillDown;
+        DetailedVendEntriesPreview.Trap();
+        GLPostingPreview."No. of Records".DrillDown();
         DetailedVendEntriesPreview.FILTER.SetFilter(
           "Entry Type", Format(DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance"));
         Assert.IsTrue(
-          DetailedVendEntriesPreview.Amount.AsDEcimal <> 0, 'Payment Discount Tolerance does not exist');
+          DetailedVendEntriesPreview.Amount.AsDecimal() <> 0, 'Payment Discount Tolerance does not exist');
         DetailedVendEntriesPreview.FILTER.SetFilter("Entry Type", Format(DetailedVendorLedgEntry."Entry Type"::Application));
         Assert.IsTrue(
-          DetailedVendEntriesPreview.Amount.AsDEcimal <> 0, 'Application does not exist');
+          DetailedVendEntriesPreview.Amount.AsDecimal() <> 0, 'Application does not exist');
         DetailedVendEntriesPreview.Next();
         Assert.IsTrue(
-          DetailedVendEntriesPreview.Amount.AsDEcimal <> 0, 'Application does not exist');
+          DetailedVendEntriesPreview.Amount.AsDecimal() <> 0, 'Application does not exist');
     end;
 }
 

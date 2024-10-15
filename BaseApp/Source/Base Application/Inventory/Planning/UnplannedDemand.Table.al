@@ -16,6 +16,7 @@ table 5520 "Unplanned Demand"
                   TableData "Assembly Header" = r,
                   TableData "Production Order" = r,
                   TableData "Service Header" = r;
+    DataClassification = CustomerContent;
 
     fields
     {

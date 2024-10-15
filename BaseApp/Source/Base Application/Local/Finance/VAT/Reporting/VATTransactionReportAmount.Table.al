@@ -11,6 +11,7 @@ table 12195 "VAT Transaction Report Amount"
     Caption = 'VAT Transaction Report Amount';
     DrillDownPageID = "VAT Transaction Report Amounts";
     LookupPageID = "VAT Transaction Report Amounts";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -35,28 +35,25 @@ codeunit 1232 "SEPA DD-Prepare Source"
         CustomerBillHeader: Record "Customer Bill Header";
         CustomerBillLine: Record "Customer Bill Line";
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
-        SEPADDExportMgt: Codeunit "SEPA - DD Export Mgt.";
     begin
         CustomerBillHeader.Get(DirectDebitCollection.Identifier);
         CustomerBillHeader.TestField("Payment Method Code");
         CustomerBillLine.SetRange("Customer Bill No.", CustomerBillHeader."No.");
         if CustomerBillLine.FindSet() then
-            with ToDirectDebitCollectionEntry do begin
-                repeat
-                    CustomerBillLine.TestField("Cumulative Bank Receipts", false);
-                    if SEPADirectDebitMandate.Get(CustomerBillLine."Direct Debit Mandate ID") then
-                        CustomerBillLine.TestField("Customer Bank Acc. No.", SEPADirectDebitMandate."Customer Bank Account Code");
-                    CustLedgerEntry.Get(CustomerBillLine."Customer Entry No.");
-                    Init();
-                    "Entry No." := CustomerBillLine."Line No.";
-                    "Direct Debit Collection No." := DirectDebitCollection."No.";
-                    Validate("Customer No.", CustLedgerEntry."Customer No.");
-                    Validate("Applies-to Entry No.", CustLedgerEntry."Entry No.");
-                    "Transfer Date" := CustomerBillLine."Due Date";
-                    Validate("Mandate ID", CustomerBillLine."Direct Debit Mandate ID");
-                    Insert();
-                until CustomerBillLine.Next() = 0;
-            end;
+            repeat
+                CustomerBillLine.TestField("Cumulative Bank Receipts", false);
+                if SEPADirectDebitMandate.Get(CustomerBillLine."Direct Debit Mandate ID") then
+                    CustomerBillLine.TestField("Customer Bank Acc. No.", SEPADirectDebitMandate."Customer Bank Account Code");
+                CustLedgerEntry.Get(CustomerBillLine."Customer Entry No.");
+                ToDirectDebitCollectionEntry.Init();
+                ToDirectDebitCollectionEntry."Entry No." := CustomerBillLine."Line No.";
+                ToDirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";
+                ToDirectDebitCollectionEntry.Validate("Customer No.", CustLedgerEntry."Customer No.");
+                ToDirectDebitCollectionEntry.Validate("Applies-to Entry No.", CustLedgerEntry."Entry No.");
+                ToDirectDebitCollectionEntry."Transfer Date" := CustomerBillLine."Due Date";
+                ToDirectDebitCollectionEntry.Validate("Mandate ID", CustomerBillLine."Direct Debit Mandate ID");
+                ToDirectDebitCollectionEntry.Insert();
+            until CustomerBillLine.Next() = 0;
     end;
 
     local procedure CopyFromIssuedCustBillHeader(var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry" temporary; DirectDebitCollection: Record "Direct Debit Collection")
@@ -65,28 +62,25 @@ codeunit 1232 "SEPA DD-Prepare Source"
         IssuedCustomerBillHeader: Record "Issued Customer Bill Header";
         IssuedCustomerBillLine: Record "Issued Customer Bill Line";
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
-        SEPADDExportMgt: Codeunit "SEPA - DD Export Mgt.";
     begin
         IssuedCustomerBillHeader.Get(DirectDebitCollection.Identifier);
         IssuedCustomerBillHeader.TestField("Payment Method Code");
         IssuedCustomerBillLine.SetRange("Customer Bill No.", IssuedCustomerBillHeader."No.");
         if IssuedCustomerBillLine.FindSet() then
-            with ToDirectDebitCollectionEntry do begin
-                repeat
-                    IssuedCustomerBillLine.TestField("Cumulative Bank Receipts", false);
-                    if SEPADirectDebitMandate.Get(IssuedCustomerBillLine."Direct Debit Mandate ID") then
-                        IssuedCustomerBillLine.TestField("Customer Bank Acc. No.", SEPADirectDebitMandate."Customer Bank Account Code");
-                    CustLedgerEntry.Get(IssuedCustomerBillLine."Customer Entry No.");
-                    Init();
-                    "Entry No." := IssuedCustomerBillLine."Line No.";
-                    "Direct Debit Collection No." := DirectDebitCollection."No.";
-                    Validate("Customer No.", CustLedgerEntry."Customer No.");
-                    Validate("Applies-to Entry No.", CustLedgerEntry."Entry No.");
-                    "Transfer Date" := IssuedCustomerBillLine."Due Date";
-                    Validate("Mandate ID", IssuedCustomerBillLine."Direct Debit Mandate ID");
-                    Insert();
-                until IssuedCustomerBillLine.Next() = 0;
-            end;
+            repeat
+                IssuedCustomerBillLine.TestField("Cumulative Bank Receipts", false);
+                if SEPADirectDebitMandate.Get(IssuedCustomerBillLine."Direct Debit Mandate ID") then
+                    IssuedCustomerBillLine.TestField("Customer Bank Acc. No.", SEPADirectDebitMandate."Customer Bank Account Code");
+                CustLedgerEntry.Get(IssuedCustomerBillLine."Customer Entry No.");
+                ToDirectDebitCollectionEntry.Init();
+                ToDirectDebitCollectionEntry."Entry No." := IssuedCustomerBillLine."Line No.";
+                ToDirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";
+                ToDirectDebitCollectionEntry.Validate("Customer No.", CustLedgerEntry."Customer No.");
+                ToDirectDebitCollectionEntry.Validate("Applies-to Entry No.", CustLedgerEntry."Entry No.");
+                ToDirectDebitCollectionEntry."Transfer Date" := IssuedCustomerBillLine."Due Date";
+                ToDirectDebitCollectionEntry.Validate("Mandate ID", IssuedCustomerBillLine."Direct Debit Mandate ID");
+                ToDirectDebitCollectionEntry.Insert();
+            until IssuedCustomerBillLine.Next() = 0;
     end;
 
     local procedure CreateTempCollectionEntries(var FromDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry")

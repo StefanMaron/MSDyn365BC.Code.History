@@ -13,6 +13,7 @@ table 12117 Contributions
     Caption = 'Contributions';
     DrillDownPageID = "Contribution List";
     LookupPageID = "Contribution List";
+    DataClassification = CustomerContent;
 
     fields
     {

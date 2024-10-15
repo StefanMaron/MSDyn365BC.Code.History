@@ -206,7 +206,7 @@ report 87 "Copy - General Posting Setup"
         AllFieldsSelectionOnPush();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCopyGenPostingSetup(var ToGeneralPostingSetup: Record "General Posting Setup"; FromGeneralPostingSetup: Record "General Posting Setup"; var CopySales: Boolean; var CopyPurchases: Boolean; var CopyInventory: Boolean; var CopyManufacturing: Boolean)
     begin
     end;

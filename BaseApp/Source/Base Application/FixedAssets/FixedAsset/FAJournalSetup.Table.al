@@ -10,6 +10,7 @@ using System.Security.User;
 table 5605 "FA Journal Setup"
 {
     Caption = 'FA Journal Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -179,20 +180,18 @@ table 5605 "FA Journal Setup"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            GenJnlTemplate.Get("Journal Template Name");
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            "Source Code" := GenJnlTemplate."Source Code";
-            "Reason Code" := GenJnlBatch."Reason Code";
-            GenJnlBatch.TestField("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            GenJnlBatch.TestField("Bal. Account No.", '');
-        end;
+        GenJnlTemplate.Get(GenJnlLine."Journal Template Name");
+        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+        GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
+        GenJnlLine."Reason Code" := GenJnlBatch."Reason Code";
+        GenJnlBatch.TestField("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlBatch.TestField("Bal. Account No.", '');
     end;
 
     procedure GetFAJnlDocumentNo(var FAJnlLine: Record "FA Journal Line"; PostingDate: Date; CreateError: Boolean): Code[20]
     var
         FAJnlBatch: Record "FA Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
         IsHandled: Boolean;
     begin
@@ -201,20 +200,18 @@ table 5605 "FA Journal Setup"
         if IsHandled then
             exit;
 
-        with FAJnlLine do begin
-            FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if (FAJnlBatch."No. Series" <> '') and not Find('=><') then
-                DocumentNo := NoSeriesMgt.GetNextNo(FAJnlBatch."No. Series", PostingDate, false);
-            if (DocumentNo = '') and CreateError then
-                Error(Text000, FieldCaption("Document No."));
-        end;
+        FAJnlBatch.Get(FAJnlLine."Journal Template Name", FAJnlLine."Journal Batch Name");
+        if (FAJnlBatch."No. Series" <> '') and not FAJnlLine.Find('=><') then
+            DocumentNo := NoSeries.PeekNextNo(FAJnlBatch."No. Series", PostingDate);
+        if (DocumentNo = '') and CreateError then
+            Error(Text000, FAJnlLine.FieldCaption("Document No."));
         exit(DocumentNo);
     end;
 
     procedure GetGenJnlDocumentNo(var GenJnlLine: Record "Gen. Journal Line"; PostingDate: Date; CreateError: Boolean): Code[20]
     var
         GenJnlBatch: Record "Gen. Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
         IsHandled: Boolean;
     begin
@@ -223,29 +220,25 @@ table 5605 "FA Journal Setup"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if (GenJnlBatch."No. Series" <> '') and not Find('=><') then
-                DocumentNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, false);
-            if (DocumentNo = '') and CreateError then
-                Error(Text000, FieldCaption("Document No."));
-        end;
+        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+        if (GenJnlBatch."No. Series" <> '') and not GenJnlLine.Find('=><') then
+            DocumentNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", PostingDate);
+        if (DocumentNo = '') and CreateError then
+            Error(Text000, GenJnlLine.FieldCaption("Document No."));
         exit(DocumentNo);
     end;
 
     procedure GetInsuranceJnlDocumentNo(var InsuranceJnlLine: Record "Insurance Journal Line"; PostingDate: Date): Code[20]
     var
         InsuranceJnlBatch: Record "Insurance Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
     begin
-        with InsuranceJnlLine do begin
-            InsuranceJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if (InsuranceJnlBatch."No. Series" <> '') and not Find('=><') then
-                DocumentNo := NoSeriesMgt.GetNextNo(InsuranceJnlBatch."No. Series", PostingDate, false);
-            if DocumentNo = '' then
-                Error(Text000, FieldCaption("Document No."));
-        end;
+        InsuranceJnlBatch.Get(InsuranceJnlLine."Journal Template Name", InsuranceJnlLine."Journal Batch Name");
+        if (InsuranceJnlBatch."No. Series" <> '') and not InsuranceJnlLine.Find('=><') then
+            DocumentNo := NoSeries.PeekNextNo(InsuranceJnlBatch."No. Series", PostingDate);
+        if DocumentNo = '' then
+            Error(Text000, InsuranceJnlLine.FieldCaption("Document No."));
         exit(DocumentNo);
     end;
 
@@ -289,12 +282,10 @@ table 5605 "FA Journal Setup"
         if IsHandled then
             exit;
 
-        with FAJnlLine do begin
-            FAJnlTemplate.Get("Journal Template Name");
-            FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            "Source Code" := FAJnlTemplate."Source Code";
-            "Reason Code" := FAJnlBatch."Reason Code";
-        end;
+        FAJnlTemplate.Get(FAJnlLine."Journal Template Name");
+        FAJnlBatch.Get(FAJnlLine."Journal Template Name", FAJnlLine."Journal Batch Name");
+        FAJnlLine."Source Code" := FAJnlTemplate."Source Code";
+        FAJnlLine."Reason Code" := FAJnlBatch."Reason Code";
     end;
 
     procedure SetInsuranceJnlTrailCodes(var InsuranceJnlLine: Record "Insurance Journal Line")
@@ -302,12 +293,10 @@ table 5605 "FA Journal Setup"
         InsuranceJnlTempl: Record "Insurance Journal Template";
         InsuranceJnlBatch: Record "Insurance Journal Batch";
     begin
-        with InsuranceJnlLine do begin
-            InsuranceJnlTempl.Get("Journal Template Name");
-            InsuranceJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            "Source Code" := InsuranceJnlTempl."Source Code";
-            "Reason Code" := InsuranceJnlBatch."Reason Code";
-        end;
+        InsuranceJnlTempl.Get(InsuranceJnlLine."Journal Template Name");
+        InsuranceJnlBatch.Get(InsuranceJnlLine."Journal Template Name", InsuranceJnlLine."Journal Batch Name");
+        InsuranceJnlLine."Source Code" := InsuranceJnlTempl."Source Code";
+        InsuranceJnlLine."Reason Code" := InsuranceJnlBatch."Reason Code";
     end;
 
     procedure IncFAJnlBatchName(var FAJnlBatch: Record "FA Journal Batch")

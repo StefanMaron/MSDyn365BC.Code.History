@@ -140,7 +140,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create and Post multiple Cash Receipt Journals.
         Initialize();
-        CreateCashReceiptsJournalBatch(GenJournalBatch, CreateCurrencyCode);
+        CreateCashReceiptsJournalBatch(GenJournalBatch, CreateCurrencyCode());
         Amount := CreateAndPostMultipleCashReceiptGenJournalLines(GenJournalBatch);
         LibraryVariableStorage.Enqueue(GenJournalBatch."Bal. Account No.");  // Enqueue Bal. Account No. in BankSheetPrintRequestPageHandler.
 
@@ -148,7 +148,7 @@ codeunit 144050 "ERM Auto Payment"
         REPORT.Run(REPORT::"Bank Sheet - Print");
 
         // Verify: Verify values on Report - Bank Sheet - Print.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmtCap, -Amount);
         LibraryReportDataset.AssertElementWithValueExists(NoBankAccountCap, GenJournalBatch."Bal. Account No.");
     end;
@@ -193,11 +193,11 @@ codeunit 144050 "ERM Auto Payment"
         // Setup: Create and post Customer Bill.Change WorkDate.
         Initialize();
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());  // Using greater date than WORKDATE as Bill must be issued later than the posted invoice.
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, PostingDate);
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode(), PostingDate);
         CreateAndPostCustomerBill(TempSalesLine."Sell-to Customer No.");
         OldWorkDate := WorkDate();
         WorkDate := CalcDate('<CY>', PostingDate);
-        PostingDate := GetClosingBankRcptDate;
+        PostingDate := GetClosingBankRcptDate();
         EnqueueValuesForRequestPageHandler(ConfirmPerApplication, TempSalesLine."Sell-to Customer No.");  // Enqueue values in ClosingBankReceiptsRequestPageHandler.
 
         // Exercise.
@@ -226,7 +226,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Issue Bank Receipts after posting Sales Invoices. Run Suggest Customer Bills for created Customers.
         Initialize();
-        PaymentTermsCode := CreatePaymentTermsCode;
+        PaymentTermsCode := CreatePaymentTermsCode();
         IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, PaymentTermsCode, WorkDate());
         IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine2, PaymentTermsCode, WorkDate());
         CreateCustomerBillHeader(CustomerBillHeader);
@@ -241,7 +241,7 @@ codeunit 144050 "ERM Auto Payment"
         REPORT.Run(REPORT::"Issued Cust Bills Report");
 
         // Verify: Verify values on Report - Issued Customer Bills Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ListDateIssuedCustBillHdrCap, Format(WorkDate()));
         LibraryReportDataset.AssertElementWithValueExists(AmountIssuedCustBillLineCap, TempSalesLine."Amount Including VAT");
     end;
@@ -259,7 +259,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create customer bill after Issue Bank Receipt for posted Sales Invoice . Run Suggest Customer Bill.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate());
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines(), WorkDate());
         CreateCustomerBillHeader(CustomerBillHeader);
         RunSuggestCustomerBill(CustomerBillHeader, TempSalesLine."Sell-to Customer No.");
 
@@ -283,7 +283,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create and Post Customer Bill after Issue Bank Receipt for Posted Sales Invoice.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate());
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines(), WorkDate());
         CreateAndPostCustomerBill(TempSalesLine."Sell-to Customer No.");
 
         // Exercise: Recall Issued Customer Bill.
@@ -306,7 +306,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create and post Customer Bill. Update Customer. Change WorkDate.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate());
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode(), WorkDate());
         CreateAndPostCustomerBill(TempSalesLine."Sell-to Customer No.");
         UpdateBlockedCustomerToAll(TempSalesLine."Sell-to Customer No.");
         OldWorkDate := WorkDate();
@@ -336,9 +336,9 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Issue Bank Receipt for Posted Sales Invoice. Create Customer Bill Header with new Bank Account No and Bills to subject to collection.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate());
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode(), WorkDate());
         LibrarySales.CreateCustomerBillHeader(
-          CustomerBillHeader, CreateBankAccount(''), FindPaymentMethod, CustomerBillHeader.Type::"Bills Subject To Collection");  // Blank value for Currency Code,
+          CustomerBillHeader, CreateBankAccount(''), FindPaymentMethod(), CustomerBillHeader.Type::"Bills Subject To Collection");  // Blank value for Currency Code,
         RunSuggestCustomerBill(CustomerBillHeader, TempSalesLine."Sell-to Customer No.");
 
         // Exercise.
@@ -377,7 +377,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         // Setup.
         Initialize();
-        DocumentNo := ApplyToDocumentAfterIssueVendorBill(CreateVendor, DocumentType);
+        DocumentNo := ApplyToDocumentAfterIssueVendorBill(CreateVendor(), DocumentType);
 
         // Exercise and Verify.
         PostVendorBillListFromVendorBillListSentCard(DocumentNo);
@@ -412,7 +412,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         // Setup.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         DocumentNo := ApplyToDocumentAfterIssueVendorBill(VendorNo, DocumentType);
         ApplyToDocumentAfterIssueVendorBill(VendorNo, DocumentType);
 
@@ -426,7 +426,7 @@ codeunit 144050 "ERM Auto Payment"
     procedure ReverseCustomerLedgerEntryWithDimension()
     begin
         // Test to verify Customer Ledger Entry for Customer with dimension when unapplied payment entry reversed.
-        ReverseCustLedgerEntryAfterUnApply(CreateCustomerWithDimension);
+        ReverseCustLedgerEntryAfterUnApply(CreateCustomerWithDimension());
     end;
 
     [Test]
@@ -481,7 +481,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Issue bank Receipt, Create Customer Bill Header, Update Customer Blocked to All.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode, WorkDate());
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsCode(), WorkDate());
         CreateCustomerBillHeader(CustomerBillHeader);
         UpdateBlockedCustomerToAll(TempSalesLine."Sell-to Customer No.");
 
@@ -490,7 +490,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Verify: Verify no Customer Bill Lines are suggested.
         CustomerBillLine.SetRange("Customer Bill No.", CustomerBillHeader."No.");
-        Assert.IsFalse(CustomerBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, Customer.TableCaption()));
+        Assert.IsFalse(CustomerBillLine.FindFirst(), StrSubstNo(LineMustNotExistsErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -522,7 +522,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         // Setup: Post Purchase Invoice, Create Vendor Bill Header, Update Vendor Blocked to All.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreateAndPostPurchaseInvoice(VendorNo, LibraryRandom.RandDec(10, 2));  // Using Random for Direct Unit Cost.
         CreateVendorBillHeader(VendorBillHeader);
         UpdateBlockedVendorToAll(VendorNo, Blocked);
@@ -532,7 +532,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Verify: Verify no Vendor Bill Lines are suggested.
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
-        Assert.IsFalse(VendorBillLine.FindFirst, StrSubstNo(LineMustNotExistsErr, Vendor.TableCaption()));
+        Assert.IsFalse(VendorBillLine.FindFirst(), StrSubstNo(LineMustNotExistsErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -548,7 +548,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create vendor, post Purchase Invoice, Issue vendor Bill and delete Issued Vendor Bill.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         IssueVendorBillAfterPostingPurchaseInvoice(VendorBillLine, VendorNo);
         FindVendorBillHeader(VendorBillHeader, VendorBillLine."Vendor Bill List No.", VendorBillHeader."List Status"::Sent);
         VendorBillHeader.Delete(true);
@@ -575,7 +575,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create vendor, post Purchase Invoice, Issue Vendor Bill and delete Issued Vendor Bill Line, Create new Vendor Bill Header.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         IssueVendorBillAfterPostingPurchaseInvoice(VendorBillLine, VendorNo);
         FindVendorBillHeader(VendorBillHeader, VendorBillLine."Vendor Bill List No.", VendorBillHeader."List Status"::Sent);
         VendorBillLine.Delete(true);
@@ -600,7 +600,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create vendor, post Purchase Invoice, Create Vendor Bill and delete Vendor Bill Line.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreateAndPostPurchaseInvoice(VendorNo, LibraryRandom.RandDec(10, 2));  // Using Random for Direct Unit Cost.
         CreateVendorBill(VendorNo);
         FindVendorBillLine(VendorBillLine, VendorNo);
@@ -631,7 +631,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         // Test to verify Vendor Bill Lines can be re-inserted manually after deleting Vendor Bill Line with Withholding Tax Code.
         Initialize();
-        ReinsertVendorBillLineManually(CreateWithholdCodeWithLine);
+        ReinsertVendorBillLineManually(CreateWithholdCodeWithLine());
     end;
 
     [Test]
@@ -674,7 +674,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create Vendor, create and post Purchase Invoice, create and issue Vendor Bill, Apply and Unapply Vendor Ledger Entry.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         DocumentNo := ApplyToDocumentAfterIssueVendorBill(VendorNo, GenJournalLine."Document Type"::Payment);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
         FindVendorLedgerEntry(VendorLedgerEntry2, VendorNo);
@@ -703,8 +703,8 @@ codeunit 144050 "ERM Auto Payment"
         Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithMultiplePaymentLines);
-        Vendor.Validate("Prepmt. Payment Terms Code", CreatePaymentTermsCode);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithMultiplePaymentLines());
+        Vendor.Validate("Prepmt. Payment Terms Code", CreatePaymentTermsCode());
         Vendor.Modify(true);
 
         // Exercise.
@@ -731,7 +731,7 @@ codeunit 144050 "ERM Auto Payment"
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise.
-        asserterror Vendor.Validate("Prepmt. Payment Terms Code", CreatePaymentTermsWithMultiplePaymentLines);
+        asserterror Vendor.Validate("Prepmt. Payment Terms Code", CreatePaymentTermsWithMultiplePaymentLines());
 
         // Verify.
         Assert.ExpectedError(PrepmtPaymtTermCodeValidationErr);
@@ -748,7 +748,7 @@ codeunit 144050 "ERM Auto Payment"
         // if it is already defined for vendors with "Prepmt. Payment Terms Code"
 
         // Setup.
-        PrepmtPaymentTermsCode := SetPrepmtPmtTermsCodeOnVendor;
+        PrepmtPaymentTermsCode := SetPrepmtPmtTermsCodeOnVendor();
 
         // Exercise.
         asserterror LibraryERM.CreatePaymentLinesDiscount(PaymentLines, PrepmtPaymentTermsCode);
@@ -767,7 +767,7 @@ codeunit 144050 "ERM Auto Payment"
         // if it is already defined for vendors with "Prepmt. Payment Terms Code"
 
         // Setup.
-        PrepmtPaymentTermsCode := SetPrepmtPmtTermsCodeOnVendor;
+        PrepmtPaymentTermsCode := SetPrepmtPmtTermsCodeOnVendor();
 
         // Exercise.
         asserterror DeletePaymentLine(PrepmtPaymentTermsCode);
@@ -787,7 +787,7 @@ codeunit 144050 "ERM Auto Payment"
         // if it is already defined for purchase document with "Prepmt. Payment Terms Code"
 
         // Setup.
-        PrepmtPaymentTermsCode := SetPrepmtPmtTermsCodeOnInvoice;
+        PrepmtPaymentTermsCode := SetPrepmtPmtTermsCodeOnInvoice();
 
         // Exercise.
         asserterror LibraryERM.CreatePaymentLinesDiscount(PaymentLines, PrepmtPaymentTermsCode);
@@ -806,7 +806,7 @@ codeunit 144050 "ERM Auto Payment"
         // if it is already defined for purchase document with "Prepmt. Payment Terms Code"
 
         // Setup.
-        PrepmtPaymentTermsCode := SetPrepmtPmtTermsCodeOnInvoice;
+        PrepmtPaymentTermsCode := SetPrepmtPmtTermsCodeOnInvoice();
 
         // Exercise.
         asserterror DeletePaymentLine(PrepmtPaymentTermsCode);
@@ -829,7 +829,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // Setup: Create and post Purchase Invoice. Unapply payment Vendor Ledger Entry.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreateAndPostPurchaseInvoice(VendorNo, LibraryRandom.RandDec(10, 2));
         ApplyAndPostGeneralJournalLine(
           VendorNo, 0, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment);
@@ -889,7 +889,7 @@ codeunit 144050 "ERM Auto Payment"
 
         // [GIVEN] Posted Customer Bill after Issue Bank Receipt for Posted Sales Invoice.
         Initialize();
-        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines, WorkDate());
+        IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, CreatePaymentTermsWithMultiplePaymentLines(), WorkDate());
         CreateAndPostCustomerBill(TempSalesLine."Sell-to Customer No.");
 
         // [WHEN] Recall Issued Customer Bill.
@@ -945,7 +945,7 @@ codeunit 144050 "ERM Auto Payment"
         // [GIVEN] Create Vendor Bill Card. Invoke "Insert Vend. Bill Line Manual".
         // [GIVEN] Set "Withhold Tax Code" = 'WHTCode', where "Taxable Base %" = X,  "Withholding Tax %" = Y.
         // [WHEN] Invoke "Insert Line".
-        WithholdCodeLine.Get(CreateWithholdCodeWithLine, WorkDate());
+        WithholdCodeLine.Get(CreateWithholdCodeWithLine(), WorkDate());
         InsertVendorBillLineManually(VendorNo, VendorBillHeaderNo, TotalAmount, WithholdCodeLine."Withhold Code");
 
         // [THEN] "Vendor Bill Line"."Withholding Tax Amount" = Amount * X * Y
@@ -970,13 +970,13 @@ codeunit 144050 "ERM Auto Payment"
         // [SCENARIO 372284] Post Issued Vendor Bill with Bank Expense and Expense Bill Account No. with VAT setup
         Initialize();
         // [GIVEN] Posted Purchase Invoice with Activity Code = "A"
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
         DocumentNo := CreateAndPostPurchaseInvoice(VendorNo, InvoiceAmount);
         // [GIVEN] Bill Posting Group with "Expense Bill Account No." = G/L Account with Gen. Posting Type = Purchase
         // [GIVEN] Vendor Bill with Bank Expense = 10 and suggested Invoice line
         CreateVendorBillWithBankExpense(
-          VendorBillHeader, VendorNo, CreateGLAccount,
+          VendorBillHeader, VendorNo, CreateGLAccount(),
           LibraryRandom.RandDecInDecimalRange(1, InvoiceAmount, 2));
         // [GIVEN] Issued Vendor Bill
         IssueVendorBill(VendorBillHeader."No.");
@@ -1006,13 +1006,13 @@ codeunit 144050 "ERM Auto Payment"
         // [SCENARIO 372284] Post Issued Vendor Bill with Bank Expense and Expense Bill Account No. with no VAT setup
         Initialize();
         // [GIVEN] Posted Purchase Invoice with Activity Code = "A"
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
         DocumentNo := CreateAndPostPurchaseInvoice(VendorNo, InvoiceAmount);
         // [GIVEN] Bill Posting Group with "Expense Bill Account No." = G/L Account with Gen. Posting Type = ""
         // [GIVEN] Vendor Bill with Bank Expense = 10 and suggested Invoice line
         CreateVendorBillWithBankExpense(
-          VendorBillHeader, VendorNo, LibraryERM.CreateGLAccountNo,
+          VendorBillHeader, VendorNo, LibraryERM.CreateGLAccountNo(),
           LibraryRandom.RandDecInDecimalRange(1, InvoiceAmount, 2));
         // [GIVEN] Issued Vendor Bill
         IssueVendorBill(VendorBillHeader."No.");
@@ -1040,7 +1040,7 @@ codeunit 144050 "ERM Auto Payment"
         Initialize();
 
         // [GIVEN] Vendor with Withholding Tax and Contributions
-        VendorNo := CreateVendorWithWithholdingTax;
+        VendorNo := CreateVendorWithWithholdingTax();
 
         // [GIVEN] Issued vendor bill list
         CreateAndIssueVendorBillList(IssuedVendorBillHeader, DocumentDate, VendorNo);
@@ -1116,12 +1116,9 @@ codeunit 144050 "ERM Auto Payment"
     [Scope('OnPrem')]
     procedure SuggestVendorBillLineAndVerifyWithWithholdingTaxAmount()
     var
-        VendorBillHeader: Record "Vendor Bill Header";
         VendorBillHeader2: Record "Vendor Bill Header";
-        VendorBillLine: Record "Vendor Bill Line";
         Vendor: Record Vendor;
         WithholdCode: Code[20];
-        DocumentDate: Date;
     begin
         // [SCENARIO 454727]: Witholding tax amount is wrongly calculate when you have multiple payment installments in the Italian localization
 
@@ -1148,12 +1145,9 @@ codeunit 144050 "ERM Auto Payment"
     [Scope('OnPrem')]
     procedure SuggestVendorBillLineVerifyWithholdingTaxAmount()
     var
-        VendorBillHeader: Record "Vendor Bill Header";
         VendorBillHeader2: Record "Vendor Bill Header";
-        VendorBillLine: Record "Vendor Bill Line";
         Vendor: Record Vendor;
         WithholdCode: Code[20];
-        DocumentDate: Date;
     begin
         // [SCENARIO 464755]: WWithholding tax amount not update correctly in Vendor bill in the Italian Localization
 
@@ -1180,12 +1174,9 @@ codeunit 144050 "ERM Auto Payment"
     [Scope('OnPrem')]
     procedure SuggestVendorBillLineVerifyWithholdingTaxByUpdatingBaseExcludedAmount()
     var
-        VendorBillHeader: Record "Vendor Bill Header";
         VendorBillHeader2: Record "Vendor Bill Header";
-        VendorBillLine: Record "Vendor Bill Line";
         Vendor: Record Vendor;
         WithholdCode: Code[20];
-        DocumentDate: Date;
     begin
         // [SCENARIO 467725]: Withholding tax amount  when base excluded amount is used is  not update correctly in Vendor bill in the Italian Localization
 
@@ -1237,7 +1228,7 @@ codeunit 144050 "ERM Auto Payment"
         Vendor: Record Vendor;
         VendorBillHeader: Record "Vendor Bill Header";
     begin
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreateAndPostPurchaseInvoice(VendorNo, LibraryRandom.RandDecInRange(100, 200, 2));
         CreateVendorBillHeader(VendorBillHeader);
         VendorBillHeaderNo := VendorBillHeader."No.";
@@ -1262,10 +1253,10 @@ codeunit 144050 "ERM Auto Payment"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         Commit();  // COMMIT is required for Write Transaction Error.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;  // Invoke ApplyCustomerEntriesModalPageHandler, ApplyVendorEntriesModalPageHandler.
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();  // Invoke ApplyCustomerEntriesModalPageHandler, ApplyVendorEntriesModalPageHandler.
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure ApplyToDocumentAfterIssueVendorBill(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
@@ -1282,7 +1273,7 @@ codeunit 144050 "ERM Auto Payment"
     local procedure CreateCustomerWithShipmentMethod(var Customer: Record Customer)
     begin
         Customer.Get(CreateCustomer(''));  // Blank for Payment Terms code.
-        Customer.Validate("Shipment Method Code", FindAndUpdateShipmentMethod);
+        Customer.Validate("Shipment Method Code", FindAndUpdateShipmentMethod());
         Customer.Modify(true);
     end;
 
@@ -1374,7 +1365,7 @@ codeunit 144050 "ERM Auto Payment"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Method Code", FindPaymentMethod);
+        Customer.Validate("Payment Method Code", FindPaymentMethod());
         Customer.Validate("Payment Terms Code", PaymentTermsCode);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -1384,7 +1375,7 @@ codeunit 144050 "ERM Auto Payment"
     var
         BillPostingGroup: Record "Bill Posting Group";
     begin
-        BillPostingGroup.SetRange("Payment Method", FindPaymentMethod);
+        BillPostingGroup.SetRange("Payment Method", FindPaymentMethod());
         BillPostingGroup.FindFirst();
         LibrarySales.CreateCustomerBillHeader(
           CustomerBillHeader, BillPostingGroup."No.", BillPostingGroup."Payment Method", CustomerBillHeader.Type::"Bills For Collection");
@@ -1396,7 +1387,7 @@ codeunit 144050 "ERM Auto Payment"
         DimensionValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
     begin
-        CustomerNo := CreateCustomer(CreatePaymentTermsCode);
+        CustomerNo := CreateCustomer(CreatePaymentTermsCode());
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
@@ -1438,7 +1429,7 @@ codeunit 144050 "ERM Auto Payment"
     var
         PaymentLines: Record "Payment Lines";
     begin
-        LibraryERM.CreatePaymentLinesDiscount(PaymentLines, CreatePaymentTermsCode);
+        LibraryERM.CreatePaymentLinesDiscount(PaymentLines, CreatePaymentTermsCode());
         exit(PaymentLines.Code);
     end;
 
@@ -1459,7 +1450,7 @@ codeunit 144050 "ERM Auto Payment"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Method Code", FindPaymentMethod);
+        Vendor.Validate("Payment Method Code", FindPaymentMethod());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1473,7 +1464,7 @@ codeunit 144050 "ERM Auto Payment"
         CreateContributionCodeWithLine(ContributionCode, ContributionCode."Contribution Type"::INAIL);
         CreateContributionCodeWithLine(ContributionCode2, ContributionCode2."Contribution Type"::INPS);
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Withholding Tax Code", CreateWithholdCodeWithLine);
+        Vendor.Validate("Withholding Tax Code", CreateWithholdCodeWithLine());
         Vendor.Validate("Social Security Code", ContributionCode2.Code);
         Vendor.Validate("INAIL Code", ContributionCode.Code);
         Vendor.Modify(true);
@@ -1493,7 +1484,7 @@ codeunit 144050 "ERM Auto Payment"
     var
         BillPostingGroup: Record "Bill Posting Group";
     begin
-        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, CreateBankAccount(''), FindPaymentMethod);  // Blank value for Currency Code.
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, CreateBankAccount(''), FindPaymentMethod());  // Blank value for Currency Code.
         LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
         VendorBillHeader.Validate("Bank Account No.", BillPostingGroup."No.");
         VendorBillHeader.Validate("Payment Method Code", BillPostingGroup."Payment Method");
@@ -1551,12 +1542,12 @@ codeunit 144050 "ERM Auto Payment"
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         LibraryITLocalization.CreateBill(Bill);
-        Bill.Validate("Vendor Bill List", LibraryUtility.GetGlobalNoSeriesCode);
-        Bill.Validate("Vendor Bill No.", LibraryUtility.GetGlobalNoSeriesCode);
+        Bill.Validate("Vendor Bill List", LibraryUtility.GetGlobalNoSeriesCode());
+        Bill.Validate("Vendor Bill No.", LibraryUtility.GetGlobalNoSeriesCode());
         Bill.Modify(true);
         PaymentMethod.Validate("Bill Code", Bill.Code);
         PaymentMethod.Modify(true);
-        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, LibraryERM.CreateBankAccountNo, PaymentMethod.Code);
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, LibraryERM.CreateBankAccountNo(), PaymentMethod.Code);
     end;
 
     local procedure CreatePostPurchaseInvoice(VendorNo: Code[20]; PaymentMethod: Code[10]): Date
@@ -1568,7 +1559,7 @@ codeunit 144050 "ERM Auto Payment"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
         PurchaseLine.Modify(true);
         PurchaseHeader.Validate("Payment Method Code", PaymentMethod);
@@ -1581,8 +1572,8 @@ codeunit 144050 "ERM Auto Payment"
     local procedure CreateContributionCode(var ContributionCode: Record "Contribution Code"; ContributionType: Option)
     begin
         LibraryITLocalization.CreateContributionCode(ContributionCode, ContributionType);
-        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo);
-        ContributionCode.Validate("Social Security Charges Acc.", LibraryERM.CreateGLAccountNo);
+        ContributionCode.Validate("Social Security Payable Acc.", LibraryERM.CreateGLAccountNo());
+        ContributionCode.Validate("Social Security Charges Acc.", LibraryERM.CreateGLAccountNo());
         ContributionCode.Modify(true);
     end;
 
@@ -1632,7 +1623,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccount."No.", PaymentMethod);
-        BillPostingGroup.Validate("Bills For Collection Acc. No.", LibraryERM.CreateGLAccountNo);
+        BillPostingGroup.Validate("Bills For Collection Acc. No.", LibraryERM.CreateGLAccountNo());
         BillPostingGroup.Modify(true);
         exit(BillPostingGroup."No.");
     end;
@@ -1755,7 +1746,7 @@ codeunit 144050 "ERM Auto Payment"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        PaymentMethod.SetRange("Bill Code", FindBillCode);
+        PaymentMethod.SetRange("Bill Code", FindBillCode());
         LibraryERM.FindPaymentMethod(PaymentMethod);
         exit(PaymentMethod.Code);
     end;
@@ -1834,9 +1825,9 @@ codeunit 144050 "ERM Auto Payment"
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(WithholdCode);
         LibraryVariableStorage.Enqueue(TotalAmount);
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", No);
-        VendorBillCard.InsertVendBillLineManual.Invoke;  // Opens ManualVendorPaymentLinePageHandler.
+        VendorBillCard.InsertVendBillLineManual.Invoke();  // Opens ManualVendorPaymentLinePageHandler.
         VendorBillCard.Close();
     end;
 
@@ -1844,9 +1835,9 @@ codeunit 144050 "ERM Auto Payment"
     var
         VendorBillCard: TestPage "Vendor Bill Card";
     begin
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", No);
-        VendorBillCard."&Create List".Invoke;
+        VendorBillCard."&Create List".Invoke();
     end;
 
     local procedure PostCustomerBill(CustomerBillHeader: Record "Customer Bill Header")
@@ -1869,9 +1860,9 @@ codeunit 144050 "ERM Auto Payment"
     var
         VendorBillListSentCard: TestPage "Vendor Bill List Sent Card";
     begin
-        VendorBillListSentCard.OpenEdit;
+        VendorBillListSentCard.OpenEdit();
         VendorBillListSentCard.FILTER.SetFilter("Vendor Bill List No.", VendorBillListNo);
-        VendorBillListSentCard.Post.Invoke;
+        VendorBillListSentCard.Post.Invoke();
     end;
 
     local procedure PostVendorBillListFromVendorBillListSentCard(DocumentNo: Code[20])
@@ -1895,10 +1886,10 @@ codeunit 144050 "ERM Auto Payment"
         IssuedCustomerBillCard: TestPage "Issued Customer Bill Card";
     begin
         FindIssuedCustomerBillLine(IssuedCustomerBillLine, CustomerNo);
-        IssuedCustomerBillCard.OpenEdit;
+        IssuedCustomerBillCard.OpenEdit();
         IssuedCustomerBillCard.FILTER.SetFilter("No.", IssuedCustomerBillLine."Customer Bill No.");
-        IssuedCustomerBillCard.BankReceiptsLines.SelectBillToRecall.Invoke;
-        IssuedCustomerBillCard.OK.Invoke;
+        IssuedCustomerBillCard.BankReceiptsLines.SelectBillToRecall.Invoke();
+        IssuedCustomerBillCard.OK().Invoke();
         RecallCustomerBill.RecallIssuedBill(IssuedCustomerBillLine);
     end;
 
@@ -1906,11 +1897,11 @@ codeunit 144050 "ERM Auto Payment"
     var
         CustomerBillCard: TestPage "Customer Bill Card";
     begin
-        CustomerBillCard.OpenEdit;
+        CustomerBillCard.OpenEdit();
         CustomerBillCard.FILTER.SetFilter("No.", No);
-        CustomerBillCard.CustomerBillLine.SelectBillToRecall.Invoke;
-        CustomerBillCard."Recall Customer Bill".Invoke;
-        CustomerBillCard.OK.Invoke;
+        CustomerBillCard.CustomerBillLine.SelectBillToRecall.Invoke();
+        CustomerBillCard."Recall Customer Bill".Invoke();
+        CustomerBillCard.OK().Invoke();
     end;
 
     local procedure RecallLastInvoice(DocumentNo: Code[20])
@@ -2012,7 +2003,7 @@ codeunit 144050 "ERM Auto Payment"
         CustLedgerEntry.TestField(Open, false);
         CustLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(
-          Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
     end;
 
@@ -2085,7 +2076,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        PrepmtPaymentTermsCode := CreatePaymentTermsCode;
+        PrepmtPaymentTermsCode := CreatePaymentTermsCode();
         Vendor.Validate("Prepmt. Payment Terms Code", PrepmtPaymentTermsCode);
         Vendor.Modify(true);
     end;
@@ -2097,7 +2088,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        PrepmtPaymentTermsCode := CreatePaymentTermsCode;
+        PrepmtPaymentTermsCode := CreatePaymentTermsCode();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         PurchaseHeader.Validate("Prepmt. Payment Terms Code", PrepmtPaymentTermsCode);
         PurchaseHeader.Modify(true);
@@ -2139,7 +2130,7 @@ codeunit 144050 "ERM Auto Payment"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        PaymentMethod.SetRange("Bill Code", FindPaymentMethodBillCode);
+        PaymentMethod.SetRange("Bill Code", FindPaymentMethodBillCode());
         LibraryERM.FindPaymentMethod(PaymentMethod);
         exit(PaymentMethod.Code);
     end;
@@ -2252,14 +2243,14 @@ codeunit 144050 "ERM Auto Payment"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2270,7 +2261,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         LibraryVariableStorage.Dequeue(No);
         BankSheetPrint."Bank Account".SetFilter("No.", No);
-        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2284,7 +2275,7 @@ codeunit 144050 "ERM Auto Payment"
         LibraryVariableStorage.Dequeue(CustomerNo);
         ClosingBankReceipts.ConfirmPerApplication.SetValue(ConfirmPerApplication);
         ClosingBankReceipts.CustEntry1.SetFilter("Customer No.", CustomerNo);
-        ClosingBankReceipts.OK.Invoke;
+        ClosingBankReceipts.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2308,7 +2299,7 @@ codeunit 144050 "ERM Auto Payment"
         IssuingCustomerBill.DoNotCheckDimensions.SetValue(false);
         IssuingCustomerBill.PostingDate.SetValue(PostingDate);
         IssuingCustomerBill.DocumentDate.SetValue(PostingDate);
-        IssuingCustomerBill.OK.Invoke;
+        IssuingCustomerBill.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2319,7 +2310,7 @@ codeunit 144050 "ERM Auto Payment"
     begin
         LibraryVariableStorage.Dequeue(No);
         IssuedCustBillsReport."Issued Customer Bill Header".SetFilter("No.", No);
-        IssuedCustBillsReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IssuedCustBillsReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [PageHandler]
@@ -2340,14 +2331,14 @@ codeunit 144050 "ERM Auto Payment"
         ManualVendorPaymentLine.DocumentNo.SetValue(LibraryUtility.GenerateGUID());
         ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate());
         ManualVendorPaymentLine.TotalAmount.SetValue(TotalAmount);
-        ManualVendorPaymentLine.InsertLine.Invoke;
+        ManualVendorPaymentLine.InsertLine.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationModalPageHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

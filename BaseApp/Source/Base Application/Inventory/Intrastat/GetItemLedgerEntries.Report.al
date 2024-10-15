@@ -136,17 +136,15 @@ report 594 "Get Item Ledger Entries"
 
                     "Item Ledger Entry".SetFilter("Invoiced Quantity", '<>%1', 0);
 
-                    with ValueEntry do begin
-                        SetCurrentKey("Item Ledger Entry No.");
-                        SetRange("Posting Date", StartDate, EndDate);
-                        SetRange("Entry Type", "Entry Type"::"Direct Cost");
-                        SetFilter("Invoiced Quantity", '<>%1', 0);
-                        SetFilter(
-                          "Item Ledger Entry Type", '%1|%2|%3',
-                          "Item Ledger Entry Type"::Sale,
-                          "Item Ledger Entry Type"::Purchase,
-                          "Item Ledger Entry Type"::Transfer);
-                    end;
+                    ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+                    ValueEntry.SetRange("Posting Date", StartDate, EndDate);
+                    ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+                    ValueEntry.SetFilter("Invoiced Quantity", '<>%1', 0);
+                    ValueEntry.SetFilter(
+                      "Item Ledger Entry Type", '%1|%2|%3',
+                      ValueEntry."Item Ledger Entry Type"::Sale,
+                      ValueEntry."Item Ledger Entry Type"::Purchase,
+                      ValueEntry."Item Ledger Entry Type"::Transfer);
                     OnAfterItemLedgerEntryOnPreDataItem("Item Ledger Entry");
                 end;
             }
@@ -521,122 +519,118 @@ report 594 "Get Item Ledger Entries"
     begin
         Item.Get("Item Ledger Entry"."Item No.");
         GetGLSetup();
-        with IntrastatJnlLine do begin
-            Init();
-            "Line No." := "Line No." + 10000;
-            Date := "Item Ledger Entry"."Last Invoice Date";
-            "Country/Region Code" := GetIntrastatCountryCode("Item Ledger Entry"."Country/Region Code");
-            "Transaction Type" := "Item Ledger Entry"."Transaction Type";
-            "Transport Method" := "Item Ledger Entry"."Transport Method";
-            "Source Entry No." := "Item Ledger Entry"."Entry No.";
-            Amount := TotalAmt;
-            Quantity := TotalInvoicedQty;
-            "Document No." := ValueEntry."Document No.";
-            "Item No." := Item."No.";
-            "Item Description" := Item.Description;
-            "Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
-            Area := "Item Ledger Entry".Area;
-            "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
-            "Shpt. Method Code" := "Item Ledger Entry"."Shpt. Method Code";
-            "Location Code" := "Item Ledger Entry"."Location Code";
-            if "Entry/Exit Point" <> '' then
-                Validate("Entry/Exit Point");
-            "Statistics Period" := IntrastatJnlBatch."Statistics Period";
-            "Reference Period" := "Statistics Period";
+        IntrastatJnlLine.Init();
+        IntrastatJnlLine."Line No." := IntrastatJnlLine."Line No." + 10000;
+        IntrastatJnlLine.Date := "Item Ledger Entry"."Last Invoice Date";
+        IntrastatJnlLine."Country/Region Code" := IntrastatJnlLine.GetIntrastatCountryCode("Item Ledger Entry"."Country/Region Code");
+        IntrastatJnlLine."Transaction Type" := "Item Ledger Entry"."Transaction Type";
+        IntrastatJnlLine."Transport Method" := "Item Ledger Entry"."Transport Method";
+        IntrastatJnlLine."Source Entry No." := "Item Ledger Entry"."Entry No.";
+        IntrastatJnlLine.Amount := TotalAmt;
+        IntrastatJnlLine.Quantity := TotalInvoicedQty;
+        IntrastatJnlLine."Document No." := ValueEntry."Document No.";
+        IntrastatJnlLine."Item No." := Item."No.";
+        IntrastatJnlLine."Item Description" := Item.Description;
+        IntrastatJnlLine."Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
+        IntrastatJnlLine."Area" := "Item Ledger Entry".Area;
+        IntrastatJnlLine."Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
+        IntrastatJnlLine."Shpt. Method Code" := "Item Ledger Entry"."Shpt. Method Code";
+        IntrastatJnlLine."Location Code" := "Item Ledger Entry"."Location Code";
+        if IntrastatJnlLine."Entry/Exit Point" <> '' then
+            IntrastatJnlLine.Validate("Entry/Exit Point");
+        IntrastatJnlLine."Statistics Period" := IntrastatJnlBatch."Statistics Period";
+        IntrastatJnlLine."Reference Period" := IntrastatJnlLine."Statistics Period";
 
-            if "Item Ledger Entry"."Entry Type" = "Item Ledger Entry"."Entry Type"::Sale then begin
-                Type := Type::Shipment;
-                FillVATRegNoAndCountryRegionCodeFromCustomer(IntrastatJnlLine, GetCustomerNoFromDocumentNo());
-                Amount := Round(-Amount, GLSetup."Amount Rounding Precision");
-                "Indirect Cost" := Round(-"Indirect Cost", GLSetup."Amount Rounding Precision");
-                Validate(Quantity, Round(-Quantity, 0.00001));
+        if "Item Ledger Entry"."Entry Type" = "Item Ledger Entry"."Entry Type"::Sale then begin
+            IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
+            FillVATRegNoAndCountryRegionCodeFromCustomer(IntrastatJnlLine, GetCustomerNoFromDocumentNo());
+            IntrastatJnlLine.Amount := Round(-IntrastatJnlLine.Amount, GLSetup."Amount Rounding Precision");
+            IntrastatJnlLine."Indirect Cost" := Round(-IntrastatJnlLine."Indirect Cost", GLSetup."Amount Rounding Precision");
+            IntrastatJnlLine.Validate(Quantity, Round(-IntrastatJnlLine.Quantity, 0.00001));
+        end else begin
+            if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then begin
+                if TotalInvoicedQty < 0 then
+                    IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt
+                else
+                    IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment
+            end else
+                IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
+
+            if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then begin
+                IntrastatJnlLine.Amount := Round(Abs(IntrastatJnlLine.Amount), GLSetup."Amount Rounding Precision");
+                IntrastatJnlLine.Validate(Quantity, Round(Abs(IntrastatJnlLine.Quantity), UOMMgt.QtyRndPrecision()));
             end else begin
-                if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then begin
-                    if TotalInvoicedQty < 0 then
-                        Type := Type::Receipt
-                    else
-                        Type := Type::Shipment
-                end else
-                    Type := Type::Receipt;
-
-                if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then begin
-                    Amount := Round(Abs(Amount), GLSetup."Amount Rounding Precision");
-                    Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision()));
-                end else begin
-                    Amount := Round(Amount, GLSetup."Amount Rounding Precision");
-                    Validate(Quantity, Round(Quantity, UOMMgt.QtyRndPrecision()));
-                end;
+                IntrastatJnlLine.Amount := Round(IntrastatJnlLine.Amount, GLSetup."Amount Rounding Precision");
+                IntrastatJnlLine.Validate(Quantity, Round(IntrastatJnlLine.Quantity, UOMMgt.QtyRndPrecision()));
             end;
-
-            SetCountryRegionCode(IntrastatJnlLine, "Item Ledger Entry");
-
-            Validate("Item No.");
-
-            FindSourceCurrency(
-                "Item Ledger Entry"."Source No.", "Item Ledger Entry"."Document Date", "Item Ledger Entry"."Posting Date");
-
-            "Source Type" := "Source Type"::"Item Entry";
-            "Country/Region of Origin Code" := GetCountryOfOriginCode();
-            "Partner VAT ID" := GetPartnerID();
-            Validate("Cost Regulation %", IndirectCostPctReq);
-            "Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
-
-            IsHandled := false;
-            OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
-            if not IsHandled then
-                Insert();
         end;
+
+        SetCountryRegionCode(IntrastatJnlLine, "Item Ledger Entry");
+
+        IntrastatJnlLine.Validate("Item No.");
+
+        IntrastatJnlLine.FindSourceCurrency(
+            "Item Ledger Entry"."Source No.", "Item Ledger Entry"."Document Date", "Item Ledger Entry"."Posting Date");
+
+        IntrastatJnlLine."Source Type" := IntrastatJnlLine."Source Type"::"Item Entry";
+        IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
+        IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
+        IntrastatJnlLine.Validate("Cost Regulation %", IndirectCostPctReq);
+        IntrastatJnlLine."Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
+
+        IsHandled := false;
+        OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
+        if not IsHandled then
+            IntrastatJnlLine.Insert();
     end;
 
     local procedure InsertJobLedgerLine()
     var
         IsHandled: Boolean;
     begin
-        with IntrastatJnlLine do begin
-            Init();
-            "Line No." := "Line No." + 10000;
+        IntrastatJnlLine.Init();
+        IntrastatJnlLine."Line No." := IntrastatJnlLine."Line No." + 10000;
 
-            Date := "Job Ledger Entry"."Posting Date";
-            "Country/Region Code" := GetIntrastatCountryCode("Job Ledger Entry"."Country/Region Code");
-            "Transaction Type" := "Job Ledger Entry"."Transaction Type";
-            "Transport Method" := "Job Ledger Entry"."Transport Method";
-            Quantity := "Job Ledger Entry"."Quantity (Base)";
-            if Quantity > 0 then
-                Type := Type::Shipment
-            else
-                Type := Type::Receipt;
-            if IntrastatJnlBatch."Amounts in Add. Currency" then
-                Amount := "Job Ledger Entry"."Add.-Currency Line Amount"
-            else
-                Amount := "Job Ledger Entry"."Line Amount (LCY)";
-            "Source Entry No." := "Job Ledger Entry"."Entry No.";
-            "Document No." := "Job Ledger Entry"."Document No.";
-            "Item No." := "Job Ledger Entry"."No.";
-            "Entry/Exit Point" := "Job Ledger Entry"."Entry/Exit Point";
-            Area := "Job Ledger Entry".Area;
-            "Transaction Specification" := "Job Ledger Entry"."Transaction Specification";
-            "Shpt. Method Code" := "Job Ledger Entry"."Shpt. Method Code";
-            "Location Code" := "Job Ledger Entry"."Location Code";
+        IntrastatJnlLine.Date := "Job Ledger Entry"."Posting Date";
+        IntrastatJnlLine."Country/Region Code" := IntrastatJnlLine.GetIntrastatCountryCode("Job Ledger Entry"."Country/Region Code");
+        IntrastatJnlLine."Transaction Type" := "Job Ledger Entry"."Transaction Type";
+        IntrastatJnlLine."Transport Method" := "Job Ledger Entry"."Transport Method";
+        IntrastatJnlLine.Quantity := "Job Ledger Entry"."Quantity (Base)";
+        if IntrastatJnlLine.Quantity > 0 then
+            IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment
+        else
+            IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
+        if IntrastatJnlBatch."Amounts in Add. Currency" then
+            IntrastatJnlLine.Amount := "Job Ledger Entry"."Add.-Currency Line Amount"
+        else
+            IntrastatJnlLine.Amount := "Job Ledger Entry"."Line Amount (LCY)";
+        IntrastatJnlLine."Source Entry No." := "Job Ledger Entry"."Entry No.";
+        IntrastatJnlLine."Document No." := "Job Ledger Entry"."Document No.";
+        IntrastatJnlLine."Item No." := "Job Ledger Entry"."No.";
+        IntrastatJnlLine."Entry/Exit Point" := "Job Ledger Entry"."Entry/Exit Point";
+        IntrastatJnlLine."Area" := "Job Ledger Entry".Area;
+        IntrastatJnlLine."Transaction Specification" := "Job Ledger Entry"."Transaction Specification";
+        IntrastatJnlLine."Shpt. Method Code" := "Job Ledger Entry"."Shpt. Method Code";
+        IntrastatJnlLine."Location Code" := "Job Ledger Entry"."Location Code";
 
-            if IntrastatJnlBatch."Amounts in Add. Currency" then
-                Amount := Round(Abs(Amount), Currency."Amount Rounding Precision")
-            else
-                Amount := Round(Abs(Amount), GLSetup."Amount Rounding Precision");
+        if IntrastatJnlBatch."Amounts in Add. Currency" then
+            IntrastatJnlLine.Amount := Round(Abs(IntrastatJnlLine.Amount), Currency."Amount Rounding Precision")
+        else
+            IntrastatJnlLine.Amount := Round(Abs(IntrastatJnlLine.Amount), GLSetup."Amount Rounding Precision");
 
-            Validate("Item No.");
-            "Source Type" := "Source Type"::"Job Entry";
-            "Country/Region of Origin Code" := GetCountryOfOriginCode();
-            "Partner VAT ID" := GetPartnerID();
-            Validate(Quantity, Round(Abs(Quantity), 0.00001));
+        IntrastatJnlLine.Validate("Item No.");
+        IntrastatJnlLine."Source Type" := IntrastatJnlLine."Source Type"::"Job Entry";
+        IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
+        IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
+        IntrastatJnlLine.Validate(Quantity, Round(Abs(IntrastatJnlLine.Quantity), 0.00001));
 
-            Validate("Cost Regulation %", IndirectCostPctReq);
-            "Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
+        IntrastatJnlLine.Validate("Cost Regulation %", IndirectCostPctReq);
+        IntrastatJnlLine."Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
 
-            IsHandled := false;
-            OnBeforeInsertJobLedgerLine(IntrastatJnlLine, "Job Ledger Entry", IsHandled);
-            if not IsHandled then
-                Insert();
-        end;
+        IsHandled := false;
+        OnBeforeInsertJobLedgerLine(IntrastatJnlLine, "Job Ledger Entry", IsHandled);
+        if not IsHandled then
+            IntrastatJnlLine.Insert();
     end;
 
     local procedure GetGLSetup()
@@ -677,78 +671,77 @@ report 594 "Get Item Ledger Entries"
         if IsHandled then
             exit(Result);
 
-        with ItemLedgEntry do
-            case true of
-                "Drop Shipment":
-                    begin
-                        if ("Country/Region Code" = CompanyInfo."Country/Region Code") or
-                           ("Country/Region Code" = '')
-                        then
-                            exit(IncludeIntraCommunityEntries);
-                        if "Applies-to Entry" = 0 then begin
-                            ItemLedgEntry2.SetCurrentKey("Item No.", "Posting Date");
-                            ItemLedgEntry2.SetRange("Item No.", "Item No.");
-                            ItemLedgEntry2.SetRange("Posting Date", "Posting Date");
-                            ItemLedgEntry2.SetRange("Applies-to Entry", "Entry No.");
-                            ItemLedgEntry2.FindFirst();
-                        end else
-                            ItemLedgEntry2.Get("Applies-to Entry");
-                        if (ItemLedgEntry2."Country/Region Code" <> CompanyInfo."Country/Region Code") and
-                           (ItemLedgEntry2."Country/Region Code" <> '')
-                        then
-                            exit(IncludeIntraCommunityEntries);
-                    end;
-                "Entry Type" = "Entry Type"::Transfer:
-                    begin
-                        if ("Country/Region Code" = CompanyInfo."Country/Region Code") or ("Country/Region Code" = '') then
-                            exit(false);
-                        case true of
-                            (("Order Type" <> "Order Type"::Transfer) or ("Order No." = '')),
-                            "Document Type" = "Document Type"::"Direct Transfer":
-                                if Location.Get("Location Code") then
-                                    if (Location."Country/Region Code" <> '') and (Location."Country/Region Code" <> CompanyInfo."Country/Region Code") then
-                                        exit(false);
-                            "Document Type" = "Document Type"::"Transfer Receipt":
-                                begin
-                                    ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
-                                    ItemLedgEntry2.SetRange("Order Type", "Order Type"::Transfer);
-                                    ItemLedgEntry2.SetRange("Order No.", "Order No.");
-                                    ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Shipment");
-                                    ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
-                                    ItemLedgEntry2.SetRange(Positive, true);
-                                    if ItemLedgEntry2.IsEmpty() then
-                                        exit(false);
-                                end;
-                            "Document Type" = "Document Type"::"Transfer Shipment":
-                                begin
-                                    if not ItemLedgEntry.Positive then
-                                        exit;
-                                    ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
-                                    ItemLedgEntry2.SetRange("Order Type", "Order Type"::Transfer);
-                                    ItemLedgEntry2.SetRange("Order No.", "Order No.");
-                                    ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Receipt");
-                                    ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
-                                    ItemLedgEntry2.SetRange(Positive, false);
-                                    if ItemLedgEntry2.IsEmpty() then
-                                        exit(false);
-                                end;
-                        end;
-                    end;
-                "Location Code" <> '':
-                    begin
-                        Location.Get("Location Code");
-                        if not CountryOfOrigin(Location."Country/Region Code") then
-                            exit(false);
-                    end;
-                else begin
-                    if "Entry Type" = "Entry Type"::Purchase then
-                        if not CountryOfOrigin(CompanyInfo."Ship-to Country/Region Code") then
-                            exit(false);
-                    if "Entry Type" = "Entry Type"::Sale then
-                        if not CountryOfOrigin(CompanyInfo."Country/Region Code") then
-                            exit(false);
+        case true of
+            ItemLedgEntry."Drop Shipment":
+                begin
+                    if (ItemLedgEntry."Country/Region Code" = CompanyInfo."Country/Region Code") or
+                       (ItemLedgEntry."Country/Region Code" = '')
+                    then
+                        exit(IncludeIntraCommunityEntries);
+                    if ItemLedgEntry."Applies-to Entry" = 0 then begin
+                        ItemLedgEntry2.SetCurrentKey("Item No.", "Posting Date");
+                        ItemLedgEntry2.SetRange("Item No.", ItemLedgEntry."Item No.");
+                        ItemLedgEntry2.SetRange("Posting Date", ItemLedgEntry."Posting Date");
+                        ItemLedgEntry2.SetRange("Applies-to Entry", ItemLedgEntry."Entry No.");
+                        ItemLedgEntry2.FindFirst();
+                    end else
+                        ItemLedgEntry2.Get(ItemLedgEntry."Applies-to Entry");
+                    if (ItemLedgEntry2."Country/Region Code" <> CompanyInfo."Country/Region Code") and
+                       (ItemLedgEntry2."Country/Region Code" <> '')
+                    then
+                        exit(IncludeIntraCommunityEntries);
                 end;
+            ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer:
+                begin
+                    if (ItemLedgEntry."Country/Region Code" = CompanyInfo."Country/Region Code") or (ItemLedgEntry."Country/Region Code" = '') then
+                        exit(false);
+                    case true of
+                        ((ItemLedgEntry."Order Type" <> ItemLedgEntry."Order Type"::Transfer) or (ItemLedgEntry."Order No." = '')),
+                        ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Direct Transfer":
+                            if Location.Get(ItemLedgEntry."Location Code") then
+                                if (Location."Country/Region Code" <> '') and (Location."Country/Region Code" <> CompanyInfo."Country/Region Code") then
+                                    exit(false);
+                        ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Transfer Receipt":
+                            begin
+                                ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
+                                ItemLedgEntry2.SetRange("Order Type", ItemLedgEntry."Order Type"::Transfer);
+                                ItemLedgEntry2.SetRange("Order No.", ItemLedgEntry."Order No.");
+                                ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Shipment");
+                                ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
+                                ItemLedgEntry2.SetRange(Positive, true);
+                                if ItemLedgEntry2.IsEmpty() then
+                                    exit(false);
+                            end;
+                        ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Transfer Shipment":
+                            begin
+                                if not ItemLedgEntry.Positive then
+                                    exit;
+                                ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
+                                ItemLedgEntry2.SetRange("Order Type", ItemLedgEntry."Order Type"::Transfer);
+                                ItemLedgEntry2.SetRange("Order No.", ItemLedgEntry."Order No.");
+                                ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Receipt");
+                                ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
+                                ItemLedgEntry2.SetRange(Positive, false);
+                                if ItemLedgEntry2.IsEmpty() then
+                                    exit(false);
+                            end;
+                    end;
+                end;
+            ItemLedgEntry."Location Code" <> '':
+                begin
+                    Location.Get(ItemLedgEntry."Location Code");
+                    if not CountryOfOrigin(Location."Country/Region Code") then
+                        exit(false);
+                end;
+            else begin
+                if ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Purchase then
+                    if not CountryOfOrigin(CompanyInfo."Ship-to Country/Region Code") then
+                        exit(false);
+                if ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Sale then
+                    if not CountryOfOrigin(CompanyInfo."Country/Region Code") then
+                        exit(false);
             end;
+        end;
         exit(true);
     end;
 
@@ -758,47 +751,45 @@ report 594 "Get Item Ledger Entries"
         IsHandled: Boolean;
     begin
         GetGLSetup();
-        with IntrastatJnlLine do begin
-            Init();
-            "Line No." := "Line No." + 10000;
-            Date := "Value Entry"."Posting Date";
-            "Country/Region Code" := "Item Ledger Entry"."Country/Region Code";
-            "Transaction Type" := "Item Ledger Entry"."Transaction Type";
-            "Transport Method" := "Item Ledger Entry"."Transport Method";
-            "Source Entry No." := "Item Ledger Entry"."Entry No.";
-            Quantity := "Item Ledger Entry".Quantity;
-            "Document No." := "Value Entry"."Document No.";
-            "Item No." := "Item Ledger Entry"."Item No.";
-            "Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
-            Area := "Item Ledger Entry".Area;
-            "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
-            "Location Code" := "Item Ledger Entry"."Location Code";
-            Amount := Round(Abs("Value Entry"."Sales Amount (Actual)"), 1);
+        IntrastatJnlLine.Init();
+        IntrastatJnlLine."Line No." := IntrastatJnlLine."Line No." + 10000;
+        IntrastatJnlLine.Date := "Value Entry"."Posting Date";
+        IntrastatJnlLine."Country/Region Code" := "Item Ledger Entry"."Country/Region Code";
+        IntrastatJnlLine."Transaction Type" := "Item Ledger Entry"."Transaction Type";
+        IntrastatJnlLine."Transport Method" := "Item Ledger Entry"."Transport Method";
+        IntrastatJnlLine."Source Entry No." := "Item Ledger Entry"."Entry No.";
+        IntrastatJnlLine.Quantity := "Item Ledger Entry".Quantity;
+        IntrastatJnlLine."Document No." := "Value Entry"."Document No.";
+        IntrastatJnlLine."Item No." := "Item Ledger Entry"."Item No.";
+        IntrastatJnlLine."Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
+        IntrastatJnlLine."Area" := "Item Ledger Entry".Area;
+        IntrastatJnlLine."Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
+        IntrastatJnlLine."Location Code" := "Item Ledger Entry"."Location Code";
+        IntrastatJnlLine.Amount := Round(Abs("Value Entry"."Sales Amount (Actual)"), 1);
 
-            SetJnlLineType(IntrastatJnlLine, "Value Entry"."Document Type");
+        SetJnlLineType(IntrastatJnlLine, "Value Entry"."Document Type");
 
-            if ("Country/Region Code" = '') or
-               ("Country/Region Code" = CompanyInfo."Country/Region Code")
-            then
-                if "Item Ledger Entry"."Location Code" = '' then
-                    "Country/Region Code" := CompanyInfo."Ship-to Country/Region Code"
-                else begin
-                    Location.Get("Item Ledger Entry"."Location Code");
-                    "Country/Region Code" := Location."Country/Region Code"
-                end;
+        if (IntrastatJnlLine."Country/Region Code" = '') or
+           (IntrastatJnlLine."Country/Region Code" = CompanyInfo."Country/Region Code")
+        then
+            if "Item Ledger Entry"."Location Code" = '' then
+                IntrastatJnlLine."Country/Region Code" := CompanyInfo."Ship-to Country/Region Code"
+            else begin
+                Location.Get("Item Ledger Entry"."Location Code");
+                IntrastatJnlLine."Country/Region Code" := Location."Country/Region Code"
+            end;
 
-            Validate("Item No.");
-            "Source Type" := "Source Type"::"Item Entry";
-            "Country/Region of Origin Code" := GetCountryOfOriginCode();
-            "Partner VAT ID" := GetPartnerID();
-            Validate(Quantity, Round(Abs(Quantity), 0.00001));
-            Validate("Cost Regulation %", IndirectCostPctReq);
+        IntrastatJnlLine.Validate("Item No.");
+        IntrastatJnlLine."Source Type" := IntrastatJnlLine."Source Type"::"Item Entry";
+        IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
+        IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
+        IntrastatJnlLine.Validate(Quantity, Round(Abs(IntrastatJnlLine.Quantity), 0.00001));
+        IntrastatJnlLine.Validate("Cost Regulation %", IndirectCostPctReq);
 
-            IsHandled := false;
-            OnBeforeInsertValueEntryLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
-            if not IsHandled then
-                Insert();
-        end;
+        IsHandled := false;
+        OnBeforeInsertValueEntryLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
+        if not IsHandled then
+            IntrastatJnlLine.Insert();
     end;
 
     local procedure IsService(ItemLedgEntry: Record "Item Ledger Entry"): Boolean
@@ -816,44 +807,42 @@ report 594 "Get Item Ledger Entries"
         ServiceInvLine: Record "Service Invoice Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with ItemLedgEntry do begin
-            case true of
-                "Document Type" = "Document Type"::"Sales Shipment":
-                    if SalesShipmentLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(SalesShipmentLine."VAT Bus. Posting Group", SalesShipmentLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Sales Return Receipt":
-                    if ReturnReceiptLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(ReturnReceiptLine."VAT Bus. Posting Group", ReturnReceiptLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Sales Invoice":
-                    if SalesInvLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Sales Credit Memo":
-                    if SalesCrMemoLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Purchase Receipt":
-                    if PurchRcptLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(PurchRcptLine."VAT Bus. Posting Group", PurchRcptLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Purchase Return Shipment":
-                    if ReturnShipmentLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(ReturnShipmentLine."VAT Bus. Posting Group", ReturnShipmentLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Purchase Invoice":
-                    if PurchInvLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Purchase Credit Memo":
-                    if PurchCrMemoLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(PurchCrMemoLine."VAT Bus. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Service Shipment":
-                    if ServiceShipmentLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(ServiceShipmentLine."VAT Bus. Posting Group", ServiceShipmentLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Service Credit Memo":
-                    if ServiceCrMemoLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(ServiceCrMemoLine."VAT Bus. Posting Group", ServiceCrMemoLine."VAT Prod. Posting Group") then;
-                "Document Type" = "Document Type"::"Service Invoice":
-                    if ServiceInvLine.Get("Document No.", "Document Line No.") then
-                        if VATPostingSetup.Get(ServiceInvLine."VAT Bus. Posting Group", ServiceInvLine."VAT Prod. Posting Group") then;
-            end;
-            exit(VATPostingSetup."EU Service");
+        case true of
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Shipment":
+                if SalesShipmentLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(SalesShipmentLine."VAT Bus. Posting Group", SalesShipmentLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Return Receipt":
+                if ReturnReceiptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(ReturnReceiptLine."VAT Bus. Posting Group", ReturnReceiptLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Invoice":
+                if SalesInvLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Credit Memo":
+                if SalesCrMemoLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Receipt":
+                if PurchRcptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(PurchRcptLine."VAT Bus. Posting Group", PurchRcptLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Return Shipment":
+                if ReturnShipmentLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(ReturnShipmentLine."VAT Bus. Posting Group", ReturnShipmentLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Invoice":
+                if PurchInvLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Credit Memo":
+                if PurchCrMemoLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(PurchCrMemoLine."VAT Bus. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Service Shipment":
+                if ServiceShipmentLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(ServiceShipmentLine."VAT Bus. Posting Group", ServiceShipmentLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Service Credit Memo":
+                if ServiceCrMemoLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(ServiceCrMemoLine."VAT Bus. Posting Group", ServiceCrMemoLine."VAT Prod. Posting Group") then;
+            ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Service Invoice":
+                if ServiceInvLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then
+                    if VATPostingSetup.Get(ServiceInvLine."VAT Bus. Posting Group", ServiceInvLine."VAT Prod. Posting Group") then;
         end;
+        exit(VATPostingSetup."EU Service");
     end;
 
     [Scope('OnPrem')]
@@ -916,93 +905,120 @@ report 594 "Get Item Ledger Entries"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         TotalCostAmt: Decimal;
     begin
-        with ItemLedgerEntry do begin
-            TotalInvoicedQty := 0;
-            TotalAmt := 0;
-            DocItemSum := 0;
-            CorrectionFound := false;
+        TotalInvoicedQty := 0;
+        TotalAmt := 0;
+        DocItemSum := 0;
+        CorrectionFound := false;
 
-            if not ((ValueEntry."Item Charge No." <> '') and
-                    ((ValueEntry."Posting Date" > EndDate) or (ValueEntry."Posting Date" < StartDate)))
-            then
-                case ValueEntry."Item Ledger Entry Type" of
-                    ValueEntry."Item Ledger Entry Type"::Purchase:
-                        begin
-                            if ValueEntry."Invoiced Quantity" > 0 then begin
-                                PurchInvLine.SetRange("Document No.", ValueEntry."Document No.");
-                                PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
-                                PurchInvLine.SetRange("No.", ValueEntry."Item No.");
-                                if PurchInvLine.Find('-') then begin
-                                    PurchInvHeader.Get(ValueEntry."Document No.");
-                                    repeat
-                                        TotalInvoicedQty := TotalInvoicedQty + PurchInvLine.Quantity;
-                                        if PurchInvHeader."Currency Factor" <> 0 then
-                                            TotalAmt := TotalAmt + (PurchInvLine.Amount / PurchInvHeader."Currency Factor")
-                                        else
-                                            TotalAmt := TotalAmt + PurchInvLine.Amount;
-                                    until PurchInvLine.Next() = 0;
-                                end else begin
-                                    PurchRcptLine.SetRange("Document No.", ValueEntry."Document No.");
-                                    PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
-                                    PurchRcptLine.SetRange("No.", ValueEntry."Item No.");
-                                    if PurchRcptLine.Find('-') then begin
-                                        repeat
-                                            if PurchRcptLine.Correction = true then
-                                                CorrectionFound := true;
-                                            DocItemSum += PurchRcptLine."Quantity Invoiced";
-                                        until PurchRcptLine.Next() = 0;
-                                        if (DocItemSum = 0) and CorrectionFound then
-                                            CurrReport.Skip();
-                                    end;
-                                end;
+        if not ((ValueEntry."Item Charge No." <> '') and
+                ((ValueEntry."Posting Date" > EndDate) or (ValueEntry."Posting Date" < StartDate)))
+        then
+            case ValueEntry."Item Ledger Entry Type" of
+                ValueEntry."Item Ledger Entry Type"::Purchase:
+                    begin
+                        if ValueEntry."Invoiced Quantity" > 0 then begin
+                            PurchInvLine.SetRange("Document No.", ValueEntry."Document No.");
+                            PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
+                            PurchInvLine.SetRange("No.", ValueEntry."Item No.");
+                            if PurchInvLine.Find('-') then begin
+                                PurchInvHeader.Get(ValueEntry."Document No.");
+                                repeat
+                                    TotalInvoicedQty := TotalInvoicedQty + PurchInvLine.Quantity;
+                                    if PurchInvHeader."Currency Factor" <> 0 then
+                                        TotalAmt := TotalAmt + (PurchInvLine.Amount / PurchInvHeader."Currency Factor")
+                                    else
+                                        TotalAmt := TotalAmt + PurchInvLine.Amount;
+                                until PurchInvLine.Next() = 0;
                             end else begin
-                                PurchCrMemoLine.SetRange("Document No.", ValueEntry."Document No.");
-                                PurchCrMemoLine.SetRange(Type, PurchInvLine.Type::Item);
-                                PurchCrMemoLine.SetRange("No.", ValueEntry."Item No.");
-                                if PurchCrMemoLine.Find('-') then begin
-                                    PurchCrMemoHdr.Get(ValueEntry."Document No.");
+                                PurchRcptLine.SetRange("Document No.", ValueEntry."Document No.");
+                                PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+                                PurchRcptLine.SetRange("No.", ValueEntry."Item No.");
+                                if PurchRcptLine.Find('-') then begin
                                     repeat
-                                        TotalInvoicedQty := TotalInvoicedQty - PurchCrMemoLine.Quantity;
-                                        if PurchCrMemoHdr."Currency Factor" <> 0 then
-                                            TotalAmt := TotalAmt - (PurchCrMemoLine.Amount / PurchCrMemoHdr."Currency Factor")
-                                        else
-                                            TotalAmt := TotalAmt - PurchCrMemoLine.Amount;
-                                    until PurchCrMemoLine.Next() = 0;
-                                end else begin
-                                    PurchRcptLine.SetRange("Document No.", ValueEntry."Document No.");
-                                    PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
-                                    PurchRcptLine.SetRange("No.", ValueEntry."Item No.");
-                                    if PurchRcptLine.Find('-') then begin
-                                        repeat
-                                            if PurchRcptLine.Correction = true then
-                                                CorrectionFound := true;
-                                            DocItemSum += PurchRcptLine."Quantity Invoiced";
-                                        until PurchRcptLine.Next() = 0;
-                                        if (DocItemSum = 0) and CorrectionFound then
-                                            CurrReport.Skip();
-                                    end;
+                                        if PurchRcptLine.Correction = true then
+                                            CorrectionFound := true;
+                                        DocItemSum += PurchRcptLine."Quantity Invoiced";
+                                    until PurchRcptLine.Next() = 0;
+                                    if (DocItemSum = 0) and CorrectionFound then
+                                        CurrReport.Skip();
                                 end;
                             end;
-                            if IntrastatJnlBatch."Amounts in Add. Currency" then
-                                TotalAmt := CurrExchRate.ExchangeAmtLCYToFCY(
-                                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                                    TotalAmt, AddCurrencyFactor);
-                        end;
-                    ValueEntry."Item Ledger Entry Type"::Sale:
-                        begin
-                            if (ValueEntry."Invoiced Quantity" < 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::" ") then begin
-                                SalesInvoiceLine.SetRange("Document No.", ValueEntry."Document No.");
-                                SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
-                                SalesInvoiceLine.SetRange("No.", ValueEntry."Item No.");
-                                if SalesInvoiceLine.Find('-') then begin
-                                    SalesInvoiceHeader.Get(ValueEntry."Document No.");
+                        end else begin
+                            PurchCrMemoLine.SetRange("Document No.", ValueEntry."Document No.");
+                            PurchCrMemoLine.SetRange(Type, PurchInvLine.Type::Item);
+                            PurchCrMemoLine.SetRange("No.", ValueEntry."Item No.");
+                            if PurchCrMemoLine.Find('-') then begin
+                                PurchCrMemoHdr.Get(ValueEntry."Document No.");
+                                repeat
+                                    TotalInvoicedQty := TotalInvoicedQty - PurchCrMemoLine.Quantity;
+                                    if PurchCrMemoHdr."Currency Factor" <> 0 then
+                                        TotalAmt := TotalAmt - (PurchCrMemoLine.Amount / PurchCrMemoHdr."Currency Factor")
+                                    else
+                                        TotalAmt := TotalAmt - PurchCrMemoLine.Amount;
+                                until PurchCrMemoLine.Next() = 0;
+                            end else begin
+                                PurchRcptLine.SetRange("Document No.", ValueEntry."Document No.");
+                                PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+                                PurchRcptLine.SetRange("No.", ValueEntry."Item No.");
+                                if PurchRcptLine.Find('-') then begin
                                     repeat
-                                        TotalInvoicedQty := TotalInvoicedQty - SalesInvoiceLine.Quantity;
-                                        if SalesInvoiceHeader."Currency Factor" <> 0 then
-                                            TotalAmt := TotalAmt - (SalesInvoiceLine.Amount / SalesInvoiceHeader."Currency Factor")
+                                        if PurchRcptLine.Correction = true then
+                                            CorrectionFound := true;
+                                        DocItemSum += PurchRcptLine."Quantity Invoiced";
+                                    until PurchRcptLine.Next() = 0;
+                                    if (DocItemSum = 0) and CorrectionFound then
+                                        CurrReport.Skip();
+                                end;
+                            end;
+                        end;
+                        if IntrastatJnlBatch."Amounts in Add. Currency" then
+                            TotalAmt := CurrExchRate.ExchangeAmtLCYToFCY(
+                                ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
+                                TotalAmt, AddCurrencyFactor);
+                    end;
+                ValueEntry."Item Ledger Entry Type"::Sale:
+                    begin
+                        if (ValueEntry."Invoiced Quantity" < 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::" ") then begin
+                            SalesInvoiceLine.SetRange("Document No.", ValueEntry."Document No.");
+                            SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
+                            SalesInvoiceLine.SetRange("No.", ValueEntry."Item No.");
+                            if SalesInvoiceLine.Find('-') then begin
+                                SalesInvoiceHeader.Get(ValueEntry."Document No.");
+                                repeat
+                                    TotalInvoicedQty := TotalInvoicedQty - SalesInvoiceLine.Quantity;
+                                    if SalesInvoiceHeader."Currency Factor" <> 0 then
+                                        TotalAmt := TotalAmt - (SalesInvoiceLine.Amount / SalesInvoiceHeader."Currency Factor")
+                                    else
+                                        TotalAmt := TotalAmt - SalesInvoiceLine.Amount;
+                                until SalesInvoiceLine.Next() = 0;
+                            end else begin
+                                SalesShipLine.SetRange("Document No.", ValueEntry."Document No.");
+                                SalesShipLine.SetRange(Type, SalesShipLine.Type::Item);
+                                SalesShipLine.SetRange("No.", ValueEntry."Item No.");
+                                if SalesShipLine.Find('-') then begin
+                                    repeat
+                                        if SalesShipLine.Correction = true then
+                                            CorrectionFound := true;
+                                        DocItemSum += SalesShipLine."Quantity Invoiced";
+                                    until SalesShipLine.Next() = 0;
+                                    if (DocItemSum = 0) and CorrectionFound then
+                                        CurrReport.Skip();
+                                end;
+                            end;
+                        end else
+                            if (ValueEntry."Invoiced Quantity" >= 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::" ") then begin
+                                SalesCrMemoLine.SetRange("Document No.", ValueEntry."Document No.");
+                                SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
+                                SalesCrMemoLine.SetRange("No.", ValueEntry."Item No.");
+                                if SalesCrMemoLine.Find('-') then begin
+                                    SalesCrMemoHeader.Get(ValueEntry."Document No.");
+                                    repeat
+                                        TotalInvoicedQty := TotalInvoicedQty + SalesCrMemoLine.Quantity;
+                                        if SalesCrMemoHeader."Currency Factor" <> 0 then
+                                            TotalAmt := TotalAmt + (SalesCrMemoLine.Amount / SalesCrMemoHeader."Currency Factor")
                                         else
-                                            TotalAmt := TotalAmt - SalesInvoiceLine.Amount;
-                                    until SalesInvoiceLine.Next() = 0;
+                                            TotalAmt := TotalAmt + SalesCrMemoLine.Amount;
+                                    until SalesCrMemoLine.Next() = 0;
                                 end else begin
                                     SalesShipLine.SetRange("Document No.", ValueEntry."Document No.");
                                     SalesShipLine.SetRange(Type, SalesShipLine.Type::Item);
@@ -1018,47 +1034,47 @@ report 594 "Get Item Ledger Entries"
                                     end;
                                 end;
                             end else
-                                if (ValueEntry."Invoiced Quantity" >= 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::" ") then begin
-                                    SalesCrMemoLine.SetRange("Document No.", ValueEntry."Document No.");
-                                    SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
-                                    SalesCrMemoLine.SetRange("No.", ValueEntry."Item No.");
-                                    if SalesCrMemoLine.Find('-') then begin
-                                        SalesCrMemoHeader.Get(ValueEntry."Document No.");
+                                if (ValueEntry."Invoiced Quantity" < 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::Service) then begin
+                                    ServiceInvoiceLine.SetRange("Document No.", ValueEntry."Document No.");
+                                    ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Item);
+                                    ServiceInvoiceLine.SetRange("No.", ValueEntry."Item No.");
+                                    if ServiceInvoiceLine.Find('-') then begin
+                                        ServiceInvoiceHeader.Get(ValueEntry."Document No.");
                                         repeat
-                                            TotalInvoicedQty := TotalInvoicedQty + SalesCrMemoLine.Quantity;
-                                            if SalesCrMemoHeader."Currency Factor" <> 0 then
-                                                TotalAmt := TotalAmt + (SalesCrMemoLine.Amount / SalesCrMemoHeader."Currency Factor")
+                                            TotalInvoicedQty := TotalInvoicedQty - ServiceInvoiceLine.Quantity;
+                                            if ServiceInvoiceHeader."Currency Factor" <> 0 then
+                                                TotalAmt := TotalAmt - (ServiceInvoiceLine.Amount / ServiceInvoiceHeader."Currency Factor")
                                             else
-                                                TotalAmt := TotalAmt + SalesCrMemoLine.Amount;
-                                        until SalesCrMemoLine.Next() = 0;
+                                                TotalAmt := TotalAmt - ServiceInvoiceLine.Amount;
+                                        until ServiceInvoiceLine.Next() = 0;
                                     end else begin
-                                        SalesShipLine.SetRange("Document No.", ValueEntry."Document No.");
-                                        SalesShipLine.SetRange(Type, SalesShipLine.Type::Item);
-                                        SalesShipLine.SetRange("No.", ValueEntry."Item No.");
-                                        if SalesShipLine.Find('-') then begin
+                                        ServiceShipLine.SetRange("Document No.", ValueEntry."Document No.");
+                                        ServiceShipLine.SetRange(Type, ServiceShipLine.Type::Item);
+                                        ServiceShipLine.SetRange("No.", ValueEntry."Item No.");
+                                        if ServiceShipLine.Find('-') then begin
                                             repeat
-                                                if SalesShipLine.Correction = true then
+                                                if ServiceShipLine.Correction = true then
                                                     CorrectionFound := true;
-                                                DocItemSum += SalesShipLine."Quantity Invoiced";
-                                            until SalesShipLine.Next() = 0;
+                                                DocItemSum += ServiceShipLine."Quantity Invoiced";
+                                            until ServiceShipLine.Next() = 0;
                                             if (DocItemSum = 0) and CorrectionFound then
                                                 CurrReport.Skip();
                                         end;
                                     end;
                                 end else
-                                    if (ValueEntry."Invoiced Quantity" < 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::Service) then begin
-                                        ServiceInvoiceLine.SetRange("Document No.", ValueEntry."Document No.");
-                                        ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Item);
-                                        ServiceInvoiceLine.SetRange("No.", ValueEntry."Item No.");
-                                        if ServiceInvoiceLine.Find('-') then begin
-                                            ServiceInvoiceHeader.Get(ValueEntry."Document No.");
+                                    if (ValueEntry."Invoiced Quantity" >= 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::Service) then begin
+                                        ServiceCrMemoLine.SetRange("Document No.", ValueEntry."Document No.");
+                                        ServiceCrMemoLine.SetRange(Type, ServiceCrMemoLine.Type::Item);
+                                        ServiceCrMemoLine.SetRange("No.", ValueEntry."Item No.");
+                                        if ServiceCrMemoLine.Find('-') then begin
+                                            ServiceCrMemoHeader.Get(ValueEntry."Document No.");
                                             repeat
-                                                TotalInvoicedQty := TotalInvoicedQty - ServiceInvoiceLine.Quantity;
-                                                if ServiceInvoiceHeader."Currency Factor" <> 0 then
-                                                    TotalAmt := TotalAmt - (ServiceInvoiceLine.Amount / ServiceInvoiceHeader."Currency Factor")
+                                                TotalInvoicedQty := TotalInvoicedQty + ServiceCrMemoLine.Quantity;
+                                                if ServiceCrMemoHeader."Currency Factor" <> 0 then
+                                                    TotalAmt := TotalAmt + (ServiceCrMemoLine.Amount / ServiceCrMemoHeader."Currency Factor")
                                                 else
-                                                    TotalAmt := TotalAmt - ServiceInvoiceLine.Amount;
-                                            until ServiceInvoiceLine.Next() = 0;
+                                                    TotalAmt := TotalAmt + ServiceCrMemoLine.Amount;
+                                            until ServiceCrMemoLine.Next() = 0;
                                         end else begin
                                             ServiceShipLine.SetRange("Document No.", ValueEntry."Document No.");
                                             ServiceShipLine.SetRange(Type, ServiceShipLine.Type::Item);
@@ -1073,60 +1089,31 @@ report 594 "Get Item Ledger Entries"
                                                     CurrReport.Skip();
                                             end;
                                         end;
-                                    end else
-                                        if (ValueEntry."Invoiced Quantity" >= 0) and (ValueEntry."Order Type" = ValueEntry."Order Type"::Service) then begin
-                                            ServiceCrMemoLine.SetRange("Document No.", ValueEntry."Document No.");
-                                            ServiceCrMemoLine.SetRange(Type, ServiceCrMemoLine.Type::Item);
-                                            ServiceCrMemoLine.SetRange("No.", ValueEntry."Item No.");
-                                            if ServiceCrMemoLine.Find('-') then begin
-                                                ServiceCrMemoHeader.Get(ValueEntry."Document No.");
-                                                repeat
-                                                    TotalInvoicedQty := TotalInvoicedQty + ServiceCrMemoLine.Quantity;
-                                                    if ServiceCrMemoHeader."Currency Factor" <> 0 then
-                                                        TotalAmt := TotalAmt + (ServiceCrMemoLine.Amount / ServiceCrMemoHeader."Currency Factor")
-                                                    else
-                                                        TotalAmt := TotalAmt + ServiceCrMemoLine.Amount;
-                                                until ServiceCrMemoLine.Next() = 0;
-                                            end else begin
-                                                ServiceShipLine.SetRange("Document No.", ValueEntry."Document No.");
-                                                ServiceShipLine.SetRange(Type, ServiceShipLine.Type::Item);
-                                                ServiceShipLine.SetRange("No.", ValueEntry."Item No.");
-                                                if ServiceShipLine.Find('-') then begin
-                                                    repeat
-                                                        if ServiceShipLine.Correction = true then
-                                                            CorrectionFound := true;
-                                                        DocItemSum += ServiceShipLine."Quantity Invoiced";
-                                                    until ServiceShipLine.Next() = 0;
-                                                    if (DocItemSum = 0) and CorrectionFound then
-                                                        CurrReport.Skip();
-                                                end;
-                                            end;
-                                        end;
-                            if IntrastatJnlBatch."Amounts in Add. Currency" then
-                                TotalAmt := CurrExchRate.ExchangeAmtLCYToFCY(
-                                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                                    TotalAmt, AddCurrencyFactor);
-                        end;
-                    else begin
-                        TotalInvoicedQty := TotalInvoicedQty + ValueEntry."Invoiced Quantity";
-                        if not IntrastatJnlBatch."Amounts in Add. Currency" then
-                            TotalAmt := TotalAmt + ValueEntry."Cost Amount (Actual)"
-                        else
-                            if ValueEntry."Cost per Unit" <> 0 then
-                                TotalAmt :=
-                                  TotalAmt +
-                                  ValueEntry."Cost Amount (Actual)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit"
-                            else
-                                TotalAmt :=
-                                  TotalAmt +
-                                  CurrExchRate.ExchangeAmtLCYToFCY(
-                                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                                    ValueEntry."Cost Amount (Actual)", AddCurrencyFactor);
+                                    end;
+                        if IntrastatJnlBatch."Amounts in Add. Currency" then
+                            TotalAmt := CurrExchRate.ExchangeAmtLCYToFCY(
+                                ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
+                                TotalAmt, AddCurrencyFactor);
                     end;
+                else begin
+                    TotalInvoicedQty := TotalInvoicedQty + ValueEntry."Invoiced Quantity";
+                    if not IntrastatJnlBatch."Amounts in Add. Currency" then
+                        TotalAmt := TotalAmt + ValueEntry."Cost Amount (Actual)"
+                    else
+                        if ValueEntry."Cost per Unit" <> 0 then
+                            TotalAmt :=
+                              TotalAmt +
+                              ValueEntry."Cost Amount (Actual)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit"
+                        else
+                            TotalAmt :=
+                              TotalAmt +
+                              CurrExchRate.ExchangeAmtLCYToFCY(
+                                ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
+                                ValueEntry."Cost Amount (Actual)", AddCurrencyFactor);
                 end;
-            OnCalculateTotalsOnAfterSumTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
-            CalcTotalItemChargeAmt();
-        end;
+            end;
+        OnCalculateTotalsOnAfterSumTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
+        CalcTotalItemChargeAmt();
 
         OnAfterCalculateTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
     end;
@@ -1166,39 +1153,37 @@ report 594 "Get Item Ledger Entries"
         IntrastatJnlLine2: Record "Intrastat Jnl. Line";
         HasApplications: Boolean;
     begin
-        with IntrastatJnlLine do begin
-            HasApplications := DocumentHasApplications(VATEntry);
+        HasApplications := DocumentHasApplications(VATEntry);
 
-            IntrastatJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
-            IntrastatJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
-            IntrastatJnlLine2.SetRange("Document No.", VATEntry."Document No.");
+        IntrastatJnlLine2.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        IntrastatJnlLine2.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        IntrastatJnlLine2.SetRange("Document No.", VATEntry."Document No.");
+        if not HasApplications then
+            IntrastatJnlLine2.SetRange("Service Tariff No.", VATEntry."Service Tariff No.");
+        if not IntrastatJnlLine2.FindFirst() then begin
+            IntrastatJnlLine.Init();
+            IntrastatJnlLine."Line No." := IntrastatJnlLine."Line No." + 10000;
+            IntrastatJnlLine."Source Type" := IntrastatJnlLine."Source Type"::"VAT Entry";
+            IntrastatJnlLine."Source Entry No." := VATEntry."Entry No.";
+            IntrastatJnlLine.ValidateSourceEntryNo(IntrastatJnlLine."Source Entry No.");
             if not HasApplications then
-                IntrastatJnlLine2.SetRange("Service Tariff No.", VATEntry."Service Tariff No.");
-            if not IntrastatJnlLine2.FindFirst() then begin
-                Init();
-                "Line No." := "Line No." + 10000;
-                "Source Type" := "Source Type"::"VAT Entry";
-                "Source Entry No." := VATEntry."Entry No.";
-                ValidateSourceEntryNo("Source Entry No.");
-                if not HasApplications then
-                    Amount := GetVATEntryAmount(VATEntry)
-                else
-                    Amount -= GetAmountSign(Amount) * Abs(NonEUServiceLineAmount(IntrastatJnlBatch.Type));
-                if IntrastatJnlBatch."Corrective Entry" then begin
-                    "Custom Office No." := CustomsOfficeNo;
-                    "Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
-                    "Corrective entry" := true;
-                    Amount := Abs(Amount);
-                end;
+                IntrastatJnlLine.Amount := GetVATEntryAmount(VATEntry)
+            else
+                IntrastatJnlLine.Amount -= GetAmountSign(IntrastatJnlLine.Amount) * Abs(NonEUServiceLineAmount(IntrastatJnlBatch.Type));
+            if IntrastatJnlBatch."Corrective Entry" then begin
+                IntrastatJnlLine."Custom Office No." := CustomsOfficeNo;
+                IntrastatJnlLine."Corrected Intrastat Report No." := CorrectedIntrastatRepNo;
+                IntrastatJnlLine."Corrective entry" := true;
+                IntrastatJnlLine.Amount := Abs(IntrastatJnlLine.Amount);
+            end;
 
-                if (Amount <> 0) or IntrastatJnlBatch."Corrective Entry" then
-                    Insert();
-            end else
-                if not HasApplications then begin
-                    IntrastatJnlLine2.Amount += GetVATEntryAmount(VATEntry);
-                    IntrastatJnlLine2.Modify();
-                end
-        end;
+            if (IntrastatJnlLine.Amount <> 0) or IntrastatJnlBatch."Corrective Entry" then
+                IntrastatJnlLine.Insert();
+        end else
+            if not HasApplications then begin
+                IntrastatJnlLine2.Amount += GetVATEntryAmount(VATEntry);
+                IntrastatJnlLine2.Modify();
+            end
     end;
 
     [Scope('OnPrem')]
@@ -1216,20 +1201,18 @@ report 594 "Get Item Ledger Entries"
     var
         ItemLedgerEntry2: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry2 do begin
-            SetFilter("Item No.", '%1', ItemLedgerEntry."Item No.");
-            SetFilter("Entry Type", '%1', ItemLedgerEntry."Entry Type"::Transfer);
-            SetFilter("Document Type", '%1', ItemLedgerEntry."Document Type"::"Transfer Shipment");
-            SetFilter("Order Type", '%1', ItemLedgerEntry."Order Type"::Production);
-            SetFilter("Order No.", '%1', ItemLedgerEntry."Order No.");
-            SetFilter("Order Line No.", '%1', ItemLedgerEntry."Order Line No.");
-            SetFilter("Prod. Order Comp. Line No.", '%1', ItemLedgerEntry."Prod. Order Comp. Line No.");
-            SetFilter("Subcontr. Purch. Order No.", '%1', ItemLedgerEntry."Subcontr. Purch. Order No.");
-            SetFilter("Subcontr. Purch. Order Line", '%1', ItemLedgerEntry."Subcontr. Purch. Order Line");
-            SetFilter(Positive, '%1', ItemLedgerEntry.Positive);
-            FindFirst();
-            exit("Entry No." = ItemLedgerEntry."Entry No.");
-        end;
+        ItemLedgerEntry2.SetFilter("Item No.", '%1', ItemLedgerEntry."Item No.");
+        ItemLedgerEntry2.SetFilter("Entry Type", '%1', ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry2.SetFilter("Document Type", '%1', ItemLedgerEntry."Document Type"::"Transfer Shipment");
+        ItemLedgerEntry2.SetFilter("Order Type", '%1', ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry2.SetFilter("Order No.", '%1', ItemLedgerEntry."Order No.");
+        ItemLedgerEntry2.SetFilter("Order Line No.", '%1', ItemLedgerEntry."Order Line No.");
+        ItemLedgerEntry2.SetFilter("Prod. Order Comp. Line No.", '%1', ItemLedgerEntry."Prod. Order Comp. Line No.");
+        ItemLedgerEntry2.SetFilter("Subcontr. Purch. Order No.", '%1', ItemLedgerEntry."Subcontr. Purch. Order No.");
+        ItemLedgerEntry2.SetFilter("Subcontr. Purch. Order Line", '%1', ItemLedgerEntry."Subcontr. Purch. Order Line");
+        ItemLedgerEntry2.SetFilter(Positive, '%1', ItemLedgerEntry.Positive);
+        ItemLedgerEntry2.FindFirst();
+        exit(ItemLedgerEntry2."Entry No." = ItemLedgerEntry."Entry No.");
     end;
 
     local procedure CalcTotalItemChargeAmt()
@@ -1272,18 +1255,16 @@ report 594 "Get Item Ledger Entries"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", IntrastatJnlLine."Document No.");
-            SetRange("EU Service", false);
-            case BatchType of
-                IntrastatJnlBatch.Type::Purchases:
-                    SetRange(Type, Type::Purchase);
-                IntrastatJnlBatch.Type::Sales:
-                    SetRange(Type, Type::Sale);
-            end;
-            CalcSums(Base);
-            exit(Base);
+        VATEntry.SetRange("Document No.", IntrastatJnlLine."Document No.");
+        VATEntry.SetRange("EU Service", false);
+        case BatchType of
+            IntrastatJnlBatch.Type::Purchases:
+                VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+            IntrastatJnlBatch.Type::Sales:
+                VATEntry.SetRange(Type, VATEntry.Type::Sale);
         end;
+        VATEntry.CalcSums(Base);
+        exit(VATEntry.Base);
     end;
 
     local procedure GetAmountSign(Amount: Decimal): Integer
@@ -1308,30 +1289,26 @@ report 594 "Get Item Ledger Entries"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
-            SetRange("Vendor Ledger Entry No.", GetVendLedgEntryNo(VATEntry));
-            SetFilter("Posting Date", '..%1', EndDate);
-            SetFilter("Document Type", '%1|%2', "Document Type"::"Credit Memo", "Document Type"::Invoice);
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange(Unapplied, false);
-            exit(not IsEmpty);
-        end;
+        DetailedVendorLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
+        DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", GetVendLedgEntryNo(VATEntry));
+        DetailedVendorLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
+        DetailedVendorLedgEntry.SetFilter("Document Type", '%1|%2', DetailedVendorLedgEntry."Document Type"::"Credit Memo", DetailedVendorLedgEntry."Document Type"::Invoice);
+        DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
+        DetailedVendorLedgEntry.SetRange(Unapplied, false);
+        exit(not DetailedVendorLedgEntry.IsEmpty);
     end;
 
     local procedure DocumentHasCustApplications(VATEntry: Record "VAT Entry"): Boolean
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
-            SetRange("Cust. Ledger Entry No.", GetCustLedgEntryNo(VATEntry));
-            SetFilter("Posting Date", '..%1', EndDate);
-            SetFilter("Document Type", '%1|%2', "Document Type"::"Credit Memo", "Document Type"::Invoice);
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange(Unapplied, false);
-            exit(not IsEmpty);
-        end;
+        DetailedCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", GetCustLedgEntryNo(VATEntry));
+        DetailedCustLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
+        DetailedCustLedgEntry.SetFilter("Document Type", '%1|%2', DetailedCustLedgEntry."Document Type"::"Credit Memo", DetailedCustLedgEntry."Document Type"::Invoice);
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.SetRange(Unapplied, false);
+        exit(not DetailedCustLedgEntry.IsEmpty);
     end;
 
     local procedure FindAppliedCustLedgEntries(CustLedgerEntry: Record "Cust. Ledger Entry"; var TempAppliedCustLedgEntry: Record "Cust. Ledger Entry" temporary)
@@ -1438,26 +1415,22 @@ report 594 "Get Item Ledger Entries"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetCurrentKey("Transaction No.");
-            SetRange("Transaction No.", VATEntry."Transaction No.");
-            SetRange("Document No.", VATEntry."Document No.");
-            if FindFirst() then
-                exit("Entry No.");
-        end;
+        VendorLedgerEntry.SetCurrentKey("Transaction No.");
+        VendorLedgerEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
+        VendorLedgerEntry.SetRange("Document No.", VATEntry."Document No.");
+        if VendorLedgerEntry.FindFirst() then
+            exit(VendorLedgerEntry."Entry No.");
     end;
 
     local procedure GetCustLedgEntryNo(VATEntry: Record "VAT Entry"): Integer
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetCurrentKey("Transaction No.");
-            SetRange("Transaction No.", VATEntry."Transaction No.");
-            SetRange("Document No.", VATEntry."Document No.");
-            if FindFirst() then
-                exit("Entry No.");
-        end;
+        CustLedgerEntry.SetCurrentKey("Transaction No.");
+        CustLedgerEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
+        CustLedgerEntry.SetRange("Document No.", VATEntry."Document No.");
+        if CustLedgerEntry.FindFirst() then
+            exit(CustLedgerEntry."Entry No.");
     end;
 
     local procedure GetVATEntryAmount(VATEntry: Record "VAT Entry"): Decimal
@@ -1485,16 +1458,15 @@ report 594 "Get Item Ledger Entries"
     var
         Location: Record Location;
     begin
-        with IntrastatJnlLine do
-            if ("Country/Region Code" = '') or
-               ("Country/Region Code" = CompanyInfo."Country/Region Code")
-            then
-                if ItemLedgerEntry."Location Code" = '' then
-                    "Country/Region Code" := CompanyInfo."Ship-to Country/Region Code"
-                else begin
-                    Location.Get(ItemLedgerEntry."Location Code");
-                    "Country/Region Code" := Location."Country/Region Code"
-                end;
+        if (IntrastatJnlLine."Country/Region Code" = '') or
+               (IntrastatJnlLine."Country/Region Code" = CompanyInfo."Country/Region Code")
+        then
+            if ItemLedgerEntry."Location Code" = '' then
+                IntrastatJnlLine."Country/Region Code" := CompanyInfo."Ship-to Country/Region Code"
+            else begin
+                Location.Get(ItemLedgerEntry."Location Code");
+                IntrastatJnlLine."Country/Region Code" := Location."Country/Region Code"
+            end;
     end;
 
     local procedure GetCustomerNoFromDocumentNo(): Code[20]
@@ -1527,17 +1499,16 @@ report 594 "Get Item Ledger Entries"
 
     local procedure SetJnlLineType(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ValueEntryDocumentType: Enum "Item Ledger Document Type")
     begin
-        with IntrastatJnlLine do
-            if Quantity < 0 then begin
-                if ValueEntryDocumentType = "Value Entry"."Document Type"::"Sales Credit Memo" then
-                    Type := Type::Receipt
-                else
-                    Type := Type::Shipment
-            end else
-                if ValueEntryDocumentType = "Value Entry"."Document Type"::"Purchase Credit Memo" then
-                    Type := Type::Shipment
-                else
-                    Type := Type::Receipt;
+        if IntrastatJnlLine.Quantity < 0 then begin
+            if ValueEntryDocumentType = "Value Entry"."Document Type"::"Sales Credit Memo" then
+                IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt
+            else
+                IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment
+        end else
+            if ValueEntryDocumentType = "Value Entry"."Document Type"::"Purchase Credit Memo" then
+                IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment
+            else
+                IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
     end;
 
     [IntegrationEvent(false, false)]

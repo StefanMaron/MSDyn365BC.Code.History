@@ -425,8 +425,8 @@ codeunit 12104 LocalApplicationManagement
         PostingDateFieldRef := RecordRef.Field(20);
         OccurredDateFieldRef := RecordRef.Field(12101);
 
-        PostingDate := PostingDateFieldRef.Value;
-        OperationOccuredDate := OccurredDateFieldRef.Value;
+        PostingDate := PostingDateFieldRef.Value();
+        OperationOccuredDate := OccurredDateFieldRef.Value();
 
         if OperationOccuredDate = 0D then
             OccurredDateFieldRef.Validate(PostingDate);
@@ -438,7 +438,7 @@ codeunit 12104 LocalApplicationManagement
             else
                 OccurredDateFieldRef.Validate(PostingDate);
 
-        OperationOccuredDate := OccurredDateFieldRef.Value;
+        OperationOccuredDate := OccurredDateFieldRef.Value();
         if OperationOccuredDate > PostingDate then
             Error(ValueLessThanAnotherErr, PostingDateFieldRef.Caption, OccurredDateFieldRef.Caption);
     end;

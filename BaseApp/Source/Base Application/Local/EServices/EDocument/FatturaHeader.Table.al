@@ -13,6 +13,7 @@ using Microsoft.Service.History;
 table 12203 "Fattura Header"
 {
     Caption = 'Fattura Header';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -72,8 +72,8 @@ codeunit 144178 "ERM Details Sales"
 
         // Setup: Create and post Sales Order.
         Initialize();
-        OperationType := LibraryERM.CreateNoSeriesSalesCode;
-        DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer, '', OperationType, false);  // Currency Code as blank and Invoice as False.
+        OperationType := LibraryERM.CreateNoSeriesSalesCode();
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer(), '', OperationType, false);  // Currency Code as blank and Invoice as False.
         DocumentNo2 := CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);  // Currency Code as blank and Invoice as False.
 
         // Run Combine Shipments Report
@@ -240,7 +240,7 @@ codeunit 144178 "ERM Details Sales"
         // Setup: Create and post Sales Order and General Journal Line with Currency.
         Initialize();
         DocumentNo :=
-          CreateAndPostSalesOrder(SalesLine, CreateCustomer, CreateCurrencyWithExchangeRate, LibraryERM.CreateNoSeriesSalesCode, true);  // Invoice as True.
+          CreateAndPostSalesOrder(SalesLine, CreateCustomer(), CreateCurrencyWithExchangeRate(), LibraryERM.CreateNoSeriesSalesCode(), true);  // Invoice as True.
         DocumentNo2 :=
           ApplyAndPostGeneralJournalLine(SalesLine."Sell-to Customer No.", GenJournalLine."Document Type"::Payment, -SalesLine.Amount);
         LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");  // Enqueue for CustomerSheetPrintRequestPageHandler.
@@ -423,11 +423,11 @@ codeunit 144178 "ERM Details Sales"
 
         // [GIVEN] Created and posted two Sales Orders without invoicing
         OperationType := LibraryERM.CreateNoSeriesSalesCode();
-        DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer, '', OperationType, false);
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer(), '', OperationType, false);
         DocumentNo2 := CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);
 
         // [WHEN] Run Combine Shipments report with Posting Date > Document Date
-        RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate + 1, WorkDate());
+        RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate() + 1, WorkDate());
 
         // [THEN] Two different Sales Invoice lines created successfully
         Assert.AreNotEqual(FindSalesLine(DocumentNo), FindSalesLine(DocumentNo2), ValueNotEqualErr);
@@ -448,11 +448,11 @@ codeunit 144178 "ERM Details Sales"
 
         // [GIVEN] Created and posted two Sales Orders without invoicing
         OperationType := LibraryERM.CreateNoSeriesSalesCode();
-        CreateAndPostSalesOrder(SalesLine, CreateCustomer, '', OperationType, false);
+        CreateAndPostSalesOrder(SalesLine, CreateCustomer(), '', OperationType, false);
         CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);
 
         // [WHEN] Run Combine Shipments report with Posting Date < Document Date
-        asserterror RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate(), WorkDate + 1);
+        asserterror RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate(), WorkDate() + 1);
 
         // [THEN] The error is thrown: "Document Date must be less than Posting Date."
         Assert.ExpectedErrorCode('Dialog');
@@ -493,10 +493,10 @@ codeunit 144178 "ERM Details Sales"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         Commit();  // COMMIT is required for Write Transaction Error.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;  // Invoke ApplyCustomerEntriesModalPageHandler.
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();  // Invoke ApplyCustomerEntriesModalPageHandler.
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure CreateAndPostCustomerBillAfterPostSalesInvoice(var SalesLine: Record "Sales Line") DocumentNo: Code[20]
@@ -542,8 +542,8 @@ codeunit 144178 "ERM Details Sales"
     begin
         LibraryITLocalization.CreateBill(Bill);
         Bill.Validate("Allow Issue", true);
-        Bill.Validate("Bills for Coll. Temp. Acc. No.", CreateGLAccount);
-        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode);
+        Bill.Validate("Bills for Coll. Temp. Acc. No.", CreateGLAccount());
+        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode());
         Bill.Validate("Temporary Bill No.", Bill."List No.");
         Bill.Validate("Final Bill No.", Bill."List No.");
         Bill.Validate("Vendor Bill List", Bill."List No.");
@@ -559,7 +559,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccount."No.", PaymentMethod);
-        BillPostingGroup.Validate("Bills For Collection Acc. No.", CreateGLAccount);
+        BillPostingGroup.Validate("Bills For Collection Acc. No.", CreateGLAccount());
         BillPostingGroup.Validate("Bills For Discount Acc. No.", BillPostingGroup."Bills For Collection Acc. No.");
         BillPostingGroup.Modify(true);
         exit(BillPostingGroup."No.");
@@ -570,8 +570,8 @@ codeunit 144178 "ERM Details Sales"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Realized Losses Acc.", CreateGLAccount);
-        Currency.Validate("Realized Gains Acc.", CreateGLAccount);
+        Currency.Validate("Realized Losses Acc.", CreateGLAccount());
+        Currency.Validate("Realized Gains Acc.", CreateGLAccount());
         Currency.Modify(true);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
@@ -582,7 +582,7 @@ codeunit 144178 "ERM Details Sales"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Method Code", CreatePaymentMethod);
+        Customer.Validate("Payment Method Code", CreatePaymentMethod());
         Customer.Validate("Combine Shipments", true);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -633,7 +633,7 @@ codeunit 144178 "ERM Details Sales"
         PaymentMethod: Record "Payment Method";
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
-        PaymentMethod.Validate("Bill Code", CreateBill);
+        PaymentMethod.Validate("Bill Code", CreateBill());
         PaymentMethod.Modify(true);
         exit(PaymentMethod.Code);
     end;
@@ -651,7 +651,7 @@ codeunit 144178 "ERM Details Sales"
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Method Code", CreatePaymentMethod);
+        Vendor.Validate("Payment Method Code", CreatePaymentMethod());
         Vendor.Modify(true);
     end;
 
@@ -692,7 +692,7 @@ codeunit 144178 "ERM Details Sales"
 
     local procedure IssuingCustomerBillAfterPostSalesInvoice(var SalesLine: Record "Sales Line") DocumentNo: Code[20]
     begin
-        DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer, '', LibraryERM.CreateNoSeriesSalesCode, true);  // Currency Code as blank and Invoice as True.
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer(), '', LibraryERM.CreateNoSeriesSalesCode(), true);  // Currency Code as blank and Invoice as True.
         RunIssuingCustomerBill(SalesLine."Sell-to Customer No.");
     end;
 
@@ -700,9 +700,9 @@ codeunit 144178 "ERM Details Sales"
     var
         VendorBillCard: TestPage "Vendor Bill Card";
     begin
-        VendorBillCard.OpenEdit;
+        VendorBillCard.OpenEdit();
         VendorBillCard.FILTER.SetFilter("No.", No);
-        VendorBillCard."&Create List".Invoke;
+        VendorBillCard."&Create List".Invoke();
     end;
 
     local procedure IssueVendorBillAfterPostPurchaseInvoice(var VendorBillHeader: Record "Vendor Bill Header"): Code[20]
@@ -790,10 +790,10 @@ codeunit 144178 "ERM Details Sales"
 
     local procedure OpenVendorLedgerEntryAndPressBillList(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var VendorLedgerEntriesPage: TestPage "Vendor Ledger Entries"; var PostedVendBillListPage: TestPage "List of Posted Vend. Bill List")
     begin
-        VendorLedgerEntriesPage.OpenView;
+        VendorLedgerEntriesPage.OpenView();
         VendorLedgerEntriesPage.GotoKey(VendorLedgerEntry."Entry No.");
-        PostedVendBillListPage.Trap;
-        VendorLedgerEntriesPage.BillList.Invoke;
+        PostedVendBillListPage.Trap();
+        VendorLedgerEntriesPage.BillList.Invoke();
     end;
 
     local procedure PostCustomerBill(CustomerBillHeader: Record "Customer Bill Header")
@@ -808,9 +808,9 @@ codeunit 144178 "ERM Details Sales"
     var
         VendorBillListSentCard: TestPage "Vendor Bill List Sent Card";
     begin
-        VendorBillListSentCard.OpenEdit;
+        VendorBillListSentCard.OpenEdit();
         VendorBillListSentCard.FILTER.SetFilter("Payment Method Code", PaymentMethodCode);
-        VendorBillListSentCard.Post.Invoke;
+        VendorBillListSentCard.Post.Invoke();
     end;
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
@@ -864,8 +864,8 @@ codeunit 144178 "ERM Details Sales"
         SalesLine: Record "Sales Line";
         Item: Record Item;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
-        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
+        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item,
           LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));
@@ -892,8 +892,8 @@ codeunit 144178 "ERM Details Sales"
     begin
         FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, CustomerNo);
         CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
-        Assert.AreNearlyEqual(Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
-        Assert.AreNearlyEqual(RemainingAmount, CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
+        Assert.AreNearlyEqual(Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueEqualErr);
+        Assert.AreNearlyEqual(RemainingAmount, CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), ValueEqualErr);
     end;
 
     local procedure VerifyVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
@@ -902,13 +902,13 @@ codeunit 144178 "ERM Details Sales"
     begin
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, VendorNo);
         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
-        Assert.AreNearlyEqual(Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
-        Assert.AreNearlyEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
+        Assert.AreNearlyEqual(Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueEqualErr);
+        Assert.AreNearlyEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), ValueEqualErr);
     end;
 
     local procedure VerifyXMLValuesOnReport(Caption: Text; Caption2: Text; Caption3: Text; Caption4: Text; Value: Code[20]; Value2: Decimal; Value3: Code[20]; Value4: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, Value2);
         LibraryReportDataset.AssertElementWithValueExists(Caption3, Value3);
@@ -934,8 +934,8 @@ codeunit 144178 "ERM Details Sales"
     begin
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, VendorNo);
         VendorLedgerEntry.CalcFields(Amount, "Original Amount");
-        Assert.AreNearlyEqual(Amount, VendorLedgerEntry."Original Amount", LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
-        Assert.AreNearlyEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
+        Assert.AreNearlyEqual(Amount, VendorLedgerEntry."Original Amount", LibraryERM.GetAmountRoundingPrecision(), ValueEqualErr);
+        Assert.AreNearlyEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), ValueEqualErr);
     end;
 
     local procedure VerifyPostedVendorBillLineDetails(PostedVendorBillNo: Code[20]; ExpectedVendorBillNo: Code[20])
@@ -978,20 +978,20 @@ codeunit 144178 "ERM Details Sales"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CombineShipmentRequestPageHandler(var CombineShipments: TestRequestPage "Combine Shipments")
     begin
-        CombineShipments.SalesOrderHeader.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText);
-        CombineShipments.OperationType.SetValue(LibraryVariableStorage.DequeueText);
+        CombineShipments.SalesOrderHeader.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText());
+        CombineShipments.OperationType.SetValue(LibraryVariableStorage.DequeueText());
         CombineShipments.CombineFromDate.SetValue(WorkDate());
         CombineShipments.CombineToDate.SetValue(WorkDate());
-        CombineShipments.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        CombineShipments.DocDateReq.SetValue(LibraryVariableStorage.DequeueDate);
-        CombineShipments.OK.Invoke;
+        CombineShipments.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        CombineShipments.DocDateReq.SetValue(LibraryVariableStorage.DequeueDate());
+        CombineShipments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1004,7 +1004,7 @@ codeunit 144178 "ERM Details Sales"
         ClosingBankReceipts.CustEntry1.SetFilter("Customer No.", CustomerNo);
         ClosingBankReceipts.ClosingDateForBankReceipts.SetValue(
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate())); // Using random Date.
-        ClosingBankReceipts.OK.Invoke;
+        ClosingBankReceipts.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1016,7 +1016,7 @@ codeunit 144178 "ERM Details Sales"
         LibraryVariableStorage.Dequeue(No);
         CustomerBillsList.Customer.SetFilter("No.", No);
         CustomerBillsList."Ending Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using random Date.
-        CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1028,7 +1028,7 @@ codeunit 144178 "ERM Details Sales"
         LibraryVariableStorage.Dequeue(No);
         CustomerSheetPrint.Customer.SetFilter("No.", No);
         CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate()));
-        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1040,7 +1040,7 @@ codeunit 144178 "ERM Details Sales"
         LibraryVariableStorage.Dequeue(No);
         VendorAccountBillsList.Vendor.SetFilter("No.", No);
         VendorAccountBillsList.EndingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using random Date.
-        VendorAccountBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorAccountBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -278,7 +278,7 @@ codeunit 144123 "ERM Details Purchase"
 
         // Verify: Verify Purchase Invoice Header No. is updated with correct No. Series.
         PurchInvHeader.Get(PurchaseInvHeaderNo);
-        PurchInvHeader.TestField("No.", FindNoSeriesLinePurchase(PurchaseHeader."Posting Date"));
+        PurchInvHeader.TestField("No.", FindNoSeriesLinePurchase(PurchaseHeader."Posting No. Series", PurchaseHeader."Posting Date"));
 
         // Teardown.
         UpdatePurchasesPayablesSetupExtDocNoMandatory(OldExtDocNoMandatory);
@@ -288,7 +288,7 @@ codeunit 144123 "ERM Details Purchase"
     [Scope('OnPrem')]
     procedure PostingNoSeriesIsUpdatedOnBuyFromVendorNoValidateOnBlankPurchaseInvoicePage()
     var
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLine: Record "No. Series Line";
         PurchaseHeader: Record "Purchase Header";
         VendorNo: Code[20];
         DocumentNo: Code[20];
@@ -299,14 +299,14 @@ codeunit 144123 "ERM Details Purchase"
 
         // [GIVEN] Posted Purchase Invoice No. Series exists at Purchases & Payables Setup.
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-        DefaultNoSeriesCode := UpdatePurchasesPayablesSetupPostingNoSeries;
+        DefaultNoSeriesCode := UpdatePurchasesPayablesSetupPostingNoSeries();
 
         // [GIVEN] No. Series "NSP" with "No. Series Type" = Purchase.
         // [GIVEN] "NSP" with a No. Series Line Purchase.
-        LibraryERM.CreateNoSeriesLinePurchase(NoSeriesLinePurchase, LibraryERM.CreateNoSeriesPurchaseCode, '', '');
+        LibraryERM.CreateNoSeriesLine(NoSeriesLine, LibraryERM.CreateNoSeriesPurchaseCode(), '', '');
 
         // [GIVEN] VAT Bus. Posting Group "VBPG" with "Default Purch. Operation Type" = "NSP".
-        VATBusinessPostingGroupCode := SetupVATBusinessPostingGroup(NoSeriesLinePurchase."Series Code");
+        VATBusinessPostingGroupCode := SetupVATBusinessPostingGroup(NoSeriesLine."Series Code");
 
         // [GIVEN] Vendor "V" with "VBPG".
         VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusinessPostingGroupCode);
@@ -316,7 +316,7 @@ codeunit 144123 "ERM Details Purchase"
 
         // [THEN] Purchase Invoice is created with "Posting No. Series" = "NSP".
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, DocumentNo);
-        PurchaseHeader.TestField("Posting No. Series", NoSeriesLinePurchase."Series Code");
+        PurchaseHeader.TestField("Posting No. Series", NoSeriesLine."Series Code");
         Assert.AreNotEqual(DefaultNoSeriesCode, PurchaseHeader."Posting No. Series", 'Posting No. Series must not match');
 
         LibrarySetupStorage.Restore();
@@ -340,7 +340,7 @@ codeunit 144123 "ERM Details Purchase"
 
         // Verify: Verify Purchase Credit Memo Header No. is updated with correct No. Series.
         PurchCrMemoHdr.Get(PurchaseCrMemoHeaderNo);
-        PurchCrMemoHdr.TestField("No.", FindNoSeriesLinePurchase(PurchaseHeader."Posting Date"));
+        PurchCrMemoHdr.TestField("No.", FindNoSeriesLinePurchase(PurchaseHeader."Posting No. Series", PurchaseHeader."Posting Date"));
 
         // Teardown.
         UpdatePurchasesPayablesSetupExtDocNoMandatory(OldExtDocNoMandatory);
@@ -361,7 +361,7 @@ codeunit 144123 "ERM Details Purchase"
         VendorTop10List.Run();  // Opens VendorTopTenListRequestPageHandler.
 
         // Verify: Verify Report Vendor - Top 10 List run successfully with option Balance (LCY) without any error.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendorBalanceLCYCap, Vendor.FieldCaption("Balance (LCY)"));
         LibraryReportDataset.AssertElementWithValueExists(IntegerNumberCap, LibraryRandom.RandIntInRange(1, 10));  // Count of Vendors on Report.
     end;
@@ -378,7 +378,7 @@ codeunit 144123 "ERM Details Purchase"
         Amount: Decimal;
     begin
         // Setup: Create Currency with Exchange rate, create and post Purchase Invoice with that Currency and Apply payment for Invoice on next year.
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 #if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());  // Ending Date, Posting Date - WORKDATE.
 #else
@@ -394,7 +394,7 @@ codeunit 144123 "ERM Details Purchase"
         RunVendorSheetPrint(PurchInvHeader."Buy-from Vendor No.");
 
         // Verify: Verify Vendor and Amount of Payment updated on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendoNoCap, PurchInvHeader."Buy-from Vendor No.");
         LibraryReportDataset.AssertElementWithValueExists(AmountLCYCap, Amount);
     end;
@@ -466,15 +466,10 @@ codeunit 144123 "ERM Details Purchase"
         Item: Record Item;
         Vendor: Record Vendor;
         PurchaseLine: Record "Purchase Line";
-        NoSeries: Record "No. Series";
     begin
-        NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Purchase);
-        NoSeries.SetRange("Date Order", true);
-        NoSeries.FindFirst();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
-        PurchaseHeader.Validate("Operation Type", NoSeries.Code);
         PurchaseHeader.Validate("Expected Receipt Date", ExpectedReceiptDate);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
@@ -505,13 +500,17 @@ codeunit 144123 "ERM Details Purchase"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure FindNoSeriesLinePurchase(LastDateUsed: Date): Code[20]
+    local procedure FindNoSeriesLinePurchase(NoSeriesCode: Code[20]; LastDateUsed: Date): Code[20]
     var
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeriesLinePurchase.SetRange("Last Date Used", LastDateUsed);
-        NoSeriesLinePurchase.FindFirst();
-        exit(NoSeriesLinePurchase."Last No. Used");
+#pragma warning disable AA0210
+        NoSeriesLine.SetRange("No. Series Type", NoSeriesLine."No. Series Type"::"Purchase");
+#pragma warning disable AA0210
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.SetRange("Last Date Used", LastDateUsed);
+        NoSeriesLine.FindFirst();
+        exit(NoSeriesLine."Last No. Used");
     end;
 
     local procedure GetReturnShipmentLine(PurchaseHeader: Record "Purchase Header")
@@ -572,7 +571,7 @@ codeunit 144123 "ERM Details Purchase"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Posted Invoice Nos." := LibraryERM.CreateNoSeriesCode;
+        PurchasesPayablesSetup."Posted Invoice Nos." := LibraryERM.CreateNoSeriesCode();
         PurchasesPayablesSetup.Modify();
         exit(PurchasesPayablesSetup."Posted Invoice Nos.");
     end;
@@ -585,7 +584,7 @@ codeunit 144123 "ERM Details Purchase"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
           LibraryPurchase.CreateVendor(Vendor));
-        PurchaseHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        PurchaseHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
           LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));
@@ -645,14 +644,14 @@ codeunit 144123 "ERM Details Purchase"
         Show: Option "Purchases (LCY)","Balance (LCY)";
     begin
         VendorTop10List.Show.SetValue(Show::"Balance (LCY)");
-        VendorTop10List.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorTop10List.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorSheetPrintRequestPageHandler(var VendorSheetPrint: TestRequestPage "Vendor Sheet - Print")
     begin
-        VendorSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

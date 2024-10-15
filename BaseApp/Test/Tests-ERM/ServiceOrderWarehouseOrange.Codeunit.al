@@ -47,7 +47,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     begin
         // Setup
         Initialize();
-        DeleteExistingWhsWorksheetPickLines;
+        DeleteExistingWhsWorksheetPickLines();
         // execute
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 1);
         // setup
@@ -81,7 +81,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         // Execute
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 3);
         // Verify
-        asserterror InvokeGetWarehouseDocument;
+        asserterror InvokeGetWarehouseDocument();
         ErrorMessage := ERR_NoWorksheetLinesCreated;
         Assert.AreEqual(ErrorMessage, GetLastErrorText, ERR_Unexpected);
     end;
@@ -137,7 +137,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
         WarehouseShipmentLine.FindFirst();
         WhseShptRelease.Release(WarehouseShipmentHeader);
-        InvokeGetWarehouseDocument;
+        InvokeGetWarehouseDocument();
         // Validate result
         ValidateWorksheetLinesWithShipmentLines(WarehouseShipmentHeader, WarehouseShipmentLine);
     end;
@@ -207,7 +207,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         // Execute
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, 1);
         // validate
-        asserterror ServiceLine.Validate("Gen. Prod. Posting Group", CreateNewGenProductPostingGroup);
+        asserterror ServiceLine.Validate("Gen. Prod. Posting Group", CreateNewGenProductPostingGroup());
     end;
 
     [Test]
@@ -257,10 +257,10 @@ codeunit 136148 "Service Order Warehouse Orange"
         Initialize();
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         // Execute
-        ServiceOrderTestPage.OpenEdit;
+        ServiceOrderTestPage.OpenEdit();
         ServiceOrderTestPage.GotoRecord(ServHeader);
         // validate
-        ServiceOrderTestPage.ServItemLines."Service Lines".Invoke;
+        ServiceOrderTestPage.ServItemLines."Service Lines".Invoke();
         ServiceOrderTestPage.Close();
     end;
 
@@ -334,7 +334,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         // Execute
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, 1);
         // validate
-        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
+        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo());
     end;
 
     [Test]
@@ -423,7 +423,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceOrderTestPage.OpenNew();
         ServiceOrderTestPage.GotoRecord(ServHeader);
         // validate
-        ServiceOrderTestPage.ServItemLines."Service Lines".Invoke;
+        ServiceOrderTestPage.ServItemLines."Service Lines".Invoke();
         ServiceOrderTestPage.Close();
     end;
 
@@ -667,10 +667,10 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceCost: Record "Service Cost";
     begin
         CreateAndUpdateServiceLines(ServiceLine, ServiceHeader, ServiceItemLineNo,
-          ServiceLine.Type::Resource, LibraryResource.CreateResourceNo, LibraryRandom.RandInt(100));
+          ServiceLine.Type::Resource, LibraryResource.CreateResourceNo(), LibraryRandom.RandInt(100));
 
         CreateAndUpdateServiceLines(ServiceLine, ServiceHeader, ServiceItemLineNo,
-          ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
 
         LibraryService.FindServiceCost(ServiceCost);
         CreateAndUpdateServiceLines(ServiceLine, ServiceHeader, ServiceItemLineNo,
@@ -741,7 +741,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     begin
         // release warehouse shipment and create pick worksheet again
         CreateAndReleaseWhseShipment(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, NumberOfServLines);
-        InvokeGetWarehouseDocument;
+        InvokeGetWarehouseDocument();
     end;
 
     [Normal]
@@ -1028,15 +1028,15 @@ codeunit 136148 "Service Order Warehouse Orange"
     [Scope('OnPrem')]
     procedure HandlePickSelectionPage(var PickSelectionTestPage: TestPage "Pick Selection")
     begin
-        PickSelectionTestPage.Last;
-        PickSelectionTestPage.OK.Invoke;
+        PickSelectionTestPage.Last();
+        PickSelectionTestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure HandleRequestPageCreatePick(var CreatePickTestPage: TestRequestPage "Create Pick")
     begin
-        CreatePickTestPage.OK.Invoke;
+        CreatePickTestPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1045,7 +1045,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     begin
         WorksheetNames.FILTER.SetFilter("Location Code", OrangeLocation);
         WorksheetNames.FILTER.SetFilter(Name, WkshName);
-        WorksheetNames.OK.Invoke;
+        WorksheetNames.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -1098,7 +1098,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        OrangeLocation := CreateOrangeLocation;
+        OrangeLocation := CreateOrangeLocation();
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, OrangeLocation, (not WarehouseEmployee.FindFirst()));
@@ -1112,10 +1112,10 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         PickWorksheetTestPage: TestPage "Pick Worksheet";
     begin
-        PickWorksheetTestPage.Trap;
-        PickWorksheetTestPage.OpenEdit;
-        PickWorksheetTestPage.CurrentWkshName.Lookup;
-        PickWorksheetTestPage."Get Warehouse Documents".Invoke;
+        PickWorksheetTestPage.Trap();
+        PickWorksheetTestPage.OpenEdit();
+        PickWorksheetTestPage.CurrentWkshName.Lookup();
+        PickWorksheetTestPage."Get Warehouse Documents".Invoke();
         PickWorksheetTestPage.Close();
     end;
 
@@ -1138,7 +1138,7 @@ codeunit 136148 "Service Order Warehouse Orange"
                     PurchaseLine.Validate("Location Code", "Location Code");
                     PurchaseLine.Modify(true);
                 end;
-            until Next <= 0;
+            until Next() <= 0;
 
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
@@ -1156,7 +1156,7 @@ codeunit 136148 "Service Order Warehouse Orange"
                     Validate("Bin Code", Location."Default Bin Code");
                     Modify(true);
                 end;
-            until Next <= 0
+            until Next() <= 0;
         end;
         CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Register (Yes/No)", WhseActivityLine);
     end;

@@ -278,8 +278,6 @@ codeunit 144070 "UT TAB VAT Exemption"
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnValidateBuyFromVendorNoCreditMemoPurchaseHeaderError()
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         // Purpose of the test is to validate Buy-from Vendor No. - OnValidate Trigger of Table ID - 38 Purchase Header.
         OnValidateBuyFromVendorNoDocumentTypePurchaseHeader("Purchase Document Type"::"Credit Memo");
@@ -293,7 +291,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         CreatePurchaseHeader(PurchaseHeader, DocumentType);
 
         // Exercise.
-        asserterror PurchaseHeader.Validate("Buy-from Vendor No.", CreateVendor);
+        asserterror PurchaseHeader.Validate("Buy-from Vendor No.", CreateVendor());
 
         // Verify: Verify expected error code, actual error: It is not possible to insert a vendor with VAT exemption if an active VAT exemption doesn't exist.
         Assert.ExpectedErrorCode(DialogErr);
@@ -310,7 +308,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         // Setup.
         Initialize();
         CreateVATExemption(VATExemption);
-        UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries);
+        UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries());
 
         // Exercise: Validate VAT Exemption -  VAT Exemption Starting Date with Date after Workdate.
         asserterror
@@ -334,7 +332,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         Initialize();
         CreateVATExemption(VATExemption);
         VATExemption2."No." := VATExemption."No.";
-        UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries);
+        UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries());
 
         // Exercise: Validate VAT Exemption - VAT Exemption Starting Date with created VAT Exemption - VAT Exemption Ending Date.
         asserterror VATExemption2.Validate("VAT Exempt. Starting Date", VATExemption."VAT Exempt. Ending Date");
@@ -420,7 +418,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 12186 VAT Exemption.
 
         // Setup: Update Sales & Receivables Setup.
-        OldVATExemptionNos := UpdateSalesReceivablesSetupVATExemptionNos(CreateNoSeries);
+        OldVATExemptionNos := UpdateSalesReceivablesSetupVATExemptionNos(CreateNoSeries());
         VATExemption.Type := VATExemption.Type::Customer;
 
         // Exercise.
@@ -444,7 +442,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 12186 VAT Exemption.
 
         // Setup: Update Purchases & Payables Setup.
-        OldVATExemptionNos := UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries);
+        OldVATExemptionNos := UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries());
         VATExemption.Type := VATExemption.Type::Vendor;
 
         // Exercise.
@@ -466,12 +464,12 @@ codeunit 144070 "UT TAB VAT Exemption"
         StartDate: Date;
     begin
         // Setup No. Series and save the Starting No.
-        StartingNo := SetNoSeries;
+        StartingNo := SetNoSeries();
         StartDate := CalcDate('<-CM>', WorkDate());
 
         // Create the VAT Exemption for a new Customer
         CreateVATExemptionWithValidation(
-          VATExemption, VATExemption.Type::Customer, CreateCustomer(true), StartDate, GetNextRandDate(StartDate), true);
+          VATExemption, CreateCustomer(true), StartDate, GetNextRandDate(StartDate), true);
 
         // Verify that the "VAT Exemption Intl. Register No." value is set from No. Series Setup
         Assert.AreEqual(
@@ -488,20 +486,20 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         // [SCENARIO] Different "VAT Exemption Int. Register No." should be assigned for two VAT Exemptions for one customer for one year
 
-        SetNoSeries;
+        SetNoSeries();
 
         CustomerNo := CreateCustomer(true);
 
         // [GIVEN] Created the 1st VAT Exemption for current year
         StartDate := CalcDate('<-CM>', WorkDate());
         CreateVATExemptionWithValidation(
-          VATExemption[1], VATExemption[1].Type::Customer, CustomerNo, StartDate, GetNextRandDate(StartDate), true);
+          VATExemption[1], CustomerNo, StartDate, GetNextRandDate(StartDate), true);
 
         // [WHEN] Create the 2nd VAT Exemption for current year
         StartDate := CalcDate('<-CM+14D>', WorkDate());
         // Create the 2nd VAT Exemption for current year
         CreateVATExemptionWithValidation(
-          VATExemption[2], VATExemption[2].Type::Customer, CustomerNo, StartDate, GetNextRandDate(StartDate), true);
+          VATExemption[2], CustomerNo, StartDate, GetNextRandDate(StartDate), true);
 
         // [THEN] "VAT Exemption Intl. Register No." values are different
         Assert.AreNotEqual(
@@ -519,16 +517,16 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         // Check that for different customers the system assigns different values of "VAT Exemption Int. Register No."
         // for a one year
-        SetNoSeries;
+        SetNoSeries();
         StartDate := CalcDate('<-CM>', WorkDate());
 
         // Create a new Customer and the 1st VAT Exemption for current year
         CreateVATExemptionWithValidation(
-          VATExemption[1], VATExemption[1].Type::Customer, CreateCustomer(true), StartDate, GetNextRandDate(StartDate), true);
+          VATExemption[1], CreateCustomer(true), StartDate, GetNextRandDate(StartDate), true);
 
         // Create a new Customer the 2nd VAT Exemption for current year
         CreateVATExemptionWithValidation(
-          VATExemption[2], VATExemption[2].Type::Customer, CreateCustomer(true), StartDate, GetNextRandDate(StartDate), true);
+          VATExemption[2], CreateCustomer(true), StartDate, GetNextRandDate(StartDate), true);
 
         // Verify that the "VAT Exemption Intl. Register No." values are different
         Assert.AreNotEqual(
@@ -602,13 +600,13 @@ codeunit 144070 "UT TAB VAT Exemption"
         UpdatePurchasesPayablesSetupVATExemptionNos('');
 
         // [GIVEN] Open page 12100 "VAT Exemptions" from Vendor Card
-        VendorCard.OpenEdit;
-        VendorCard.FILTER.SetFilter("No.", LibraryPurchase.CreateVendorNo);
-        VATExemptions.Trap;
-        VendorCard."VAT E&xemption".Invoke;
+        VendorCard.OpenEdit();
+        VendorCard.FILTER.SetFilter("No.", LibraryPurchase.CreateVendorNo());
+        VATExemptions.Trap();
+        VendorCard."VAT E&xemption".Invoke();
 
         // [WHEN] VATExemption No "N"
-        asserterror VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit;
+        asserterror VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit();
 
         // [THEN] Testfield error was shown
         Assert.ExpectedError(VATExemptionNosPurchaseSetupErr);
@@ -629,13 +627,13 @@ codeunit 144070 "UT TAB VAT Exemption"
         UpdateSalesReceivablesSetupVATExemptionNos('');
 
         // [GIVEN] Open page 12100 "VAT Exemptions" from Customer Card
-        CustomerCard.OpenEdit;
-        CustomerCard.FILTER.SetFilter("No.", LibrarySales.CreateCustomerNo);
-        VATExemptions.Trap;
-        CustomerCard."VAT E&xemption".Invoke;
+        CustomerCard.OpenEdit();
+        CustomerCard.FILTER.SetFilter("No.", LibrarySales.CreateCustomerNo());
+        VATExemptions.Trap();
+        CustomerCard."VAT E&xemption".Invoke();
 
         // [WHEN] VATExemption No "N"
-        asserterror VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit;
+        asserterror VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit();
 
         // [THEN] Testfield error was shown
         Assert.ExpectedError(VATExemptionNosSalesSetupErr);
@@ -649,8 +647,8 @@ codeunit 144070 "UT TAB VAT Exemption"
         if IsInitialized then
             exit;
 
-        LibrarySetupStorage.SavePurchasesSetup;
-        LibrarySetupStorage.SaveSalesSetup;
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveSalesSetup();
         IsInitialized := true;
     end;
 
@@ -658,9 +656,9 @@ codeunit 144070 "UT TAB VAT Exemption"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
-        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10();
+        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         Customer."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup(CheckVATExemption);
         Customer.Insert();
         exit(Customer."No.");
@@ -670,7 +668,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     var
         NoSeries: Record "No. Series";
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
         NoSeries.Insert();
         exit(NoSeries.Code);
     end;
@@ -678,14 +676,14 @@ codeunit 144070 "UT TAB VAT Exemption"
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader.Insert();
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Document Date" := WorkDate();
         SalesHeader.Insert();
     end;
@@ -693,7 +691,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     begin
         ServiceHeader."Document Type" := DocumentType;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceHeader."Document Date" := WorkDate();
         ServiceHeader.Insert();
     end;
@@ -702,7 +700,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
-        VATBusPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VATBusPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VATBusPostingGroup."Check VAT Exemption" := CheckVATExemption;
         VATBusPostingGroup.Insert();
         exit(VATBusPostingGroup.Code);
@@ -714,19 +712,19 @@ codeunit 144070 "UT TAB VAT Exemption"
         VATExemption."No." := CreateCustomer(false);  // Check VAT Exemption as False.
         VATExemption."VAT Exempt. Ending Date" := WorkDate();
         VATExemption."VAT Exempt. Starting Date" := WorkDate();
-        VATExemption."VAT Exempt. Int. Registry No." := LibraryUTUtility.GetNewCode;
-        VATExemption."VAT Exempt. No." := LibraryUTUtility.GetNewCode;
+        VATExemption."VAT Exempt. Int. Registry No." := LibraryUTUtility.GetNewCode();
+        VATExemption."VAT Exempt. No." := LibraryUTUtility.GetNewCode();
         VATExemption.Insert();
     end;
 
-    local procedure CreateVATExemptionWithValidation(var VATExemption: Record "VAT Exemption"; Type: Option; No: Code[20]; StartingDate: Date; EndingDate: Date; RunTrigger: Boolean)
+    local procedure CreateVATExemptionWithValidation(var VATExemption: Record "VAT Exemption"; No: Code[20]; StartingDate: Date; EndingDate: Date; RunTrigger: Boolean)
     begin
         with VATExemption do begin
             Type := Type;
             "No." := No;
             "VAT Exempt. Ending Date" := StartingDate;
             "VAT Exempt. Starting Date" := EndingDate;
-            "VAT Exempt. No." := LibraryUTUtility.GetNewCode;
+            "VAT Exempt. No." := LibraryUTUtility.GetNewCode();
             Insert(RunTrigger);
         end;
     end;
@@ -735,9 +733,9 @@ codeunit 144070 "UT TAB VAT Exemption"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10;
-        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10();
+        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         Vendor."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup(true);  // Check VAT Exemption as TRUE.
         Vendor.Insert();
         exit(Vendor."No.");
@@ -777,7 +775,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."VAT Exemption Nos." := LibraryERM.CreateNoSeriesCode;
+        SalesReceivablesSetup."VAT Exemption Nos." := LibraryERM.CreateNoSeriesCode();
         SalesReceivablesSetup.Modify();
 
         NoSeriesLine.Reset();

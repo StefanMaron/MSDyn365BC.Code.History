@@ -585,7 +585,9 @@ page 12152 "Subcontracting Order"
                         Caption = 'Receipt Lines';
                         RunObject = Page "Whse. Receipt Lines";
                         RunPageLink = "Source Type" = const(39),
+#pragma warning disable AL0603
                                       "Source Subtype" = field("Document Type"),
+#pragma warning restore AL0603
                                       "Source No." = field("No.");
                         RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                         ToolTip = 'View the related receipt lines.';

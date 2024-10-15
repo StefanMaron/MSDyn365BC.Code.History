@@ -36,7 +36,7 @@ codeunit 134033 "ERM Vendor Date Compression"
         // verify the Amount and No. of Entries in Vendor Ledger Entries. Take 1 Week Interval between posting dates to test date
         // compression on lower and upper bounds randomly.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         FirstPostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         LastPostingDate := VendorDateCompression(VendorNo, DateComprRegister."Period Length"::Week, FirstPostingDate, '<1W>');
         NoOfEntries := ComputeNoOfWeek(FirstPostingDate, LastPostingDate);
@@ -83,7 +83,7 @@ codeunit 134033 "ERM Vendor Date Compression"
     begin
         // Create Vendor. Create multiple Invoice and Payment entries on General Journal Line and Post them. Date Compress as per the
         // Period Length selected. Verify the Amount and No. of Entries in Vendor Ledger Entries.
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         FirstPostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         LastPostingDate := VendorDateCompression(VendorNo, PeriodLength, FirstPostingDate, PeriodDifference);
 

@@ -25,7 +25,7 @@ codeunit 144067 "UT TAB Posting Routine"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 114 Sales Cr.Memo Header.
         // Setup.
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
         SalesCrMemoHeader.Insert();
 
         // Exercise.
@@ -44,7 +44,7 @@ codeunit 144067 "UT TAB Posting Routine"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 112 Sales Invoice Header.
         // Setup.
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceHeader.Insert();
 
         // Exercise.
@@ -63,7 +63,7 @@ codeunit 144067 "UT TAB Posting Routine"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 122 Purch. Inv. Header.
         // Setup.
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
         PurchInvHeader.Insert();
 
         // Exercise.
@@ -82,7 +82,7 @@ codeunit 144067 "UT TAB Posting Routine"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 124 Purch. Cr. Memo Hdr.
         // Setup.
-        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoHdr.Insert();
 
         // Exercise.
@@ -101,7 +101,7 @@ codeunit 144067 "UT TAB Posting Routine"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 5992 Service Invoice Header.
         // Setup.
-        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceInvoiceHeader.Insert();
 
         // Exercise.
@@ -120,8 +120,8 @@ codeunit 144067 "UT TAB Posting Routine"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 36 Sales Header.
         // Setup.
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Posting No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Posting No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Insert();
 
         // Exercise.
@@ -177,7 +177,7 @@ codeunit 144067 "UT TAB Posting Routine"
     begin
         // Purpose of the test is to validate RunCheck function of CodeUnit ID - 11 Gen. Jnl.-Check Line.
         // Setup.
-        UpdateGLSetupLastGenJourPrintingDate;
+        UpdateGLSetupLastGenJourPrintingDate();
         CreateGeneralJournalLine(GenJournalLine);
 
         // Exercise.
@@ -191,10 +191,10 @@ codeunit 144067 "UT TAB Posting Routine"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
     end;
 
@@ -207,7 +207,7 @@ codeunit 144067 "UT TAB Posting Routine"
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
-        GenJournalLine."Account No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Account No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine.Insert();
     end;
@@ -216,7 +216,7 @@ codeunit 144067 "UT TAB Posting Routine"
     var
         NoSeries: Record "No. Series";
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
         NoSeries."Date Order" := true;
         NoSeries.Insert();
         exit(NoSeries.Code);
@@ -224,9 +224,9 @@ codeunit 144067 "UT TAB Posting Routine"
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Posting No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Posting No. Series" := CreateNoSeries;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Posting No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Posting No. Series" := CreateNoSeries();
         PurchaseHeader.Insert();
     end;
 

@@ -945,84 +945,72 @@ page 9249 "Analysis by Dimensions Matrix"
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheGLAcc."No.";
-            Name := TheGLAcc.Name;
-            Totaling := TheGLAcc.Totaling;
-            Indentation := TheGLAcc.Indentation;
-            "Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
-            Insert();
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheGLAcc."No.";
+        TheDimCodeBuf.Name := TheGLAcc.Name;
+        TheDimCodeBuf.Totaling := TheGLAcc.Totaling;
+        TheDimCodeBuf.Indentation := TheGLAcc.Indentation;
+        TheDimCodeBuf."Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
+        TheDimCodeBuf.Insert();
     end;
 
     local procedure CopyCFAccToBuf(var TheCFAcc: Record "Cash Flow Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheCFAcc."No.";
-            Name := TheCFAcc.Name;
-            Totaling := TheCFAcc.Totaling;
-            Indentation := TheCFAcc.Indentation;
-            "Show in Bold" := TheCFAcc."Account Type" <> TheCFAcc."Account Type"::Entry;
-            Insert();
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheCFAcc."No.";
+        TheDimCodeBuf.Name := TheCFAcc.Name;
+        TheDimCodeBuf.Totaling := TheCFAcc.Totaling;
+        TheDimCodeBuf.Indentation := TheCFAcc.Indentation;
+        TheDimCodeBuf."Show in Bold" := TheCFAcc."Account Type" <> TheCFAcc."Account Type"::Entry;
+        TheDimCodeBuf.Insert();
     end;
 
     local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
     var
         Period2: Record Date;
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := Format(ThePeriod."Period Start");
-            "Period Start" := ThePeriod."Period Start";
-            if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
-                "Period End" := ClosingDate(ThePeriod."Period End")
-            else
-                "Period End" := ThePeriod."Period End";
-            if AnalysisByDimParameters."Date Filter" <> '' then begin
-                Period2.SetFilter("Period End", AnalysisByDimParameters."Date Filter");
-                if Period2.GetRangeMax("Period End") < "Period End" then
-                    "Period End" := Period2.GetRangeMax("Period End");
-            end;
-            Name := ThePeriod."Period Name";
-            if Insert() then;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := Format(ThePeriod."Period Start");
+        TheDimCodeBuf."Period Start" := ThePeriod."Period Start";
+        if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
+            TheDimCodeBuf."Period End" := ClosingDate(ThePeriod."Period End")
+        else
+            TheDimCodeBuf."Period End" := ThePeriod."Period End";
+        if AnalysisByDimParameters."Date Filter" <> '' then begin
+            Period2.SetFilter("Period End", AnalysisByDimParameters."Date Filter");
+            if Period2.GetRangeMax("Period End") < TheDimCodeBuf."Period End" then
+                TheDimCodeBuf."Period End" := Period2.GetRangeMax("Period End");
         end;
+        TheDimCodeBuf.Name := ThePeriod."Period Name";
+        if TheDimCodeBuf.Insert() then;
     end;
 
     local procedure CopyBusUnitToBuf(var TheBusUnit: Record "Business Unit"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheBusUnit.Code;
-            Name := TheBusUnit.Name;
-            Insert();
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheBusUnit.Code;
+        TheDimCodeBuf.Name := TheBusUnit.Name;
+        TheDimCodeBuf.Insert();
     end;
 
     local procedure CopyCashFlowToBuf(var TheCashFlowForecast: Record "Cash Flow Forecast"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheCashFlowForecast."No.";
-            Name := TheCashFlowForecast.Description;
-            Insert();
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheCashFlowForecast."No.";
+        TheDimCodeBuf.Name := TheCashFlowForecast.Description;
+        TheDimCodeBuf.Insert();
     end;
 
     local procedure CopyDimValueToBuf(var TheDimVal: Record "Dimension Value"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheDimVal.Code;
-            Name := TheDimVal.Name;
-            Totaling := TheDimVal.Totaling;
-            Indentation := TheDimVal.Indentation;
-            "Show in Bold" :=
-              TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
-            Insert();
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheDimVal.Code;
+        TheDimCodeBuf.Name := TheDimVal.Name;
+        TheDimCodeBuf.Totaling := TheDimVal.Totaling;
+        TheDimCodeBuf.Indentation := TheDimVal.Indentation;
+        TheDimCodeBuf."Show in Bold" :=
+          TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
+        TheDimCodeBuf.Insert();
     end;
 
     local procedure CalculateClosingDateFilter()
@@ -1102,42 +1090,40 @@ page 9249 "Analysis by Dimensions Matrix"
     var
         DateFilter2: Text;
     begin
-        with TheAnalysisViewEntry do begin
-            if AnalysisByDimParameters."Date Filter" = '' then
-                DateFilter2 := ExcludeClosingDateFilter
+        if AnalysisByDimParameters."Date Filter" = '' then
+            DateFilter2 := ExcludeClosingDateFilter
+        else begin
+            if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then
+                DateFilter2 := AnalysisByDimParameters."Date Filter"
             else begin
-                if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then begin
-                    DateFilter2 := AnalysisByDimParameters."Date Filter";
-                end else begin
-                    SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
-                    DateFilter2 := StrSubstNo('..%1', GetRangeMax("Posting Date"));
-                end;
-                if ExcludeClosingDateFilter <> '' then
-                    DateFilter2 := StrSubstNo('%1 & %2', DateFilter2, ExcludeClosingDateFilter);
+                TheAnalysisViewEntry.SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
+                DateFilter2 := StrSubstNo('..%1', TheAnalysisViewEntry.GetRangeMax("Posting Date"));
             end;
-            Reset();
-
-            SetRange("Analysis View Code", AnalysisView.Code);
-            if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
-                SetFilter("Business Unit Code", AnalysisByDimParameters."Bus. Unit Filter");
-            if AnalysisByDimParameters."Cash Flow Forecast Filter" <> '' then
-                SetFilter("Cash Flow Forecast No.", AnalysisByDimParameters."Cash Flow Forecast Filter");
-
-            if AnalysisByDimParameters."Account Filter" <> '' then
-                SetFilter("Account No.", AnalysisByDimParameters."Account Filter");
-
-            SetRange("Account Source", AnalysisByDimParameters."Analysis Account Source");
-
-            SetFilter("Posting Date", DateFilter2);
-            if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
-                SetFilter("Dimension 1 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", AnalysisView."Dimension 1 Code"));
-            if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
-                SetFilter("Dimension 2 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", AnalysisView."Dimension 2 Code"));
-            if AnalysisByDimParameters."Dimension 3 Filter" <> '' then
-                SetFilter("Dimension 3 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 3 Filter", AnalysisView."Dimension 3 Code"));
-            if AnalysisByDimParameters."Dimension 4 Filter" <> '' then
-                SetFilter("Dimension 4 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 4 Filter", AnalysisView."Dimension 4 Code"));
+            if ExcludeClosingDateFilter <> '' then
+                DateFilter2 := StrSubstNo('%1 & %2', DateFilter2, ExcludeClosingDateFilter);
         end;
+        TheAnalysisViewEntry.Reset();
+
+        TheAnalysisViewEntry.SetRange("Analysis View Code", AnalysisView.Code);
+        if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+            TheAnalysisViewEntry.SetFilter("Business Unit Code", AnalysisByDimParameters."Bus. Unit Filter");
+        if AnalysisByDimParameters."Cash Flow Forecast Filter" <> '' then
+            TheAnalysisViewEntry.SetFilter("Cash Flow Forecast No.", AnalysisByDimParameters."Cash Flow Forecast Filter");
+
+        if AnalysisByDimParameters."Account Filter" <> '' then
+            TheAnalysisViewEntry.SetFilter("Account No.", AnalysisByDimParameters."Account Filter");
+
+        TheAnalysisViewEntry.SetRange("Account Source", AnalysisByDimParameters."Analysis Account Source");
+
+        TheAnalysisViewEntry.SetFilter("Posting Date", DateFilter2);
+        if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+            TheAnalysisViewEntry.SetFilter("Dimension 1 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", AnalysisView."Dimension 1 Code"));
+        if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+            TheAnalysisViewEntry.SetFilter("Dimension 2 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", AnalysisView."Dimension 2 Code"));
+        if AnalysisByDimParameters."Dimension 3 Filter" <> '' then
+            TheAnalysisViewEntry.SetFilter("Dimension 3 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 3 Filter", AnalysisView."Dimension 3 Code"));
+        if AnalysisByDimParameters."Dimension 4 Filter" <> '' then
+            TheAnalysisViewEntry.SetFilter("Dimension 4 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 4 Filter", AnalysisView."Dimension 4 Code"));
 
         OnAfterSetCommonFilters(TheAnalysisViewEntry, AnalysisByDimParameters);
     end;
@@ -1204,26 +1190,24 @@ page 9249 "Analysis by Dimensions Matrix"
 
     local procedure SetCommonBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry")
     begin
-        with TheAnalysisViewBudgetEntry do begin
-            Reset();
-            SetRange("Analysis View Code", AnalysisView.Code);
-            if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
-                SetFilter("Business Unit Code", AnalysisByDimParameters."Bus. Unit Filter");
-            if AnalysisByDimParameters."Budget Filter" <> '' then
-                SetFilter("Budget Name", AnalysisByDimParameters."Budget Filter");
-            if AnalysisByDimParameters."Account Filter" <> '' then
-                SetFilter("G/L Account No.", AnalysisByDimParameters."Account Filter");
-            if AnalysisByDimParameters."Date Filter" <> '' then
-                SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
-            if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
-                SetFilter("Dimension 1 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", AnalysisView."Dimension 1 Code"));
-            if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
-                SetFilter("Dimension 2 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", AnalysisView."Dimension 2 Code"));
-            if AnalysisByDimParameters."Dimension 3 Filter" <> '' then
-                SetFilter("Dimension 3 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 3 Filter", AnalysisView."Dimension 3 Code"));
-            if AnalysisByDimParameters."Dimension 4 Filter" <> '' then
-                SetFilter("Dimension 4 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 4 Filter", AnalysisView."Dimension 4 Code"));
-        end;
+        TheAnalysisViewBudgetEntry.Reset();
+        TheAnalysisViewBudgetEntry.SetRange("Analysis View Code", AnalysisView.Code);
+        if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+            TheAnalysisViewBudgetEntry.SetFilter("Business Unit Code", AnalysisByDimParameters."Bus. Unit Filter");
+        if AnalysisByDimParameters."Budget Filter" <> '' then
+            TheAnalysisViewBudgetEntry.SetFilter("Budget Name", AnalysisByDimParameters."Budget Filter");
+        if AnalysisByDimParameters."Account Filter" <> '' then
+            TheAnalysisViewBudgetEntry.SetFilter("G/L Account No.", AnalysisByDimParameters."Account Filter");
+        if AnalysisByDimParameters."Date Filter" <> '' then
+            TheAnalysisViewBudgetEntry.SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
+        if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+            TheAnalysisViewBudgetEntry.SetFilter("Dimension 1 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", AnalysisView."Dimension 1 Code"));
+        if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+            TheAnalysisViewBudgetEntry.SetFilter("Dimension 2 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", AnalysisView."Dimension 2 Code"));
+        if AnalysisByDimParameters."Dimension 3 Filter" <> '' then
+            TheAnalysisViewBudgetEntry.SetFilter("Dimension 3 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 3 Filter", AnalysisView."Dimension 3 Code"));
+        if AnalysisByDimParameters."Dimension 4 Filter" <> '' then
+            TheAnalysisViewBudgetEntry.SetFilter("Dimension 4 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 4 Filter", AnalysisView."Dimension 4 Code"));
 
         OnAfterSetCommonBudgetFilters(TheAnalysisViewBudgetEntry, AnalysisByDimParameters);
     end;

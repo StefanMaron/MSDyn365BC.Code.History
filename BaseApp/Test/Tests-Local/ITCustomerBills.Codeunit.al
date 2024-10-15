@@ -105,7 +105,7 @@ codeunit 144191 "IT - Customer Bills"
     begin
         // [SCENARIO 461752] The Partner Type filter is used when suggesting Customer Bills in the Italian version shows entries on Customer bill line
         // [GIVEN] Create Customer and update Customer Partner Type.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         UpdateCustomerPartnerType(CustomerNo);
 
         // [GIVEN] Create sales invoice and post that invoice.
@@ -138,7 +138,7 @@ codeunit 144191 "IT - Customer Bills"
         Amount: Decimal;
     begin
         // Setup: Create Customer, Create and Post Sales Invoice, Run Issue Bank Receipt Report, Create and Post Customer Bill, Post Journal Line for Dishonor after applying.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateSalesDocument(SalesHeader, CustomerNo);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
@@ -176,10 +176,10 @@ codeunit 144191 "IT - Customer Bills"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         Commit();  // COMMIT is required for Write Transaction Error.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure ApplyCustBillToDishonoredPayment(CustomerNo: Code[20]; Amount: Decimal; OpenEntriesOnly: Boolean): Integer
@@ -202,8 +202,8 @@ codeunit 144191 "IT - Customer Bills"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(100, 2));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(100, 2));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -212,7 +212,7 @@ codeunit 144191 "IT - Customer Bills"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Method Code", FindPaymentMethod);
+        Customer.Validate("Payment Method Code", FindPaymentMethod());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -236,7 +236,7 @@ codeunit 144191 "IT - Customer Bills"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         exit(SalesLine.Amount);
     end;
 
@@ -324,10 +324,10 @@ codeunit 144191 "IT - Customer Bills"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TotalAmount: Decimal;
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(CustLedgerEntry.FieldCaption("Posting Date"), Format(WorkDate()));
         LibraryReportValidation.SetColumn(CustLedgerEntry.FieldCaption("Posting Date"));
-        Assert.AreEqual(ExpectedLines, LibraryReportValidation.CountRows, StrSubstNo(NoOfLinesErr, ExpectedLines));
+        Assert.AreEqual(ExpectedLines, LibraryReportValidation.CountRows(), StrSubstNo(NoOfLinesErr, ExpectedLines));
         LibraryReportValidation.SetRange(CustomerBalanceLbl, CustomerBalanceLbl);
         LibraryReportValidation.SetColumn(AmountDueLCYLbl);
         Evaluate(TotalAmount, LibraryReportValidation.GetValue());
@@ -339,7 +339,7 @@ codeunit 144191 "IT - Customer Bills"
         VATEntry: Record "VAT Entry";
         ExpectedAmount: Decimal;
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(VATEntry.FieldCaption("Document No."), DocumentNo);
         LibraryReportValidation.SetColumn(AppliedAmountLbl);
         Evaluate(ExpectedAmount, LibraryReportValidation.GetValue());
@@ -373,7 +373,7 @@ codeunit 144191 "IT - Customer Bills"
     [Scope('OnPrem')]
     procedure ApplyCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -382,8 +382,8 @@ codeunit 144191 "IT - Customer Bills"
     begin
         CustomerBillsListReport."Ending Date".SetValue(WorkDate());
         CustomerBillsListReport."Only Opened Entries".SetValue(ReportOpenEntriesOnly);
-        LibraryReportValidation.SetFileName(LibraryUtility.GetGlobalNoSeriesCode);
-        CustomerBillsListReport.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LibraryReportValidation.SetFileName(LibraryUtility.GetGlobalNoSeriesCode());
+        CustomerBillsListReport.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [MessageHandler]

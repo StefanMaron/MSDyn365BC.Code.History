@@ -14,6 +14,7 @@ table 12116 "Withholding Tax"
     Caption = 'Withholding Tax';
     DrillDownPageID = "Withholding Tax List";
     LookupPageID = "Withholding Tax List";
+    DataClassification = CustomerContent;
 
     fields
     {

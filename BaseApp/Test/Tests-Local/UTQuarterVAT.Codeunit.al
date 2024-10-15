@@ -79,7 +79,7 @@ codeunit 144174 "UT Quarter VAT"
     begin
         // Setup: Run Calc. and Post VAT Settlement report, modify VAT Entries and Periodic Settlement VAT Entry.
         Initialize();
-        EntryNo := CreateVATEntry;
+        EntryNo := CreateVATEntry();
         UpdateVATEntries(false, true);  // Using False and True for Closed VAT Entry.
         LibraryVariableStorage.Enqueue(true);
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement");
@@ -170,7 +170,7 @@ codeunit 144174 "UT Quarter VAT"
 
         // [GIVEN] Set up General Ledger Setup with "VAT Settlement Period" = Month and new Last Settlement Date
         UpdateVATSettlementPeriodGeneralLedgerSetup(GeneralLedgerSetup."VAT Settlement Period"::Month);
-        PeriodStartDate := UpdateLastSettlementDateOnGLSetup;
+        PeriodStartDate := UpdateLastSettlementDateOnGLSetup();
 
         // [GIVEN] New empty Periodic Settlement VAT Entry with "Prior Period Input VAT" = "X", "Prior Period Output VAT" = 0
         LibraryITLocalization.CreatePeriodicVATSettlementEntry(PeriodicSettlementVATEntry, PeriodStartDate);
@@ -205,7 +205,7 @@ codeunit 144174 "UT Quarter VAT"
 
         // [GIVEN] Set up General Ledger Setup with "VAT Settlement Period" = Month and new Last Settlement Date
         UpdateVATSettlementPeriodGeneralLedgerSetup(GeneralLedgerSetup."VAT Settlement Period"::Month);
-        PeriodStartDate := UpdateLastSettlementDateOnGLSetup;
+        PeriodStartDate := UpdateLastSettlementDateOnGLSetup();
 
         // [GIVEN] New empty Periodic Settlement VAT Entry with "Prior Period Input VAT" = 0, "Prior Period Output VAT" = "Y"
         LibraryITLocalization.CreatePeriodicVATSettlementEntry(PeriodicSettlementVATEntry, PeriodStartDate);
@@ -243,7 +243,7 @@ codeunit 144174 "UT Quarter VAT"
 
         // [GIVEN] Set up General Ledger Setup with "VAT Settlement Period" = Month and new Last Settlement Date
         UpdateVATSettlementPeriodGeneralLedgerSetup(GeneralLedgerSetup."VAT Settlement Period"::Month);
-        PeriodStartDate := UpdateLastSettlementDateOnGLSetup;
+        PeriodStartDate := UpdateLastSettlementDateOnGLSetup();
 
         // [GIVEN] New empty Periodic Settlement VAT Entry with "Prior Period Input VAT" = "X"
         LibraryITLocalization.CreatePeriodicVATSettlementEntry(PeriodicSettlementVATEntry, PeriodStartDate);
@@ -289,7 +289,7 @@ codeunit 144174 "UT Quarter VAT"
 
         // [GIVEN] Set up General Ledger Setup with "VAT Settlement Period" = Month and new Last Settlement Date
         UpdateVATSettlementPeriodGeneralLedgerSetup(GeneralLedgerSetup."VAT Settlement Period"::Month);
-        PeriodStartDate := UpdateLastSettlementDateOnGLSetup;
+        PeriodStartDate := UpdateLastSettlementDateOnGLSetup();
 
         // [GIVEN] New empty Periodic Settlement VAT Entry with "Prior Period Input VAT" = "X"
         LibraryITLocalization.CreatePeriodicVATSettlementEntry(PeriodicSettlementVATEntry, PeriodStartDate);
@@ -414,7 +414,7 @@ codeunit 144174 "UT Quarter VAT"
 
         // [GIVEN] Set up General Ledger Setup with "VAT Settlement Period" = Month and new Last Settlement Date
         UpdateVATSettlementPeriodGeneralLedgerSetup(GeneralLedgerSetup."VAT Settlement Period"::Month);
-        PeriodStartDate := UpdateLastSettlementDateOnGLSetup;
+        PeriodStartDate := UpdateLastSettlementDateOnGLSetup();
 
         // [GIVEN] New empty Periodic Settlement VAT Entry with "Prior Period Input VAT" = "X", "Prior Period Output VAT" = 0
         LibraryITLocalization.CreatePeriodicVATSettlementEntry(PeriodicSettlementVATEntry, PeriodStartDate);
@@ -439,7 +439,7 @@ codeunit 144174 "UT Quarter VAT"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -545,7 +545,7 @@ codeunit 144174 "UT Quarter VAT"
     var
         GeneralLedgerSetup: TestPage "General Ledger Setup";
     begin
-        GeneralLedgerSetup.OpenEdit;
+        GeneralLedgerSetup.OpenEdit();
         GeneralLedgerSetup."VAT Settlement Period".AssertEquals(VATSettlementPeriod);
         GeneralLedgerSetup.Close();
     end;
@@ -554,7 +554,7 @@ codeunit 144174 "UT Quarter VAT"
     var
         VATEntries: TestPage "VAT Entries";
     begin
-        VATEntries.OpenEdit;
+        VATEntries.OpenEdit();
         VATEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
         VATEntries.Closed.AssertEquals(Format(true));
         VATEntries.Close();
@@ -573,7 +573,7 @@ codeunit 144174 "UT Quarter VAT"
 
     local procedure VerifyNextPeriodValuesFileOnly(ExpectedNextInputVAT: Decimal; ExpectedNextOuputVAT: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CreditNextPeriodLbl, ExpectedNextInputVAT);
         LibraryReportDataset.AssertElementWithValueExists(DebitNextPeriodLbl, ExpectedNextOuputVAT);
     end;
@@ -586,12 +586,12 @@ codeunit 144174 "UT Quarter VAT"
     begin
         GeneralLedgerSetup.Get();
         CalcAndPostVATSettlement.StartingDate.SetValue(CalcDate('<1D>', GeneralLedgerSetup."Last Settlement Date"));  // Calculate first day of next month.
-        CalcAndPostVATSettlement.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
-        CalcAndPostVATSettlement.SettlementAcc.SetValue(CreateGLAccount);
-        CalcAndPostVATSettlement.GLGainsAccount.SetValue(CreateGLAccount);
-        CalcAndPostVATSettlement.GLLossesAccount.SetValue(CreateGLAccount);
-        CalcAndPostVATSettlement.Post.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostVATSettlement.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
+        CalcAndPostVATSettlement.SettlementAcc.SetValue(CreateGLAccount());
+        CalcAndPostVATSettlement.GLGainsAccount.SetValue(CreateGLAccount());
+        CalcAndPostVATSettlement.GLLossesAccount.SetValue(CreateGLAccount());
+        CalcAndPostVATSettlement.Post.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

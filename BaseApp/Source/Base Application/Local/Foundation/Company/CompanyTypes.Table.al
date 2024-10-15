@@ -9,6 +9,7 @@ table 12169 "Company Types"
     Caption = 'Company Types';
     DrillDownPageID = "Company Types";
     LookupPageID = "Company Types";
+    DataClassification = CustomerContent;
 
     fields
     {

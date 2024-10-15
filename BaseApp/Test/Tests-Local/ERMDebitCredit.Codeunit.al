@@ -80,7 +80,7 @@ codeunit 144162 "ERM Debit Credit"
 
         // Exercise: Create Cash Receipt Journal line.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer, CreateCustomer,
+          GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer, CreateCustomer(),
           -LibraryRandom.RandDec(100, 2), '', '');  // Use Random value for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
 
         // Verify: Credit Amount gets updated on Cash Receipt Journal line.
@@ -98,7 +98,7 @@ codeunit 144162 "ERM Debit Credit"
 
         // Exercise: Create Cash Receipt Journal line.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer, CreateCustomer,
+          GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer, CreateCustomer(),
           LibraryRandom.RandDec(100, 2), '', '');  // Use Random value for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
 
         // Verify: Debit Amount gets updated on Cash Receipt Journal line.
@@ -128,7 +128,7 @@ codeunit 144162 "ERM Debit Credit"
     begin
         // Setup: Create Cash Receipt Journal line.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer, CreateCustomer, 0, '', '');  // Value Zero required for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
+          GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer, CreateCustomer(), 0, '', '');  // Value Zero required for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
 
         // Exercise: Update Debit Amount on Cash Receipt Journal line.
         UpdateDebitAmountOnGenJournalLine(GenJournalLine, DebitAmount);
@@ -160,7 +160,7 @@ codeunit 144162 "ERM Debit Credit"
     begin
         // Setup: Create Cash Receipt Journal line.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer, CreateCustomer, 0, '', '');  // Value Zero required for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
+          GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer, CreateCustomer(), 0, '', '');  // Value Zero required for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
 
         // Exercise: Update Credit Amount on Cash Receipt Journal line.
         UpdateCreditAmountOnGenJournalLine(GenJournalLine, CreditAmount);
@@ -206,7 +206,7 @@ codeunit 144162 "ERM Debit Credit"
 
         // Exercise: Create Payment Journal line.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalTemplate.Type::Payments, GenJournalLine."Account Type"::Vendor, CreateVendor,
+          GenJournalLine, GenJournalTemplate.Type::Payments, GenJournalLine."Account Type"::Vendor, CreateVendor(),
           -LibraryRandom.RandDec(100, 2), '', '');  // Use Random value for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
 
         // Verify: Credit Amount gets updated on Payment Journal line.
@@ -224,7 +224,7 @@ codeunit 144162 "ERM Debit Credit"
 
         // Exercise: Create Payment Journal line.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalTemplate.Type::Payments, GenJournalLine."Account Type"::Vendor, CreateVendor,
+          GenJournalLine, GenJournalTemplate.Type::Payments, GenJournalLine."Account Type"::Vendor, CreateVendor(),
           LibraryRandom.RandDec(100, 2), '', '');  // Use Random value for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
 
         // Verify: Debit Amount gets updated on Payment Journal line.
@@ -254,7 +254,7 @@ codeunit 144162 "ERM Debit Credit"
     begin
         // Setup: Create Payment Journal line.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalTemplate.Type::Payments, GenJournalLine."Account Type"::Vendor, CreateVendor, 0, '', '');  // Value Zero required for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
+          GenJournalLine, GenJournalTemplate.Type::Payments, GenJournalLine."Account Type"::Vendor, CreateVendor(), 0, '', '');  // Value Zero required for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
 
         // Exercise: Update Debit Amount on Payment Journal line.
         UpdateDebitAmountOnGenJournalLine(GenJournalLine, DebitAmount);
@@ -286,7 +286,7 @@ codeunit 144162 "ERM Debit Credit"
     begin
         // Setup: Create Payment Journal line.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalTemplate.Type::Payments, GenJournalLine."Account Type"::Vendor, CreateVendor, 0, '', '');  // Value Zero required for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
+          GenJournalLine, GenJournalTemplate.Type::Payments, GenJournalLine."Account Type"::Vendor, CreateVendor(), 0, '', '');  // Value Zero required for Amount. Use Blank for Bal. Account No. and Applies To Doc. No.
 
         // Exercise: Update Credit Amount on Payment Journal line.
         UpdateCreditAmountOnGenJournalLine(GenJournalLine, CreditAmount);
@@ -300,7 +300,7 @@ codeunit 144162 "ERM Debit Credit"
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));  // Use Random value for Quantity
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));  // Use Random value for Direct Unit Cost
@@ -313,7 +313,7 @@ codeunit 144162 "ERM Debit Credit"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));  // Use Random value for Quantity
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));  // Use Random value for Unit Price

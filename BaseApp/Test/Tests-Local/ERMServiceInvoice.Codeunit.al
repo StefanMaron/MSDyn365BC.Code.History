@@ -38,7 +38,7 @@ codeunit 144130 "ERM Service Invoice"
     begin
         // Test to verify field Bank Account is available on Service Invoice window.
         // Setup.
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CreateCustomer);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CreateCustomer());
 
         // Exercise & Verify.
         ServiceInvoiceWithLocalizedFields(CustomerBankAccount."Customer No.", CustomerBankAccount.Code, false);  // Using FALSE for Cumulative Bank Receipts.
@@ -50,7 +50,7 @@ codeunit 144130 "ERM Service Invoice"
     begin
         // Test to verify field Cumulative Bank Receipts is available on Service Invoice window.
         // Exercise & Verify.
-        ServiceInvoiceWithLocalizedFields(CreateCustomer, '', true);  // Using blank for Bank Account and TRUE for Cumulative Bank Receipts.
+        ServiceInvoiceWithLocalizedFields(CreateCustomer(), '', true);  // Using blank for Bank Account and TRUE for Cumulative Bank Receipts.
     end;
 
     local procedure ServiceInvoiceWithLocalizedFields(CustomerNo: Code[20]; BankAccount: Code[20]; CumulativeBankReceipts: Boolean)
@@ -63,7 +63,7 @@ codeunit 144130 "ERM Service Invoice"
 
         // Verify: Verify values on Service Invoice page.
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
-        ServiceInvoice.OpenView;
+        ServiceInvoice.OpenView();
         ServiceInvoice.FILTER.SetFilter("No.", ServiceHeader."No.");
         ServiceInvoice."Bank Account".AssertEquals(UpperCase(BankAccount));
         ServiceInvoice."Cumulative Bank Receipts".AssertEquals(CumulativeBankReceipts);
@@ -77,7 +77,7 @@ codeunit 144130 "ERM Service Invoice"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         // Test to verify that service invoice is posted successfully with Bank Account and Cumulative Bank Receipts.
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CreateCustomer);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CreateCustomer());
         CreateAndPostServInvWithBankAccAndCumulativeBankRcpts(CustomerBankAccount."Customer No.", CustomerBankAccount.Code, true);  // Using TRUE for Cumulative Bank Receipts.
     end;
 
@@ -88,7 +88,7 @@ codeunit 144130 "ERM Service Invoice"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         // Test to verify that service invoice is posted successfully with Bank Account and Cumulative Bank Receipts as FALSE.
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CreateCustomer);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CreateCustomer());
         CreateAndPostServInvWithBankAccAndCumulativeBankRcpts(CustomerBankAccount."Customer No.", CustomerBankAccount.Code, false);  // Using FALSE for Cumulative Bank Receipts.
     end;
 
@@ -97,7 +97,7 @@ codeunit 144130 "ERM Service Invoice"
     procedure PostedServiceInvWithCumulativeBankRcptsAndBlankBankAcc()
     begin
         // Test to verify if service invoice is posted successfully without Bank Account and Cumulative Bank Receipts as TRUE.
-        CreateAndPostServInvWithBankAccAndCumulativeBankRcpts(CreateCustomer, '', true);  // Using blank for Bank Account and TRUE for Cumulative Bank Receipts.
+        CreateAndPostServInvWithBankAccAndCumulativeBankRcpts(CreateCustomer(), '', true);  // Using blank for Bank Account and TRUE for Cumulative Bank Receipts.
     end;
 
     [Test]
@@ -105,7 +105,7 @@ codeunit 144130 "ERM Service Invoice"
     procedure PostedServiceInvWithoutCumulativeBankRcptsAndBankAcc()
     begin
         // Test to verify if service invoice is posted successfully without Bank Account and Cumulative Bank Receipts as FALSE.
-        CreateAndPostServInvWithBankAccAndCumulativeBankRcpts(CreateCustomer, '', false);  // Using blank for Bank Account and FALSE for Cumulative Bank Receipts.
+        CreateAndPostServInvWithBankAccAndCumulativeBankRcpts(CreateCustomer(), '', false);  // Using blank for Bank Account and FALSE for Cumulative Bank Receipts.
     end;
 
     local procedure CreateAndPostServInvWithBankAccAndCumulativeBankRcpts(CustomerNo: Code[20]; BankAccount: Code[20]; CumulativeBankReceipts: Boolean)
@@ -134,7 +134,7 @@ codeunit 144130 "ERM Service Invoice"
         ServiceHeader.Validate("Bank Account", BankAccount);
         ServiceHeader.Validate("Cumulative Bank Receipts", CumulativeBankReceipts);
         ServiceHeader.Modify(true);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem());
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity.
         ServiceLine.Modify(true);
     end;

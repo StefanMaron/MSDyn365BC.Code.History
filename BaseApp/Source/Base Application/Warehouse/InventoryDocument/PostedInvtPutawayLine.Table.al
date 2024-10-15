@@ -22,6 +22,7 @@ table 7341 "Posted Invt. Put-away Line"
 {
     Caption = 'Posted Invt. Put-away Line';
     LookupPageID = "Posted Invt. Put-away Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

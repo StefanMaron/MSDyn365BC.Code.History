@@ -17,6 +17,7 @@ table 12144 "GL Book Entry"
     Caption = 'GL Book Entry';
     DrillDownPageID = "GL Book Entries";
     LookupPageID = "GL Book Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

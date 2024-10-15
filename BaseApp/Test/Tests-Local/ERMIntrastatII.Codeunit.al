@@ -117,8 +117,8 @@ codeunit 144063 "ERM Intrastat - II"
 
         // [GIVEN] Create and Post Purchase Document, Intrastat Journal Batch.
         CreateAndPostPurchaseDocument(
-          PurchaseLine, DocumentType, CreateEUVendor,
-          CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+          PurchaseLine, DocumentType, CreateEUVendor(),
+          CreateServiceTariffNumber(), 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
 
         // [WHEN] Get Entries for Intrastat Journal Batch.
         IntrastatJnlBatchName := GetEntriesIntrastatJournal(IntrastatJnlBatch.Type::Purchases, true, CorrectiveEntry);
@@ -147,10 +147,10 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup: Create and Post two Sales Invoice with different Service Tariff Number,Intrastat Journal Batch.
         Initialize();
         DocumentNo := CreateAndPostSalesDocument(
-            SalesLine, SalesLine."Document Type"::Invoice, CreateEUCustomer, CreateServiceTariffNumber,
+            SalesLine, SalesLine."Document Type"::Invoice, CreateEUCustomer(), CreateServiceTariffNumber(),
             VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);  // VAT Percentage - 0, Deductible % - 100.
         DocumentNo2 := CreateAndPostSalesDocument(
-            SalesLine2, SalesLine2."Document Type"::Invoice, CreateEUCustomer, CreateServiceTariffNumber,
+            SalesLine2, SalesLine2."Document Type"::Invoice, CreateEUCustomer(), CreateServiceTariffNumber(),
             VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);  // VAT Percentage - 0, Deductible % - 100.
 
         // Exercise: EU Service - True, Corrective Entry - False and Opens handler - GetItemLedgerEntriesRequestPageHandler.
@@ -179,7 +179,7 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup: Create and Post Sales Invoice. Create Sales Credit Memo with same Tariff Number apply Entries and Post. Create Intrastat Journal Batch.
         Initialize();
         DocumentNo := CreateAndPostSalesDocument(
-            SalesLine, SalesLine."Document Type"::Invoice, CreateEUCustomer, CreateServiceTariffNumber,
+            SalesLine, SalesLine."Document Type"::Invoice, CreateEUCustomer(), CreateServiceTariffNumber(),
             VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);  // VAT Percentage - 0, Deductible % - 100.
         CreateSalesCreditMemoUsingCopyDocument(SalesHeader, SalesLine."Sell-to Customer No.", SalesLine."Service Tariff No.", DocumentNo);
         SalesHeader.CalcFields(Amount);
@@ -305,14 +305,14 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup.
         Initialize();
         CreateAndPostPurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateEUVendor,
-          CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+          PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateEUVendor(),
+          CreateServiceTariffNumber(), 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
 
         // Exercise.
         RunGLBookPrintReport("Gen. Journal Document Type"::Invoice, PurchaseLine."Buy-from Vendor No.");
 
         // Verify: Verify Final Total - Caption and Amount on generated XML of Report - G/L Book - Print.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(FinalTotalCap, Format(FinalTotalTxt));
         LibraryReportDataset.AssertElementWithValueExists(TotalDebitStartDebitCap, PurchaseLine."Line Amount");
     end;
@@ -330,8 +330,8 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup.
         Initialize();
         CreateAndPostPurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateEUVendor,
-          CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+          PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateEUVendor(),
+          CreateServiceTariffNumber(), 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
 
         // Exercise.
         RunGLBookPrintReport("Gen. Journal Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.");
@@ -357,8 +357,8 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup.
         Initialize();
         CreateAndPostPurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateEUVendor,
-          CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+          PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateEUVendor(),
+          CreateServiceTariffNumber(), 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
 
         // Exercise.
         RunVATRegisterPrintReport(
@@ -383,7 +383,7 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup.
         Initialize();
         CreateAndPostSalesDocument(
-          SalesLine, SalesLine."Document Type"::"Credit Memo", CreateEUCustomer, CreateServiceTariffNumber,
+          SalesLine, SalesLine."Document Type"::"Credit Memo", CreateEUCustomer(), CreateServiceTariffNumber(),
           VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandDec(10, 2), 100);  // Random VAT Percentage, Deductible % - 100.
 
         // Exercise.
@@ -410,7 +410,7 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup.
         Initialize();
         CreateAndPostSalesDocument(
-          SalesLine, SalesLine."Document Type"::"Credit Memo", CreateEUCustomer, CreateServiceTariffNumber,
+          SalesLine, SalesLine."Document Type"::"Credit Memo", CreateEUCustomer(), CreateServiceTariffNumber(),
           VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandDec(10, 2), 100);  // Random VAT Percentage, Deductible % - 100.
 
         // Exercise.
@@ -438,7 +438,7 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup: Create and Post Purchase Document, Intrastat Journal Batch.
         Initialize();
         CreateAndPostPurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, CreateEUVendor, CreateServiceTariffNumber,
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateEUVendor(), CreateServiceTariffNumber(),
           LibraryRandom.RandIntInRange(10, 90), VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // Exercise: EU Service - True and Opens handler - GetItemLedgerEntriesRequestPageHandler.
@@ -466,8 +466,8 @@ codeunit 144063 "ERM Intrastat - II"
         // Setup: Create and Post Purchase Document, Intrastat Journal Batch.
         Initialize();
         CreateAndPostSalesDocument(
-          SalesLine, SalesLine."Document Type"::Order, CreateEUCustomer,
-          CreateServiceTariffNumber, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          SalesLine, SalesLine."Document Type"::Order, CreateEUCustomer(),
+          CreateServiceTariffNumber(), VATPostingSetup."VAT Calculation Type"::"Normal VAT",
           LibraryRandom.RandIntInRange(10, 90), LibraryRandom.RandIntInRange(10, 90));
 
         // Exercise: EU Service - True and Opens handler - GetItemLedgerEntriesRequestPageHandler.
@@ -499,8 +499,8 @@ codeunit 144063 "ERM Intrastat - II"
 
         // Setup: Create and Post Purchase Invoice, then create Credit memo and apply it, then create entries in Intrastat Journal.
         Initialize();
-        VendorNo := CreateEUVendor;
-        ServiceTariffNo := CreateServiceTariffNumber;
+        VendorNo := CreateEUVendor();
+        ServiceTariffNo := CreateServiceTariffNumber();
         PurchaseHeaderNo := CreateAndPostPurchaseDocument(
             PurchaseLine, PurchaseLine."Document Type"::Invoice, VendorNo, ServiceTariffNo,
             100, VATPostingSetup."VAT Calculation Type"::"Normal VAT"); // Deductible % - 100
@@ -551,8 +551,8 @@ codeunit 144063 "ERM Intrastat - II"
 
         // Setup: Create and Post Purchase Invoice, then create Credit memo and apply it, then create entries in Intrastat Journal.
         Initialize();
-        CustomerNo := CreateEUCustomer;
-        ServiceTariffNo := CreateServiceTariffNumber;
+        CustomerNo := CreateEUCustomer();
+        ServiceTariffNo := CreateServiceTariffNumber();
         VATPercent := LibraryRandom.RandIntInRange(10, 90);
         SalesHeaderNo := CreateAndPostSalesDocument(
             SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, ServiceTariffNo,
@@ -603,7 +603,7 @@ codeunit 144063 "ERM Intrastat - II"
         // [GIVEN] Posted Purchase Invoice for Vendor "Vend1"
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendorWithTaxRepresentVendor(TaxRepVendorVATRegNo),
-          CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+          CreateServiceTariffNumber(), 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Purchase Invoice
         RunVATRegisterPrintReport(
@@ -632,7 +632,7 @@ codeunit 144063 "ERM Intrastat - II"
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice,
           CreateVendorWithTaxRepresentative(RefVendor."Tax Representative Type"::Vendor, ''),
-          CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+          CreateServiceTariffNumber(), 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Purchase Invoice
         RunVATRegisterPrintReport(
@@ -662,7 +662,7 @@ codeunit 144063 "ERM Intrastat - II"
         // [GIVEN] Posted Purchase Invoice for Vendor
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendorWithTaxRepresentVendor(TaxRepContactVATRegNo),
-          CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+          CreateServiceTariffNumber(), 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Purchase Invoice
         RunVATRegisterPrintReport(
@@ -691,7 +691,7 @@ codeunit 144063 "ERM Intrastat - II"
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice,
           CreateVendorWithTaxRepresentative(RefVendor."Tax Representative Type"::Contact, ''),
-          CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+          CreateServiceTariffNumber(), 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Purchase Invoice
         RunVATRegisterPrintReport(
@@ -721,7 +721,7 @@ codeunit 144063 "ERM Intrastat - II"
         // [GIVEN] Posted Sales Invoice for customer "Cust1"
         CreateAndPostSalesDocument(
           SalesLine, SalesLine."Document Type"::Invoice, CreateCustomerWithTaxRepresentCustomer(TaxRepCustomerVATRegNo),
-          CreateServiceTariffNumber, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);
+          CreateServiceTariffNumber(), VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Sales Invoice
         RunVATRegisterPrintReport(
@@ -750,7 +750,7 @@ codeunit 144063 "ERM Intrastat - II"
         CreateAndPostSalesDocument(
           SalesLine, SalesLine."Document Type"::Invoice,
           CreateCustomerWithTaxRepresentative(RefCustomer."Tax Representative Type"::Customer, ''),
-          CreateServiceTariffNumber, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);
+          CreateServiceTariffNumber(), VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Sales Invoice
         RunVATRegisterPrintReport(
@@ -780,7 +780,7 @@ codeunit 144063 "ERM Intrastat - II"
         // [GIVEN] Posted Sales Invoice for Customer
         CreateAndPostSalesDocument(
           SalesLine, SalesLine."Document Type"::Invoice, CreateCustomerWithTaxRepresentContact(TaxRepContactVATRegNo),
-          CreateServiceTariffNumber, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);
+          CreateServiceTariffNumber(), VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Sales Invoice
         RunVATRegisterPrintReport(
@@ -809,7 +809,7 @@ codeunit 144063 "ERM Intrastat - II"
         CreateAndPostSalesDocument(
           SalesLine, SalesLine."Document Type"::Invoice,
           CreateCustomerWithTaxRepresentative(RefCustomer."Tax Representative Type"::Contact, ''),
-          CreateServiceTariffNumber, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);
+          CreateServiceTariffNumber(), VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, 100);
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Sales Invoice
         RunVATRegisterPrintReport(
@@ -837,9 +837,9 @@ codeunit 144063 "ERM Intrastat - II"
 
         // [GIVEN] Posted Purchase Invoice with "Operation Type" with "Reverse Sales VAT No. Series", "Reverse Charge VAT", FCY Amount = "X" and
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendorWithCurrency,
-          CreateServiceTariffNumber, 0, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        PurchaseHeader.Validate("Operation Type", FindOperationTypeWithReverseVATEntryNo);
+          PurchaseHeader, PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendorWithCurrency(),
+          CreateServiceTariffNumber(), 0, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        PurchaseHeader.Validate("Operation Type", FindOperationTypeWithReverseVATEntryNo());
         PurchaseHeader.Modify(true);
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -901,7 +901,7 @@ codeunit 144063 "ERM Intrastat - II"
         // [GIVEN] Posted Purchase Invoice with "Tax Representative Type" = Vendor, "Tax Representative No." = Vendor "Y" with "VAT Registration No." = 123456
         CreateVendorWithVATRegistrationNumber(Vendor);
         CreatePurchInvWithTaxRepresentative(
-          PurchaseHeader, Vendor."Tax Representative Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          PurchaseHeader, Vendor."Tax Representative Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           PurchaseHeader."Tax Representative Type"::Vendor, Vendor."No.");
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Purchase Invoice
@@ -1082,7 +1082,7 @@ codeunit 144063 "ERM Intrastat - II"
         // [GIVEN] Posted Sales Invoice with "Tax Representative Type" = Customer, "Tax Representative No." = Customer "Y" with "VAT Registration No." = 123456
         CreateCustomerWithVATRegistrationNumber(Customer);
         CreateSalesInvWithTaxRepresentative(
-          SalesHeader, Customer."Tax Representative Type"::Customer, LibrarySales.CreateCustomerNo,
+          SalesHeader, Customer."Tax Representative Type"::Customer, LibrarySales.CreateCustomerNo(),
           SalesHeader."Tax Representative Type"::Customer, Customer."No.");
 
         // [WHEN] Print VAT Fiscal Register report on Posting Date of Sales Invoice
@@ -1233,19 +1233,19 @@ codeunit 144063 "ERM Intrastat - II"
         // [GIVEN] Posted Sales Document for Customer "C" and Payment Method with Bill Code
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", CreateServiceTariffNumber, 100,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", CreateServiceTariffNumber(), 100,
           VATPostingSetup."VAT Calculation Type"::"Normal VAT", 100);
-        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod);
-        SalesHeader.Modify(True);
+        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod());
+        SalesHeader.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Issued Bank Receipt
         RunIssueBankReceipt(SalesLine."Sell-to Customer No.");
-        Commit;
+        Commit();
 
         // [WHEN] Run Report G/L Book Print for Customer "C"
         RunGLBookPrintReportForSourceNo(SalesLine."Sell-to Customer No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Last line for Sales Invoice should have Description = Customer.Name
         LibraryReportDataset.MoveToRow(3);
@@ -1264,16 +1264,16 @@ codeunit 144063 "ERM Intrastat - II"
     begin
         LibraryVariableStorage.Clear();
         IntrastatJnlTemplate.DeleteAll();
-        ResetNoSeriesLastUsedDate;
+        ResetNoSeriesLastUsedDate();
     end;
 
     local procedure ApplyEntriesAndPostSalesCreditMemo(SalesHeader: Record "Sales Header")
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.ApplyEntries.Invoke;  // Opens handler - ApplyCustomerEntriesModalPageHandler.
+        SalesCreditMemo.ApplyEntries.Invoke();  // Opens handler - ApplyCustomerEntriesModalPageHandler.
         SalesCreditMemo.Close();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -1352,7 +1352,7 @@ codeunit 144063 "ERM Intrastat - II"
         ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
         ItemTrackingMode: Option "Assign Lot No.","Select Entries";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateEUCustomer, CreateServiceTariffNumber);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateEUCustomer(), CreateServiceTariffNumber());
         SalesHeader.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo);
@@ -1423,7 +1423,7 @@ codeunit 144063 "ERM Intrastat - II"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", CreateVATRegistrationNoFormat);
+        Customer.Validate("Country/Region Code", CreateVATRegistrationNoFormat());
         Customer.Validate("VAT Registration No.", LibraryUtility.GenerateGUID());
         Customer.Modify(true);
         exit(Customer."No.");
@@ -1434,7 +1434,7 @@ codeunit 144063 "ERM Intrastat - II"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", CreateVATRegistrationNoFormat);
+        Vendor.Validate("Country/Region Code", CreateVATRegistrationNoFormat());
         Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
         exit(Vendor."No.");
@@ -1450,7 +1450,7 @@ codeunit 144063 "ERM Intrastat - II"
         IntrastatJnlBatch.Validate(Periodicity, IntrastatJnlBatch.Periodicity::Month);
         IntrastatJnlBatch.Validate("EU Service", EUService);
         IntrastatJnlBatch.Validate("Corrective Entry", CorrectiveEntry);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod));
+        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod()));
         IntrastatJnlBatch.Modify(true);
     end;
 
@@ -1564,7 +1564,7 @@ codeunit 144063 "ERM Intrastat - II"
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseLine, PurchaseLine."Document Type"::Invoice,
           CreateVendorWithTaxRepresentative(VendorTaxReprType, VendorTaxReprNo),
-          CreateServiceTariffNumber, 0, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+          CreateServiceTariffNumber(), 0, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         PurchaseHeader.Validate("Tax Representative Type", DocTaxReprType);
         PurchaseHeader.Validate("Tax Representative No.", DocTaxReprNo);
         PurchaseHeader.Modify(true);
@@ -1578,7 +1578,7 @@ codeunit 144063 "ERM Intrastat - II"
     begin
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesLine."Document Type"::Invoice, CreateCustomerWithTaxRepresentative(CustTaxReprType, CustTaxReprNo),
-          CreateServiceTariffNumber, 0, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 100);
+          CreateServiceTariffNumber(), 0, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 100);
         SalesHeader.Validate("Tax Representative Type", DocTaxReprType);
         SalesHeader.Validate("Tax Representative No.", DocTaxReprNo);
         SalesHeader.Modify(true);
@@ -1642,8 +1642,8 @@ codeunit 144063 "ERM Intrastat - II"
     var
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
     begin
-        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion);
-        VATRegistrationNoFormat.Validate(Format, CopyStr(LibraryUtility.GenerateGUID, 1, 2) + FormatTxt);
+        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion());
+        VATRegistrationNoFormat.Validate(Format, CopyStr(LibraryUtility.GenerateGUID(), 1, 2) + FormatTxt);
         VATRegistrationNoFormat.Modify(true);
         exit(VATRegistrationNoFormat."Country/Region Code");
     end;
@@ -1681,7 +1681,7 @@ codeunit 144063 "ERM Intrastat - II"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        Vendor.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1742,7 +1742,7 @@ codeunit 144063 "ERM Intrastat - II"
         Location: Record Location;
     begin
         LibraryWarehouse.CreateInTransitLocation(Location);
-        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocation, CreateLocation, Location.Code);
+        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocation, CreateLocation(), Location.Code);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ItemNo, LibraryRandom.RandDec(10, 2));
         LibraryInventory.ReleaseTransferOrder(TransferHeader);
         LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
@@ -1755,7 +1755,7 @@ codeunit 144063 "ERM Intrastat - II"
         IntrastatJnlLine.FindFirst();
     end;
 
-    local procedure FindIntrastatJournalLineByEntryTypeAndNo(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JournalBatchName: Code[10]; EntryType: Option; EntryNo: Integer)
+    local procedure FindIntrastatJournalLineByEntryTypeAndNo(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JournalBatchName: Code[10]; EntryType: Enum "Intrastat Source Type"; EntryNo: Integer)
     begin
         IntrastatJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         IntrastatJnlLine.SetRange("Source Type", EntryType);
@@ -1793,7 +1793,7 @@ codeunit 144063 "ERM Intrastat - II"
         exit(VATEntry."Entry No.")
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1814,7 +1814,7 @@ codeunit 144063 "ERM Intrastat - II"
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
-    local procedure FindReverseEntryVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; Type: Option; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20])
+    local procedure FindReverseEntryVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; Type: Enum "General Posting Type"; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20])
     begin
         VATBookEntry.SetRange("Document Type", DocType);
         VATBookEntry.SetRange("Sell-to/Buy-from No.", VendNo);
@@ -1840,8 +1840,8 @@ codeunit 144063 "ERM Intrastat - II"
     begin
         CreateIntrastatJournalBatch(IntrastatJnlBatch, Type, EUService, CorrectiveEntry);
         Commit();  // Commit required.
-        IntrastatJournal.OpenEdit;
-        IntrastatJournal.GetEntries.Invoke;  // Opens handler - GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJournal.OpenEdit();
+        IntrastatJournal.GetEntries.Invoke();  // Opens handler - GetItemLedgerEntriesRequestPageHandler.
         IntrastatJournal.Close();
         exit(IntrastatJnlBatch.Name);
     end;
@@ -1862,10 +1862,10 @@ codeunit 144063 "ERM Intrastat - II"
         ItemJournal: TestPage "Item Journal";
         ItemTrackingMode: Option "Assign Lot No.","Select Entries";
     begin
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.FILTER.SetFilter("Item No.", ItemJournalLine."Item No.");
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");
-        ItemJournal.ItemTrackingLines.Invoke;  // Opens handler - ItemTrackingLinesModalPageHandler.
+        ItemJournal.ItemTrackingLines.Invoke();  // Opens handler - ItemTrackingLinesModalPageHandler.
         ItemJournal.Close();
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -1900,18 +1900,17 @@ codeunit 144063 "ERM Intrastat - II"
     local procedure ResetNoSeriesLastUsedDate()
     var
         NoSeries: Record "No. Series";
-        NoSeriesLineSales: Record "No. Series Line Sales";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLine: Record "No. Series Line";
     begin
         NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Sales);
         NoSeries.FindFirst();
-        NoSeriesLineSales.SetRange("Series Code", NoSeries.Code);
-        NoSeriesLineSales.ModifyAll("Last Date Used", NoSeriesLineSales."Starting Date");
+        NoSeriesLine.SetRange("Series Code", NoSeries.Code);
+        NoSeriesLine.ModifyAll("Last Date Used", NoSeriesLine."Starting Date");
 
         NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Purchase);
         NoSeries.FindFirst();
-        NoSeriesLinePurchase.SetRange("Series Code", NoSeries.Code);
-        NoSeriesLinePurchase.ModifyAll("Last Date Used", NoSeriesLinePurchase."Starting Date");
+        NoSeriesLine.SetRange("Series Code", NoSeries.Code);
+        NoSeriesLine.ModifyAll("Last Date Used", NoSeriesLine."Starting Date");
     end;
 
     local procedure RunGLBookPrintReport(DocumentType: Enum "Gen. Journal Document Type"; SourceNo: Code[20])
@@ -1935,7 +1934,7 @@ codeunit 144063 "ERM Intrastat - II"
         GLBookPrint.Run();
     end;
 
-    local procedure RunVATRegisterPrintReport(DocumentType: Enum "Gen. Journal Document Type"; SellToBuyFromNo: Code[20]; Type: Option)
+    local procedure RunVATRegisterPrintReport(DocumentType: Enum "Gen. Journal Document Type"; SellToBuyFromNo: Code[20]; Type: Enum "General Posting Type")
     var
         VATBookEntry: Record "VAT Book Entry";
     begin
@@ -1961,7 +1960,7 @@ codeunit 144063 "ERM Intrastat - II"
 
     local procedure VerifyDocumentTypeNumberAndAmount(DocumentTypeCap: Text[50]; DocumentType: Text[50]; DescriptionCap: Text[50]; DescriptionNo: Code[20]; AmountCap: Text[50]; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DocumentTypeCap, DocumentType);
         LibraryReportDataset.AssertElementWithValueExists(DescriptionCap, DescriptionNo);
         LibraryReportDataset.AssertElementWithValueExists(AmountCap, Amount);
@@ -1978,7 +1977,7 @@ codeunit 144063 "ERM Intrastat - II"
         IntrastatJnlLine.TestField("Item No.", ItemNo);
         IntrastatJnlLine.TestField(Quantity, TransferReceiptLine.Quantity);
         Assert.AreNearlyEqual(
-          IntrastatJnlLine.Amount, TransferReceiptLine.Quantity * Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
+          IntrastatJnlLine.Amount, TransferReceiptLine.Quantity * Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustEqualMsg);
     end;
 
     local procedure VerifyIntrastatJnlLineDocumentNoAndAmount(JournalBatchName: Code[10]; ServiceTariffNo: Code[10]; DocumentNo: Code[20]; Amount: Decimal)
@@ -2001,14 +2000,14 @@ codeunit 144063 "ERM Intrastat - II"
 
     local procedure VerifyCounterpartyVATRegistrationNo(AccountNo: Code[20]; ExpectedVATRegNo: Text[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow(NameCap, AccountNo) + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('VATReg', ExpectedVATRegNo);
     end;
 
     local procedure VerifyLedgerAmount(VendNo: Code[20]; ExpectedAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow(NameCap, VendNo) + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('LedgAmount', ExpectedAmount);
     end;
@@ -2031,9 +2030,9 @@ codeunit 144063 "ERM Intrastat - II"
         BillPostingGroup: Record "Bill Posting Group";
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
-        PaymentMethod.Validate("Bill Code", CreateBill);
+        PaymentMethod.Validate("Bill Code", CreateBill());
         PaymentMethod.Modify(true);
-        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, LibraryERM.CreateBankAccountNo, PaymentMethod.Code);
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, LibraryERM.CreateBankAccountNo(), PaymentMethod.Code);
         exit(PaymentMethod.Code);
     end;
 
@@ -2045,7 +2044,7 @@ codeunit 144063 "ERM Intrastat - II"
         LibraryITLocalization.CreateBill(Bill);
         Bill.Validate("Allow Issue", true);
         Bill.Validate("Bills for Coll. Temp. Acc. No.", LibraryErm.CreateGLAccountNo());
-        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode);
+        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode());
         Bill.Validate("Temporary Bill No.", Bill."List No.");
         Bill.Validate("Final Bill No.", Bill."List No.");
         LibraryERM.CreateSourceCode(SourceCode);
@@ -2058,8 +2057,8 @@ codeunit 144063 "ERM Intrastat - II"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2072,17 +2071,17 @@ codeunit 144063 "ERM Intrastat - II"
         LibraryVariableStorage.Dequeue(ItemTracking);
         ItemTrackingMode := ItemTracking;
         if ItemTrackingMode = ItemTrackingMode::"Assign Lot No." then
-            ItemTrackingLines."Assign Lot No.".Invoke
+            ItemTrackingLines."Assign Lot No.".Invoke()
         else
-            ItemTrackingLines."Select Entries".Invoke;  // Open handler - ItemTrackingSummaryModalPageHandler.
-        ItemTrackingLines.OK.Invoke;
+            ItemTrackingLines."Select Entries".Invoke();  // Open handler - ItemTrackingSummaryModalPageHandler.
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2091,7 +2090,7 @@ codeunit 144063 "ERM Intrastat - II"
     begin
         GetItemLedgerEntries.StartingDate.SetValue(WorkDate());
         GetItemLedgerEntries.EndingDate.SetValue(WorkDate());
-        GetItemLedgerEntries.OK.Invoke;
+        GetItemLedgerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2104,7 +2103,7 @@ codeunit 144063 "ERM Intrastat - II"
         GLBookPrint.StartingDate.SetValue(WorkDate());
         GLBookPrint.EndingDate.SetValue(WorkDate());
         GLBookPrint.PrintCompanyInformations.SetValue(false);
-        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2118,7 +2117,7 @@ codeunit 144063 "ERM Intrastat - II"
         VATRegisterPrint.PeriodEndingDate.SetValue(WorkDate());
         VATRegisterPrint.PrintCompanyInformations.SetValue(false);
         VATRegisterPrint.VATRegister.SetValue(VATRegister);
-        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

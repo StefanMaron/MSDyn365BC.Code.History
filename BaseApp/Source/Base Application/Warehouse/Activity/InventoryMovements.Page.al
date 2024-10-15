@@ -142,6 +142,29 @@ page 9330 "Inventory Movements"
                 }
             }
         }
+        area(processing)
+        {
+            action("Assign to me")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Assign to me';
+                Image = User;
+                Gesture = LeftSwipe;
+                ToolTip = 'Assigns this movement document to the current user.';
+
+                trigger OnAction()
+                begin
+                    Rec.AssignToCurrentUser();
+                    CurrPage.Update();
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref("Assign to me_Promoted"; "Assign to me")
+            {
+            }
+        }
     }
 
     trigger OnOpenPage()

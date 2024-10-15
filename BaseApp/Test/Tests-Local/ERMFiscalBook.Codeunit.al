@@ -105,10 +105,10 @@ codeunit 144075 "ERM Fiscal Book"
     begin
         // Test to validate field Last Printed VAT Register Page exists on VAT Registers Page.
         // Exercise.
-        VATRegisters.OpenEdit;
+        VATRegisters.OpenEdit();
 
         // Verify: Verify field Last Printed VAT Register Page exists on VAT Registers Page.
-        Assert.IsTrue(VATRegisters."Last Printed VAT Register Page".Visible, FieldVisibleErr);
+        Assert.IsTrue(VATRegisters."Last Printed VAT Register Page".Visible(), FieldVisibleErr);
 
         // Tear down.
         VATRegisters.Close();
@@ -150,14 +150,14 @@ codeunit 144075 "ERM Fiscal Book"
         // Test that Last Printed G/L Book Page field is available and enabled on General Ledger Setup Page.
 
         // Exercise.
-        GeneralLedgerSetup.OpenEdit;
+        GeneralLedgerSetup.OpenEdit();
 
         // Verify: Verify that Field is editable and enabled on GL Setup Page.
         Assert.IsTrue(
-          GeneralLedgerSetup."Last Printed G/L Book Page".Enabled,
+          GeneralLedgerSetup."Last Printed G/L Book Page".Enabled(),
           StrSubstNo(EnabledErr, GeneralLedgerSetup."Last Printed G/L Book Page".Caption));
         Assert.IsTrue(
-          GeneralLedgerSetup."Last Printed G/L Book Page".Editable,
+          GeneralLedgerSetup."Last Printed G/L Book Page".Editable(),
           StrSubstNo(EditableErr, GeneralLedgerSetup."Last Printed G/L Book Page".Caption));
 
         // Tear Down.
@@ -170,7 +170,7 @@ codeunit 144075 "ERM Fiscal Book"
     begin
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, VATPostingSetup, CreateGLAccount, CreateGLAccount, DocumentNo, LibraryRandom.RandDec(100, 2));  // Using random Amount.
+          GenJournalLine, GenJournalBatch, VATPostingSetup, CreateGLAccount(), CreateGLAccount(), DocumentNo, LibraryRandom.RandDec(100, 2));  // Using random Amount.
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, VATPostingSetup, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account No.", DocumentNo2, GenJournalLine.Amount);
@@ -222,14 +222,14 @@ codeunit 144075 "ERM Fiscal Book"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>''''');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
         VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure VerifyAmountsOnGLBookEntry(GLBookEntry: Record "GL Book Entry"; DocumentNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal)
     begin
         GLBookEntry.CalcFields("Debit Amount", "Credit Amount");
-        Assert.AreNearlyEqual(DebitAmount, GLBookEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
-        Assert.AreNearlyEqual(CreditAmount, GLBookEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
+        Assert.AreNearlyEqual(DebitAmount, GLBookEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), ValueEqualErr);
+        Assert.AreNearlyEqual(CreditAmount, GLBookEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), ValueEqualErr);
         Assert.AreEqual(DocumentNo, GLBookEntry."Document No.", ValueEqualErr);
     end;
 
@@ -263,7 +263,7 @@ codeunit 144075 "ERM Fiscal Book"
     [Scope('OnPrem')]
     procedure ReverseEntriesPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
     end;
 
     [RequestPageHandler]
@@ -276,7 +276,7 @@ codeunit 144075 "ERM Fiscal Book"
         VATRegisterPrint.Name.AssertEquals(CompanyInformation.Name);
         VATRegisterPrint.Address.AssertEquals(CompanyInformation.Address);
         VATRegisterPrint.VATRegistrationNo.AssertEquals(CompanyInformation."VAT Registration No.");
-        VATRegisterPrint.Cancel.Invoke;
+        VATRegisterPrint.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -289,7 +289,7 @@ codeunit 144075 "ERM Fiscal Book"
         GLBookPrint.Name.AssertEquals(CompanyInformation.Name);
         GLBookPrint.Address.AssertEquals(CompanyInformation.Address);
         GLBookPrint.VATRegistrationNo.AssertEquals(CompanyInformation."VAT Registration No.");
-        GLBookPrint.Cancel.Invoke;
+        GLBookPrint.Cancel().Invoke();
     end;
 }
 

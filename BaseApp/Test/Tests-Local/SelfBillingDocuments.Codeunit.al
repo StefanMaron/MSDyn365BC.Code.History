@@ -38,12 +38,12 @@ codeunit 144206 "Self-Billing Documents"
         // [SCENARIO 303491] A fields on Fattura Setup page are visible
 
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
-        LibraryLowerPermissions.SetLocal;
-        FatturaSetup.OpenEdit;
-        Assert.IsTrue(FatturaSetup."Self-Billing VAT Bus. Group".Visible, '');
-        Assert.IsTrue(FatturaSetup."Company PA Code".Visible, '');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.EnableBasicSetup();
+        LibraryLowerPermissions.SetLocal();
+        FatturaSetup.OpenEdit();
+        Assert.IsTrue(FatturaSetup."Self-Billing VAT Bus. Group".Visible(), '');
+        Assert.IsTrue(FatturaSetup."Company PA Code".Visible(), '');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -56,12 +56,12 @@ codeunit 144206 "Self-Billing Documents"
         // [SCENARIO 373967] "Fattura Document Type" field is visible in the "Self-Billing Documents" page
 
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
-        LibraryLowerPermissions.SetLocal;
-        LibraryLowerPermissions.AddeRead;
-        SelfBillingDocuments.OpenEdit;
-        Assert.IsTrue(SelfBillingDocuments."Fattura Document Type".Visible, '');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.EnableBasicSetup();
+        LibraryLowerPermissions.SetLocal();
+        LibraryLowerPermissions.AddeRead();
+        SelfBillingDocuments.OpenEdit();
+        Assert.IsTrue(SelfBillingDocuments."Fattura Document Type".Visible(), '');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -82,16 +82,16 @@ codeunit 144206 "Self-Billing Documents"
         FatturaSetup.Delete();
         LibraryVariableStorage.Enqueue(MissingFatturaSetupQst); // text of confirmation
         LibraryVariableStorage.Enqueue(false); // Reply confirmation
-        LibraryLowerPermissions.SetLocal;
+        LibraryLowerPermissions.SetLocal();
 
         // [GIVEN] Opened "Self-Billing Documents" page
         // [WHEN] Say no for confirmation "You need to provide information in Fattura Setup page to support Fattura electronic document functionality. Do you want to update it now?" which opends Fattura Setup page
-        asserterror SelfBillingDocuments.OpenEdit;
+        asserterror SelfBillingDocuments.OpenEdit();
 
         // [THEN] An error message "The needed information to support Fattura electronic document functionality is not provided in Fattura Setup page." thrown
         Assert.ExpectedError(MissingFatturaSetupErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -112,17 +112,17 @@ codeunit 144206 "Self-Billing Documents"
         FatturaSetup.Delete();
         LibraryVariableStorage.Enqueue(MissingFatturaSetupQst); // text of confirmation
         LibraryVariableStorage.Enqueue(true); // Reply confirmation
-        LibraryLowerPermissions.SetLocal;
+        LibraryLowerPermissions.SetLocal();
 
         // [GIVEN] Opened "Self-Billing Documents" page
         // [GIVEN] Say yes for confirmation "You need to provide information in Fattura Setup page to support Fattura electronic document functionality. Do you want to update it now?" which opends Fattura Setup page
         // [WHEN] Do nothing on Fattura Setup page, just close it
-        asserterror SelfBillingDocuments.OpenEdit;
+        asserterror SelfBillingDocuments.OpenEdit();
 
         // [THEN] An error message "The needed information to support Fattura electronic document functionality is not provided in Fattura Setup page." thrown
         Assert.ExpectedError(MissingFatturaSetupErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -152,13 +152,13 @@ codeunit 144206 "Self-Billing Documents"
         LibraryVariableStorage.Enqueue(true); // Reply confirmation
         LibraryVariableStorage.Enqueue(PurchaseHeader."VAT Bus. Posting Group");
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateRandomText(MaxStrLen(FatturaSetup."Company PA Code")));
-        LibraryLowerPermissions.SetAccountPayables;
-        LibraryLowerPermissions.AddLocal;
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
 
         // [GIVEN] Opened "Self-Billing Documents" page
         // [GIVEN] Say yes for confirmation "You need to provide information in Fattura Setup page to support Fattura electronic document functionality. Do you want to update it now?" which opends Fattura Setup page
         // [GIVEN] All required information updated through Fattura Setup page
-        SelfBillingDocuments.OpenEdit;
+        SelfBillingDocuments.OpenEdit();
         SelfBillingDocuments.DateFilter.SetValue(PurchaseHeader."Posting Date");
 
         // [WHEN] Set filter on "Document No." = "Y"
@@ -167,7 +167,7 @@ codeunit 144206 "Self-Billing Documents"
         // [THEN] A Sales VAT Entry exists on Self-Billing Documents page with Amount = 100
         SelfBillingDocuments.Amount.AssertEquals(VATEntry.Amount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -201,13 +201,13 @@ codeunit 144206 "Self-Billing Documents"
         LibraryVariableStorage.Enqueue(true); // Reply confirmation
         LibraryVariableStorage.Enqueue(PurchaseHeader."VAT Bus. Posting Group");
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateRandomText(MaxStrLen(FatturaSetup."Company PA Code")));
-        LibraryLowerPermissions.SetAccountPayables;
-        LibraryLowerPermissions.AddLocal;
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
 
         // [GIVEN] Opened "Self-Billing Documents" page
         // [GIVEN] Say yes for confirmation "You need to provide information in Fattura Setup page to support Fattura electronic document functionality. Do you want to update it now?" which opends Fattura Setup page
         // [GIVEN] All required information updated through Fattura Setup page
-        SelfBillingDocuments.OpenEdit;
+        SelfBillingDocuments.OpenEdit();
         SelfBillingDocuments.DateFilter.SetValue(PurchaseHeader."Posting Date");
 
         // [WHEN] Set filter on "Document No." = "Y"
@@ -220,7 +220,7 @@ codeunit 144206 "Self-Billing Documents"
             SelfBillingDocuments.Next();
         until VATEntry.Next() = 0;
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -231,7 +231,7 @@ codeunit 144206 "Self-Billing Documents"
         NoSeries: Record "No. Series";
         PurchaseHeader: Record "Purchase Header";
         VATEntry: Record "VAT Entry";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
         ProgressiveNo: Code[20];
         TempBlob: Codeunit "Temp Blob";
@@ -243,13 +243,13 @@ codeunit 144206 "Self-Billing Documents"
 
         SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.");
-        ProgressiveNo := NoSeriesManagement.GetNextNo(NoSeries.Code, Today, false);
+        ProgressiveNo := NoSeriesCodeunit.PeekNextNo(NoSeries.Code, Today());
 
         // [GIVEN] Posted Self-Billing Document
         CreatePurchDocument(PurchaseHeader);
         FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-        LibraryLowerPermissions.SetAccountPayables;
-        LibraryLowerPermissions.AddLocal;
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
 
         // [WHEN] Export posted Self-Billing Document to XML
         ExportSelfBillingDocuments.RunWithStreamSave(TempBlob, ClientFileName, VATEntry, VATEntry);
@@ -275,7 +275,7 @@ codeunit 144206 "Self-Billing Documents"
         TempAllVATEntry: Record "VAT Entry" temporary;
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
         FatturaDocHelper: Codeunit "Fattura Doc. Helper";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         ProgressiveNo: Code[20];
         TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
@@ -286,7 +286,7 @@ codeunit 144206 "Self-Billing Documents"
 
         SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.");
-        ProgressiveNo := NoSeriesManagement.GetNextNo(NoSeries.Code, Today, false);
+        ProgressiveNo := NoSeriesCodeunit.PeekNextNo(NoSeries.Code, Today());
 
         // [GIVEN] Posted Self-Billing Document with two VAT Posting Groups which results in two created VAT Entries
         CreatePurchDocument(PurchaseHeader);
@@ -298,8 +298,8 @@ codeunit 144206 "Self-Billing Documents"
         FatturaDocHelper.BuildVATEntryBufferWithLinks(TempAllVATEntry, VATEntry);
         LibraryVariableStorage.Enqueue(MultipleEntriesQst);
         LibraryVariableStorage.Enqueue(true);
-        LibraryLowerPermissions.SetAccountPayables;
-        LibraryLowerPermissions.AddLocal;
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
 
         // [WHEN] Export posted Self-Billing Document to XML
         ExportSelfBillingDocuments.RunWithStreamSave(
@@ -308,7 +308,7 @@ codeunit 144206 "Self-Billing Documents"
         // [THEN] The structure of XML document for single Self-Billing Document with two VAT entries is correct
         VerifySingleSelfBillingDocumentOfMultipleVATEntries(TempAllVATEntry, TempBlob, ProgressiveNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -321,7 +321,7 @@ codeunit 144206 "Self-Billing Documents"
         VATEntry: Record "VAT Entry";
         TempVATEntry: Record "VAT Entry" temporary;
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         ProgressiveNo: array[2] of Code[20];
         TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
@@ -340,19 +340,19 @@ codeunit 144206 "Self-Billing Documents"
             FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
             CopyVATEntryToTemp(TempVATEntry, VATEntry);
             VATEntry.Reset();
-            ProgressiveNo[i] := NoSeriesManagement.GetNextNo(NoSeries.Code, Today, false);
+            ProgressiveNo[i] := NoSeriesBatch.GetNextNo(NoSeries.Code, Today());
         end;
-        LibraryLowerPermissions.SetAccountPayables;
-        LibraryLowerPermissions.AddLocal;
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddLocal();
 
         // [WHEN] Export posted Self-Billing Documents to XML in one row
         ExportSelfBillingDocuments.RunWithStreamSave(
           TempBlob, ClientFileName, TempVATEntry, TempVATEntry);
 
         // [THEN] The zip archive contains two XML files, the structure of both is fine
-        VerifyMultipleSelfBillingDocuments(TempVATEntry, ClientFileName, TempBlob, ProgressiveNo);
+        VerifyMultipleSelfBillingDocuments(TempVATEntry, TempBlob, ProgressiveNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -456,7 +456,7 @@ codeunit 144206 "Self-Billing Documents"
         // [THEN] TipoDocumento has value "TD01"
         LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento');
-        AssertElementValue(TempXMLBuffer, 'TipoDocumento', FatturaDocHelper.GetDefaultFatturaDocType);
+        AssertElementValue(TempXMLBuffer, 'TipoDocumento', FatturaDocHelper.GetDefaultFatturaDocType());
     end;
 
     [Test]
@@ -476,13 +476,13 @@ codeunit 144206 "Self-Billing Documents"
         CreatePurchDocument(PurchaseHeader);
         FindSalesVATEntryAdjacentToPurchase(VATEntry, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        LibraryApplicationArea.EnableBasicSetup;
-        LibraryLowerPermissions.SetLocal;
+        LibraryApplicationArea.EnableBasicSetup();
+        LibraryLowerPermissions.SetLocal();
         LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Opened Self-Billing Documents page filtered by posted VAT entry
         FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
-        SelfBillingDocuments.OpenEdit;
+        SelfBillingDocuments.OpenEdit();
         SelfBillingDocuments.FILTER.SetFilter("Bill-to/Pay-to No.", VATEntry."Bill-to/Pay-to No.");
 
         // [WHEN] Change "Fattura Document Type" to "X"
@@ -492,7 +492,7 @@ codeunit 144206 "Self-Billing Documents"
         VATEntry.Find();
         VATEntry.TestField("Fattura Document Type", FatturaDocType);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -526,12 +526,9 @@ codeunit 144206 "Self-Billing Documents"
     [Scope('OnPrem')]
     procedure ExportSingleSelfBillingDocumentWithFatturaVendNo()
     var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        NoSeries: Record "No. Series";
         PurchaseHeader: Record "Purchase Header";
         VATEntry: Record "VAT Entry";
         Vendor: Record Vendor;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
         TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
@@ -567,8 +564,8 @@ codeunit 144206 "Self-Billing Documents"
         if IsInitialized then
             exit;
 
-        LibraryITLocalization.SetupFatturaPA;
-        InitFatturaSetup;
+        LibraryITLocalization.SetupFatturaPA();
+        InitFatturaSetup();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Fattura Setup");
@@ -610,9 +607,9 @@ codeunit 144206 "Self-Billing Documents"
         VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(20));
         LibraryERM.CreateVATIdentifier(VATIdentifier);
         VATPostingSetup."VAT Identifier" := VATIdentifier.Code;
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -683,36 +680,36 @@ codeunit 144206 "Self-Billing Documents"
     var
         TypeHelper: Codeunit "Type Helper";
     begin
-        exit(Format(Amount, 0, TypeHelper.GetXMLAmountFormatWithTwoDecimalPlaces))
+        exit(Format(Amount, 0, TypeHelper.GetXMLAmountFormatWithTwoDecimalPlaces()));
     end;
 
     local procedure FormatDate(DateToFormat: Date): Text
     var
         TypeHelper: Codeunit "Type Helper";
     begin
-        exit(Format(DateToFormat, 0, TypeHelper.GetXMLDateFormat));
+        exit(Format(DateToFormat, 0, TypeHelper.GetXMLDateFormat()));
     end;
 
     local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
     begin
         FindNextElement(TempXMLBuffer);
         Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName(),
-          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
+          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName()));
         Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
     end;
 
     local procedure FindNextElement(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
-        if TempXMLBuffer.HasChildNodes then
+        if TempXMLBuffer.HasChildNodes() then
             TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
             if not (TempXMLBuffer.Next() > 0) then begin
-                TempXMLBuffer.GetParent;
+                TempXMLBuffer.GetParent();
                 TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
                 if not (TempXMLBuffer.Next() > 0) then
                     repeat
-                        TempXMLBuffer.GetParent;
+                        TempXMLBuffer.GetParent();
                         TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
                     until (TempXMLBuffer.Next() > 0);
             end;
@@ -765,7 +762,7 @@ codeunit 144206 "Self-Billing Documents"
         until TempVATEntry.Next() = 0;
     end;
 
-    local procedure VerifyMultipleSelfBillingDocuments(var TempVATEntry: Record "VAT Entry" temporary; ZipClientFileName: Text[250]; TempBlob: Codeunit "Temp Blob"; ProgressiveNo: array[2] of Code[20])
+    local procedure VerifyMultipleSelfBillingDocuments(var TempVATEntry: Record "VAT Entry" temporary; TempBlob: Codeunit "Temp Blob"; ProgressiveNo: array[2] of Code[20])
     var
         FileManagement: Codeunit "File Management";
         DataCompression: Codeunit "Data Compression";
@@ -937,24 +934,24 @@ codeunit 144206 "Self-Billing Documents"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Assert.AreEqual(Question, LibraryVariableStorage.DequeueText, '');
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.AreEqual(Question, LibraryVariableStorage.DequeueText(), '');
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DoNotUpdateFatturaSetupWhenOpenModalPageHandler(var FatturaSetup: TestPage "Fattura Setup")
     begin
-        FatturaSetup.OK.Invoke;
+        FatturaSetup.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UpdateFatturaSetupWhenOpenModalPageHandler(var FatturaSetup: TestPage "Fattura Setup")
     begin
-        FatturaSetup."Self-Billing VAT Bus. Group".SetValue(LibraryVariableStorage.DequeueText);
-        FatturaSetup."Company PA Code".SetValue(LibraryVariableStorage.DequeueText);
-        FatturaSetup.OK.Invoke;
+        FatturaSetup."Self-Billing VAT Bus. Group".SetValue(LibraryVariableStorage.DequeueText());
+        FatturaSetup."Company PA Code".SetValue(LibraryVariableStorage.DequeueText());
+        FatturaSetup.OK().Invoke();
     end;
 }
 

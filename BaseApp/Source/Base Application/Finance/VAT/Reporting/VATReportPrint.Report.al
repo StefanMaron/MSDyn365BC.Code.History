@@ -505,7 +505,6 @@ report 740 "VAT Report Print"
 
             trigger OnPreDataItem()
             var
-                VATEntry: Record "VAT Entry";
             begin
                 if Count > 1 then
                     Error(MultipleReportsErr);

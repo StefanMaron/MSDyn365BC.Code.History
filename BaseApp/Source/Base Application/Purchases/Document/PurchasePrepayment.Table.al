@@ -10,6 +10,7 @@ using Microsoft.Purchases.Vendor;
 table 460 "Purchase Prepayment %"
 {
     Caption = 'Purchase Prepayment %';
+    DataClassification = CustomerContent;
 
     fields
     {

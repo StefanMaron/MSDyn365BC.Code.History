@@ -58,7 +58,7 @@
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
-          DeferralTemplateCode, SalesHeader."Posting Date", SalesLine.GetDeferralAmount, 2);
+          DeferralTemplateCode, SalesHeader."Posting Date", SalesLine.GetDeferralAmount(), 2);
     end;
 
     [Test]
@@ -91,7 +91,7 @@
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
-          DeferralTemplateCode, SalesHeader."Posting Date", SalesLine.GetDeferralAmount, 3);
+          DeferralTemplateCode, SalesHeader."Posting Date", SalesLine.GetDeferralAmount(), 3);
     end;
 
     [Test]
@@ -124,7 +124,7 @@
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
-          DeferralTemplateCode, SalesHeader."Posting Date", SalesLine.GetDeferralAmount, 3);
+          DeferralTemplateCode, SalesHeader."Posting Date", SalesLine.GetDeferralAmount(), 3);
     end;
 
     [Test]
@@ -156,7 +156,7 @@
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         DeferralHeader.TestField("Deferral Code", DeferralTemplateCode);
         DeferralHeader.TestField("Start Date", GetStartDate(StartDate::"Beginning of Period", SalesHeader."Posting Date"));
-        DeferralHeader.TestField("Amount to Defer", SalesLine.GetDeferralAmount);
+        DeferralHeader.TestField("Amount to Defer", SalesLine.GetDeferralAmount());
         DeferralHeader.TestField("No. of Periods", 4);
 
         // [THEN] Returns Deferral Start Date is set correctly
@@ -198,7 +198,7 @@
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         DeferralHeader.TestField("Deferral Code", DeferralTemplateCode);
         DeferralHeader.TestField("Start Date", SalesLine."Returns Deferral Start Date");
-        DeferralHeader.TestField("Amount to Defer", SalesLine.GetDeferralAmount);
+        DeferralHeader.TestField("Amount to Defer", SalesLine.GetDeferralAmount());
         DeferralHeader.TestField("No. of Periods", 4);
 
         // [THEN] Returns Deferral Start Date is set correctly
@@ -416,7 +416,7 @@
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.Find('-');
         ModifyDeferral(SalesLine, DeferralHeader."Calc. Method"::"Equal per Period", 3,
-          SalesLine.GetDeferralAmount * 0.8, SetDateDay(15, WorkDate()));
+          SalesLine.GetDeferralAmount() * 0.8, SetDateDay(15, WorkDate()));
 
         // [WHEN] Create New sales document and copy the existing one with recalculate unmarked
         CreateSalesHeaderForCustomer(SalesHeaderDest,
@@ -594,7 +594,7 @@
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           SalesLineDest."Document Type", SalesLineDest."Document No.", SalesLineDest."Line No.",
-          DeferralTemplateCode, SalesHeaderDest."Posting Date", SalesLineDest.GetDeferralAmount, 3);
+          DeferralTemplateCode, SalesHeaderDest."Posting Date", SalesLineDest.GetDeferralAmount(), 3);
     end;
 
     [Test]
@@ -712,7 +712,7 @@
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::Order, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         ModifyDeferral(SalesLine, DeferralHeader."Calc. Method"::"Days per Period", 4,
-          SalesLine.GetDeferralAmount * 0.7, SetDateDay(12, WorkDate()));
+          SalesLine.GetDeferralAmount() * 0.7, SetDateDay(12, WorkDate()));
 
         // [WHEN] Document is archived
         ArchiveManagement.StoreSalesDocument(SalesHeader, false);
@@ -750,12 +750,12 @@
         ArchiveManagement.StoreSalesDocument(SalesHeader, false);
         FindSalesLine(SalesHeader, SalesLine);
         ModifyDeferral(SalesLine, DeferralHeader."Calc. Method"::"Equal per Period", 5,
-          SalesLine.GetDeferralAmount * 0.9, SetDateDay(21, WorkDate()));
+          SalesLine.GetDeferralAmount() * 0.9, SetDateDay(21, WorkDate()));
 
         // [GIVEN] Validation that the deferral schedule was updated
         ValidateDeferralSchedule(
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
-          DeferralTemplateCode, SetDateDay(21, WorkDate()), SalesLine.GetDeferralAmount * 0.9, 5);
+          DeferralTemplateCode, SetDateDay(21, WorkDate()), SalesLine.GetDeferralAmount() * 0.9, 5);
 
         // [WHEN] Document is Restored from archive
         SalesHeaderArchive.Get(SalesHeader."Document Type", SalesHeader."No.", 1, 1);
@@ -764,7 +764,7 @@
         // [THEN] The deferrals were restored to original
         ValidateDeferralSchedule(
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
-          DeferralTemplateCode, SetDateDay(1, WorkDate()), SalesLine.GetDeferralAmount, 3);
+          DeferralTemplateCode, SetDateDay(1, WorkDate()), SalesLine.GetDeferralAmount(), 3);
 
         FindSalesLineArchive(SalesHeader, SalesLineArchive);
         // [THEN] The deferrals match the archive
@@ -794,7 +794,7 @@
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::Order, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         ModifyDeferral(SalesLine, DeferralHeader."Calc. Method"::"Days per Period", 4,
-          SalesLine.GetDeferralAmount * 0.7, SetDateDay(12, WorkDate()));
+          SalesLine.GetDeferralAmount() * 0.7, SetDateDay(12, WorkDate()));
 
         // [GIVEN] Document is archived
         ArchiveManagement.StoreSalesDocument(SalesHeader, false);
@@ -1137,8 +1137,8 @@
         // [GIVEN] Creating Sales Line for Item should default deferral code
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
-        AmtToDefer := Round(SalesLine.GetDeferralAmount * 0.7);
-        SalesAmount := SalesLine.GetDeferralAmount - AmtToDefer;
+        AmtToDefer := Round(SalesLine.GetDeferralAmount() * 0.7);
+        SalesAmount := SalesLine.GetDeferralAmount() - AmtToDefer;
         ModifyDeferral(SalesLine, DeferralHeader."Calc. Method"::"Straight-Line", 2,
           AmtToDefer, SetDateDay(1, WorkDate()));
         GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -1356,8 +1356,8 @@
         // [GIVEN] Creating Sales Line for Item should default deferral code
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::"Credit Memo", SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
-        AmtToDefer := Round(SalesLine.GetDeferralAmount * 0.7);
-        SalesAmount := SalesLine.GetDeferralAmount - AmtToDefer;
+        AmtToDefer := Round(SalesLine.GetDeferralAmount() * 0.7);
+        SalesAmount := SalesLine.GetDeferralAmount() - AmtToDefer;
         ModifyDeferral(SalesLine, DeferralHeader."Calc. Method"::"Straight-Line", 2,
           AmtToDefer, SetDateDay(1, WorkDate()));
 
@@ -1486,7 +1486,7 @@
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::Order, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         UpdateQtyToShipInvoiceOnSalesLine(SalesLine, 5, 2, 1);
-        AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount, SalesHeader."Currency Code");
+        AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount(), SalesHeader."Currency Code");
 
         // [WHEN] Invoice the partial Sales Order
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1522,7 +1522,7 @@
         CreateSalesDocWithCurrencyAndLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::Order, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         UpdateQtyToShipInvoiceOnSalesLine(SalesLine, 6, 3, 2);
-        AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount, SalesHeader."Currency Code");
+        AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount(), SalesHeader."Currency Code");
         AmtToDeferLCY :=
           Round(CurrExchRate.ExchangeAmtFCYToLCY(SetDateDay(1, WorkDate()),
               SalesHeader."Currency Code", AmtToDefer, SalesHeader."Currency Factor"));
@@ -1606,11 +1606,11 @@
           SalesHeader."Document Type"::Order, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         UpdateQtyToShipInvoiceOnSalesLine(SalesLine, 5, 1, 1);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
-        AmtToDefer := Round(SalesLine.GetDeferralAmount * 0.7);
+        AmtToDefer := Round(SalesLine.GetDeferralAmount() * 0.7);
         ModifyDeferral(SalesLine, DeferralHeader."Calc. Method"::"Straight-Line", 2,
           AmtToDefer, SetDateDay(1, WorkDate()));
         AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, AmtToDefer, SalesHeader."Currency Code");
-        SalesAmount := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount, SalesHeader."Currency Code") - AmtToDefer;
+        SalesAmount := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount(), SalesHeader."Currency Code") - AmtToDefer;
         GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         SalesAccount := GenPostingSetup."Sales Account";
 
@@ -1647,7 +1647,7 @@
           SalesHeader."Document Type"::Order, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         UpdateQtyToShipInvoiceOnSalesLine(SalesLine, 5, 2, 1);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
-        AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount, SalesHeader."Currency Code");
+        AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount(), SalesHeader."Currency Code");
 
         // [WHEN] Invoice the partial order the first time
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1655,7 +1655,7 @@
         // [WHEN] The Order Qty to Invoice is updated again
         FindSalesLine(SalesHeader, SalesLine);
         UpdateQtyToShipInvoiceOnSalesLine(SalesLine, 5, 3, 2);
-        AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount, SalesHeader."Currency Code");
+        AmtToDefer := GetInvoiceQtyAmtToDefer(SalesLine, SalesLine.GetDeferralAmount(), SalesHeader."Currency Code");
 
         // [WHEN] Invoice the partial order the second time
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1687,15 +1687,15 @@
         DeferralTemplateCode := CreateDeferralCode(CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
         // [WHEN] Open the Sales Invoice as edit with the document
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
 
         // [THEN] Deferral Code can be entered for GL Account
         SalesLine.Validate("Deferral Code", DeferralTemplateCode);
 
         // [THEN] Deferral Schedule can be opened for GL Account
-        SalesInvoice.SalesLines.DeferralSchedule.Invoke;
+        SalesInvoice.SalesLines.DeferralSchedule.Invoke();
 
         SalesInvoice.Close();
     end;
@@ -1713,16 +1713,16 @@
         Initialize();
 
         // [GIVEN] User has created a Sales Document
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
 
         // [WHEN] Open the Sales Invoice as edit with the document
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesInvoice.SalesLines.Type.Value(Format(SalesLine.Type::"Fixed Asset"));
 
         // [THEN] Deferral Code and Deferral Schedule menu are not enabled
-        // Assert.IsFalse(SalesInvoice.SalesLines."Deferral Code".ENABLED,'Deferral Code should not be enabled');
-        Assert.IsFalse(SalesInvoice.SalesLines.DeferralSchedule.Enabled, 'Deferral Schedule should NOT be enabled');
+        // Assert.IsFalse(SalesInvoice.SalesLines."Deferral Code".Enabled(),'Deferral Code should not be enabled');
+        Assert.IsFalse(SalesInvoice.SalesLines.DeferralSchedule.Enabled(), 'Deferral Schedule should NOT be enabled');
 
         SalesInvoice.Close();
     end;
@@ -1756,13 +1756,13 @@
         Assert.AreEqual(2, DeferralLine.Count, 'An incorrect number of lines was created');
 
         // [GIVEN] Open the Sales Invoice as edit with the document
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
         LibraryVariableStorage.Enqueue(3);
 
         // [WHEN] Deferral Schedule is updated - happens in the handler function
-        SalesInvoice.SalesLines.DeferralSchedule.Invoke;
+        SalesInvoice.SalesLines.DeferralSchedule.Invoke();
 
         // [THEN] Three periods have created three deferral lines
         FindDeferralHeader(SalesLine, DeferralHeader);
@@ -1797,15 +1797,15 @@
         SalesLine.Modify(true);
 
         // [THEN] Deferral Schedule can be opened for GL Account
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.SalesLines.DeferralSchedule.Invoke;
+        SalesOrder.SalesLines.DeferralSchedule.Invoke();
         // [THEN] Page "Deferral Schedule" is open, where "Amount to Defer" is 'X'
-        Assert.AreEqual(SalesLine.GetDeferralAmount, LibraryVariableStorage.DequeueDecimal, 'Amount to defer.');
-        Assert.AreEqual(SalesHeader."Posting Date", LibraryVariableStorage.DequeueDate, 'Header Posting Date');
+        Assert.AreEqual(SalesLine.GetDeferralAmount(), LibraryVariableStorage.DequeueDecimal(), 'Amount to defer.');
+        Assert.AreEqual(SalesHeader."Posting Date", LibraryVariableStorage.DequeueDate(), 'Header Posting Date');
         DeferralTemplate.Get(DeferralTemplateCode);
-        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start date calc method');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText(), 'Start date calc method');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1821,15 +1821,15 @@
         Initialize();
 
         // [GIVEN] User has created a Sales Document
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
 
         // [WHEN] Open the Sales Order as edit with the document
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrder.SalesLines.Type.Value(Format(SalesLine.Type::"Fixed Asset"));
 
         // [THEN] Deferral Code and Deferral Schedule menu are not enabled
-        Assert.IsFalse(SalesOrder.SalesLines.DeferralSchedule.Enabled, 'Deferral Schedule should NOT be enabled');
+        Assert.IsFalse(SalesOrder.SalesLines.DeferralSchedule.Enabled(), 'Deferral Schedule should NOT be enabled');
 
         SalesOrder.Close();
     end;
@@ -1859,15 +1859,15 @@
         SalesLine.Modify(true);
 
         // [THEN] Deferral Schedule can be opened for GL Account
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.SalesLines.DeferralSchedule.Invoke;
+        SalesCreditMemo.SalesLines.DeferralSchedule.Invoke();
         // [THEN] Page "Deferral Schedule" is open, where "Amount to Defer" is 'X'
-        Assert.AreEqual(SalesLine.GetDeferralAmount, LibraryVariableStorage.DequeueDecimal, 'Amount to defer.');
-        Assert.AreEqual(SalesHeader."Posting Date", LibraryVariableStorage.DequeueDate, 'Header Posting Date');
+        Assert.AreEqual(SalesLine.GetDeferralAmount(), LibraryVariableStorage.DequeueDecimal(), 'Amount to defer.');
+        Assert.AreEqual(SalesHeader."Posting Date", LibraryVariableStorage.DequeueDate(), 'Header Posting Date');
         DeferralTemplate.Get(DeferralTemplateCode);
-        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start date calc method');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText(), 'Start date calc method');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1883,15 +1883,15 @@
         Initialize();
 
         // [GIVEN] User has created a Sales Document
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer());
 
         // [WHEN] Open the Sales Invoice as edit with the document
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesCreditMemo.SalesLines.Type.Value(Format(SalesLine.Type::"Fixed Asset"));
 
         // [THEN] Deferral Code and Deferral Schedule menu are not enabled
-        Assert.IsFalse(SalesCreditMemo.SalesLines.DeferralSchedule.Enabled, 'Deferral Schedule should NOT be enabled');
+        Assert.IsFalse(SalesCreditMemo.SalesLines.DeferralSchedule.Enabled(), 'Deferral Schedule should NOT be enabled');
 
         SalesCreditMemo.Close();
     end;
@@ -1921,15 +1921,15 @@
         SalesLine.Modify(true);
 
         // [THEN] Deferral Schedule can be opened for GL Account
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.SalesLines.DeferralSchedule.Invoke;
+        SalesReturnOrder.SalesLines.DeferralSchedule.Invoke();
         // [THEN] Page "Deferral Schedule" is open, where "Amount to Defer" is 'X'
-        Assert.AreEqual(SalesLine.GetDeferralAmount, LibraryVariableStorage.DequeueDecimal, 'Amount to defer.');
-        Assert.AreEqual(SalesHeader."Posting Date", LibraryVariableStorage.DequeueDate, 'Header Posting Date');
+        Assert.AreEqual(SalesLine.GetDeferralAmount(), LibraryVariableStorage.DequeueDecimal(), 'Amount to defer.');
+        Assert.AreEqual(SalesHeader."Posting Date", LibraryVariableStorage.DequeueDate(), 'Header Posting Date');
         DeferralTemplate.Get(DeferralTemplateCode);
-        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start date calc method');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText(), 'Start date calc method');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1945,15 +1945,15 @@
         Initialize();
 
         // [GIVEN] User has created a Sales Document
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer());
 
         // [WHEN] Open the Sales Return Order as edit with the document
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesReturnOrder.SalesLines.Type.Value(Format(SalesLine.Type::"Fixed Asset"));
 
         // [THEN] Deferral Code and Deferral Schedule menu are not enabled
-        Assert.IsFalse(SalesReturnOrder.SalesLines.DeferralSchedule.Enabled, 'Deferral Schedule should NOT be enabled');
+        Assert.IsFalse(SalesReturnOrder.SalesLines.DeferralSchedule.Enabled(), 'Deferral Schedule should NOT be enabled');
 
         SalesReturnOrder.Close();
     end;
@@ -1985,12 +1985,12 @@
         SalesInvHeader.Get(DocNo);
 
         // [WHEN] Open the Posted Sales Invoice
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.FILTER.SetFilter("No.", DocNo);
-        PostedSalesInvoice.SalesInvLines.First;
+        PostedSalesInvoice.SalesInvLines.First();
 
         // [THEN] Deferral Schedule can be opened for line
-        PostedSalesInvoice.SalesInvLines.DeferralSchedule.Invoke;
+        PostedSalesInvoice.SalesInvLines.DeferralSchedule.Invoke();
 
         PostedSalesInvoice.Close();
     end;
@@ -2022,12 +2022,12 @@
         SalesCrMemoHeader.Get(DocNo);
 
         // [WHEN] Open the Posted Sales Invoice
-        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", DocNo);
-        PostedSalesCreditMemo.SalesCrMemoLines.First;
+        PostedSalesCreditMemo.SalesCrMemoLines.First();
 
         // [THEN] Deferral Schedule can be opened for line
-        PostedSalesCreditMemo.SalesCrMemoLines.DeferralSchedule.Invoke;
+        PostedSalesCreditMemo.SalesCrMemoLines.DeferralSchedule.Invoke();
 
         PostedSalesCreditMemo.Close();
     end;
@@ -2058,14 +2058,14 @@
         FindSalesOrderArchive(SalesHeaderArchive, SalesHeader."No.");
 
         // [WHEN] Open the Posted Sales Order Archive
-        SalesOrderArchive.OpenView;
+        SalesOrderArchive.OpenView();
         SalesOrderArchive.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrderArchive.FILTER.SetFilter("Doc. No. Occurrence", '1');
         SalesOrderArchive.FILTER.SetFilter("Version No.", '1');
-        SalesOrderArchive.SalesLinesArchive.First;
+        SalesOrderArchive.SalesLinesArchive.First();
 
         // [THEN] Deferral Schedule Archive can be opened for line
-        SalesOrderArchive.SalesLinesArchive.DeferralSchedule.Invoke;
+        SalesOrderArchive.SalesLinesArchive.DeferralSchedule.Invoke();
 
         SalesOrderArchive.Close();
     end;
@@ -2094,14 +2094,14 @@
         FindSalesReturnOrderArchive(SalesHeaderArchive, SalesHeader."No.");
 
         // [WHEN] Open the Posted Sales Invoice
-        SalesReturnOrderArchive.OpenView;
+        SalesReturnOrderArchive.OpenView();
         SalesReturnOrderArchive.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesReturnOrderArchive.FILTER.SetFilter("Doc. No. Occurrence", '1');
         SalesReturnOrderArchive.FILTER.SetFilter("Version No.", '1');
-        SalesReturnOrderArchive.SalesLinesArchive.First;
+        SalesReturnOrderArchive.SalesLinesArchive.First();
 
         // [THEN] Deferral Schedule Archive can be opened for line
-        SalesReturnOrderArchive.SalesLinesArchive.DeferralSchedule.Invoke;
+        SalesReturnOrderArchive.SalesLinesArchive.DeferralSchedule.Invoke();
 
         SalesReturnOrderArchive.Close();
     end;
@@ -2341,7 +2341,7 @@
     var
         No: Code[20];
     begin
-        No := LibraryERM.CreateGLAccountWithSalesSetup;
+        No := LibraryERM.CreateGLAccountWithSalesSetup();
         GLAccount.Get(No);
     end;
 
@@ -2352,7 +2352,7 @@
 
     local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         UpdateNoSeriesLines(SalesHeader."Posting No. Series", PostingDate);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
@@ -2380,12 +2380,12 @@
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var AmtToDefer: Decimal; var PostingDocNo: Code[20]; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           DocumentType, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         AmtToDefer := SalesLine.GetDeferralAmount();
-        PostingDocNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date", false);
+        PostingDocNo := NoSeries.PeekNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date");
     end;
 
     local procedure CreateTwoSalesDocsWithDeferral(var SalesHeader1: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; var DeferralTemplateCode: Code[10]; var AccNo: Code[20]; var DocNo1: Code[20]; var DocNo2: Code[20]; var AmtToDefer1: Decimal; var AmtToDefer2: Decimal; DocType: Enum "Sales Document Type")
@@ -2664,7 +2664,7 @@
           SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           CalcMethod, NoOfPeriods, DeferralAmount, StartDate,
           DeferralHeader."Deferral Code", DeferralHeader."Schedule Description",
-          SalesLine.GetDeferralAmount, true, DeferralHeader."Currency Code");
+          SalesLine.GetDeferralAmount(), true, DeferralHeader."Currency Code");
         DeferralUtilities.CreateDeferralSchedule(DeferralHeader."Deferral Code", DeferralHeader."Deferral Doc. Type".AsInteger(),
           DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
           DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.",
@@ -3004,8 +3004,8 @@
 
     local procedure CreateSalesDocWithCurrencyAndLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
-        SalesHeader.Validate("Currency Code", CreateCurrency);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
+        SalesHeader.Validate("Currency Code", CreateCurrency());
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 2);
@@ -3061,12 +3061,12 @@
 
     local procedure UpdateNoSeriesLines(NoSeriesCode: Code[20]; PostingDate: Date)
     var
-        NoSeriesLineSales: Record "No. Series Line Sales";
+        NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLineSales.SetRange(Open, true);
-        NoSeriesLineSales.SetFilter("Last Date Used", '<>0D');
-        NoSeriesLineSales.ModifyAll("Last Date Used", PostingDate);
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.SetRange(Open, true);
+        NoSeriesLine.SetFilter("Last Date Used", '<>0D');
+        NoSeriesLine.ModifyAll("Last Date Used", PostingDate);
     end;
 
     local procedure VerifyPostedInvoiceDeferralsAndGL(DocNo: Code[20]; DeferralTemplateCode: Code[10]; AccNo: Code[20]; AmtToDefer: Decimal; AmtToDeferLCY: Decimal; NoOfPeriods: Integer; GLRecordCount: Integer; PostingDate: Date; PartialDeferral: Boolean)
@@ -3110,7 +3110,6 @@
     var
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         asserterror DeferralHeader.Get("Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
         asserterror LibraryERM.FindDeferralLine(DeferralLine, "Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
@@ -3298,18 +3297,16 @@
         // Modal Page Handler.
         DeferralSchedule."No. of Periods".SetValue(LibraryVariableStorage.DequeueInteger());
         DeferralSchedule.CalculateSchedule.Invoke();
-        DeferralSchedule.OK.Invoke();
+        DeferralSchedule.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UpdateAmountToDeferOnDeferralScheduleModalPageHandler(var DeferralSchedule: TestPage "Deferral Schedule")
-    var
-        NoOfPeriods: Variant;
     begin
         DeferralSchedule."Amount to Defer".SetValue(LibraryVariableStorage.DequeueDecimal());
         DeferralSchedule.CalculateSchedule.Invoke();
-        DeferralSchedule.OK.Invoke();
+        DeferralSchedule.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3317,7 +3314,7 @@
     procedure DeferralScheduleViewHandler(var DeferralScheduleView: TestPage "Deferral Schedule View")
     begin
         // Modal Page Handler.
-        DeferralScheduleView.OK.Invoke();
+        DeferralScheduleView.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3325,7 +3322,7 @@
     procedure DeferralScheduleArchiveHandler(var DeferralScheduleArchive: TestPage "Deferral Schedule Archive")
     begin
         // Modal Page Handler.
-        DeferralScheduleArchive.OK.Invoke();
+        DeferralScheduleArchive.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3334,7 +3331,7 @@
     begin
         BatchPostSalesInvoices.ReplacePostingDate.SetValue(true);
         BatchPostSalesInvoices.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
-        BatchPostSalesInvoices.OK.Invoke();
+        BatchPostSalesInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3345,7 +3342,7 @@
         BatchPostSalesOrders.Invoice.SetValue(true);
         BatchPostSalesOrders.ReplacePostingDate.SetValue(true);
         BatchPostSalesOrders.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
-        BatchPostSalesOrders.OK.Invoke();
+        BatchPostSalesOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3354,7 +3351,7 @@
     begin
         BatchPostSalesCreditMemos.ReplacePostingDate.SetValue(true);
         BatchPostSalesCreditMemos.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
-        BatchPostSalesCreditMemos.OK.Invoke();
+        BatchPostSalesCreditMemos.OK().Invoke();
     end;
 }
 

@@ -87,39 +87,37 @@ codeunit 96 "Purch.-Quote to Order"
     begin
         OnBeforeCreatePurchHeader(PurchHeader);
 
-        with PurchHeader do begin
-            PurchOrderHeader := PurchHeader;
-            PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
-            PurchOrderHeader."No. Printed" := 0;
-            PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
-            PurchOrderHeader."No." := '';
-            PurchOrderHeader."Quote No." := "No.";
+        PurchOrderHeader := PurchHeader;
+        PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
+        PurchOrderHeader."No. Printed" := 0;
+        PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
+        PurchOrderHeader."No." := '';
+        PurchOrderHeader."Quote No." := PurchHeader."No.";
 
-            OnCreatePurchHeaderOnBeforeInitRecord(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.InitRecord();
+        OnCreatePurchHeaderOnBeforeInitRecord(PurchOrderHeader, PurchHeader);
+        PurchOrderHeader.InitRecord();
 
-            PurchOrderLine.LockTable();
-            OnCreatePurchHeaderOnBeforePurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
-            InsertPurchaseHeader(PurchOrderHeader);
-            OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
+        PurchOrderLine.LockTable();
+        OnCreatePurchHeaderOnBeforePurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
+        InsertPurchaseHeader(PurchOrderHeader);
+        OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
 
-            PurchOrderHeader."Order Date" := "Order Date";
-            if "Posting Date" <> 0D then
-                PurchOrderHeader."Posting Date" := "Posting Date";
+        PurchOrderHeader."Order Date" := PurchHeader."Order Date";
+        if PurchHeader."Posting Date" <> 0D then
+            PurchOrderHeader."Posting Date" := PurchHeader."Posting Date";
 
-            PurchOrderHeader.InitFromPurchHeader(PurchHeader);
-            OnCreatePurchHeaderOnAfterInitFromPurchHeader(PurchOrderHeader, PurchHeader);
-            if PurchOrderHeader."Document Date" > PurchOrderHeader."Posting Date" then
-                Error(Text1130000, FieldCaption("Document Date"), FieldCaption("Posting Date"));
-            PurchOrderHeader.Validate("Operation Type", "Operation Type");
-            PurchOrderHeader."Inbound Whse. Handling Time" := "Inbound Whse. Handling Time";
+        PurchOrderHeader.InitFromPurchHeader(PurchHeader);
+        OnCreatePurchHeaderOnAfterInitFromPurchHeader(PurchOrderHeader, PurchHeader);
+        if PurchOrderHeader."Document Date" > PurchOrderHeader."Posting Date" then
+            Error(Text1130000, PurchHeader.FieldCaption("Document Date"), PurchHeader.FieldCaption("Posting Date"));
+        PurchOrderHeader.Validate("Operation Type", PurchHeader."Operation Type");
+        PurchOrderHeader."Inbound Whse. Handling Time" := PurchHeader."Inbound Whse. Handling Time";
 
-            PurchOrderHeader."Prepayment %" := PrepmtPercent;
-            if PurchOrderHeader."Posting Date" = 0D then
-                PurchOrderHeader."Posting Date" := WorkDate();
-            OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.Modify();
-        end;
+        PurchOrderHeader."Prepayment %" := PrepmtPercent;
+        if PurchOrderHeader."Posting Date" = 0D then
+            PurchOrderHeader."Posting Date" := WorkDate();
+        OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
+        PurchOrderHeader.Modify();
 
         OnAfterCreatePurchHeader(PurchOrderHeader, PurchHeader);
     end;
@@ -171,12 +169,10 @@ codeunit 96 "Purch.-Quote to Order"
 
     local procedure InsertPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do begin
-            if "Buy-from Vendor No." <> '' then
-                SetRange("Buy-from Vendor No.", "Buy-from Vendor No.");
-            Insert(true);
-            SetRange("Buy-from Vendor No.");
-        end;
+        if PurchaseHeader."Buy-from Vendor No." <> '' then
+            PurchaseHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.SetRange("Buy-from Vendor No.");
     end;
 
     local procedure TransferQuoteToOrderLines(var PurchQuoteLine: Record "Purchase Line"; var PurchQuoteHeader: Record "Purchase Header"; var PurchOrderLine: Record "Purchase Line"; var PurchOrderHeader: Record "Purchase Header"; Vend: Record Vendor)

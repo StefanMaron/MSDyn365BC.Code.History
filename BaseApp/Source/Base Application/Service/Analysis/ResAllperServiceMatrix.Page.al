@@ -3,7 +3,7 @@ namespace Microsoft.Service.Analysis;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Planning;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -470,7 +470,7 @@ page 9215 "Res. All. per Service  Matrix"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN21
+#if not CLEAN23
                 action(Costs)
                 {
                     ApplicationArea = Service;
@@ -547,8 +547,8 @@ page 9215 "Res. All. per Service  Matrix"
                     Caption = 'Resource A&vailability';
                     Image = Calendar;
                     RunObject = Page "Res. Availability - Overview";
-                    RunPageLink = "No." = field(FILTER("Resource Filter"));
-                    ToolTip = 'View a summary of resource capacities, the quantity of resource hours allocated to jobs on order, the quantity allocated to service orders, the capacity assigned to jobs on quote, and the resource availability.';
+                    RunPageLink = "No." = field(filter("Resource Filter"));
+                    ToolTip = 'View a summary of resource capacities, the quantity of resource hours allocated to projects on order, the quantity allocated to service orders, the capacity assigned to projects on quote, and the resource availability.';
                 }
             }
         }

@@ -16,6 +16,7 @@ table 12142 "VAT Book Entry"
     Caption = 'VAT Book Entry';
     DrillDownPageID = "VAT Book Entries";
     LookupPageID = "VAT Book Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

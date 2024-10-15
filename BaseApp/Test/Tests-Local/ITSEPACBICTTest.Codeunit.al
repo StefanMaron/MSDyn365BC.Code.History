@@ -221,7 +221,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         CreateTwoVendorsWithDiffBanksButSameBankAccountSetup(VendNo, VendBankAccountCode, BankAccountNo);
 
         // [GIVEN] Two general journal lines with same Bank Account "GIRO" but different Vendors and Recipient Bank Accounts according to setup described above
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPaymentExport.SelectPaymentJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPaymentExport.SelectPaymentJournalTemplate());
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
         GenJournalBatch.Validate("Bal. Account No.", BankAccountNo);
         GenJournalBatch.Modify(true);
@@ -292,7 +292,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         LibraryERM.CreateBankAccount(BankAccount);
         UpdateBankAccount(
           BankAccount, LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account"),
-          CreateBankExportImportFormat);
+          CreateBankExportImportFormat());
         VendorBillHeader."Bank Account No." := BankAccount."No.";
         VendorBillHeader."Posting Date" := Today;
         VendorBillHeader.Modify();
@@ -341,7 +341,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         IBAN: Code[50];
         i: Integer;
     begin
-        BankImportSetupCode := CreateBankExportImportFormat;
+        BankImportSetupCode := CreateBankExportImportFormat();
         IBAN := LibraryUtility.GenerateGUID();
         LibraryERM.CreateBankAccount(BankAccount);
         UpdateBankAccount(BankAccount, IBAN, BankImportSetupCode);
@@ -361,7 +361,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         BankAccount.IBAN := IBAN;
         BankAccount."SWIFT Code" :=
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account");
-        BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         BankAccount.ABI :=
           CopyStr(LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(ABI), DATABASE::"Bank Account"), 1, MaxStrLen(BankAccount.ABI));
         BankAccount.CUC :=
@@ -476,11 +476,11 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         CompanyInformation.Get();
 
         LibraryXPathXMLReader.GetNodeByXPath('/CBIPaymentRequest', XMLNode);
-        VerifyNamespace;
+        VerifyNamespace();
         VerifyGroupHeader(VendorBillHeader, VendorBillLine.Count, CompanyInformation.Name);
         VerifyPaymentInformationHeader(VendorBillHeader);
         VerifyDebitor(VendorBillHeader."Bank Account No.", CompanyInformation);
-        VerifyChrgBr;
+        VerifyChrgBr();
 
         VendorBillLine.FindFirst();
         Counter := 1;

@@ -168,7 +168,7 @@ codeunit 144100 "ERM Fiscal LIFO"
 
         // Verify.
         Item.CalcFields(Inventory);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Summary__End_Year_Inventory_', Item.Inventory);
     end;
 
@@ -652,7 +652,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         LibraryVariableStorage.Dequeue(Definitive);
         CalculateEndYearCosts.ReferenceDate.SetValue(ReferenceDate);
         CalculateEndYearCosts.Definitive.SetValue(Definitive);
-        CalculateEndYearCosts.OK.Invoke;
+        CalculateEndYearCosts.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -663,7 +663,7 @@ codeunit 144100 "ERM Fiscal LIFO"
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
         LedgerEntryDetails."Item Cost History".SetFilter("Item No.", ItemNo);
-        LedgerEntryDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LedgerEntryDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

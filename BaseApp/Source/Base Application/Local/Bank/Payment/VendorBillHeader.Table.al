@@ -15,6 +15,7 @@ table 12181 "Vendor Bill Header"
 {
     Caption = 'Vendor Bill Header';
     LookupPageID = "List of Open Vendor Bills";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -23,10 +24,12 @@ table 12181 "Vendor Bill Header"
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." <> xRec."No." then begin
                     PurchSetup.Get();
-                    NoSeriesMgt.TestManual(PurchSetup."Temporary Bill List No.");
+                    NoSeries.TestManual(PurchSetup."Temporary Bill List No.");
                     "No. Series" := '';
                 end;
             end;
@@ -204,12 +207,26 @@ table 12181 "Vendor Bill Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             PurchSetup.Get();
             PurchSetup.TestField("Temporary Bill List No.");
-            NoSeriesMgt.InitSeries(PurchSetup."Temporary Bill List No.",
-              "No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Temporary Bill List No.", "No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := PurchSetup."Temporary Bill List No.";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Temporary Bill List No.", 0D, "No.");
+            end;
+#endif
         end;
 
         "List Date" := WorkDate();
@@ -229,7 +246,6 @@ table 12181 "Vendor Bill Header"
         VendorBillHeader: Record "Vendor Bill Header";
         VendorBillLine: Record "Vendor Bill Line";
         CurrExchRate: Record "Currency Exchange Rate";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         Text1130004: Label 'You cannot rename a %1.';
         Text1130006: Label '%1 %2 is blocked.';
         PaymentMethodCodeErr: Label 'You cannot change the Payment Method Code because there are vendor bill lines associated to this vendor bill header.';
@@ -240,20 +256,16 @@ table 12181 "Vendor Bill Header"
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldVendorBillHeader: Record "Vendor Bill Header"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with VendorBillHeader do begin
-            VendorBillHeader := Rec;
-            PurchSetup.Get();
-            PurchSetup.TestField("Temporary Bill List No.");
-            if NoSeriesMgt.SelectSeries(PurchSetup."Temporary Bill List No.",
-                 OldVendorBillHeader."No. Series", "No. Series")
-            then begin
-                PurchSetup.Get();
-                PurchSetup.TestField("Temporary Bill List No.");
-                NoSeriesMgt.SetSeries("No.");
-                Rec := VendorBillHeader;
-                exit(true);
-            end;
+        VendorBillHeader := Rec;
+        PurchSetup.Get();
+        PurchSetup.TestField("Temporary Bill List No.");
+        if NoSeries.LookupRelatedNoSeries(PurchSetup."Temporary Bill List No.", OldVendorBillHeader."No. Series", VendorBillHeader."No. Series") then begin
+            VendorBillHeader."No." := NoSeries.GetNextNo(VendorBillHeader."No. Series");
+            Rec := VendorBillHeader;
+            exit(true);
         end;
     end;
 

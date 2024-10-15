@@ -17,17 +17,17 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
 
     local procedure Initialize()
     begin
-        LibraryVATUtils.TearDown; // Cleanup.
+        LibraryVATUtils.TearDown(); // Cleanup.
         LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
 
         isInitialized := true;
-        LibraryVATUtils.CreateVATReportSetup;
+        LibraryVATUtils.CreateVATReportSetup();
         Commit();
 
-        LibraryVATUtils.TearDown; // Cleanup for the first test.
+        LibraryVATUtils.TearDown(); // Cleanup for the first test.
     end;
 
     [Test]
@@ -451,7 +451,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
         LibraryVATUtils.VerifyGetLn(AccountType, DocumentType, GenPostingType, IndividualPerson, Resident, false, UsingFiscalCode);  // UseThreshold = FALSE
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     local procedure VerifyUnrealizedVATTransactions(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
@@ -465,12 +465,12 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
         // Setup.
 
         // TODO> replace with LibraryVATUtils.VerifyGetLn after Roxana extracts it
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), false);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // TODO> Keep this line, when replacing with VATUtils call
-        LibraryVATUtils.SetupUnrealizedVAT;
+        LibraryVATUtils.SetupUnrealizedVAT();
 
         // Create and Post Gen. Journal Line.
         LibraryVATUtils.CreatePostGenJnlLine(
@@ -484,7 +484,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
         LibraryVATUtils.VerifyVATReportLine(VATReportLine);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 }
 

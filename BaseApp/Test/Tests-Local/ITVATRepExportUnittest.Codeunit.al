@@ -45,7 +45,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         CreateVATReportSetup(false);
         SetupCompany(false);
-        GeneralSetup;
+        GeneralSetup();
         isInitialized := true;
         Commit();
     end;
@@ -688,7 +688,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
         CustNo := LibrarySpesometro.CreateCustomer(true, CustomerRec.Resident::"Non-Resident", false, true);
 
-        MaxRecordCount := GetMaxRecordCount;
+        MaxRecordCount := GetMaxRecordCount();
         for Index := 1 to MaxRecordCount + 1 do
             AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FE, CustNo, false);
 
@@ -734,7 +734,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         FlatFileManagement.SetHeaderFooterRecordCountPerFile(4);
 
         // [GIVEN] Max number of records, which may be added to report not exceeding 5 MB (MaxRecordCount)
-        MaxRecordCount := FlatFileManagement.GetMaxRecordsPerFile;
+        MaxRecordCount := FlatFileManagement.GetMaxRecordsPerFile();
 
         // [GIVEN] MaxRecordCount + 1 1st Customer's entries added to report to make it to generate 2 files (1st file is of max size)
         for Index := 1 to MaxRecordCount + 1 do
@@ -1445,14 +1445,14 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VendNonResInd := LibrarySpesometro.CreateVendor(true, CustomerRec.Resident::"Non-Resident", false, true);
 
         // Use a valid country code for all the above
-        Country := LibrarySpesometro.GetCountryCode;
+        Country := LibrarySpesometro.GetCountryCode();
         CountryRegion.Get(Country);
         CountryRegion."Foreign Country/Region Code" := '271';
         CountryRegion.Modify();
 
         // FE invoices
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FE, CustNonInd, false);
-        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount + 1;
+        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount() + 1;
         VATReportLine.Amount := VATReportLine.Base * 0.2;
         VATReportLine.Modify();
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FE, CustInd, false);
@@ -1464,7 +1464,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // FR invoices
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FR, VendNonInd, false);
-        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount + 1;
+        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount() + 1;
         VATReportLine.Amount := VATReportLine.Base * 0.2;
         VATReportLine.Modify();
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FR, VendNonInd, false);
@@ -1479,14 +1479,14 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // NE credit memos
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::NE, CustNonInd, false);
-        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount + 1;
+        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount() + 1;
         VATReportLine.Amount := VATReportLine.Base * 0.2;
         VATReportLine.Modify();
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::NE, CustInd, false);
 
         // NR credit memos
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::NR, VendNonInd, false);
-        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount + 1;
+        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount() + 1;
         VATReportLine.Amount := VATReportLine.Base * 0.2;
         VATReportLine.Modify();
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::NR, VendNonInd, false);
@@ -1495,7 +1495,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FN, CustNonRes, false);
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FN, CustNonResInd, false);
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FN, CustNonRes, false);
-        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount + 1;
+        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount() + 1;
         VATReportLine.Amount := VATReportLine.Base * 0.2;
         VATReportLine.Modify();
 
@@ -1503,7 +1503,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::SE, VendNonRes, false);
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::SE, VendNonResInd, false);
         AddVATReportLine(VATReportLine, VATReportHeader, ConstType::SE, VendNonRes, false);
-        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount + 1;
+        VATReportLine.Base := LibrarySpesometro.GetThresholdAmount() + 1;
         VATReportLine.Amount := VATReportLine.Base * 0.2;
         VATReportLine.Modify();
 
@@ -1615,17 +1615,17 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [WHEN] The line contains App. code, Type, No., Date from and Date to
         // [WHEN] Date From <= Date To
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
           CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
           CalcDate('<-CM>', WorkDate()), 0D);
 
         // [THEN] The line is inserted correctly
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1647,23 +1647,23 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
             CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         Assert.ExpectedError(SpesometroAppointment.FieldCaption("Appointment Code"));
         asserterror LibrarySpesometro.InsertSpesometroAppointment(
-            SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, '', CalcDate('<-CM>', WorkDate()),
+            SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(), '', CalcDate('<-CM>', WorkDate()),
             CalcDate('<CM>', WorkDate()));
         Assert.ExpectedError(SpesometroAppointment.FieldCaption("Vendor No."));
         asserterror LibrarySpesometro.InsertSpesometroAppointment(
-            SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+            SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
             LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), 0D, CalcDate('<CM>', WorkDate()));
         Assert.ExpectedError(SpesometroAppointment.FieldCaption("Starting Date"));
 
         // [WHEN] Date From <= Date To
         asserterror LibrarySpesometro.InsertSpesometroAppointment(
-            SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+            SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
             LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), CalcDate('<CM>', WorkDate()),
             CalcDate('<-CM>', WorkDate()));
 
         // [THEN] An error is generated stating App. Code is required
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1678,7 +1678,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [GIVEN] A valid entry in "Spesometro Appointment" exists
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
           CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
@@ -1687,7 +1687,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [THEN] An error is thrown that the Date To has to be equal or greater than Date From
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1706,7 +1706,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [GIVEN] A "Spesometro Appointment" record with Type = Vendor and No. = "Some vendor"
         VendorNo := LibrarySpesometro.CreateVendor(true, VendorRec.Resident::Resident, false, true);
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, VendorNo, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(), VendorNo, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [WHEN] The function GetAppointmentData(key) is called on the record
         // [WHEN] Key is in the valid range (e.g. VAT Registration No., Fiscal code, First name etc).
@@ -1726,7 +1726,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [THEN] The returned data is fetched from the Vendor table for the given vendor
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1746,7 +1746,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [GIVEN] A "Spesometro Appointment" record with Type = Vendor and No. = "Some vendor"
         VendorNo := LibrarySpesometro.CreateVendor(true, VendorRec.Resident::"Non-Resident", false, true);
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, VendorNo,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(), VendorNo,
           CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [WHEN] The function GetAppointmentData(key) is called on the record
@@ -1768,7 +1768,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         Assert.AreEqual('EE', SpesometroAppointment.GetValueOf(FieldName::Province), '');
         Assert.AreEqual(Vendor."Fiscal Code", SpesometroAppointment.GetValueOf(FieldName::"Fiscal Code"), '');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1783,7 +1783,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [GIVEN] VAT Report Setup page is opened on Appointment fasttab
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false),
           CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
@@ -1792,7 +1792,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [THEN] The record is deleted
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1825,12 +1825,12 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [GIVEN] A "Spesometro Appointment" record in the range A-B, where B < X
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), DateSpec1Start, DateSpec1End);
 
         // [GIVEN] A "Spesometro Appointment" record in the range C-D, where C > Y
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), DateSpec2Start, DateSpec2End);
 
         // [GIVEN] Company does NOT use Tax Representative
@@ -1856,7 +1856,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1891,12 +1891,12 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [GIVEN] A "Spesometro Appointment" record in the range A-B, where B < X
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), DateSpec1Start, DateSpec1End);
 
         // [GIVEN] A "Spesometro Appointment" record in the range C-D, where C > Y
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), DateSpec2Start, DateSpec2End);
 
         // [GIVEN] Company does use Individual Tax Representative
@@ -1939,7 +1939,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1974,12 +1974,12 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [GIVEN] A "Spesometro Appointment" record in the range A-B, where B < X
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), DateSpec1Start, DateSpec1End);
 
         // [GIVEN] A "Spesometro Appointment" record in the range C-D, where C > Y
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), DateSpec2Start, DateSpec2End);
 
         // [GIVEN] Company does use Non-individual Tax Representative
@@ -2019,7 +2019,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -2054,12 +2054,12 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [GIVEN] A "Spesometro Appointment" record in the range A-B, where B > X and A < X
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment1, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment1, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(true, VendorRec.Resident::Resident, false, true), DateSpec1Start, DateSpec1End);
 
         // [GIVEN] A "Spesometro Appointment" record in the range C-D, where C > Y
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment2, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment2, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(true, VendorRec.Resident::Resident, false, true), DateSpec2Start, DateSpec2End);
 
         // [WHEN] The file is exported
@@ -2105,7 +2105,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -2145,11 +2145,11 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [GIVEN] A "Spesometro Appointment" record in the range A-B, where B > X and A > X
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment1, LibrarySpesometro.CreateAppointmentCode, Vendor."No.", DateSpec1Start, DateSpec1End);
+          SpesometroAppointment1, LibrarySpesometro.CreateAppointmentCode(), Vendor."No.", DateSpec1Start, DateSpec1End);
 
         // [GIVEN] A "Spesometro Appointment" record in the range C-D, where C > Y
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment2, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment2, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(false, VendorRec.Resident::Resident, true, false), DateSpec2Start,
           DateSpec2End);
 
@@ -2185,7 +2185,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -2220,12 +2220,12 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         // [GIVEN] A "Spesometro Appointment" record in the range A-B, where B > X and A <= X
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment1, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment1, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(true, VendorRec.Resident::Resident, false, true), DateSpec1Start, DateSpec1End);
 
         // [GIVEN] A "Spesometro Appointment" record in the range C-D, where C < Y and D > Y
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment2, LibrarySpesometro.CreateAppointmentCode,
+          SpesometroAppointment2, LibrarySpesometro.CreateAppointmentCode(),
           LibrarySpesometro.CreateVendor(true, VendorRec.Resident::Resident, false, true), DateSpec2Start, DateSpec2End);
 
         // [WHEN] The file is exported
@@ -2247,7 +2247,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -2286,16 +2286,16 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [THEN] Field D2 contains company's "VAT Registration No."
         CompanyInformation.Get();
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, GetCompanyRegNo, 16), 2, 2, 16, ConstFormat::CF); // B2
+          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, GetCompanyRegNo(), 16), 2, 2, 16, ConstFormat::CF); // B2
         // "C" record is not exported
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, CompanyInformation.GetTaxCode, 16), 3, 2, 16, ConstFormat::CF); // D2
+          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, CompanyInformation.GetTaxCode(), 16), 3, 2, 16, ConstFormat::CF); // D2
         LibrarySpesometro.VerifyValue(
-          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, GetCompanyRegNo, 16), 4, 2, 16, ConstFormat::CF); // E2
+          TextFile, LibrarySpesometro.FormatPadding(ConstFormat::CF, GetCompanyRegNo(), 16), 4, 2, 16, ConstFormat::CF); // E2
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -2328,7 +2328,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
         VerifyStructure(TextFile, VATReportHeader, 1, 1);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -2667,7 +2667,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo := LibrarySpesometro.CreateCustomer(true, CustomerRec.Resident::"Non-Resident", false, true);
 
         // [GIVEN] Created max number of Report lines (calculated according to the limit of 5MB and fixed line size of 1900 symbols. Is 2759 in this case.)
-        MaxRecordCount := GetMaxRecordCount;
+        MaxRecordCount := GetMaxRecordCount();
         for Index := 1 to MaxRecordCount do // MaxRecordCount
             AddVATReportLine(VATReportLine, VATReportHeader, ConstType::FE, CustNo, false);
 
@@ -2694,7 +2694,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         FlatFileManagement.Initialize();
         HeaderAndFooterSize := LibraryRandom.RandInt(2760) - 1;
         FlatFileManagement.SetHeaderFooterRecordCountPerFile(HeaderAndFooterSize);
-        MaxRecordCount := FlatFileManagement.GetMaxRecordsPerFile;
+        MaxRecordCount := FlatFileManagement.GetMaxRecordsPerFile();
         Assert.AreEqual(2759 - HeaderAndFooterSize, MaxRecordCount, WrongMaxRecCountErr);
     end;
 
@@ -2713,7 +2713,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         if not VATReportSetup.Get() then
             VATReportSetup.Insert(true);
 
-        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
 
         if UseIntermediary then begin
             VATReportSetup.Validate("Intermediary VAT Reg. No.", Format(LibraryRandom.RandInt(100)));
@@ -2798,7 +2798,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
                 "Deductible %" := 0
             else
                 "Deductible %" := 100;
-            Base := LibraryRandom.RandDec(LibrarySpesometro.GetThresholdAmount, 2);
+            Base := LibraryRandom.RandDec(LibrarySpesometro.GetThresholdAmount(), 2);
             Amount := (Base / 100 * LibraryRandom.RandIntInRange(1, 21)) / 100 * "Deductible %";
             Insert(false);
         end;
@@ -2855,7 +2855,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
             "Deductible %" := 100;
             "VAT Registration No." := VATRegNo;
 
-            Base := LibraryRandom.RandDec(LibrarySpesometro.GetThresholdAmount, 2);
+            Base := LibraryRandom.RandDec(LibrarySpesometro.GetThresholdAmount(), 2);
             Amount := Base * "VAT %" / 100;
             Insert(false);
         end;
@@ -2926,7 +2926,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CompanyInformation.Validate("E-Mail", 'hello@microsoft.com');
 
         if UseTaxRepresentative then
-            CompanyInformation.Validate("Tax Representative No.", LibraryPurchase.CreateVendorNo)
+            CompanyInformation.Validate("Tax Representative No.", LibraryPurchase.CreateVendorNo())
         else
             CompanyInformation.Validate("Tax Representative No.", '');
         CompanyInformation.Modify(true);
@@ -2970,7 +2970,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         FlatFileManagement.Initialize();
         FlatFileManagement.SetHeaderFooterRecordCountPerFile(4); // A, B, E and Z records
-        exit(FlatFileManagement.GetMaxRecordsPerFile);
+        exit(FlatFileManagement.GetMaxRecordsPerFile());
     end;
 
     local procedure ExportToFile(var VATReportHeader: Record "VAT Report Header"; DetailedExport: Boolean)
@@ -2989,8 +2989,8 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         FileName := FileNameBase + '.ccf';
         ExportVATTransactions.InitializeRequest(FileName, DetailedExport);
         ExportVATTransactions.RunModal();
-        if ExportVATTransactions.GetNoFiles > 1 then begin
-            for Index := 1 to ExportVATTransactions.GetNoFiles do
+        if ExportVATTransactions.GetNoFiles() > 1 then begin
+            for Index := 1 to ExportVATTransactions.GetNoFiles() do
                 TransmissionFiles.Enqueue(FileNameBase + Format(Index) + '.ccf');
         end else
             TransmissionFiles.Enqueue(FileName);

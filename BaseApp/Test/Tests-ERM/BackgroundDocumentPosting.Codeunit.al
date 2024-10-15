@@ -475,13 +475,13 @@ codeunit 134893 "Background Document Posting"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Background Document Posting");
-        UpdateSalesAndPurchaseSetup;
+        UpdateSalesAndPurchaseSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         isInitialized := true;
 
-        LibrarySetupStorage.SaveSalesSetup;
-        LibrarySetupStorage.SavePurchasesSetup;
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Background Document Posting");
     end;
 

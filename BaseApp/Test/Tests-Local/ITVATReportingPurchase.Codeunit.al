@@ -118,7 +118,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         PurchLine.TestField("Include in VAT Transac. Rep.", InclInVATSetup); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -214,14 +214,14 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         PurchLine.TestField("Include in VAT Transac. Rep.", true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure EUCountryPurchInv()
     begin
-        VerifyCountryPurchInv(CreateCountry); // EU Country.
+        VerifyCountryPurchInv(CreateCountry()); // EU Country.
     end;
 
     local procedure VerifyCountryPurchInv(CountryRegionCode: Code[10])
@@ -250,7 +250,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         PurchLine.TestField("Include in VAT Transac. Rep.", false);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -266,42 +266,42 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
 
         // Purchase Invoice.
         with PurchaseInvoiceTestPage do begin
-            OpenNew;
-            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+            OpenNew();
+            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
             Assert.IsTrue(
-              PurchLines."Include in VAT Transac. Rep.".Editable,
+              PurchLines."Include in VAT Transac. Rep.".Editable(),
               'EDITABLE should be TRUE for the field ' + PurchLines."Include in VAT Transac. Rep.".Caption);
-            Close;
+            Close();
         end;
 
         // Purchase Order.
         with PurchaseOrderTestpage do begin
-            OpenNew;
-            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+            OpenNew();
+            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
             Assert.IsTrue(
-              PurchLines."Include in VAT Transac. Rep.".Editable,
+              PurchLines."Include in VAT Transac. Rep.".Editable(),
               'EDITABLE should be TRUE for the field ' + PurchLines."Include in VAT Transac. Rep.".Caption);
-            Close;
+            Close();
         end;
 
         // Purchase Credit Memo.
         with PurchaseCreditmemoTestPage do begin
-            OpenNew;
-            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+            OpenNew();
+            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
             Assert.IsTrue(
-              PurchLines."Include in VAT Transac. Rep.".Editable,
+              PurchLines."Include in VAT Transac. Rep.".Editable(),
               'EDITABLE should be TRUE for the field ' + PurchLines."Include in VAT Transac. Rep.".Caption);
-            Close;
+            Close();
         end;
 
         // Purchase Return Order.
         with PurchaseReturnOrderTestPage do begin
-            OpenNew;
-            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+            OpenNew();
+            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
             Assert.IsTrue(
-              PurchLines."Include in VAT Transac. Rep.".Editable,
+              PurchLines."Include in VAT Transac. Rep.".Editable(),
               'EDITABLE should be TRUE for the field ' + PurchLines."Include in VAT Transac. Rep.".Caption);
-            Close;
+            Close();
         end;
     end;
 
@@ -380,7 +380,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Purchase Header", DocumentType.AsInteger()), DocumentNo, true); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -452,7 +452,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VerifyContractNo(PurchHeader."Document Type"::Invoice, DocumentNo, PurchLine2."Line Amount", PurchHeader."No.");
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -643,7 +643,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Purchase Header", DocumentType.AsInteger()), DocumentNo, true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -664,7 +664,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         // Setup.
         SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
-        SetupPrepayments;
+        SetupPrepayments();
 
         // Create Sales Document.
         LineAmount := CalculateAmount(WorkDate(), false, true);
@@ -698,7 +698,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VATEntry.TestField("Include in VAT Transac. Rep.", false); // Reverse of Prepayment Invoice VAT.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -739,7 +739,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         case TaxRepType of
             Vendor."Tax Representative Type"::Contact:
                 begin
-                    TaxRepNo := CreateContact;
+                    TaxRepNo := CreateContact();
                     ExpectedTaxRepType := VATEntry."Tax Representative Type"::Contact;
                 end;
             Vendor."Tax Representative Type"::Vendor:
@@ -762,7 +762,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
           GetDocumentTypeVATEntry(DATABASE::"Purchase Header", PurchHeader."Document Type".AsInteger()), DocumentNo, ExpectedTaxRepType, TaxRepNo);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -880,7 +880,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Assert.ExpectedError(ExpectedError);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -944,7 +944,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     local procedure VerifyPrePayPurchDocPostIncl(DocumentType: Enum "Purchase Document Type"; InclVAT: Boolean; InclInVATTransRep: Boolean)
@@ -959,7 +959,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         // Setup.
         SetupThresholdAmount(WorkDate());
         LibraryVATUtils.UpdateVATPostingSetup(true);
-        SetupPrepayments;
+        SetupPrepayments();
 
         // Create Sales Document. // WORKING
         LineAmount := CalculateAmount(WorkDate(), InclVAT, InclInVATTransRep);
@@ -980,22 +980,22 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Purchase Header", DocumentType.AsInteger()), DocumentNo, false); // Amount is no longer compared to Threshold.
 
         // Tear Down.
-        TearDown;
+        TearDown();
     end;
 
     local procedure Initialize()
     begin
-        TearDown; // Cleanup.
+        TearDown(); // Cleanup.
         LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
 
         isInitialized := true;
-        CreateVATReportSetup;
+        CreateVATReportSetup();
         Commit();
 
-        TearDown; // Cleanup for the first test.
+        TearDown(); // Cleanup for the first test.
     end;
 
     local procedure CalculateAmount(StartingDate: Date; InclVAT: Boolean; InclInVATTransRep: Boolean) Amount: Decimal
@@ -1118,7 +1118,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
 
         if ReqFlds then begin
             if Resident = Vendor.Resident::"Non-Resident" then
-                Vendor.Validate("Country/Region Code", GetCountryCode);
+                Vendor.Validate("Country/Region Code", GetCountryCode());
 
             if not IndividualPerson then
                 Vendor.Validate(
@@ -1156,7 +1156,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         // Create VAT Report Setup.
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert(true);
-        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         VATReportSetup.Modify(true);
     end;
 
@@ -1286,7 +1286,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
     local procedure PostPurchOrder(var PurchHeader: Record "Purchase Header") DocumentNo: Code[20]
     var
         PurchLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
     begin
         PurchHeader.Find(); // Required to avoid Another user has modified the record error.
@@ -1298,7 +1298,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         UpdateCheckTotal(PurchHeader, PurchLine."Amount Including VAT" - PurchLine."Prepmt. Amt. Incl. VAT");
 
         NoSeriesCode := PurchHeader."Posting No. Series";
-        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        DocumentNo := NoSeries.PeekNextNo(NoSeriesCode);
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchHeader);
     end;
 

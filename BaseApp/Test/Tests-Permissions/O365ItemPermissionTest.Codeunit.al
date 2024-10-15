@@ -24,7 +24,7 @@ codeunit 139451 "O365 Item Permission Test"
         // [GIVEN] A user with O365 Basic and Item Edit permissions
         Initialize();
         LibraryLowerPermissions.SetItemEdit();
-        ExcludedTables := ExcludedTables.List;
+        ExcludedTables := ExcludedTables.List();
         InsertTablesExcludedFromItemCreate(ExcludedTables);
 
         // [THEN] The user can insert/delete items
@@ -51,14 +51,14 @@ codeunit 139451 "O365 Item Permission Test"
         LibraryLowerPermissions.SetOutsideO365Scope();
         RecordRefWithAllRelations.Open(DATABASE::Item);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
-        ExcludedTables := ExcludedTables.List;
+        ExcludedTables := ExcludedTables.List();
         InsertTablesExcludedFromItemView(ExcludedTables);
 
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         RecordRef.Open(DATABASE::Item);
 
         // [THEN] The user can read from the record and related tables
-        LibraryLowerPermissions.SetItemView;
+        LibraryLowerPermissions.SetItemView();
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
     end;
 
@@ -154,7 +154,7 @@ codeunit 139451 "O365 Item Permission Test"
     [Scope('OnPrem')]
     procedure PostedServiceShptUpdateOKModalPageHandler(var PostedTransferShptUpdate: TestPage "Posted Transfer Shpt. - Update")
     begin
-        PostedTransferShptUpdate.OK.Invoke();
+        PostedTransferShptUpdate.OK().Invoke();
     end;
 }
 

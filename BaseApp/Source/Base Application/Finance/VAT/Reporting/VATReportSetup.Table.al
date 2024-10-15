@@ -11,6 +11,7 @@ table 743 "VAT Report Setup"
 {
     Caption = 'VAT Report Setup';
     LookupPageID = "VAT Report Setup";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -57,7 +58,7 @@ table 743 "VAT Report Setup"
         }
         field(25; "Manual Receive Period CU Cap"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Manual Receive Period CU ID")));
             Caption = 'Manual Receive Period CU Cap';
             Editable = false;
@@ -70,7 +71,7 @@ table 743 "VAT Report Setup"
         }
         field(27; "Auto Receive Period CU Cap"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Auto Receive Period CU ID")));
             Caption = 'Auto Receive Period CU Cap';
             Editable = false;
@@ -83,7 +84,7 @@ table 743 "VAT Report Setup"
         }
         field(29; "Receive Submitted Return CUCap"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Receive Submitted Return CU ID")));
             Caption = 'Receive Submitted Return CUCap';
             Editable = false;

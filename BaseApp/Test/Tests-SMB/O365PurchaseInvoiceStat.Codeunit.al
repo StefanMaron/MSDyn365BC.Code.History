@@ -33,7 +33,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Purchase Invoice Stat.");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         PurchasesPayablesSetup.Get();
@@ -165,14 +165,14 @@ codeunit 138021 "O365 Purchase Invoice Stat."
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PaymentJournal: TestPage "Payment Journal";
     begin
         GenJnlBatch.FindLast();
 
         with PaymentJournal do begin
-            OpenEdit;
-            "Document No.".SetValue(NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PurchInvHeader."Posting Date", false));
+            OpenEdit();
+            "Document No.".SetValue(NoSeries.PeekNextNo(GenJnlBatch."No. Series", PurchInvHeader."Posting Date"));
             "Account Type".SetValue(GenJnlLine."Account Type"::Vendor);
             "Account No.".SetValue(PurchInvHeader."Buy-from Vendor No.");
             if PaymentAmount > 0 then
@@ -185,9 +185,9 @@ codeunit 138021 "O365 Purchase Invoice Stat."
             LibraryVariableStorage.Enqueue(ConfirmationMsg); // message for the confirm handler
             LibraryVariableStorage.Enqueue(true); // reply for the confirm handler
             LibraryVariableStorage.Enqueue(LinesPostedMsg); // message for the message handler
-            Post.Invoke;
+            Post.Invoke();
 
-            Close;
+            Close();
         end;
 
         Commit();
@@ -198,11 +198,11 @@ codeunit 138021 "O365 Purchase Invoice Stat."
         PostedPurchaseInvoices: TestPage "Posted Purchase Invoices";
     begin
         with PostedPurchaseInvoices do begin
-            OpenView;
+            OpenView();
             GotoRecord(PurchInvHeader);
             Closed.AssertEquals(ExpectedPaymentStatus);
             "Remaining Amount".AssertEquals(ExpectedRemainingAmount);
-            Close;
+            Close();
         end;
     end;
 
@@ -210,15 +210,15 @@ codeunit 138021 "O365 Purchase Invoice Stat."
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 }
 

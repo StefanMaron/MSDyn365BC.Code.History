@@ -48,8 +48,8 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [SCENARIO 229708] Split Full VAT sales invoice can be declared with amounts and with 'S' in tag 'CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiRiepilogo/EsigibilitaIVA'
         Initialize();
 
-        LibraryITDatifattura.CreateGeneralSetup;
-        LibraryITDatifattura.CreateGeneralSetupDatifattura;
+        LibraryITDatifattura.CreateGeneralSetup();
+        LibraryITDatifattura.CreateGeneralSetupDatifattura();
 
         // [GIVEN] Sales Invoice "I" with Sales Line in Split VAT Posting Setup where "VAT %" = 20%
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -57,14 +57,14 @@ codeunit 144562 "IT - Datifattura Split VAT"
         UpdateCustomerVatRegNo(SalesHeader."Sell-to Customer No.");
 
         // [GIVEN] Sales line VAT splited into two lines
-        SalesHeader.AddSplitVATLines;
+        SalesHeader.AddSplitVATLines();
 
         // [GIVEN] Invoice "I" posted and it is suggested into Datifattura VAT Report "DR" with "Amount" = 1000 and "VAT Amount" = 200
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         LibraryVATUtils.CreateVATReportHeader(
           VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-          WorkDate, WorkDate());
+          WorkDate(), WorkDate());
 
         VATReportMediator.GetLines(VATReportHeader);
 
@@ -88,7 +88,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         Assert.AreEqual('S', DotNetXmlNode.InnerText, EsigibilitaIVATok);
 
         // Cleanup
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -109,8 +109,8 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [SCENARIO 323987] There is Vendor."Post Code" value for vendor with (XML.Node = CAP)
         Initialize();
 
-        LibraryITDatifattura.CreateGeneralSetup;
-        LibraryITDatifattura.CreateGeneralSetupDatifattura;
+        LibraryITDatifattura.CreateGeneralSetup();
+        LibraryITDatifattura.CreateGeneralSetupDatifattura();
 
         // [GIVEN] Created Vendor "V" with Italian VAT reg. no. 
         // [GIVEN] Created Purchase invoice "V".
@@ -122,7 +122,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVATUtils.CreateVATReportHeader(
             VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-            WorkDate, WorkDate());
+            WorkDate(), WorkDate());
 
         VATReportMediator.GetLines(VATReportHeader);
         FindVATReportLineByVendor(VATReportLine, VATReportHeader, VATReportLine."Document Type"::Invoice, Vendor."No.");
@@ -158,8 +158,8 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [SCENARIO 323987] There is '00000' value for vendor with (XML.Node = CAP)
         Initialize();
 
-        LibraryITDatifattura.CreateGeneralSetup;
-        LibraryITDatifattura.CreateGeneralSetupDatifattura;
+        LibraryITDatifattura.CreateGeneralSetup();
+        LibraryITDatifattura.CreateGeneralSetupDatifattura();
 
         // [GIVEN] Created Vendor "V" with Italian VAT reg. no. 
         // [GIVEN] Created Purchase invoice "V".
@@ -172,7 +172,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVATUtils.CreateVATReportHeader(
             VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-            WorkDate, WorkDate());
+            WorkDate(), WorkDate());
 
         VATReportMediator.GetLines(VATReportHeader);
         FindVATReportLineByVendor(VATReportLine, VATReportHeader, VATReportLine."Document Type"::Invoice, Vendor."No.");
@@ -216,7 +216,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [GIVEN] VATReportHeader was created for the dates of the invoice
         LibraryVATUtils.CreateVATReportHeader(
           VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-          WorkDate, WorkDate());
+          WorkDate(), WorkDate());
 
         Commit();
 
@@ -252,7 +252,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [GIVEN] Created Vendor "V" with "Fiscal Code" and related "Spesometro Appointment"
         Vendor.Get(LibrarySpesometro.CreateVendor(true, Vendor.Resident::Resident, true, true));
         LibrarySpesometro.InsertSpesometroAppointment(
-          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode, Vendor."No.", WorkDate(), WorkDate());
+          SpesometroAppointment, LibrarySpesometro.CreateAppointmentCode(), Vendor."No.", WorkDate(), WorkDate());
 
         // [GIVEN] Created Purchase invoice "V".
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
@@ -261,7 +261,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVATUtils.CreateVATReportHeader(
           VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-          WorkDate, WorkDate());
+          WorkDate(), WorkDate());
 
         VATReportMediator.GetLines(VATReportHeader);
         FindVATReportLineByVendor(VATReportLine, VATReportHeader, VATReportLine."Document Type"::Invoice, Vendor."No.");
@@ -283,7 +283,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"VAT Report Setup");
@@ -367,7 +367,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
     [Scope('OnPrem')]
     procedure DatifatturaSuggestLinesRequestPageHandler(var DatifatturaSuggestLinesRequestPage: TestRequestPage "Datifattura Suggest Lines")
     begin
-        DatifatturaSuggestLinesRequestPage.OK.Invoke;
+        DatifatturaSuggestLinesRequestPage.OK().Invoke();
     end;
 }
 

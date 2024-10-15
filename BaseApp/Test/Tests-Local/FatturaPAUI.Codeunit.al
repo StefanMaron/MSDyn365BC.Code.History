@@ -129,7 +129,7 @@ codeunit 144211 "FatturaPA UI"
         // [SCENARIO 373967] "Fattura Document Type" field is visible in the Posted Service Invoice page
 
         Initialize();
-        LibraryApplicationArea.EnableServiceManagementSetup;
+        LibraryApplicationArea.EnableServiceManagementSetup();
         PostedServiceInvoice.OpenEdit();
         Assert.IsTrue(PostedServiceInvoice."Fattura Document Type".Visible(), 'Fattura Document Type is not visible');
         PostedServiceInvoice.Close();
@@ -146,7 +146,7 @@ codeunit 144211 "FatturaPA UI"
         // [SCENARIO 373967] "Fattura Document Type" field is visible in the Posted Service Credit Memo page
 
         Initialize();
-        LibraryApplicationArea.EnableServiceManagementSetup;
+        LibraryApplicationArea.EnableServiceManagementSetup();
         PostedServiceCreditMemo.OpenEdit();
         Assert.IsTrue(PostedServiceCreditMemo."Fattura Document Type".Visible(), 'Fattura Document Type is not visible');
         PostedServiceCreditMemo.Close();
@@ -163,7 +163,7 @@ codeunit 144211 "FatturaPA UI"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"FatturaPA UI");
 
-        LibraryITLocalization.SetupFatturaPA;
+        LibraryITLocalization.SetupFatturaPA();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"FatturaPA UI");
     end;

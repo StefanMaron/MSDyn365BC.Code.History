@@ -52,7 +52,6 @@ page 504 "Available - Item Ledg. Entries"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a package number if the posted item carries such a number.';
-                    Visible = PackageTrackingVisible;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -233,7 +232,6 @@ page 504 "Available - Item Ledg. Entries"
         ReservEntry.TestField("Source Type");
 
         SetFilters();
-        SetPackageTrackingVisibility();
     end;
 
     var
@@ -242,7 +240,6 @@ page 504 "Available - Item Ledg. Entries"
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         NewQtyReserved: Decimal;
         CaptionText: Text;
-        PackageTrackingVisible: Boolean;
         FullyReservedErr: Label 'Fully reserved.';
         CancelReservationQst: Label 'Do you want to cancel the reservation?';
         ReservationCannotBeCarriedErr: Label 'Reservation cannot be carried out because the available quantity is already allocated in a warehouse.';
@@ -376,24 +373,17 @@ page 504 "Available - Item Ledg. Entries"
         OnAfterSetFilters(Rec, ReservEntry, ReservMgt);
     end;
 
-    local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
-    begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry: Record "Reservation Entry"; var ReservMgt: Codeunit "Reservation Management")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservFrom(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservMgt(var ReservationEntry: Record "Reservation Entry")
     begin
     end;

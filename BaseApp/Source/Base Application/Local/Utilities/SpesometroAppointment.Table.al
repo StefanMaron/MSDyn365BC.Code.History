@@ -10,6 +10,7 @@ using Microsoft.Purchases.Vendor;
 table 12126 "Spesometro Appointment"
 {
     Caption = 'Spesometro Appointment';
+    DataClassification = CustomerContent;
 
     fields
     {

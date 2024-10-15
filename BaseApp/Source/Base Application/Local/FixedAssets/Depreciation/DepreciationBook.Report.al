@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -870,7 +870,6 @@ report 12119 "Depreciation Book"
 
     var
         Text000: Label 'Fixed Asset - Book Value 02';
-        Text001: Label '(Budget Report)';
         Text004: Label 'Addition in Period';
         Text005: Label 'Disposal in Period';
         Text007: Label '%1 has been modified in fixed asset %2';
@@ -1203,14 +1202,12 @@ report 12119 "Depreciation Book"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            SetRange("FA Posting Category", "FA Posting Category"::" ");
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            SetRange("Part of Book Value", true);
-            SetRange("Reclassification Entry", Reclassification);
-            exit(IsEmpty);
-        end;
+        FALedgerEntry.SetRange("FA Posting Category", FALedgerEntry."FA Posting Category"::" ");
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgerEntry.SetRange("Part of Book Value", true);
+        FALedgerEntry.SetRange("Reclassification Entry", Reclassification);
+        exit(FALedgerEntry.IsEmpty());
     end;
 
     local procedure CalcReclassAmount(FANo: Code[20])
@@ -1331,7 +1328,7 @@ report 12119 "Depreciation Book"
         end;
     end;
 
-    local procedure PartOfDepreciableBasis(DeprBookCode: Code[10]; FAPostingType: Option; Default: Boolean): Boolean
+    local procedure PartOfDepreciableBasis(DeprBookCode: Code[10]; FAPostingType: Enum "FA Posting Type Setup Type"; Default: Boolean): Boolean
     var
         FAPostingTypeSetup: Record "FA Posting Type Setup";
     begin

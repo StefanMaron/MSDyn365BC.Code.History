@@ -140,7 +140,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         RunVATRegisterPrintReport(VATPostingSetup);
 
         // Verify: Amount on VAT Register Print Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         VerifyVATRegisterPrintReport(PostedSalesInvoice, SalesInvoiceAmount);
         VerifyVATRegisterPrintReport(PostedSalesCreditMemo, -1 * SalesLine."Line Amount");
 
@@ -153,8 +153,8 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         if IsInitialized then
             exit;
 
-        UpdateCompanyInformation;
-        CheckAppointmentCode;
+        UpdateCompanyInformation();
+        CheckAppointmentCode();
 
         IsInitialized := true;
         Commit();
@@ -165,7 +165,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         AppointmentCode: Record "Appointment Code";
     begin
         if not AppointmentCode.FindFirst() then
-            CreateAppointmentCode;
+            CreateAppointmentCode();
     end;
 
     local procedure CreateAppointmentCode()
@@ -198,7 +198,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         VatRegister: Record "VAT Register";
     begin
         FindVATRegister(VatRegister);
-        NoSeries.Get(LibraryERM.CreateNoSeriesSalesCode);
+        NoSeries.Get(LibraryERM.CreateNoSeriesSalesCode());
         NoSeries.Validate("VAT Register", VatRegister.Code);
         NoSeries.Modify(true);
     end;
@@ -210,7 +210,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("Deductible %", LibraryRandom.RandInt(99));
         VATPostingSetup.Modify(true);
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Modify(true);
@@ -291,7 +291,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("VAT Identifier", VATPostingSetup."VAT Prod. Posting Group");
         VATPostingSetup.Validate("Sales VAT Account", GLAccount."No.");
@@ -355,7 +355,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     begin
         // Setup.
         Initialize();
-        DeductiblePercent := FindDeductiblePercent;
+        DeductiblePercent := FindDeductiblePercent();
         SetupTransactionData(VATStatementName, GLAccount, AmountType);
         if AmountType = VATStatementLine."Amount Type"::"Non-Deductible Base" then
             Amount := CalculateNonDeductibleBaseFromVATEntry(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group")
@@ -385,7 +385,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     begin
         // Setup.
         Initialize();
-        DeductiblePercent := FindDeductiblePercent;
+        DeductiblePercent := FindDeductiblePercent();
         SetupTransactionData(VATStatementName, GLAccount, AmountType);
         if AmountType = VATStatementLine."Amount Type"::"Non-Deductible Base" then
             Amount := CalculateNonDeductibleBaseFromVATEntry(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group")
@@ -421,7 +421,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
           VATStatementName."Statement Template Name", VATStatementName.Name, AppointmentCode.Code,
           DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), DMY2Date(31, 12, Date2DMY(WorkDate(), 3)));
         LibraryReportValidation.SetFileName(VATStatementName."Statement Template Name");
-        AnnualVATComm2010.SaveAsExcel(LibraryReportValidation.GetFileName);
+        AnnualVATComm2010.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     local procedure RunReportExpAnnualVATCommunicationAndSaveTheExportedFile(StatementName: Code[10]) ExportedFileName: Text
@@ -439,7 +439,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         ExpAnnualVATComm2010.UseRequestPage(false);
         ExpAnnualVATComm2010.InitializeRequest('', AppointmentCode.Code, true, true, true, true);
         ExpAnnualVATComm2010.RunModal();
-        ExportedFileName := ExpAnnualVATComm2010.GetServerFileName;
+        ExportedFileName := ExpAnnualVATComm2010.GetServerFileName();
     end;
 
     local procedure RunVATRegisterPrintReport(VATPostingSetup: Record "VAT Posting Setup")
@@ -452,7 +452,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         "Count": Integer;
     begin
         for Count := 1 to ArrayLen(CompanyInformation) do
-            CompanyInformation[Count] := LibraryUtility.GetGlobalNoSeriesCode;
+            CompanyInformation[Count] := LibraryUtility.GetGlobalNoSeriesCode();
         FindVATRegister(VATRegister);
         FindVATBookEntry(VATBookEntry, VATPostingSetup);
         Clear(VATRegisterPrint);
@@ -461,8 +461,8 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
           VATRegister, PrintingType::Test, WorkDate(),
           LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate())), true,
           CompanyInformation);
-        LibraryReportValidation.SetFileName(LibraryUtility.GetGlobalNoSeriesCode);
-        VATRegisterPrint.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LibraryReportValidation.SetFileName(LibraryUtility.GetGlobalNoSeriesCode());
+        VATRegisterPrint.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     local procedure SelectAndClearGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -572,7 +572,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     begin
         FindGLEntry(GLEntry, DocumentType, DocumentNo, GLAcountNo);
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -1 * Amount, GLEntry.TableCaption()));
     end;
 
@@ -586,7 +586,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
 
     local procedure VerifyReportAnnualVATCommunication(ExpectedAmount: Decimal)
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(
           LibraryReportValidation.CheckIfValueExists(NonDeductibleVATBaseAndAmountLbl),
           StrSubstNo(WrongValueInReportErr, NonDeductibleVATBaseAndAmountLbl));

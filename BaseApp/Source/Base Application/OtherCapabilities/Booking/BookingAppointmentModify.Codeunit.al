@@ -15,7 +15,7 @@ codeunit 6724 "Booking Appointment - Modify"
         BookingManager.RegisterAppointmentConnection();
 
         InvoicedBookingItem.SetRange("Document No.", Rec."Document No.");
-        if InvoicedBookingItem.FindSet(true, true) then
+        if InvoicedBookingItem.FindSet(true) then
             repeat
                 if Rec.Posted then
                     HandlePosted(InvoicedBookingItem)

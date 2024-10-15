@@ -152,7 +152,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillLine.Modify();
 
         // Exercise.
-        asserterror CustomerBillHeader.ExportToFile;
+        asserterror CustomerBillHeader.ExportToFile();
 
         // Verify.
         DirectDebitCollection.SetRange(Identifier, CustomerBillHeader."No.");
@@ -177,7 +177,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillHeader.Modify();
 
         // Exercise.
-        asserterror CustomerBillHeader.ExportToFile;
+        asserterror CustomerBillHeader.ExportToFile();
 
         // Verify.
         TempCustomerBillLine.FindFirst();
@@ -204,7 +204,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillLine.Next(LibraryRandom.RandInt(CustomerBillLine.Count));
         CustomerBillLine."Direct Debit Mandate ID" := '';
         CustomerBillLine.Modify();
-        asserterror CustomerBillHeader.ExportToFile;
+        asserterror CustomerBillHeader.ExportToFile();
 
         // Exercise.
         CustomerBillLine.Delete(true);
@@ -233,7 +233,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillLine.Next(LibraryRandom.RandInt(CustomerBillLine.Count));
         CustomerBillLine."Direct Debit Mandate ID" := '';
         CustomerBillLine.Modify();
-        asserterror CustomerBillHeader.ExportToFile;
+        asserterror CustomerBillHeader.ExportToFile();
         VerifyPaymentErrors(DATABASE::"Customer Bill Header", CustomerBillHeader."No.", CustomerBillLine."Line No.", FieldBlankErr, 1);
 
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
@@ -244,7 +244,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillHeader.Modify();
 
         // Exercise.
-        asserterror CustomerBillHeader.ExportToFile;
+        asserterror CustomerBillHeader.ExportToFile();
 
         // Verify.
         DirectDebitCollection.SetRange(Identifier, CustomerBillHeader."No.");
@@ -372,7 +372,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CreateCustomerBill(CustomerBillHeader, TempCustomerBillLine, BankExportImportSetup.Code, false);
 
         // Exercise.
-        asserterror CustomerBillHeader.ExportToFile;
+        asserterror CustomerBillHeader.ExportToFile();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(FieldValueErr, Bill.FieldCaption("Bank Receipt"), true));
@@ -395,10 +395,10 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillHeader.Modify();
 
         // Exercise.
-        asserterror CustomerBillHeader.ExportToFile;
+        asserterror CustomerBillHeader.ExportToFile();
 
         // Verify.
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -459,7 +459,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FindIssuedCustBillLines(TempIssuedCustomerBillLine, IssuedCustomerBillHeader, CustomerBillHeader);
 
         // Exercise.
-        asserterror IssuedCustomerBillHeader.ExportToFile;
+        asserterror IssuedCustomerBillHeader.ExportToFile();
 
         // Verify.
         VerifyPaymentErrors(DATABASE::"Issued Customer Bill Header", IssuedCustomerBillHeader."No.",
@@ -1063,7 +1063,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
             exit;
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Direct Debit Mandate Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        SalesReceivablesSetup."Direct Debit Mandate Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         SalesReceivablesSetup.Modify();
         LibraryRandom.SetSeed(1);
         isInitialized := true;
@@ -1098,8 +1098,8 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         LibraryITLocalization.CreateBill(Bill);
         Bill."Bank Receipt" := BankReceipt;
-        Bill."List No." := LibraryUtility.GetGlobalNoSeriesCode;
-        Bill."Final Bill No." := LibraryUtility.GetGlobalNoSeriesCode;
+        Bill."List No." := LibraryUtility.GetGlobalNoSeriesCode();
+        Bill."Final Bill No." := LibraryUtility.GetGlobalNoSeriesCode();
         Bill.Modify(true);
 
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -1118,7 +1118,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account");
         BankAccount."SWIFT Code" :=
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account");
-        BankAccount."Direct Debit Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        BankAccount."Direct Debit Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         BankAccount.ABI :=
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(ABI), DATABASE::"Bank Account");
         BankAccount.CAB :=
@@ -1221,7 +1221,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         SEPADirectDebitMandate."Customer No." := CustomerNo;
         SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccountCode;
         SEPADirectDebitMandate."Valid From" := WorkDate();
-        SEPADirectDebitMandate."Valid To" := WorkDate + LibraryRandom.RandIntInRange(300, 600);
+        SEPADirectDebitMandate."Valid To" := WorkDate() + LibraryRandom.RandIntInRange(300, 600);
         SEPADirectDebitMandate."Date of Signature" := WorkDate();
         SEPADirectDebitMandate."Expected Number of Debits" := LibraryRandom.RandIntInRange(10, 20);
         SEPADirectDebitMandate.Insert(true);
@@ -1317,7 +1317,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         IssuedCustomerBillLine.FindSet();
         repeat
             TempIssuedCustomerBillLine := IssuedCustomerBillLine;
-            TempIssuedCustomerBillLine.Insert
+            TempIssuedCustomerBillLine.Insert();
         until IssuedCustomerBillLine.Next() = 0;
     end;
 
@@ -1478,7 +1478,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         LibraryVariableStorage.Dequeue(NewPartnerType);
         SuggestCustomerBills.PartnerType.AssertEquals(ExpectedPartnerType);
         SuggestCustomerBills.PartnerType.SetValue(NewPartnerType);
-        SuggestCustomerBills.OK.Invoke;
+        SuggestCustomerBills.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]

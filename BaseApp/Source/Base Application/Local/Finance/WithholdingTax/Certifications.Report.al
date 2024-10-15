@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -866,8 +866,6 @@ report 12106 Certifications
         Text1033: Label 'Please select at least a certification.';
         Text1034: Label 'Please enter both From Payment Date and To Payment Date.';
         Text1035: Label 'Please enter both From Related Date and To Related Date.';
-        Text1036: Label 'Resident';
-        Text1037: Label 'Not Resident';
         Text1038: Label 'According to the law article 7-bis of the D.P.R. 29 September 1973 ';
         Text1039: Label 'and to any of its subsequent change or integration, it is certified that the following compensation';
         Text1040: Label ', referring to period from ';

@@ -9,6 +9,7 @@ table 12140 "VAT Identifier"
     Caption = 'VAT Identifier';
     DrillDownPageID = "VAT Identifier";
     LookupPageID = "VAT Identifier";
+    DataClassification = CustomerContent;
 
     fields
     {

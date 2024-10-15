@@ -15,11 +15,8 @@ codeunit 144210 "FatturaPA Document Type"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
-        LibrarySplitVAT: Codeunit "Library - Split VAT";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryITLocalization: Codeunit "Library - IT Localization";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -68,7 +65,7 @@ codeunit 144210 "FatturaPA Document Type"
         Assert.IsTrue(SelfBillingFatturaDocumentType.FindFirst(), 'No code for the Self-Billing');
         PrepaymentFatturaDocumentType.SetRange(Prepayment, true);
         Assert.IsTrue(PrepaymentFatturaDocumentType.FindFirst(), 'No code for the Prepayment');
-        Commit;
+        Commit();
 
         LibraryITLocalization.FilterFatturaDocumentTypeNoDefaultValues(FatturaDocumentType);
         FatturaDocumentType.FindFirst();
@@ -625,7 +622,7 @@ codeunit 144210 "FatturaPA Document Type"
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header")
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer());
         UpdateSalesHeaderWithFatturaCodes(SalesHeader, SalesHeader."Fattura Document Type");
     end;
 
@@ -645,8 +642,8 @@ codeunit 144210 "FatturaPA Document Type"
     local procedure UpdateSalesHeaderWithFatturaCodes(var SalesHeader: Record "Sales Header"; FatturaDocType: Code[20])
     begin
         SalesHeader.Validate("Fattura Document Type", FatturaDocType);
-        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
-        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode());
+        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode());
         SalesHeader.Modify(true);
     end;
 
@@ -727,7 +724,7 @@ codeunit 144210 "FatturaPA Document Type"
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGroupCode, VATProductPostingGroup.Code);
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Fattura Document Type", FatturaDocType);
         VATPostingSetup.Modify(true);
         exit(VATPostingSetup."VAT Prod. Posting Group");
@@ -754,7 +751,6 @@ codeunit 144210 "FatturaPA Document Type"
     local procedure VerifyTipoDocumento(TempBlob: Codeunit "Temp Blob"; ExpectedElementValue: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
-        FileManagement: Codeunit "File Management";
     begin
         LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/TipoDocumento');

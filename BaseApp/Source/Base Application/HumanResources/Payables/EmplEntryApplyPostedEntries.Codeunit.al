@@ -68,6 +68,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         CannotUnapplyExchRateErr: Label 'You cannot unapply the entry with the posting date %1, because the exchange rate for the additional reporting currency has been changed.', Comment = '%1 - a date';
         CannotApplyClosedEntriesErr: Label 'One or more of the entries that you selected is closed. You cannot apply closed entries.';
         VATSettlementPostedErr: Label 'You cannot unapply %1 No. %2 because the VAT settlement has been calculated and posted.', Comment = '%1 - document type, %2 - document number';
+        CannotUnapplyInReversalErr: Label 'You cannot unapply Employee Ledger Entry No. %1 because the entry is part of a reversal.', Comment = '%1 - arbitrary text, the identifier of the ledger entry';
 
     procedure Apply(EmplLedgEntry: Record "Employee Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
@@ -192,6 +193,9 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         DtldEmplLedgEntry.SetCurrentKey("Employee Ledger Entry No.", "Entry Type");
         DtldEmplLedgEntry.SetRange("Employee Ledger Entry No.", EmplLedgEntryNo);
         DtldEmplLedgEntry.SetRange(Unapplied, false);
+        DtldEmplLedgEntry.SetFilter(
+            "Entry Type", '<>%1&<>%2',
+            DtldEmplLedgEntry."Entry Type"::"Unrealized Loss", DtldEmplLedgEntry."Entry Type"::"Unrealized Gain");
         OnFindLastTransactionNoOnAfterSetFilters(DtldEmplLedgEntry);
         LastTransactionNo := 0;
         if DtldEmplLedgEntry.FindSet() then
@@ -227,6 +231,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     var
         ApplicationEntryNo: Integer;
     begin
+        CheckReversal(EmployeeLedgerEntryNo);
         ApplicationEntryNo := FindLastApplEntry(EmployeeLedgerEntryNo);
         if ApplicationEntryNo = 0 then
             Error(NoApplicationEntryErr, EmployeeLedgerEntryNo);
@@ -254,6 +259,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
         DateComprReg: Record "Date Compr. Register";
+        TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         Window: Dialog;
@@ -289,6 +295,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
                     CheckAdditionalCurrency(ApplyUnapplyParameters."Posting Date", DtldEmplLedgEntry."Posting Date");
                     AddCurrChecked := true;
                 end;
+                CheckReversal(DtldEmplLedgEntry."Employee Ledger Entry No.");
                 if DtldEmplLedgEntry."Transaction No." <> 0 then begin
                     if DtldEmplLedgEntry."Entry Type" = DtldEmplLedgEntry."Entry Type"::Application then begin
                         LastTransactionNo :=
@@ -327,13 +334,28 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         Window.Open(UnapplyingMsg);
 
         OnPostUnApplyEmployeeOnBeforeGenJnlPostLineUnapplyEmplLedgEntry(GenJnlLine, EmplLedgEntry, DtldEmplLedgEntry2, GenJnlPostLine);
+        CollectAffectedLedgerEntries(TempEmployeeLedgerEntry, DtldEmplLedgEntry2);
         GenJnlPostLine.UnapplyEmplLedgEntry(GenJnlLine, DtldEmplLedgEntry2);
+        RunEmployeeExchRateAdjustment(GenJnlLine, TempEmployeeLedgerEntry);
 
         if PreviewMode then
             GenJnlPostPreview.ThrowError();
 
         Commit();
         Window.Close();
+    end;
+
+    local procedure RunEmployeeExchRateAdjustment(var GenJnlLine: Record "Gen. Journal Line"; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary)
+    var
+        ExchRateAdjmtRunHandler: Codeunit "Exch. Rate Adjmt. Run Handler";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEmplExchRateAdjustment(GenJnlLine, TempEmployeeLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        ExchRateAdjmtRunHandler.RunEmplExchRateAdjustment(GenJnlLine, TempEmployeeLedgerEntry);
     end;
 
     local procedure CheckPostingDate(ApplyUnapplyParameters: Record "Apply Unapply Parameters"; var MaxPostingDate: Date)
@@ -382,11 +404,18 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            if not Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
-                exit(false);
-            exit("Unrealized VAT Type" <> "Unrealized VAT Type"::" ");
-        end;
+        if not VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
+            exit(false);
+        exit(VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" ");
+    end;
+
+    local procedure CheckReversal(EmplLedgEntryNo: Integer)
+    var
+        VendLedgEntry: Record "Employee Ledger Entry";
+    begin
+        VendLedgEntry.Get(EmplLedgEntryNo);
+        if VendLedgEntry.Reversed then
+            Error(CannotUnapplyInReversalErr, EmplLedgEntryNo);
     end;
 
     procedure ApplyEmplEntryFormEntry(var ApplyingEmplLedgEntry: Record "Employee Ledger Entry")
@@ -443,6 +472,30 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
                     LastTransactionNo := DtldEmplLedgEntry."Transaction No.";
             until DtldEmplLedgEntry.Next() = 0;
         exit(LastTransactionNo);
+    end;
+
+    local procedure CollectAffectedLedgerEntries(var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary; DetailedVendorLedgEntry2: Record "Detailed Employee Ledger Entry")
+    var
+        DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry";
+    begin
+        TempEmployeeLedgerEntry.DeleteAll();
+
+        if DetailedVendorLedgEntry2."Transaction No." = 0 then begin
+            DetailedEmployeeLedgEntry.SetCurrentKey("Application No.", "Employee No.", "Entry Type");
+            DetailedEmployeeLedgEntry.SetRange("Application No.", DetailedVendorLedgEntry2."Application No.");
+        end else begin
+            DetailedEmployeeLedgEntry.SetCurrentKey("Transaction No.", "Employee No.", "Entry Type");
+            DetailedEmployeeLedgEntry.SetRange("Transaction No.", DetailedVendorLedgEntry2."Transaction No.");
+        end;
+        DetailedEmployeeLedgEntry.SetRange("Employee No.", DetailedVendorLedgEntry2."Employee No.");
+        DetailedEmployeeLedgEntry.SetFilter("Entry Type", '<>%1', DetailedEmployeeLedgEntry."Entry Type"::"Initial Entry");
+        DetailedEmployeeLedgEntry.SetRange(Unapplied, false);
+        OnCollectAffectedLedgerEntriesOnAfterSetFilters(DetailedEmployeeLedgEntry, DetailedVendorLedgEntry2);
+        if DetailedEmployeeLedgEntry.FindSet() then
+            repeat
+                TempEmployeeLedgerEntry."Entry No." := DetailedEmployeeLedgEntry."Employee Ledger Entry No.";
+                if TempEmployeeLedgerEntry.Insert() then;
+            until DetailedEmployeeLedgEntry.Next() = 0;
     end;
 
     procedure PreviewApply(EmployeeLedgerEntry: Record "Employee Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
@@ -516,6 +569,16 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindLastTransactionNoOnAfterSetFilters(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectAffectedLedgerEntriesOnAfterSetFilters(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; DetailedEmployeeLedgEntry2: Record "Detailed Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEmplExchRateAdjustment(var GenJnlLine: Record "Gen. Journal Line"; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

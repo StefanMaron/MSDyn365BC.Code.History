@@ -16,7 +16,6 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IncorrectGLEntryAmtErr: Label 'Incorect amount in G/L Entry.';
 
     [Test]
@@ -93,7 +92,6 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
     [Scope('OnPrem')]
     procedure JobJnlLineWithNonDeductReverseChargeVATFromPurchLineFCY()
     var
-        Currency: Record Currency;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -227,7 +225,7 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
         // [GIVEN] Purchase Invoice with Fixed Asset, "Non-Deductible VAT Amount" = "Y1", "Amount Including VAT" = "Y2"
         LineAmount := CreatePurchaseInvoiceWithFixedAsset(PurchaseHeader, PurchLine, VATPostingSetup);
         VATAmount :=
-          Round(LineAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(LineAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
 
         // [WHEN] Post Purchase Invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -253,11 +251,11 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
         // [SCENARIO 372201] VAT amount is posted to Reverse Charge VAT. Account when "Reverse Charge VAT", Deductible %" = 0 and "Non-Deductible VAT Account" is set up
         // [GIVEN] Reverse Charge VAT Posting Setup with "Reverse Charge VAT Acc." = "X", "Deductible %" = 0 and "Non-Deductible VAT Account"
         CreateNonDeductibleVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryERM.CreateGLAccountNo, 0);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryERM.CreateGLAccountNo(), 0);
         // [GIVEN] Purchase Invoice with Fixed Asset, "Non-Deductible VAT Amount" = "Y1", "Amount Including VAT" = "Y2"
         LineAmount := CreatePurchaseInvoiceWithFixedAsset(PurchaseHeader, PurchLine, VATPostingSetup);
         VATAmount :=
-          Round(LineAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(LineAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
 
         // [WHEN] Post Purchase Invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -544,7 +542,7 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
         // [GIVEN] VAT Posting Setup "V" with "VAT %" = 20 and "Deductible %" = 40% and "Non-Deductible VAT Account" = "NDVA"
         CreateNonDeductibleVATPostingSetup(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
-          LibraryERM.CreateGLAccountNo, 3 * LibraryRandom.RandIntInRange(2, 5));
+          LibraryERM.CreateGLAccountNo(), 3 * LibraryRandom.RandIntInRange(2, 5));
 
         // [GIVEN] "Deferral Template" "DT" with "Period No." = 2 and "Calc. Method" = "Straight-Line"
         LibraryERM.CreateDeferralTemplate(
@@ -813,7 +811,7 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
         // [GIVEN] VAT Posting Setup "V" with "VAT %" = 20 and "Deductible %" = 40% and "Non-Deductible VAT Account" = "NDVA", "VAT Calculation Type" = "Reverse Charge VAAT"
         CreateNonDeductibleVATPostingSetup(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT",
-          LibraryERM.CreateGLAccountNo, 3 * LibraryRandom.RandIntInRange(2, 5));
+          LibraryERM.CreateGLAccountNo(), 3 * LibraryRandom.RandIntInRange(2, 5));
 
         // [GIVEN] "Deferral Template" "DT" with "Period No." = 2 and "Calc. Method" = "Straight-Line"
         LibraryERM.CreateDeferralTemplate(
@@ -1051,7 +1049,7 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
     var
         GLAccount: Record "G/L Account";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
@@ -1106,7 +1104,7 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
         exit(DMY2Date(30, 6, Date2DMY(WorkDate(), 3)));
     end;
 
-    local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup") DeductiblePercent: Decimal
+    local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"): Decimal
     begin
         exit(UpdateVATPostingSetup(VATPostingSetup, "Tax Calculation Type"::"Normal VAT"));
     end;
@@ -1127,7 +1125,7 @@ codeunit 144251 "Non Ded. VAT Misc. IT"
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandDecInRange(10, 25, 2));
         AssignNonDeductibleVATAccount(VATPostingSetup, NonDeductibleGLAccount);
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         AssignDeductibleVATPct(VATPostingSetup, DeductiblePct);
         VATPostingSetup.Modify(true);
     end;

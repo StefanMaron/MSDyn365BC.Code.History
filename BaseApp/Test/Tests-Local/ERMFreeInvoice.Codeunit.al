@@ -76,7 +76,7 @@ codeunit 144136 "ERM Free Invoice"
 
         // Setup.
         OldFreeInvoiceAccount :=
-          UpdateCustomerPostingGroupAndCreateSalesInvoice(SalesHeader, CreateGLAccount, PaymentMethod."Free Type"::" ");
+          UpdateCustomerPostingGroupAndCreateSalesInvoice(SalesHeader, CreateGLAccount(), PaymentMethod."Free Type"::" ");
 
         // Exercise.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
@@ -116,7 +116,7 @@ codeunit 144136 "ERM Free Invoice"
         GLAccountNo: Code[20];
     begin
         // Setup.
-        GLAccountNo := CreateGLAccount;
+        GLAccountNo := CreateGLAccount();
         OldFreeInvoiceAccount := UpdateCustomerPostingGroupAndCreateSalesInvoice(SalesHeader, GLAccountNo, FreeType);
 
         // Exercise.
@@ -164,7 +164,7 @@ codeunit 144136 "ERM Free Invoice"
         SalesLine: Record "Sales Line";
         CustomerPostingGroup: Code[20];
     begin
-        CustomerPostingGroup := LibrarySales.FindCustomerPostingGroup;
+        CustomerPostingGroup := LibrarySales.FindCustomerPostingGroup();
         OldFreeInvoiceAccount := UpdateCustomerPostingGroup(CustomerPostingGroup, FreeInvoiceAccount);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(CustomerPostingGroup));
         SalesHeader.Validate("Payment Method Code", CreatePaymentMethod(FreeType));

@@ -160,7 +160,7 @@ codeunit 144081 "SCM Subcontracting"
     procedure ChangeResponsibilityCenterSubcontractingOrderError()
     begin
         // Verify error when Responsibility Center changed on Subcontraction order.
-        SubcontractingOrderFieldChangeError(CreateResponsibilityCenter, '', '');  // Using blank for Vendor No. and Currency Code.
+        SubcontractingOrderFieldChangeError(CreateResponsibilityCenter(), '', '');  // Using blank for Vendor No. and Currency Code.
     end;
 
     // [Test]
@@ -169,7 +169,7 @@ codeunit 144081 "SCM Subcontracting"
     procedure ChangeCurrencySubcontractingOrderError()
     begin
         // Verify error when Currency changed on Subcontraction order.
-        SubcontractingOrderFieldChangeError('', CreateCurrency, '');  // Using blank for Responsiblity center and Vendor.
+        SubcontractingOrderFieldChangeError('', CreateCurrency(), '');  // Using blank for Responsiblity center and Vendor.
     end;
 
     // [Test]
@@ -178,7 +178,7 @@ codeunit 144081 "SCM Subcontracting"
     procedure ChangeBuyFromVendorNoSubcontractingOrderError()
     begin
         // Verify error when Vendor No. changed on Subcontraction order.
-        SubcontractingOrderFieldChangeError('', '', CreateVendor);  // Using blank for Responsiblity center and Currency Code.
+        SubcontractingOrderFieldChangeError('', '', CreateVendor());  // Using blank for Responsiblity center and Currency Code.
     end;
 
     local procedure SubcontractingOrderFieldChangeError(ResponsibilityCenterCode: Code[10]; CurrencyCode: Code[10]; VendorNo2: Code[20])
@@ -529,12 +529,12 @@ codeunit 144081 "SCM Subcontracting"
 
         // [GIVEN] Transfer order without subcontracting "T1"
         // [GIVEN] Transfer order with subcontracting "T2"
-        CreateTransferOrder(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, LibraryInventory.CreateItemNo);
+        CreateTransferOrder(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, LibraryInventory.CreateItemNo());
         MockSubcontractingTransferOrder(
-          SubcontrTransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, LibraryInventory.CreateItemNo);
+          SubcontrTransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, LibraryInventory.CreateItemNo());
 
         // [WHEN] "Transfer List" page is open
-        TransferList.Trap;
+        TransferList.Trap();
         PAGE.Run(PAGE::"Transfer Orders");
 
         // [THEN] Transfer order "T1" is in the list
@@ -681,7 +681,7 @@ codeunit 144081 "SCM Subcontracting"
 
         // [GIVEN] Own location "L1" with mandatory bin.
         LibraryWarehouse.CreateLocationWMS(MfgLocation, true, false, false, false, false);
-        LibraryWarehouse.CreateBin(Bin, MfgLocation.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, MfgLocation.Code, LibraryUtility.GenerateGUID(), '', '');
 
         // [GIVEN] Subcontractor's location "L2".
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(SubconLocation);
@@ -759,16 +759,16 @@ codeunit 144081 "SCM Subcontracting"
         Initialize();
 
         // [GIVEN] Purchase Order with SubcontractingOrder = TRUE
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchaseLine."Prod. Order No." := LibraryUtility.GenerateGUID();
         PurchaseLine."Prod. Order Line No." := LibraryRandom.RandInt(10);
         PurchaseLine.Modify();
 
         // [WHEN] Purchase Order List is opened
-        PurchaseOrderList.OpenView;
+        PurchaseOrderList.OpenView();
         PurchaseOrderList.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Subcontracting Order is not visible on the Purchase Order List
@@ -862,9 +862,9 @@ codeunit 144081 "SCM Subcontracting"
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryVariableStorage.Clear();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        CreateVATPostingSetup;
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
+        CreateVATPostingSetup();
     end;
 
     local procedure AddTempRoutingLine(var TempRoutingLine: Record "Routing Line" temporary; OperationNo: Integer; WorkCenterNo: Code[20]; RoutingLinkCode: Code[10]; IsWIPItem: Boolean)
@@ -910,18 +910,16 @@ codeunit 144081 "SCM Subcontracting"
         CreateSalesOrder(Item."No.", LocationCode);
         ItemFilter := UpdateChildItem(Item."Production BOM No.");
         LibraryVariableStorage.Enqueue(Item."No." + ItemFilter);  // Call CalculatePlanningWkshRequestPageHandler.
-        CalculateRegenerativePlanFromPlanningWorksheet;
+        CalculateRegenerativePlanFromPlanningWorksheet();
 
         // Update Planning Worksheet and Carryout Action message for creating Production order for FG item.
         UpdatePlanningRequisitionLine(Item."No." + ItemFilter);
         ItemVendorNo := UpdateItemVendorNoOnPlanningWorksheet(CopyStr(ItemFilter, 2, 10));
-        CarryOutActionMessageFromPlanningWorksheet;
+        CarryOutActionMessageFromPlanningWorksheet();
 
         // Purchase Order for child items and change status of Firm Planned to Released Production Order.
         ReceivePurchaseOrderForChildItem(ItemVendorNo);
-        LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-          GetProductionOrderNo(
-            ProductionOrder.Status::"Firm Planned", Item."No."), ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released);
+        LibraryManufacturing.ChangeStatusFirmPlanToReleased(GetProductionOrderNo(ProductionOrder.Status::"Firm Planned", Item."No."));
     end;
 
     local procedure CalculateRegenerativePlanFromPlanningWorksheet()
@@ -929,8 +927,8 @@ codeunit 144081 "SCM Subcontracting"
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
         Commit();  // Commit required for run batch report.
-        PlanningWorksheet.OpenEdit;
-        PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Call CalculatePlanningWkshRequestPageHandler.
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke();  // Call CalculatePlanningWkshRequestPageHandler.
         PlanningWorksheet.Close();
     end;
 
@@ -939,8 +937,8 @@ codeunit 144081 "SCM Subcontracting"
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
         Commit();  // Commit required for run batch report.
-        PlanningWorksheet.OpenEdit;
-        PlanningWorksheet.CarryOutActionMessage.Invoke;  // Call CarryOutActionMsgPlanRequestPageHandler.
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet.CarryOutActionMessage.Invoke();  // Call CarryOutActionMsgPlanRequestPageHandler.
         PlanningWorksheet.Close();
     end;
 
@@ -949,9 +947,9 @@ codeunit 144081 "SCM Subcontracting"
         SubcontractingWorksheet: TestPage "Subcontracting Worksheet";
     begin
         Commit();  // Commit required for run batch report.
-        SubcontractingWorksheet.OpenEdit;
-        SubcontractingWorksheet.CarryOutActionMessage.Invoke;  // Call CarryOutActionMsgRequsitionRequestPageHandler.
-        SubcontractingWorksheet.Close
+        SubcontractingWorksheet.OpenEdit();
+        SubcontractingWorksheet.CarryOutActionMessage.Invoke();  // Call CarryOutActionMsgRequsitionRequestPageHandler.
+        SubcontractingWorksheet.Close();
     end;
 
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
@@ -1027,9 +1025,9 @@ codeunit 144081 "SCM Subcontracting"
         SubcontractingOrder: TestPage "Subcontracting Order";
     begin
         // Create Transfer order from Subcontracting Order.
-        SubcontractingOrder.OpenEdit;
+        SubcontractingOrder.OpenEdit();
         SubcontractingOrder.FILTER.SetFilter("No.", GetSubcontractingOrderNo(VendorNo));
-        SubcontractingOrder.CreateReturnFromSubcontractor.Invoke;
+        SubcontractingOrder.CreateReturnFromSubcontractor.Invoke();
         SubcontractingOrder.Close();
     end;
 
@@ -1104,7 +1102,7 @@ codeunit 144081 "SCM Subcontracting"
         TempRoutingLine: Record "Routing Line" temporary;
         Vendor: Record Vendor;
     begin
-        AddTempRoutingLine(TempRoutingLine, 1, CreateWorkCenter, '', false);
+        AddTempRoutingLine(TempRoutingLine, 1, CreateWorkCenter(), '', false);
         AddTempRoutingLine(TempRoutingLine, 2, WorkCenterNo, RoutingLinkCode, WipItem);
         CreateCertifiedRouting(RoutingHeader, TempRoutingLine);
         LibraryPurchase.CreateVendor(Vendor);
@@ -1158,16 +1156,16 @@ codeunit 144081 "SCM Subcontracting"
         // Calculate Subcontracting Order from Subcontracting Worksheet.
         WorkCenter.Get(WorkCenterNo);
         LibraryManufacturing.CalculateSubcontractOrder(WorkCenter);
-        SubcontractingWorksheet.OpenEdit;
+        SubcontractingWorksheet.OpenEdit();
         SubcontractingWorksheet.FILTER.SetFilter("Prod. Order No.", GetProductionOrderNo(ProductionOrder.Status::Released, SourceNo));
-        SubcontractingWorksheet.First;
+        SubcontractingWorksheet.First();
         SubcontractingWorksheet."Due Date".SetValue(CalcDate('<-1D>', WorkDate()));
         Evaluate(Quantity, SubcontractingWorksheet.Quantity.Value);
         SubcontractingWorksheet.Quantity.SetValue(Quantity / PartialValue);
         SubcontractingWorksheet.Close();
 
         // Carryout Action message from Subcontracting Worksheet to create Subcontracting Order.
-        CarryOutActionMessageFromSubcontractingWorksheet;
+        CarryOutActionMessageFromSubcontractingWorksheet();
     end;
 
     local procedure CreateSubcontractingOrderWithSetup(LocationCode: Code[10]; LocationCode2: Code[10]; WipItem: Boolean) VendorNo: Code[20]
@@ -1203,7 +1201,7 @@ codeunit 144081 "SCM Subcontracting"
         CreateSubconLocationWithTransferRoute(TransferRoute);
         VendorNo := CreateSubcontractingVendorWithProcurement(TransferRoute."Transfer-to Code", false);
         WorkCenterNo := CreateSubcontractingWorkCenter(VendorNo);
-        LocationCode := CreateWarehouseLocation;
+        LocationCode := CreateWarehouseLocation();
         CreateItemWithProdBOMAndRouting(Item, WorkCenterNo, TransferRoute."Transfer-from Code", '', WIPItem);
         BinCode :=
           CreateSubcontractingOrderWithBin(Item, LocationCode, TransferRoute."Transfer-to Code", WorkCenterNo);
@@ -1273,7 +1271,7 @@ codeunit 144081 "SCM Subcontracting"
     var
         WorkCenter: Record "Work Center";
     begin
-        WorkCenter.Get(CreateWorkCenter);
+        WorkCenter.Get(CreateWorkCenter());
         WorkCenter.Validate("Direct Unit Cost", LibraryRandom.RandDec(20, 2));
         WorkCenter.Validate("Unit Cost", WorkCenter."Direct Unit Cost");
         WorkCenter.Validate("Unit Cost Calculation", WorkCenter."Unit Cost Calculation"::Units);
@@ -1298,9 +1296,9 @@ codeunit 144081 "SCM Subcontracting"
         SubcontractingOrder: TestPage "Subcontracting Order";
     begin
         // Create Transfer order from Subcontracting Order.
-        SubcontractingOrder.OpenEdit;
+        SubcontractingOrder.OpenEdit();
         SubcontractingOrder.FILTER.SetFilter("No.", GetSubcontractingOrderNo(VendorNo));
-        SubcontractingOrder.CreateTransfOrdToSubcontractor.Invoke;  // Transfer order post in SubcontrTransferOrderPageHandler.
+        SubcontractingOrder.CreateTransfOrdToSubcontractor.Invoke();  // Transfer order post in SubcontrTransferOrderPageHandler.
         SubcontractingOrder.Close();
     end;
 
@@ -1321,7 +1319,7 @@ codeunit 144081 "SCM Subcontracting"
         LibraryManufacturing.CreateRoutingLink(RoutingLink);
         CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem, RoutingLink.Code);
 
-        AddTempRoutingLine(TempRoutingLine, 1, CreateWorkCenter, '', false);
+        AddTempRoutingLine(TempRoutingLine, 1, CreateWorkCenter(), '', false);
         AddTempRoutingLine(TempRoutingLine, 2, WorkCenterNo, '', true);
         AddTempRoutingLine(TempRoutingLine, 3, WorkCenterNo, RoutingLink.Code, false);
         CreateCertifiedRouting(RoutingHeader, TempRoutingLine);
@@ -1743,7 +1741,7 @@ codeunit 144081 "SCM Subcontracting"
         CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.Item.SetFilter("No.", ItemFilter);
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1755,14 +1753,14 @@ codeunit 144081 "SCM Subcontracting"
     begin
         CarryOutActionMsgPlan.ProductionOrder.SetValue(ProdOrderChoice::"Firm Planned");
         CarryOutActionMsgPlan.PurchaseOrder.SetValue(PurchOrderChoice::"Make Purch. Orders");
-        CarryOutActionMsgPlan.OK.Invoke;
+        CarryOutActionMsgPlan.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CarryOutActionMsgRequisitionRequestPageHandler(var CarryOutActionMsgReq: TestRequestPage "Carry Out Action Msg. - Req.")
     begin
-        CarryOutActionMsgReq.OK.Invoke;
+        CarryOutActionMsgReq.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1782,7 +1780,7 @@ codeunit 144081 "SCM Subcontracting"
                 begin
                     LibraryVariableStorage.Dequeue(LocationCode);
                     SubcontrTransferOrder."Transfer-from Code".AssertEquals(LocationCode);
-                    SubcontrTransferOrder.OK.Invoke;
+                    SubcontrTransferOrder.OK().Invoke();
                 end;
             OptionString::Post:
                 begin

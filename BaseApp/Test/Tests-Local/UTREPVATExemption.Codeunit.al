@@ -21,10 +21,6 @@ codeunit 144073 "UT REP VAT Exemption"
         PostSettlementCap: Label 'PostSettlement';
         PreviousPlafondAmountCap: Label 'PrevPlafondAmount';
         RemainingVATPlafondAmountCap: Label 'RemainingVATPlafondAmount';
-        SalesInvHeaderVATRegNoCap: Label 'VATRegNo_SalesInvHdr';
-        SalesInvHeaderYourRefCap: Label 'YourRef_SalesInvHdr';
-        SalesCrMemoHeaderVATRegNoCap: Label 'VATRegNo_SalesCrMemoHeader';
-        SalesCrMemoHeaderYourRefCap: Label 'YourRef_SalesCrMemoHeader';
         SalesHeaderBillToCustomerNoCap: Label 'Sales_Header___Bill_to_Customer_No__';
         ServiceCrMemoHeaderVATRegNoCap: Label 'VATRegNo_ServiceCrMemoHeader';
         ServiceCrMemoHeaderYourRefCap: Label 'YourRef_ServiceCrMemoHeader';
@@ -62,8 +58,8 @@ codeunit 144073 "UT REP VAT Exemption"
         // Setup: Test to verify error - Ending Date must not be blank on Report VAT Exemption Register.
         Initialize();
         OnPreReportVATExemptionRegister(
-          WorkDate, 0D, LibraryRandom.RandInt(10),
-          StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WORKDATE, Blank End Date and Random Starting Page.
+          WorkDate(), 0D, LibraryRandom.RandInt(10),
+          StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WorkDate(), Blank End Date and Random Starting Page.
     end;
 
     [Test]
@@ -96,7 +92,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Setup: Test to verify error - Starting Page must not be blank on Report VAT Exemption Register.
         Initialize();
         OnPreReportVATExemptionRegister(
-          WorkDate, WorkDate(), 0, StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WORKDATE, End Date - WORKDATE and Blank Starting Page.
+          WorkDate(), WorkDate(), 0, StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WorkDate(), End Date - WORKDATE and Blank Starting Page.
     end;
 
     [Test]
@@ -112,8 +108,8 @@ codeunit 144073 "UT REP VAT Exemption"
         // Setup: Test to verify error - You can only print report for one type at a time on Report VAT Exemption Register.
         Initialize();
         OnPreReportVATExemptionRegister(
-          WorkDate, WorkDate(), LibraryRandom.RandInt(10),
-          StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Vendor));  // Start Date - WORKDATE, End Date - WORKDATE and Random Starting Page.
+          WorkDate(), WorkDate(), LibraryRandom.RandInt(10),
+          StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Vendor));  // Start Date - WorkDate(), End Date - WORKDATE and Random Starting Page.
     end;
 
     [Test]
@@ -129,8 +125,8 @@ codeunit 144073 "UT REP VAT Exemption"
         // Setup: Test to verify error - VAT Exemption Int. Registry Date of the previous period has not been printed on Report VAT Exemption Register.
         Initialize();
         OnPreReportVATExemptionRegister(
-          WorkDate, WorkDate(), LibraryRandom.RandInt(10),
-          StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WORKDATE, End Date - WORKDATE and Random Starting Page.
+          WorkDate(), WorkDate(), LibraryRandom.RandInt(10),
+          StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WorkDate(), End Date - WORKDATE and Random Starting Page.
     end;
 
     local procedure OnPreReportVATExemptionRegister(StartDate: Date; EndDate: Date; StartingPage: Integer; VATExemptionType: Text[30])
@@ -196,14 +192,14 @@ codeunit 144073 "UT REP VAT Exemption"
         Initialize();
         VATExemptNo := CreateVATExemption(VATExemptionType, '', Printed, WorkDate());  // Blank Number, VAT Exempt. Int. Registry Date - WORKDATE.
         EnqueueVATExemptionDetail(
-          WorkDate, WorkDate(), LibraryRandom.RandInt(10),
-          StrSubstNo(VATExemptionTypeTxt, VATExemptionType, VATExemptionType), PrintType);  // Start Date - WORKDATE, End Date - WORKDATE and Random Starting Page.
+          WorkDate(), WorkDate(), LibraryRandom.RandInt(10),
+          StrSubstNo(VATExemptionTypeTxt, VATExemptionType, VATExemptionType), PrintType);  // Start Date - WorkDate(), End Date - WORKDATE and Random Starting Page.
 
         // Exercise.
         REPORT.Run(REPORT::"VAT Exemption Register");  // Opens handler - VATExemptionRegisterRequestPageHandler.
 
         // Verify: Verify VAT Exemption Type and VAT Exempt No on genereted XML of Report - VAT Exemption Register.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VATExemptionTypeCap, VATExemptNoTxt);
         LibraryReportDataset.AssertElementWithValueExists(VATExemptionCap, VATExemptNo);
         LibraryReportDataset.AssertElementWithValueExists('CustVATExemptionType', 0); // TFS 378866
@@ -226,8 +222,8 @@ codeunit 144073 "UT REP VAT Exemption"
         Initialize();
         VATExemptNo := CreateVATExemption(VATExemption.Type::Vendor, '', false, WorkDate());  // Blank Number, Printed as FALSE and VAT Exempt. Int. Registry Date - WORKDATE.
         EnqueueVATExemptionDetail(
-          WorkDate, WorkDate(), LibraryRandom.RandInt(10),
-          StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Vendor, VATExemption.Type::Vendor), PrintTypeRef::"Final Print");  // Start Date - WORKDATE, End Date - WORKDATE and Random Starting Page.
+          WorkDate(), WorkDate(), LibraryRandom.RandInt(10),
+          StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Vendor, VATExemption.Type::Vendor), PrintTypeRef::"Final Print");  // Start Date - WorkDate(), End Date - WORKDATE and Random Starting Page.
 
         // Exercise.
         REPORT.Run(REPORT::"VAT Exemption Register");  // Opens handler - VATExemptionRegisterRequestPageHandler.
@@ -244,7 +240,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordYourReferenceServiceCreditMemo()
     begin
         // Purpose of the test is to validate Service Credit Memo Header - OnAfterGetRecord Trigger of Report ID 5912 Service - Credit Memo.
-        OnAfterGetRecordServiceCreditMemo(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceCreditMemo(CreateCurrency(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Your Reference and VAT Registration Number.
     end;
 
     [Test]
@@ -253,7 +249,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordBlankYourReferenceServiceCreditMemo()
     begin
         // Purpose of the test is to validate Service Credit Memo Header - OnAfterGetRecord Trigger of Report ID 5912 Service - Credit Memo.
-        OnAfterGetRecordServiceCreditMemo(CreateCurrency, '', LibraryUTUtility.GetNewCode);  // Your Reference - blank and VAT Registration Number.
+        OnAfterGetRecordServiceCreditMemo(CreateCurrency(), '', LibraryUTUtility.GetNewCode());  // Your Reference - blank and VAT Registration Number.
     end;
 
     [Test]
@@ -262,7 +258,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordVATRegNoServiceCreditMemo()
     begin
         // Purpose of the test is to validate Service Credit Memo Header - OnAfterGetRecord Trigger of Report ID 5912 Service - Credit Memo.
-        OnAfterGetRecordServiceCreditMemo(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceCreditMemo(CreateCurrency(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Your Reference and VAT Registration Number.
     end;
 
     [Test]
@@ -271,7 +267,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordBlankVATRegNoServiceCreditMemo()
     begin
         // Purpose of the test is to validate Service Credit Memo Header - OnAfterGetRecord Trigger of Report ID 5912 Service - Credit Memo.
-        OnAfterGetRecordServiceCreditMemo(CreateCurrency, LibraryUTUtility.GetNewCode, '');  // Your Reference and blank VAT Registration Number.
+        OnAfterGetRecordServiceCreditMemo(CreateCurrency(), LibraryUTUtility.GetNewCode(), '');  // Your Reference and blank VAT Registration Number.
     end;
 
     [Test]
@@ -280,7 +276,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordWithCurrencyServiceCreditMemo()
     begin
         // Purpose of the test is to validate Service Credit Memo Header - OnAfterGetRecord Trigger of Report ID 5912 Service - Credit Memo.
-        OnAfterGetRecordServiceCreditMemo(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceCreditMemo(CreateCurrency(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Your Reference and VAT Registration Number.
     end;
 
     [Test]
@@ -289,7 +285,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordWithoutCurrencyServiceCreditMemo()
     begin
         // Purpose of the test is to validate Service Credit Memo Header - OnAfterGetRecord Trigger of Report ID 5912 Service - Credit Memo.
-        OnAfterGetRecordServiceCreditMemo('', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Currency code - blank, Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceCreditMemo('', LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Currency code - blank, Your Reference and VAT Registration Number.
     end;
 
     local procedure OnAfterGetRecordServiceCreditMemo(CurrencyCode: Code[10]; YourReference: Code[20]; VATRegistrationNumber: Code[20])
@@ -322,7 +318,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordYourReferenceServiceInvoice()
     begin
         // Purpose of the test is to validate Service Invoice Header - OnAfterGetRecord Trigger of Report ID 5911 Service - Invoice.
-        OnAfterGetRecordServiceInvoice(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceInvoice(CreateCurrency(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Your Reference and VAT Registration Number.
     end;
 
     [Test]
@@ -331,7 +327,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordBlankYourReferenceServiceInvoice()
     begin
         // Purpose of the test is to validate Service Invoice Header - OnAfterGetRecord Trigger of Report ID 5911 Service - Invoice.
-        OnAfterGetRecordServiceInvoice(CreateCurrency, '', LibraryUTUtility.GetNewCode);  // Blank Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceInvoice(CreateCurrency(), '', LibraryUTUtility.GetNewCode());  // Blank Your Reference and VAT Registration Number.
     end;
 
     [Test]
@@ -340,7 +336,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordVATRegNoServiceInvoice()
     begin
         // Purpose of the test is to validate Service Invoice Header - OnAfterGetRecord Trigger of Report ID 5911 Service - Invoice.
-        OnAfterGetRecordServiceInvoice(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceInvoice(CreateCurrency(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Your Reference and VAT Registration Number.
     end;
 
     [Test]
@@ -349,7 +345,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordBlankVATRegNoServiceInvoice()
     begin
         // Purpose of the test is to validate Service Invoice Header - OnAfterGetRecord Trigger of Report ID 5911 Service - Invoice.
-        OnAfterGetRecordServiceInvoice(CreateCurrency, LibraryUTUtility.GetNewCode, '');  // Your Reference and blank VAT Registration Number.
+        OnAfterGetRecordServiceInvoice(CreateCurrency(), LibraryUTUtility.GetNewCode(), '');  // Your Reference and blank VAT Registration Number.
     end;
 
     [Test]
@@ -358,7 +354,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordWithCurrencyServiceInvoice()
     begin
         // Purpose of the test is to validate Service Invoice Header - OnAfterGetRecord Trigger of Report ID 5911 Service - Invoice.
-        OnAfterGetRecordServiceInvoice(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceInvoice(CreateCurrency(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Your Reference and VAT Registration Number.
     end;
 
     [Test]
@@ -367,7 +363,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordWithoutCurrencyServiceInvoice()
     begin
         // Purpose of the test is to validate Service Invoice Header - OnAfterGetRecord Trigger of Report ID 5911 Service - Invoice.
-        OnAfterGetRecordServiceInvoice('', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Currency code, Your Reference and VAT Registration Number.
+        OnAfterGetRecordServiceInvoice('', LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Blank Currency code, Your Reference and VAT Registration Number.
     end;
 
     local procedure OnAfterGetRecordServiceInvoice(CurrencyCode: Code[10]; YourReference: Code[20]; VATRegistrationNumber: Code[20])
@@ -412,7 +408,7 @@ codeunit 144073 "UT REP VAT Exemption"
     procedure OnAfterGetRecordWithPostCalcAndPostVATSettlement()
     begin
         // Purpose of the test is to validate VATPlafondPeriod - OnAfterGetRecord Trigger of Report ID 20 Calc. and Post VAT Settlement.
-        OnAfterGetRecordCalcAndPostVATSettlement(CreateGLAccount, true);  // Post as True.
+        OnAfterGetRecordCalcAndPostVATSettlement(CreateGLAccount(), true);  // Post as True.
     end;
 
     local procedure OnAfterGetRecordCalcAndPostVATSettlement(GLSettlementAccountNo: Code[20]; Post: Boolean)
@@ -422,9 +418,9 @@ codeunit 144073 "UT REP VAT Exemption"
     begin
         // Setup:  Update General Ledger Setup - Last Settlement Date, Create VAT Entry and VAT Plafond Period.
         Initialize();
-        UpdateGeneralLedgerSetupLastSettlementDate;
+        UpdateGeneralLedgerSetupLastSettlementDate();
         CreateVATEntry(VATEntry);
-        Amount := CreateVATPlafondPeriod;
+        Amount := CreateVATPlafondPeriod();
 
         // Enqueue Values for handler - CalcAndPostVATSettlementRequestPageHandler.
         LibraryVariableStorage.Enqueue(GLSettlementAccountNo);
@@ -434,7 +430,7 @@ codeunit 144073 "UT REP VAT Exemption"
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement");  // Opens handler - CalcAndPostVATSettlementRequestPageHandler.
 
         // Verify: Verify G/L Settlement Account Number, Post, Remaining VAT Plafond Amount, Used Plafond Amount and Previous Plafond Amount on created XML of Report Calc. and Post VAT Settlement.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccSettlementNumberCap, GLSettlementAccountNo);
         LibraryReportDataset.AssertElementWithValueExists(PostSettlementCap, Post);
         LibraryReportDataset.AssertElementWithValueExists(RemainingVATPlafondAmountCap, Amount - VATEntry.Base);
@@ -508,8 +504,8 @@ codeunit 144073 "UT REP VAT Exemption"
         // [SCENARIO 378202] The VAT Exemption Register report should order the information by Int. Registry No. field and not by Vendor
         Initialize();
         // [GIVEN] Code of Vendor2 is more than Code of Vendor1
-        Vendor1 := LibraryUTUtility.GetNewCode;
-        Vendor2 := LibraryUTUtility.GetNewCode;
+        Vendor1 := LibraryUTUtility.GetNewCode();
+        Vendor2 := LibraryUTUtility.GetNewCode();
         MockVendor(Vendor1, Vendor1);
         MockVendor(Vendor2, Vendor1);
 
@@ -524,13 +520,13 @@ codeunit 144073 "UT REP VAT Exemption"
         REPORT.Run(REPORT::"VAT Exemption Register");
 
         // [THEN] First row has 'VATExemptIntRegistryNoVend' = "I2" for Vendor2
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(NameVendLbl, Vendor1);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(VATRegistrationNoVendLbl, Vendor2);
         LibraryReportDataset.AssertCurrentRowValueEquals(VATExemptIntRegistryNoVendLbl, IntRegNo2);
         // [THEN] Second row has 'VATExemptIntRegistryNoVend' = "I1" for Vendor1
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(VATRegistrationNoVendLbl, Vendor1);
         LibraryReportDataset.AssertCurrentRowValueEquals(VATExemptIntRegistryNoVendLbl, IntRegNo1);
         // [THEN] Starting Year and Page are in dataset
@@ -559,7 +555,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptionNumber :=
           CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, SalesHeader."Bill-to Customer No.", false, WorkDate());
         LibraryVariableStorage.Enqueue(SalesHeader."No.");  // Enqueue Values for SalesDocumentTestRequestPageHandler.
-        Commit;
+        Commit();
 
         // [WHEN] Print Sales Document - Test
         REPORT.Run(REPORT::"Sales Document - Test");
@@ -567,7 +563,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // [THEN] VAT Exemption value in the report is "1234-001"
         VerifyDocumentVATExemptionOnReport(VATExemptionNumberCap, VATExemptionNumber);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -591,7 +587,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptionNumber :=
           CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, ServiceInvoiceHeader."Customer No.", false, WorkDate());
         LibraryVariableStorage.Enqueue(ServiceInvoiceHeader."No.");  // Enqueue value in handler - ServiceInvoiceRequestPageHandler.
-        Commit;
+        Commit();
 
         // [WHEN] Print Service Invoice
         REPORT.Run(REPORT::"Service - Invoice");  // Opens handler - ServiceInvoiceRequestPageHandler.
@@ -599,7 +595,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // [THEN] VAT Exemption value in the report is "1234-001"
         VerifyDocumentVATExemptionOnReport(VATExemptionNoCap, VATExemptionNumber);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -623,7 +619,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptionNumber :=
           CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, ServiceCrMemoHeader."Customer No.", false, WorkDate());
         LibraryVariableStorage.Enqueue(ServiceCrMemoHeader."No.");  // Enqueue value in handler - ServiceCreditMemoRequestPageHandler.
-        Commit;
+        Commit();
 
         // [WHEN] Print Service Credit Memo
         REPORT.Run(REPORT::"Service - Credit Memo");
@@ -631,7 +627,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // [THEN] VAT Exemption value in the report is "1234-001"
         VerifyDocumentVATExemptionOnReport(VATExemptionNoCap, VATExemptionNumber);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -655,7 +651,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptionNumber :=
           CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, ServiceHeader."Bill-to Customer No.", false, WorkDate());
         LibraryVariableStorage.Enqueue(ServiceHeader."No.");  // Enqueue value in handler - ServiceDocumentTestRequestPageHandler.
-        Commit;
+        Commit();
 
         // [WHEN] Print Service Document - Test
         REPORT.Run(REPORT::"Service Document - Test");
@@ -663,7 +659,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // [THEN] VAT Exemption value in the report is "1234-001"
         VerifyDocumentVATExemptionOnReport(VATExemptionNumberCap, VATExemptionNumber);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -675,8 +671,8 @@ codeunit 144073 "UT REP VAT Exemption"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Customer Posting Group" := CreateCustomerPostingGroup;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer."Customer Posting Group" := CreateCustomerPostingGroup();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -685,7 +681,7 @@ codeunit 144073 "UT REP VAT Exemption"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         CustomerPostingGroup.Insert();
         exit(CustomerPostingGroup.Code);
     end;
@@ -694,7 +690,7 @@ codeunit 144073 "UT REP VAT Exemption"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -703,18 +699,18 @@ codeunit 144073 "UT REP VAT Exemption"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
 
     local procedure CreateSalesCreditMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; CurrencyCode: Code[10]; YourReference: Text[35]; VATRegistrationNo: Code[20])
     begin
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesCrMemoHeader."Sell-to Customer No." := CreateCustomer;
+        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesCrMemoHeader."Sell-to Customer No." := CreateCustomer();
         SalesCrMemoHeader."Bill-to Customer No." := SalesCrMemoHeader."Sell-to Customer No.";
         SalesCrMemoHeader."Document Date" := WorkDate();
-        SalesCrMemoHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup;
+        SalesCrMemoHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
         SalesCrMemoHeader."Currency Code" := CurrencyCode;
         SalesCrMemoHeader."Your Reference" := YourReference;
         SalesCrMemoHeader."VAT Registration No." := VATRegistrationNo;
@@ -726,28 +722,28 @@ codeunit 144073 "UT REP VAT Exemption"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoLine."Document No." := DocumentNo;
-        SalesCrMemoLine.Description := LibraryUTUtility.GetNewCode;
+        SalesCrMemoLine.Description := LibraryUTUtility.GetNewCode();
         SalesCrMemoLine.Insert();
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Document Date" := WorkDate();
-        SalesHeader."Bill-to Customer No." := CreateCustomer;
-        SalesHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup;
+        SalesHeader."Bill-to Customer No." := CreateCustomer();
+        SalesHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
         SalesHeader.Insert();
     end;
 
     local procedure CreateSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; CurrencyCode: Code[10]; YourReference: Text[35]; VATRegistrationNo: Code[20])
     begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesInvoiceHeader."Sell-to Customer No." := CreateCustomer;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesInvoiceHeader."Sell-to Customer No." := CreateCustomer();
         SalesInvoiceHeader."Bill-to Customer No." := SalesInvoiceHeader."Sell-to Customer No.";
         SalesInvoiceHeader."Document Date" := WorkDate();
         SalesInvoiceHeader."Posting Date" := WorkDate();
-        SalesInvoiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup;
+        SalesInvoiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
         SalesInvoiceHeader."Currency Code" := CurrencyCode;
         SalesInvoiceHeader."Your Reference" := YourReference;
         SalesInvoiceHeader."VAT Registration No." := VATRegistrationNo;
@@ -759,7 +755,7 @@ codeunit 144073 "UT REP VAT Exemption"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine."Document No." := DocumentNo;
-        SalesInvoiceLine.Description := LibraryUTUtility.GetNewCode;
+        SalesInvoiceLine.Description := LibraryUTUtility.GetNewCode();
         SalesInvoiceLine.Insert();
     end;
 
@@ -776,22 +772,22 @@ codeunit 144073 "UT REP VAT Exemption"
 
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header")
     begin
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
-        ServiceHeader."Bill-to Customer No." := CreateCustomer;
-        ServiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup;
+        ServiceHeader."Bill-to Customer No." := CreateCustomer();
+        ServiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
         ServiceHeader."Document Date" := WorkDate();
         ServiceHeader.Insert();
     end;
 
     local procedure CreateServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; CurrencyCode: Code[10]; YourReference: Text[35]; VATRegistrationNo: Code[20])
     begin
-        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceInvoiceHeader."Customer No." := CreateCustomer;
+        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceInvoiceHeader."Customer No." := CreateCustomer();
         ServiceInvoiceHeader."Bill-to Customer No." := ServiceInvoiceHeader."Customer No.";
         ServiceInvoiceHeader."Document Date" := WorkDate();
         ServiceInvoiceHeader."Posting Date" := WorkDate();
-        ServiceInvoiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup;
+        ServiceInvoiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
         ServiceInvoiceHeader."Currency Code" := CurrencyCode;
         ServiceInvoiceHeader."Your Reference" := YourReference;
         ServiceInvoiceHeader."VAT Registration No." := VATRegistrationNo;
@@ -803,9 +799,9 @@ codeunit 144073 "UT REP VAT Exemption"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceLine."Document No." := DocumentNo;
-        ServiceInvoiceLine.Description := LibraryUTUtility.GetNewCode;
+        ServiceInvoiceLine.Description := LibraryUTUtility.GetNewCode();
         ServiceInvoiceLine.Quantity := LibraryRandom.RandDec(10, 2);
-        ServiceInvoiceLine."No." := LibraryUTUtility.GetNewCode;
+        ServiceInvoiceLine."No." := LibraryUTUtility.GetNewCode();
         ServiceInvoiceLine.Amount := LibraryRandom.RandDec(10, 2);
         ServiceInvoiceLine.Insert();
     end;
@@ -828,11 +824,11 @@ codeunit 144073 "UT REP VAT Exemption"
 
     local procedure CreateServiceCreditMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; CurrencyCode: Code[10]; YourReference: Text[35]; VATRegistrationNo: Code[20])
     begin
-        ServiceCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceCrMemoHeader."Customer No." := CreateCustomer;
+        ServiceCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceCrMemoHeader."Customer No." := CreateCustomer();
         ServiceCrMemoHeader."Bill-to Customer No." := ServiceCrMemoHeader."Customer No.";
         ServiceCrMemoHeader."Document Date" := WorkDate();
-        ServiceCrMemoHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup;
+        ServiceCrMemoHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
         ServiceCrMemoHeader."Currency Code" := CurrencyCode;
         ServiceCrMemoHeader."Your Reference" := YourReference;
         ServiceCrMemoHeader."VAT Registration No." := VATRegistrationNo;
@@ -844,9 +840,9 @@ codeunit 144073 "UT REP VAT Exemption"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         ServiceCrMemoLine."Document No." := DocumentNo;
-        ServiceCrMemoLine.Description := LibraryUTUtility.GetNewCode;
+        ServiceCrMemoLine.Description := LibraryUTUtility.GetNewCode();
         ServiceCrMemoLine.Quantity := LibraryRandom.RandDec(10, 2);
-        ServiceCrMemoLine."No." := LibraryUTUtility.GetNewCode;
+        ServiceCrMemoLine."No." := LibraryUTUtility.GetNewCode();
         ServiceCrMemoLine.Amount := LibraryRandom.RandDec(10, 2);
         ServiceCrMemoLine.Insert();
     end;
@@ -855,7 +851,7 @@ codeunit 144073 "UT REP VAT Exemption"
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
-        VATBusinessPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VATBusinessPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VATBusinessPostingGroup."Check VAT Exemption" := true;
         VATBusinessPostingGroup.Insert();
         exit(VATBusinessPostingGroup.Code);
@@ -870,8 +866,8 @@ codeunit 144073 "UT REP VAT Exemption"
         VATEntry.Type := VATEntry.Type::Purchase;
         VATEntry."Operation Occurred Date" := WorkDate();
         VATEntry."Document Date" := WorkDate();
-        VATEntry."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
-        VATEntry."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
+        VATEntry."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
+        VATEntry."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10();
         VATEntry.Base := LibraryRandom.RandDec(10, 2);
         VATEntry."Plafond Entry" := true;
         VATEntry.Insert();
@@ -900,9 +896,9 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemption."VAT Exempt. Starting Date" := WorkDate();
         VATExemption."VAT Exempt. Ending Date" := WorkDate();
         VATExemption."VAT Exempt. Date" := WorkDate();
-        VATExemption."VAT Exempt. Int. Registry No." := LibraryUTUtility.GetNewCode;
+        VATExemption."VAT Exempt. Int. Registry No." := LibraryUTUtility.GetNewCode();
         VATExemption."VAT Exempt. Int. Registry Date" := VATExemptIntRegistryDate;
-        VATExemption."VAT Exempt. No." := LibraryUTUtility.GetNewCode;
+        VATExemption."VAT Exempt. No." := LibraryUTUtility.GetNewCode();
         VATExemption.Printed := Printed;
         VATExemption.Insert();
     end;
@@ -968,7 +964,7 @@ codeunit 144073 "UT REP VAT Exemption"
 
     local procedure VerifyDocumentDetailAndVATExemptionOnReport(CurrencyCode: Code[10]; VATRegistrationNumberCap: Text; VATRegistrationNumber: Code[20]; YourReferenceCap: Text; YourReference: Code[20]; VATExemptionNumber: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalTxt, StrSubstNo(TotalSubstituteStr, FindCurrencyCode(CurrencyCode)));
         LibraryReportDataset.AssertElementWithValueExists(VATRegistrationNumberCap, VATRegistrationNumber);
         LibraryReportDataset.AssertElementWithValueExists(YourReferenceCap, YourReference);
@@ -981,7 +977,7 @@ codeunit 144073 "UT REP VAT Exemption"
     begin
         VATExemption.SetRange("VAT Exempt. No.", VATExemptNo);
         VATExemption.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(BillToCustomerNoCap, BillToCustomerNumber);
         LibraryReportDataset.AssertElementWithValueExists(VATExemptionNumberCap, VATExemption."VAT Exempt. No.");
         LibraryReportDataset.AssertElementWithValueExists(VATExemptionDateCap, Format(VATExemption."VAT Exempt. Date"));
@@ -989,7 +985,7 @@ codeunit 144073 "UT REP VAT Exemption"
 
     local procedure VerifyDocumentVATExemptionOnReport(ElementName: Text; VATExemptionNumber: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, VATExemptionNumber);
     end;
 
@@ -1021,12 +1017,12 @@ codeunit 144073 "UT REP VAT Exemption"
         LibraryVariableStorage.Dequeue(SettlementAccount);
         LibraryVariableStorage.Dequeue(Post);
         CalcAndPostVATSettlement.PostingDt.SetValue(CalcAndPostVATSettlement.EndingDate.Value);
-        CalcAndPostVATSettlement.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
+        CalcAndPostVATSettlement.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
         CalcAndPostVATSettlement.SettlementAcc.SetValue(SettlementAccount);
-        CalcAndPostVATSettlement.GLGainsAccount.SetValue(CreateGLAccount);
-        CalcAndPostVATSettlement.GLLossesAccount.SetValue(CreateGLAccount);
+        CalcAndPostVATSettlement.GLGainsAccount.SetValue(CreateGLAccount());
+        CalcAndPostVATSettlement.GLLossesAccount.SetValue(CreateGLAccount());
         CalcAndPostVATSettlement.Post.SetValue(Post);
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1037,7 +1033,7 @@ codeunit 144073 "UT REP VAT Exemption"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1048,7 +1044,7 @@ codeunit 144073 "UT REP VAT Exemption"
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceCreditMemo."Service Cr.Memo Header".SetFilter("No.", No);
-        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1059,7 +1055,7 @@ codeunit 144073 "UT REP VAT Exemption"
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceInvoice."Service Invoice Header".SetFilter("No.", No);
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1070,7 +1066,7 @@ codeunit 144073 "UT REP VAT Exemption"
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceDocumentTest."Service Header".SetFilter("No.", No);
-        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1094,7 +1090,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptionRegister.StartingYear.SetValue(Date2DMY(StartDate, 3));  // Set Starting Year.
         VATExemptionRegister.StartingPage.SetValue(StartingPage);
         VATExemptionRegister."VAT Exemption".SetFilter(Type, Type);
-        VATExemptionRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATExemptionRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

@@ -63,7 +63,7 @@ codeunit 144169 "UT REP Company Information"
 
         // Setup: Create Bank Ledger Entry.
         Initialize();
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
         CreateBankAccountLedgerEntry(BankAccountNo);
         LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue Value in BankSheetPrintRequestPageHandler.
 
@@ -71,7 +71,7 @@ codeunit 144169 "UT REP Company Information"
         REPORT.Run(REPORT::"Bank Sheet - Print");
 
         // Verify: Verify Bank Account No. on Report 12112 (Bank Sheet - Print).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('BankFilterNo', BankAccountNo);
     end;
 
@@ -95,7 +95,7 @@ codeunit 144169 "UT REP Company Information"
         REPORT.Run(REPORT::"Customer Sheet - Print");
 
         // Verify: Verify Customer No. on Report 12104 (Customer Sheet - Print).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CustFilterNo', Customer."No.");
     end;
 
@@ -119,7 +119,7 @@ codeunit 144169 "UT REP Company Information"
         REPORT.Run(REPORT::"Vendor Sheet - Print");
 
         // Verify: Verify Vendor No. on Report 12110 (Vendor Sheet - Print).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VendFilterNo', Vendor."No.");
     end;
 
@@ -156,7 +156,7 @@ codeunit 144169 "UT REP Company Information"
 
         // Verify: Verify Company Information.
         CompanyInformation.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCompanyInformationOnReports('CompAddr1', 'CompAddr2', 'CompAddr3',
           CompanyInformation.Name, CompanyInformation.Address, CompanyInformation."Post Code");
     end;
@@ -233,13 +233,13 @@ codeunit 144169 "UT REP Company Information"
         // Setup.
         Initialize();
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::"Test Print");  // Enqueue values in GLBookPrintRequestPageHandler.
-        GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
+        GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry());
 
         // Exercise.
         REPORT.Run(REPORT::"G/L Book - Print", true, false, GLBookEntry);
 
         // Verify: Verify Company Information on Report 12121 (G/L Book - Print).
-        VerifyCompanyInformationOnGLBookPrint;
+        VerifyCompanyInformationOnGLBookPrint();
     end;
 
     [Test]
@@ -259,7 +259,7 @@ codeunit 144169 "UT REP Company Information"
         REPORT.Run(REPORT::"G/L Book - Print");
 
         // Verify: Verify Company Information on Report 12121 (G/L Book - Print).
-        VerifyCompanyInformationOnGLBookPrint;
+        VerifyCompanyInformationOnGLBookPrint();
     end;
 
     [Test]
@@ -275,13 +275,13 @@ codeunit 144169 "UT REP Company Information"
         // Setup.
         Initialize();
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::"Final Print");  // Enqueue values in GLBookPrintRequestPageHandler.
-        GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
+        GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry());
 
         // Exercise.
         REPORT.Run(REPORT::"G/L Book - Print", true, false, GLBookEntry);
 
         // Verify: Verify Company Information on Report 12121 (G/L Book - Print).
-        VerifyCompanyInformationOnGLBookPrint;
+        VerifyCompanyInformationOnGLBookPrint();
     end;
 
     [Test]
@@ -297,7 +297,7 @@ codeunit 144169 "UT REP Company Information"
         // Setup.
         Initialize();
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::Reprint);  // Enqueue values in GLBookPrintRequestPageHandler.
-        GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
+        GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry());
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"G/L Book - Print", true, false, GLBookEntry);
@@ -318,14 +318,14 @@ codeunit 144169 "UT REP Company Information"
 
         // Setup: Enqueue values in GLBookPrintRequestPageHandler.
         Initialize();
-        ReprintInfoFiscalReportsAfterFinalPrint;
+        ReprintInfoFiscalReportsAfterFinalPrint();
         EnqueueVariablesForGLBookPrintRequestPageHandler(CalcDate('<2D>', WorkDate()), CalcDate('<3D>', WorkDate()), ReportType::Reprint);   // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
 
         // Exercise.
         REPORT.Run(REPORT::"G/L Book - Print");
 
         // Verify: Verify Company Information on Report 12121 (G/L Book - Print).
-        VerifyCompanyInformationOnGLBookPrint;
+        VerifyCompanyInformationOnGLBookPrint();
     end;
 
     [Test]
@@ -340,7 +340,7 @@ codeunit 144169 "UT REP Company Information"
 
         // Setup: Enqueue values in GLBookPrintRequestPageHandler.
         Initialize();
-        ReprintInfoFiscalReportsAfterFinalPrint;
+        ReprintInfoFiscalReportsAfterFinalPrint();
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), WorkDate(), ReportType::Reprint);  // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
 
         // Exercise.
@@ -360,10 +360,10 @@ codeunit 144169 "UT REP Company Information"
         Initialize();
 
         // Exercise.
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
 
         // Verify: Verify values on Company Information page.
-        VerifyValuesOnCompanyInformationPage;
+        VerifyValuesOnCompanyInformationPage();
     end;
 
     [Test]
@@ -387,7 +387,7 @@ codeunit 144169 "UT REP Company Information"
         CorrOfRemainingAmountLCY := Round(AmountLCY / 2);
 
         // [GIVEN] Foreign customer
-        CurrencyCode := MockCurrency;
+        CurrencyCode := MockCurrency();
         CustomerNo := MockForeignCustomer(CurrencyCode);
 
         // [GIVEN] Sales Invoice with Amount = "A"
@@ -430,7 +430,7 @@ codeunit 144169 "UT REP Company Information"
         CorrOfRemainingAmountLCY := Round(AmountLCY / 2);
 
         // [GIVEN] Foreign customer
-        CurrencyCode := MockCurrency;
+        CurrencyCode := MockCurrency();
         CustomerNo := MockForeignCustomer(CurrencyCode);
 
         // [GIVEN] Sales Invoice with Amount = "A"
@@ -458,7 +458,7 @@ codeunit 144169 "UT REP Company Information"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount."Date Filter" := WorkDate();
         BankAccount.Insert();
         exit(BankAccount."No.");
@@ -470,17 +470,17 @@ codeunit 144169 "UT REP Company Information"
     begin
         BankAccountLedgerEntry."Entry No." := LibraryRandom.RandInt(10);
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
-        BankAccountLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        BankAccountLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         BankAccountLedgerEntry."Posting Date" := WorkDate();
         BankAccountLedgerEntry.Insert();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer."Date Filter" := WorkDate();
-        Customer."Currency Code" := LibraryUTUtility.GetNewCode10;
-        Customer."Global Dimension 1 Code" := CreateDimension;
+        Customer."Currency Code" := LibraryUTUtility.GetNewCode10();
+        Customer."Global Dimension 1 Code" := CreateDimension();
         Customer.Insert();
     end;
 
@@ -492,7 +492,7 @@ codeunit 144169 "UT REP Company Information"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
-        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Entry No.");
@@ -534,7 +534,7 @@ codeunit 144169 "UT REP Company Information"
     var
         Dimension: Record Dimension;
     begin
-        Dimension.Code := LibraryUTUtility.GetNewCode;
+        Dimension.Code := LibraryUTUtility.GetNewCode();
         Dimension.Insert();
         exit(Dimension.Code);
     end;
@@ -549,7 +549,7 @@ codeunit 144169 "UT REP Company Information"
         EntryNo := GLBookEntry2."Entry No." + 1;
         GLBookEntry2.DeleteAll(true);
         GLBookEntry."Entry No." := EntryNo;
-        GLBookEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
+        GLBookEntry."G/L Account No." := LibraryUTUtility.GetNewCode();
         GLBookEntry."Official Date" := CalcDate('<-1D>', WorkDate());
         GLBookEntry."Progressive No." := 0;
         GLBookEntry.Insert();
@@ -569,10 +569,10 @@ codeunit 144169 "UT REP Company Information"
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Date Filter" := WorkDate();
-        Vendor."Currency Code" := LibraryUTUtility.GetNewCode10;
-        Vendor."Global Dimension 1 Code" := CreateDimension;
+        Vendor."Currency Code" := LibraryUTUtility.GetNewCode10();
+        Vendor."Global Dimension 1 Code" := CreateDimension();
         Vendor.Insert();
     end;
 
@@ -584,7 +584,7 @@ codeunit 144169 "UT REP Company Information"
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Insert();
         exit(VendorLedgerEntry."Entry No.");
@@ -667,7 +667,7 @@ codeunit 144169 "UT REP Company Information"
         end;
     end;
 
-    local procedure MockDetailedCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; EntryType: Option; NewAmount: Decimal; NewAmountLCY: Decimal)
+    local procedure MockDetailedCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; NewAmount: Decimal; NewAmountLCY: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         LastEntryNo: Integer;
@@ -709,9 +709,9 @@ codeunit 144169 "UT REP Company Information"
         ReportType: Option "Test Print","Final Print",Reprint;
     begin
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate(), CalcDate('<1D>', WorkDate()), ReportType::"Final Print");  // Enqueue values in GLBookPrintHandler.
-        GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
+        GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry());
         REPORT.Run(REPORT::"G/L Book - Print", true, false, GLBookEntry);
-        CreateReprintInfoFiscalReports;
+        CreateReprintInfoFiscalReports();
     end;
 
     local procedure UpdateCompanyInformation()
@@ -745,7 +745,7 @@ codeunit 144169 "UT REP Company Information"
     var
         CompanyInformation: TestPage "Company Information";
     begin
-        CompanyInformation.OpenView;
+        CompanyInformation.OpenView();
         CompanyInformation."SIA Code".AssertEquals(UpperCase(CopyStr(AssignedTxt, 1, 4)));
         CompanyInformation."Autoriz. No.".AssertEquals(UpperCase(CopyStr(AssignedTxt, 1, 10)));
         CompanyInformation."Autoriz. Date".AssertEquals(WorkDate());
@@ -756,7 +756,7 @@ codeunit 144169 "UT REP Company Information"
 
     local procedure VerifyCompanyInformationOnGLBookPrint()
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCompanyInformationOnReports(
           'CompanyInformation_4_', 'CompanyInformation_5_', 'CompanyInformation_6_',
           CopyStr(AssignedTxt, 1, 50), CopyStr(AssignedTxt, 1, 20), UpperCase(CopyStr(AssignedTxt, 1, 20)));
@@ -764,8 +764,8 @@ codeunit 144169 "UT REP Company Information"
 
     local procedure VerifyCustomerSheetPrintReportTotals(AmountLCY: Decimal; TotalAmountLCY: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalIcreasesAmtForRTC', AmountLCY);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalDecreasesAmtForRTC', AmountLCY);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmountLCYForRTC', TotalAmountLCY);
@@ -781,7 +781,7 @@ codeunit 144169 "UT REP Company Information"
         LibraryVariableStorage.Dequeue(No);
         BankSheetPrint."Bank Account".SetFilter("No.", No);
         BankSheetPrint."Bank Account".SetFilter("Date Filter", Format(WorkDate()));
-        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -801,15 +801,15 @@ codeunit 144169 "UT REP Company Information"
         CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(DateFilter));
         CustomerSheetPrint.Customer.SetFilter("Global Dimension 1 Code", GlobalDimension1Code);
         CustomerSheetPrint.Customer.SetFilter("Currency Code", CurrencyCode);
-        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerSheetPrintRPH(var CustomerSheetPrint: TestRequestPage "Customer Sheet - Print")
     begin
-        CustomerSheetPrint.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSheetPrint.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -839,7 +839,7 @@ codeunit 144169 "UT REP Company Information"
         GLBookPrint.RegisterCompanyNo.SetValue(CopyStr(AssignedTxt, 1, 50));
         GLBookPrint.VATRegistrationNo.SetValue(CopyStr(AssignedTxt, 1, 20));
         GLBookPrint.FiscalCode.SetValue(UpperCase(CopyStr(AssignedTxt, 1, 20)));
-        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -856,7 +856,7 @@ codeunit 144169 "UT REP Company Information"
         GLBookPrint.EndingDate.SetValue(Format(EndingDate));
         GLBookPrint.StartingDate.SetValue(Format(StartingDate));
         GLBookPrint.ReportType.SetValue(ReportType);
-        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]
@@ -882,7 +882,7 @@ codeunit 144169 "UT REP Company Information"
         VendorSheetPrint.Vendor.SetFilter("Date Filter", Format(DateFilter));
         VendorSheetPrint.Vendor.SetFilter("Global Dimension 1 Code", GlobalDimension1Code);
         VendorSheetPrint.Vendor.SetFilter("Currency Code", CurrencyCode);
-        VendorSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

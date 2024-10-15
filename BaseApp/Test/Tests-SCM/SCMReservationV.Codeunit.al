@@ -43,7 +43,7 @@ codeunit 137272 "SCM Reservation V"
 
         // Setup: Create Purchase Order from Sales Return Order.
         Initialize();
-        CreateSalesRetOrderWithRetRelatedDocuments(LibrarySales.CreateCustomerNo, SalesLine, false, true, false);
+        CreateSalesRetOrderWithRetRelatedDocuments(LibrarySales.CreateCustomerNo(), SalesLine, false, true, false);
 
         // Exercise.
         CreateAndPostWhseReceipt(SalesLine);
@@ -66,7 +66,7 @@ codeunit 137272 "SCM Reservation V"
 
         // Setup: Create Purchase Return Order from Sales Return Order, Release Purchase Return Order with Reserve, create And post Warehouse Receipt, create Warehouse Shipment with Pick.
         Initialize();
-        CreateSalesRetOrderWithRetRelatedDocuments(LibrarySales.CreateCustomerNo, SalesLine, true, false, false);
+        CreateSalesRetOrderWithRetRelatedDocuments(LibrarySales.CreateCustomerNo(), SalesLine, true, false, false);
         ReleasePurchaseReturnOrderWithReserve(PurchaseHeader, SalesLine."Document Type", SalesLine."No.");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         CreateAndPostWhseReceiptForSalesReturnOrder(SalesHeader, SalesLine."Location Code");
@@ -92,7 +92,7 @@ codeunit 137272 "SCM Reservation V"
 
         // Setup: Create Sales Order from Sales Return Order, post Sales Return Order, release Sales Orders with Reserve, create and post Warehouse Receipt, create Warehouse Shipment with Pick.
         Initialize();
-        CreateSalesRetOrderWithRetRelatedDocuments(LibrarySales.CreateCustomerNo, SalesLine, false, false, true);
+        CreateSalesRetOrderWithRetRelatedDocuments(LibrarySales.CreateCustomerNo(), SalesLine, false, false, true);
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.");
 
         // Excercise.
@@ -117,14 +117,14 @@ codeunit 137272 "SCM Reservation V"
 
         // Setup: Create Purchase Return Order from Sales Return Order, Release Purchase Return Order with Reserve, create And post Warehouse Receipt, create Warehouse Shipment with Pick.
         Initialize();
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         Quantity := CreatePurchaseForItemWithLotNo(ItemNo, LotNo);
         CustomerNo := LibrarySales.CreateCustomerNo();
         CreatePostSalesOrder(SalesHeader, CustomerNo, ItemNo, LotNo, Quantity / 2, Quantity / 2, true, true);
         CreatePostSalesReturn(SalesHeader, CustomerNo, Quantity / 2, true, false);
 
         // Excercise: Create Purchase Return Order.
-        CreateReturnRelatedDocuments(LibraryPurchase.CreateVendorNo, SalesHeader, true, false, false);
+        CreateReturnRelatedDocuments(LibraryPurchase.CreateVendorNo(), SalesHeader, true, false, false);
 
         // Verify: Verify Return Order Line Quantity and Item Tracking.
         VerifyPurchaseLineExists(ItemNo, Quantity / 2);
@@ -148,7 +148,7 @@ codeunit 137272 "SCM Reservation V"
 
         // Setup: Create Purchase Return Order from Sales Return Order, Release Purchase Return Order with Reserve, create And post Warehouse Receipt, create Warehouse Shipment with Pick.
         Initialize();
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         Quantity := CreatePurchaseForItemWithLotNo(ItemNo, LotNo);
         HalfShippedQty := Quantity / 4;
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -156,7 +156,7 @@ codeunit 137272 "SCM Reservation V"
         CreatePostSalesReturn(SalesHeader, CustomerNo, HalfShippedQty, true, false);
 
         // Excercise: Create Purchase Return Order.
-        CreateReturnRelatedDocuments(LibraryPurchase.CreateVendorNo, SalesHeader, true, false, false);
+        CreateReturnRelatedDocuments(LibraryPurchase.CreateVendorNo(), SalesHeader, true, false, false);
 
         // Verify: Verify Return Order Line Quantity and Item Tracking.
         VerifyPurchaseLineExists(ItemNo, Quantity / 2);
@@ -179,14 +179,14 @@ codeunit 137272 "SCM Reservation V"
 
         // Setup: Create Purchase Return Order from Sales Return Order, Release Purchase Return Order with Reserve, create And post Warehouse Receipt, create Warehouse Shipment with Pick.
         Initialize();
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         Quantity := CreatePurchaseForItemWithLotNo(ItemNo, LotNo);
         CustomerNo := LibrarySales.CreateCustomerNo();
         CreatePostSalesOrder(SalesHeader, CustomerNo, ItemNo, LotNo, Quantity / 2, Quantity / 2, true, true);
         CreateSalesReturn(SalesHeader, CustomerNo, 0);
 
         // Excercise: Create Purchase Return Order.
-        CreateReturnRelatedDocuments(LibraryPurchase.CreateVendorNo, SalesHeader, true, false, false);
+        CreateReturnRelatedDocuments(LibraryPurchase.CreateVendorNo(), SalesHeader, true, false, false);
 
         // Verify: Verify Return Order Line Quantity and Item Tracking.
         VerifyPurchaseLineExists(ItemNo, Quantity / 2);
@@ -252,7 +252,7 @@ codeunit 137272 "SCM Reservation V"
 
         CreateSalesOrder(SalesHeader, SalesLine, '', '', 1, 1);
 
-        SalesLines.Trap;
+        SalesLines.Trap();
         ReservationManagement.LookupLine(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", '', 0, SalesLine."Line No.");
         SalesLines."No.".AssertEquals(SalesLine."No.");
     end;
@@ -274,7 +274,7 @@ codeunit 137272 "SCM Reservation V"
             "No." := LibraryUtility.GenerateGUID();
             Insert();
 
-            RequisitionLines.Trap;
+            RequisitionLines.Trap();
             ReservationManagement.LookupLine(
               DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Journal Batch Name", 0, "Line No.");
         end;
@@ -296,7 +296,7 @@ codeunit 137272 "SCM Reservation V"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
 
-        PurchaseLines.Trap;
+        PurchaseLines.Trap();
         ReservationManagement.LookupLine(
           DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", '', 0, PurchaseLine."Line No.");
         PurchaseLines."No.".AssertEquals(PurchaseLine."No.");
@@ -318,9 +318,9 @@ codeunit 137272 "SCM Reservation V"
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", LibraryInventory.CreateItemNo, 1);
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", LibraryInventory.CreateItemNo(), 1);
 
-        ItemJournalLines.Trap;
+        ItemJournalLines.Trap();
         ReservationManagement.LookupLine(
           DATABASE::"Item Journal Line", ItemJournalLine."Entry Type".AsInteger(), ItemJournalLine."Journal Template Name",
           ItemJournalLine."Journal Batch Name", 0, ItemJournalLine."Line No.");
@@ -342,7 +342,7 @@ codeunit 137272 "SCM Reservation V"
             "Item No." := LibraryUtility.GenerateGUID();
             Insert();
 
-            ItemLedgerEntries.Trap;
+            ItemLedgerEntries.Trap();
             ReservationManagement.LookupLine(DATABASE::"Item Ledger Entry", 0, '', '', 0, "Entry No.");
         end;
 
@@ -365,7 +365,7 @@ codeunit 137272 "SCM Reservation V"
             "Line No." := LibraryUtility.GetNewRecNo(ProdOrderLine, FieldNo("Line No."));
             Insert();
 
-            ProdOrderLineList.Trap;
+            ProdOrderLineList.Trap();
             ReservationManagement.LookupLine(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", '', "Line No.", 0);
         end;
 
@@ -390,7 +390,7 @@ codeunit 137272 "SCM Reservation V"
             "Item No." := LibraryUtility.GenerateGUID();
             Insert();
 
-            ProdOrderCompLineList.Trap;
+            ProdOrderCompLineList.Trap();
             ReservationManagement.LookupLine(
               DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", '', "Prod. Order Line No.", "Line No.");
         end;
@@ -415,7 +415,7 @@ codeunit 137272 "SCM Reservation V"
             Description := LibraryUtility.GenerateGUID();
             Insert();
 
-            PlanningComponentList.Trap;
+            PlanningComponentList.Trap();
             ReservationManagement.LookupLine(
               DATABASE::"Planning Component", 0, "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Line No.");
         end;
@@ -440,7 +440,7 @@ codeunit 137272 "SCM Reservation V"
             "No." := LibraryUtility.GenerateGUID();
             Insert();
 
-            ServiceLineList.Trap;
+            ServiceLineList.Trap();
             ReservationManagement.LookupLine(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.");
         end;
 
@@ -468,7 +468,7 @@ codeunit 137272 "SCM Reservation V"
             "No." := LibraryUtility.GenerateGUID();
             Insert();
 
-            JobPlanningLines.Trap;
+            JobPlanningLines.Trap();
             ReservationManagement.LookupLine(DATABASE::"Job Planning Line", 0, '', '', 0, "Job Contract Entry No.");
         end;
 
@@ -491,7 +491,7 @@ codeunit 137272 "SCM Reservation V"
             "No." := LibraryUtility.GenerateGUID();
             Insert();
 
-            AssemblyOrders.Trap;
+            AssemblyOrders.Trap();
             ReservationManagement.LookupLine(DATABASE::"Assembly Header", "Document Type".AsInteger(), "No.", '', 0, 0);
         end;
 
@@ -515,7 +515,7 @@ codeunit 137272 "SCM Reservation V"
             "No." := LibraryUtility.GenerateGUID();
             Insert();
 
-            AssemblyLines.Trap;
+            AssemblyLines.Trap();
             ReservationManagement.LookupLine(DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.");
         end;
 
@@ -679,7 +679,7 @@ codeunit 137272 "SCM Reservation V"
         LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1000, WorkDate(), 0);
 
         // [GIVEN] A Customer "CUST" with Invoice discounts for all items
-        CustInvoiceDisc.Get(CreateCustomerInvDiscount, '', 0);
+        CustInvoiceDisc.Get(CreateCustomerInvDiscount(), '', 0);
 
         // [GIVEN] Sales Order "SO" created for "CUST" with an "ITEM" in the line.
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustInvoiceDisc.Code, Item."No.");
@@ -688,9 +688,9 @@ codeunit 137272 "SCM Reservation V"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] "ITEM" is Auto Reserved by AutoReservePageHandler
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.SalesLines.Reserve.Invoke;
+        SalesOrder.SalesLines.Reserve.Invoke();
 
         // [WHEN] "SO" Post invoked with "Shipped" selected
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -721,14 +721,14 @@ codeunit 137272 "SCM Reservation V"
         LibraryPurchase.SetExactCostReversingMandatory(true);
 
         // [GIVEN] Item "I" is bought in some quantity "Q" with "Lot No." = "LN", sold and returned from customer
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         Quantity := CreatePurchaseForItemWithLotNo(ItemNo, LotNo);
         CustomerNo := LibrarySales.CreateCustomerNo();
         CreatePostSalesOrder(SalesHeader, CustomerNo, ItemNo, LotNo, Quantity, Quantity, true, true);
         CreatePostSalesReturn(SalesHeader, CustomerNo, Quantity, true, false);
 
         // [WHEN] Purchase return order is created through the report "Create Ret.-Related Documents"
-        CreateReturnRelatedDocuments(LibraryPurchase.CreateVendorNo, SalesHeader, true, false, false);
+        CreateReturnRelatedDocuments(LibraryPurchase.CreateVendorNo(), SalesHeader, true, false, false);
 
         // [THEN] The field "Appl.-to Item Entry" of "Reservation Entry" contains the "Entry No." of "Item Ledger Entry" related with sales return
         FindLastItemLedgerEntry(ItemLedgerEntry, ItemNo, ItemLedgerEntry."Document Type"::"Sales Return Receipt");
@@ -755,7 +755,7 @@ codeunit 137272 "SCM Reservation V"
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Item with Reserve = Always
-        ItemNo := CreateItemWithReservationPolicyAlways;
+        ItemNo := CreateItemWithReservationPolicyAlways();
 
         // [GIVEN] Released Transfer Order "T1" from BLUE to RED with Shipment Date = 28/1/2021 and 1 PCS of Item
         CreateTransferLocationCodes(FromLocationCode, ToLocationCode, InTransitLocationCode);
@@ -797,7 +797,7 @@ codeunit 137272 "SCM Reservation V"
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Item with Reserve = Always
-        ItemNo := CreateItemWithReservationPolicyAlways;
+        ItemNo := CreateItemWithReservationPolicyAlways();
 
         // [GIVEN] Opened Transfer Order "T1" from BLUE to RED with Receipt Date = 3/2/2021 and 1 PCS of Item
         CreateTransferLocationCodes(FromLocationCode, ToLocationCode, InTransitLocationCode);
@@ -855,7 +855,7 @@ codeunit 137272 "SCM Reservation V"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Purchase Order with 1 PCS of Item "I2" and 2 PCS of Item "I3" and Expected Receipt date = 1/1/2018, same Location
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchLineWithItemLocationAndExpectedReceiptDate(
           PurchaseHeader, ComponentItemNo[2], Qty[2] / 2, LocationCode, CalcDate('<-CM>', WorkDate()));
         CreatePurchLineWithItemLocationAndExpectedReceiptDate(
@@ -913,7 +913,7 @@ codeunit 137272 "SCM Reservation V"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Purchase Order with 1 PCS of Item "I2" and 2 PCS of Item "I3" and Expected Receipt date = 1/1/2018, same Location
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchLineWithItemLocationAndExpectedReceiptDate(
           PurchaseHeader, ComponentItemNo[2], Qty[2] / 2, LocationCode, CalcDate('<-CM>', WorkDate()));
         CreatePurchLineWithItemLocationAndExpectedReceiptDate(
@@ -1100,7 +1100,7 @@ codeunit 137272 "SCM Reservation V"
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
-        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer, '', 0);  // Set Zero for Charge Amount.
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer(), '', 0);  // Set Zero for Charge Amount.
         CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandDecInRange(10, 20, 2));  // Take Random Discount.
         CustInvoiceDisc.Modify(true);
         exit(CustInvoiceDisc.Code);
@@ -1256,7 +1256,7 @@ codeunit 137272 "SCM Reservation V"
         Vendor: Record Vendor;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Random value for Quantity.
         SalesLine.Validate("Location Code", CreateLocation(true, true, true, true));
         SalesLine.Validate("Return Qty. to Receive", SalesLine.Quantity);
         SalesLine.Modify(true);
@@ -1307,7 +1307,7 @@ codeunit 137272 "SCM Reservation V"
 
     local procedure CreatePurchaseOrderWithItemLocationAndReceiptDate(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Qty: Integer; LocationCode: Code[10]; ReceiptDate: Date)
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Promised Receipt Date", ReceiptDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
@@ -1339,7 +1339,7 @@ codeunit 137272 "SCM Reservation V"
 
     local procedure CreateSalesOrderWithItemLocationAndShipmentDate(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Qty: Integer; LocationCode: Code[10]; ShipmentDate: Date)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Shipment Date", ShipmentDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
@@ -1469,7 +1469,7 @@ codeunit 137272 "SCM Reservation V"
     local procedure FindWhseRcptHdr(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; LocationCode: Code[10])
     begin
         WarehouseReceiptHeader.SetRange("Location Code", LocationCode);
-        WarehouseReceiptHeader.FindFirst
+        WarehouseReceiptHeader.FindFirst();
     end;
 
     local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type")
@@ -1516,7 +1516,7 @@ codeunit 137272 "SCM Reservation V"
     var
         SalesHeader: Record "Sales Header";
     begin
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         SalesHeader.Get(DocumentType, DocumentNo);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -1666,7 +1666,7 @@ codeunit 137272 "SCM Reservation V"
             FindSet();
             repeat
                 TotalQty -= Quantity;
-            until Next = 0;
+            until Next() = 0;
         end;
         Assert.AreEqual(ExpectedQty, TotalQty, ReservEntryQtyErr);
     end;
@@ -1738,23 +1738,23 @@ codeunit 137272 "SCM Reservation V"
         CreateRetRelatedDocuments.CreatePurchRetOrder.SetValue(CreatePurchRetOrder);
         CreateRetRelatedDocuments.CreatePurchaseOrder.SetValue(CreatePurchaseOrder);
         CreateRetRelatedDocuments.CreateSalesOrder.SetValue(CreateSalesOrder);
-        CreateRetRelatedDocuments.OK.Invoke;
+        CreateRetRelatedDocuments.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationAvailHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.AvailableToReserve.Invoke;
-        Reservation.OK.Invoke;
+        Reservation.AvailableToReserve.Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1776,8 +1776,8 @@ codeunit 137272 "SCM Reservation V"
     var
         I: Integer;
     begin
-        for I := 1 to LibraryVariableStorage.DequeueInteger do begin
-            ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
+        for I := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
             ItemTrackingLines."Quantity (Base)".SetValue(1);
             ItemTrackingLines.Next();
         end;
@@ -1787,46 +1787,46 @@ codeunit 137272 "SCM Reservation V"
     [Scope('OnPrem')]
     procedure ItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
-        ItemTrackingList.Last;
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.Last();
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailItemTrackingHandler(var AvailItemTrackingLines: TestPage "Avail. - Item Tracking Lines")
     begin
-        AvailItemTrackingLines."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        AvailItemTrackingLines."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingQtyToHandlePageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             TrackingAction::"Assign Lot No.":
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             TrackingAction::"Set Qty. to Handle":
-                ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
             TrackingAction::"Set QTH with AtE":
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-                    ItemTrackingLines."Appl.-to Item Entry".SetValue(LibraryVariableStorage.DequeueInteger);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines."Appl.-to Item Entry".SetValue(LibraryVariableStorage.DequeueInteger());
                 end;
         end;
 
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AutoReservePageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
+        Reservation."Auto Reserve".Invoke();
     end;
 
     [ModalPageHandler]

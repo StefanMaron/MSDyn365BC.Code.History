@@ -9,6 +9,7 @@ using Microsoft.Finance.VAT.Setup;
 table 12205 "Fattura Setup"
 {
     Caption = 'Fattura Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

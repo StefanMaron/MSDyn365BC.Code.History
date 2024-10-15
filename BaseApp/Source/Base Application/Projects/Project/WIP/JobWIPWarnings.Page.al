@@ -2,7 +2,7 @@ namespace Microsoft.Projects.Project.WIP;
 
 page 1026 "Job WIP Warnings"
 {
-    Caption = 'Job WIP Warnings';
+    Caption = 'Project WIP Warnings';
     PageType = List;
     SourceTable = "Job WIP Warning";
 
@@ -16,22 +16,22 @@ page 1026 "Job WIP Warnings"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                 }
                 field("Job WIP Total Entry No."; Rec."Job WIP Total Entry No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the entry number from the associated job WIP total.';
+                    ToolTip = 'Specifies the entry number from the associated project WIP total.';
                 }
                 field("Warning Message"; Rec."Warning Message")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a warning message that is related to a job WIP calculation.';
+                    ToolTip = 'Specifies a warning message that is related to a project WIP calculation.';
                 }
             }
         }

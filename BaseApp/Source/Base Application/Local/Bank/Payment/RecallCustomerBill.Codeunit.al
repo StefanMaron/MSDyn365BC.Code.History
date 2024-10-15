@@ -132,40 +132,38 @@ codeunit 12170 "Recall Customer Bill"
     [Scope('OnPrem')]
     procedure InitGenJnlLine(AccountNo: Code[20])
     begin
-        with GenJnlLine do begin
-            Init();
-            Validate("Posting Date", WorkDate());
-            "Document Date" := WorkDate();
-            "Document Type" := "Document Type"::" ";
-            "Document No." := CustLedgEntry."Document No.";
+        GenJnlLine.Init();
+        GenJnlLine.Validate("Posting Date", WorkDate());
+        GenJnlLine."Document Date" := WorkDate();
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+        GenJnlLine."Document No." := CustLedgEntry."Document No.";
 
-            Window.Update(3, "Document No.");
+        Window.Update(3, GenJnlLine."Document No.");
 
-            "External Document No." := CustLedgEntry."External Document No.";
-            "Account Type" := "Account Type"::Customer;
-            Validate("Account No.", CustLedgEntry."Customer No.");
-            "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-            Validate("Bal. Account No.", AccountNo);
-            Description := SalesSetup."Recall Bill Description";
-            "Source Code" := CustLedgEntry."Source Code";
-            "Reason Code" := CustLedgEntry."Reason Code";
-            "Shortcut Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
-            "Dimension Set ID" := CustLedgEntry."Dimension Set ID";
+        GenJnlLine."External Document No." := CustLedgEntry."External Document No.";
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+        GenJnlLine.Validate("Account No.", CustLedgEntry."Customer No.");
+        GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
+        GenJnlLine.Validate("Bal. Account No.", AccountNo);
+        GenJnlLine.Description := SalesSetup."Recall Bill Description";
+        GenJnlLine."Source Code" := CustLedgEntry."Source Code";
+        GenJnlLine."Reason Code" := CustLedgEntry."Reason Code";
+        GenJnlLine."Shortcut Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := CustLedgEntry."Dimension Set ID";
 
-            CustLedgEntry.CalcFields("Remaining Amount");
-            Amount := -CustLedgEntry."Remaining Amount";
-            Validate("Currency Code", CustLedgEntry."Currency Code");
-            "Amount (LCY)" := -CustLedgEntry."Remaining Amt. (LCY)";
-            "Allow Application" := true;
-            "Bank Receipt" := CustLedgEntry."Bank Receipt";
-            "Applies-to Doc. Type" := CustLedgEntry."Document Type";
-            "Applies-to Doc. No." := CustLedgEntry."Document No.";
-            "Applies-to Occurrence No." := CustLedgEntry."Document Occurrence";
-            "Document Type to Close" := CustLedgEntry."Document Type to Close";
-            "Document No. to Close" := CustLedgEntry."Document No. to Close";
-            "Document Occurrence to Close" := CustLedgEntry."Document Occurrence to Close";
-        end;
+        CustLedgEntry.CalcFields("Remaining Amount");
+        GenJnlLine.Amount := -CustLedgEntry."Remaining Amount";
+        GenJnlLine.Validate("Currency Code", CustLedgEntry."Currency Code");
+        GenJnlLine."Amount (LCY)" := -CustLedgEntry."Remaining Amt. (LCY)";
+        GenJnlLine."Allow Application" := true;
+        GenJnlLine."Bank Receipt" := CustLedgEntry."Bank Receipt";
+        GenJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type";
+        GenJnlLine."Applies-to Doc. No." := CustLedgEntry."Document No.";
+        GenJnlLine."Applies-to Occurrence No." := CustLedgEntry."Document Occurrence";
+        GenJnlLine."Document Type to Close" := CustLedgEntry."Document Type to Close";
+        GenJnlLine."Document No. to Close" := CustLedgEntry."Document No. to Close";
+        GenJnlLine."Document Occurrence to Close" := CustLedgEntry."Document Occurrence to Close";
         OnAfterInitGenJnlLine(GenJnlLine, CustLedgEntry, AccountNo);
     end;
 

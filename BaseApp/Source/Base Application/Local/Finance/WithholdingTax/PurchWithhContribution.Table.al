@@ -12,6 +12,7 @@ using Microsoft.Purchases.Vendor;
 table 12137 "Purch. Withh. Contribution"
 {
     Caption = 'Purch. Withh. Contribution';
+    DataClassification = CustomerContent;
 
     fields
     {

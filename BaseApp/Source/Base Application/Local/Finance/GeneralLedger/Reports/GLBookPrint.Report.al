@@ -10,10 +10,10 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Company;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
+using Microsoft.Utilities;
 using System.Telemetry;
 using System.Utilities;
 
@@ -599,7 +599,7 @@ report 12121 "G/L Book - Print"
 
     trigger OnPreReport()
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        ITReportManagement: Codeunit "IT - Report Management";
     begin
         FeatureTelemetry.LogUptake('1000HP9', ITGLBookTok, Enum::"Feature Uptake Status"::"Set up");
         if (EndDate <> 0D) and
@@ -607,8 +607,8 @@ report 12121 "G/L Book - Print"
         then
             Error(Text1034, EndDate);
 
-        NoSeriesMgt.CheckSalesDocNoGaps(EndDate);
-        NoSeriesMgt.CheckPurchDocNoGaps(EndDate);
+        ITReportManagement.CheckSalesDocNoGaps(EndDate, true, false);
+        ITReportManagement.CheckPurchDocNoGaps(EndDate, true, false);
 
         AccPeriod.Reset();
         AccPeriod.SetRange("New Fiscal Year", true);
@@ -725,15 +725,14 @@ report 12121 "G/L Book - Print"
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with "GL Book Entry" do
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    if SalesInvHeader.Get("Document No.") then
-                        Descr := SalesInvHeader."Bill-to Name";
-                "Document Type"::"Credit Memo":
-                    if SalesCrMemoHeader.Get("Document No.") then
-                        Descr := SalesCrMemoHeader."Bill-to Name";
-            end;
+        case "GL Book Entry"."Document Type" of
+            "GL Book Entry"."Document Type"::Invoice:
+                if SalesInvHeader.Get("GL Book Entry"."Document No.") then
+                    Descr := SalesInvHeader."Bill-to Name";
+            "GL Book Entry"."Document Type"::"Credit Memo":
+                if SalesCrMemoHeader.Get("GL Book Entry"."Document No.") then
+                    Descr := SalesCrMemoHeader."Bill-to Name";
+        end;
     end;
 
     local procedure GetPayToName()
@@ -741,15 +740,14 @@ report 12121 "G/L Book - Print"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
-        with "GL Book Entry" do
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    if PurchInvHeader.Get("Document No.") then
-                        Descr := PurchInvHeader."Pay-to Name";
-                "Document Type"::"Credit Memo":
-                    if PurchCrMemoHeader.Get("Document No.") then
-                        Descr := PurchCrMemoHeader."Pay-to Name";
-            end;
+        case "GL Book Entry"."Document Type" of
+            "GL Book Entry"."Document Type"::Invoice:
+                if PurchInvHeader.Get("GL Book Entry"."Document No.") then
+                    Descr := PurchInvHeader."Pay-to Name";
+            "GL Book Entry"."Document Type"::"Credit Memo":
+                if PurchCrMemoHeader.Get("GL Book Entry"."Document No.") then
+                    Descr := PurchCrMemoHeader."Pay-to Name";
+        end;
     end;
 }
 

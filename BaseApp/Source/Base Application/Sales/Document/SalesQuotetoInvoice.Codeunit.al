@@ -114,27 +114,25 @@ codeunit 1305 "Sales-Quote to Invoice"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with SalesQuoteHeader do begin
-            SalesInvoiceHeader."Document Type" := SalesInvoiceHeader."Document Type"::Invoice;
+        SalesInvoiceHeader."Document Type" := SalesInvoiceHeader."Document Type"::Invoice;
 
-            SalesInvoiceHeader."No. Printed" := 0;
-            SalesInvoiceHeader.Status := SalesInvoiceHeader.Status::Open;
-            SalesInvoiceHeader."No." := '';
+        SalesInvoiceHeader."No. Printed" := 0;
+        SalesInvoiceHeader.Status := SalesInvoiceHeader.Status::Open;
+        SalesInvoiceHeader."No." := '';
 
-            SalesInvoiceHeader."Quote No." := "No.";
-            OnCreateSalesInvoiceHeaderOnBeforeSalesInvoiceHeaderInsert(SalesInvoiceHeader, SalesQuoteHeader);
-            SalesInvoiceHeader.Insert(true);
+        SalesInvoiceHeader."Quote No." := SalesQuoteHeader."No.";
+        OnCreateSalesInvoiceHeaderOnBeforeSalesInvoiceHeaderInsert(SalesInvoiceHeader, SalesQuoteHeader);
+        SalesInvoiceHeader.Insert(true);
 
-            if "Posting Date" <> 0D then
-                SalesInvoiceHeader."Posting Date" := "Posting Date"
-            else
-                SalesInvoiceHeader."Posting Date" := WorkDate();
-            SalesInvoiceHeader.InitFromSalesHeader(SalesQuoteHeader);
-            SalesInvoiceHeader."VAT Reporting Date" := GLSetup.GetVATDate(SalesInvoiceHeader."Posting Date", SalesInvoiceHeader."Document Date");
+        if SalesQuoteHeader."Posting Date" <> 0D then
+            SalesInvoiceHeader."Posting Date" := SalesQuoteHeader."Posting Date"
+        else
+            SalesInvoiceHeader."Posting Date" := WorkDate();
+        SalesInvoiceHeader.InitFromSalesHeader(SalesQuoteHeader);
+        SalesInvoiceHeader."VAT Reporting Date" := GLSetup.GetVATDate(SalesInvoiceHeader."Posting Date", SalesInvoiceHeader."Document Date");
 
-            OnBeforeInsertSalesInvoiceHeader(SalesInvoiceHeader, SalesQuoteHeader);
-            SalesInvoiceHeader.Modify();
-        end;
+        OnBeforeInsertSalesInvoiceHeader(SalesInvoiceHeader, SalesQuoteHeader);
+        SalesInvoiceHeader.Modify();
     end;
 
     local procedure CreateSalesInvoiceLines(SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header"; var SalesQuoteLine: Record "Sales Line")
@@ -143,35 +141,33 @@ codeunit 1305 "Sales-Quote to Invoice"
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         IsHandled: Boolean;
     begin
-        with SalesQuoteHeader do begin
-            SalesQuoteLine.Reset();
-            SalesQuoteLine.SetRange("Document Type", "Document Type");
-            SalesQuoteLine.SetRange("Document No.", "No.");
-            OnAfterSalesQuoteLineSetFilters(SalesQuoteLine);
-            if SalesQuoteLine.FindSet() then
-                repeat
-                    IsHandled := false;
-                    OnBeforeCreateSalesInvoiceLineLoop(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceHeader, IsHandled);
-                    if not IsHandled then begin
-                        SalesInvoiceLine := SalesQuoteLine;
-                        SalesInvoiceLine."Document Type" := SalesInvoiceHeader."Document Type";
-                        SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
-                        if SalesInvoiceLine."No." <> '' then
-                            SalesInvoiceLine.DefaultDeferralCode();
-                        SalesInvoiceLine.InitQtyToShip();
-                        OnBeforeInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
-                        SalesInvoiceLine.Insert();
+        SalesQuoteLine.Reset();
+        SalesQuoteLine.SetRange("Document Type", SalesQuoteHeader."Document Type");
+        SalesQuoteLine.SetRange("Document No.", SalesQuoteHeader."No.");
+        OnAfterSalesQuoteLineSetFilters(SalesQuoteLine);
+        if SalesQuoteLine.FindSet() then
+            repeat
+                IsHandled := false;
+                OnBeforeCreateSalesInvoiceLineLoop(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceHeader, IsHandled);
+                if not IsHandled then begin
+                    SalesInvoiceLine := SalesQuoteLine;
+                    SalesInvoiceLine."Document Type" := SalesInvoiceHeader."Document Type";
+                    SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
+                    if SalesInvoiceLine."No." <> '' then
+                        SalesInvoiceLine.DefaultDeferralCode();
+                    SalesInvoiceLine.InitQtyToShip();
+                    OnBeforeInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
+                    SalesInvoiceLine.Insert();
 
-                        SalesLineReserve.TransferSaleLineToSalesLine(SalesQuoteLine, SalesInvoiceLine, SalesQuoteLine."Outstanding Qty. (Base)");
-                        SalesLineReserve.VerifyQuantity(SalesInvoiceLine, SalesQuoteLine);
-                        OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
-                    end;
-                until SalesQuoteLine.Next() = 0;
+                    SalesLineReserve.TransferSaleLineToSalesLine(SalesQuoteLine, SalesInvoiceLine, SalesQuoteLine."Outstanding Qty. (Base)");
+                    SalesLineReserve.VerifyQuantity(SalesInvoiceLine, SalesQuoteLine);
+                    OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
+                end;
+            until SalesQuoteLine.Next() = 0;
 
-            MoveLineCommentsToSalesInvoice(SalesInvoiceHeader, SalesQuoteHeader);
+        MoveLineCommentsToSalesInvoice(SalesInvoiceHeader, SalesQuoteHeader);
 
-            OnCreateSalesInvoiceLinesOnBeforeSalesQuoteLineDeleteAll(SalesQuoteHeader, SalesInvoiceHeader, SalesQuoteLine);
-        end;
+        OnCreateSalesInvoiceLinesOnBeforeSalesQuoteLineDeleteAll(SalesQuoteHeader, SalesInvoiceHeader, SalesQuoteLine);
     end;
 
     local procedure MoveLineCommentsToSalesInvoice(SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header")

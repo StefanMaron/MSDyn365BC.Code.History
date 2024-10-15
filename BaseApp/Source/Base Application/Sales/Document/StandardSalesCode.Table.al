@@ -12,6 +12,7 @@ table 170 "Standard Sales Code"
     Caption = 'Standard Sales Code';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Standard Sales Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

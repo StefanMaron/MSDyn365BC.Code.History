@@ -434,38 +434,36 @@ report 212 "Sales Prepmt. Document Test"
                                     CurrReport.Break();
                             "Sales Line" := TempSalesLine;
 
-                            with "Sales Line" do begin
-                                CurrentErrorCount := ErrorCounter;
+                            CurrentErrorCount := ErrorCounter;
 
-                                if ("VAT Bus. Posting Group" <> VATPostingSetup."VAT Bus. Posting Group") or
-                                   ("VAT Prod. Posting Group" <> VATPostingSetup."VAT Prod. Posting Group")
+                            if ("Sales Line"."VAT Bus. Posting Group" <> VATPostingSetup."VAT Bus. Posting Group") or
+                               ("Sales Line"."VAT Prod. Posting Group" <> VATPostingSetup."VAT Prod. Posting Group")
+                            then
+                                if not VATPostingSetup.Get(
+                                     "Sales Line"."VAT Bus. Posting Group", "Sales Line"."VAT Prod. Posting Group")
                                 then
-                                    if not VATPostingSetup.Get(
-                                         "VAT Bus. Posting Group", "VAT Prod. Posting Group")
-                                    then
+                                    AddError(
+                                      StrSubstNo(
+                                        Text006,
+                                        VATPostingSetup.TableCaption(),
+                                        "Sales Line"."VAT Bus. Posting Group", "Sales Line"."VAT Prod. Posting Group"));
+
+                            if VATPostingSetup."Sales Prepayments Account" = '' then
+                                AddError(StrSubstNo(Text005, VATPostingSetup.FieldCaption("Sales Prepayments Account")))
+                            else
+                                if GLAcc.Get(VATPostingSetup."Sales Prepayments Account") then begin
+                                    if GLAcc.Blocked then
                                         AddError(
                                           StrSubstNo(
-                                            Text006,
-                                            VATPostingSetup.TableCaption(),
-                                            "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
+                                            Text008, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "Sales Line"."No."));
+                                end else
+                                    AddError(StrSubstNo(Text007, GLAcc.TableCaption(), VATPostingSetup."Sales Prepayments Account"));
 
-                                if VATPostingSetup."Sales Prepayments Account" = '' then
-                                    AddError(StrSubstNo(Text005, VATPostingSetup.FieldCaption("Sales Prepayments Account")))
-                                else
-                                    if GLAcc.Get(VATPostingSetup."Sales Prepayments Account") then begin
-                                        if GLAcc.Blocked then
-                                            AddError(
-                                              StrSubstNo(
-                                                Text008, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
-                                    end else
-                                        AddError(StrSubstNo(Text007, GLAcc.TableCaption(), VATPostingSetup."Sales Prepayments Account"));
-
-                                if ErrorCounter = CurrentErrorCount then
-                                    if SalesPostPrepmt.PrepmtAmount("Sales Line", DocumentType) <> 0 then begin
-                                        SalesPostPrepmt.FillInvLineBuffer("Sales Header", "Sales Line", TempPrepmtInvLineBuf2);
-                                        TempPrepmtInvLineBuf.InsertInvLineBuffer(TempPrepmtInvLineBuf2);
-                                    end;
-                            end;
+                            if ErrorCounter = CurrentErrorCount then
+                                if SalesPostPrepmt.PrepmtAmount("Sales Line", DocumentType) <> 0 then begin
+                                    SalesPostPrepmt.FillInvLineBuffer("Sales Header", "Sales Line", TempPrepmtInvLineBuf2);
+                                    TempPrepmtInvLineBuf.InsertInvLineBuffer(TempPrepmtInvLineBuf2);
+                                end;
                         end;
                     }
 

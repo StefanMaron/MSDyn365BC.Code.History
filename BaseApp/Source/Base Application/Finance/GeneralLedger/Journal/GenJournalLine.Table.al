@@ -12,6 +12,7 @@ using Microsoft.CRM.Team;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Consolidation;
+using System.Threading;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -23,6 +24,7 @@ using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.WithholdingTax;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Insurance;
@@ -63,13 +65,11 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Setup;
 using Microsoft.Service.Document;
+using Microsoft.Utilities;
 using System.Automation;
 using System.IO;
 using System.DateTime;
 using System.Environment.Configuration;
-using Microsoft.Finance.VAT.Reporting;
-using Microsoft.Finance.WithholdingTax;
-using Microsoft.Utilities;
 using System.Utilities;
 
 table 81 "Gen. Journal Line"
@@ -83,6 +83,7 @@ table 81 "Gen. Journal Line"
                   tabledata Vendor = R,
                   tabledata "Vendor Ledger Entry" = R,
                   tabledata "Data Exch. Field" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -109,8 +110,6 @@ table 81 "Gen. Journal Line"
                     Error(
                       Text000,
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
-
-                CheckCurrencyForEmployee(("Account Type" = "Account Type"::Employee) and ("Currency Code" <> ''));
 
                 Validate("Account No.", '');
                 OnValidateAccountTypeOnBeforeCheckKeepDescription(Rec, xRec, CurrFieldNo);
@@ -273,7 +272,7 @@ table 81 "Gen. Journal Line"
                     PaymentToleranceMgt.PmtTolGenJnl(Rec);
 
                 ValidateApplyRequirements(Rec);
-                ValidateIncludeInDT;
+                ValidateIncludeInDT();
 
                 if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
@@ -282,7 +281,6 @@ table 81 "Gen. Journal Line"
 
                 if "Deferral Code" <> '' then
                     Validate("Deferral Code");
-
             end;
         }
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
@@ -334,11 +332,6 @@ table 81 "Gen. Journal Line"
         field(7; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-
-            trigger OnValidate()
-            begin
-                CheckOpenApprovalEntryExistForCurrentUser();
-            end;
         }
         field(8; Description; Text[100])
         {
@@ -522,8 +515,6 @@ table 81 "Gen. Journal Line"
                       FieldCaption("Currency Code"), FieldCaption("Recurring Method"), "Recurring Method");
 
                 if "Currency Code" <> '' then begin
-                    CheckCurrencyForEmployee(
-                        ("Bal. Account Type" = "Bal. Account Type"::Employee) or ("Account Type" = "Account Type"::Employee));
                     GetCurrency();
                     if ("Currency Code" <> xRec."Currency Code") or
                        ("Posting Date" <> xRec."Posting Date") or
@@ -531,7 +522,7 @@ table 81 "Gen. Journal Line"
                        ("Currency Factor" = 0)
                     then begin
                         OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(Rec, CurrExchRate);
-                        "Currency Factor" := CurrExchRate.ExchangeRate(ExchangeDate, "Currency Code");
+                        "Currency Factor" := CurrExchRate.ExchangeRate(ExchangeDate(), "Currency Code");
                     end;
                 end else
                     "Currency Factor" := 0;
@@ -611,7 +602,7 @@ table 81 "Gen. Journal Line"
                         GetCurrency();
                         Amount := Round(
                             CurrExchRate.ExchangeAmtLCYToFCY(
-                              ExchangeDate, "Currency Code",
+                              ExchangeDate(), "Currency Code",
                               "Amount (LCY)", "Currency Factor"),
                             Currency."Amount Rounding Precision")
                     end else begin
@@ -939,7 +930,7 @@ table 81 "Gen. Journal Line"
         }
         field(42; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
 
             trigger OnValidate()
@@ -1050,7 +1041,6 @@ table 81 "Gen. Journal Line"
 
             trigger OnValidate()
             var
-                IsHandled: Boolean;
             begin
                 "Due Date" := 0D;
                 "Pmt. Discount Date" := 0D;
@@ -1224,8 +1214,6 @@ table 81 "Gen. Journal Line"
                     Error(
                       Text000,
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
-
-                CheckCurrencyForEmployee(("Bal. Account Type" = "Bal. Account Type"::Employee) and ("Currency Code" <> ''));
 
                 ReadGLSetup();
                 if GLSetup."Journal Templ. Name Mandatory" then
@@ -1462,7 +1450,7 @@ table 81 "Gen. Journal Line"
                     "Bal. VAT Amount (LCY)" :=
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
-                          ExchangeDate, "Currency Code",
+                          ExchangeDate(), "Currency Code",
                           "Bal. VAT Amount", "Currency Factor"));
                 "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
                 NonDeductibleVAT.ValidateBalNonDedVATPctInGenJnlLine(Rec);
@@ -1681,8 +1669,11 @@ table 81 "Gen. Journal Line"
             TableRelation = "No. Series";
 
             trigger OnValidate()
+            var
+                NoSeries: Record "No. Series";
             begin
-                NoSeriesMgt.TestDateOrder("Posting No. Series");
+                NoSeries.Get("Posting No. Series");
+                NoSeries.TestField("Date Order");
             end;
         }
         field(82; "Tax Area Code"; Code[20])
@@ -1908,7 +1899,7 @@ table 81 "Gen. Journal Line"
                         end;
                     end;
                 Validate("Bal. VAT %");
-                ValidateIncludeInDT;
+                ValidateIncludeInDT();
             end;
         }
         field(95; "Additional-Currency Posting"; Option)
@@ -2102,7 +2093,7 @@ table 81 "Gen. Journal Line"
             trigger OnValidate()
             begin
                 Validate("VAT Registration No.");
-                ValidateIncludeInDT;
+                ValidateIncludeInDT();
             end;
         }
         field(121; Prepayment; Boolean)
@@ -2178,12 +2169,10 @@ table 81 "Gen. Journal Line"
             end;
 #endif
         }
-        field(160; "Job Queue Status"; Option)
+        field(160; "Job Queue Status"; Enum "Document Job Queue Status")
         {
             Caption = 'Job Queue Status';
             Editable = false;
-            OptionCaption = ' ,Scheduled for Posting,Error,Posting';
-            OptionMembers = " ","Scheduled for Posting",Error,Posting;
         }
         field(161; "Job Queue Entry ID"; Guid)
         {
@@ -2321,7 +2310,7 @@ table 81 "Gen. Journal Line"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
             trigger OnValidate()
@@ -2352,20 +2341,20 @@ table 81 "Gen. Journal Line"
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 2;
-            Caption = 'Job Unit Price (LCY)';
+            Caption = 'Project Unit Price (LCY)';
             Editable = false;
         }
         field(1003; "Job Total Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
-            Caption = 'Job Total Price (LCY)';
+            Caption = 'Project Total Price (LCY)';
             Editable = false;
         }
         field(1004; "Job Quantity"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Quantity';
+            Caption = 'Project Quantity';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -2382,14 +2371,14 @@ table 81 "Gen. Journal Line"
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 2;
-            Caption = 'Job Unit Cost (LCY)';
+            Caption = 'Project Unit Cost (LCY)';
             Editable = false;
         }
         field(1006; "Job Line Discount %"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
-            Caption = 'Job Line Discount %';
+            Caption = 'Project Line Discount %';
 
             trigger OnValidate()
             begin
@@ -2403,7 +2392,7 @@ table 81 "Gen. Journal Line"
         field(1007; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            Caption = 'Job Line Disc. Amount (LCY)';
+            Caption = 'Project Line Disc. Amount (LCY)';
             Editable = false;
 
             trigger OnValidate()
@@ -2417,13 +2406,13 @@ table 81 "Gen. Journal Line"
         }
         field(1008; "Job Unit Of Measure Code"; Code[10])
         {
-            Caption = 'Job Unit Of Measure Code';
+            Caption = 'Project Unit Of Measure Code';
             TableRelation = "Unit of Measure";
         }
         field(1009; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Line Type';
+            Caption = 'Project Line Type';
 
             trigger OnValidate()
             begin
@@ -2436,7 +2425,7 @@ table 81 "Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 2;
-            Caption = 'Job Unit Price';
+            Caption = 'Project Unit Price';
 
             trigger OnValidate()
             begin
@@ -2452,7 +2441,7 @@ table 81 "Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
-            Caption = 'Job Total Price';
+            Caption = 'Project Total Price';
             Editable = false;
         }
         field(1012; "Job Unit Cost"; Decimal)
@@ -2460,7 +2449,7 @@ table 81 "Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 2;
-            Caption = 'Job Unit Cost';
+            Caption = 'Project Unit Cost';
             Editable = false;
         }
         field(1013; "Job Total Cost"; Decimal)
@@ -2468,7 +2457,7 @@ table 81 "Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
-            Caption = 'Job Total Cost';
+            Caption = 'Project Total Cost';
             Editable = false;
         }
         field(1014; "Job Line Discount Amount"; Decimal)
@@ -2476,7 +2465,7 @@ table 81 "Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
-            Caption = 'Job Line Discount Amount';
+            Caption = 'Project Line Discount Amount';
 
             trigger OnValidate()
             begin
@@ -2492,7 +2481,7 @@ table 81 "Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
-            Caption = 'Job Line Amount';
+            Caption = 'Project Line Amount';
 
             trigger OnValidate()
             begin
@@ -2507,14 +2496,14 @@ table 81 "Gen. Journal Line"
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
-            Caption = 'Job Total Cost (LCY)';
+            Caption = 'Project Total Cost (LCY)';
             Editable = false;
         }
         field(1017; "Job Line Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
-            Caption = 'Job Line Amount (LCY)';
+            Caption = 'Project Line Amount (LCY)';
             Editable = false;
 
             trigger OnValidate()
@@ -2528,11 +2517,11 @@ table 81 "Gen. Journal Line"
         }
         field(1018; "Job Currency Factor"; Decimal)
         {
-            Caption = 'Job Currency Factor';
+            Caption = 'Project Currency Factor';
         }
         field(1019; "Job Currency Code"; Code[10])
         {
-            Caption = 'Job Currency Code';
+            Caption = 'Project Currency Code';
 
             trigger OnValidate()
             begin
@@ -2547,7 +2536,7 @@ table 81 "Gen. Journal Line"
         {
             AccessByPermission = TableData Job = R;
             BlankZero = true;
-            Caption = 'Job Planning Line No.';
+            Caption = 'Project Planning Line No.';
 
             trigger OnLookup()
             var
@@ -2585,7 +2574,7 @@ table 81 "Gen. Journal Line"
         field(1030; "Job Remaining Qty."; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Remaining Qty.';
+            Caption = 'Project Remaining Qty.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -2681,6 +2670,7 @@ table 81 "Gen. Journal Line"
                             Error(MustUseAllGLAccountsAsDestinationAccountsAllocAccErr);
                     end else
                         Rec.TestField("Account Type", "Account Type"::"G/L Account");
+                DeferralUtilities.CheckDeferralConditionForGenJournal(Rec);
                 DeferralPostDate := GetDeferralPostDate();
 
                 DeferralUtilities.DeferralCodeOnValidate(
@@ -3147,7 +3137,7 @@ table 81 "Gen. Journal Line"
                 if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
                     if "Operation Occurred Date" > "Posting Date" then
                         Error(Text1130014, FieldCaption("Operation Occurred Date"), FieldCaption("Posting Date"));
-                ValidateIncludeInDT
+                ValidateIncludeInDT();
             end;
         }
         field(12111; "Reverse Sales VAT No. Series"; Code[20])
@@ -3190,8 +3180,6 @@ table 81 "Gen. Journal Line"
 
             trigger OnValidate()
             var
-                VATTransReportAmount: Record "VAT Transaction Report Amount";
-                VATPostingSetup: Record "VAT Posting Setup";
             begin
             end;
         }
@@ -3205,7 +3193,7 @@ table 81 "Gen. Journal Line"
             begin
                 TestField("Tax Representative Type", "Tax Representative Type"::" ");
                 if Resident = Resident::Resident then
-                    InitFields
+                    InitFields()
                 else
                     "Fiscal Code" := '';
             end;
@@ -3239,7 +3227,7 @@ table 81 "Gen. Journal Line"
                 TestField("Account Type", "Account Type"::Vendor);
                 TestField("Account No.");
                 Vend.Get("Account No.");
-                if Vend.IsCustomAuthorityVendor then
+                if Vend.IsCustomAuthorityVendor() then
                     Validate("Related Entry No.", Vend.LookupEntryNo("Related Entry No."))
                 else
                     Validate("Related Entry No.", CAVendor.LookupEntryNo("Related Entry No."));
@@ -3471,6 +3459,8 @@ table 81 "Gen. Journal Line"
         "Copy VAT Setup to Jnl. Lines" := GenJnlBatch."Copy VAT Setup to Jnl. Lines";
         "Posting No. Series" := GenJnlBatch."Posting No. Series";
         "Check Printed" := false;
+        if "Source Code" = '' then
+            "Source Code" := GenJnlTemplate."Source Code";
 
         Validate("Payment Terms Code");
         Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
@@ -3544,7 +3534,6 @@ table 81 "Gen. Journal Line"
         SourceCodeSetup: Record "Source Code Setup";
         TempJobJnlLine: Record "Job Journal Line" temporary;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         GenJnlApply: Codeunit "Gen. Jnl.-Apply";
@@ -3557,6 +3546,7 @@ table 81 "Gen. Journal Line"
         DeferralUtilities: Codeunit "Deferral Utilities";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         Window: Dialog;
         DeferralDocType: Enum "Deferral Document Type";
         CurrencyCode: Code[10];
@@ -3593,7 +3583,6 @@ table 81 "Gen. Journal Line"
         CalcPostDateMsg: Label 'Processing payment journal lines #1##########';
         NoEntriesToVoidErr: Label 'There are no entries to void.';
         SuppressCommit: Boolean;
-        OnlyLocalCurrencyForEmployeeErr: Label 'The value of the Currency Code field must be empty. General journal lines in foreign currency are not supported for employee account type.';
         AccTypeNotSupportedErr: Label 'You cannot specify a deferral code for this type of account.';
         SalespersonPurchPrivacyBlockErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         BlockedErr: Label 'The Blocked field must not be %1 for %2 %3.', Comment = '%1=Blocked field value,%2=Account Type,%3=Account No.';
@@ -3700,6 +3689,7 @@ table 81 "Gen. Journal Line"
 
     procedure SetUpNewLine(LastGenJnlLine: Record "Gen. Journal Line"; Balance: Decimal; BottomLine: Boolean)
     var
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3720,11 +3710,8 @@ table 81 "Gen. Journal Line"
             "Document No." := LastGenJnlLine."Document No.";
             IsHandled := false;
             OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine, IsHandled, Rec, GenJnlBatch);
-            if BottomLine and not IsHandled and
-               (Balance - LastGenJnlLine."Balance (LCY)" = 0) and
-               not LastGenJnlLine.EmptyLine()
-            then
-                IncrementDocumentNo(GenJnlBatch, "Document No.");
+            if BottomLine and not IsHandled and (Balance - LastGenJnlLine."Balance (LCY)" = 0) and not LastGenJnlLine.EmptyLine() then
+                "Document No." := NoSeriesBatch.SimulateGetNextNo(GenJnlBatch."No. Series", Rec."Posting Date", "Document No.");
         end else begin
             "Posting Date" := WorkDate();
             "Document Date" := WorkDate();
@@ -3733,10 +3720,8 @@ table 81 "Gen. Journal Line"
             IsHandled := false;
             OnSetUpNewLineOnBeforeSetDocumentNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine, IsHandled, Rec);
             if not IsHandled then
-                if GenJnlBatch."No. Series" <> '' then begin
-                    Clear(NoSeriesMgt);
-                    "Document No." := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
-                end;
+                if GenJnlBatch."No. Series" <> '' then
+                    "Document No." := NoSeries.PeekNextNo(GenJnlBatch."No. Series", "Posting Date");
         end;
         if GenJnlTemplate.Recurring then
             "Recurring Method" := LastGenJnlLine."Recurring Method";
@@ -3822,32 +3807,51 @@ table 81 "Gen. Journal Line"
 
     procedure CheckDocNoOnLines()
     var
-        GenJnlBatch: Record "Gen. Journal Batch";
-        GenJnlLine: Record "Gen. Journal Line";
-        LastDocNo: Code[20];
+        GenJnlBatchLocal: Record "Gen. Journal Batch";
+        GenJnlLineLocal: Record "Gen. Journal Line";
+        NoSeriesBatchSim: Codeunit "No. Series - Batch";
+        PrevDocNo: Code[20];
         IsHandled: Boolean;
     begin
+        NoSeriesBatchSim.SetSimulationMode();
+
         IsHandled := false;
         OnBeforeCheckDocNoOnLines(Rec, IsHandled);
         if IsHandled then
             exit;
 
-        GenJnlLine.CopyFilters(Rec);
+        GenJnlLineLocal.CopyFilters(Rec);
 
-        if not GenJnlLine.FindSet() then
+        if not GenJnlLineLocal.FindSet() then
             exit;
-        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
-        if GenJnlBatch."No. Series" = '' then
+        GenJnlBatchLocal.Get(GenJnlLineLocal."Journal Template Name", GenJnlLineLocal."Journal Batch Name");
+        if GenJnlBatchLocal."No. Series" = '' then
             exit;
 
-        Clear(NoSeriesMgt);
+        PrevDocNo := '';
         repeat
-            GenJnlLine.CheckDocNoBasedOnNoSeries(LastDocNo, GenJnlBatch."No. Series", NoSeriesMgt);
-            LastDocNo := GenJnlLine."Document No.";
-        until GenJnlLine.Next() = 0;
+            if PrevDocNo <> GenJnlLineLocal."Document No." then
+                if GenJnlLineLocal."Document No." <> NoSeriesBatchSim.GetNextNo(GenJnlBatchLocal."No. Series", "Posting Date") then // do not save state
+                    NoSeriesBatchSim.TestManual(GenJnlBatchLocal."No. Series", GenJnlLineLocal."Document No.");
+            PrevDocNo := GenJnlLineLocal."Document No.";
+        until GenJnlLineLocal.Next() = 0;
     end;
 
-    procedure CheckDocNoBasedOnNoSeries(LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
+#if not CLEAN24
+#pragma warning disable AL0432
+    [Obsolete('Do not use this procedure. It is for compatibility only.', '24.0')]
+    procedure ObsoleteCheckDocNoBasedOnNoSeries(PrevDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDocNoBasedOnNoSeries(Rec, PrevDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
+        if IsHandled then
+            NoSeriesMgtInstance.SaveNoSeries();
+    end;
+
+    [Obsolete('This method is no longer used. Do the check directly in code instead.', '24.0')]
+    procedure CheckDocNoBasedOnNoSeries(PrevDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
@@ -3855,14 +3859,14 @@ table 81 "Gen. Journal Line"
         DoDocumentNoTest: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckDocNoBasedOnNoSeries(Rec, LastDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
+        OnBeforeCheckDocNoBasedOnNoSeries(Rec, PrevDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
         if IsHandled then
             exit;
 
         if NoSeriesCode = '' then
             exit;
 
-        if (LastDocNo = '') or ("Document No." <> LastDocNo) then begin
+        if (PrevDocNo = '') or ("Document No." <> PrevDocNo) then begin
             if NoSeriesMgtInstance.FindNoSeriesLine(NoSeriesLine, NoSeriesCode, "Posting Date") then
                 if not NoSeriesMgtInstance.IsCurrentNoSeriesLine(NoSeriesLine) then
                     NoSeriesMgtInstance.SaveNoSeries();
@@ -3880,10 +3884,12 @@ table 81 "Gen. Journal Line"
             end;
         end;
     end;
-
+#pragma warning restore AL0432
+#endif
     procedure RenumberDocumentNo()
     var
         GenJnlLine2: Record "Gen. Journal Line";
+        NoSeries: Codeunit "No. Series";
         DocNo: Code[20];
         FirstDocNo: Code[20];
         FirstTempDocNo: Code[20];
@@ -3898,8 +3904,7 @@ table 81 "Gen. Journal Line"
             exit;
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
-        Clear(NoSeriesMgt);
-        FirstDocNo := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
+        FirstDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", "Posting Date");
         FirstTempDocNo := GetTempRenumberDocumentNo();
         // step1 - renumber to non-existing document number
         DocNo := FirstTempDocNo;
@@ -3939,6 +3944,7 @@ table 81 "Gen. Journal Line"
     var
         LastGenJnlLine: Record "Gen. Journal Line";
         GenJnlLine3: Record "Gen. Journal Line";
+        NoSeries: Codeunit "No. Series";
         PrevDocNo: Code[20];
         FirstDocNo: Code[20];
         TempFirstDocNo: Code[20];
@@ -3952,51 +3958,47 @@ table 81 "Gen. Journal Line"
             exit;
 
         FirstDocNo := DocNo;
-        with GenJnlLine2 do begin
-            SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Bal. Account No.");
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            SetRange("Check Printed", false);
-            LastGenJnlLine.Init();
-            First := true;
-            if FindSet() then begin
-                repeat
-                    if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (GenJnlLine2.GetFilter("Document No.") = '')) then begin
-                        Commit();
-                        Clear(NoSeriesMgt);
-                        TempFirstDocNo := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
-                        if (FirstDocNo <> TempFirstDocNo) AND (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
-                            DocNo := TempFirstDocNo;
-                            FirstDocNo := DocNo;
-                            First := true;
-                        end;
+        GenJnlLine2.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Bal. Account No.");
+        GenJnlLine2.SetRange("Journal Template Name", GenJnlLine2."Journal Template Name");
+        GenJnlLine2.SetRange("Journal Batch Name", GenJnlLine2."Journal Batch Name");
+        GenJnlLine2.SetRange("Check Printed", false);
+        LastGenJnlLine.Init();
+        First := true;
+        if GenJnlLine2.FindSet() then
+            repeat
+                if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (GenJnlLine2.GetFilter("Document No.") = '')) then begin
+                    Commit();
+                    TempFirstDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", GenJnlLine2."Posting Date");
+                    if (FirstDocNo <> TempFirstDocNo) and (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
+                        DocNo := TempFirstDocNo;
+                        FirstDocNo := DocNo;
+                        First := true;
                     end;
-                    if "Document No." = FirstDocNo then
-                        exit;
-                    if not First and
-                        (("Document No." <> PrevDocNo) or
-                          ("Posting Date" <> PrevPostingDate) or
-                        (("Bal. Account No." <> '') and ("Document No." = ''))) and
-                        not LastGenJnlLine.EmptyLine()
-                    then
-                        DocNo := IncStr(DocNo);
-                    PrevDocNo := "Document No.";
-                    PrevPostingDate := "Posting Date";
-                    if "Document No." <> '' then begin
-                        if "Applies-to ID" = "Document No." then
-                            RenumberAppliesToID(GenJnlLine2, "Document No.", DocNo);
-                        RenumberAppliesToDocNo(GenJnlLine2, "Document No.", DocNo);
-                    end;
-                    GenJnlLine3.Get("Journal Template Name", "Journal Batch Name", "Line No.");
-                    CheckJobQueueStatus(GenJnlLine3);
-                    GenJnlLine3.Validate("Document No.", DocNo);
-                    GenJnlLine3.Modify();
-                    OnRenumberDocNoOnLinesOnAfterModifyGenJnlLine3(DocNo, GenJnlLine3);
-                    First := false;
-                    LastGenJnlLine := GenJnlLine2
-                until Next() = 0
-            end
-        end;
+                end;
+                if GenJnlLine2."Document No." = FirstDocNo then
+                    exit;
+                if not First and
+                    ((GenJnlLine2."Document No." <> PrevDocNo) or
+                      (GenJnlLine2."Posting Date" <> PrevPostingDate) or
+                    ((GenJnlLine2."Bal. Account No." <> '') and (GenJnlLine2."Document No." = ''))) and
+                    not LastGenJnlLine.EmptyLine()
+                then
+                    DocNo := IncStr(DocNo);
+                PrevDocNo := GenJnlLine2."Document No.";
+                PrevPostingDate := GenJnlLine2."Posting Date";
+                if GenJnlLine2."Document No." <> '' then begin
+                    if GenJnlLine2."Applies-to ID" = GenJnlLine2."Document No." then
+                        GenJnlLine2.RenumberAppliesToID(GenJnlLine2, GenJnlLine2."Document No.", DocNo);
+                    GenJnlLine2.RenumberAppliesToDocNo(GenJnlLine2, GenJnlLine2."Document No.", DocNo);
+                end;
+                GenJnlLine3.Get(GenJnlLine2."Journal Template Name", GenJnlLine2."Journal Batch Name", GenJnlLine2."Line No.");
+                CheckJobQueueStatus(GenJnlLine3);
+                GenJnlLine3."Document No." := DocNo;
+                GenJnlLine3.Modify();
+                OnRenumberDocNoOnLinesOnAfterModifyGenJnlLine3(DocNo, GenJnlLine3);
+                First := false;
+                LastGenJnlLine := GenJnlLine2;
+            until GenJnlLine2.Next() = 0;
 
         OnAfterRenumberDocNoOnLines(DocNo, GenJnlLine2);
     end;
@@ -4366,7 +4368,7 @@ table 81 "Gen. Journal Line"
         CustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
         CustLedgEntry."Accepted Payment Tolerance" := 0;
         CustLedgEntry."Amount to Apply" := 0;
-        IF Rec."On Hold" = CustLedgEntry."On Hold" then begin
+        if Rec."On Hold" = CustLedgEntry."On Hold" then begin
             CustLedgEntry."On Hold" := '';
             Rec."On Hold" := '';
         end;
@@ -4378,7 +4380,7 @@ table 81 "Gen. Journal Line"
         VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
         VendLedgEntry."Accepted Payment Tolerance" := 0;
         VendLedgEntry."Amount to Apply" := 0;
-        IF Rec."On Hold" = VendLedgEntry."On Hold" then begin
+        if Rec."On Hold" = VendLedgEntry."On Hold" then begin
             VendLedgEntry."On Hold" := '';
             Rec."On Hold" := '';
         end;
@@ -4949,7 +4951,7 @@ table 81 "Gen. Journal Line"
 
             if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) and ("Bal. Account No." = '') then begin
                 CalculateVATAmount(VATAmount, VATAmountLCY);
-                IF VATAmountLCY <> 0 then
+                if VATAmountLCY <> 0 then
                     "Sales/Purch. (LCY)" := ("Amount (LCY)" + VATAmountLCY);
             end;
         end;
@@ -5003,7 +5005,7 @@ table 81 "Gen. Journal Line"
 
         OnLookUpAppliesToDocCustOnAfterSetFilters(CustLedgEntry, Rec, AccNo);
 
-        If RunApplyCustEntriesPageLookupOk(AccNo) then begin
+        if RunApplyCustEntriesPageLookupOk(AccNo) then begin
             OnLookUpAppliesToDocCustOnAfterApplyCustEntriesGetRecord(Rec, CustLedgEntry);
             if AccNo = '' then begin
                 AccNo := CustLedgEntry."Customer No.";
@@ -5557,11 +5559,9 @@ table 81 "Gen. Journal Line"
 
     [Scope('OnPrem')]
     procedure ValidateIncludeInDT(): Boolean
-    var
-        VATTransReportAmount: Record "VAT Transaction Report Amount";
     begin
         "Include in VAT Transac. Rep." := false;
-        if Country.CheckNotEUCountry("Country/Region Code") and CheckincludeInVATSetup then
+        if Country.CheckNotEUCountry("Country/Region Code") and CheckincludeInVATSetup() then
             "Include in VAT Transac. Rep." := true;
         exit("Include in VAT Transac. Rep.");
     end;
@@ -6098,16 +6098,40 @@ table 81 "Gen. Journal Line"
             AccType::Customer:
                 begin
                     GetAppliesToDocCustLedgEntry(CustLedgEntry, AccNo);
-                    exit(CustLedgEntry."Due Date");
+                    Result := CustLedgEntry."Due Date";
                 end;
             AccType::Vendor:
                 begin
                     GetAppliesToDocVendLedgEntry(VendLedgEntry, AccNo);
-                    exit(VendLedgEntry."Due Date");
+                    Result := VendLedgEntry."Due Date";
                 end;
         end;
 
         OnAfterGetAppliesToDocDueDate(Rec, AccType, AccNo, Result);
+    end;
+
+    procedure GetAppliesToDocPmtDiscountDate() Result: Date
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GenJournalAccountType: Enum "Gen. Journal Account Type";
+        GenJournalAccountNo: Code[20];
+    begin
+        GetAccTypeAndNo(Rec, GenJournalAccountType, GenJournalAccountNo);
+        case GenJournalAccountType of
+            GenJournalAccountType::Customer:
+                begin
+                    GetAppliesToDocCustLedgEntry(CustLedgerEntry, GenJournalAccountNo);
+                    Result := CustLedgerEntry."Pmt. Discount Date";
+                end;
+            GenJournalAccountType::Vendor:
+                begin
+                    GetAppliesToDocVendLedgEntry(VendorLedgerEntry, GenJournalAccountNo);
+                    Result := VendorLedgerEntry."Pmt. Discount Date";
+                end;
+        end;
+
+        OnAfterGetAppliesToDocPmtDiscountDate(Rec, GenJournalAccountType, GenJournalAccountNo, Result);
     end;
 
     local procedure GetAppliesToDocCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; AccNo: Code[20])
@@ -6162,8 +6186,8 @@ table 81 "Gen. Journal Line"
           ("VAT Bus. Posting Group" <> ''))) then begin
             if not VATBusPostingGroup.Get("Bal. VAT Bus. Posting Group") then
                 VATBusPostingGroup.Get("VAT Bus. Posting Group");
-            NoSeriesMgt.TestDateOrder(VATBusPostingGroup."Default Purch. Operation Type");
             NoSeries.Get(VATBusPostingGroup."Default Purch. Operation Type");
+            NoSeries.TestField("Date Order");
             "Reverse Sales VAT No. Series" := NoSeries."Reverse Sales VAT No. Series";
             "Deductible %" := VATPostingSetup."Deductible %";
         end;
@@ -6472,15 +6496,13 @@ table 81 "Gen. Journal Line"
         OldFilterGroup: Integer;
         HasExportedLines: Boolean;
     begin
-        with GenJnlLine do begin
-            CopyFilters(Rec);
-            OldFilterGroup := FilterGroup;
-            FilterGroup := 10;
-            SetRange("Exported to Payment File", true);
-            HasExportedLines := not IsEmpty();
-            SetRange("Exported to Payment File");
-            FilterGroup := OldFilterGroup;
-        end;
+        GenJnlLine.CopyFilters(Rec);
+        OldFilterGroup := GenJnlLine.FilterGroup;
+        GenJnlLine.FilterGroup := 10;
+        GenJnlLine.SetRange("Exported to Payment File", true);
+        HasExportedLines := not GenJnlLine.IsEmpty();
+        GenJnlLine.SetRange("Exported to Payment File");
+        GenJnlLine.FilterGroup := OldFilterGroup;
         exit(HasExportedLines);
     end;
 
@@ -7230,19 +7252,6 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
-    local procedure CheckCurrencyForEmployee(Condition: Boolean)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckCurrencyForEmployee(Rec, IsHandled, Condition);
-        if IsHandled then
-            exit;
-
-        if Condition then
-            Error(OnlyLocalCurrencyForEmployeeErr);
-    end;
-
     procedure CheckModifyCurrencyCode(AccountType: Enum "Gen. Journal Account Type"; CustVendLedgEntryCurrencyCode: Code[10])
     begin
         if Amount = 0 then
@@ -7357,32 +7366,25 @@ table 81 "Gen. Journal Line"
         exit(false);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnCheckGenJournalLinePostRestrictions()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnCheckGenJournalLinePrintCheckRestrictions()
     begin
     end;
 
-    procedure IncrementDocumentNo(GenJnlBatch: Record "Gen. Journal Batch"; var LastDocNumber: Code[20])
-    var
-        NoSeriesLine: Record "No. Series Line";
+#if not CLEAN24
+    [Obsolete('Use SimulateGetNextNo from "No. Series - Batch" instead', '24.0')]
+    procedure IncrementDocumentNo(LocGenJnlBatch: Record "Gen. Journal Batch"; var LastDocNumber: Code[20])
     begin
-        if GenJnlBatch."No. Series" <> '' then begin
-            NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, GenJnlBatch."No. Series", "Posting Date");
-            if NoSeriesLine."Increment-by No." > 1 then
-                NoSeriesMgt.IncrementNoText(LastDocNumber, NoSeriesLine."Increment-by No.")
-            else
-                LastDocNumber := IncStr(LastDocNumber);
-        end else
-            LastDocNumber := IncStr(LastDocNumber);
+        LastDocNumber := NoSeriesBatch.SimulateGetNextNo(LocGenJnlBatch."No. Series", Rec."Posting Date", LastDocNumber);
     end;
-
+#endif
     procedure NeedCheckZeroAmount(): Boolean
     begin
         exit(
@@ -7475,6 +7477,10 @@ table 81 "Gen. Journal Line"
                 ClearPostingGroups();
         Validate("Deferral Code", GLAcc."Default Deferral Template Code");
 
+        GLSetup.Get();
+        if ("Currency Code" = '') or ("Currency Code" = GLSetup."LCY Code") then
+            "Currency Code" := GLAcc."Source Currency Code";
+
         OnAfterAccountNoOnValidateGetGLAccount(Rec, GLAcc, CurrFieldNo);
     end;
 
@@ -7521,6 +7527,10 @@ table 81 "Gen. Journal Line"
         if Rec."Posting Date" <> 0D then
             if "Posting Date" = ClosingDate("Posting Date") then
                 ClearBalancePostingGroups();
+
+        GLSetup.Get();
+        if ("Currency Code" = '') or ("Currency Code" = GLSetup."LCY Code") then
+            "Currency Code" := GLAcc."Source Currency Code";
 
         OnAfterAccountNoOnValidateGetGLBalAccount(Rec, GLAcc, CurrFieldNo);
     end;
@@ -7690,7 +7700,8 @@ table 81 "Gen. Journal Line"
         UpdateDescriptionWithEmployeeName(Employee);
         "Posting Group" := Employee."Employee Posting Group";
         SetSalespersonPurchaserCode(Employee."Salespers./Purch. Code", "Salespers./Purch. Code");
-        "Currency Code" := '';
+        if not SetCurrencyCode("Bal. Account Type", "Bal. Account No.") then
+            "Currency Code" := Employee."Currency Code";
         ClearPostingGroups();
 
         OnAfterAccountNoOnValidateGetEmployeeAccount(Rec, Employee);
@@ -7745,7 +7756,8 @@ table 81 "Gen. Journal Line"
             UpdateDescriptionWithEmployeeName(Employee);
         "Posting Group" := Employee."Employee Posting Group";
         SetSalespersonPurchaserCode(Employee."Salespers./Purch. Code", "Salespers./Purch. Code");
-        "Currency Code" := '';
+        if ("Account No." = '') or ("Account Type" = "Account Type"::"G/L Account") then
+            "Currency Code" := Employee."Currency Code";
         ClearBalancePostingGroups();
 
         OnAfterAccountNoOnValidateGetEmployeeBalAccount(Rec, Employee, CurrFieldNo);
@@ -7955,11 +7967,11 @@ table 81 "Gen. Journal Line"
     local procedure GenerateLineDocNo(BatchName: Code[10]; PostingDate: Date; TemplateName: Code[20]) DocumentNo: Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         GenJournalBatch.Get(TemplateName, BatchName);
         if GenJournalBatch."No. Series" <> '' then
-            DocumentNo := NoSeriesManagement.TryGetNextNo(GenJournalBatch."No. Series", PostingDate);
+            DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series", PostingDate);
     end;
 
     local procedure GetFilterAccountNo(): Code[20]
@@ -8159,7 +8171,7 @@ table 81 "Gen. Journal Line"
         GenJnlLine2.SetRange("Account No.", xRec."Account No.");
         GenJnlLine2.SetRange("Applies-to ID", xRec."Applies-to ID");
         GenJnlLine2.SetFilter("Line No.", '<>%1', "Line No.");
-        If GenJnlLine2.Count = 0 then
+        if GenJnlLine2.Count = 0 then
             exit(true);
     end;
 
@@ -8463,6 +8475,11 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAppliesToDocPmtDiscountDate(var GenJournalLine: Record "Gen. Journal Line"; GenJournalAccountType: Enum "Gen. Journal Account Type"; GenJournalAccountNo: Code[20]; var Result: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetAppliesToDocEntryNo(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; var Result: Integer)
     begin
     end;
@@ -8583,11 +8600,13 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('Subscribe to OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries in Gen. Jnl.-Post Batch instead.', '24.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDimensionsFromJobTaskLine(TempJobJnlLine: Record "Job Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
@@ -8963,12 +8982,12 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateLineBalanceOnAfterAssignBalanceLCY(var BalanceLCY: Decimal; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnValidateAmountOnAfterAssignAmountLCY(var AmountLCY: Decimal)
     begin
     end;
@@ -8978,7 +8997,7 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnValidateBalVATPctOnAfterAssignBalVATAmountLCY(var BalVATAmountLCY: Decimal)
     begin
     end;
@@ -9127,7 +9146,7 @@ table 81 "Gen. Journal Line"
         BankAccount: Record "Bank Account";
     begin
         clear("Balance Account Id");
-        Case "Bal. Account Type" of
+        case "Bal. Account Type" of
             "Bal. Account Type"::"G/L Account":
                 begin
                     if not GLAccount.Get("Bal. Account No.") then
@@ -9150,7 +9169,7 @@ table 81 "Gen. Journal Line"
     begin
         if IsNullGuid("Balance Account Id") then
             exit;
-        Case "Bal. Account Type" of
+        case "Bal. Account Type" of
             "Bal. Account Type"::"G/L Account":
                 begin
                     if not GLAccount.GetBySystemId("Balance Account Id") then
@@ -9405,7 +9424,7 @@ table 81 "Gen. Journal Line"
             UpdateDescription(Employee.Initials);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnGenJnlLineGetVendorAccount(Vendor: Record Vendor)
     begin
@@ -9538,7 +9557,7 @@ table 81 "Gen. Journal Line"
         else
             VATAmountLCY :=
                 Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(ExchangeDate, "Currency Code", "VAT Amount", "Currency Factor"),
+                    CurrExchRate.ExchangeAmtFCYToLCY(ExchangeDate(), "Currency Code", "VAT Amount", "Currency Factor"),
                     LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
 
         exit(VATAmountLCY);
@@ -9577,9 +9596,9 @@ table 81 "Gen. Journal Line"
         GenJnlLine1: Record "Gen. Journal Line";
         tempVATAmount: Decimal;
     begin
-        If "Document No." = '' then
+        if "Document No." = '' then
             exit;
-        If ("Recurring Method" <> "Recurring Method"::" ") then begin
+        if ("Recurring Method" <> "Recurring Method"::" ") then begin
             CalculateVATAmountonGenJnlAllocation(Rec, VATAmount);
             tempVATAmount := "VAT Amount";
             "VAT Amount" := VATAmount;
@@ -9594,12 +9613,12 @@ table 81 "Gen. Journal Line"
         VATAmount := VATAmount + GenJnlLine1."VAT Amount";
         VATAmountLCY := VATAmountLCY + GenJnlLine1."VAT Amount (LCY)";
 
-        If Amount < 0 then
+        if Amount < 0 then
             VATAmount := Abs(VATAmount)
         else
             VATAmount := -1 * Abs(VATAmount);
 
-        If "Amount (LCY)" < 0 then
+        if "Amount (LCY)" < 0 then
             VATAmountLCY := Abs(VATAmountLCY)
         else
             VATAmountLCY := -1 * Abs(VATAmountLCY);
@@ -9888,11 +9907,13 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+#if not CLEAN24
     [IntegrationEvent(false, false)]
+    [Obsolete('Currency posting for employee is now allowed, so check was removed', '24.0')]
     local procedure OnBeforeCheckCurrencyForEmployee(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Condition: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnValidateJobNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin

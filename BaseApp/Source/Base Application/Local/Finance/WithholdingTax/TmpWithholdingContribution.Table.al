@@ -11,6 +11,7 @@ using Microsoft.Purchases.Vendor;
 table 12113 "Tmp Withholding Contribution"
 {
     Caption = 'Tmp Withholding Contribution';
+    DataClassification = CustomerContent;
 
     fields
     {

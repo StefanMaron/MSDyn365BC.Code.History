@@ -531,13 +531,11 @@
 
     local procedure InsertTempGroupedGenJnlLine(var PaymentExportData: Record "Payment Export Data")
     begin
-        with TempGroupedGenJnlLine do begin
-            "Journal Template Name" := PaymentExportData."General Journal Template";
-            "Journal Batch Name" := PaymentExportData."General Journal Batch Name";
-            "Line No." := PaymentExportData."General Journal Line No.";
-            if not Find() then
-                Insert();
-        end;
+        TempGroupedGenJnlLine."Journal Template Name" := PaymentExportData."General Journal Template";
+        TempGroupedGenJnlLine."Journal Batch Name" := PaymentExportData."General Journal Batch Name";
+        TempGroupedGenJnlLine."Line No." := PaymentExportData."General Journal Line No.";
+        if not TempGroupedGenJnlLine.Find() then
+            TempGroupedGenJnlLine.Insert();
     end;
 }
 

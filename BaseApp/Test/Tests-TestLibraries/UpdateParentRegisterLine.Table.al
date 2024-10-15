@@ -1,6 +1,7 @@
 table 139143 "Update Parent Register Line"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

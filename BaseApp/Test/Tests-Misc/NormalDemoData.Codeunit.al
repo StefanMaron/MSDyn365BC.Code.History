@@ -35,7 +35,6 @@ codeunit 138200 "Normal DemoData"
         Assert.AreEqual(IsDemoCompany, CompanyInformation."Demo Company", StrSubstNo('%1 must be set to true for Company: %2', CompanyInformation.FieldName("Demo Company"), CompanyInformation.Name));
     end;
 
-
     [Test]
     [Scope('OnPrem')]
     procedure CountSalesDocuments()
@@ -244,7 +243,6 @@ codeunit 138200 "Normal DemoData"
     [Scope('OnPrem')]
     procedure JobDefaultDimension()
     var
-
         Job: Record Job;
     begin
         // [FEATURE] [Job] [Dimensions]
@@ -304,7 +302,9 @@ codeunit 138200 "Normal DemoData"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
     [Test]
+    [Obsolete('Not Used.', '22.0')]
     procedure AdvancedIntrastatChecklist()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -321,6 +321,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Partner VAT ID"), '');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
     end;
+#pragma warning restore AS0072
 #endif
 
     [Test]

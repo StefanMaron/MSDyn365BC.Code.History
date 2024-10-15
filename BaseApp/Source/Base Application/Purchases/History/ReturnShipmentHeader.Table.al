@@ -39,6 +39,7 @@ table 6650 "Return Shipment Header"
     DataCaptionFields = "No.", "Buy-from Vendor Name";
     DrillDownPageID = "Posted Return Shipments";
     LookupPageID = "Posted Return Shipments";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -625,11 +626,9 @@ table 6650 "Return Shipment Header"
     var
         ReportSelection: Record "Report Selections";
     begin
-        with ReturnShptHeader do begin
-            Copy(Rec);
-            ReportSelection.PrintWithDialogForVend(
-              ReportSelection.Usage::"P.Ret.Shpt.", ReturnShptHeader, ShowRequestForm, FieldNo("Buy-from Vendor No."));
-        end;
+        ReturnShptHeader.Copy(Rec);
+        ReportSelection.PrintWithDialogForVend(
+          ReportSelection.Usage::"P.Ret.Shpt.", ReturnShptHeader, ShowRequestForm, ReturnShptHeader.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure Navigate()

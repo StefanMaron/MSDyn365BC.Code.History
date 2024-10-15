@@ -37,7 +37,7 @@ codeunit 144186 "UT VAT Settlement"
     begin
         // Purpose of the test is to validate VAT Period - OnValidate Trigger of Table ID - 12135 Periodic Settlement VAT Entry.
         // Verify error 'VAT Period must be 7 characters, for example, YYYY/MM'
-        OnValidateVATPeriodPeriodicSettlement(LibraryUTUtility.GetNewCode10);
+        OnValidateVATPeriodPeriodicSettlement(LibraryUTUtility.GetNewCode10());
     end;
 
     [Test]
@@ -72,10 +72,10 @@ codeunit 144186 "UT VAT Settlement"
           '',// DocNo is not used in test
           GLAccount."No.", GLAccount."No.", GLAccount."No.", true, false);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName);
+        CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // Verify and Tear down
-        VerifyCalcAndPostVATSettlementReportContentExistence;
+        VerifyCalcAndPostVATSettlementReportContentExistence();
     end;
 
     local procedure Initialize()
@@ -136,8 +136,8 @@ codeunit 144186 "UT VAT Settlement"
         ValueFound: Boolean;
     begin
         // Verify Saved Report's Data.
-        LibraryReportValidation.DownloadFile;
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.DownloadFile();
+        LibraryReportValidation.OpenExcelFile();
 
         Row := LibraryReportValidation.FindRowNoFromColumnCaption(PriorPeriodColumnNameTxt);
         Column := LibraryReportValidation.FindColumnNoFromColumnCaption(PriorPeriodColumnNameTxt) + 31;

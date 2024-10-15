@@ -170,7 +170,7 @@ codeunit 144118 "ERM VAT Communication"
         UpdateVATPostingSetup(VATPostingSetup);
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"));
-        PurchaseHeader.Validate("Transport Method", CreateTransportMethod);
+        PurchaseHeader.Validate("Transport Method", CreateTransportMethod());
         PurchaseHeader.Validate("Prepmt. CM Refers to Period", PurchaseHeader."Prepmt. CM Refers to Period"::"Current Calendar Year");
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 100, 2));
         PurchaseHeader.Validate("Prepayment Due Date", WorkDate());
@@ -179,7 +179,7 @@ codeunit 144118 "ERM VAT Communication"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
           LibraryRandom.RandDec(10, 2));  // Taking random Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));  // Taking random Quantity.
-        PurchaseLine.Validate("Service Tariff No.", CreateServiceTariffNumber);
+        PurchaseLine.Validate("Service Tariff No.", CreateServiceTariffNumber());
         PurchaseLine.Modify(true);
     end;
 
@@ -202,12 +202,12 @@ codeunit 144118 "ERM VAT Communication"
         UpdateVATPostingSetup(VATPostingSetup);
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
-        SalesHeader.Validate("Transport Method", CreateTransportMethod);
+        SalesHeader.Validate("Transport Method", CreateTransportMethod());
         SalesHeader.Validate("Prepmt. CM Refers to Period", SalesHeader."Prepmt. CM Refers to Period"::Current);
         SalesHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 100, 2));
         SalesHeader.Modify(true);
         CreateSalesLine(
-          SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"), CreateServiceTariffNumber);
+          SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"), CreateServiceTariffNumber());
     end;
 
     local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; ServiceTariffNo: Code[10])
@@ -245,20 +245,20 @@ codeunit 144118 "ERM VAT Communication"
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields("Amount Including VAT");
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder."Vendor Cr. Memo No.".SetValue(PurchaseHeader."No.");
         PurchaseOrder."Check Total".SetValue(PurchInvHeader."Amount Including VAT");
-        PurchaseOrder.PostPrepaymentCreditMemo.Invoke;
+        PurchaseOrder.PostPrepaymentCreditMemo.Invoke();
     end;
 
     local procedure PostPrepaymentSalesCreditMemo(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.PostPrepaymentCreditMemo.Invoke;
+        SalesOrder.PostPrepaymentCreditMemo.Invoke();
     end;
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

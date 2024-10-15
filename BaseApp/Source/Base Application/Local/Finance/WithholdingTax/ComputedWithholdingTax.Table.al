@@ -11,6 +11,7 @@ table 12111 "Computed Withholding Tax"
 {
     Caption = 'Computed Withholding Tax';
     LookupPageID = "Computed Withholding Tax";
+    DataClassification = CustomerContent;
 
     fields
     {

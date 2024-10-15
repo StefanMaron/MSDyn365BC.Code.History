@@ -15,6 +15,7 @@ table 12186 "VAT Exemption"
     Caption = 'VAT Exemption';
     DrillDownPageID = "VAT Exemptions";
     LookupPageID = "VAT Exemptions";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -67,11 +68,11 @@ table 12186 "VAT Exemption"
             trigger OnValidate()
             var
                 SalesSetup: Record "Sales & Receivables Setup";
-                NoSeriesMgt: Codeunit NoSeriesManagement;
+                NoSeries: Codeunit "No. Series";
             begin
                 if "VAT Exempt. Int. Registry No." <> xRec."VAT Exempt. Int. Registry No." then begin
                     SalesSetup.Get();
-                    NoSeriesMgt.TestManual(SalesSetup."VAT Exemption Nos.");
+                    NoSeries.TestManual(SalesSetup."VAT Exemption Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -140,23 +141,48 @@ table 12186 "VAT Exemption"
     var
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "VAT Exempt. Int. Registry No." = '' then
             case Type of
                 Type::Customer:
                     begin
                         SalesSetup.Get();
-                        if SalesSetup."VAT Exemption Nos." <> '' then
-                            NoSeriesMgt.InitSeries(
-                              SalesSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series");
+                        if SalesSetup."VAT Exemption Nos." <> '' then begin
+#if not CLEAN24
+                            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series", IsHandled);
+                            if not IsHandled then begin
+#endif
+                                "No. Series" := SalesSetup."VAT Exemption Nos.";
+                                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                                    "No. Series" := xRec."No. Series";
+                                "VAT Exempt. Int. Registry No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."VAT Exemption Nos.", 0D, "VAT Exempt. Int. Registry No.");
+                            end;
+#endif
+                        end;
                     end;
                 Type::Vendor:
                     begin
                         PurchSetup.Get();
                         PurchSetup.TestField("VAT Exemption Nos.");
-                        NoSeriesMgt.InitSeries(
-                          PurchSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series");
+#if not CLEAN24
+                        NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series", IsHandled);
+                        if not IsHandled then begin
+#endif
+                            "No. Series" := PurchSetup."VAT Exemption Nos.";
+                            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                                "No. Series" := xRec."No. Series";
+                            "VAT Exempt. Int. Registry No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                            NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."VAT Exemption Nos.", 0D, "VAT Exempt. Int. Registry No.");
+                        end;
+#endif
                     end;
             end;
     end;

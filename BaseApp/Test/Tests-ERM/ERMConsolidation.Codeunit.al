@@ -118,10 +118,10 @@ codeunit 134092 "ERM Consolidation"
 
         // [WHEN] Run "Consolidation - Test Database" report
         LibraryVariableStorage.Enqueue('');
-        RunConsolidationTestDatabase;
+        RunConsolidationTestDatabase();
 
         // [THEN] G/L Account = "X" is printed
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('G_L_Account__No__', GLAccount."No."));
     end;
 
@@ -143,7 +143,7 @@ codeunit 134092 "ERM Consolidation"
         RunGLConsolidationEliminationsRep(GenJournalBatch);
 
         // [THEN] Report dataset contains "0"/"1" for boolean columns "FirstLine" and "FirstLine2"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('FirstLine2', '1');
     end;
 
@@ -185,7 +185,7 @@ codeunit 134092 "ERM Consolidation"
 
         // [THEN] Error "G/L Entry "GLE": Select Dimension Value Code "V1" for the Dimension Code "D1 for G/L Account "X" has been logged.
         LibraryDimension.FindDimensionSetEntry(DimSetEntry, DimSetID);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists(
           GLEntryErrTagTok,
           StrSubstNo(
@@ -251,7 +251,7 @@ codeunit 134092 "ERM Consolidation"
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Company Name", CompanyName);
         BusinessUnit.Validate("Starting Date", WorkDate());
-        BusinessUnit.Validate("Ending Date", WorkDate + 1);
+        BusinessUnit.Validate("Ending Date", WorkDate() + 1);
         BusinessUnit.Modify(true);
         Commit();
 
@@ -297,24 +297,24 @@ codeunit 134092 "ERM Consolidation"
         RunGLConsolidationEliminationsRep(GenJournalBatch);
 
         // [THEN] The amount for g/l account "A" in the report layout = "X".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('GLAcc2No', GLAccount."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_GenJournalLine', GenJournalLine.Amount);
 
         // [THEN] The amount for balanced g/l account "B" in the report layout = -"X".
         // [THEN] The description of this entry is equal to the name of "B".
         LibraryReportDataset.SetRange('GLAcc2No', BalGLAccount."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_GenJournalLine', -GenJournalLine.Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('Desc_GenJournalLine', BalGLAccount.Name);
 
         // [THEN] The amount for totaling g/l account "T" = 0.
         LibraryReportDataset.SetRange('No2__GLAccount', TotalingGLAccount."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('EliminationAmount', 0);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -705,8 +705,8 @@ codeunit 134092 "ERM Consolidation"
     local procedure CreateGLAccountWithConsolidationSetup(var GLAccount: Record "G/L Account")
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        GLAccount.Validate("Consol. Debit Acc.", LibraryERM.CreateGLAccountNo);
-        GLAccount.Validate("Consol. Credit Acc.", LibraryERM.CreateGLAccountNo);
+        GLAccount.Validate("Consol. Debit Acc.", LibraryERM.CreateGLAccountNo());
+        GLAccount.Validate("Consol. Credit Acc.", LibraryERM.CreateGLAccountNo());
         GLAccount.Modify(true);
     end;
 
@@ -715,7 +715,7 @@ codeunit 134092 "ERM Consolidation"
     begin
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Validate("Company Name", CompanyName);
-        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
+        BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo());
         BusinessUnit.Validate("Data Source", DataSource);
         BusinessUnit.Modify(true);
     end;
@@ -958,8 +958,8 @@ codeunit 134092 "ERM Consolidation"
     begin
         ConsolidationTestDatabase.StartingDate.SetValue(WorkDate());
         ConsolidationTestDatabase.EndingDate.SetValue(WorkDate());
-        ConsolidationTestDatabase.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText);
-        ConsolidationTestDatabase.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ConsolidationTestDatabase.CopyDimensions.SetValue(LibraryVariableStorage.DequeueText());
+        ConsolidationTestDatabase.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -973,20 +973,20 @@ codeunit 134092 "ERM Consolidation"
     procedure ImportConsolidationFromDBReportHandler(var ImportConsolidationfromDB: TestRequestPage "Import Consolidation from DB")
     begin
         ImportConsolidationfromDB.StartingDate.SetValue(WorkDate());
-        ImportConsolidationfromDB.EndingDate.SetValue(WorkDate + 1);
+        ImportConsolidationfromDB.EndingDate.SetValue(WorkDate() + 1);
         ImportConsolidationfromDB.DocumentNo.SetValue(LibraryRandom.RandInt(100));
-        ImportConsolidationfromDB.OK.Invoke;
+        ImportConsolidationfromDB.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLConsolidationEliminationsRPH(var GLConsolidationEliminations: TestRequestPage "G/L Consolidation Eliminations")
     begin
-        GLConsolidationEliminations.JournalTemplateName.SetValue(LibraryVariableStorage.DequeueText);
-        GLConsolidationEliminations.JournalBatch.SetValue(LibraryVariableStorage.DequeueText);
+        GLConsolidationEliminations.JournalTemplateName.SetValue(LibraryVariableStorage.DequeueText());
+        GLConsolidationEliminations.JournalBatch.SetValue(LibraryVariableStorage.DequeueText());
         GLConsolidationEliminations.StartingDate.SetValue(WorkDate());
         GLConsolidationEliminations.EndingDate.SetValue(WorkDate());
-        GLConsolidationEliminations.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLConsolidationEliminations.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -999,7 +999,7 @@ codeunit 134092 "ERM Consolidation"
         ExportConsolidation.ClientFileNameControl.SetValue('DummyFileName'); // not important
         ExportConsolidation.FileFormat.SetValue(2); // Version F&O
         ExportConsolidation."F&O Legal Entity ID".SetValue(LibraryVariableStorage.DequeueText());
-        ExportConsolidation.OK.Invoke;
+        ExportConsolidation.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]

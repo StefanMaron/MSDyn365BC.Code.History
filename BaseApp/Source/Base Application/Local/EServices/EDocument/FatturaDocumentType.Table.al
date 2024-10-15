@@ -8,6 +8,7 @@ table 12206 "Fattura Document Type"
 {
     DrillDownPageID = "Fattura Document Type List";
     LookupPageID = "Fattura Document Type List";
+    DataClassification = CustomerContent;
 
     fields
     {

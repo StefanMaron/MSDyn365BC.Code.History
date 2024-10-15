@@ -30,7 +30,7 @@ codeunit 138010 "O365 Sales Invoice Status"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Sales Invoice Status");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryApplicationArea.EnableFoundationSetup();
@@ -151,12 +151,12 @@ codeunit 138010 "O365 Sales Invoice Status"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PaymentJournal: TestPage "Payment Journal";
     begin
         GenJnlBatch.FindLast();
-        PaymentJournal.OpenEdit;
-        PaymentJournal."Document No.".SetValue(NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", SalesInvHeader."Posting Date", false));
+        PaymentJournal.OpenEdit();
+        PaymentJournal."Document No.".SetValue(NoSeries.PeekNextNo(GenJnlBatch."No. Series", SalesInvHeader."Posting Date"));
         PaymentJournal."Account Type".SetValue(GenJnlLine."Account Type"::Customer);
         PaymentJournal."Account No.".SetValue(SalesInvHeader."Sell-to Customer No.");
         if PaymentAmount < 0 then
@@ -168,7 +168,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         LibraryVariableStorage.Enqueue(ConfirmationMsg); // message for the confirm handler
         LibraryVariableStorage.Enqueue(true); // reply for the confirm handler
         LibraryVariableStorage.Enqueue(LinesPostedMsg); // message for the message handler
-        PaymentJournal.Post.Invoke;
+        PaymentJournal.Post.Invoke();
         PaymentJournal.Close();
         Commit();
     end;
@@ -177,7 +177,7 @@ codeunit 138010 "O365 Sales Invoice Status"
     var
         PostedSalesInvoices: TestPage "Posted Sales Invoices";
     begin
-        PostedSalesInvoices.OpenView;
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.GotoRecord(SalesInvHeader);
         PostedSalesInvoices.Closed.AssertEquals(ExpectedPaymentStatus);
         PostedSalesInvoices."Remaining Amount".AssertEquals(ExpectedRemainingAmount);

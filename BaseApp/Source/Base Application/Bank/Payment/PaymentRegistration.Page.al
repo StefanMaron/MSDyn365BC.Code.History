@@ -185,7 +185,7 @@ page 981 "Payment Registration"
                             ApplicationArea = Basic, Suite;
                             Editable = false;
                             Style = Unfavorable;
-                            StyleExpr = TRUE;
+                            StyleExpr = true;
                             ToolTip = 'Specifies a warning about the payment, such as past due date.';
                         }
                     }
@@ -398,15 +398,6 @@ page 981 "Payment Registration"
                 actionref(Details_Promoted; Details)
                 {
                 }
-#if not CLEAN21
-                actionref(OpenGenJnl_Promoted; OpenGenJnl)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category6)
             {

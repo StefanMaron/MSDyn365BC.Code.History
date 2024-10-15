@@ -9,6 +9,7 @@ table 12105 "Withhold Code Line"
     Caption = 'Withhold Code Line';
     DrillDownPageID = "Withhold Code Lines";
     LookupPageID = "Withhold Code Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

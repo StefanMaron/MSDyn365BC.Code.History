@@ -14,6 +14,7 @@ table 12177 "Issued Customer Bill Header"
 {
     Caption = 'Issued Customer Bill Header';
     LookupPageID = "List of Issued Cust. Bills";
+    DataClassification = CustomerContent;
 
     fields
     {

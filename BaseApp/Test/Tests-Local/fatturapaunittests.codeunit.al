@@ -112,7 +112,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         Initialize();
 
         // [GIVEN] Customer with VAT Business Posting Group
-        Customer.Get(CreateCustomerNo);
+        Customer.Get(CreateCustomerNo());
 
         // [GIVEN] 2 VAT Posting Setups with the Same VAT Business Posting Group. Different Product Posting Groups: VAT Rate 1 = "10", VAT Rate 2 = "0"
         VATRate[1] := LibraryRandom.RandDec(10, 2);
@@ -216,7 +216,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         if IsInitialized then
             exit;
 
-        LibraryITLocalization.SetupFatturaPA;
+        LibraryITLocalization.SetupFatturaPA();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
@@ -226,16 +226,16 @@ codeunit 144208 "FatturaPA Unit Tests"
     var
         CustNo: Code[20];
     begin
-        CustNo := CreateCustomerNo;
+        CustNo := CreateCustomerNo();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
         SalesHeader.Validate(
-          "Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
+          "Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode());
         SalesHeader.Validate(
-          "Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
-        SalesHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+          "Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode());
+        SalesHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -246,9 +246,9 @@ codeunit 144208 "FatturaPA Unit Tests"
         TransferExtendedText: Codeunit "Transfer Extended Text";
         i: Integer;
     begin
-        CreateFatturaSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo);
+        CreateFatturaSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo());
         for i := 1 to 2 do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithExtendedText, LibraryRandom.RandInt(100));
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithExtendedText(), LibraryRandom.RandInt(100));
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
             SalesLine.Modify(true);
             TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, true);
@@ -259,8 +259,8 @@ codeunit 144208 "FatturaPA Unit Tests"
     local procedure CreateFatturaSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
-        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode());
+        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode());
         SalesHeader.Modify(true);
     end;
 
@@ -302,7 +302,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         ExtendedTextHeader.Validate("Service Credit Memo", true);
         ExtendedTextHeader.Modify(true);
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
-        ExtendedTextLine.Validate(Text, CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(ExtendedTextLine.Text)));
+        ExtendedTextLine.Validate(Text, CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(ExtendedTextLine.Text)));
         ExtendedTextLine.Modify(true);
         exit(Item."No.");
     end;

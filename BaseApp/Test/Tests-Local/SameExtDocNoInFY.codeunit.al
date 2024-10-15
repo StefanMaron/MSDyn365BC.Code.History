@@ -44,10 +44,10 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         LibraryLowerPermissions.SetO365BasicISV();
 
         PurchasesPayablesSetup.OpenEdit();
-        Assert.IsTrue(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY".Visible, 'The field is not visible');
-        Assert.IsTrue(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY".Editable, 'The field is not editable');
-        Assert.IsTrue(PurchasesPayablesSetup."Ext. Doc. No. Period Source".Visible, 'The field is not visible');
-        Assert.IsFalse(PurchasesPayablesSetup."Ext. Doc. No. Period Source".Editable, 'The field is editable');
+        Assert.IsTrue(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY".Visible(), 'The field is not visible');
+        Assert.IsTrue(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY".Editable(), 'The field is not editable');
+        Assert.IsTrue(PurchasesPayablesSetup."Ext. Doc. No. Period Source".Visible(), 'The field is not visible');
+        Assert.IsFalse(PurchasesPayablesSetup."Ext. Doc. No. Period Source".Editable(), 'The field is editable');
 
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
@@ -67,10 +67,10 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         LibraryLowerPermissions.SetO365BasicISV();
 
         PurchasesPayablesSetup.OpenEdit();
-        Assert.IsTrue(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY".Visible, 'The field is not visible');
-        Assert.IsTrue(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY".Editable, 'The field is not editable');
-        Assert.IsTrue(PurchasesPayablesSetup."Ext. Doc. No. Period Source".Visible, 'The field is not visible');
-        Assert.IsTrue(PurchasesPayablesSetup."Ext. Doc. No. Period Source".Editable, 'The field is not editable');
+        Assert.IsTrue(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY".Visible(), 'The field is not visible');
+        Assert.IsTrue(PurchasesPayablesSetup."Same Ext. Doc. No. in Diff. FY".Editable(), 'The field is not editable');
+        Assert.IsTrue(PurchasesPayablesSetup."Ext. Doc. No. Period Source".Visible(), 'The field is not visible');
+        Assert.IsTrue(PurchasesPayablesSetup."Ext. Doc. No. Period Source".Editable(), 'The field is not editable');
 
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
@@ -86,7 +86,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         // [SCENARIO 392185] when option "Same Ext. Doc. No. in Diff. FY" is disabled
         Initialize();
 
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddPurchDocsPost();
@@ -116,7 +116,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         // [SCENARIO 392185] when option "Same Ext. Doc. No. in Diff. FY" is disabled
         Initialize();
 
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddPurchDocsPost();
@@ -147,7 +147,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         // [SCENARIO 392185] when "Same Ext. Doc. No. in Diff. FY" = Yes, "Ext. Doc. No. Period Source" = "Calendar Year"
         Initialize();
 
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddPurchDocsPost();
@@ -179,7 +179,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         // [SCENARIO 392185] when "Same Ext. Doc. No. in Diff. FY" = Yes, "Ext. Doc. No. Period Source" = "Fiscal Year"
         Initialize();
 
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddPurchDocsPost();
@@ -194,7 +194,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.02.2018 and "External Doc. No." = "X"
         asserterror
-          PostPurhInvWithExtDocNo(GetDateFromFiscalYear(WorkDate + 1), VendNo, ExtDocNo);
+          PostPurhInvWithExtDocNo(GetDateFromFiscalYear(WorkDate() + 1), VendNo, ExtDocNo);
 
         // [THEN] Error "Purchase Invoice G001 already exists for this vendor"
         Assert.ExpectedError(StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
@@ -212,7 +212,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         // [SCENARIO 392185] when "Same Ext. Doc. No. in Diff. FY" = Yes, "Ext. Doc. No. Period Source" = "Calendar Year"
         Initialize();
 
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddPurchDocsPost();
@@ -244,7 +244,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         // [SCENARIO 392185] when "Same Ext. Doc. No. in Diff. FY" = Yes, "Ext. Doc. No. Period Source" = "Fiscal Year"
         Initialize();
 
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddPurchDocsPost();
@@ -276,7 +276,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         // [SCENARIO 392185] when "Same Ext. Doc. No. in Diff. FY" = Yes, "Ext. Doc. No. Period Source" = "Fiscal Year"
         Initialize();
 
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate();
         LibraryLowerPermissions.AddPurchDocsPost();
@@ -313,7 +313,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(true);
         SetExtDocPeriodSource(PeriodSourceRef::"Calendar Year");
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         EntryNo := MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
         MockVendorLedgerEntry(VendNo, CalcDate('<1Y>', WorkDate()), ExtDocNo);
         VendorMgt.SetFilterForExternalDocNo(
@@ -340,7 +340,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(true);
         SetExtDocPeriodSource(PeriodSourceRef::"Fiscal Year");
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         EntryNo := MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
         MockVendorLedgerEntry(VendNo, GetDateFromFiscalYear(CalcDate('<1Y>', WorkDate())), ExtDocNo);
         VendorMgt.SetFilterForExternalDocNo(
@@ -369,19 +369,19 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextYear(GenJournalLine, CalcDate('<1Y>', WorkDate()), VendNo, 1, ExtDocNo);
-        Commit;
+        Commit();
         GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "General Journal - Test" report against General Journal Line
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
 
         // [THEN] An error "Purchase Invoice X already exists" prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(4);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'ErrorTextNumber', StrSubstNo(PurchInvExistsInRepErr, UpperCase(ExtDocNo)));
@@ -406,19 +406,19 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextYear(GenJournalLine, CalcDate('<1Y>', WorkDate()), VendNo, 1, ExtDocNo);
-        Commit;
+        Commit();
         GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "General Journal - Test" report against General Journal Line
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorTextNumber', StrSubstNo(PurchInvExistsInRepErr, UpperCase(ExtDocNo)));
     end;
@@ -442,19 +442,19 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextYear(GenJournalLine, GetDateFromFiscalYear(CalcDate('<1Y>', WorkDate())), VendNo, 1, ExtDocNo);
-        Commit;
+        Commit();
         GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "General Journal - Test" report against General Journal Line
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorTextNumber', StrSubstNo(PurchInvExistsInRepErr, UpperCase(ExtDocNo)));
     end;
@@ -478,19 +478,19 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextYear(GenJournalLine, CalcDate('<1Y>', WorkDate()), VendNo, -1, ExtDocNo);
-        Commit;
+        Commit();
         GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "Vendor Pre-Payment Journal" report against General Journal Line
         RunVendorPrepaymentJnl(GenJournalLine);
 
         // [THEN] An error "Purchase Invoice X already exists" prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(2);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'ErrorText_Number_', StrSubstNo(PurchInvExistsInRepErr, UpperCase(ExtDocNo)));
@@ -516,19 +516,19 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextYear(GenJournalLine, CalcDate('<1Y>', WorkDate()), VendNo, -1, ExtDocNo);
-        Commit;
+        Commit();
         GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "Vendor Pre-Payment Journal" report against General Journal Line
         RunVendorPrepaymentJnl(GenJournalLine);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvExistsInRepErr, UpperCase(ExtDocNo)));
     end;
@@ -553,19 +553,19 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextYear(GenJournalLine, GetDateFromFiscalYear(CalcDate('<1Y>', WorkDate())), VendNo, -1, ExtDocNo);
-        Commit;
+        Commit();
         GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "Vendor Pre-Payment Journal" report against General Journal Line
         RunVendorPrepaymentJnl(GenJournalLine);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvExistsInRepErr, UpperCase(ExtDocNo)));
     end;
@@ -589,20 +589,20 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Invoice with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextYear(
           PurchaseHeader, CalcDate('<1Y>', WorkDate()), PurchaseHeader."Document Type"::Invoice, VendNo, ExtDocNo, 0);
-        Commit;
+        Commit();
         PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Document - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Document - Test", true, false, PurchaseHeader);
 
         // [THEN] An error "Purchase Invoice X already exists" prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(2);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
@@ -628,20 +628,20 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Invoice with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextYear(
           PurchaseHeader, CalcDate('<1Y>', WorkDate()), PurchaseHeader."Document Type"::Invoice, VendNo, ExtDocNo, 0);
-        Commit;
+        Commit();
         PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Document - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Document - Test", true, false, PurchaseHeader);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
     end;
@@ -666,20 +666,20 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Invoice with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextYear(
           PurchaseHeader, GetDateFromFiscalYear(CalcDate('<1Y>', WorkDate())), PurchaseHeader."Document Type"::Invoice, VendNo, ExtDocNo, 0);
-        Commit;
+        Commit();
         PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Document - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Document - Test", true, false, PurchaseHeader);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
     end;
@@ -703,20 +703,20 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Prepayment Order with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextYear(
           PurchaseHeader, CalcDate('<1Y>', WorkDate()), PurchaseHeader."Document Type"::Order, VendNo, ExtDocNo, LibraryRandom.RandDec(50, 2));
-        Commit;
+        Commit();
         PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Prepmt. Doc. - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test", true, false, PurchaseHeader);
 
         // [THEN] An error "Purchase Invoice X already exists" prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(2);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
@@ -742,20 +742,20 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Prepayment Order with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextYear(
           PurchaseHeader, CalcDate('<1Y>', WorkDate()), PurchaseHeader."Document Type"::Order, VendNo, ExtDocNo, LibraryRandom.RandDec(50, 2));
-        Commit;
+        Commit();
         PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Prepmt. Doc. - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test", true, false, PurchaseHeader);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
     end;
@@ -780,20 +780,20 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Prepayment Order with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextYear(
           PurchaseHeader, CalcDate('<1Y>', WorkDate()), PurchaseHeader."Document Type"::Order, VendNo, ExtDocNo, LibraryRandom.RandDec(50, 2));
-        Commit;
+        Commit();
         PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Prepmt. Doc. - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test", true, false, PurchaseHeader);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
     end;
@@ -810,7 +810,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryFiscalYear.CreateFiscalYear();
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Same Ext. Doc. No. In FY");
     end;
@@ -863,7 +863,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -913,11 +913,11 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         GenJournalLine.Validate("External Document No.",
           CopyStr(ExtDocNo, 1, MaxStrLen(GenJournalLine."External Document No.")));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePurchDocInNextYear(var PurchaseHeader: Record "Purchase Header"; DocumentDate: Date; DocType: Option; VendNo: Code[20]; ExtDocNo: Text; PrepmtPct: Decimal)
+    local procedure CreatePurchDocInNextYear(var PurchaseHeader: Record "Purchase Header"; DocumentDate: Date; DocType: Enum "Purchase Document Type"; VendNo: Code[20]; ExtDocNo: Text; PrepmtPct: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -931,7 +931,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -961,28 +961,28 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
     [Scope('OnPrem')]
     procedure GeneralJournalTestRequestPageHandler(var GeneralJournalTest: TestRequestPage "General Journal - Test")
     begin
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorPrepaymentJnlRequestPageHandler(var VendorPrepaymentJnl: TestRequestPage "Vendor Pre-Payment Journal")
     begin
-        VendorPrepaymentJnl.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPrepaymentJnl.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
-        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchDocumentPrepmtTestRequestPageHandler(var PurchasePrepmtDocTest: TestRequestPage "Purchase Prepmt. Doc. - Test")
     begin
-        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

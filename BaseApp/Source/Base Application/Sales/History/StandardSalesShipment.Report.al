@@ -723,8 +723,8 @@ report 1308 "Standard Sales - Shipment"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 if not IsReportInPreviewMode() then
@@ -904,7 +904,7 @@ report 1308 "Standard Sales - Shipment"
         RespCenter: Record "Responsibility Center";
         SellToContact: Record Contact;
         BillToContact: Record Contact;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
@@ -933,10 +933,10 @@ report 1308 "Standard Sales - Shipment"
         BilledToLbl: Label 'Billed to';
         QuestionsLbl: Label 'Questions?';
         ThanksLbl: Label 'Thank You!';
-        JobNoLbl: Label 'Job No.';
-        JobTaskNoLbl: Label 'Job Task No.';
+        JobNoLbl: Label 'Project No.';
+        JobTaskNoLbl: Label 'Project Task No.';
         JobTaskDescription: Text[100];
-        JobTaskDescLbl: Label 'Job Task Description';
+        JobTaskDescLbl: Label 'Project Task Description';
         UnitLbl: Label 'Unit';
         QtyLbl: Label 'Qty', Comment = 'Short form of Quantity';
         SalespersonLbl: Label 'Salesperson';
@@ -1148,10 +1148,8 @@ report 1308 "Standard Sales - Shipment"
 
     local procedure FormatDocumentFields(SalesShipmentHeader: Record "Sales Shipment Header")
     begin
-        with SalesShipmentHeader do begin
-            FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonText);
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-        end;
+        FormatDocument.SetSalesPerson(SalespersonPurchaser, SalesShipmentHeader."Salesperson Code", SalesPersonText);
+        FormatDocument.SetShipmentMethod(ShipmentMethod, SalesShipmentHeader."Shipment Method Code", SalesShipmentHeader."Language Code");
 
         OnAfterFormatDocumentFields(SalesShipmentHeader);
     end;
@@ -1188,7 +1186,7 @@ report 1308 "Standard Sales - Shipment"
     begin
     end;
 
-    [IntegrationEvent(true, FALSE)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetSalesHeader(SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;

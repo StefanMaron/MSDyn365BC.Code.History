@@ -16,7 +16,9 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Inventory.Item;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.FinancialReports;
+#if not CLEAN24
 using Microsoft.Foundation.NoSeries;
+#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Setup;
@@ -75,8 +77,10 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Item Costing Setup" = R,
                   tabledata "Lifo Band" = R,
                   tabledata "Lifo Category" = R,
+#if not CLEAN24
                   tabledata "No. Series Line Purchase" = R,
                   tabledata "No. Series Line Sales" = R,
+#endif
                   tabledata "Payment Lines" = R,
                   tabledata "Periodic Settlement VAT Entry" = R,
                   tabledata "Posted Payment Lines" = R,

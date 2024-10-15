@@ -85,7 +85,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         Initialize();
         DocumentNo :=
           PostGeneralLineAndReverse(
-            GLRegisterNo, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
+            GLRegisterNo, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo());
 
         // Verify: Verify Customer Ledger Entry after reversed successfully and error raised when try to Unapply Reversed Entry.
         VerifyReversedCustLedgEntry(DocumentNo, GenJournalLine."Document Type"::" ");
@@ -106,7 +106,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         Initialize();
         DocumentNo :=
           PostGeneralLineAndReverse(
-            GLRegisterNo, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
+            GLRegisterNo, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo());
 
         // Verify: Verify Vendor Ledger Entry after reversed successfully and error raised when try to Unapply Reversed Entry.
         VerifyReversedVendLedgEntry(DocumentNo, GenJournalLine."Document Type"::" ");
@@ -137,7 +137,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         ReversalEntry.ReverseTransaction(TransactionNo);
 
         // [THEN] Validation of successful reversal in message handler
-        ResetUnrealizedVATType;
+        ResetUnrealizedVATType();
     end;
 
     [Test]
@@ -164,7 +164,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         ReversalEntry.ReverseTransaction(TransactionNo);
 
         // [THEN] Validation of successful reversal in message handler
-        ResetUnrealizedVATType;
+        ResetUnrealizedVATType();
     end;
 
     [Test]
@@ -181,7 +181,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         // [SCENARIO 360351] It is not allowed to reverse unapplied Sales Payment transaction with associated Payment Discount
         Initialize();
-        SetGLSetupAdjPmtDisc;
+        SetGLSetupAdjPmtDisc();
         // [GIVEN] Sales Invoice with Payment Term for possible discount
         DocNo := CreateAndPostSalesDocumentPmtDisc(CustNo);
         // [GIVEN] Payment with granted Payment Discount, applied to invoice, then unapplied
@@ -200,7 +200,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         // [THEN] 7 reversed G/L Entries wil zero balance are created
         VerifyReversedGLEntryZeroBalanceCount(PmtDocNo, CustLedgerEntry."Document Type", 7);
 
-        ResetGLSetupAdjPmtDisc;
+        ReSetGLSetupAdjPmtDisc();
     end;
 
     [Test]
@@ -217,7 +217,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         // [SCENARIO 360351] It is not allowed to reverse unapplied Purchase Payment transaction with associated Payment Discount
         Initialize();
-        SetGLSetupAdjPmtDisc;
+        SetGLSetupAdjPmtDisc();
         // [GIVEN] Purchase Invoice with Payment Term for possible discount
         DocNo := CreateAndPostPurchDocumentPmtDisc(VendNo);
         // [GIVEN] Payment with granted Payment Discount, applied to invoice, then unapplied
@@ -236,7 +236,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         // [THEN] 7 reversed G/L Entries wil zero balance are created
         VerifyReversedGLEntryZeroBalanceCount(PmtDocNo, VendLedgerEntry."Document Type", 7);
 
-        ResetGLSetupAdjPmtDisc;
+        ReSetGLSetupAdjPmtDisc();
     end;
 
     [Test]
@@ -346,7 +346,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         DocumentNo := CreatePostGeneralJournalLine(AccountType, AccountNo);
 
         // Exercise: Reverse Posted Entry.
-        GLRegisterNo := ReverseEntry;
+        GLRegisterNo := ReverseEntry();
     end;
 
     local procedure CreatePostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Code[20]
@@ -391,8 +391,8 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         with VATPostingSetup do begin
             Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
             Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+            Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -420,7 +420,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         with Customer do begin
             Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
             Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate("Payment Terms Code", CreatePaymentTerm);
+            Validate("Payment Terms Code", CreatePaymentTerm());
             Modify(true);
             exit("No.");
         end;
@@ -435,7 +435,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         with Vendor do begin
             Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
             Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate("Payment Terms Code", CreatePaymentTerm);
+            Validate("Payment Terms Code", CreatePaymentTerm());
             Modify(true);
             exit("No.");
         end;
@@ -504,7 +504,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
 
     local procedure ResetGLSetupAdjPmtDisc()
     begin
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
     end;
 
@@ -672,7 +672,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         CreatePostingSetupPmtDisc(GLAccount);
 
         CustNo :=
@@ -686,7 +686,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         UpdateVATPostingSetupUnrealizedVAT(GLAccount);
 
         CustNo :=
@@ -722,7 +722,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         with GenJnlLine do begin
             Validate("Document Type", "Document Type"::Payment);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Validate("Applies-to Doc. No.", DocNo);
             Validate(Amount, DocAmount);
@@ -746,7 +746,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GLAccount: Record "G/L Account";
         PurchHeader: Record "Purchase Header";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         UpdateVATPostingSetupUnrealizedVAT(GLAccount);
         VendNo :=
           CreateVendor(
@@ -763,7 +763,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GLAccount: Record "G/L Account";
         PurchHeader: Record "Purchase Header";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         CreatePostingSetupPmtDisc(GLAccount);
         VendNo :=
           CreateVendor(

@@ -239,6 +239,11 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the program will round VAT when calculated for the local currency. When you enter an Amount Including VAT in a document, the system first calculates and rounds the Amount Excluding VAT, and then calculates by subtraction the VAT Amount because the total amount has to match the Amount Including VAT entered manually. In that case, the VAT Rounding Type does not apply as the Amount Excluding VAT is already rounded using the Amount Rounding Precision.';
                 }
+                field("Control VAT Period"; Rec."Control VAT Period")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies a way of using VAT Date against VAT Return Periods. If you choose ‘Block posting within closed and warn for released period’, system will not allow postings in closed VAT Return Period, but if the period is not closed, but VAT returns are released or submitted, user will be warned what try to post an entry with VAT Date in this period. If you choose ‘Block posting within closed period’, system will still not allow postings in closed VAT Return Period, but there will be no warnings for release or submitted VAT returns. If you choose ‘Warn when posting in closed period’, system will not block posting entry with VAT Date in the closed VAT return period, but it will show warning message before posting. And if you choose ‘Disabled’ options, system will allow you to post without any control regardless of VAT return or period status.';
+                }
                 field("Bank Account Nos."; Rec."Bank Account Nos.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -454,6 +459,11 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how the accounts set up for VAT posting in the VAT Posting Setup window will be adjusted for exchange rate fluctuations.';
                 }
+                field("Acc. Receivables Category"; Rec."Acc. Receivables Category")
+                {
+                    ApplicationArea = All;
+                    Tooltip = 'Specifies the G/L Account Category that will be used for the Account Receivables accounts.';
+                }
             }
             group(Application)
             {
@@ -506,6 +516,11 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum allowed amount that a payment or refund can differ from the amount on the related invoice or credit memo.';
+                }
+		        field("App. Dimension Posting"; Rec."App. Dimension Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies dimension source for Realized Gain/Loss application entries.';
                 }
             }
             group("Fiscal Reporting")
@@ -591,12 +606,12 @@ page 118 "General Ledger Setup"
                 field("Job WIP Jnl. Template Name"; Rec."Job WIP Jnl. Template Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the journal template you want to use for posting job WIP to G/L.';
+                    ToolTip = 'Specifies the name of the journal template you want to use for posting project WIP to G/L.';
                 }
                 field("Job WIP Jnl. Batch Name"; Rec."Job WIP Jnl. Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the journal batch you want to use for posting job WIP to G/L.';
+                    ToolTip = 'Specifies the name of the journal batch you want to use for posting project WIP to G/L.';
                 }
                 field("Bank Acc. Recon. Template Name"; Rec."Bank Acc. Recon. Template Name")
                 {

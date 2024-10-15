@@ -154,7 +154,7 @@ codeunit 144099 "UT Fiscal LIFO"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         MockItemInventory(Item."No.");
         exit(Item."No.");
@@ -162,7 +162,7 @@ codeunit 144099 "UT Fiscal LIFO"
 
     local procedure CreateItemCostHistory(var ItemCostHistory: Record "Item Cost History")
     begin
-        ItemCostHistory."Item No." := CreateItem;
+        ItemCostHistory."Item No." := CreateItem();
         ItemCostHistory."Competence Year" := WorkDate();
         ItemCostHistory."Year Average Cost" := LibraryRandom.RandDec(10, 2);
         ItemCostHistory."Weighted Average Cost" := ItemCostHistory."Year Average Cost";
@@ -178,7 +178,7 @@ codeunit 144099 "UT Fiscal LIFO"
     begin
         ItemLedgerEntry.Init();
         ItemLedgerEntry."Item No." := ItemNo;
-        ItemLedgerEntry."Posting Date" := WorkDate - LibraryRandom.RandInt(10);
+        ItemLedgerEntry."Posting Date" := WorkDate() - LibraryRandom.RandInt(10);
         ItemLedgerEntry.Quantity := LibraryRandom.RandInt(20);
         ItemLedgerEntry.Insert();
     end;
@@ -190,7 +190,7 @@ codeunit 144099 "UT Fiscal LIFO"
         Item.Get(ItemNo);
         Item.CalcFields("Net Change");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNoCap, ItemNo);
         LibraryReportDataset.AssertElementWithValueExists(UnitCostCap, UnitCost);
         LibraryReportDataset.AssertElementWithValueExists(ItemInvtTxt, Item."Net Change");
@@ -210,7 +210,7 @@ codeunit 144099 "UT Fiscal LIFO"
         FiscalInventoryValuation.CostType.SetValue(ItemCostType);
         FiscalInventoryValuation.Item.SetFilter("No.", No);
         FiscalInventoryValuation.Item.SetFilter("Date Filter", Format(WorkDate()));
-        FiscalInventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FiscalInventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

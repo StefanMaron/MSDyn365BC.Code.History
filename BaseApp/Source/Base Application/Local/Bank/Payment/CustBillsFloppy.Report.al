@@ -44,21 +44,21 @@ report 12172 "Cust Bills Floppy"
                             OldBankAcc := "Customer Bank Acc. No.";
 
                             if CumAmount <> 0 then
-                                WriteRecord(OldLines);
+                                WriteRecord(OldCustomerBillLine);
 
                             CumAmount := Amount;
                         end else begin
                             CumAmount := CumAmount + Amount;
-                            OldLines := "Customer Bill Line";
+                            OldCustomerBillLine := "Customer Bill Line";
                         end
                     else begin
                         if CumAmount <> 0 then begin
-                            WriteRecord(OldLines);
+                            WriteRecord(OldCustomerBillLine);
                             CumAmount := 0;
                         end;
                         WriteRecord("Customer Bill Line");
                     end;
-                    OldLines := "Customer Bill Line";
+                    OldCustomerBillLine := "Customer Bill Line";
                 end;
 
                 trigger OnPostDataItem()
@@ -166,7 +166,7 @@ report 12172 "Cust Bills Floppy"
         BankAcc: Record "Bank Account";
         Cust: Record Customer;
         CustBankAcc: Record "Customer Bank Account";
-        OldLines: Record "Customer Bill Line";
+        OldCustomerBillLine: Record "Customer Bill Line";
         FileMgt: Codeunit "File Management";
         LocalAppMgt: Codeunit LocalApplicationManagement;
         Window: Dialog;
@@ -253,127 +253,120 @@ report 12172 "Cust Bills Floppy"
     end;
 
     [Scope('OnPrem')]
-    procedure RECORD14(Lines: Record "Customer Bill Line")
+    procedure RECORD14(CustomerBillLine: Record "Customer Bill Line")
     var
         IsHandled: Boolean;
     begin
-        with Lines do begin
-            if "Cumulative Bank Receipts" then
-                LineAmount := Round(CumAmount, 0.01) * 100
+        if CustomerBillLine."Cumulative Bank Receipts" then
+            LineAmount := Round(CumAmount, 0.01) * 100
+        else
+            LineAmount := Round(CustomerBillLine.Amount, 0.01) * 100;
+
+        TotAmount := TotAmount + LineAmount;
+        Sign := '-';
+
+        OutText := ' 14' +
+          ConvertStr(Format(BRProgr, 7), ' ', '0') +
+          CopyStr(Dummy, 11, 12) +
+          Format(CustomerBillLine."Due Date", 6, 5) +
+          '30000' +
+          ConvertStr(Format(Abs(LineAmount), 13, 1), ' ', '0') +
+          Sign +
+          ConvertStr(Format(ABI, 5), ' ', '0') +
+          ConvertStr(Format(CAB, 5), ' ', '0');
+
+        IsHandled := false;
+        OnRECORD14OnAfterAssignOutText(CustomerBillLine, OutText, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CustBankAcc.Get(CustomerBillLine."Customer No.", CustomerBillLine."Customer Bank Acc. No.") then begin
+            CustBankAcc.TestField(ABI);
+            CustBankAcc.TestField(CAB);
+            Evaluate(CustABI, CustBankAcc.ABI);
+            Evaluate(CustCAB, CustBankAcc.CAB);
+            OutText := OutText + Format(BankAcc."Bank Account No.", 12) +
+              ConvertStr(Format(CustABI, 5), ' ', '0') +
+              ConvertStr(Format(CustCAB, 5), ' ', '0') +
+              CopyStr(Dummy, 80, 12);
+        end else
+            OutText := OutText + CopyStr(Dummy, 58, 34);
+
+        CustomerTemp := CustomerBillLine."Customer No.";
+        OutText := OutText + Format(CompanyInfo."SIA Code", 5) + '4' +
+          Format(CustomerTemp, 16) + CopyStr(Dummy, 114, 6) + CurrCode;
+    end;
+
+    [Scope('OnPrem')]
+    procedure RECORD20(CustomerBillLine: Record "Customer Bill Line")
+    begin
+        OutText :=
+            ' 20' +
+            ConvertStr(Format(BRProgr, 7), ' ', '0') +
+            Format(CompanyInfo.Name, 24) +
+            Format(CompanyInfo.Address, 24) +
+            Format(Format(CompanyInfo."Post Code"), 24) +
+            Format(CompanyInfo.City, 18);
+
+        OutText := PadStr(OutText, 120, FillChar);
+
+        OnRECORD20OnAfterAssignOutText(CustomerBillLine, OutText);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RECORD30(CustomerBillLine: Record "Customer Bill Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OutText := ' 30' + ConvertStr(Format(BRProgr, 7), ' ', '0');
+
+        IsHandled := false;
+        OnRECORD30OnAfterAssignOutText(CustomerBillLine, OutText, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Cust.Get(CustomerBillLine."Customer No.") then
+            OutText := OutText + Format(Cust.Name, 30) + Format(Cust."Name 2", 30);
+        if Cust."Fiscal Code" <> '' then
+            OutText := OutText + PadStr(Cust."Fiscal Code", 16)
+        else
+            OutText := OutText + PadStr(Cust."VAT Registration No.", 16);
+
+        OutText := PadStr(OutText, 120, FillChar);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RECORD40(CustomerBillLine: Record "Customer Bill Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OutText := ' 40' + ConvertStr(Format(BRProgr, 7), ' ', '0');
+
+        IsHandled := false;
+        OnRECORD40OnAfterAssignOutText(CustomerBillLine, OutText, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Cust.Get(CustomerBillLine."Customer No.") then begin
+            if Cust.Address = '' then
+                OutText := OutText + CopyStr(Dummy, 11, 30)
             else
-                LineAmount := Round(Amount, 0.01) * 100;
+                OutText := OutText + Format(Cust.Address, 30);
 
-            TotAmount := TotAmount + LineAmount;
-            Sign := '-';
+            OutText := OutText + Format(Cust."Post Code", 5) +
+              Format(Cust.City, 23) + Format(Cust.County, 2);
+        end;
 
-            OutText := ' 14' +
-              ConvertStr(Format(BRProgr, 7), ' ', '0') +
-              CopyStr(Dummy, 11, 12) +
-              Format("Due Date", 6, 5) +
-              '30000' +
-              ConvertStr(Format(Abs(LineAmount), 13, 1), ' ', '0') +
-              Sign +
-              ConvertStr(Format(ABI, 5), ' ', '0') +
-              ConvertStr(Format(CAB, 5), ' ', '0');
-
-            IsHandled := false;
-            OnRECORD14OnAfterAssignOutText(Lines, OutText, IsHandled);
-            if IsHandled then
-                exit;
-
-            if CustBankAcc.Get("Customer No.", "Customer Bank Acc. No.") then begin
-                CustBankAcc.TestField(ABI);
-                CustBankAcc.TestField(CAB);
+        if CustBankAcc.Get(CustomerBillLine."Customer No.", CustomerBillLine."Customer Bank Acc. No.") then
+            if (CustBankAcc.ABI <> '') and (CustBankAcc.CAB <> '') then begin
                 Evaluate(CustABI, CustBankAcc.ABI);
                 Evaluate(CustCAB, CustBankAcc.CAB);
-                OutText := OutText + Format(BankAcc."Bank Account No.", 12) +
-                  ConvertStr(Format(CustABI, 5), ' ', '0') +
-                  ConvertStr(Format(CustCAB, 5), ' ', '0') +
-                  CopyStr(Dummy, 80, 12);
+                OutText := OutText + ConvertStr(Format(CustABI, 5), ' ', '0') + ' ' +
+                  ConvertStr(Format(CustCAB, 5), ' ', '0')
             end else
-                OutText := OutText + CopyStr(Dummy, 58, 34);
+                OutText := OutText + Format(CustBankAcc.Name + ' ' + CustBankAcc.City, 50);
 
-            CustomerTemp := "Customer No.";
-            OutText := OutText + Format(CompanyInfo."SIA Code", 5) + '4' +
-              Format(CustomerTemp, 16) + CopyStr(Dummy, 114, 6) + CurrCode;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure RECORD20(Lines: Record "Customer Bill Line")
-    begin
-        with Lines do begin
-            OutText := ' 20' +
-              ConvertStr(Format(BRProgr, 7), ' ', '0') +
-              Format(CompanyInfo.Name, 24) +
-              Format(CompanyInfo.Address, 24) +
-              Format(Format(CompanyInfo."Post Code"), 24) +
-              Format(CompanyInfo.City, 18);
-
-            OutText := PadStr(OutText, 120, FillChar);
-
-            OnRECORD20OnAfterAssignOutText(Lines, OutText);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure RECORD30(Lines: Record "Customer Bill Line")
-    var
-        IsHandled: Boolean;
-    begin
-        with Lines do begin
-            OutText := ' 30' + ConvertStr(Format(BRProgr, 7), ' ', '0');
-
-            IsHandled := false;
-            OnRECORD30OnAfterAssignOutText(Lines, OutText, IsHandled);
-            if IsHandled then
-                exit;
-
-            if Cust.Get("Customer No.") then
-                OutText := OutText + Format(Cust.Name, 30) + Format(Cust."Name 2", 30);
-            if Cust."Fiscal Code" <> '' then
-                OutText := OutText + PadStr(Cust."Fiscal Code", 16)
-            else
-                OutText := OutText + PadStr(Cust."VAT Registration No.", 16);
-
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure RECORD40(Lines: Record "Customer Bill Line")
-    var
-        IsHandled: Boolean;
-    begin
-        with Lines do begin
-            OutText := ' 40' + ConvertStr(Format(BRProgr, 7), ' ', '0');
-
-            IsHandled := false;
-            OnRECORD40OnAfterAssignOutText(Lines, OutText, IsHandled);
-            if IsHandled then
-                exit;
-
-            if Cust.Get("Customer No.") then begin
-                if Cust.Address = '' then
-                    OutText := OutText + CopyStr(Dummy, 11, 30)
-                else
-                    OutText := OutText + Format(Cust.Address, 30);
-
-                OutText := OutText + Format(Cust."Post Code", 5) +
-                  Format(Cust.City, 23) + Format(Cust.County, 2);
-            end;
-
-            if CustBankAcc.Get("Customer No.", "Customer Bank Acc. No.") then
-                if (CustBankAcc.ABI <> '') and (CustBankAcc.CAB <> '') then begin
-                    Evaluate(CustABI, CustBankAcc.ABI);
-                    Evaluate(CustCAB, CustBankAcc.CAB);
-                    OutText := OutText + ConvertStr(Format(CustABI, 5), ' ', '0') + ' ' +
-                      ConvertStr(Format(CustCAB, 5), ' ', '0')
-                end else
-                    OutText := OutText + Format(CustBankAcc.Name + ' ' + CustBankAcc.City, 50);
-
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
+        OutText := PadStr(OutText, 120, FillChar);
     end;
 
     [Scope('OnPrem')]
@@ -381,79 +374,73 @@ report 12172 "Cust Bills Floppy"
     var
         IsHandled: Boolean;
     begin
-        with CustomerBillLine do begin
-            OutText := ' 50' + ConvertStr(Format(BRProgr, 7), ' ', '0');
-            
-            IsHandled := false;
-            OnRECORD50OnAfterAssignOutText(CustomerBillLine, OutText, IsHandled);
-            if IsHandled then
-                exit;
+        OutText := ' 50' + ConvertStr(Format(BRProgr, 7), ' ', '0');
 
-            if "Cumulative Bank Receipts" then
-                OutText := OutText + Format(Text002, 80)
-            else
-                OutText := OutText + Format("Document No.", 40) + Format("Document Date", 40, 5);
-            OutText := OutText + CopyStr(Dummy, 91, 10);
-            if CompanyInfo."Fiscal Code" <> '' then
-                OutText := OutText + PadStr(CompanyInfo."Fiscal Code", 16)
-            else
-                OutText := OutText + PadStr(CompanyInfo."VAT Registration No.", 16);
-            OutText := PadStr(OutText, 120, FillChar);
-        end;
+        IsHandled := false;
+        OnRECORD50OnAfterAssignOutText(CustomerBillLine, OutText, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CustomerBillLine."Cumulative Bank Receipts" then
+            OutText := OutText + Format(Text002, 80)
+        else
+            OutText := OutText + Format(CustomerBillLine."Document No.", 40) + Format(CustomerBillLine."Document Date", 40, 5);
+        OutText := OutText + CopyStr(Dummy, 91, 10);
+        if CompanyInfo."Fiscal Code" <> '' then
+            OutText := OutText + PadStr(CompanyInfo."Fiscal Code", 16)
+        else
+            OutText := OutText + PadStr(CompanyInfo."VAT Registration No.", 16);
+        OutText := PadStr(OutText, 120, FillChar);
     end;
 
     [Scope('OnPrem')]
-    procedure RECORD51(Lines: Record "Customer Bill Line")
+    procedure RECORD51(CustomerBillLine: Record "Customer Bill Line")
     begin
-        with Lines do begin
-            OutText := ' 51' + ConvertStr(Format(BRProgr, 7), ' ', '0');
-            OutText := OutText + LocalAppMgt.ConvertToNumeric("Temporary Cust. Bill No.", 10);
-            OutText := OutText + Format(CompanyInfo."Signature on Bill", 20) +
-              Format(CompanyInfo."Authority County", 15) +
-              Format(Format(CompanyInfo."Autoriz. No."), 10) +
-              Format(CompanyInfo."Autoriz. Date", 6, 5);
+        OutText := ' 51' + ConvertStr(Format(BRProgr, 7), ' ', '0');
+        OutText := OutText + LocalAppMgt.ConvertToNumeric(CustomerBillLine."Temporary Cust. Bill No.", 10);
+        OutText := OutText + Format(CompanyInfo."Signature on Bill", 20) +
+          Format(CompanyInfo."Authority County", 15) +
+          Format(Format(CompanyInfo."Autoriz. No."), 10) +
+          Format(CompanyInfo."Autoriz. Date", 6, 5);
 
-            OutText := PadStr(OutText, 120, FillChar);
+        OutText := PadStr(OutText, 120, FillChar);
 
-            OnRECORD51OnAfterAssignOutText(Lines, OutText);
-        end;
+        OnRECORD51OnAfterAssignOutText(CustomerBillLine, OutText);
     end;
 
     [Scope('OnPrem')]
-    procedure RECORD70(Lines: Record "Customer Bill Line")
+    procedure RECORD70(CustomerBillLine: Record "Customer Bill Line")
     begin
-        with Lines do begin
-            OutText := ' 70' + ConvertStr(Format(BRProgr, 7), ' ', '0');
-            OutText := PadStr(OutText, 120, FillChar);
+        OutText := ' 70' + ConvertStr(Format(BRProgr, 7), ' ', '0');
+        OutText := PadStr(OutText, 120, FillChar);
 
-            OnRECORD70OnAfterAssignOutText(Lines, OutText);
-        end;
+        OnRECORD70OnAfterAssignOutText(CustomerBillLine, OutText);
     end;
 
     [Scope('OnPrem')]
-    procedure WriteRecord(Lines: Record "Customer Bill Line")
+    procedure WriteRecord(CustomerBillLine: Record "Customer Bill Line")
     begin
         BRProgr := BRProgr + 1;
 
-        RECORD14(Lines);
+        RECORD14(CustomerBillLine);
         OutFile.Write(OutText);
 
-        RECORD20(Lines);
+        RECORD20(CustomerBillLine);
         OutFile.Write(OutText);
 
-        RECORD30(Lines);
+        RECORD30(CustomerBillLine);
         OutFile.Write(OutText);
 
-        RECORD40(Lines);
+        RECORD40(CustomerBillLine);
         OutFile.Write(OutText);
 
-        RECORD50(Lines);
+        RECORD50(CustomerBillLine);
         OutFile.Write(OutText);
 
-        RECORD51(Lines);
+        RECORD51(CustomerBillLine);
         OutFile.Write(OutText);
 
-        RECORD70(Lines);
+        RECORD70(CustomerBillLine);
         OutFile.Write(OutText);
     end;
 

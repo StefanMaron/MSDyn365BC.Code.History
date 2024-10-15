@@ -12,3 +12,4 @@ codeunit 737 "VAT Report Mgt."
     end;
 }
 
+

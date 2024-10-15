@@ -11,12 +11,12 @@ codeunit 136306 "Job Invoicing"
 
     var
         DummyJobsSetup: Record "Jobs Setup";
-        NoSeries: Record "No. Series";
+        GlobalNoSeries: Record "No. Series";
         ReportLayoutSelection: Record "Report Layout Selection";
         LibraryJob: Codeunit "Library - Job";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        NoLinesErr: Label 'Qty. to Transfer to Invoice cannot be set on a Job Planning Line of type Budget.';
+        NoLinesErr: Label 'Qty. to Transfer to Invoice cannot be set on a Project Planning Line of type Budget.';
         QtyErr: Label 'Qty. to Transfer to Invoice may not be lower than';
         UnexpectedErrorMsg: Label 'Unexpected error.';
         LibraryRandom: Codeunit "Library - Random";
@@ -27,30 +27,34 @@ codeunit 136306 "Job Invoicing"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN23
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryCosting: Codeunit "Library - Costing";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJournals: Codeunit "Library - Journals";
-        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         Initialized: Boolean;
-        JobLedgerEntryFieldErr: Label 'Field %1 in Job Ledger Entry has invalid value';
+        JobLedgerEntryFieldErr: Label 'Field %1 in Project Ledger Entry has invalid value';
         WrongDimSetIDInSalesLineErr: Label 'Wrong dimension set ID in sales line of document %1.';
         WrongItemInfoErr: Label 'Wrong item info: %1 in posted Sales Invoice Line.';
         WrongDimValueCodeErr: Label 'Wrong dimension value code in Sales Line.';
         WrongJobJnlDimensionsErr: Label 'Wrong %1 in General Journal Line.';
         WrongJobLedgerEntryQtyErr: Label 'Wrong Quantity in General Ledger Entry.';
         WrongSalesInvoiceDimensionsErr: Label 'Dimensions must be equal.';
-        UnitPriceMustNotBeZeroErr: Label 'Field Unit Price of Job Journal Line must not be zero.';
+#if not CLEAN23
+        UnitPriceMustNotBeZeroErr: Label 'Field Unit Price of Project Journal Line must not be zero.';
+#endif
         WrongDescriptionInPostedSalesInvoiceErr: Label 'Wrong Description in Sales Invoice Line.';
         TrackingOption: Option "Assign Lot No.","Assign Serial No.";
         CancelPostedInvoiceQst: Label 'The posted sales invoice will be canceled, and a sales credit memo will be created and posted, which reverses the posted sales invoice.\ \Do you want to continue?';
         CorrectPostedInvoiceQst: Label 'The posted sales invoice will be canceled, and a new version of the sales invoice will be created so that you can make the correction.\ \Do you want to continue?';
-        JobMustNotBeBlockedErr: Label 'Job %1 must not be blocked', Comment = '%1 - Job No.';
-        ExtDocNoErr: Label 'The actual %1 External Document No. and the expected %2 External Document No. are not equal', Comment = '%1 = Job, %2 = Sales Header';
-        YourReferenceErr: Label 'The actual %1 Your Reference and the expected %2 Your Reference are not equal', Comment = '%1 = Job, %2 = Sales Header';
+        JobMustNotBeBlockedErr: Label 'Project %1 must not be blocked', Comment = '%1 - Project No.';
+        ExtDocNoErr: Label 'The actual %1 External Document No. and the expected %2 External Document No. are not equal', Comment = '%1 = Project, %2 = Sales Header';
+        YourReferenceErr: Label 'The actual %1 Your Reference and the expected %2 Your Reference are not equal', Comment = '%1 = Project, %2 = Sales Header';
         DetailLevel: Option All,"Per Job","Per Job Task","Per Job Planning Line";
 
     [Test]
@@ -59,7 +63,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferItemLine()
     begin
         // Transfer a billable item line to a sales invoice
-        TransferJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeContract, 1)
+        TransferJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeContract(), 1)
     end;
 
     [Test]
@@ -68,7 +72,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferResourceLine()
     begin
         // Transfer a billable resource line to a sales invoice
-        TransferJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeContract, 1)
+        TransferJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeContract(), 1)
     end;
 
     [Test]
@@ -77,7 +81,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferGLLine()
     begin
         // Transfer a billable GL line to a sales invoice
-        TransferJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeContract, 1)
+        TransferJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeContract(), 1)
     end;
 
     [Test]
@@ -86,7 +90,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferItemLineBoth()
     begin
         // Transfer a both schedule and contract item line to a sales invoice
-        TransferJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, 1)
+        TransferJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), 1)
     end;
 
     [Test]
@@ -95,7 +99,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferResourceLineBoth()
     begin
         // Transfer a both schedule and billable resource line to a sales invoice
-        TransferJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, 1)
+        TransferJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), 1)
     end;
 
     [Test]
@@ -104,7 +108,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferGLLineBoth()
     begin
         // Transfer a both schedule and billable GL line to a sales invoice
-        TransferJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, 1)
+        TransferJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), 1)
     end;
 
     [Test]
@@ -112,7 +116,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferItemLineSchedule()
     begin
         // Transfer a schedule item line to a sales invoice (ERROR)
-        asserterror TransferJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeSchedule, 1);
+        asserterror TransferJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), 1);
         Assert.AreEqual(StrSubstNo(NoLinesErr), GetLastErrorText, UnexpectedErrorMsg)
     end;
 
@@ -121,7 +125,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferResourceLineSchedule()
     begin
         // Transfer a schedule resource line to a sales invoice (ERROR)
-        asserterror TransferJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeSchedule, 1);
+        asserterror TransferJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), 1);
         Assert.AreEqual(StrSubstNo(NoLinesErr), GetLastErrorText, UnexpectedErrorMsg)
     end;
 
@@ -130,7 +134,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferGLLineSchedule()
     begin
         // Transfer a schedule GL line to a sales invoice (ERROR)
-        asserterror TransferJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeSchedule, 1);
+        asserterror TransferJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeSchedule(), 1);
         Assert.AreEqual(StrSubstNo(NoLinesErr), GetLastErrorText, UnexpectedErrorMsg)
     end;
 
@@ -140,7 +144,7 @@ codeunit 136306 "Job Invoicing"
     procedure PTransferItemLine()
     begin
         // Partially transfer a billable item line to a sales invoice
-        TransferJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100)
+        TransferJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100)
     end;
 
     [Test]
@@ -149,7 +153,7 @@ codeunit 136306 "Job Invoicing"
     procedure PTransferResourceLine()
     begin
         // Partially transfer a billable resource line to a sales invoice
-        TransferJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100)
+        TransferJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100)
     end;
 
     [Test]
@@ -158,7 +162,7 @@ codeunit 136306 "Job Invoicing"
     procedure PTransferGLLine()
     begin
         // Partially transfer a billable GL line to a sales invoice
-        TransferJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100)
+        TransferJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100)
     end;
 
     [Test]
@@ -166,7 +170,7 @@ codeunit 136306 "Job Invoicing"
     procedure ETransferItemLine()
     begin
         // Excess transfer a billable item line to a sales invoice (ERROR)
-        asserterror TransferJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100 + 1);
+        asserterror TransferJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100 + 1);
         Assert.AreEqual(StrPos(GetLastErrorText, QtyErr), 1, UnexpectedErrorMsg)
     end;
 
@@ -175,7 +179,7 @@ codeunit 136306 "Job Invoicing"
     procedure ETransferResourceLine()
     begin
         // Excess transfer a billable resource line to a sales invoice (ERROR)
-        asserterror TransferJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100 + 1);
+        asserterror TransferJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100 + 1);
         Assert.AreEqual(StrPos(GetLastErrorText, QtyErr), 1, UnexpectedErrorMsg)
     end;
 
@@ -184,7 +188,7 @@ codeunit 136306 "Job Invoicing"
     procedure ETransferGLLine()
     begin
         // Excess transfer a billable GL line to a sales invoice (ERROR)
-        asserterror TransferJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100 + 1);
+        asserterror TransferJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100 + 1);
         Assert.AreEqual(StrPos(GetLastErrorText, QtyErr), 1, UnexpectedErrorMsg)
     end;
 
@@ -228,7 +232,7 @@ codeunit 136306 "Job Invoicing"
 
         // Setup
         Initialize();
-        Plan(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, JobPlanningLine);
+        Plan(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), JobPlanningLine);
 
         // Exercise
         TransferJobPlanningLine(JobPlanningLine, 1, false, SalesHeader);
@@ -249,7 +253,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferMultipleInvoices()
     begin
         // Transfer a billable item line to multiple sales invoices
-        TransferJobStaged(LibraryJob.ItemType, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100)
+        TransferJobStaged(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100)
     end;
 
     local procedure TransferJobStaged(ConsumableType: Enum "Job Planning Line Type"; LineType: Enum "Job Planning Line Line Type"; Fraction: Decimal)
@@ -289,7 +293,7 @@ codeunit 136306 "Job Invoicing"
     procedure InvoiceItemLine()
     begin
         // Invoice a billable item line
-        ExecuteJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, 1, 1, 0)
+        ExecuteJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, 0)
     end;
 
     [Test]
@@ -298,7 +302,7 @@ codeunit 136306 "Job Invoicing"
     procedure InvoiceResourceLine()
     begin
         // Invoice a billable resource line
-        ExecuteJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, 1, 1, 0)
+        ExecuteJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, 0)
     end;
 
     [Test]
@@ -307,7 +311,7 @@ codeunit 136306 "Job Invoicing"
     procedure InvoiceGLLine()
     begin
         // Invoice a billable GL line
-        ExecuteJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, 1, 1, 0)
+        ExecuteJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, 0)
     end;
 
     [Test]
@@ -316,7 +320,7 @@ codeunit 136306 "Job Invoicing"
     procedure PInvoiceItemLine()
     begin
         // Partially invoice a billable item line
-        ExecuteJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, 1, LibraryRandom.RandInt(99) / 100, 0)
+        ExecuteJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), 1, LibraryRandom.RandInt(99) / 100, 0)
     end;
 
     [Test]
@@ -325,7 +329,7 @@ codeunit 136306 "Job Invoicing"
     procedure PInvoiceResourceLine()
     begin
         // Partially invoice a billable resource line
-        ExecuteJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, 1, LibraryRandom.RandInt(99) / 100, 0)
+        ExecuteJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), 1, LibraryRandom.RandInt(99) / 100, 0)
     end;
 
     [Test]
@@ -334,7 +338,7 @@ codeunit 136306 "Job Invoicing"
     procedure PInvoiceGLLine()
     begin
         // Partially invoice a GL item line
-        ExecuteJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, 1, LibraryRandom.RandInt(99) / 100, 0)
+        ExecuteJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), 1, LibraryRandom.RandInt(99) / 100, 0)
     end;
 
     [Test]
@@ -343,7 +347,7 @@ codeunit 136306 "Job Invoicing"
     procedure CreditItemLine()
     begin
         // Credit a "both" item line
-        ExecuteJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, 1, 1, 1)
+        ExecuteJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, 1)
     end;
 
     [Test]
@@ -352,7 +356,7 @@ codeunit 136306 "Job Invoicing"
     procedure CreditResourceLine()
     begin
         // Credit a "both" resource line
-        ExecuteJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, 1, 1, 1)
+        ExecuteJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, 1)
     end;
 
     [Test]
@@ -361,7 +365,7 @@ codeunit 136306 "Job Invoicing"
     procedure CreditGLLine()
     begin
         // Credit a "both" GL line
-        ExecuteJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, 1, 1, 1)
+        ExecuteJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, 1)
     end;
 
     [Test]
@@ -370,7 +374,7 @@ codeunit 136306 "Job Invoicing"
     procedure PCreditItemLine()
     begin
         // Partially credit a "both" item line
-        ExecuteJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, 1, 1, LibraryRandom.RandInt(99) / 100)
+        ExecuteJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, LibraryRandom.RandInt(99) / 100)
     end;
 
     [Test]
@@ -379,7 +383,7 @@ codeunit 136306 "Job Invoicing"
     procedure PCreditResourceLine()
     begin
         // Partially credit a "both" resource line
-        ExecuteJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, 1, 1, LibraryRandom.RandInt(99) / 100)
+        ExecuteJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, LibraryRandom.RandInt(99) / 100)
     end;
 
     [Test]
@@ -388,7 +392,7 @@ codeunit 136306 "Job Invoicing"
     procedure PCreditGLLine()
     begin
         // Partially credit a "both" resource line
-        ExecuteJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, 1, 1, LibraryRandom.RandInt(99) / 100)
+        ExecuteJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, LibraryRandom.RandInt(99) / 100)
     end;
 
     [Test]
@@ -397,7 +401,7 @@ codeunit 136306 "Job Invoicing"
     procedure ECreditItemLine()
     begin
         // Excess credit a "both" item line
-        ExecuteJob(LibraryJob.ItemType, LibraryJob.PlanningLineTypeBoth, 1, 1, LibraryRandom.RandInt(99) / 100 + 1)
+        ExecuteJob(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, LibraryRandom.RandInt(99) / 100 + 1)
     end;
 
     [Test]
@@ -406,7 +410,7 @@ codeunit 136306 "Job Invoicing"
     procedure ECreditResourceLine()
     begin
         // Excess credit a "both" item line
-        ExecuteJob(LibraryJob.ResourceType, LibraryJob.PlanningLineTypeBoth, 1, 1, LibraryRandom.RandInt(99) / 100 + 1)
+        ExecuteJob(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, LibraryRandom.RandInt(99) / 100 + 1)
     end;
 
     [Test]
@@ -415,7 +419,7 @@ codeunit 136306 "Job Invoicing"
     procedure ECreditGLLine()
     begin
         // Excess credit a "both" GL line
-        ExecuteJob(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, 1, 1, LibraryRandom.RandInt(99) / 100 + 1)
+        ExecuteJob(LibraryJob.GLAccountType(), LibraryJob.PlanningLineTypeBoth(), 1, 1, LibraryRandom.RandInt(99) / 100 + 1)
     end;
 
     [Test]
@@ -629,7 +633,7 @@ codeunit 136306 "Job Invoicing"
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         LibraryDimension.CreateDefaultDimensionItem(
           DefaultDimension, LibraryInventory.CreateItem(Item), GeneralLedgerSetup."Shortcut Dimension 1 Code", DimensionValue.Code);
-        Plan(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobPlanningLine);
+        Plan(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobPlanningLine);
         UpdateJobPlanningLine(JobPlanningLine, Item."No.");
 
         // Exercise: Create Job Journal Line.
@@ -873,7 +877,7 @@ codeunit 136306 "Job Invoicing"
           DimensionSetEntrySalesLine."Dimension Value Code", WrongSalesInvoiceDimensionsErr);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure ChangeQuantityInJobJournalLine()
@@ -1000,7 +1004,7 @@ codeunit 136306 "Job Invoicing"
         // Resource line is mandatory in order to have non-zero Sales Invoice
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(
-          JobPlanningLine."Line Type"::Billable, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+          JobPlanningLine."Line Type"::Billable, LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         CreateJobPlanningLineWithTypeText(JobPlanningLine, JobPlanningLine."Line Type"::Billable, JobTask);
         Commit();
 
@@ -1024,7 +1028,7 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Sales Invoice with "Posting Date" = 15.01 and "Document Date" = 10.01
         Initialize();
-        Plan(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, JobPlanningLine);
+        Plan(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), JobPlanningLine);
         TransferJobPlanningLine(JobPlanningLine, 1, false, SalesHeader);
 
         SalesHeader.Validate("Document Date", SalesHeader."Document Date" - 1);
@@ -1404,14 +1408,14 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 222559] "Transferred Date", "Invoiced Date" and "Job Lendger Entry No." fields are not visible when page "Job Invoices" opened without "Show Details"
-        JobInvoicesTestPage.Trap;
+        JobInvoicesTestPage.Trap();
 
         JobInvoicesPage.SetShowDetails(false);
         JobInvoicesPage.Run();
 
-        Assert.IsFalse(JobInvoicesTestPage."Transferred Date".Visible, JobInvoicesTestPage."Transferred Date".Caption);
-        Assert.IsFalse(JobInvoicesTestPage."Invoiced Date".Visible, JobInvoicesTestPage."Invoiced Date".Caption);
-        Assert.IsFalse(JobInvoicesTestPage."Job Ledger Entry No.".Visible, JobInvoicesTestPage."Job Ledger Entry No.".Caption);
+        Assert.IsFalse(JobInvoicesTestPage."Transferred Date".Visible(), JobInvoicesTestPage."Transferred Date".Caption);
+        Assert.IsFalse(JobInvoicesTestPage."Invoiced Date".Visible(), JobInvoicesTestPage."Invoiced Date".Caption);
+        Assert.IsFalse(JobInvoicesTestPage."Job Ledger Entry No.".Visible(), JobInvoicesTestPage."Job Ledger Entry No.".Caption);
     end;
 
     [Test]
@@ -1423,14 +1427,14 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 222559] "Transferred Date", "Invoiced Date" and "Job Lendger Entry No." fields are visible when page "Job Invoices" opened with "Show Details"
-        JobInvoicesTestPage.Trap;
+        JobInvoicesTestPage.Trap();
 
         JobInvoicesPage.SetShowDetails(true);
         JobInvoicesPage.Run();
 
-        Assert.IsTrue(JobInvoicesTestPage."Transferred Date".Visible, JobInvoicesTestPage."Transferred Date".Caption);
-        Assert.IsTrue(JobInvoicesTestPage."Invoiced Date".Visible, JobInvoicesTestPage."Invoiced Date".Caption);
-        Assert.IsTrue(JobInvoicesTestPage."Job Ledger Entry No.".Visible, JobInvoicesTestPage."Job Ledger Entry No.".Caption);
+        Assert.IsTrue(JobInvoicesTestPage."Transferred Date".Visible(), JobInvoicesTestPage."Transferred Date".Caption);
+        Assert.IsTrue(JobInvoicesTestPage."Invoiced Date".Visible(), JobInvoicesTestPage."Invoiced Date".Caption);
+        Assert.IsTrue(JobInvoicesTestPage."Job Ledger Entry No.".Visible(), JobInvoicesTestPage."Job Ledger Entry No.".Caption);
     end;
 
     [Test]
@@ -1442,13 +1446,13 @@ codeunit 136306 "Job Invoicing"
     begin
         // [FEATURE] [Job Planning Line] [UI]
         // [SCENARIO 222559] "Transferred Date", "Invoiced Date" and "Job Lendger Entry No." fields are not visible when page "Job Invoices" opened as drill down from job planning line
-        JobInvoicesTestPage.Trap;
+        JobInvoicesTestPage.Trap();
 
-        JobPlanningLine.DrillDownJobInvoices;
+        JobPlanningLine.DrillDownJobInvoices();
 
-        Assert.IsFalse(JobInvoicesTestPage."Transferred Date".Visible, JobInvoicesTestPage."Transferred Date".Caption);
-        Assert.IsFalse(JobInvoicesTestPage."Invoiced Date".Visible, JobInvoicesTestPage."Invoiced Date".Caption);
-        Assert.IsFalse(JobInvoicesTestPage."Job Ledger Entry No.".Visible, JobInvoicesTestPage."Job Ledger Entry No.".Caption);
+        Assert.IsFalse(JobInvoicesTestPage."Transferred Date".Visible(), JobInvoicesTestPage."Transferred Date".Caption);
+        Assert.IsFalse(JobInvoicesTestPage."Invoiced Date".Visible(), JobInvoicesTestPage."Invoiced Date".Caption);
+        Assert.IsFalse(JobInvoicesTestPage."Job Ledger Entry No.".Visible(), JobInvoicesTestPage."Job Ledger Entry No.".Caption);
     end;
 
     [Test]
@@ -1466,12 +1470,12 @@ codeunit 136306 "Job Invoicing"
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
-        JobInvoicesTestPage.Trap;
+        JobInvoicesTestPage.Trap();
 
-        JobCard.OpenView;
+        JobCard.OpenView();
         JobCard.GotoRecord(Job);
 
-        JobCard.JobTaskLines.SalesInvoicesCreditMemos.Invoke;
+        JobCard.JobTaskLines.SalesInvoicesCreditMemos.Invoke();
 
         // Visibility verified in JobInvoicesDetailsVisibleModalPageHandler
     end;
@@ -1489,12 +1493,12 @@ codeunit 136306 "Job Invoicing"
         // [SCENARIO 222559] "Transferred Date", "Invoiced Date" and "Job Lendger Entry No." fields are visible when page "Job Invoices" opened by "Sales Invoices / Credit Memos" action on jobs page
         LibraryJob.CreateJob(Job);
 
-        JobInvoicesTestPage.Trap;
+        JobInvoicesTestPage.Trap();
 
-        JobList.OpenView;
+        JobList.OpenView();
         JobList.GotoRecord(Job);
 
-        JobList.SalesInvoicesCreditMemos.Invoke;
+        JobList.SalesInvoicesCreditMemos.Invoke();
 
         // Visibility verified in JobInvoicesDetailsVisibleModalPageHandler
     end;
@@ -1517,7 +1521,7 @@ codeunit 136306 "Job Invoicing"
         Initialize();
 
         // [GIVEN] Posted sales invoice with job
-        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
+        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), 1);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Cancel Invoice function is being run
@@ -1558,7 +1562,7 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Job planning line with Quantity = 100, "Qty. to Transfer to Invoice" = 50
         CreateSimpleSalesInvoiceFromJobPlanningLine(
-          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100);
+          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100);
         // [GIVEN] Sales invoice created and posted
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
@@ -1592,7 +1596,7 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Job planning line with Quantity = 100, "Qty. to Transfer to Invoice" = 60
         CreateSimpleSalesInvoiceFromJobPlanningLine(
-          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100);
+          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100);
         // [GIVEN] Sales invoice created and posted
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
@@ -1632,7 +1636,7 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Job planning line with Quantity = 100, "Qty. to Transfer to Invoice" = 60
         CreateSimpleSalesInvoiceFromJobPlanningLine(
-          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100);
+          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandInt(99) / 100);
         // [GIVEN] Sales invoice created and posted
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1670,7 +1674,7 @@ codeunit 136306 "Job Invoicing"
         Initialize();
 
         // [GIVEN] Posted sales invoice with job, line type of job planning line = "Both Budget and Billable"
-        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeBoth, 1);
+        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeBoth(), 1);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Cancel Invoice function is being run
@@ -1703,10 +1707,10 @@ codeunit 136306 "Job Invoicing"
         CreatePostSalesInvoiceAndOpenItWithCardPage(PostedSalesInvoice, SalesInvoiceHeader);
 
         // [WHEN] Action Cancel Invoice function is being hit
-        PostedSalesInvoice.CancelInvoice.Invoke;
+        PostedSalesInvoice.CancelInvoice.Invoke();
 
         // [THEN] Confirmation message is "The posted sales invoice will be canceled, and a sales credit memo will be created and posted, which reverses the posted sales invoice.\ \Do you want to continue?"
-        Assert.AreEqual(CancelPostedInvoiceQst, LibraryVariableStorage.DequeueText, 'Invalid confirmation question');
+        Assert.AreEqual(CancelPostedInvoiceQst, LibraryVariableStorage.DequeueText(), 'Invalid confirmation question');
     end;
 
     [Test]
@@ -1726,7 +1730,7 @@ codeunit 136306 "Job Invoicing"
         Initialize();
 
         // [GIVEN] Posted sales invoice with job and resource with Unit Cost = 100
-        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
+        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), 1);
 
         // [GIVEN] Change resource Unit Cost to 200
         Resource.Get(JobPlanningLine."No.");
@@ -1760,7 +1764,7 @@ codeunit 136306 "Job Invoicing"
         Initialize();
 
         // [GIVEN] Posted sales invoice made from job planning lines with resource and text types
-        CreateSalesInvoiceWithResourceAndTextTypes(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract);
+        CreateSalesInvoiceWithResourceAndTextTypes(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract());
 
         // [WHEN] Cancel Invoice function is being run
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1789,7 +1793,7 @@ codeunit 136306 "Job Invoicing"
         Initialize();
 
         // [GIVEN] Posted sales invoice with job
-        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
+        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), 1);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [GIVEN] Set job blocked
@@ -1825,7 +1829,7 @@ codeunit 136306 "Job Invoicing"
         Initialize();
 
         // [GIVEN] Posted sales invoice with job
-        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
+        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), 1);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Correct Invoice function is being run
@@ -1851,7 +1855,7 @@ codeunit 136306 "Job Invoicing"
         // [THEN] Job planning line for new invoice created
         NewJobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         NewJobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
-        Assert.IsTrue(NewJobPlanningLine.FindFirst, 'New Job Planning line is not found');
+        Assert.IsTrue(NewJobPlanningLine.FindFirst(), 'New Job Planning line is not found');
         // [THEN] Job planning line fully transferred to new invoice
         NewJobPlanningLine.TestField("Qty. to Transfer to Invoice", 0);
         NewJobPlanningLine.CalcFields("Qty. Transferred to Invoice");
@@ -1875,10 +1879,10 @@ codeunit 136306 "Job Invoicing"
         CreatePostSalesInvoiceAndOpenItWithCardPage(PostedSalesInvoice, SalesInvoiceHeader);
 
         // [WHEN] Action Correct Invoice function is being hit
-        PostedSalesInvoice.CorrectInvoice.Invoke;
+        PostedSalesInvoice.CorrectInvoice.Invoke();
 
         // [THEN] Confirmation message is "The posted sales invoice will be canceled, and a new version of the sales invoice will be created so that you can make the correction.\ \Do you want to continue?"
-        Assert.AreEqual(CorrectPostedInvoiceQst, LibraryVariableStorage.DequeueText, 'Invalid confirmation question');
+        Assert.AreEqual(CorrectPostedInvoiceQst, LibraryVariableStorage.DequeueText(), 'Invalid confirmation question');
     end;
 
     [Test]
@@ -1899,7 +1903,7 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Posted sales invoice "I" created from job "X" with the job planning line
         // [GIVEN] Created "Job Planning Line Invoice" for "I" has "Transfered Date" and "Invoiced Date" = WORKDATE
         CreateSimpleSalesInvoiceFromJobPlanningLine(
-          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandDecInRange(0, 1, 2));
+          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryRandom.RandDecInRange(0, 1, 2));
 
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1936,8 +1940,8 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Job with two identical Job Planning Lines with G/L Accounts
         CreateJob(Job, '', false);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
 
         Commit();
@@ -1975,7 +1979,7 @@ codeunit 136306 "Job Invoicing"
         CreateJob(Job, '', false);
         LibraryJob.CreateJobTask(Job, JobTask);
         for i := 1 to 2 do begin
-            LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
+            LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
             JobPlanningLine.Validate(Quantity, -JobPlanningLine.Quantity);
             JobPlanningLine.Modify(true);
         end;
@@ -2011,14 +2015,14 @@ codeunit 136306 "Job Invoicing"
         Initialize();
 
         // [GIVEN] Enable automatic cost adjustment and automatic update job item cost
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
         LibraryJob.SetAutomaticUpdateJobItemCost(true);
 
         // [GIVEN] Item "I" with no cost amount defined
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create purchase order for item "I" and post receipt
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         PurchaseHeader.Validate("Posting No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
@@ -2069,7 +2073,7 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Purchase order for item "I" with assigned job, "Line Amount" = "X". Receive and Invoice the order.
         CreateJobWithJobTask(JobTask);
-        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, Item."No.", JobTask);
+        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), Item."No.", JobTask);
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Run "Update Job Item Cost"
@@ -2102,7 +2106,7 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Purchase order for item "I" with assigned job, "Line Amount" = "X". Receive the order without invoicing.
         CreateJobWithJobTask(JobTask);
-        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, Item."No.", JobTask);
+        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), Item."No.", JobTask);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Reopen the purchase order and update unit cost. New line amount is "Y"
@@ -2148,7 +2152,7 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Purchase order for item "I" with assigned job, "Line Amount" = "X". Receive and invoice the order.
         CreateJobWithJobTask(JobTask);
-        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, Item."No.", JobTask);
+        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), Item."No.", JobTask);
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
@@ -2236,8 +2240,8 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Crated Job with two Job planning Lines, Quantity on JobPlanningLine2 is greater
         CreateJobWithJobTask(JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine1);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine2);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine1);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine2);
         JobPlanningLine2.Validate(Quantity, JobPlanningLine1.Quantity * 2);
         JobPlanningLine2.Modify();
 
@@ -2416,8 +2420,8 @@ codeunit 136306 "Job Invoicing"
 
         Job.Modify(true);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         Commit();
 
@@ -2600,7 +2604,6 @@ codeunit 136306 "Job Invoicing"
         JobPlanningLine: Record "Job Planning Line";
         SellToCustomer: Record Customer;
         BillToCustomer: Record Customer;
-        ShipToAddress: Record "Ship-to Address";
         SalesHeader: Record "Sales Header";
         JobCreateInvoice: Codeunit "Job Create-Invoice";
     begin
@@ -2894,7 +2897,7 @@ codeunit 136306 "Job Invoicing"
         Job.Validate("Sell-to Customer No.", Customer."No.");
         Job.Modify();
         CreateJobTaskGlobalDim(JobTaskDimension, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         Commit();
 
         // [WHEN] Create Sales Invoice from Job Planning Line
@@ -3051,10 +3054,8 @@ codeunit 136306 "Job Invoicing"
         Job: Record Job;
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
-        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         SalesHeader: Record "Sales Header";
         JobCreateInvoice: Codeunit "Job Create-Invoice";
-        PostedDocumentNo: Code[20];
     begin
         // [SCENARIO 453005] External Document No. and Your Reference field in the Job Card are not transferred to Sales Invoice
         Initialize();
@@ -3065,7 +3066,7 @@ codeunit 136306 "Job Invoicing"
         Job.Validate("Your Reference", CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(Job."Your Reference")));
         Job.Modify(true);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         Commit();
 
@@ -3089,7 +3090,6 @@ codeunit 136306 "Job Invoicing"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
-        DocumentNo: Code[20];
     begin
         // [SCENARIO 454741] Verify Cancel Posted Sales Invoice created from Job Planning Line, with updated Unit Cost, for Item with Standard costing method
         Initialize();
@@ -3417,10 +3417,10 @@ codeunit 136306 "Job Invoicing"
 
         // [GIVEN] Job Task with 2 planning lines where consumed quantity is completely returned. Invoice for 1 and creditmemo for 1
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType(), JobTask, JobPlanningLine1);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), JobTask, JobPlanningLine1);
         JobPlanningLine1.Validate(Quantity, QuantityOnInvoice);
         JobPlanningLine1.Modify(true);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType(), JobTask, JobPlanningLine2);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), JobTask, JobPlanningLine2);
         JobPlanningLine2.Validate("No.", JobPlanningLine1."No.");
         JobPlanningLine2.Validate(Quantity, QuantityOnCreditmemo);
         JobPlanningLine2.Modify(true);
@@ -3486,6 +3486,7 @@ codeunit 136306 "Job Invoicing"
     begin
         // [SCENARIO 484285] Verify Reversed Job Planning Line for Corrective Credit Memo created from Posted Sales Invoice
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Create Item with Standard Cost      
         CreateItemWithStandardCost(Item);
@@ -3532,6 +3533,204 @@ codeunit 136306 "Job Invoicing"
 
         // Clean-up notifications
         NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryERM.SetEnableDataCheck(true);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetJobPlanLines')]
+    procedure AllowCreatingSalesInvoiceLineOutsideOfProject()
+    var
+        JobTask: Record "Job Task";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        JobPlanningLine: Record "Job Planning Line";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 337091] Allow creating sales invoice line outside of project 
+        Initialize();
+
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobWithJobTask(JobTask, Customer."No.");
+
+        // [GIVEN] Create Job Planning Line with Qty to Transfer to Invoice
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTask, Qty, Qty);
+
+        // [GIVEN] Create Sales Invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create Sales Line
+        CreateSimpleSalesLine(SalesLine, SalesHeader);
+
+        // [WHEN] Get Job Planning Lines
+        // [HANDLER] [GetJobPlanLines] Get Job Plan Lines        
+        Codeunit.Run(Codeunit::"Job-Process Plan. Lines", SalesLine);
+
+        // [THEN] Verify Job Info on Sales Line
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Job No.", JobTask."Job No.");
+        SalesLine.TestField("Job Task No.", JobTask."Job Task No.");
+        SalesLine.TestField("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('GetJobPlanLines')]
+    procedure CheckInvoicedQtyOnJobPlanningLinesAfterSalesInvoiceCreatedFromJobPlanningLineIsPosted()
+    var
+        JobTask: Record "Job Task";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 337091] Check Invoiced Qty. on Job Planning Line after Sales Invoice created from Job Planning Line is posted
+        Initialize();
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobWithJobTask(JobTask, Customer."No.");
+
+        // [GIVEN] Create Job Planning Line with Qty to Transfer to Invoice
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
+
+        // [GIVEN] Create Sales Invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create Sales Line
+        CreateSimpleSalesLine(SalesLine, SalesHeader);
+
+        // [GIVEN] Get Job Planning Lines
+        // [HANDLER] [GetJobPlanLines] Get Job Plan Lines        
+        Codeunit.Run(Codeunit::"Job-Process Plan. Lines", SalesLine);
+
+        // [WHEN] Post Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Verify Qty. Invoiced and Qty. Transferred to Invoice on Job Planning Line
+        JobPlanningLine.CalcFields("Qty. Invoiced", "Qty. Transferred to Invoice");
+        JobPlanningLine.TestField("Qty. Invoiced", JobPlanningLine.Quantity);
+        JobPlanningLine.TestField("Qty. Transferred to Invoice", JobPlanningLine.Quantity);
+    end;
+
+    [Test]
+    procedure AllowCreatingSalesInvoiceLinesOutsideForMultipleProjects()
+    var
+        JobTasks: array[2] of Record "Job Task";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        JobPlanningLines: array[3] of Record "Job Planning Line";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        JobFilter: Text;
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 337091] Allow creating sales invoice line outside for multiple projects
+        Initialize();
+
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create two Jobs and Job Tasks
+        for i := 1 to 2 do begin
+            CreateJobWithJobTask(JobTasks[i], Customer."No.");
+            JobFilter += JobTasks[i]."Job No." + '|';
+        end;
+        JobFilter := CopyStr(JobFilter, 1, StrLen(JobFilter) - 1);
+
+        // [GIVEN] Create two Job Planning Lines
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLines[1], JobTasks[1], Qty, Qty);
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLines[2], JobTasks[2], Qty, Qty);
+
+        // [GIVEN] Create Sales Invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create Sales Line
+        CreateSimpleSalesLine(SalesLine, SalesHeader);
+
+        // [WHEN] Create Sales Lines from multiple Job Planning Lines
+        JobPlanningLines[3].SetFilter("Job No.", JobFilter);
+        JobPlanningLines[3].FindSet();
+        JobPlanningLines[3].SetSkipCheckForMultipleJobsOnSalesLine(true);
+        JobCreateInvoice.CreateSalesInvoiceLines(JobPlanningLines[3]."Job No.", JobPlanningLines[3], SalesHeader."No.", false, SalesHeader."Posting Date", SalesHeader."Document Date", false);
+
+        // [THEN] Verify Job Info on Sales Lines
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", 10000);
+        SalesLine.TestField("Job No.", JobTasks[1]."Job No.");
+        SalesLine.TestField("Job Task No.", JobTasks[1]."Job Task No.");
+        SalesLine.TestField("Job Contract Entry No.", JobPlanningLines[1]."Job Contract Entry No.");
+
+        SalesLine.Reset();
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", 20000);
+        SalesLine.TestField("Job No.", JobTasks[2]."Job No.");
+        SalesLine.TestField("Job Task No.", JobTasks[2]."Job Task No.");
+        SalesLine.TestField("Job Contract Entry No.", JobPlanningLines[2]."Job Contract Entry No.");
+    end;
+
+    [Test]
+    procedure CheckInvoicedQtyOnJobPlanningLinesAfterSalesInvoiceCreatedFromMultipleJobPlanningLinesIsPosted()
+    var
+        JobTasks: array[2] of Record "Job Task";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        JobPlanningLines: array[3] of Record "Job Planning Line";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        JobFilter: Text;
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 337091] Check Invoiced Qty. on Job Planning Line after Sales Invoice created from multiple Job Planning Lines is posted
+        Initialize();
+
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create two Jobs and Job Tasks
+        for i := 1 to 2 do begin
+            CreateJobWithJobTask(JobTasks[i], Customer."No.");
+            JobFilter += JobTasks[i]."Job No." + '|';
+        end;
+        JobFilter := CopyStr(JobFilter, 1, StrLen(JobFilter) - 1);
+
+        // [GIVEN] Create two Job Planning Lines
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLines[1], JobTasks[1], Qty, Qty);
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLines[2], JobTasks[2], Qty, Qty);
+
+        // [GIVEN] Create Sales Invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create Sales Line
+        CreateSimpleSalesLine(SalesLine, SalesHeader);
+
+        // [GIVEN] Create Sales Lines from multiple Job Planning Lines
+        JobPlanningLines[3].SetFilter("Job No.", JobFilter);
+        JobPlanningLines[3].FindSet();
+        JobPlanningLines[3].SetSkipCheckForMultipleJobsOnSalesLine(true);
+        JobCreateInvoice.CreateSalesInvoiceLines(JobPlanningLines[3]."Job No.", JobPlanningLines[3], SalesHeader."No.", false, SalesHeader."Posting Date", SalesHeader."Document Date", false);
+
+        // [WHEN] Post Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Verify Qty. Invoiced and Qty. Transferred to Invoice on Job Planning Lines
+        JobPlanningLines[1].CalcFields("Qty. Invoiced", "Qty. Transferred to Invoice");
+        JobPlanningLines[1].TestField("Qty. Invoiced", JobPlanningLines[1].Quantity);
+        JobPlanningLines[1].TestField("Qty. Transferred to Invoice", JobPlanningLines[1].Quantity);
+
+        JobPlanningLines[2].CalcFields("Qty. Invoiced", "Qty. Transferred to Invoice");
+        JobPlanningLines[2].TestField("Qty. Invoiced", JobPlanningLines[2].Quantity);
+        JobPlanningLines[2].TestField("Qty. Transferred to Invoice", JobPlanningLines[2].Quantity);
     end;
 
     local procedure RunJobCalculateWIP(Job: Record Job)
@@ -3543,7 +3742,7 @@ codeunit 136306 "Job Invoicing"
         JobCalculateWIP.SetTableView(Job);
 
         // Use Document No. as Job No. because value is not important.
-        JobCalculateWIP.InitializeRequest;
+        JobCalculateWIP.InitializeRequest();
         JobCalculateWIP.UseRequestPage(false);
         JobCalculateWIP.Run();
     end;
@@ -3610,7 +3809,7 @@ codeunit 136306 "Job Invoicing"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
@@ -3618,7 +3817,7 @@ codeunit 136306 "Job Invoicing"
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
 
-        JobBatchJobs.SetJobNoSeries(DummyJobsSetup, NoSeries);
+        JobBatchJobs.SetJobNoSeries(DummyJobsSetup, GlobalNoSeries);
 
         // Have to set report layout for 1306 to use RDLC, or else report won't export to excel.
         ReportLayoutSelection.SetRange("Report ID", 1306);
@@ -3816,7 +4015,7 @@ codeunit 136306 "Job Invoicing"
         end;
         CreateJob(Job, Currency.Code, PricesInclVAT);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         CreateAndPostJobJournalLine(JobPlanningLine, JobTask);
         TransferJobPlanningLine(JobPlanningLine, 1, false, SalesHeader);
         exit(Job."No.");
@@ -3829,7 +4028,7 @@ codeunit 136306 "Job Invoicing"
     begin
         CreateJob(Job, '', false);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         TransferJobPlanningLine(JobPlanningLine, QtyInvoiceFraction, false, SalesHeader);
         exit(Job."No.");
     end;
@@ -3842,8 +4041,8 @@ codeunit 136306 "Job Invoicing"
     begin
         CreateJob(Job, '', false);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ResourceType, JobTask, JobPlanningLine);
-        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.TextType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ResourceType(), JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.TextType(), JobTask, JobPlanningLine);
         Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
 
@@ -3882,10 +4081,10 @@ codeunit 136306 "Job Invoicing"
         SalesHeader: Record "Sales Header";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, 1);
+        CreateSimpleSalesInvoiceFromJobPlanningLine(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), 1);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
     end;
 
@@ -3954,7 +4153,7 @@ codeunit 136306 "Job Invoicing"
             // we cannot credit from the same line.
             "Line No." += 1;
             "Usage Link" := false;
-            "Line Type" := LibraryJob.PlanningLineTypeContract;
+            "Line Type" := LibraryJob.PlanningLineTypeContract();
             "Qty. Posted" := 0;
             Validate(Quantity, -Fraction * Quantity);
             Insert(true);
@@ -3983,7 +4182,7 @@ codeunit 136306 "Job Invoicing"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibraryJob.CreateJob(Job, Customer."No.");
-        Job.Validate("WIP Method", FindJobWipMethods);
+        Job.Validate("WIP Method", FindJobWipMethods());
         Job.Validate("Starting Date", WorkDate());
         Job.Validate("Ending Date", WorkDate());
         SetCustomerCurrencyCodePricesInclVAT(Customer, CurrencyCode, PricesInclVAT);
@@ -4007,14 +4206,14 @@ codeunit 136306 "Job Invoicing"
     begin
         LibraryJob.CreateJob(Job, CustomerNo);
         LibraryJob.CreateJobTask(Job, JobTask);
-        CreateJobPlanningLine(JobTask, LibraryJob.ItemType, ItemNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
-        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType, GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
-        CreateJobPlanningLine(JobTask, LibraryJob.ItemType, ItemNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
-        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType, GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
-        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType, GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
-        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType, GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
-        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType, GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
-        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType, GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
+        CreateJobPlanningLine(JobTask, LibraryJob.ItemType(), ItemNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
+        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType(), GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
+        CreateJobPlanningLine(JobTask, LibraryJob.ItemType(), ItemNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
+        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType(), GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
+        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType(), GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
+        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType(), GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
+        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType(), GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
+        CreateJobPlanningLine(JobTask, LibraryJob.GLAccountType(), GLAccountNo, GenBusPostingGroupCode, GenProdPostingGroupCode);
     end;
 
     local procedure CreateJobPlanningLine(JobTask: Record "Job Task"; ConsumableType: Enum "Job Planning Line Type"; CodeNo: Code[20];
@@ -4030,7 +4229,7 @@ codeunit 136306 "Job Invoicing"
             Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
             Insert(true);
             Validate("Planning Date", WorkDate());
-            Validate("Line Type", LibraryJob.PlanningLineTypeBoth);
+            Validate("Line Type", LibraryJob.PlanningLineTypeBoth());
             Validate(Type, ConsumableType);
             Validate("No.", CodeNo);
             Validate(Quantity, LibraryRandom.RandIntInRange(10, 50));
@@ -4082,21 +4281,21 @@ codeunit 136306 "Job Invoicing"
         LibraryDimension.CreateDefaultDimension(
           DefaultDimension, DATABASE::Job, Job."No.", DimensionValue."Dimension Code", DimensionValue.Code);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
     end;
 
     local procedure CreateJobPlanningLineWithResource(var JobTask: Record "Job Task")
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Plan(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobPlanningLine);
+        Plan(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobPlanningLine);
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
     end;
 
     local procedure CreateJobPlanningLineWithQtyToTransferToInvoice(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; Quantity: Decimal; QtyToTransferToInvoice: Decimal)
     begin
         LibraryJob.CreateJobPlanningLine(
-          JobPlanningLine."Line Type"::Billable, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+          JobPlanningLine."Line Type"::Billable, LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Quantity, Quantity);
         JobPlanningLine.Validate("Qty. to Transfer to Invoice", QtyToTransferToInvoice);
         JobPlanningLine.Modify(true);
@@ -4144,7 +4343,7 @@ codeunit 136306 "Job Invoicing"
         LibraryInventory.CreateItem(Item);
         CreateJobWithJobTask(JobTask);
 
-        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, Item."No.", JobTask);
+        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), Item."No.", JobTask);
     end;
 
     local procedure CreatePurchInvWithCurrencyAndJobTask(var PurchHeader: Record "Purchase Header"; CurrencyCode: Code[10]; JobTask: Record "Job Task")
@@ -4152,11 +4351,11 @@ codeunit 136306 "Job Invoicing"
         PurchLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(
-          PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+          PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchHeader.Validate("Currency Code", CurrencyCode);
         PurchHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(100));
+          PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
         PurchLine.Validate("Job No.", JobTask."Job No.");
         PurchLine.Validate("Job Task No.", JobTask."Job Task No.");
         PurchLine.Modify(true);
@@ -4189,27 +4388,27 @@ codeunit 136306 "Job Invoicing"
             VATRate := LibraryRandom.RandIntInRange(5, 50);
             if (CurrentGroupNo = 3) or (CurrentGroupNo = 4) then
                 VATRate := 0;
-            VATPostingSetupArray[CurrentGroupNo].Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            VATPostingSetupArray[CurrentGroupNo].Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            VATPostingSetupArray[CurrentGroupNo].Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            VATPostingSetupArray[CurrentGroupNo].Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
             VATPostingSetupArray[CurrentGroupNo].Validate("VAT %", VATRate);
             VATPostingSetupArray[CurrentGroupNo].Validate(
               "VAT Identifier",
               CopyStr(
-                LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetupArray[CurrentGroupNo]."VAT Identifier")));
+                LibraryERM.CreateRandomVATIdentifierAndGetCode(), 1, MaxStrLen(VATPostingSetupArray[CurrentGroupNo]."VAT Identifier")));
             VATPostingSetupArray[CurrentGroupNo].Modify(true);
         end;
     end;
 
-    local procedure CreatePostingNoSeriesPurchase(): Code[10]
+    local procedure CreatePostingNoSeriesPurchase(): Code[20]
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeriesLine2: Record "No. Series Line";
         PurchSetup: Record "Purchases & Payables Setup";
     begin
         LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-        LibraryERM.CreateNoSeriesLinePurchase(NoSeriesLinePurchase, NoSeries.Code, '', '');
+        LibraryERM.CreateNoSeriesLine(NoSeriesLine2, NoSeries.Code, '', '');
 
         PurchSetup.Get();
         LibraryUtility.CreateNoSeriesRelationship(PurchSetup."Posted Invoice Nos.", NoSeries.Code);
@@ -4266,11 +4465,11 @@ codeunit 136306 "Job Invoicing"
         Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroupCode));
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, Customer."Gen. Bus. Posting Group", GenProdPostingGroupCode);
         with GeneralPostingSetup do begin
-            Validate("Sales Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. Account", LibraryERM.CreateGLAccountNo);
-            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo);
-            Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo);
-            Validate("COGS Account", LibraryERM.CreateGLAccountNo);
+            Validate("Sales Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
+            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
+            Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo());
+            Validate("COGS Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
         exit(Customer."No.");
@@ -4282,7 +4481,7 @@ codeunit 136306 "Job Invoicing"
         PurchaseLine: Record "Purchase Line";
     begin
         CreateJobWithJobTask(JobTask);
-        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo, ItemNo, JobTask);
+        CreatePurchaseOrderAssignJob(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), ItemNo, JobTask);
         LibraryVariableStorage.Enqueue(TrackingOption);
         PurchaseLine.OpenItemTrackingLines();
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
@@ -4398,7 +4597,7 @@ codeunit 136306 "Job Invoicing"
         // Setup: Create Job Planning Line with Dimesion.
         Initialize();
         DimensionValueCode := CreateJobTaskWithDimension(JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
 
         // Exercise: Create sales Document from Job Planning Line.
         Commit();
@@ -4448,10 +4647,9 @@ codeunit 136306 "Job Invoicing"
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
         PurchaseLine.FindFirst();
-
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Posting No. Series", CreatePostingNoSeriesPurchase);
+        PurchaseHeader.Validate("Posting No. Series", CreatePostingNoSeriesPurchase());
         PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDateFrom(WorkDate(), 5));
         PurchaseHeader.Modify(true);
     end;
@@ -4468,7 +4666,7 @@ codeunit 136306 "Job Invoicing"
         SalesInvoiceLine.FindFirst();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateJobJnlLine(var JobJournalLine: Record "Job Journal Line"): Decimal
     var
         Item: Record Item;
@@ -4786,7 +4984,7 @@ codeunit 136306 "Job Invoicing"
                 TestField("Invoiced Quantity", Quantity);
                 TestField("Cost Amount (Expected)", 0);
                 TestField("Cost Amount (Actual)", ExpectedActualCost * GetILEAmountSign(ItemLedgerEntry));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -4799,7 +4997,7 @@ codeunit 136306 "Job Invoicing"
             FindSet();
             repeat
                 TestField("Applied Entry to Adjust", true);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -4861,8 +5059,8 @@ codeunit 136306 "Job Invoicing"
     procedure JobCalculateWIPRequestPageHandler(var JobCalculateWIP: TestRequestPage "Job Calculate WIP")
     begin
         JobCalculateWIP.PostingDate.SetValue(WorkDate());
-        JobCalculateWIP.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
-        JobCalculateWIP.OK.Invoke;
+        JobCalculateWIP.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
+        JobCalculateWIP.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4870,7 +5068,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferToInvoiceHandler(var RequestPage: TestRequestPage "Job Transfer to Sales Invoice")
     begin
         RequestPage.CreateNewInvoice.SetValue(true);
-        RequestPage.OK.Invoke
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4878,7 +5076,7 @@ codeunit 136306 "Job Invoicing"
     procedure TransferToCreditMemoHandler(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
     begin
         JobTransferToCreditMemo.CreateNewCreditMemo.SetValue(true);
-        JobTransferToCreditMemo.OK.Invoke
+        JobTransferToCreditMemo.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4933,7 +5131,7 @@ codeunit 136306 "Job Invoicing"
         JobTask: Record "Job Task";
     begin
         CreateJobWithJobTask(JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
         AddDiffUOMItemToJobPlanningLine(JobPlanningLine);
     end;
 
@@ -4990,8 +5188,8 @@ codeunit 136306 "Job Invoicing"
         DimensionSetID: Integer;
     begin
         CreateJobWithJobTask(JobTask);
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth, LibraryJob.GLAccountType, JobTask, JobJnlLine);
-        JobJnlLine.Validate("No.", LibraryJob.FindConsumable(LibraryJob.GLAccountType));
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth(), LibraryJob.GLAccountType(), JobTask, JobJnlLine);
+        JobJnlLine.Validate("No.", LibraryJob.FindConsumable(LibraryJob.GLAccountType()));
         JobJnlLine.Validate(Quantity, LibraryRandom.RandInt(100));
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -5018,8 +5216,8 @@ codeunit 136306 "Job Invoicing"
         with JobPlanningLine do begin
             SetRange("Job No.", JobNo);
             SetRange("Job Task No.", JobTaskNo);
-            SetRange(Type, LibraryJob.GLAccountType);
-            SetRange("Line Type", LibraryJob.PlanningLineTypeContract);
+            SetRange(Type, LibraryJob.GLAccountType());
+            SetRange("Line Type", LibraryJob.PlanningLineTypeContract());
             FindLast();
         end;
     end;
@@ -5042,7 +5240,7 @@ codeunit 136306 "Job Invoicing"
         DimensionCode := DimensionSetEntry."Dimension Code";
         JobJournalLineDimSetID := JobJournalLine."Dimension Set ID";
         JobPostingGroup.FindLast();
-        JobPostingGroup.Validate("G/L Expense Acc. (Contract)", LibraryJob.FindConsumable(LibraryJob.GLAccountType));
+        JobPostingGroup.Validate("G/L Expense Acc. (Contract)", LibraryJob.FindConsumable(LibraryJob.GLAccountType()));
         JobPostingGroup.Modify(true);
         LibraryJob.PostJobJournal(JobJournalLine);
         FindJobPlanningLine(JobPlanningLine, JobJournalLine."Job No.", JobJournalLine."Job Task No.");
@@ -5131,7 +5329,7 @@ codeunit 136306 "Job Invoicing"
     [Scope('OnPrem')]
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]
@@ -5146,7 +5344,7 @@ codeunit 136306 "Job Invoicing"
     [Scope('OnPrem')]
     procedure CreateSalesInvoiceReportHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
     begin
-        JobCreateSalesInvoice.OK.Invoke;
+        JobCreateSalesInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5156,37 +5354,37 @@ codeunit 136306 "Job Invoicing"
         DocumentType: Option "Posted Receipts","Posted Invoices","Posted Return Shipments","Posted Cr. Memos";
     begin
         PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(Format(DocumentType::"Posted Invoices"));
-        PostedPurchaseDocumentLines.PostedRcpts.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.PostedRcpts.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             TrackingOption::"Assign Lot No.":
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             TrackingOption::"Assign Serial No.":
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantityToCreatePageHandler(var EnterQuantitytoCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantitytoCreate.OK.Invoke;
+        EnterQuantitytoCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure JobInvoicesDetailsVisibleModalPageHandler(var JobInvoices: TestPage "Job Invoices")
     begin
-        Assert.IsTrue(JobInvoices."Transferred Date".Visible, JobInvoices."Transferred Date".Caption);
-        Assert.IsTrue(JobInvoices."Invoiced Date".Visible, JobInvoices."Invoiced Date".Caption);
-        Assert.IsTrue(JobInvoices."Job Ledger Entry No.".Visible, JobInvoices."Job Ledger Entry No.".Caption);
+        Assert.IsTrue(JobInvoices."Transferred Date".Visible(), JobInvoices."Transferred Date".Caption);
+        Assert.IsTrue(JobInvoices."Invoiced Date".Visible(), JobInvoices."Invoiced Date".Caption);
+        Assert.IsTrue(JobInvoices."Job Ledger Entry No.".Visible(), JobInvoices."Job Ledger Entry No.".Caption);
     end;
 
     local procedure GetSalesHeaderFromJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; var SalesHeader: Record "Sales Header"; isInvoice: Boolean)
@@ -5220,6 +5418,17 @@ codeunit 136306 "Job Invoicing"
         SalesHeader.SetRange("Posting Date", PostingDate);
         SalesHeader.SetRange("Document Date", DocumentDate);
         SalesHeader.FindFirst();
+    end;
+
+    local procedure CreateSimpleSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    var
+        RecRef: RecordRef;
+    begin
+        SalesLine.Init();
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        RecRef.GetTable(SalesLine);
+        SalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No.")));
     end;
 
     [RequestPageHandler]
@@ -5307,6 +5516,12 @@ codeunit 136306 "Job Invoicing"
         JobCreateSalesInvoice.PostingDate.SetValue(WorkDate() + 10);
         Assert.AreNotEqual(JobCreateSalesInvoice.PostingDate.AsDate(), JobCreateSalesInvoice."Document Date".AsDate(), 'Wrong Document Date');
         JobCreateSalesInvoice.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GetJobPlanLines(var GetJobPlanningLines: TestPage "Get Job Planning Lines")
+    begin
+        GetJobPlanningLines.OK().Invoke();
     end;
 
     [SendNotificationHandler]

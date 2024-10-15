@@ -18,6 +18,7 @@ table 12182 "Vendor Bill Line"
 {
     Caption = 'Vendor Bill Line';
     Permissions = TableData "Vendor Ledger Entry" = m;
+    DataClassification = CustomerContent;
 
     fields
     {

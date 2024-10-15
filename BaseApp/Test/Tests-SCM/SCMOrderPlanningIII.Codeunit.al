@@ -29,6 +29,7 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryJob: Codeunit "Library - Job";
         LibraryDimension: Codeunit "Library - Dimension";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         VerifyOnGlobal: Option RequisitionLine,Orders;
@@ -164,7 +165,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // Change Source No in Production Order.
         ProductionOrder.Find();
-        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.SetUpdateEndDate();
         ProductionOrder.Validate("Due Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -202,7 +203,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // Exercise And Verify : Open Order Tracking Page and Verification is done by Handler Method. Check That Order Tracking Line Create As expected.
         OpenOrderPlanningPage(OrderPlanning, ProductionOrder."No.", ChildItem."No.");
-        OrderPlanning.OrderTracking.Invoke;
+        OrderPlanning.OrderTracking.Invoke();
         OrderPlanning.Close();
     end;
 
@@ -229,17 +230,17 @@ codeunit 137088 "SCM Order Planning - III"
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder."No.", ChildItem."No.");
         ExpectedQuantity := ProdOrderComponent."Remaining Quantity";
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
-        PurchaseOrderNo := FindPurchaseOrderNo;
+        PurchaseOrderNo := FindPurchaseOrderNo();
 
         // Exercise.
         MakeSupplyOrdersActiveOrder(ProductionOrder."No.");
 
         // Verify : Verification is done by Handler Method. Check That Order Tracking Line Create As expected when make order from Order Planning Page.
-        LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
-        LibraryPurchase.DisableWarningOnCloseUnreleasedDoc;
-        PurchaseOrder.OpenView;
+        LibraryPurchase.DisableWarningOnCloseUnpostedDoc();
+        LibraryPurchase.DisableWarningOnCloseUnreleasedDoc();
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseOrderNo);
-        PurchaseOrder.PurchLines.OrderTracking.Invoke;
+        PurchaseOrder.PurchLines.OrderTracking.Invoke();
         PurchaseOrder.Close();
     end;
 
@@ -280,10 +281,10 @@ codeunit 137088 "SCM Order Planning - III"
         // Exercise And Verify.
         if PlanningRouting then
             // Exercise And Verify : Open Planning Routing and Verification is done by Handler Method. Check That Planning Routing is same as Routing on child item.
-            OrderPlanning."Ro&uting".Invoke
+            OrderPlanning."Ro&uting".Invoke()
         else
             // Exercise And Verify : Open Planning Component and Verification is done by Handler Method. Check That Planning Component is same as component on child item.
-            OrderPlanning.Components.Invoke;
+            OrderPlanning.Components.Invoke();
     end;
 
     [Test]
@@ -371,7 +372,7 @@ codeunit 137088 "SCM Order Planning - III"
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning ,Make Order and Open Production Order Statistics.
         Initialize();
 
-        LibraryApplicationArea.EnablePremiumSetup;
+        LibraryApplicationArea.EnablePremiumSetup();
 
         CreateManufacturingSetup(ParentItem, ChildItem, true, ChildItem."Order Tracking Policy"::None);
         CreateAndRefreshProdOrder(
@@ -443,7 +444,7 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", DimensionValue."Dimension Code", DimensionValue.Code);
         CreateSalesOrder(SalesHeader, Item."No.", '', LibraryRandom.RandDec(10, 2) + 10, LibraryRandom.RandDec(10, 2));  // Random Value Required.
         LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
-        PurchaseOrderNo := FindPurchaseOrderNo;
+        PurchaseOrderNo := FindPurchaseOrderNo();
 
         // Exercise : Make Order for Active Order.
         MakeSupplyOrdersActiveOrder(SalesHeader."No.");
@@ -877,7 +878,7 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine.SetRange("Worksheet Template Name", WkshTemplateName);
         RequisitionLine.SetRange("Journal Batch Name", JournalBatchName);
         RequisitionLine.SetRange("No.", ItemNo);
-        Assert.IsTrue(RequisitionLine.FindFirst, StrSubstNo(LineExistErr, WkshTemplateName, ItemNo));
+        Assert.IsTrue(RequisitionLine.FindFirst(), StrSubstNo(LineExistErr, WkshTemplateName, ItemNo));
     end;
 
     local procedure ModifyRequisitionLine(var RequisitionLine: Record "Requisition Line"; Reserve: Enum "Reserve Method"; ReplenishmentSystem: Enum "Replenishment System")
@@ -934,7 +935,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         Quantity := LibraryRandom.RandDec(10, 2);  // Random Value Required.
 
-        LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo, Item."No.");
+        LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo(), Item."No.");
 
         CreateSalesOrder(SalesHeader, Item."No.", LocationBlue.Code, Quantity, Quantity);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1177,8 +1178,8 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [GIVEN] Sales order.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(100, 200), '', WorkDate());
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(100, 200), '', WorkDate());
 
         // [WHEN] Run "Create Purchase Order" on sales order page, but do not confirm making a new purchase order.
         CreatePurchaseOrderFromSalesOrder(SalesHeader."No.", false);
@@ -1204,7 +1205,7 @@ codeunit 137088 "SCM Order Planning - III"
         Initialize();
 
         LibraryInventory.CreateNonInventoryTypeItem(Item);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
 
         LibrarySales.CreateSalesDocumentWithItem(
@@ -1231,7 +1232,7 @@ codeunit 137088 "SCM Order Planning - III"
         Initialize();
 
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
 
         // [GIVEN] Two sales orders "SO1", "SO2".
@@ -1278,7 +1279,7 @@ codeunit 137088 "SCM Order Planning - III"
         // [GIVEN] Items "A" and "B".
         LibraryInventory.CreateItem(BlockedItem);
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
 
         // [GIVEN] Sales order for item "A".
@@ -1300,45 +1301,6 @@ codeunit 137088 "SCM Order Planning - III"
         // Tear down.
         BlockedItem.Validate(Blocked, false);
         BlockedItem.Modify(true);
-    end;
-
-    [Test]
-    procedure OtherBlockedItemVariantDoesNotPreventCreatePurchaseFromSales()
-    var
-        Item: Record Item;
-        Item2: Record Item;
-        ItemVariant: Record "Item Variant";
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Qty: Decimal;
-    begin
-        // [FEATURE] [Item Variant] [Sales] [Purchase] [Order]
-        // [SCENARIO] Other blocked item variants do not interfere with creating purchase from sales.
-        Initialize();
-        Qty := LibraryRandom.RandInt(10);
-
-        // [GIVEN] Items "A" and "B".
-        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItem(Item));
-        LibraryInventory.CreateItem(Item2);
-        Item2.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
-        Item2.Modify(true);
-
-        // [GIVEN] Sales order for item "A" with variant I.
-        // [GIVEN] Sales order for item "B".
-        CreateSalesOrderWithItemVariant(SalesHeader, Item."No.", ItemVariant.Code, '', Qty, Qty);
-        CreateSalesOrder(SalesHeader, Item2."No.", '', Qty, Qty);
-
-        // [GIVEN] Block item variant "I".
-        ItemVariant.Validate(Blocked, true);
-        ItemVariant.Modify(true);
-
-        // [WHEN] Run "Create Purchase Order" from the sales order for item "B".
-        CreatePurchaseOrderFromSalesOrder(SalesHeader."No.", true);
-
-        // [THEN] A new purchase order for "B" is successfully created.
-        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item2."No.");
-        PurchaseHeader.TestField("Buy-from Vendor No.", Item2."Vendor No.");
     end;
 
     [Test]
@@ -1444,7 +1406,6 @@ codeunit 137088 "SCM Order Planning - III"
         PurchaseLine: Record "Purchase Line";
         VendorNo: Code[20];
         Qty: Decimal;
-        i: Integer;
     begin
         // [FEATURE] [Sales] [Purchase] [Order]
         Initialize();
@@ -1565,6 +1526,45 @@ codeunit 137088 "SCM Order Planning - III"
 
         RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '0');
         Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    procedure OtherBlockedItemVariantDoesNotPreventCreatePurchaseFromSales()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Variant] [Sales] [Purchase] [Order]
+        // [SCENARIO] Other blocked item variants do not interfere with creating purchase from sales.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Items "A" and "B".
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItem(Item));
+        LibraryInventory.CreateItem(Item2);
+        Item2.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item2.Modify(true);
+
+        // [GIVEN] Sales order for item "A" with variant I.
+        // [GIVEN] Sales order for item "B".
+        CreateSalesOrderWithItemVariant(SalesHeader, Item."No.", ItemVariant.Code, '', Qty, Qty);
+        CreateSalesOrder(SalesHeader, Item2."No.", '', Qty, Qty);
+
+        // [GIVEN] Block item variant "I".
+        ItemVariant.Validate(Blocked, true);
+        ItemVariant.Modify(true);
+
+        // [WHEN] Run "Create Purchase Order" from the sales order for item "B".
+        CreatePurchaseOrderFromSalesOrder(SalesHeader."No.", true);
+
+        // [THEN] A new purchase order for "B" is successfully created.
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item2."No.");
+        PurchaseHeader.TestField("Buy-from Vendor No.", Item2."Vendor No.");
     end;
 
     [Test]
@@ -1751,7 +1751,7 @@ codeunit 137088 "SCM Order Planning - III"
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityModalPageHandler,MakeSupplyOrdersPageHandler')]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
     [Scope('OnPrem')]
     procedure ReserveOrderPlanningDemandAssemblySupplyRequisitionLine()
     var
@@ -1776,7 +1776,7 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryManufacturing.CreateBOMComponent(
           BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Item, Item."No.", 1, Item."Base Unit of Measure");
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, WorkDate + 10, BOMComponent."Parent Item No.", '', LibraryRandom.RandInt(10), '');
+          AssemblyHeader, WorkDate() + 10, BOMComponent."Parent Item No.", '', LibraryRandom.RandInt(10), '');
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.FindFirst();
@@ -1803,6 +1803,7 @@ codeunit 137088 "SCM Order Planning - III"
         VerifyOrderToOrderBindingOnReservEntry(
           DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.",
           DATABASE::"Requisition Line");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2732,7 +2733,7 @@ codeunit 137088 "SCM Order Planning - III"
         PurchInvHeader: Record "Purch. Inv. Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
         PurchGetReceipt: Codeunit "Purch.-Get Receipt";
-        ReceiptNo, VendorNo, InvoiceNo : Code[20];
+        ReceiptNo, VendorNo : Code[20];
     begin
         // [SCENARIO 464690] Post Purchase Invoice by getting receipt lines posted from purchase order reserved for job without tracking specification.
         Initialize();
@@ -2880,9 +2881,9 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Order Planning - III");
-        ClearGlobals;
+        ClearGlobals();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
         LibraryVariableStorage.Clear();
 
         if IsInitialized then
@@ -2891,7 +2892,7 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        CreateLocationSetup;
+        CreateLocationSetup();
         NoSeriesSetup();
         IsInitialized := true;
         Commit();
@@ -2908,7 +2909,7 @@ codeunit 137088 "SCM Order Planning - III"
         Clear(ExpectedQuantity);
         RequisitionLine.Reset();
         RequisitionLine.DeleteAll();
-        ClearManufacturingUserTemplate;
+        ClearManufacturingUserTemplate();
     end;
 
     local procedure NoSeriesSetup()
@@ -2917,11 +2918,11 @@ codeunit 137088 "SCM Order Planning - III"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -3008,7 +3009,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item.Validate("Unit Cost", LibraryRandom.RandDec(20, 2));
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision");
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Validate("Routing No.", RoutingHeaderNo);
         Item.Validate("Production BOM No.", ProductionBOMNo);
         Item.Modify(true);
@@ -3020,7 +3021,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(12, 24));
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Validate("Purch. Unit of Measure", ItemUnitOfMeasure.Code);
         Item.Modify(true);
     end;
@@ -3323,10 +3324,10 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionWkshName: Record "Requisition Wksh. Name";
         RequisitionLine: Record "Requisition Line";
     begin
-        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName);
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName());
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSpecialOrder(RequisitionLine, ItemNo);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate, WorkDate(), '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure GetSalesOrdersAndCarryOutAtWorkdateByItemNo(SalesLine: Record "Sales Line")
@@ -3335,10 +3336,10 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine: Record "Requisition Line";
         GetDim: Option Item,"Sales Line";
     begin
-        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName);
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName());
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, GetDim::"Sales Line");
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate, WorkDate(), '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure GetPurchaseSpecialOrderAtWorkdateByItemNo(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
@@ -3384,10 +3385,10 @@ codeunit 137088 "SCM Order Planning - III"
     local procedure FindPurchaseOrderNo(): Code[20]
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         PurchasesPayablesSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(PurchasesPayablesSetup."Order Nos."));
     end;
 
     local procedure FindProductionOrderNo(ItemNo: Code[20]): Code[20]
@@ -3526,7 +3527,7 @@ codeunit 137088 "SCM Order Planning - III"
 
     local procedure OpenOrderPlanningPage(var OrderPlanning: TestPage "Order Planning"; DemandOrderNo: Code[20]; No: Code[20])
     begin
-        OrderPlanning.OpenEdit;
+        OrderPlanning.OpenEdit();
         OrderPlanning.FILTER.SetFilter("Demand Order No.", DemandOrderNo);
         OrderPlanning.Expand(true);
         OrderPlanning.FILTER.SetFilter("No.", No);
@@ -3575,11 +3576,11 @@ codeunit 137088 "SCM Order Planning - III"
 
     local procedure OpenFirmPlannedProductionOrder(var FirmPlannedProdOrders: TestPage "Firm Planned Prod. Orders"; var ProductionOrderStatistics: TestPage "Production Order Statistics"; SourceNo: Code[20]; No: Code[20])
     begin
-        FirmPlannedProdOrders.OpenEdit;
+        FirmPlannedProdOrders.OpenEdit();
         FirmPlannedProdOrders.FILTER.SetFilter("Source No.", SourceNo);
         FirmPlannedProdOrders.FILTER.SetFilter("No.", No);
-        ProductionOrderStatistics.Trap;
-        FirmPlannedProdOrders.Statistics.Invoke;
+        ProductionOrderStatistics.Trap();
+        FirmPlannedProdOrders.Statistics.Invoke();
     end;
 
     local procedure VerifyDimensionSetEntry(DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionSetID: Integer)
@@ -3597,7 +3598,7 @@ codeunit 137088 "SCM Order Planning - III"
         Assert.AreEqual(
           GlobalChildItemNo, OrderTracking."Item No.".Value,
           StrSubstNo(ValidationError, OrderTracking."Item No.".Caption, GlobalChildItemNo, OrderTracking.Caption));
-        Assert.AreEqual(ExpectedQuantity, OrderTracking.Quantity.AsDEcimal, QuantityError);
+        Assert.AreEqual(ExpectedQuantity, OrderTracking.Quantity.AsDecimal(), QuantityError);
     end;
 
     local procedure VerifyProdOrderComponent(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; QuantityPer: Decimal)
@@ -3689,13 +3690,6 @@ codeunit 137088 "SCM Order Planning - III"
         Response := ACTION::LookupOK;
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AssemblyAvailabilityModalPageHandler(var AssemblyAvailability: TestPage "Assembly Availability")
-    begin
-        AssemblyAvailability.Yes.Invoke();
-    end;
-
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -3708,7 +3702,7 @@ codeunit 137088 "SCM Order Planning - III"
     procedure OrderTrackingPageHandler(var OrderTracking: TestPage "Order Tracking")
     begin
         VerifyOrderTrackingPage(OrderTracking);
-        OrderTracking.OK.Invoke;
+        OrderTracking.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3718,7 +3712,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item: Record Item;
         ProductionBOMLine: Record "Production BOM Line";
     begin
-        PlanningComponents.First;
+        PlanningComponents.First();
         Item.Get(GlobalChildItemNo);
         ProductionBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
         ProductionBOMLine.FindFirst();
@@ -3735,7 +3729,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item: Record Item;
         RoutingLine: Record "Routing Line";
     begin
-        PlanningRouting.First;
+        PlanningRouting.First();
         Item.Get(GlobalChildItemNo);
         RoutingLine.SetRange("Routing No.", Item."Routing No.");
         RoutingLine.FindFirst();
@@ -3749,21 +3743,21 @@ codeunit 137088 "SCM Order Planning - III"
     procedure PurchOrderFromSalesOrderWithVendorNoModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
         PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
-        PurchOrderFromSalesOrder.OK.Invoke();
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
     procedure PurchOrderFromSalesOrderLookupVendorNoModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
         PurchOrderFromSalesOrder.Vendor.Lookup();
-        PurchOrderFromSalesOrder.OK.Invoke();
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
     procedure ItemVendorCatalogModalPageHandler(var ItemVendorCatalog: TestPage "Item Vendor Catalog")
     begin
         ItemVendorCatalog.FILTER.SetFilter("Vendor No.", LibraryVariableStorage.DequeueText());
-        ItemVendorCatalog.OK.Invoke();
+        ItemVendorCatalog.OK().Invoke();
     end;
 
     [ConfirmHandler]

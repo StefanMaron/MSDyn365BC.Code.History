@@ -34,13 +34,13 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Invoice rounding account
         LibrarySales.SetInvoiceRounding(false);
-        CustomerPostingGroups.OpenView;
-        Assert.AreEqual(CustomerPostingGroups."Invoice Rounding Account".Visible, false, 'Invoice rounding off');
+        CustomerPostingGroups.OpenView();
+        Assert.AreEqual(CustomerPostingGroups."Invoice Rounding Account".Visible(), false, 'Invoice rounding off');
         CustomerPostingGroups.Close();
 
         LibrarySales.SetInvoiceRounding(true);
-        CustomerPostingGroups.OpenView;
-        Assert.AreEqual(CustomerPostingGroups."Invoice Rounding Account".Visible, true, 'Invoice rounding on');
+        CustomerPostingGroups.OpenView();
+        Assert.AreEqual(CustomerPostingGroups."Invoice Rounding Account".Visible(), true, 'Invoice rounding on');
         CustomerPostingGroups.Close();
     end;
 
@@ -57,15 +57,15 @@ codeunit 134069 "ERM Edit Posting Groups"
         // Payment discount accounts
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
-        CustomerPostingGroups.OpenView;
-        Assert.AreEqual(CustomerPostingGroups."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
-        Assert.AreEqual(CustomerPostingGroups."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
+        CustomerPostingGroups.OpenView();
+        Assert.AreEqual(CustomerPostingGroups."Payment Disc. Debit Acc.".Visible(), false, 'Payment discount off');
+        Assert.AreEqual(CustomerPostingGroups."Payment Disc. Credit Acc.".Visible(), false, 'Payment discount off');
         CustomerPostingGroups.Close();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
-        CustomerPostingGroups.OpenView;
-        Assert.AreEqual(CustomerPostingGroups."Payment Disc. Debit Acc.".Visible, true, 'Payment discount on');
-        Assert.AreEqual(CustomerPostingGroups."Payment Disc. Credit Acc.".Visible, true, 'Payment discount on');
+        CustomerPostingGroups.OpenView();
+        Assert.AreEqual(CustomerPostingGroups."Payment Disc. Debit Acc.".Visible(), true, 'Payment discount on');
+        Assert.AreEqual(CustomerPostingGroups."Payment Disc. Credit Acc.".Visible(), true, 'Payment discount on');
         CustomerPostingGroups.Close();
     end;
 
@@ -80,12 +80,12 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Payment tolerance accounts
         GLSetup.Get();
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
         Assert.AreEqual(
-          CustomerPostingGroups."Payment Tolerance Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
+          CustomerPostingGroups."Payment Tolerance Debit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0,
           'Payment tolerance');
         Assert.AreEqual(
-          CustomerPostingGroups."Payment Tolerance Credit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
+          CustomerPostingGroups."Payment Tolerance Credit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0,
           'Payment tolerance');
         CustomerPostingGroups.Close();
     end;
@@ -101,12 +101,12 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Currency application accounts
         SalesSetup.Get();
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
         Assert.AreEqual(
-          CustomerPostingGroups."Debit Curr. Appln. Rndg. Acc.".Visible, SalesSetup."Appln. between Currencies" > 0,
+          CustomerPostingGroups."Debit Curr. Appln. Rndg. Acc.".Visible(), SalesSetup."Appln. between Currencies" > 0,
           'Curr. application');
         Assert.AreEqual(
-          CustomerPostingGroups."Credit Curr. Appln. Rndg. Acc.".Visible, SalesSetup."Appln. between Currencies" > 0,
+          CustomerPostingGroups."Credit Curr. Appln. Rndg. Acc.".Visible(), SalesSetup."Appln. between Currencies" > 0,
           'Curr. application');
         CustomerPostingGroups.Close();
     end;
@@ -121,13 +121,13 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Invoice rounding account
         LibrarySales.SetInvoiceRounding(false);
-        CustomerPostingGroupCard.OpenView;
-        Assert.AreEqual(CustomerPostingGroupCard."Invoice Rounding Account".Visible, false, 'Invoice rounding off');
+        CustomerPostingGroupCard.OpenView();
+        Assert.AreEqual(CustomerPostingGroupCard."Invoice Rounding Account".Visible(), false, 'Invoice rounding off');
         CustomerPostingGroupCard.Close();
 
         LibrarySales.SetInvoiceRounding(true);
-        CustomerPostingGroupCard.OpenView;
-        Assert.AreEqual(CustomerPostingGroupCard."Invoice Rounding Account".Visible, true, 'Invoice rounding on');
+        CustomerPostingGroupCard.OpenView();
+        Assert.AreEqual(CustomerPostingGroupCard."Invoice Rounding Account".Visible(), true, 'Invoice rounding on');
         CustomerPostingGroupCard.Close();
     end;
 
@@ -144,15 +144,15 @@ codeunit 134069 "ERM Edit Posting Groups"
         // Payment discount accounts
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
-        CustomerPostingGroupCard.OpenView;
-        Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
-        Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
+        CustomerPostingGroupCard.OpenView();
+        Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Debit Acc.".Visible(), false, 'Payment discount off');
+        Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Credit Acc.".Visible(), false, 'Payment discount off');
         CustomerPostingGroupCard.Close();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
-        CustomerPostingGroupCard.OpenView;
-        Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Debit Acc.".Visible, true, 'Payment discount on');
-        Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Credit Acc.".Visible, true, 'Payment discount on');
+        CustomerPostingGroupCard.OpenView();
+        Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Debit Acc.".Visible(), true, 'Payment discount on');
+        Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Credit Acc.".Visible(), true, 'Payment discount on');
         CustomerPostingGroupCard.Close();
     end;
 
@@ -167,12 +167,12 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Payment tolerance accounts
         GLSetup.Get();
-        CustomerPostingGroupCard.OpenView;
+        CustomerPostingGroupCard.OpenView();
         Assert.AreEqual(
-          CustomerPostingGroupCard."Payment Tolerance Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
+          CustomerPostingGroupCard."Payment Tolerance Debit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0,
           'Payment tolerance');
         Assert.AreEqual(
-          CustomerPostingGroupCard."Payment Tolerance Credit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
+          CustomerPostingGroupCard."Payment Tolerance Credit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0,
           'Payment tolerance');
         CustomerPostingGroupCard.Close();
     end;
@@ -188,12 +188,12 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Currency application accounts
         SalesSetup.Get();
-        CustomerPostingGroupCard.OpenView;
+        CustomerPostingGroupCard.OpenView();
         Assert.AreEqual(
-          CustomerPostingGroupCard."Debit Curr. Appln. Rndg. Acc.".Visible, SalesSetup."Appln. between Currencies" > 0,
+          CustomerPostingGroupCard."Debit Curr. Appln. Rndg. Acc.".Visible(), SalesSetup."Appln. between Currencies" > 0,
           'Curr. application');
         Assert.AreEqual(
-          CustomerPostingGroupCard."Credit Curr. Appln. Rndg. Acc.".Visible, SalesSetup."Appln. between Currencies" > 0,
+          CustomerPostingGroupCard."Credit Curr. Appln. Rndg. Acc.".Visible(), SalesSetup."Appln. between Currencies" > 0,
           'Curr. application');
         CustomerPostingGroupCard.Close();
     end;
@@ -208,13 +208,13 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Invoice rounding account
         LibraryPurchase.SetInvoiceRounding(false);
-        VendorPostingGroups.OpenView;
-        Assert.AreEqual(VendorPostingGroups."Invoice Rounding Account".Visible, false, 'Invoice rounding off');
+        VendorPostingGroups.OpenView();
+        Assert.AreEqual(VendorPostingGroups."Invoice Rounding Account".Visible(), false, 'Invoice rounding off');
         VendorPostingGroups.Close();
 
         LibraryPurchase.SetInvoiceRounding(true);
-        VendorPostingGroups.OpenView;
-        Assert.AreEqual(VendorPostingGroups."Invoice Rounding Account".Visible, true, 'Invoice rounding on');
+        VendorPostingGroups.OpenView();
+        Assert.AreEqual(VendorPostingGroups."Invoice Rounding Account".Visible(), true, 'Invoice rounding on');
         VendorPostingGroups.Close();
     end;
 
@@ -231,15 +231,15 @@ codeunit 134069 "ERM Edit Posting Groups"
         // Payment discount accounts
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
-        VendorPostingGroups.OpenView;
-        Assert.AreEqual(VendorPostingGroups."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
-        Assert.AreEqual(VendorPostingGroups."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
+        VendorPostingGroups.OpenView();
+        Assert.AreEqual(VendorPostingGroups."Payment Disc. Debit Acc.".Visible(), false, 'Payment discount off');
+        Assert.AreEqual(VendorPostingGroups."Payment Disc. Credit Acc.".Visible(), false, 'Payment discount off');
         VendorPostingGroups.Close();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
-        VendorPostingGroups.OpenView;
-        Assert.AreEqual(VendorPostingGroups."Payment Disc. Debit Acc.".Visible, true, 'Payment discount on');
-        Assert.AreEqual(VendorPostingGroups."Payment Disc. Credit Acc.".Visible, true, 'Payment discount on');
+        VendorPostingGroups.OpenView();
+        Assert.AreEqual(VendorPostingGroups."Payment Disc. Debit Acc.".Visible(), true, 'Payment discount on');
+        Assert.AreEqual(VendorPostingGroups."Payment Disc. Credit Acc.".Visible(), true, 'Payment discount on');
         VendorPostingGroups.Close();
     end;
 
@@ -254,12 +254,12 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Payment tolerance accounts
         GLSetup.Get();
-        VendorPostingGroups.OpenView;
+        VendorPostingGroups.OpenView();
         Assert.AreEqual(
-          VendorPostingGroups."Payment Tolerance Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
+          VendorPostingGroups."Payment Tolerance Debit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0,
           'Payment tolerance');
         Assert.AreEqual(
-          VendorPostingGroups."Payment Tolerance Credit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
+          VendorPostingGroups."Payment Tolerance Credit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0,
           'Payment tolerance');
         VendorPostingGroups.Close();
     end;
@@ -275,12 +275,12 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Currency application accounts
         PurchSetup.Get();
-        VendorPostingGroups.OpenView;
+        VendorPostingGroups.OpenView();
         Assert.AreEqual(
-          VendorPostingGroups."Debit Curr. Appln. Rndg. Acc.".Visible, PurchSetup."Appln. between Currencies" > 0,
+          VendorPostingGroups."Debit Curr. Appln. Rndg. Acc.".Visible(), PurchSetup."Appln. between Currencies" > 0,
           'Curr. application');
         Assert.AreEqual(
-          VendorPostingGroups."Credit Curr. Appln. Rndg. Acc.".Visible, PurchSetup."Appln. between Currencies" > 0,
+          VendorPostingGroups."Credit Curr. Appln. Rndg. Acc.".Visible(), PurchSetup."Appln. between Currencies" > 0,
           'Curr. application');
         VendorPostingGroups.Close();
     end;
@@ -295,13 +295,13 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Invoice rounding account
         LibraryPurchase.SetInvoiceRounding(false);
-        VendorPostingGroupCard.OpenView;
-        Assert.AreEqual(VendorPostingGroupCard."Invoice Rounding Account".Visible, false, 'Invoice rounding off');
+        VendorPostingGroupCard.OpenView();
+        Assert.AreEqual(VendorPostingGroupCard."Invoice Rounding Account".Visible(), false, 'Invoice rounding off');
         VendorPostingGroupCard.Close();
 
         LibraryPurchase.SetInvoiceRounding(true);
-        VendorPostingGroupCard.OpenView;
-        Assert.AreEqual(VendorPostingGroupCard."Invoice Rounding Account".Visible, true, 'Invoice rounding on');
+        VendorPostingGroupCard.OpenView();
+        Assert.AreEqual(VendorPostingGroupCard."Invoice Rounding Account".Visible(), true, 'Invoice rounding on');
         VendorPostingGroupCard.Close();
     end;
 
@@ -318,15 +318,15 @@ codeunit 134069 "ERM Edit Posting Groups"
         // Payment discount accounts
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
-        VendorPostingGroupCard.OpenView;
-        Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
-        Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
+        VendorPostingGroupCard.OpenView();
+        Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Debit Acc.".Visible(), false, 'Payment discount off');
+        Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Credit Acc.".Visible(), false, 'Payment discount off');
         VendorPostingGroupCard.Close();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
-        VendorPostingGroupCard.OpenView;
-        Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Debit Acc.".Visible, true, 'Payment discount on');
-        Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Credit Acc.".Visible, true, 'Payment discount on');
+        VendorPostingGroupCard.OpenView();
+        Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Debit Acc.".Visible(), true, 'Payment discount on');
+        Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Credit Acc.".Visible(), true, 'Payment discount on');
         VendorPostingGroupCard.Close();
     end;
 
@@ -341,12 +341,12 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Payment tolerance accounts
         GLSetup.Get();
-        VendorPostingGroupCard.OpenView;
+        VendorPostingGroupCard.OpenView();
         Assert.AreEqual(
-          VendorPostingGroupCard."Payment Tolerance Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
+          VendorPostingGroupCard."Payment Tolerance Debit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0,
           'Payment tolerance');
         Assert.AreEqual(
-          VendorPostingGroupCard."Payment Tolerance Credit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
+          VendorPostingGroupCard."Payment Tolerance Credit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0,
           'Payment tolerance');
         VendorPostingGroupCard.Close();
     end;
@@ -362,12 +362,12 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Currency application accounts
         PurchSetup.Get();
-        VendorPostingGroupCard.OpenView;
+        VendorPostingGroupCard.OpenView();
         Assert.AreEqual(
-          VendorPostingGroupCard."Debit Curr. Appln. Rndg. Acc.".Visible, PurchSetup."Appln. between Currencies" > 0,
+          VendorPostingGroupCard."Debit Curr. Appln. Rndg. Acc.".Visible(), PurchSetup."Appln. between Currencies" > 0,
           'Curr. application');
         Assert.AreEqual(
-          VendorPostingGroupCard."Credit Curr. Appln. Rndg. Acc.".Visible, PurchSetup."Appln. between Currencies" > 0,
+          VendorPostingGroupCard."Credit Curr. Appln. Rndg. Acc.".Visible(), PurchSetup."Appln. between Currencies" > 0,
           'Curr. application');
         VendorPostingGroupCard.Close();
     end;
@@ -383,8 +383,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
 
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Sales Line Disc. Account".Visible, true, 'Sales line discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Sales Line Disc. Account".Visible(), true, 'Sales line discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -399,8 +399,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Sales Line Disc. Account".Visible, false, 'Sales line discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Sales Line Disc. Account".Visible(), false, 'Sales line discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -415,8 +415,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
 
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Sales Inv. Disc. Account".Visible, true, 'Sales invoice discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Sales Inv. Disc. Account".Visible(), true, 'Sales invoice discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -431,8 +431,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Sales Inv. Disc. Account".Visible, false, 'Sales invoice discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Sales Inv. Disc. Account".Visible(), false, 'Sales invoice discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -446,9 +446,9 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.".Visible, true, 'Sales payment discount');
-        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Credit Acc.".Visible, true, 'Sales payment discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.".Visible(), true, 'Sales payment discount');
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Credit Acc.".Visible(), true, 'Sales payment discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -463,9 +463,9 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.".Visible, false, 'Sales payment discount');
-        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Credit Acc.".Visible, false, 'Sales payment discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.".Visible(), false, 'Sales payment discount');
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Credit Acc.".Visible(), false, 'Sales payment discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -479,11 +479,11 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         GLSetup.Get();
-        GeneralPostingSetup.OpenView;
+        GeneralPostingSetup.OpenView();
         Assert.AreEqual(
-          GeneralPostingSetup."Sales Pmt. Tol. Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
+          GeneralPostingSetup."Sales Pmt. Tol. Debit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
         Assert.AreEqual(
-          GeneralPostingSetup."Sales Pmt. Tol. Credit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
+          GeneralPostingSetup."Sales Pmt. Tol. Credit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
         GeneralPostingSetup.Close();
     end;
 
@@ -498,8 +498,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
 
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Purch. Line Disc. Account".Visible, true, 'Purch. line discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Purch. Line Disc. Account".Visible(), true, 'Purch. line discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -514,8 +514,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Purch. Line Disc. Account".Visible, false, 'Purch. line discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Purch. Line Disc. Account".Visible(), false, 'Purch. line discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -530,8 +530,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
 
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Purch. Inv. Disc. Account".Visible, true, 'Purch. invoice discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Purch. Inv. Disc. Account".Visible(), true, 'Purch. invoice discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -546,8 +546,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Purch. Inv. Disc. Account".Visible, false, 'Purch. invoice discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Purch. Inv. Disc. Account".Visible(), false, 'Purch. invoice discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -561,9 +561,9 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.".Visible, true, 'Purch. payment discount');
-        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc.".Visible, true, 'Purch. payment discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.".Visible(), true, 'Purch. payment discount');
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc.".Visible(), true, 'Purch. payment discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -578,9 +578,9 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
-        GeneralPostingSetup.OpenView;
-        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.".Visible, false, 'Purch. payment discount');
-        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc.".Visible, false, 'Purch. payment discount');
+        GeneralPostingSetup.OpenView();
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.".Visible(), false, 'Purch. payment discount');
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc.".Visible(), false, 'Purch. payment discount');
         GeneralPostingSetup.Close();
     end;
 
@@ -594,11 +594,11 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         GLSetup.Get();
-        GeneralPostingSetup.OpenView;
+        GeneralPostingSetup.OpenView();
         Assert.AreEqual(
-          GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
+          GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
         Assert.AreEqual(
-          GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
+          GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
         GeneralPostingSetup.Close();
     end;
 
@@ -613,8 +613,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
 
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Sales Line Disc. Account".Visible, true, 'Sales line discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Sales Line Disc. Account".Visible(), true, 'Sales line discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -629,8 +629,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Sales Line Disc. Account".Visible, false, 'Sales line discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Sales Line Disc. Account".Visible(), false, 'Sales line discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -645,8 +645,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
 
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Sales Inv. Disc. Account".Visible, true, 'Sales invoice discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Sales Inv. Disc. Account".Visible(), true, 'Sales invoice discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -661,8 +661,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Sales Inv. Disc. Account".Visible, false, 'Sales invoice discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Sales Inv. Disc. Account".Visible(), false, 'Sales invoice discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -676,9 +676,9 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Debit Acc.".Visible, true, 'Sales payment discount');
-        Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Credit Acc.".Visible, true, 'Sales payment discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Debit Acc.".Visible(), true, 'Sales payment discount');
+        Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Credit Acc.".Visible(), true, 'Sales payment discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -693,9 +693,9 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Debit Acc.".Visible, false, 'Sales payment discount');
-        Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Credit Acc.".Visible, false, 'Sales payment discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Debit Acc.".Visible(), false, 'Sales payment discount');
+        Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Credit Acc.".Visible(), false, 'Sales payment discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -709,11 +709,11 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         GLSetup.Get();
-        GeneralPostingSetupCard.OpenView;
+        GeneralPostingSetupCard.OpenView();
         Assert.AreEqual(
-          GeneralPostingSetupCard."Sales Pmt. Tol. Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
+          GeneralPostingSetupCard."Sales Pmt. Tol. Debit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
         Assert.AreEqual(
-          GeneralPostingSetupCard."Sales Pmt. Tol. Credit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
+          GeneralPostingSetupCard."Sales Pmt. Tol. Credit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -728,8 +728,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
 
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Purch. Line Disc. Account".Visible, true, 'Purch. line discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Purch. Line Disc. Account".Visible(), true, 'Purch. line discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -744,8 +744,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Purch. Line Disc. Account".Visible, false, 'Purch. line discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Purch. Line Disc. Account".Visible(), false, 'Purch. line discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -760,8 +760,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
 
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Purch. Inv. Disc. Account".Visible, true, 'Purch. invoice discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Purch. Inv. Disc. Account".Visible(), true, 'Purch. invoice discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -776,8 +776,8 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Purch. Inv. Disc. Account".Visible, false, 'Purch. invoice discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Purch. Inv. Disc. Account".Visible(), false, 'Purch. invoice discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -791,9 +791,9 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Debit Acc.".Visible, true, 'Purch. payment discount');
-        Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Credit Acc.".Visible, true, 'Purch. payment discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Debit Acc.".Visible(), true, 'Purch. payment discount');
+        Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Credit Acc.".Visible(), true, 'Purch. payment discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -808,9 +808,9 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
-        GeneralPostingSetupCard.OpenView;
-        Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Debit Acc.".Visible, false, 'Purch. payment discount');
-        Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Credit Acc.".Visible, false, 'Purch. payment discount');
+        GeneralPostingSetupCard.OpenView();
+        Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Debit Acc.".Visible(), false, 'Purch. payment discount');
+        Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Credit Acc.".Visible(), false, 'Purch. payment discount');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -824,11 +824,11 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         GLSetup.Get();
-        GeneralPostingSetupCard.OpenView;
+        GeneralPostingSetupCard.OpenView();
         Assert.AreEqual(
-          GeneralPostingSetupCard."Purch. Pmt. Tol. Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
+          GeneralPostingSetupCard."Purch. Pmt. Tol. Debit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
         Assert.AreEqual(
-          GeneralPostingSetupCard."Purch. Pmt. Tol. Credit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
+          GeneralPostingSetupCard."Purch. Pmt. Tol. Credit Acc.".Visible(), GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
         GeneralPostingSetupCard.Close();
     end;
 
@@ -842,9 +842,9 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         GLSetup.Get();
-        VATPostingSetup.OpenView;
+        VATPostingSetup.OpenView();
         Assert.AreEqual(
-          VATPostingSetup."Adjust for Payment Discount".Visible, GLSetup."Adjust for Payment Disc.", 'Adjust for Payment Disc.');
+          VATPostingSetup."Adjust for Payment Discount".Visible(), GLSetup."Adjust for Payment Disc.", 'Adjust for Payment Disc.');
         VATPostingSetup.Close();
     end;
 
@@ -858,9 +858,9 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         GLSetup.Get();
-        VATPostingSetupCard.OpenView;
+        VATPostingSetupCard.OpenView();
         Assert.AreEqual(
-          VATPostingSetupCard."Adjust for Payment Discount".Visible, GLSetup."Adjust for Payment Disc.", 'Adjust for Payment Disc.');
+          VATPostingSetupCard."Adjust for Payment Discount".Visible(), GLSetup."Adjust for Payment Disc.", 'Adjust for Payment Disc.');
         VATPostingSetupCard.Close();
     end;
 
@@ -874,17 +874,17 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Interest Account" is visible on page Customer Posting Groups when "Post Interest" = TRUE in Finance Charge Terms
         Initialize();
-        DeleteAllReminderTermsAndFinanceChargeTerms;
+        DeleteAllReminderTermsAndFinanceChargeTerms();
         PostInterest := true;
 
         // [GIVEN] Create Finance Charge Terms with "Post Interest" = TRUE
         CreateFinanceChargeTermsWithPostInterest(PostInterest);
 
         // [WHEN] Open page Customer Posting Groups
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
 
         // [THEN] Column "Interest Account" is visible
-        Assert.AreEqual(PostInterest, CustomerPostingGroups."Interest Account".Visible, 'Column invisible');
+        Assert.AreEqual(PostInterest, CustomerPostingGroups."Interest Account".Visible(), 'Column invisible');
         CustomerPostingGroups.Close();
     end;
 
@@ -898,17 +898,17 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Interest Account" is invisible on page Customer Posting Groups when "Post Interest" = FALSE in Finance Charge Terms and there are no Reminder Terms with "Post Interest" = TRUE
         Initialize();
-        DeleteAllReminderTermsAndFinanceChargeTerms;
+        DeleteAllReminderTermsAndFinanceChargeTerms();
         PostInterest := false;
 
         // [GIVEN] Create Finance Charge Terms with "Post Interest" = FALSE
         CreateFinanceChargeTermsWithPostInterest(PostInterest);
 
         // [WHEN] Open page Customer Posting Groups
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
 
         // [THEN] Column "Interest Account" is invisible
-        Assert.AreEqual(PostInterest, CustomerPostingGroups."Interest Account".Visible, 'Column visible');
+        Assert.AreEqual(PostInterest, CustomerPostingGroups."Interest Account".Visible(), 'Column visible');
         CustomerPostingGroups.Close();
     end;
 
@@ -922,17 +922,17 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Additional Fee Account" is visible on page Customer Posting Groups when "Post Additional Fee" = TRUE in Finance Charge Terms
         Initialize();
-        DeleteAllReminderTermsAndFinanceChargeTerms;
+        DeleteAllReminderTermsAndFinanceChargeTerms();
         PostAdditionalFee := true;
 
         // [GIVEN] Create Finance Charge Terms with "Post Additional Fee" = TRUE
         CreateFinanceChargeTermsWithPostAdditionalFee(PostAdditionalFee);
 
         // [WHEN] Open page Customer Posting Groups
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
 
         // [THEN] Column "Additional Fee Account" is visible
-        Assert.AreEqual(PostAdditionalFee, CustomerPostingGroups."Additional Fee Account".Visible, 'Column invisible');
+        Assert.AreEqual(PostAdditionalFee, CustomerPostingGroups."Additional Fee Account".Visible(), 'Column invisible');
         CustomerPostingGroups.Close();
     end;
 
@@ -946,17 +946,17 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Additional Fee Account" is invisible on page Customer Posting Groups when "Post Additional Fee" = FALSE in Finance Charge Terms and there are no Reminder Terms with "Post Additional Fee" = TRUE
         Initialize();
-        DeleteAllReminderTermsAndFinanceChargeTerms;
+        DeleteAllReminderTermsAndFinanceChargeTerms();
         PostAdditionalFee := false;
 
         // [GIVEN] Create Finance Charge Terms with "Post Additional Fee" = FALSE
         CreateFinanceChargeTermsWithPostAdditionalFee(PostAdditionalFee);
 
         // [WHEN] Open page Customer Posting Groups
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
 
         // [THEN] Column "Additional Fee Account" is invisible
-        Assert.AreEqual(PostAdditionalFee, CustomerPostingGroups."Additional Fee Account".Visible, 'Column visible');
+        Assert.AreEqual(PostAdditionalFee, CustomerPostingGroups."Additional Fee Account".Visible(), 'Column visible');
         CustomerPostingGroups.Close();
     end;
 
@@ -970,17 +970,17 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Interest Account" is visible on page Customer Posting Groups when "Post Interest" = TRUE in Reminder Terms
         Initialize();
-        DeleteAllReminderTermsAndFinanceChargeTerms;
+        DeleteAllReminderTermsAndFinanceChargeTerms();
         PostInterest := true;
 
         // [GIVEN] Create Reminder Terms with "Post Interest" = TRUE
         CreateReminderTermsWithPostInterest(PostInterest);
 
         // [WHEN] Open page Customer Posting Groups
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
 
         // [THEN] Column "Interest Account" is visible
-        Assert.AreEqual(PostInterest, CustomerPostingGroups."Interest Account".Visible, 'Column invisible');
+        Assert.AreEqual(PostInterest, CustomerPostingGroups."Interest Account".Visible(), 'Column invisible');
         CustomerPostingGroups.Close();
     end;
 
@@ -994,17 +994,17 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Interest Account" is invisible on page Customer Posting Groups when "Post Interest" = FALSE in Reminder Terms and there are no Finance Charge Terms with "Post Interest" = TRUE
         Initialize();
-        DeleteAllReminderTermsAndFinanceChargeTerms;
+        DeleteAllReminderTermsAndFinanceChargeTerms();
         PostInterest := false;
 
         // [GIVEN] Create Reminder Terms with "Post Interest" = FALSE, and not exists Finance Charge Terms with "Post Interest" = TRUE
         CreateReminderTermsWithPostInterest(PostInterest);
 
         // [WHEN] Open page Customer Posting Groups
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
 
         // [THEN] Column "Interest Account" is invisible
-        Assert.AreEqual(PostInterest, CustomerPostingGroups."Interest Account".Visible, 'Column visible');
+        Assert.AreEqual(PostInterest, CustomerPostingGroups."Interest Account".Visible(), 'Column visible');
         CustomerPostingGroups.Close();
     end;
 
@@ -1018,17 +1018,17 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Additional Fee Account" is visible on page Customer Posting Groups when "Post Additional Fee" = TRUE in Reminder Terms
         Initialize();
-        DeleteAllReminderTermsAndFinanceChargeTerms;
+        DeleteAllReminderTermsAndFinanceChargeTerms();
         PostAdditionalFee := true;
 
         // [GIVEN] Create Reminder Terms with "Post Additional Fee" = TRUE
         CreateReminderTermsWithPostAdditionalFee(PostAdditionalFee);
 
         // [WHEN] Open page Customer Posting Groups
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
 
         // [THEN] Column "Additional Fee Account" is visible
-        Assert.AreEqual(PostAdditionalFee, CustomerPostingGroups."Additional Fee Account".Visible, 'Column invisible');
+        Assert.AreEqual(PostAdditionalFee, CustomerPostingGroups."Additional Fee Account".Visible(), 'Column invisible');
     end;
 
     [Test]
@@ -1041,17 +1041,17 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Additional Fee Account" is invisible on page Customer Posting Groups when "Post Additional Fee" = FALSE in Reminder Terms and there are no Finance Charge Terms with "Post Additional Fee" = TRUE
         Initialize();
-        DeleteAllReminderTermsAndFinanceChargeTerms;
+        DeleteAllReminderTermsAndFinanceChargeTerms();
         PostAdditionalFee := false;
 
         // [GIVEN] Create Reminder Terms with "Post Additional Fee" = FALSE, and not exists Finance Charge Terms with "Post Additional Fee" = TRUE
         CreateReminderTermsWithPostAdditionalFee(PostAdditionalFee);
 
         // [WHEN] Open page Customer Posting Groups
-        CustomerPostingGroups.OpenView;
+        CustomerPostingGroups.OpenView();
 
         // [THEN] Column "Additional Fee Account" is invisible
-        Assert.AreEqual(PostAdditionalFee, CustomerPostingGroups."Additional Fee Account".Visible, 'Column visible');
+        Assert.AreEqual(PostAdditionalFee, CustomerPostingGroups."Additional Fee Account".Visible(), 'Column visible');
         CustomerPostingGroups.Close();
     end;
 
@@ -1169,7 +1169,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         // [GIVEN] Set <non-zero> Payment Tolerance % in General Ledger Setup
-        ModifyPaymentTolerancePercentInGLSetup;
+        ModifyPaymentTolerancePercentInGLSetup();
 
         // [GIVEN] G/L Account "GL1"
         GLAccountNo1 := LibraryERM.CreateGLAccountNo();
@@ -1183,10 +1183,10 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // [GIVEN] Stan opened page Customer Posting Groups and looked up "Payment Tolerance Credit Acc."
         // [GIVEN] Stan selected G/L Account "GL2" on page G/L Account List
-        CustomerPostingGroups.OpenEdit;
+        CustomerPostingGroups.OpenEdit();
         CustomerPostingGroups.GotoRecord(CustomerPostingGroup);
         LibraryVariableStorage.Enqueue(GLAccountNo2);
-        CustomerPostingGroups."Payment Tolerance Credit Acc.".Lookup;
+        CustomerPostingGroups."Payment Tolerance Credit Acc.".Lookup();
 
         // [WHEN] Stan pushes OK on page G/L Account List
         // done in GlAccountListModalPageHandler
@@ -1198,7 +1198,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         CustomerPostingGroups."Payment Tolerance Credit Acc.".AssertEquals(GLAccountNo2);
 
         CustomerPostingGroups.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1217,7 +1217,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize();
 
         // [GIVEN] Set <non-zero> Payment Tolerance % in General Ledger Setup
-        ModifyPaymentTolerancePercentInGLSetup;
+        ModifyPaymentTolerancePercentInGLSetup();
 
         // [GIVEN] G/L Account "GL1"
         GLAccountNo1 := LibraryERM.CreateGLAccountNo();
@@ -1231,10 +1231,10 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // [GIVEN] Stan opened page Vendor Posting Groups and looked up "Payment Tolerance Credit Acc."
         // [GIVEN] Stan selected G/L Account "GL2" on page G/L Account List
-        VendorPostingGroups.OpenEdit;
+        VendorPostingGroups.OpenEdit();
         VendorPostingGroups.GotoRecord(VendorPostingGroup);
         LibraryVariableStorage.Enqueue(GLAccountNo2);
-        VendorPostingGroups."Payment Tolerance Credit Acc.".Lookup;
+        VendorPostingGroups."Payment Tolerance Credit Acc.".Lookup();
 
         // [WHEN] Stan pushes OK on page G/L Account List
         // done in GlAccountListModalPageHandler
@@ -1246,7 +1246,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         VendorPostingGroups."Payment Tolerance Credit Acc.".AssertEquals(GLAccountNo2);
 
         VendorPostingGroups.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1266,13 +1266,13 @@ codeunit 134069 "ERM Edit Posting Groups"
             CreateGLAccountCategoryWithDescription(AccountCategory::Income, LibraryUtility.GenerateGUID()));
 
         // [GIVEN] Customer Posting Group Page was open
-        CustomerPostingGroupPage.OpenEdit;
+        CustomerPostingGroupPage.OpenEdit();
 
         // [WHEN] Lookup Interest Account and choose G/L Account "1"
         LibraryVariableStorage.Enqueue(GLAccountNo);
-        asserterror CustomerPostingGroupPage."Interest Account".Lookup;
+        asserterror CustomerPostingGroupPage."Interest Account".Lookup();
         // Lookup handled by GlAccountListModalPageHandler
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         // [THEN] Error "Gen. Prod. Posting Group must have a value in G/L Account: No.=X.  It cannot be zero or empty." appears
         Assert.ExpectedErrorCode(TestFieldCodeErr);
@@ -1538,17 +1538,17 @@ codeunit 134069 "ERM Edit Posting Groups"
 
     local procedure VerifyPmtTolFieldsVisibilityOnGeneralPostingSetup(var GeneralPostingSetup: TestPage "General Posting Setup"; ExpectedVisibility: Boolean)
     begin
-        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Tol. Debit Acc.".Visible, ExpectedVisibility, '');
-        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Tol. Credit Acc.".Visible, ExpectedVisibility, '');
-        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible, ExpectedVisibility, '');
-        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible, ExpectedVisibility, '');
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Tol. Debit Acc.".Visible(), ExpectedVisibility, '');
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Tol. Credit Acc.".Visible(), ExpectedVisibility, '');
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible(), ExpectedVisibility, '');
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible(), ExpectedVisibility, '');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GlAccountListModalPageHandler(var GLAccountList: TestPage "G/L Account List")
     begin
-        GLAccountList.GotoKey(LibraryVariableStorage.DequeueText);
-        GLAccountList.OK.Invoke;
+        GLAccountList.GotoKey(LibraryVariableStorage.DequeueText());
+        GLAccountList.OK().Invoke();
     end;
 }

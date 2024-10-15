@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 737 "VAT Return Period"
 {
     Caption = 'VAT Return Period';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -111,4 +112,3 @@ table 737 "VAT Return Period"
             end;
     end;
 }
-

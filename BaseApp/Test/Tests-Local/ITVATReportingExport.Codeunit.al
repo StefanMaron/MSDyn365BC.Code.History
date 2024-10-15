@@ -780,7 +780,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [THEN] Expected error description on page is '"Fiscal Code" in Vendor: "V" must not be blank.'
         // Value is remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Vendor.FieldName("Fiscal Code"), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Vendor.FieldName("Fiscal Code"), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -860,7 +860,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [THEN] Expected error description on page is '"VAT Registration No." in Vendor: "V" must not be blank.'
         // Value is remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Vendor.FieldName("VAT Registration No."), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Vendor.FieldName("VAT Registration No."), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -980,7 +980,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [THEN] Expected error description on page is '"Fiscal Code" in Customer: "C" must not be blank.'
         // Value is remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Customer.FieldName("Fiscal Code"), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Customer.FieldName("Fiscal Code"), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -1060,7 +1060,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [THEN] Expected error description on page is '"Fiscal Code" in Customer: "C" must not be blank.'
         // Value is remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Customer.FieldName("VAT Registration No."), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Customer.FieldName("VAT Registration No."), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -1395,7 +1395,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [THEN] Expected error description on page is '"VAT Registration No." in Contact: "X" must not be blank.'
         // Value is remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Contact.FieldName("VAT Registration No."), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Contact.FieldName("VAT Registration No."), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -1480,7 +1480,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [THEN] Expected error description on page is 'Surname in Contact: "X" must not be blank.'
         // Value is remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Contact.FieldName(Surname), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Contact.FieldName(Surname), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -1523,7 +1523,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [THEN] Expected error description on page is '"First Name" in Contact: "X" must not be blank.'
         // Value is remembered in ErrorMessagesPageHandler
-        Assert.ExpectedMessage(Contact.FieldName("First Name"), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(Contact.FieldName("First Name"), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -1967,7 +1967,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [GIVEN] Created Vendor and Reverse Charge VAT Posting Setup with Natura code
         CreateVendor_Datifattura(Vendor);
-        CreateReverseChargeVATPostingSetupWithNatura(VATPostingSetup, LibrarySplitVAT.CreateVATTransactionNatureCode);
+        CreateReverseChargeVATPostingSetupWithNatura(VATPostingSetup, LibrarySplitVAT.CreateVATTransactionNatureCode());
 
         // [GIVEN] Posted Purchase Invoice for Vendor with VAT Posting Setup
         CreateAndPostPurchDocumentWithVATSetup(
@@ -2159,7 +2159,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [SCENARIO 394014] TipoDocumento XML node has a value of Fattura Document Type of the VAT Report Line in the exported DatiFattura VAT Report
 
         Initialize();
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Posted sales invoice with default "Fattura Document Type" = "TD01"
         CreateCustomer_Datifattura(Customer);
@@ -2185,7 +2185,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         LibraryXPathXMLReader.VerifyNodeValue(
           'DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiGenerali/TipoDocumento', VATReportLine."Fattura Document Type");
     end;
-    
+
     local procedure Initialize()
     var
         NameValueBuffer: Record "Name/Value Buffer";
@@ -2193,13 +2193,13 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         NameValueBuffer.DeleteAll();
         UpdateVATPostingSetup(VATPostingSetup."VAT Calculation Type"::"Normal VAT", false);
-        LibraryITDatifattura.CreateGeneralSetup;
-        LibraryITDatifattura.CreateGeneralSetupDatifattura;
+        LibraryITDatifattura.CreateGeneralSetup();
+        LibraryITDatifattura.CreateGeneralSetupDatifattura();
 
         if isInitialized then
             exit;
 
-        CreateVATReportSetup;
+        CreateVATReportSetup();
         isInitialized := true;
         Commit();
     end;
@@ -2240,7 +2240,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         CurrWorkDate := WorkDate();
 
         // Setup
-        LibraryITDatifattura.CreateGeneralSetup;
+        LibraryITDatifattura.CreateGeneralSetup();
         GenerateReportLine(VATReportHeader, VATReportLine, IndividualPerson, Resident,
           DocumentType, GenPostingType, VATReportType, ContractPaymentType);
 
@@ -2256,12 +2256,12 @@ codeunit 144012 "IT - VAT Reporting - Export"
         VerifyBRecord(TextFile, VATReportHeader, 2);
 
         if VATReportType = VATReportHeader."VAT Report Type"::"Cancellation " then begin
-            VerifyFooter(TextFile, VATReportHeader, 3);
+            VerifyFooter(TextFile, 3);
             exit;
         end;
 
-        VerifyERecord(TextFile, VATReportHeader, 4);
-        VerifyFooter(TextFile, VATReportHeader, 5);
+        VerifyERecord(TextFile, 4);
+        VerifyFooter(TextFile, 5);
 
         // Verify specific line
         Verified := false;
@@ -2322,7 +2322,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         CurrWorkDate := WorkDate();
 
         // Setup
-        LibraryITDatifattura.CreateGeneralSetup;
+        LibraryITDatifattura.CreateGeneralSetup();
 
         if IntermediaryBlank then begin
             VATReportSetup.Get();
@@ -2347,7 +2347,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // Verify Header and Footer lines
         VerifyHeader(TextFile, VATReportHeader, 1, 1);
         VerifyBRecord(TextFile, VATReportHeader, 2);
-        VerifyFooter(TextFile, VATReportHeader, 5);
+        VerifyFooter(TextFile, 5);
 
         // Tear Down
         WorkDate(CurrWorkDate);
@@ -2363,7 +2363,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         VATReportHeader.SetFilter("No.", VATReportHeader."No.");
         ExportVATTransactions.SetTableView(VATReportHeader);
         ExportVATTransactions.UseRequestPage(false);
-        FileName := TemporaryPath + LibraryUtility.GenerateGUID + '.ccf';
+        FileName := TemporaryPath + LibraryUtility.GenerateGUID() + '.ccf';
         ExportVATTransactions.InitializeRequest(FileName, DetailedExport);
         ExportVATTransactions.RunModal();
         LoadFile(TextFile, FileName);
@@ -2508,9 +2508,9 @@ codeunit 144012 "IT - VAT Reporting - Export"
         XMLDoc.Save(XmlStream);
         XmlFile.Close();
 
-        SignatureXsdPath := GetInetRoot + '\GDL\IT\App\Test\XMLSchemas\xmldsig-core-schema.xsd';
+        SignatureXsdPath := GetInetRoot() + '\GDL\IT\App\Test\XMLSchemas\xmldsig-core-schema.xsd';
         LibraryVerifyXMLSchema.SetAdditionalSchemaPath(SignatureXsdPath);
-        XsdPath := GetInetRoot + '\GDL\IT\App\Test\XMLSchemas\fornituraIvp_2018_v1.xsd';
+        XsdPath := GetInetRoot() + '\GDL\IT\App\Test\XMLSchemas\fornituraIvp_2018_v1.xsd';
         Assert.IsTrue(LibraryVerifyXMLSchema.VerifyXMLAgainstSchema(XmlPath, XsdPath, Message), Message);
     end;
 
@@ -2567,7 +2567,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           LibrarySpesometro.FormatPadding(ConstFormat::NU,
             Format(Round(LibraryVATUtils.TotalVATEntryAmount(VATEntry), 1), 0, '<integer>'), 16),
           false, true);
-        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount then
+        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount() then
             VerifyBlockValue(TextFile, LineNo, 'NE001008', LibrarySpesometro.FormatPadding(ConstFormat::CB, '1', 16), false, true)
         else
             VerifyBlockValue(TextFile, LineNo, 'NE001008', LibrarySpesometro.FormatPadding(ConstFormat::CB, '0', 16), false, true);
@@ -2605,7 +2605,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           TextFile, LineNo, 'NR001005',
           LibrarySpesometro.FormatPadding(ConstFormat::NP, Format(Round(LibraryVATUtils.TotalVATEntryAmount(VATEntry), 1), 0
               , '<integer>'), 16), false, true);
-        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount then
+        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount() then
             VerifyBlockValue(TextFile, LineNo, 'NR001006', LibrarySpesometro.FormatPadding(ConstFormat::CB, '1', 16), false, true)
         else
             VerifyBlockValue(TextFile, LineNo, 'NR001006', LibrarySpesometro.FormatPadding(ConstFormat::CB, '0', 16), false, true);
@@ -2688,7 +2688,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         LibrarySpesometro.VerifyHeader(TextFile, LineNo, 1, NoTransmissions, VATReportHeader."Start Date", VATReportHeader."End Date");
     end;
 
-    local procedure VerifyFooter(var TextFile: BigText; var VATReportHeader: Record "VAT Report Header"; LineNo: Integer)
+    local procedure VerifyFooter(var TextFile: BigText; LineNo: Integer)
     begin
         LibrarySpesometro.VerifyFooter(TextFile, LineNo);
     end;
@@ -2717,7 +2717,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           TextFile, LineNo, 'FN001016',
           LibrarySpesometro.FormatPadding(ConstFormat::NP, Format(Round(LibraryVATUtils.TotalVATEntryAmount(VATEntry), 1), 0
               , '<integer>'), 16), false, true);
-        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount then
+        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount() then
             VerifyBlockValue(TextFile, LineNo, 'FN001017', LibrarySpesometro.FormatPadding(ConstFormat::CB, '1', 16), false, true)
         else
             VerifyBlockValue(TextFile, LineNo, 'FN001017', LibrarySpesometro.FormatPadding(ConstFormat::CB, '0', 16), false, true);
@@ -2753,7 +2753,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           LibrarySpesometro.FormatPadding(ConstFormat::NP,
             Format(Round(LibraryVATUtils.TotalVATEntryAmount(VATEntry), 1), 0, '<integer>'), 16),
           false, true);
-        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount then
+        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount() then
             VerifyBlockValue(TextFile, LineNo, 'SE001017', LibrarySpesometro.FormatPadding(ConstFormat::CB, '1', 16), false, true)
         else
             VerifyBlockValue(TextFile, LineNo, 'SE001017', LibrarySpesometro.FormatPadding(ConstFormat::CB, '0', 16), false, true);
@@ -2877,7 +2877,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           LibrarySpesometro.FormatPadding(ConstFormat::NP,
             Format(Round(LibraryVATUtils.TotalVATEntryAmount(VATEntry), 1), 0, '<integer>'), 16),
           false, true);
-        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount then
+        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount() then
             VerifyBlockValue(TextFile, LineNo, 'FE001012', LibrarySpesometro.FormatPadding(ConstFormat::CB, '1', 16), false, true)
         else
             VerifyBlockValue(TextFile, LineNo, 'FE001012', LibrarySpesometro.FormatPadding(ConstFormat::CB, '0', 16), false, true);
@@ -2919,7 +2919,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           LibrarySpesometro.FormatPadding(ConstFormat::NP,
             Format(Round(LibraryVATUtils.TotalVATEntryAmount(VATEntry), 1), 0, '<integer>'), 16),
           false, true);
-        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount then
+        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount() then
             VerifyBlockValue(TextFile, LineNo, 'FE001012', LibrarySpesometro.FormatPadding(ConstFormat::CB, '1', 16), false, true)
         else
             VerifyBlockValue(TextFile, LineNo, 'FE001012', LibrarySpesometro.FormatPadding(ConstFormat::CB, '0', 16), false, true);
@@ -2969,7 +2969,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           LibrarySpesometro.FormatPadding(ConstFormat::NP,
             Format(Round(LibraryVATUtils.TotalVATEntryAmount(VATEntry), 1), 0, '<integer>'), 16),
           false, true);
-        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount then
+        if LibraryVATUtils.TotalVATEntryBase(VATEntry) > LibrarySpesometro.GetThresholdAmount() then
             VerifyBlockValue(TextFile, LineNo, 'FR001010', LibrarySpesometro.FormatPadding(ConstFormat::CB, '1', 16), false, true)
         else
             VerifyBlockValue(TextFile, LineNo, 'FR001010', LibrarySpesometro.FormatPadding(ConstFormat::CB, '0', 16), false, true);
@@ -2985,7 +2985,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
           VATReportHeader."Start Date");
     end;
 
-    local procedure VerifyERecord(var TextFile: BigText; var VATReportHeader: Record "VAT Report Header"; LineNo: Integer)
+    local procedure VerifyERecord(var TextFile: BigText; LineNo: Integer)
     begin
         LibrarySpesometro.VerifyERecord(TextFile, LineNo);
     end;
@@ -3016,7 +3016,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
     local procedure VerifySalesDatiFatturaDatiIVANode(VATReportLineAmount: Decimal; VATPostingSetupVATPercent: Decimal)
     begin
-        InitXMLReaderFile;
+        InitXMLReaderFile();
         LibraryXPathXMLReader.VerifyNodeValue(
           'DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiRiepilogo/DatiIVA/Imposta',
           Format(Abs(VATReportLineAmount), 0, '<Precision,2:2><Standard Format,9>'));
@@ -3027,7 +3027,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
     local procedure VerifyPurchaseDatiFatturaDatiIVANode(VATReportLineAmount: Decimal; VATPostingSetupVATPercent: Decimal)
     begin
-        InitXMLReaderFile;
+        InitXMLReaderFile();
         LibraryXPathXMLReader.VerifyNodeValue(
           'DTR/CedentePrestatoreDTR/DatiFatturaBodyDTR/DatiRiepilogo/DatiIVA/Imposta',
           Format(Abs(VATReportLineAmount), 0, '<Precision,2:2><Standard Format,9>'));
@@ -3038,7 +3038,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
     local procedure VerifySalesDatiFatturaDateNodes(DocumentDate: Date)
     begin
-        InitXMLReaderFile;
+        InitXMLReaderFile();
         LibraryXPathXMLReader.VerifyNodeValue(
           'DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiGenerali/Data',
           Format(DocumentDate, 0, '<Year4>-<Month,2>-<Day,2>'));
@@ -3046,7 +3046,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
     local procedure VerifyPurchaseDatiFatturaDateNodes(DocumentDate: Date; PostingDate: Date)
     begin
-        InitXMLReaderFile;
+        InitXMLReaderFile();
         LibraryXPathXMLReader.VerifyNodeValue(
           'DTR/CedentePrestatoreDTR/DatiFatturaBodyDTR/DatiGenerali/Data',
           Format(DocumentDate, 0, '<Year4>-<Month,2>-<Day,2>'));
@@ -3057,7 +3057,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
     local procedure VerifyPurchaseDatiFatturaNaturaNode(Natura: Code[4])
     begin
-        InitXMLReaderFile;
+        InitXMLReaderFile();
         LibraryXPathXMLReader.VerifyNodeValue(
           'DTR/CedentePrestatoreDTR/DatiFatturaBodyDTR/DatiRiepilogo/Natura', Format(Natura));
     end;
@@ -3174,7 +3174,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         if ReqFlds then begin
             if Resident = Customer.Resident::"Non-Resident" then
-                Customer.Validate("Country/Region Code", GetCountryCode);
+                Customer.Validate("Country/Region Code", GetCountryCode());
             if not IndividualPerson then
                 Customer.Validate(
                   "VAT Registration No.", LibraryUtility.GenerateRandomCode(Customer.FieldNo("VAT Registration No."), DATABASE::Customer))
@@ -3230,7 +3230,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         BalAccountType: Enum "Gen. Journal Account Type";
         BalAccountNo: Code[20];
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         case AccountType of
             GenJournalLine."Account Type"::"G/L Account":
                 begin
@@ -3439,11 +3439,10 @@ codeunit 144012 "IT - VAT Reporting - Export"
         exit(LibrarySales.PostSalesDocument(SalesHeader, NewShipReceive, NewInvoice));
     end;
 
-    local procedure CreateNoSeriesWithSpecialSigns(Default: Boolean; Manual: Boolean; DateOrder: Boolean; NoSeriesType: Option): Code[20]
+    local procedure CreateNoSeriesWithSpecialSigns(Default: Boolean; Manual: Boolean; DateOrder: Boolean; NoSeriesType: Enum "No. Series Type"): Code[20]
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesLineSales: Record "No. Series Line Sales";
         DashPosition: Integer;
         NoSeriesCode: Code[20];
     begin
@@ -3458,8 +3457,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         NoSeries.Validate("No. Series Type", NoSeriesType);
         NoSeries.Insert(true);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-        LibraryERM.CreateNoSeriesLineSales(
-          NoSeriesLineSales, NoSeries.Code, PadStr(NoSeriesCode, 20, '0'), PadStr(NoSeriesCode, 20, '9'));
+        LibraryERM.CreateNoSeriesLine(
+          NoSeriesLine, NoSeries.Code, PadStr(NoSeriesCode, 20, '0'), PadStr(NoSeriesCode, 20, '9'));
 
         exit(NoSeries.Code);
     end;
@@ -3499,7 +3498,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         if ReqFlds then begin
             if Resident = Vendor.Resident::"Non-Resident" then
-                Vendor.Validate("Country/Region Code", GetCountryCode);
+                Vendor.Validate("Country/Region Code", GetCountryCode());
 
             if not IndividualPerson then
                 Vendor.Validate(
@@ -3591,7 +3590,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandInt(50));
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", VATPostingSetup."Purchase VAT Account");
         VATPostingSetup.Validate("VAT Transaction Nature", NaturaCode);
         VATPostingSetup.Modify();
@@ -3635,7 +3634,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         if not VATReportSetup.Get() then
             VATReportSetup.Insert(true);
 
-        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         VATReportSetup.Validate("Intermediary VAT Reg. No.", Format(LibraryRandom.RandInt(100)));
         VATReportSetup.Validate("Intermediary CAF Reg. No.", '');
         VATReportSetup.Validate("Intermediary Date", CalcDate('<-3M>', Today));
@@ -3788,7 +3787,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // Update fields required for posting when Incl. in VAT Transac. Report is TRUE.
         with GenJournalLine do begin
             if Resident = Resident::"Non-Resident" then
-                Validate("Country/Region Code", GetCountryCode);
+                Validate("Country/Region Code", GetCountryCode());
 
             if "Individual Person" and (Resident = Resident::"Non-Resident") then begin
                 Validate("First Name", LibraryUtility.GenerateRandomCode(FieldNo("First Name"), DATABASE::"Gen. Journal Line"));

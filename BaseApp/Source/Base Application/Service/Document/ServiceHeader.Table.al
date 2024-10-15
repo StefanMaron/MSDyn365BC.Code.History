@@ -41,6 +41,7 @@ using Microsoft.Service.Maintenance;
 using Microsoft.Service.Posting;
 using Microsoft.Service.Setup;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Service.Ledger;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Request;
 using Microsoft.Utilities;
@@ -61,6 +62,7 @@ table 5900 "Service Header"
     LookupPageID = "Service List";
     Permissions = TableData "Loaner Entry" = d,
                   TableData "Service Order Allocation" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -427,6 +429,8 @@ table 5900 "Service Header"
                             CopyShipToCustomerAddressFieldsFromCust(Cust);
                         end;
 
+                UpdateShipToSalespersonCode();
+
                 if (xRec."Customer No." = "Customer No.") and
                    (xRec."Ship-to Code" <> "Ship-to Code")
                 then
@@ -564,12 +568,12 @@ table 5900 "Service Header"
                 RecordRef: RecordRef;
             begin
                 if ("Posting No." <> '') and ("Posting No. Series" <> '') then begin
-                    NoSeries.Get("Posting No. Series");
-                    if NoSeries."Date Order" then
+                    GlobalNoSeries.Get("Posting No. Series");
+                    if GlobalNoSeries."Date Order" then
                         Error(
                           Text045,
                           FieldCaption("Posting Date"), FieldCaption("Posting No. Series"), "Posting No. Series",
-                          NoSeries.FieldCaption("Date Order"), NoSeries."Date Order", "Document Type",
+                          GlobalNoSeries.FieldCaption("Date Order"), GlobalNoSeries."Date Order", "Document Type",
                           FieldCaption("Posting No."), "Posting No.");
                 end;
 
@@ -1320,6 +1324,27 @@ table 5900 "Service Header"
                 Validate("Payment Terms Code");
             end;
         }
+        field(100; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+
+            trigger OnValidate()
+            var
+                WhseServiceRelease: Codeunit "Whse.-Service Release";
+                IsHandled: Boolean;
+            begin
+                IsHandled := false;
+                OnBeforeValidateExternalDocumentNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
+                if (xRec."External Document No." <> Rec."External Document No.")
+                    and (Rec."Release Status" = Rec."Release Status"::"Released to Ship")
+                    and ("Document Type" = "Document Type"::Order)
+                then
+                    WhseServiceRelease.UpdateExternalDocNoForReleasedOrder(Rec);
+            end;
+        }
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
@@ -1403,14 +1428,12 @@ table 5900 "Service Header"
 
             trigger OnLookup()
             begin
-                with ServHeader do begin
-                    ServHeader := Rec;
-                    GetServiceMgtSetup();
-                    TestNoSeries();
-                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode(), "Posting No. Series") then
-                        Validate("Posting No. Series");
-                    Rec := ServHeader;
-                end;
+                ServHeader := Rec;
+                ServHeader.GetServiceMgtSetup();
+                ServHeader.TestNoSeries();
+                if NoSeries.LookupRelatedNoSeries(GetPostingNoSeriesCode(), ServHeader."Posting No. Series") then
+                    ServHeader.Validate(ServHeader."Posting No. Series");
+                Rec := ServHeader;
             end;
 
             trigger OnValidate()
@@ -1418,7 +1441,7 @@ table 5900 "Service Header"
                 if "Posting No. Series" <> '' then begin
                     GetServiceMgtSetup();
                     TestNoSeries();
-                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
+                    NoSeries.TestAreRelated(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;
                 TestField("Posting No.", '');
             end;
@@ -1433,7 +1456,7 @@ table 5900 "Service Header"
                 if "Shipping No. Series" <> '' then begin
                     GetServiceMgtSetup();
                     ServiceMgtSetup.TestField("Posted Service Shipment Nos.");
-                    NoSeriesMgt.TestSeries(ServiceMgtSetup."Posted Service Shipment Nos.", "Shipping No. Series");
+                    NoSeries.TestAreRelated(ServiceMgtSetup."Posted Service Shipment Nos.", "Shipping No. Series");
                 end;
                 TestField("Shipping No.", '');
             end;
@@ -1466,7 +1489,7 @@ table 5900 "Service Header"
             var
                 VATBusinessPostingGroup: Record "VAT Business Posting Group";
             begin
-                if not CheckVATExemption then
+                if not CheckVATExemption() then
                     "VAT Bus. Posting Group" := xRec."VAT Bus. Posting Group";
                 if "VAT Bus. Posting Group" <> xRec."VAT Bus. Posting Group" then
                     RecreateServLines(FieldCaption("VAT Bus. Posting Group"));
@@ -2555,6 +2578,7 @@ table 5900 "Service Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
+            Editable = false;
         }
         field(12100; "Operation Type"; Code[20])
         {
@@ -2563,8 +2587,8 @@ table 5900 "Service Header"
 
             trigger OnLookup()
             begin
-                if PAGE.RunModal(PAGE::"Operation Types", NoSeries) = ACTION::LookupOK then
-                    Validate("Operation Type", NoSeries.Code);
+                if PAGE.RunModal(PAGE::"Operation Types", GlobalNoSeries) = ACTION::LookupOK then
+                    Validate("Operation Type", GlobalNoSeries.Code);
             end;
 
             trigger OnValidate()
@@ -2573,9 +2597,9 @@ table 5900 "Service Header"
                     Error(Text1130013, FieldCaption("Operation Type"), FieldCaption("Posting No."));
 
                 if "Operation Type" <> '' then begin
-                    NoSeries.Get("Operation Type");
+                    GlobalNoSeries.Get("Operation Type");
 
-                    if NoSeries."No. Series Type" <> NoSeries."No. Series Type"::Sales then
+                    if GlobalNoSeries."No. Series Type" <> GlobalNoSeries."No. Series Type"::Sales then
                         if not Confirm(Text1130012, false, FieldCaption("Operation Type")) then
                             FieldError("Operation Type");
 
@@ -2589,10 +2613,9 @@ table 5900 "Service Header"
 
             trigger OnValidate()
             begin
-                if "Document Type" <> "Document Type"::Quote then begin
+                if "Document Type" <> "Document Type"::Quote then
                     if "Operation Occurred Date" > "Posting Date" then
                         Error(Text1130018, FieldCaption("Operation Occurred Date"), FieldCaption("Posting Date"));
-                end;
                 if "Operation Occurred Date" <> xRec."Operation Occurred Date" then
                     UpdateServLinesByFieldNo(FieldNo("Customer No."), false);
             end;
@@ -2650,7 +2673,7 @@ table 5900 "Service Header"
             begin
                 TestField("Tax Representative Type", "Tax Representative Type"::" ");
                 if Resident = Resident::Resident then
-                    InitFields
+                    InitFields()
                 else
                     "Fiscal Code" := '';
             end;
@@ -2833,6 +2856,9 @@ table 5900 "Service Header"
         fieldgroup(DropDown; "Document Type", "No.", "Customer No.", "Posting Date", Status)
         {
         }
+        fieldgroup(Brick; "Document Type", "No.", "Customer No.", "Posting Date", Status)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -2853,14 +2879,8 @@ table 5900 "Service Header"
         if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center") then
             Error(Text000, UserSetupMgt.GetServiceFilter());
 
-        if "Document Type" = "Document Type"::Invoice then begin
-            ServLine.Reset();
-            ServLine.SetRange("Document Type", ServLine."Document Type"::Invoice);
-            ServLine.SetRange("Document No.", "No.");
-            ServLine.SetFilter("Appl.-to Service Entry", '>%1', 0);
-            if not ServLine.IsEmpty() then
-                Error(Text046, "No.");
-        end;
+        if "Document Type" = "Document Type"::Invoice then
+            PrepareDeleteServiceInvoice();
 
         IsHandled := false;
         OnDeleteHeaderOnBeforeDeleteRelatedRecords(Rec, ServShptHeader, ServInvHeader, ServCrMemoHeader, IsHandled);
@@ -3047,11 +3067,11 @@ table 5900 "Service Header"
         ShipmentMethod: Record "Shipment Method";
         VATBusPostingGroup: Record "VAT Business Posting Group";
         GenJournalTemplate: Record "Gen. Journal Template";
-        NoSeries: Record "No. Series";
+        GlobalNoSeries: Record "No. Series";
         Salesperson: Record "Salesperson/Purchaser";
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         ServLogMgt: Codeunit ServLogManagement;
         UserSetupMgt: Codeunit "User Setup Management";
         NotifyCust: Codeunit "Customer-Notify by Email";
@@ -3082,7 +3102,6 @@ table 5900 "Service Header"
         Text044: Label 'You cannot rename a %1.';
         Confirmed: Boolean;
         Text045: Label 'You can not change the %1 field because %2 %3 has %4 = %5 and the %6 has already been assigned %7 %8.', Comment = '%1=Posting date field caption;%2=Posting number series field caption;%3=Posting number series;%4=NoSeries date order field caption;%5=NoSeries date order;%6=Document type;%7=posting number field caption;%8=Posting number;';
-        Text046: Label 'You cannot delete invoice %1 because one or more service ledger entries exist for this invoice.';
         Text047: Label 'You cannot change %1 because reservation, item tracking, or order tracking exists on the sales order.';
         Text050: Label 'You cannot reset %1 because the document still has one or more lines.';
         Text051: Label 'The service %1 %2 already exists.', Comment = '%1=Document type format;%2=Number;';
@@ -3116,25 +3135,29 @@ table 5900 "Service Header"
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
         MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
         FullServiceTypesTxt: Label 'Service Quote,Service Order,Service Invoice,Service Credit Memo';
+        RestoreInvoiceDatesOnDeleteInvQst: Label 'Deleting the service invoice will restore the previous invoice dates in the service contract. Do you want to continue?';
+        CannotDeletePostedInvoiceErr: Label 'The service invoice cannot be deleted because it has been posted.';
+        CannotDeleteWhenNextInvPostedErr: Label 'The service invoice cannot be deleted because there are posted service ledger entries with a later posting date.';
+        CannotDeleteWhenNextInvExistsErr: Label 'The service invoice cannot be deleted because there are service invoices with a later posting date.';
+        CannotRestoreInvoiceDatesErr: Label 'The service invoice cannot be deleted because the previous invoice dates cannot be restored in the service contract.';
+        InvoicePeriodChangedErr: Label 'The invoice period in the service contract has been changed and cannot be updated.';
 
     procedure AssistEdit(OldServHeader: Record "Service Header"): Boolean
     var
         ServHeader2: Record "Service Header";
     begin
-        with ServHeader do begin
-            Copy(Rec);
-            GetServiceMgtSetup();
-            TestNoSeries();
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldServHeader."No. Series", "No. Series") then begin
-                if ("Customer No." = '') and ("Contact No." = '') then
-                    CheckCreditMaxBeforeInsert(false);
+        ServHeader.Copy(Rec);
+        ServHeader.GetServiceMgtSetup();
+        ServHeader.TestNoSeries();
+        if NoSeries.LookupRelatedNoSeries(ServHeader.GetNoSeriesCode(), OldServHeader."No. Series", ServHeader."No. Series") then begin
+            if (ServHeader."Customer No." = '') and (ServHeader."Contact No." = '') then
+                ServHeader.CheckCreditMaxBeforeInsert(false);
 
-                NoSeriesMgt.SetSeries("No.");
-                if ServHeader2.Get("Document Type", "No.") then
-                    Error(Text051, LowerCase(Format("Document Type")), "No.");
-                Rec := ServHeader;
-                exit(true);
-            end;
+            ServHeader."No." := NoSeries.GetNextNo(ServHeader."No. Series");
+            if ServHeader2.Get(ServHeader."Document Type", ServHeader."No.") then
+                Error(Text051, LowerCase(Format(ServHeader."Document Type")), ServHeader."No.");
+            Rec := ServHeader;
+            exit(true);
         end;
     end;
 
@@ -3792,8 +3815,8 @@ table 5900 "Service Header"
                     GenJournalTemplate.Get("Journal Templ. Name");
             end;
             GenJournalTemplate.TestField("Posting No. Series");
-            NoSeries.Get(GenJournalTemplate."Posting No. Series");
-            NoSeries.TestField("Default Nos.", true);
+            GlobalNoSeries.Get(GenJournalTemplate."Posting No. Series");
+            GlobalNoSeries.TestField("Default Nos.", true);
         end;
     end;
 
@@ -3831,13 +3854,13 @@ table 5900 "Service Header"
 
         case "Document Type" of
             "Document Type"::Quote:
-                NoSeriesMgt.TestManual(ServiceMgtSetup."Service Quote Nos.");
+                NoSeries.TestManual(ServiceMgtSetup."Service Quote Nos.");
             "Document Type"::Order:
-                NoSeriesMgt.TestManual(ServiceMgtSetup."Service Order Nos.");
+                NoSeries.TestManual(ServiceMgtSetup."Service Order Nos.");
             "Document Type"::Invoice:
-                NoSeriesMgt.TestManual(ServiceMgtSetup."Service Invoice Nos.");
+                NoSeries.TestManual(ServiceMgtSetup."Service Invoice Nos.");
             "Document Type"::"Credit Memo":
-                NoSeriesMgt.TestManual(ServiceMgtSetup."Service Credit Memo Nos.");
+                NoSeries.TestManual(ServiceMgtSetup."Service Credit Memo Nos.");
         end;
     end;
 
@@ -4077,6 +4100,9 @@ table 5900 "Service Header"
 
     procedure InitInsert()
     var
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         GetServiceMgtSetup();
@@ -4086,7 +4112,18 @@ table 5900 "Service Header"
         if not IsHandled then
             if "No." = '' then begin
                 TestNoSeries();
-                NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", 0D, "No.", "No. Series");
+                "No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
+                end;
+#endif
             end;
 
         CheckDocumentTypeAlreadyUsed();
@@ -4158,6 +4195,9 @@ table 5900 "Service Header"
 
     local procedure SetDefaultNoSeries()
     var
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         PostingNoSeries: Code[20];
         IsHandled: Boolean;
     begin
@@ -4186,24 +4226,54 @@ table 5900 "Service Header"
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
+#if CLEAN24
+                    if NoSeries.IsAutomatic(PostingNoSeries) then
+                        "Posting No. Series" := PostingNoSeries;
+                    if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
+                        "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
+#else
+#pragma warning disable AL0432
                     NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
                     NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServiceMgtSetup."Posted Service Shipment Nos.");
+#pragma warning restore AL0432
+#endif
                 end;
             "Document Type"::Invoice:
                 begin
                     if ("No. Series" <> '') and (ServiceMgtSetup."Service Invoice Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
+#if CLEAN24
+                        if NoSeries.IsAutomatic(PostingNoSeries) then
+                            "Posting No. Series" := PostingNoSeries;
+#else
+#pragma warning disable AL0432
                         NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+#pragma warning restore AL0432
+#endif
                     if ServiceMgtSetup."Shipment on Invoice" then
+#if CLEAN24
+                    if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
+                            "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
+#else
+#pragma warning disable AL0432
                         NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServiceMgtSetup."Posted Service Shipment Nos.");
+#pragma warning restore AL0432
+#endif
                 end;
             "Document Type"::"Credit Memo":
                 begin
                     if ("No. Series" <> '') and (ServiceMgtSetup."Service Credit Memo Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
+#if CLEAN24
+                        if NoSeries.IsAutomatic(PostingNoSeries) then
+                            "Posting No. Series" := PostingNoSeries;
+#else
+#pragma warning disable AL0432
                         NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+#pragma warning restore AL0432
+#endif
                 end;
         end;
     end;
@@ -4783,7 +4853,7 @@ table 5900 "Service Header"
         if not GuiAllowed then
             exit;
 
-        if not ServiceLinesExist then begin
+        if not ServiceLinesExist() then begin
             Message(NothingToGenerateMsg);
             exit;
         end;
@@ -4791,13 +4861,13 @@ table 5900 "Service Header"
         if GetSplitVATLines(SplitServiceLine) then begin
             if DIALOG.Confirm(RegenerateSplitVATLinesQst, true) then begin
                 RemoveSplitVATLines(SplitServiceLine);
-                AddSplitVATLines;
+                AddSplitVATLines();
             end;
             exit;
         end;
 
         if DIALOG.Confirm(GenerateSplitVATLinesQst, true) then
-            AddSplitVATLines;
+            AddSplitVATLines();
     end;
 
     [Scope('OnPrem')]
@@ -5076,6 +5146,8 @@ table 5900 "Service Header"
         end;
         if CustomerNo <> '' then
             Validate("Customer No.", CustomerNo);
+
+        OnAfterSetCustomerFromFilter(Rec);
     end;
 
     local procedure GetFilterCustNo(): Code[20]
@@ -5208,7 +5280,7 @@ table 5900 "Service Header"
             "VAT Country/Region Code" := Cust."Country/Region Code";
             "Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
         end;
-        if not CheckVATExemption then
+        if not CheckVATExemption() then
             FieldError("Bill-to Customer No.");
         "Customer Posting Group" := Cust."Customer Posting Group";
         "Currency Code" := Cust."Currency Code";
@@ -5315,7 +5387,39 @@ table 5900 "Service Header"
                 end;
     end;
 
-    local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
+    procedure UpdateShipToSalespersonCode()
+    var
+        ShipToAddress: Record "Ship-to Address";
+        IsHandled: Boolean;
+        IsSalesPersonCodeAssigned: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateShipToSalespersonCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Salesperson Code");
+            ShipToAddress.Get("Customer No.", "Ship-to Code");
+            if ShipToAddress."Salesperson Code" <> '' then begin
+                SetSalespersonCode(ShipToAddress."Salesperson Code", "Salesperson Code");
+                IsSalesPersonCodeAssigned := true;
+            end;
+        end;
+
+        if not IsSalesPersonCodeAssigned then begin
+            IsHandled := false;
+            OnUpdateShiptoSalespersonCodeNotAssigned(Rec, IsHandled);
+            if not IsHandled then
+                if ("Bill-to Customer No." <> '') then begin
+                    GetCust("Bill-to Customer No.");
+                    SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
+                end else
+                    SetDefaultSalesperson();
+        end;
+    end;
+
+    procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
     var
         IsHandled: Boolean;
     begin
@@ -5460,6 +5564,111 @@ table 5900 "Service Header"
             else
                 exit(Result::Partial);
         end;
+    end;
+
+    local procedure PrepareDeleteServiceInvoice()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceLine: Record "Service Line";
+        ServLedgEntriesPost: Codeunit "ServLedgEntries-Post";
+        ServContractMgt: Codeunit ServContractManagement;
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Invoice);
+        ServiceLine.SetRange("Document No.", Rec."No.");
+        ServiceLine.SetFilter("Appl.-to Service Entry", '>%1', 0);
+        if ServiceLine.IsEmpty() then
+            exit;
+
+        if not ConfirmManagement.GetResponseOrDefault(RestoreInvoiceDatesOnDeleteInvQst, false) then
+            exit;
+
+        if not ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, Rec."Contract No.") then
+            exit;
+
+        CheckServiceLedgerEntriesCanBeReversed(Rec."Contract No.", Rec."No.");
+
+        ServLedgEntriesPost.UnapplyOpenServiceLines(ServiceLine);
+
+        ServiceContractHeader.SuspendStatusCheck(true);
+        if not RestoreServiceContractDates(ServiceContractHeader) then
+            Error(CannotRestoreInvoiceDatesErr);
+        ServiceContractHeader.Modify(true);
+
+        ServContractMgt.FilterServiceContractLine(ServiceContractLine, ServiceContractHeader."Contract No.", ServiceContractHeader."Contract Type", 0);
+        ServiceContractLine.SetFilter(
+          "Starting Date", '<=%1|%2..%3', ServiceContractHeader."Next Invoice Date",
+          ServiceContractHeader."Next Invoice Period Start", ServiceContractHeader."Next Invoice Period End");
+        if ServiceContractLine.FindSet() then
+            repeat
+                if ServiceContractHeader."Last Invoice Date" = 0D then
+                    ServiceContractLine."Invoiced to Date" := 0D
+                else
+                    ServContractMgt.CalcInvoicedToDate(ServiceContractLine, ServiceContractLine."Starting Date", ServiceContractHeader."Next Invoice Period Start" - 1);
+                ServiceContractLine.Modify(true);
+            until ServiceContractLine.Next() = 0;
+    end;
+
+    local procedure CheckServiceLedgerEntriesCanBeReversed(ContractNo: Code[20]; ServiceInvoiceNo: Code[20])
+    var
+        ServiceLedgerEntry: Record "Service Ledger Entry";
+        LastPostingDate: Date;
+    begin
+        ServiceLedgerEntry.Reset();
+        ServiceLedgerEntry.SetLoadFields("Posting Date");
+        ServiceLedgerEntry.SetCurrentKey("Service Contract No.", "Posting Date");
+        ServiceLedgerEntry.SetRange("Service Contract No.", ContractNo);
+        ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::" ");
+        ServiceLedgerEntry.SetRange("Document No.", ServiceInvoiceNo);
+        ServiceLedgerEntry.SetRange(Open, false);
+        if not ServiceLedgerEntry.IsEmpty() then
+            Error(CannotDeletePostedInvoiceErr);
+
+        ServiceLedgerEntry.SetRange(Open);
+        ServiceLedgerEntry.FindLast();
+        LastPostingDate := ServiceLedgerEntry."Posting Date";
+
+        ServiceLedgerEntry.Reset();
+        ServiceLedgerEntry.SetCurrentKey("Service Contract No.", "Posting Date");
+        ServiceLedgerEntry.SetRange("Service Contract No.", ContractNo);
+        ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Invoice);
+        ServiceLedgerEntry.SetFilter("Posting Date", '>%1', LastPostingDate);
+        if not ServiceLedgerEntry.IsEmpty() then
+            Error(CannotDeleteWhenNextInvPostedErr);
+
+        ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::" ");
+        ServiceLedgerEntry.SetRange(Open, true);
+        if not ServiceLedgerEntry.IsEmpty() then
+            Error(CannotDeleteWhenNextInvExistsErr);
+    end;
+
+    local procedure RestoreServiceContractDates(var ServiceContractHeader: Record "Service Contract Header"): Boolean
+    var
+        ServDocReg: Record "Service Document Register";
+    begin
+        if not ServDocReg.Get(
+              ServDocReg."Source Document Type"::Contract, ServiceContractHeader."Contract No.",
+              ServDocReg."Destination Document Type"::Invoice, Rec."No.")
+        then
+            exit(false);
+
+        if (ServDocReg."Next Invoice Date" = 0D) and (ServDocReg."Last Invoice Date" = 0D) then
+            exit(false);
+
+        if ServDocReg."Invoice Period" <> ServiceContractHeader."Invoice Period" then
+            Error(InvoicePeriodChangedErr);
+
+        ServiceContractHeader."Last Invoice Date" := ServDocReg."Last Invoice Date";
+        ServiceContractHeader."Next Invoice Date" := ServDocReg."Next Invoice Date";
+        ServiceContractHeader."Next Invoice Period Start" := ServDocReg."Next Invoice Period Start";
+        ServiceContractHeader."Next Invoice Period End" := ServDocReg."Next Invoice Period End";
+
+        ServiceContractHeader.CalcFields("No. of Posted Invoices", "No. of Unposted Invoices");
+        if (ServiceContractHeader."No. of Posted Invoices" = 0) and (ServiceContractHeader."No. of Unposted Invoices" = 1) then
+            ServiceContractHeader."Last Invoice Date" := 0D;
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -5798,6 +6007,16 @@ table 5900 "Service Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateShipToSalespersonCode(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateShiptoSalespersonCodeNotAssigned(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetResponsibilityCenter(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
@@ -6063,12 +6282,22 @@ table 5900 "Service Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateExternalDocumentNo(var ServiceHeader: Record "Service Header"; var xServiceHeader: Record "Service Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateServiceLinesOnBeforeCopyReservEntryFromTemp(var ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line" temporary; var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultSalesperson(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCustomerFromFilter(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

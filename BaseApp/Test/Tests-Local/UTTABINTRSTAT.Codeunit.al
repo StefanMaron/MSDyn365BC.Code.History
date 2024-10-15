@@ -91,7 +91,7 @@ codeunit 144061 "UT TAB INTRSTAT"
 
         IntrastatJnlLine.Validate("Item No.", Item."No.");
 
-        Assert.AreEqual(Item."Country/Region of Origin Code", IntrastatJnlLine.GetCountryOfOriginCode, '');
+        Assert.AreEqual(Item."Country/Region of Origin Code", IntrastatJnlLine.GetCountryOfOriginCode(), '');
     end;
 
     [Test]

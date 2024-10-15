@@ -356,24 +356,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CASHVAT - NamedType VATIdentifierPurchInvLineCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3889925868 - NamedType 2343768887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATIdentifier_SalesInvLine]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CASHVAT - NamedType VATIdentifierSalesInvLineCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3889925868 - NamedType 2618465874" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATIdent_SalesCrMemoLine]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CASHVAT - NamedType VATIdentSalesCrMemoLineCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3946088337 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -923,33 +905,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intrastat - NamedType EUServiceErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3446422164 - NamedType 2582613147" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - field name; %2 - table name.]D;]A;(LookupHint=Codeunit ERM Intrastat - NamedType FieldMustHaveValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3446422164 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Intrastat file was not created]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3446422164 - NamedType 1068113397" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[File was created successfully.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intrastat - NamedType FileWasCreatedSuccessfullyMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3446422164 - NamedType 1019460973" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[########]]></Val>
@@ -1020,15 +975,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intrastat - NamedType ValueMustSpecifiedErrorMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3446422164 - NamedType 624263137" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong payment country specified in exported file.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intrastat - NamedType WrongPmtCountryErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4158649895 - NamedType 3358936456" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2723,15 +2669,6 @@
       <Cmt Name="Dev"><![CDATA[%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;]D;]A;(LookupHint=Codeunit FatturaPA Test - NamedType UnexpectedElementValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2520325700 - NamedType 1037243000" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is not available on %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Activity Code - NamedType FieldNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2520325700 - NamedType 3108415590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 should be of length %2 only]]></Val>
@@ -3470,15 +3407,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - VAT Reporting - Export - NamedType NoVerifierMatchedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 971519576 - NamedType 1056269205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You can only select the %1 field when the %2 field is %3 in the %4 window]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - VAT Reporting - Gen. Jnl. - NamedType ErrorYouCanOnlySelect)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 971519576 - NamedType 1055277753" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must specify a value for the %1 field]]></Val>
@@ -3702,24 +3630,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - VAT Reporting - Service - NamedType ConfirmTextContractTemplateQst)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3418075263 - NamedType 3042605330" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Refers to Period field is required for documents of type Credit Memo]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - VAT Reporting - Service - NamedType RefersToPeriodErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3418075263 - NamedType 46835234" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You can only select the %1 field when the %2 field is %3 in the %4 window]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - VAT Reporting - Service - NamedType YouCanOnlySelectErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3418075263 - NamedType 1098604835" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5684,24 +5594,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP VAT Exemption - NamedType RemainingVATPlafondAmountCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2541662064 - NamedType 3741668272" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATRegNo_SalesCrMemoHeader]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP VAT Exemption - NamedType SalesCrMemoHeaderVATRegNoCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2541662064 - NamedType 486286082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[YourRef_SalesCrMemoHeader]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP VAT Exemption - NamedType SalesCrMemoHeaderYourRefCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2541662064 - NamedType 2840460556" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sales_Header___Bill_to_Customer_No__]]></Val>
@@ -5709,24 +5601,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP VAT Exemption - NamedType SalesHeaderBillToCustomerNoCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2541662064 - NamedType 1738890106" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATRegNo_SalesInvHdr]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP VAT Exemption - NamedType SalesInvHeaderVATRegNoCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2541662064 - NamedType 4142029368" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[YourRef_SalesInvHdr]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP VAT Exemption - NamedType SalesInvHeaderYourRefCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2541662064 - NamedType 1391752323" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

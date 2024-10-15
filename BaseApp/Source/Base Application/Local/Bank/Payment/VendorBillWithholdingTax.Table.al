@@ -11,6 +11,7 @@ using Microsoft.Purchases.Vendor;
 table 12185 "Vendor Bill Withholding Tax"
 {
     Caption = 'Vendor Bill Withholding Tax';
+    DataClassification = CustomerContent;
 
     fields
     {

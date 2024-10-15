@@ -127,7 +127,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         CreateSalesHeader(SalesHeader);
 
         // Exercise.
-        asserterror SalesHeader.Validate("3rd Party Loader No.", CreateVendor);
+        asserterror SalesHeader.Validate("3rd Party Loader No.", CreateVendor());
 
         // Verify.
         Assert.ExpectedError(PartyLoaderErr);
@@ -140,7 +140,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         SalesHeader: Record "Sales Header";
     begin
         // Test to verify error after post Sales Order when 3rd Party Loader Type is blank on Sales Header.
-        PostSalesOrderWithTDD(LibraryUtility.GenerateGUID, SalesHeader."3rd Party Loader Type", ThirdPartyLoaderErr);
+        PostSalesOrderWithTDD(LibraryUtility.GenerateGUID(), SalesHeader."3rd Party Loader Type", ThirdPartyLoaderErr);
     end;
 
     [Test]
@@ -179,7 +179,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         // Setup.
         Initialize();
         ShippingAgentCode := CreateShippingAgent('');  // ShippingAgentNo as blank.
-        SalesShipmentHeader.Get(CreateAndPostSalesOrder);
+        SalesShipmentHeader.Get(CreateAndPostSalesOrder());
 
         // Exercise.
         asserterror SalesShipmentHeader.Validate("Shipping Agent Code", ShippingAgentCode);
@@ -218,7 +218,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         // Setup.
         Initialize();
         LibraryInventory.CreateTransferHeader(TransferHeader, '', '', '');  // FromLocation, ToLocation and InTransitCode as blank.
-        TransferHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor));
+        TransferHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor()));
 
         // Exercise.
         asserterror TransferHeader.Validate("3rd Party Loader Type", TransferHeader."3rd Party Loader Type"::Vendor);
@@ -237,7 +237,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         // Test to verify values on Sales - Shipment Report after post Sales Order with Additional Information.
         // Setup.
         Initialize();
-        SalesShipmentHeader.Get(CreateAndPostSalesOrder);
+        SalesShipmentHeader.Get(CreateAndPostSalesOrder());
         LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");  // Enqueue for SalesShipmentRequestPageHandler.
 
         // Exercise and Verify.
@@ -276,7 +276,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         // Test to verify values on Service - Shipment Report after post Service Order with Additional Information.
         // Setup.
         Initialize();
-        ServiceShipmentHeader.Get(CreateAndPostServiceOrder);
+        ServiceShipmentHeader.Get(CreateAndPostServiceOrder());
         LibraryVariableStorage.Enqueue(ServiceShipmentHeader."No.");  // Enqueue for ServiceShipmentRequestPageHandler.
 
         // Exercise and Verify.
@@ -319,7 +319,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         // Test to verify error on Sales - Shipment Report when 3rd Party Loader No. is blank on Sales Shipment Header.
         // Setup.
         Initialize();
-        SalesShipmentHeader.Get(CreateAndPostSalesOrder);
+        SalesShipmentHeader.Get(CreateAndPostSalesOrder());
         SalesShipmentHeader.Validate("3rd Party Loader No.", '');
         SalesShipmentHeader.Modify(true);
         LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");  // Enqueue for SalesShipmentRequestPageHandler.
@@ -385,7 +385,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         // Test to verify error on Service - Shipment Report when 3rd Party Loader No. is blank on Service Shipment Header.
         // Setup.
         Initialize();
-        ServiceShipmentHeader.Get(CreateAndPostServiceOrder);
+        ServiceShipmentHeader.Get(CreateAndPostServiceOrder());
         ServiceShipmentHeader.Validate("3rd Party Loader No.", '');
         ServiceShipmentHeader.Modify(true);
         LibraryVariableStorage.Enqueue(ServiceShipmentHeader."No.");  // Enqueue for ServiceShipmentRequestPageHandler.
@@ -426,7 +426,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         // Test to verify error on Service Shipment Header when Shipping Agent Code is blank on Shipping Agent.
         // Setup.
         Initialize();
-        ServiceShipmentHeader.Get(CreateAndPostServiceOrder);
+        ServiceShipmentHeader.Get(CreateAndPostServiceOrder());
 
         // Exercise.
         asserterror ServiceShipmentHeader.Validate("Shipping Agent Code", '');
@@ -466,7 +466,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        CreatePurchaseHeader(PurchaseHeader, CreateVendor, DocumentType);
+        CreatePurchaseHeader(PurchaseHeader, CreateVendor(), DocumentType);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));  // Using random Quantity.
         PurchaseLine.Validate("Location Code", Location.Code);
@@ -479,7 +479,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     var
         SalesHeader: Record "Sales Header";
     begin
-        CreateSalesOrder(SalesHeader, LibraryUtility.GenerateGUID, SalesHeader."3rd Party Loader Type"::Vendor);
+        CreateSalesOrder(SalesHeader, LibraryUtility.GenerateGUID(), SalesHeader."3rd Party Loader Type"::Vendor);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as ship and invoice.
         exit(SalesHeader."Last Shipping No.");
     end;
@@ -512,9 +512,9 @@ codeunit 144101 "SCM Transport Delivery Doc"
         CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order);
         LibraryInventory.CreateTransferHeader(TransferHeader, PurchaseLine."Location Code", Location.Code, Location2.Code);
         TransferHeader.Validate("Shipment Method Code", FindAndUpdateShippingMethod(true));  // ThirdPartyLoader as true.
-        TransferHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor));
+        TransferHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor()));
         TransferHeader.Validate("3rd Party Loader Type", TransferHeader."3rd Party Loader Type"::Vendor);
-        TransferHeader.Validate("3rd Party Loader No.", CreateVendor);
+        TransferHeader.Validate("3rd Party Loader No.", CreateVendor());
         TransferHeader.Validate("TDD Prepared By", LibraryUtility.GenerateGUID());
         TransferHeader.Modify(true);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, PurchaseLine."No.", PurchaseLine.Quantity);
@@ -527,9 +527,9 @@ codeunit 144101 "SCM Transport Delivery Doc"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Shipment Method Code", FindAndUpdateShippingMethod(true));  // ThirdPartyLoader as true.
-        PurchaseHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor));
+        PurchaseHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor()));
         PurchaseHeader.Validate("3rd Party Loader Type", PurchaseHeader."3rd Party Loader Type"::Vendor);
-        PurchaseHeader.Validate("3rd Party Loader No.", CreateVendor);
+        PurchaseHeader.Validate("3rd Party Loader No.", CreateVendor());
         PurchaseHeader.Validate("TDD Prepared By", LibraryUtility.GenerateGUID());
         PurchaseHeader.Validate("Additional Information", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
@@ -541,7 +541,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        SalesHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor));
+        SalesHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor()));
         SalesHeader.Modify(true);
     end;
 
@@ -553,7 +553,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         CreateSalesHeader(SalesHeader);
         SalesHeader.Validate("Shipment Method Code", FindAndUpdateShippingMethod(true));  // ThirdPartyLoader as true.
         SalesHeader.Validate("3rd Party Loader Type", PartyLoaderType);
-        SalesHeader.Validate("3rd Party Loader No.", CreateVendor);
+        SalesHeader.Validate("3rd Party Loader No.", CreateVendor());
         SalesHeader.Validate("TDD Prepared By", TDDPreparedBy);
         SalesHeader.Validate("Additional Information", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
@@ -565,9 +565,9 @@ codeunit 144101 "SCM Transport Delivery Doc"
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
         ServiceHeader.Validate("Shipment Method Code", FindAndUpdateShippingMethod(true));  // ThirdPartyLoader as true.
-        ServiceHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor));
+        ServiceHeader.Validate("Shipping Agent Code", CreateShippingAgent(CreateVendor()));
         ServiceHeader.Validate("3rd Party Loader Type", ServiceHeader."3rd Party Loader Type"::Vendor);
-        ServiceHeader.Validate("3rd Party Loader No.", CreateVendor);
+        ServiceHeader.Validate("3rd Party Loader No.", CreateVendor());
         ServiceHeader.Validate("TDD Prepared By", LibraryUtility.GenerateGUID());
         ServiceHeader.Validate("Additional Information", LibraryUtility.GenerateGUID());
         ServiceHeader.Modify(true);
@@ -632,7 +632,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
 
     local procedure VerifyValuesOnReport(Caption: Text; Caption2: Text; Value: Text; Value2: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, Value2);
     end;
@@ -645,7 +645,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseReturnShipment."Return Shipment Header".SetFilter("No.", No);
-        PurchaseReturnShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseReturnShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -656,7 +656,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesShipment."Sales Shipment Header".SetFilter("No.", No);
-        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -667,7 +667,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceShipment."Service Shipment Header".SetFilter("No.", No);
-        ServiceShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -678,7 +678,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     begin
         LibraryVariableStorage.Dequeue(No);
         TransferShipment."Transfer Shipment Header".SetFilter("No.", No);
-        TransferShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TransferShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -90,44 +90,42 @@ codeunit 12132 "Withholding Tax Export"
     var
         WithholdingTax: Record "Withholding Tax";
     begin
-        with WithholdingTax do begin
-            SetCurrentKey("Vendor No.", Reason, "Non-Taxable Income Type");
-            SetRange(Year, ReportingYearStart, ReportingYearEnd);
-            if FindSet() then begin
-                repeat
-                    if not LinesExistForEntryNo("Entry No.") then begin
-                        if ("Non Taxable Amount By Treaty" <> 0) and ("Non-Taxable Income Type" = "Non-Taxable Income Type"::" ") then
-                            TempErrorMessage.LogIfEmpty(WithholdingTax, WithholdingTax.FieldNo("Non-Taxable Income Type"), TempErrorMessage."Message Type"::Error);
+        WithholdingTax.SetCurrentKey("Vendor No.", Reason, "Non-Taxable Income Type");
+        WithholdingTax.SetRange(Year, ReportingYearStart, ReportingYearEnd);
+        if WithholdingTax.FindSet() then begin
+            repeat
+                if not LinesExistForEntryNo(WithholdingTax."Entry No.") then begin
+                    if (WithholdingTax."Non Taxable Amount By Treaty" <> 0) and (WithholdingTax."Non-Taxable Income Type" = WithholdingTax."Non-Taxable Income Type"::" ") then
+                        TempErrorMessage.LogIfEmpty(WithholdingTax, WithholdingTax.FieldNo("Non-Taxable Income Type"), TempErrorMessage."Message Type"::Error);
 
-                        if "Base - Excluded Amount" <> 0 then
-                            TempErrorMessage.LogMessage(WithholdingTax, FieldNo("Base - Excluded Amount"), TempErrorMessage."Message Type"::Error, StrSubstNo(BaseExcludedAmountTotalErr, "Entry No.", "Base - Excluded Amount"));
+                    if WithholdingTax."Base - Excluded Amount" <> 0 then
+                        TempErrorMessage.LogMessage(WithholdingTax, WithholdingTax.FieldNo("Base - Excluded Amount"), TempErrorMessage."Message Type"::Error, StrSubstNo(BaseExcludedAmountTotalErr, WithholdingTax."Entry No.", WithholdingTax."Base - Excluded Amount"));
 
-                        if ReportingYearStart <> 0 then
-                            TempErrorMessage.LogIfEmpty(WithholdingTax, FieldNo(Reason), TempErrorMessage."Message Type"::Error);
-                        if ("Vendor No." <> TempWithholdingTax."Vendor No.") or
-                           (Reason <> TempWithholdingTax.Reason) or
-                           (("Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type") and (TempWithholdingTax."Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type"::" "))
-                        then begin
-                            if TempWithholdingTax."Entry No." <> 0 then
-                                TempWithholdingTax.Insert();
-                            InitTempWithholdingTax(TempWithholdingTax, WithholdingTax);
-                        end;
-                        if "Related Date" <> 0D then
-                            TempWithholdingTax."Related Date" := "Related Date";
-                        if "Non-Taxable Income Type" <> "Non-Taxable Income Type"::" " then
-                            TempWithholdingTax."Non-Taxable Income Type" := "Non-Taxable Income Type";
-                        TempWithholdingTax."Total Amount" += "Total Amount";
-                        TempWithholdingTax."Non Taxable Amount By Treaty" += "Non Taxable Amount By Treaty";
-                        TempWithholdingTax."Base - Excluded Amount" += "Base - Excluded Amount";
-                        TempWithholdingTax."Non Taxable Amount" += "Non Taxable Amount";
-                        TempWithholdingTax."Taxable Base" += "Taxable Base";
-                        TempWithholdingTax."Withholding Tax Amount" += "Withholding Tax Amount";
-                        CalculateContributions(WithholdingTax, TempWithholdingTax."Entry No.", TempContributions);
+                    if ReportingYearStart <> 0 then
+                        TempErrorMessage.LogIfEmpty(WithholdingTax, WithholdingTax.FieldNo(Reason), TempErrorMessage."Message Type"::Error);
+                    if (WithholdingTax."Vendor No." <> TempWithholdingTax."Vendor No.") or
+                       (WithholdingTax.Reason <> TempWithholdingTax.Reason) or
+                       ((WithholdingTax."Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type") and (TempWithholdingTax."Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type"::" "))
+                    then begin
+                        if TempWithholdingTax."Entry No." <> 0 then
+                            TempWithholdingTax.Insert();
+                        InitTempWithholdingTax(TempWithholdingTax, WithholdingTax);
                     end;
-                until Next() = 0;
-                if TempWithholdingTax."Entry No." <> 0 then
-                    TempWithholdingTax.Insert();
-            end;
+                    if WithholdingTax."Related Date" <> 0D then
+                        TempWithholdingTax."Related Date" := WithholdingTax."Related Date";
+                    if WithholdingTax."Non-Taxable Income Type" <> WithholdingTax."Non-Taxable Income Type"::" " then
+                        TempWithholdingTax."Non-Taxable Income Type" := WithholdingTax."Non-Taxable Income Type";
+                    TempWithholdingTax."Total Amount" += WithholdingTax."Total Amount";
+                    TempWithholdingTax."Non Taxable Amount By Treaty" += WithholdingTax."Non Taxable Amount By Treaty";
+                    TempWithholdingTax."Base - Excluded Amount" += WithholdingTax."Base - Excluded Amount";
+                    TempWithholdingTax."Non Taxable Amount" += WithholdingTax."Non Taxable Amount";
+                    TempWithholdingTax."Taxable Base" += WithholdingTax."Taxable Base";
+                    TempWithholdingTax."Withholding Tax Amount" += WithholdingTax."Withholding Tax Amount";
+                    CalculateContributions(WithholdingTax, TempWithholdingTax."Entry No.", TempContributions);
+                end;
+            until WithholdingTax.Next() = 0;
+            if TempWithholdingTax."Entry No." <> 0 then
+                TempWithholdingTax.Insert();
         end;
 
         AddWithholdingTaxWithSeparateLines(TempWithholdingTax, TempContributions, ReportingYearStart, ReportingYearEnd);
@@ -142,25 +140,23 @@ codeunit 12132 "Withholding Tax Export"
         EntryNo: Integer;
         IsBlankNoTaxIncomeType: Boolean;
     begin
-        with WithholdingTax do begin
-            SetCurrentKey("Vendor No.", Reason);
-            SetRange(Year, ReportingYearStart, ReportingYearEnd);
-            SetRange("Non-Taxable Income Type", "Non-Taxable Income Type"::" ");
-            if FindSet() then
-                repeat
-                    if LinesExistForEntryNo("Entry No.") then begin
-                        if WithholdingTaxLine.GetAmountForEntryNo("Entry No.") <> "Base - Excluded Amount" then
-                            TempErrorMessage.LogMessage(WithholdingTax, FieldNo("Base - Excluded Amount"),
-                              TempErrorMessage."Message Type"::Error, StrSubstNo(BaseExcludedAmountTotalErr, "Entry No.", "Base - Excluded Amount"));
-                        WithholdingTaxLine.SetRange("Withholding Tax Entry No.", "Entry No.");
-                        WithholdingTaxLine.FindSet();
-                        IsFirstLine := true;
-                        repeat
-                            CopyTaxToTempRespectingLine(TempWithholdingTaxByLine, IsFirstLine, WithholdingTax, WithholdingTaxLine);
-                        until WithholdingTaxLine.Next() = 0;
-                    end;
-                until Next() = 0;
-        end;
+        WithholdingTax.SetCurrentKey("Vendor No.", Reason);
+        WithholdingTax.SetRange(Year, ReportingYearStart, ReportingYearEnd);
+        WithholdingTax.SetRange("Non-Taxable Income Type", WithholdingTax."Non-Taxable Income Type"::" ");
+        if WithholdingTax.FindSet() then
+            repeat
+                if LinesExistForEntryNo(WithholdingTax."Entry No.") then begin
+                    if WithholdingTaxLine.GetAmountForEntryNo(WithholdingTax."Entry No.") <> WithholdingTax."Base - Excluded Amount" then
+                        TempErrorMessage.LogMessage(WithholdingTax, WithholdingTax.FieldNo("Base - Excluded Amount"),
+                          TempErrorMessage."Message Type"::Error, StrSubstNo(BaseExcludedAmountTotalErr, WithholdingTax."Entry No.", WithholdingTax."Base - Excluded Amount"));
+                    WithholdingTaxLine.SetRange("Withholding Tax Entry No.", WithholdingTax."Entry No.");
+                    WithholdingTaxLine.FindSet();
+                    IsFirstLine := true;
+                    repeat
+                        CopyTaxToTempRespectingLine(TempWithholdingTaxByLine, IsFirstLine, WithholdingTax, WithholdingTaxLine);
+                    until WithholdingTaxLine.Next() = 0;
+                end;
+            until WithholdingTax.Next() = 0;
         TempWithholdingTaxByLine.SetCurrentKey("Vendor No.", Reason, "Non-Taxable Income Type");
         if not TempWithholdingTaxByLine.FindSet() then
             exit;
@@ -174,7 +170,7 @@ codeunit 12132 "Withholding Tax Export"
             TempWithholdingTax.SetRange("Vendor No.", TempWithholdingTaxByLine."Vendor No.");
             TempWithholdingTax.SetRange(Reason, TempWithholdingTaxByLine.Reason);
             TempWithholdingTax.SetRange("Non-Taxable Income Type", TempWithholdingTaxByLine."Non-Taxable Income Type");
-            if (not TempWithholdingTax.FindFirst) or IsBlankNoTaxIncomeType then begin
+            if (not TempWithholdingTax.FindFirst()) or IsBlankNoTaxIncomeType then begin
                 TempWithholdingTax.Init();
                 EntryNo += 1;
                 TempWithholdingTax."Entry No." := EntryNo;
@@ -204,21 +200,19 @@ codeunit 12132 "Withholding Tax Export"
     var
         Contributions: Record Contributions;
     begin
-        with Contributions do begin
-            SetRange("External Document No.", WithholdingTax."External Document No.");
-            if not TempContributions.Get(EntryNo) then begin
-                TempContributions.Init();
-                TempContributions."Entry No." := EntryNo;
-                TempContributions.Insert();
-            end;
-
-            if FindSet() then
-                repeat
-                    TempContributions."Company Amount" += "Company Amount";
-                    TempContributions."Free-Lance Amount" += "Free-Lance Amount";
-                until Next() = 0;
-            TempContributions.Modify();
+        Contributions.SetRange("External Document No.", WithholdingTax."External Document No.");
+        if not TempContributions.Get(EntryNo) then begin
+            TempContributions.Init();
+            TempContributions."Entry No." := EntryNo;
+            TempContributions.Insert();
         end;
+
+        if Contributions.FindSet() then
+            repeat
+                TempContributions."Company Amount" += Contributions."Company Amount";
+                TempContributions."Free-Lance Amount" += Contributions."Free-Lance Amount";
+            until Contributions.Next() = 0;
+        TempContributions.Modify();
     end;
 
     local procedure CreateFileBody(var TempWithholdingTax: Record "Withholding Tax" temporary; var TempWithholdingTaxPrevYears: Record "Withholding Tax" temporary; var TempContributions: Record Contributions temporary; Year: Integer)
@@ -601,14 +595,12 @@ codeunit 12132 "Withholding Tax Export"
 
     local procedure InitTempWithholdingTax(var TempWithholdingTax: Record "Withholding Tax" temporary; WithholdingTax: Record "Withholding Tax")
     begin
-        with WithholdingTax do begin
-            TempWithholdingTax.Init();
-            TempWithholdingTax."Entry No." := "Entry No.";
-            TempWithholdingTax."Vendor No." := "Vendor No.";
-            TempWithholdingTax.Reason := Reason;
-            TempWithholdingTax.Year := Year;
-            TempWithholdingTax."Non-Taxable Income Type" := "Non-Taxable Income Type";
-        end;
+        TempWithholdingTax.Init();
+        TempWithholdingTax."Entry No." := WithholdingTax."Entry No.";
+        TempWithholdingTax."Vendor No." := WithholdingTax."Vendor No.";
+        TempWithholdingTax.Reason := WithholdingTax.Reason;
+        TempWithholdingTax.Year := WithholdingTax.Year;
+        TempWithholdingTax."Non-Taxable Income Type" := WithholdingTax."Non-Taxable Income Type";
     end;
 
     local procedure StartNewRecord(Type: Option A,B,C,D,E,G,H,Z)
@@ -681,24 +673,22 @@ codeunit 12132 "Withholding Tax Export"
     begin
         if TempWithholdingTax.FindLast() then;
         EntryNo := TempWithholdingTax."Entry No." + 1;
-        with WithholdingTax do begin
-            TempWithholdingTax.Init();
-            TempWithholdingTax."Entry No." := EntryNo;
-            TempWithholdingTax."Vendor No." := "Vendor No.";
-            TempWithholdingTax.Reason := Reason;
-            TempWithholdingTax.Year := Year;
-            TempWithholdingTax."Related Date" := "Related Date";
-            if IsFirstLine then begin
-                TempWithholdingTax."Total Amount" := "Total Amount";
-                TempWithholdingTax."Non Taxable Amount By Treaty" := "Non Taxable Amount By Treaty";
-                TempWithholdingTax."Non Taxable Amount" := "Non Taxable Amount";
-                TempWithholdingTax."Taxable Base" := "Taxable Base";
-                TempWithholdingTax."Withholding Tax Amount" := "Withholding Tax Amount";
-                IsFirstLine := false;
-            end;
-            TempWithholdingTax."Non-Taxable Income Type" := WithholdingTaxLine."Non-Taxable Income Type";
-            TempWithholdingTax."Base - Excluded Amount" := WithholdingTaxLine."Base - Excluded Amount";
-            TempWithholdingTax.Insert();
+        TempWithholdingTax.Init();
+        TempWithholdingTax."Entry No." := EntryNo;
+        TempWithholdingTax."Vendor No." := WithholdingTax."Vendor No.";
+        TempWithholdingTax.Reason := WithholdingTax.Reason;
+        TempWithholdingTax.Year := WithholdingTax.Year;
+        TempWithholdingTax."Related Date" := WithholdingTax."Related Date";
+        if IsFirstLine then begin
+            TempWithholdingTax."Total Amount" := WithholdingTax."Total Amount";
+            TempWithholdingTax."Non Taxable Amount By Treaty" := WithholdingTax."Non Taxable Amount By Treaty";
+            TempWithholdingTax."Non Taxable Amount" := WithholdingTax."Non Taxable Amount";
+            TempWithholdingTax."Taxable Base" := WithholdingTax."Taxable Base";
+            TempWithholdingTax."Withholding Tax Amount" := WithholdingTax."Withholding Tax Amount";
+            IsFirstLine := false;
         end;
+        TempWithholdingTax."Non-Taxable Income Type" := WithholdingTaxLine."Non-Taxable Income Type";
+        TempWithholdingTax."Base - Excluded Amount" := WithholdingTaxLine."Base - Excluded Amount";
+        TempWithholdingTax.Insert();
     end;
 }

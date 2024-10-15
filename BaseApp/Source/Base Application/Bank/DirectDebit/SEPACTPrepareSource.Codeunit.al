@@ -87,35 +87,33 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
     local procedure InsertTempGenJnlLine(var TempGenJnlLine: Record "Gen. Journal Line" temporary; VendorBillHeader: Record "Vendor Bill Header"; VendorBillLine: Record "Vendor Bill Line"; AmountToPay: Decimal; CumulativeCnt: Integer)
     begin
-        with TempGenJnlLine do begin
-            Init();
-            "Journal Template Name" := '';
-            "Journal Batch Name" := '';
-            "Document Type" := "Document Type"::Payment;
-            "Document No." := VendorBillLine."Vendor Bill List No.";
-            "Line No." := VendorBillLine."Line No.";
-            "Account No." := VendorBillLine."Vendor No.";
-            "Account Type" := TempGenJnlLine."Account Type"::Vendor;
-            "Bal. Account Type" := TempGenJnlLine."Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := VendorBillHeader."Bank Account No.";
-            Amount := AmountToPay;
-            "Applies-to Doc. Type" := VendorBillLine."Document Type";
-            "Applies-to Doc. No." := VendorBillLine."Document No.";
-            "Currency Code" := VendorBillHeader."Currency Code";
-            "Due Date" := VendorBillLine."Due Date";
-            "Posting Date" := VendorBillHeader."Posting Date";
-            "Recipient Bank Account" := VendorBillLine."Vendor Bank Acc. No.";
-            if CumulativeCnt > 1 then begin
-                "Applies-to Ext. Doc. No." := '';
-                Description := CumulativeInvoiceTxt;
-            end else begin
-                "Applies-to Ext. Doc. No." := VendorBillLine."External Document No.";
-                Description := VendorBillLine.Description;
-            end;
-            "Message to Recipient" := VendorBillLine."Description 2";
-            OnInsertTempGenJnlLineOnBeforeInsert(TempGenJnlLine, VendorBillLine);
-            Insert();
+        TempGenJnlLine.Init();
+        TempGenJnlLine."Journal Template Name" := '';
+        TempGenJnlLine."Journal Batch Name" := '';
+        TempGenJnlLine."Document Type" := TempGenJnlLine."Document Type"::Payment;
+        TempGenJnlLine."Document No." := VendorBillLine."Vendor Bill List No.";
+        TempGenJnlLine."Line No." := VendorBillLine."Line No.";
+        TempGenJnlLine."Account No." := VendorBillLine."Vendor No.";
+        TempGenJnlLine."Account Type" := TempGenJnlLine."Account Type"::Vendor;
+        TempGenJnlLine."Bal. Account Type" := TempGenJnlLine."Bal. Account Type"::"Bank Account";
+        TempGenJnlLine."Bal. Account No." := VendorBillHeader."Bank Account No.";
+        TempGenJnlLine.Amount := AmountToPay;
+        TempGenJnlLine."Applies-to Doc. Type" := VendorBillLine."Document Type";
+        TempGenJnlLine."Applies-to Doc. No." := VendorBillLine."Document No.";
+        TempGenJnlLine."Currency Code" := VendorBillHeader."Currency Code";
+        TempGenJnlLine."Due Date" := VendorBillLine."Due Date";
+        TempGenJnlLine."Posting Date" := VendorBillHeader."Posting Date";
+        TempGenJnlLine."Recipient Bank Account" := VendorBillLine."Vendor Bank Acc. No.";
+        if CumulativeCnt > 1 then begin
+            TempGenJnlLine."Applies-to Ext. Doc. No." := '';
+            TempGenJnlLine.Description := CumulativeInvoiceTxt;
+        end else begin
+            TempGenJnlLine."Applies-to Ext. Doc. No." := VendorBillLine."External Document No.";
+            TempGenJnlLine.Description := VendorBillLine.Description;
         end;
+        TempGenJnlLine."Message to Recipient" := VendorBillLine."Description 2";
+        OnInsertTempGenJnlLineOnBeforeInsert(TempGenJnlLine, VendorBillLine);
+        TempGenJnlLine.Insert();
     end;
 
     [IntegrationEvent(false, false)]

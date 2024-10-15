@@ -6,6 +6,7 @@ table 5303 "Outlook Synch. Filter"
 {
     Caption = 'Outlook Synch. Filter';
     DataCaptionFields = "Filter Type";
+    DataClassification = CustomerContent;
     PasteIsValid = false;
     ReplicateData = false;
     ObsoleteState = Removed;

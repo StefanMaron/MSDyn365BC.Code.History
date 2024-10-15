@@ -461,7 +461,7 @@ page 49 "Purchase Quote"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ship-to';
-                            HideValue = NOT ShowShippingOptionsWithLocation AND (ShipToOptions = ShipToOptions::Location);
+                            HideValue = not ShowShippingOptionsWithLocation and (ShipToOptions = ShipToOptions::Location);
                             OptionCaption = 'Default (Company Address),Location,Custom Address';
                             ToolTip = 'Specifies the address that the products on the purchase document are shipped to. Default (Company Address): The same as the company address specified in the Company Information window. Location: One of the company''s location addresses. Custom Address: Any ship-to address that you specify in the fields below.';
 
@@ -586,7 +586,7 @@ page 49 "Purchase Quote"
                     group(Control67)
                     {
                         ShowCaption = false;
-                        Visible = NOT (PayToOptions = PayToOptions::"Default (Vendor)");
+                        Visible = not (PayToOptions = PayToOptions::"Default (Vendor)");
                         field("Pay-to Name"; Rec."Pay-to Name")
                         {
                             ApplicationArea = Basic, Suite;
@@ -1243,7 +1243,7 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1259,7 +1259,7 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1592,13 +1592,6 @@ page 49 "Purchase Quote"
     end;
 #endif
 
-#if not CLEAN21
-    local procedure SetPurchaseLinesAvailability()
-    begin
-        OnAfterSetPurchaseLinesAvailability(Rec, IsPurchaseLinesEditable);
-    end;
-#endif
-
     local procedure ApproveCalcInvDisc()
     begin
         CurrPage.PurchLines.PAGE.ApproveCalcInvDisc();
@@ -1654,9 +1647,6 @@ page 49 "Purchase Quote"
 
         HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
-#if not CLEAN21
-        SetPurchaseLinesAvailability();
-#endif
     end;
 
     local procedure ValidateShippingOption()
@@ -1705,14 +1695,6 @@ page 49 "Purchase Quote"
     local procedure OnAfterCalculateCurrentShippingAndPayToOption(var ShipToOptions: Option "Default (Company Address)",Location,"Custom Address"; var PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by event OnAfterPurchaseLineEditable() in table Purchase Header', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterSetPurchaseLinesAvailability(var PurchaseHeader: Record "Purchase Header"; var PurchaseLinesAvailable: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)

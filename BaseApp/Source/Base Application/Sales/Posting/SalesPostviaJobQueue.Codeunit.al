@@ -33,7 +33,7 @@ codeunit 88 "Sales Post via Job Queue"
             SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::Error, Rec);
             IsHandled := false;
             OnBeforeBatchProcessingErrorReset(Rec, IsHandled);
-            if not IsHandled THEN
+            if not IsHandled then
                 BatchProcessingMgt.ResetBatchID();
             Error(GetLastErrorText);
         end;
@@ -57,9 +57,9 @@ codeunit 88 "Sales Post via Job Queue"
         DefaultCategoryCodeLbl: Label 'SALESBCKGR', Locked = true;
         DefaultCategoryDescLbl: Label 'Def. Background Sales Posting', Locked = true;
 
-    local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Option; JobQueueEntry: Record "Job Queue Entry")
+    local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Enum "Document Job Queue Status"; JobQueueEntry: Record "Job Queue Entry")
     begin
-        OnBeforeSetJobQueueStatus(SalesHeader, NewStatus, JobQueueEntry);
+        OnBeforeSetJobQueueStatus(SalesHeader, NewStatus.AsInteger(), JobQueueEntry);
         SalesHeader.LockTable();
         if SalesHeader.Find() then begin
             SalesHeader."Job Queue Status" := NewStatus;
@@ -84,44 +84,40 @@ codeunit 88 "Sales Post via Job Queue"
         if Handled then
             exit;
 
-        with SalesHeader do begin
-            if not ("Job Queue Status" in ["Job Queue Status"::" ", "Job Queue Status"::Error]) then
-                Error(WrongJobQueueStatus, "Document Type", "No.");
-            TempInvoice := Invoice;
-            TempRcpt := Receive;
-            TempShip := Ship;
-            OnBeforeReleaseSalesDoc(SalesHeader);
-            if Status = Status::Open then
-                CODEUNIT.Run(CODEUNIT::"Release Sales Document", SalesHeader);
-            Invoice := TempInvoice;
-            Receive := TempRcpt;
-            Ship := TempShip;
-            "Job Queue Status" := "Job Queue Status"::"Scheduled for Posting";
-            "Job Queue Entry ID" := EnqueueJobEntry(SalesHeader);
-            Modify();
+        if not (SalesHeader."Job Queue Status" in [SalesHeader."Job Queue Status"::" ", SalesHeader."Job Queue Status"::Error]) then
+            Error(WrongJobQueueStatus, SalesHeader."Document Type", SalesHeader."No.");
+        TempInvoice := SalesHeader.Invoice;
+        TempRcpt := SalesHeader.Receive;
+        TempShip := SalesHeader.Ship;
+        OnBeforeReleaseSalesDoc(SalesHeader);
+        if SalesHeader.Status = SalesHeader.Status::Open then
+            CODEUNIT.Run(CODEUNIT::"Release Sales Document", SalesHeader);
+        SalesHeader.Invoice := TempInvoice;
+        SalesHeader.Receive := TempRcpt;
+        SalesHeader.Ship := TempShip;
+        SalesHeader."Job Queue Status" := SalesHeader."Job Queue Status"::"Scheduled for Posting";
+        SalesHeader."Job Queue Entry ID" := EnqueueJobEntry(SalesHeader);
+        SalesHeader.Modify();
 
-            if GuiAllowed then
-                if WithUI then
-                    Message(Confirmation, "Document Type", "No.");
-        end;
+        if GuiAllowed then
+            if WithUI then
+                Message(Confirmation, SalesHeader."Document Type", SalesHeader."No.");
     end;
 
     local procedure EnqueueJobEntry(SalesHeader: Record "Sales Header"): Guid
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            Clear(ID);
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"Sales Post via Job Queue";
-            "Record ID to Process" := SalesHeader.RecordId;
-            FillJobEntryFromSalesSetup(JobQueueEntry);
-            FillJobEntrySalesDescription(JobQueueEntry, SalesHeader);
-            "User Session ID" := SessionId();
-            OnEnqueueJobEntryOnBeforeEnqueue(SalesHeader, JobQueueEntry);
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-            exit(ID)
-        end;
+        Clear(JobQueueEntry.ID);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"Sales Post via Job Queue";
+        JobQueueEntry."Record ID to Process" := SalesHeader.RecordId;
+        FillJobEntryFromSalesSetup(JobQueueEntry);
+        FillJobEntrySalesDescription(JobQueueEntry, SalesHeader);
+        JobQueueEntry."User Session ID" := SessionId();
+        OnEnqueueJobEntryOnBeforeEnqueue(SalesHeader, JobQueueEntry);
+        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+        exit(JobQueueEntry.ID)
     end;
 
     local procedure FillJobEntryFromSalesSetup(var JobQueueEntry: Record "Job Queue Entry")
@@ -129,45 +125,38 @@ codeunit 88 "Sales Post via Job Queue"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        with JobQueueEntry do begin
-            "Notify On Success" := SalesSetup."Notify On Success";
-            "Job Queue Category Code" := GetJobQueueCategoryCode();
-        end;
+        JobQueueEntry."Notify On Success" := SalesSetup."Notify On Success";
+        JobQueueEntry."Job Queue Category Code" := GetJobQueueCategoryCode();
     end;
 
     local procedure FillJobEntrySalesDescription(var JobQueueEntry: Record "Job Queue Entry"; SalesHeader: Record "Sales Header")
     begin
-        with JobQueueEntry do begin
-            if SalesHeader."Print Posted Documents" then
-                Description := PostAndPrintDescription
-            else
-                Description := PostDescription;
-            Description :=
-              CopyStr(StrSubstNo(Description, SalesHeader."Document Type", SalesHeader."No."), 1, MaxStrLen(Description));
-        end;
+        if SalesHeader."Print Posted Documents" then
+            JobQueueEntry.Description := PostAndPrintDescription
+        else
+            JobQueueEntry.Description := PostDescription;
+        JobQueueEntry.Description :=
+          CopyStr(StrSubstNo(JobQueueEntry.Description, SalesHeader."Document Type", SalesHeader."No."), 1, MaxStrLen(JobQueueEntry.Description));
     end;
 
     procedure CancelQueueEntry(var SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do
-            if "Job Queue Status" <> "Job Queue Status"::" " then begin
-                DeleteJobs(SalesHeader);
-                "Job Queue Status" := "Job Queue Status"::" ";
-                Modify();
-            end;
+        if SalesHeader."Job Queue Status" <> SalesHeader."Job Queue Status"::" " then begin
+            DeleteJobs(SalesHeader);
+            SalesHeader."Job Queue Status" := SalesHeader."Job Queue Status"::" ";
+            SalesHeader.Modify();
+        end;
     end;
 
     local procedure DeleteJobs(SalesHeader: Record "Sales Header")
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with SalesHeader do begin
-            if not IsNullGuid("Job Queue Entry ID") then
-                JobQueueEntry.SetRange(ID, "Job Queue Entry ID");
-            JobQueueEntry.SetRange("Record ID to Process", RecordId);
-            if not JobQueueEntry.IsEmpty() then
-                JobQueueEntry.DeleteAll(true);
-        end;
+        if not IsNullGuid(SalesHeader."Job Queue Entry ID") then
+            JobQueueEntry.SetRange(ID, SalesHeader."Job Queue Entry ID");
+        JobQueueEntry.SetRange("Record ID to Process", SalesHeader.RecordId);
+        if not JobQueueEntry.IsEmpty() then
+            JobQueueEntry.DeleteAll(true);
     end;
 
     local procedure AreOtherJobQueueEntriesScheduled(JobQueueEntry: Record "Job Queue Entry"): Boolean

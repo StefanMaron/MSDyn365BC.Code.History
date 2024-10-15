@@ -192,7 +192,7 @@ codeunit 131305 "Library - ERM Country Data"
         VATPostingSetup: Record "VAT Posting Setup";
         VATTransactionNatureCode: Code[4];
     begin
-        VATTransactionNatureCode := LibrarySplitVAT.CreateVATTransactionNatureCode;
+        VATTransactionNatureCode := LibrarySplitVAT.CreateVATTransactionNatureCode();
 
         VATPostingSetup.SetRange("VAT Transaction Nature", '');
         VATPostingSetup.ModifyAll("VAT Transaction Nature", VATTransactionNatureCode);
@@ -296,7 +296,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();

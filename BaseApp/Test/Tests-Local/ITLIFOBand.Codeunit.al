@@ -231,7 +231,7 @@ codeunit 144194 "IT - LIFO Band"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // LIFO Amount (Actual)
         LibraryReportDataset.AssertElementWithValueExists('Amount_Control1130117', ItemLedgerEntry."Cost Amount (Actual)");
@@ -252,7 +252,7 @@ codeunit 144194 "IT - LIFO Band"
         LibraryVariableStorage.Dequeue(ReferenceDate);
         CalculateEndYearCosts.ReferenceDate.SetValue(ReferenceDate); // Set value for Control1130000 that is Reference Date.
         CalculateEndYearCosts.Definitive.SetValue(true); // Enable the field for Control1130005 that is Definitive.
-        CalculateEndYearCosts.OK.Invoke;
+        CalculateEndYearCosts.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -264,7 +264,7 @@ codeunit 144194 "IT - LIFO Band"
         LibraryVariableStorage.Dequeue(ItemNo);
         LedgerEntryDetails."Item Cost History".SetFilter("Item No.", ItemNo);
         LedgerEntryDetails."Item Cost History".SetFilter("Competence Year", StrSubstNo('%1', CalcDate('<CY>', WorkDate())));
-        LedgerEntryDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LedgerEntryDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

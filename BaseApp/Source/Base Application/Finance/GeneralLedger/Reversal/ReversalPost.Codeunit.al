@@ -41,7 +41,7 @@ codeunit 179 "Reversal-Post"
 
         Handled := false;
         OnRunOnAfterConfirm(Rec, Handled, PrintRegister, HideDialog);
-        If Handled then
+        if Handled then
             exit;
 
         ReversalEntry := Rec;

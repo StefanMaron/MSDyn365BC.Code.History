@@ -9,6 +9,7 @@ table 12108 "Contribution Bracket"
     Caption = 'Contribution Bracket';
     DrillDownPageID = "Contribution Brackets";
     LookupPageID = "Contribution Brackets";
+    DataClassification = CustomerContent;
 
     fields
     {

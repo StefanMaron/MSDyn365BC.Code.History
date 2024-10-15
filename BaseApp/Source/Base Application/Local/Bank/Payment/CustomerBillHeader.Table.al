@@ -15,6 +15,7 @@ table 12174 "Customer Bill Header"
 {
     Caption = 'Customer Bill Header';
     LookupPageID = "List of Customer Bills";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -120,17 +121,27 @@ table 12174 "Customer Bill Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             SalesSetup.Get();
             SalesSetup.TestField("Temporary Bill List No.");
             "User ID" := UserId;
-            NoSeriesMgt.InitSeries(
-              SalesSetup."Temporary Bill List No.",
-              "No. Series",
-              0D,
-              "No.",
-              "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Temporary Bill List No.", "No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := SalesSetup."Temporary Bill List No.";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Temporary Bill List No.", 0D, "No.");
+            end;
+#endif
         end;
 
         Validate("List Date", WorkDate());
@@ -146,25 +157,20 @@ table 12174 "Customer Bill Header"
         CustomerBillHeader: Record "Customer Bill Header";
         CustomerBillLine: Record "Customer Bill Line";
         PaymentMethod: Record "Payment Method";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         Text1130003: Label 'You cannot rename a %1.';
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldCustomerBillHeader: Record "Customer Bill Header"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with CustomerBillHeader do begin
-            CustomerBillHeader := Rec;
-            SalesSetup.Get();
-            SalesSetup.TestField("Temporary Bill List No.");
-            if NoSeriesMgt.SelectSeries(SalesSetup."Temporary Bill List No.",
-                 OldCustomerBillHeader."No. Series", "No. Series")
-            then begin
-                SalesSetup.Get();
-                SalesSetup.TestField("Temporary Bill List No.");
-                NoSeriesMgt.SetSeries("No.");
-                Rec := CustomerBillHeader;
-                exit(true);
-            end;
+        CustomerBillHeader := Rec;
+        SalesSetup.Get();
+        SalesSetup.TestField("Temporary Bill List No.");
+        if NoSeries.LookupRelatedNoSeries(SalesSetup."Temporary Bill List No.", OldCustomerBillHeader."No. Series", CustomerBillHeader."No. Series") then begin
+            CustomerBillHeader."No." := NoSeries.GetNextNo(CustomerBillHeader."No. Series");
+            Rec := CustomerBillHeader;
+            exit(true);
         end;
     end;
 

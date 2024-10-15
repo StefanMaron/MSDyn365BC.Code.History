@@ -29,7 +29,7 @@ codeunit 144146 "UT PAG Fiscal Code"
         OpenEditVendorLedgerEntriesPage(VendorLedgerEntries, VendorLedgerEntry."Entry No.");
 
         // Exercise.
-        asserterror VendorLedgerEntries.CreateWithHoldTaxEntry.Invoke;
+        asserterror VendorLedgerEntries.CreateWithHoldTaxEntry.Invoke();
 
         // Verify actual error: You cannot create the withhold entry from entry because it's an Invoice Document.
         Assert.ExpectedErrorCode(DialogErr);
@@ -53,7 +53,7 @@ codeunit 144146 "UT PAG Fiscal Code"
         OpenEditVendorLedgerEntriesPage(VendorLedgerEntries, VendorLedgerEntry."Entry No.");
 
         // Exercise.
-        VendorLedgerEntries.CreateWithHoldTaxEntry.Invoke;
+        VendorLedgerEntries.CreateWithHoldTaxEntry.Invoke();
 
         // Verify: Verify Vendor Ledger Entry - Document Number and Posting Date.
         WithholdingTax.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
@@ -67,8 +67,8 @@ codeunit 144146 "UT PAG Fiscal Code"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."Withholding Tax Code" := CreateWithholdCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor."Withholding Tax Code" := CreateWithholdCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -82,8 +82,8 @@ codeunit 144146 "UT PAG Fiscal Code"
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Document Type" := DocumentType;
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
-        VendorLedgerEntry."Vendor No." := CreateVendor;
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
+        VendorLedgerEntry."Vendor No." := CreateVendor();
         VendorLedgerEntry.Insert();
     end;
 
@@ -92,7 +92,7 @@ codeunit 144146 "UT PAG Fiscal Code"
         WithholdCode: Record "Withhold Code";
         WithholdCodeLine: Record "Withhold Code Line";
     begin
-        WithholdCode.Code := LibraryUTUtility.GetNewCode;
+        WithholdCode.Code := LibraryUTUtility.GetNewCode();
         WithholdCode.Insert();
         WithholdCodeLine."Withhold Code" := WithholdCode.Code;
         WithholdCodeLine.Insert();
@@ -101,7 +101,7 @@ codeunit 144146 "UT PAG Fiscal Code"
 
     local procedure OpenEditVendorLedgerEntriesPage(var VendorLedgerEntries: TestPage "Vendor Ledger Entries"; EntryNo: Integer)
     begin
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
     end;
 

@@ -21,13 +21,10 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         IsInitialized: Boolean;
         DummyErr: Label 'Dummy error';
         TestFieldMustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field caption';
-        TestFieldEmptyValueErr: Label '%1 must not be empty.', Comment = '%1 - field caption';
         TestFieldValueErr: Label '%1 must be equal to %2', Comment = '%1 - field caption, %2 - field value';
         TestFieldOptionValueErr: Label '%1 must be equal to ''%2''', Comment = '%1 - field caption, %2 - field value';
         DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance by %2', Comment = '%1 - document number, %2 = amount';
-        FieldErrorErr: Label '%1 %2', Comment = '%1 - field name, %2 - error message';
         FieldMustNotBeErr: Label '%1 must not be %2', Comment = '%1 - field name, %2 - field value';
-        SameSignErr: Label '%1 must have the same sign as %2', Comment = '%1 - field name, %2 - field name';
         OutOfBalanceFilterTxt: Label '*is out of balance by*';
         ExtendingGenJnlCheckLineTxt: Label 'ExtendingGenJnlCheckLine', Locked = true;
         ExtendingGenJnlCheckLineNewTxt: Label 'ExtendingGenJnlCheckLineWithCollectError', Locked = true;
@@ -470,7 +467,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalLine: Record "Gen. Journal Line";
         xGenJournalLine: Record "Gen. Journal Line";
         TempErrorMessage: Record "Error Message" temporary;
-        CheckGenJnlLineBackgr: Codeunit "Check Gen. Jnl. Line. Backgr.";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 355641] Unit test to check errors when make multiline document out of balance
@@ -501,7 +497,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalLine: Record "Gen. Journal Line";
         xGenJournalLine: Record "Gen. Journal Line";
         TempErrorMessage: Record "Error Message" temporary;
-        CheckGenJnlLineBackgr: Codeunit "Check Gen. Jnl. Line. Backgr.";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 355641] Unit test to check errors when make one of multiline document line empty document number
@@ -823,14 +818,12 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     var
         GenJournalLine: array[2] of Record "Gen. Journal Line";
         ExtraGenJournalLine: array[2] of Record "Gen. Journal Line";
-        xGenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         TempErrorMessage: Record "Error Message" temporary;
         ErrorHandlingParameters: Record "Error Handling Parameters";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
-        xDocumentNo: Code[20];
         Args: Dictionary of [Text, Text];
     begin
         // [FEATURE] 
@@ -884,7 +877,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalBatch: Record "Gen. Journal Batch";
         ErrorHandlingParameters: Record "Error Handling Parameters";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
-        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         ErrorsCount: Integer;
     begin
         // [FEATURE] [UT]
@@ -1488,7 +1480,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GeneralJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalLine: array[2] of Record "Gen. Journal Line";
-        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
         GeneralJournal: TestPage "General Journal";
     begin
         // [FEATURE] [UT]
@@ -1501,8 +1492,8 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalTemplate.Modify();
         LibraryERM.CreateGenJournalBatch(GeneralJournalBatch, GenJournalTemplate.Name);
 
-        // [GIVEN] General Journal Line GJL1: Document Type = "", Document No. := 01, Posting Date = WorkDate, Amount = 10
-        // [GIVEN] General Journal Line GJL2: Document Type = "", Document No. := 02, Posting Date = WorkDate, Amount = -10
+        // [GIVEN] General Journal Line GJL1: Document Type = "", Document No. := 01, Posting Date = WorkDate(), Amount = 10
+        // [GIVEN] General Journal Line GJL2: Document Type = "", Document No. := 02, Posting Date = WorkDate(), Amount = -10
         LibraryERM.CreateGeneralJnlLine(
             GenJournalLine[1], GeneralJournalBatch."Journal Template Name", GeneralJournalBatch.Name,
             "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), LibraryRandom.RandInt(10));
@@ -2002,6 +1993,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         //[GIVEN] Create Customer,Journal batch and General Journal Line without Bal.Account No.
         LibrarySales.CreateCustomer(Customer);
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        Commit();
 
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Enable Data Check", true);
@@ -2240,6 +2232,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         Customer.Modify(true);
+        Commit();
     end;
 
     local procedure CreateCustomerEmptyRecAccGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -2247,7 +2240,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         Customer: Record Customer;
-        i: Integer;
     begin
         CreateCustomerWithEmptyReceivableAccount(Customer);
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
@@ -2256,6 +2248,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
             "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2));
+        Commit();
     end;
 
     local procedure GetNumberOfLines(var GenJournalLine: Record "Gen. Journal Line"): Integer
@@ -2268,7 +2261,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     var
         ErrorHandlingParameters: Record "Error Handling Parameters";
         CheckGenJnlLineBackgr: Codeunit "Check Gen. Jnl. Line. Backgr.";
-        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         Params: Dictionary of [Text, Text];
     begin
@@ -2288,7 +2280,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
     var
         ErrorHandlingParameters: Record "Error Handling Parameters";
         CheckGenJnlLineBackgr: Codeunit "Check Gen. Jnl. Line. Backgr.";
-        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         Params: Dictionary of [Text, Text];
     begin
         ClearTempErrorMessage(TempErrorMessage);

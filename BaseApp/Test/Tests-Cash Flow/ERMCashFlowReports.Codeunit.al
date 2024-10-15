@@ -63,14 +63,14 @@ codeunit 134989 "ERM Cash Flow - Reports"
         // Investment in FA source
         SourceTypeValues[8] := LibraryRandom.RandDec(1000, 2);
         LibraryCFHelper.CreateFixedAssetForInvestment(
-          FixedAsset, LibraryFixedAsset.GetDefaultDeprBook, CustomDateFormula, SourceTypeValues[8]);
+          FixedAsset, LibraryFixedAsset.GetDefaultDeprBook(), CustomDateFormula, SourceTypeValues[8]);
         AppendDocumentNoToFilter(FixedAsset."No.");
         // Disposal of FA source
         SourceTypeValues[9] := LibraryRandom.RandDec(1000, 2);
         Evaluate(DeprecStartDateFormula, '<-2Y>');
         Evaluate(DeprecEndDateFormula, '<-1D>');
         LibraryCFHelper.CreateFixedAssetForDisposal(
-          FixedAsset2, LibraryFixedAsset.GetDefaultDeprBook, DeprecStartDateFormula,
+          FixedAsset2, LibraryFixedAsset.GetDefaultDeprBook(), DeprecStartDateFormula,
           DeprecEndDateFormula, CustomDateFormula, SourceTypeValues[9]);
         AppendDocumentNoToFilter(FixedAsset2."No.");
         SourceTypeValues[6] := GetSalesAmountIncVAT(SalesHeader);
@@ -94,7 +94,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         RunAndExportCFDateListReport(WorkDate(), 1, IntervalLength, CashFlowForecast."No."); // include just 1 day (workdate)
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyExpDateListSourceLine(SourceTypeValues, CFManualRevenue.Amount, -CFManualExpense2.Amount, TotalAmount,
           'FORMAT_DateFrom_', WorkDate());
     end;
@@ -135,7 +135,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
 
         // Verify
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyTotalAmount(TotalAmountPeriod1, 'FORMAT_DateFrom_', WorkDate());
         VerifyTotalAmount(TotalAmountPeriod2, 'FORMAT_DateFrom_', CalcDate(CustomDateFormula, WorkDate()));
     end;
@@ -188,12 +188,12 @@ codeunit 134989 "ERM Cash Flow - Reports"
         RunAndExportCFDateListReport(WorkDate(), 1, IntervalLength, CashFlowForecast."No.");
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('NewCFSumTotal', TotalAmountBefore);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('NewCFSumTotal', TotalAmountPeriod);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('NewCFSumTotal', TotalAmountAfter);
     end;
 
@@ -227,7 +227,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         SelectedDimension.Modify(true);
 
         ConsiderSource[SourceType::Receivables] := true;
-        FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", '', GetCustLedgEntryPostingDate);
+        FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", '', GetCustLedgEntryPostingDate());
 
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
 
@@ -249,10 +249,10 @@ codeunit 134989 "ERM Cash Flow - Reports"
         // Verify
         // Check that all CF LEs are included in the report
         CashFlowForecastEntry.FindSet();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         repeat
             LibraryReportDataset.SetRange('TempCFLedgEntryEntryNo', CashFlowForecastEntry."Entry No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertElementWithValueExists('TempCFLedgEntryAmt', CashFlowForecastEntry."Amount (LCY)");
         until CashFlowForecastEntry.Next() = 0;
     end;
@@ -308,7 +308,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
     begin
-        LibraryCF.ClearJournal;
+        LibraryCF.ClearJournal();
         LibraryCF.FillJournal(ConsiderSource, CFNo, false);
         CFWorksheetLine.SetFilter("Document No.", DocumentNoFilterText);
         CFWorksheetLine.SetFilter("Cash Flow Date", '>=%1', CashFlowStartDate);
@@ -350,7 +350,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
     local procedure VerifyExpDateListSourceLine(SourceValues: array[16] of Decimal; NeutrRevenues: Decimal; NeutrExpenses: Decimal; CFInterference: Decimal; ElementName: Text; FilterValue: Date)
     begin
         LibraryReportDataset.SetRange(ElementName, Format(FilterValue));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Receivables', SourceValues[1]);
         LibraryReportDataset.AssertCurrentRowValueEquals('Payables', SourceValues[2]);
         LibraryReportDataset.AssertCurrentRowValueEquals('Sales_Orders_', SourceValues[6]);
@@ -366,7 +366,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
     local procedure VerifyTotalAmount(CFInterference: Decimal; ElementName: Text; FilterValue: Date)
     begin
         LibraryReportDataset.SetRange(ElementName, Format(FilterValue));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('NewCFSumTotal', CFInterference);
     end;
 
@@ -408,7 +408,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         // Exercise : Run report Cash Flow Date List.
         Evaluate(IntervalLength, '<1D>');
         RunAndExportCFDateListReport(WorkDate(), 0, IntervalLength, CFForecastNo); // include just 1 day (workdate)
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify : Liquidity or G/L budget column amounts on Cash flow date list report.
         if CFEntryType = CFForecastEntry."Source Type"::"Liquid Funds" then
@@ -528,14 +528,14 @@ codeunit 134989 "ERM Cash Flow - Reports"
     [Scope('OnPrem')]
     procedure RHCashFlowDateList(var CashFlowDateList: TestRequestPage "Cash Flow Date List")
     begin
-        CashFlowDateList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CashFlowDateList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHCashFlowDimensionsDetail(var CashFlowDimensionsDetail: TestRequestPage "Cash Flow Dimensions - Detail")
     begin
-        CashFlowDimensionsDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CashFlowDimensionsDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

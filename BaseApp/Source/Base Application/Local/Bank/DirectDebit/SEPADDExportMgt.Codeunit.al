@@ -5,6 +5,7 @@
 namespace Microsoft.Bank.DirectDebit;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.Enums;
 using Microsoft.Bank.Payment;
 using Microsoft.Finance.GeneralLedger.Journal;
 
@@ -23,7 +24,7 @@ codeunit 12177 "SEPA - DD Export Mgt."
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
     begin
         BankAccount.Get(BankAccountNo);
-        DirectDebitCollection.CreateRecord(CustomerBillNo, BankAccountNo, PartnerType);
+        DirectDebitCollection.CreateRecord(CustomerBillNo, BankAccountNo, Enum::"Partner Type".FromInteger(PartnerType));
         DirectDebitCollection."Source Table ID" := SourceTableID;
         DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");

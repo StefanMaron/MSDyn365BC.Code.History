@@ -54,7 +54,7 @@ codeunit 144082 "UT Subcontracting"
 
         // Setup: Create Purchase Line with Production Order Routing Line.
         Initialize();
-        CreatePurchaseLine(PurchaseLine, CreateVendor);
+        CreatePurchaseLine(PurchaseLine, CreateVendor());
         CreateProdOrderRoutingLine(PurchaseLine);
         LibraryVariableStorage.Enqueue(PurchaseLine."Buy-from Vendor No.");  // Enqueue for SubcontrDispatchingListRequestPageHandler.
 
@@ -83,9 +83,9 @@ codeunit 144082 "UT Subcontracting"
 
         // Setup: Create Transfer Shipment Line and Update Company Information.
         Initialize();
-        UpdateCompanyInformation;
-        ProdOrderNo := LibraryUTUtility.GetNewCode;
-        No := CreateTransferShipmentLine(TransferShipmentHeader."Source Type"::Vendor, ProdOrderNo, LibraryUTUtility.GetNewCode);
+        UpdateCompanyInformation();
+        ProdOrderNo := LibraryUTUtility.GetNewCode();
+        No := CreateTransferShipmentLine(TransferShipmentHeader."Source Type"::Vendor, ProdOrderNo, LibraryUTUtility.GetNewCode());
         LibraryVariableStorage.Enqueue(No);  // Enqueue for SubcontractTransferShipmentRequestPageHandler.
         CompanyInformation.Get();
 
@@ -115,7 +115,7 @@ codeunit 144082 "UT Subcontracting"
 
         // Setup: Create Transfer Shipment Line and Update Company Information.
         Initialize();
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
         No := CreateTransferShipmentLine(TransferShipmentHeader."Source Type", '', '');  // SubcontrPurchOrderNo and ProdOrderNo as blank.
         LibraryVariableStorage.Enqueue(No);  // Enqueue for SubcontractTransferShipmentRequestPageHandler.
         CompanyInformation.Get();
@@ -179,9 +179,9 @@ codeunit 144082 "UT Subcontracting"
 
     local procedure CreateItem(var Item: Record Item)
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item."Production BOM No." := CreateProductionBOMHeader;
-        Item."Routing No." := CreateRoutingLine;
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item."Production BOM No." := CreateProductionBOMHeader();
+        Item."Routing No." := CreateRoutingLine();
         Item.Insert();
     end;
 
@@ -189,7 +189,7 @@ codeunit 144082 "UT Subcontracting"
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
-        ProductionBOMHeader."No." := LibraryUTUtility.GetNewCode;
+        ProductionBOMHeader."No." := LibraryUTUtility.GetNewCode();
         ProductionBOMHeader.Insert();
         exit(ProductionBOMHeader."No.");
     end;
@@ -219,7 +219,7 @@ codeunit 144082 "UT Subcontracting"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Buy-from Vendor No." := BuyFromVendorNo;
         PurchaseHeader.Insert();
         exit(PurchaseHeader."No.");
@@ -229,9 +229,9 @@ codeunit 144082 "UT Subcontracting"
     begin
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
         PurchaseLine."Document No." := CreatePurchaseHeader(BuyFromVendorNo);
-        PurchaseLine."Prod. Order No." := CreateProductionOrder;
+        PurchaseLine."Prod. Order No." := CreateProductionOrder();
         PurchaseLine."Buy-from Vendor No." := BuyFromVendorNo;
-        PurchaseLine."Routing No." := LibraryUTUtility.GetNewCode;
+        PurchaseLine."Routing No." := LibraryUTUtility.GetNewCode();
         PurchaseLine."Prod. Order Line No." := LibraryRandom.RandInt(10);
         PurchaseLine.Insert();
     end;
@@ -241,7 +241,7 @@ codeunit 144082 "UT Subcontracting"
         ProductionOrder: Record "Production Order";
     begin
         ProductionOrder.Status := ProductionOrder.Status::Released;
-        ProductionOrder."No." := LibraryUTUtility.GetNewCode;
+        ProductionOrder."No." := LibraryUTUtility.GetNewCode();
         ProductionOrder.Insert();
         exit(ProductionOrder."No.");
     end;
@@ -261,14 +261,14 @@ codeunit 144082 "UT Subcontracting"
     var
         RoutingLine: Record "Routing Line";
     begin
-        RoutingLine."Routing No." := LibraryUTUtility.GetNewCode;
+        RoutingLine."Routing No." := LibraryUTUtility.GetNewCode();
         RoutingLine.Type := RoutingLine.Type::"Work Center";
-        RoutingLine."Work Center No." := CreateWorkCenter;
+        RoutingLine."Work Center No." := CreateWorkCenter();
         RoutingLine.Insert();
         exit(RoutingLine."Routing No.");
     end;
 
-    local procedure CreateTransferShipmentLine(SourceType: Option; ProdOrderNo: Code[20]; SubcontrPurchOrderNo: Code[20]): Code[20]
+    local procedure CreateTransferShipmentLine(SourceType: Enum "Analysis Source Type"; ProdOrderNo: Code[20]; SubcontrPurchOrderNo: Code[20]): Code[20]
     var
         TransferShipmentLine: Record "Transfer Shipment Line";
     begin
@@ -280,13 +280,13 @@ codeunit 144082 "UT Subcontracting"
         exit(TransferShipmentLine."Document No.");
     end;
 
-    local procedure CreateTransferShipmentHeader(SourceType: Option): Code[20]
+    local procedure CreateTransferShipmentHeader(SourceType: Enum "Analysis Source Type"): Code[20]
     var
         TransferShipmentHeader: Record "Transfer Shipment Header";
     begin
-        TransferShipmentHeader."No." := LibraryUTUtility.GetNewCode;
+        TransferShipmentHeader."No." := LibraryUTUtility.GetNewCode();
         TransferShipmentHeader."Source Type" := SourceType;
-        TransferShipmentHeader."Source No." := CreateVendor;
+        TransferShipmentHeader."Source No." := CreateVendor();
         TransferShipmentHeader.Insert();
         exit(TransferShipmentHeader."No.");
     end;
@@ -295,8 +295,8 @@ codeunit 144082 "UT Subcontracting"
     var
         WorkCenter: Record "Work Center";
     begin
-        WorkCenter."No." := LibraryUTUtility.GetNewCode;
-        WorkCenter."Subcontractor No." := LibraryUTUtility.GetNewCode;
+        WorkCenter."No." := LibraryUTUtility.GetNewCode();
+        WorkCenter."Subcontractor No." := LibraryUTUtility.GetNewCode();
         WorkCenter.Insert();
         exit(WorkCenter."No.");
     end;
@@ -305,7 +305,7 @@ codeunit 144082 "UT Subcontracting"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Subcontractor := true;
         Vendor.Insert();
         exit(Vendor."No.");
@@ -316,18 +316,18 @@ codeunit 144082 "UT Subcontracting"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CompanyInformation."REA No." := LibraryUTUtility.GetNewCode10;
-        CompanyInformation."Register Company No." := LibraryUTUtility.GetNewCode;
-        CompanyInformation."Phone No." := LibraryUTUtility.GetNewCode;
-        CompanyInformation."Fax No." := LibraryUTUtility.GetNewCode;
-        CompanyInformation."E-Mail" := LibraryUTUtility.GetNewCode;
-        CompanyInformation."Home Page" := LibraryUTUtility.GetNewCode;
+        CompanyInformation."REA No." := LibraryUTUtility.GetNewCode10();
+        CompanyInformation."Register Company No." := LibraryUTUtility.GetNewCode();
+        CompanyInformation."Phone No." := LibraryUTUtility.GetNewCode();
+        CompanyInformation."Fax No." := LibraryUTUtility.GetNewCode();
+        CompanyInformation."E-Mail" := LibraryUTUtility.GetNewCode();
+        CompanyInformation."Home Page" := LibraryUTUtility.GetNewCode();
         CompanyInformation.Modify();
     end;
 
     local procedure VerifyXMLValuesOnMiscellaneousReports(Caption: Text; Caption2: Text; Caption3: Text; Value: Variant; Value2: Variant; Value3: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, Value2);
         LibraryReportDataset.AssertElementWithValueExists(Caption3, Value3);
@@ -341,7 +341,7 @@ codeunit 144082 "UT Subcontracting"
     begin
         LibraryVariableStorage.Dequeue(No);
         DetailedCalculation.Item.SetFilter("No.", No);
-        DetailedCalculation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DetailedCalculation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -352,7 +352,7 @@ codeunit 144082 "UT Subcontracting"
     begin
         LibraryVariableStorage.Dequeue(No);
         SubcontrDispatchingList.Vendor.SetFilter("No.", No);
-        SubcontrDispatchingList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SubcontrDispatchingList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -363,7 +363,7 @@ codeunit 144082 "UT Subcontracting"
     begin
         LibraryVariableStorage.Dequeue(No);
         SubcontractTransferShipment."Transfer Shipment Header".SetFilter("No.", No);
-        SubcontractTransferShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SubcontractTransferShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

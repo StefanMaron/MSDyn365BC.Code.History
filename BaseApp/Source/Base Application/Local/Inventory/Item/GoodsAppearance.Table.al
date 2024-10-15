@@ -9,6 +9,7 @@ table 12153 "Goods Appearance"
     Caption = 'Goods Appearance';
     DrillDownPageID = "Goods Appearance";
     LookupPageID = "Goods Appearance";
+    DataClassification = CustomerContent;
 
     fields
     {

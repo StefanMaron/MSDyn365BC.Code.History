@@ -78,7 +78,7 @@ page 6055 "Service Contract Template"
                 {
                     ApplicationArea = Service;
                     Caption = 'Contract Increase Text';
-                    ToolTip = 'Specifies all billable prices for the job task, expressed in the local currency.';
+                    ToolTip = 'Specifies all billable prices for the project task, expressed in the local currency.';
                 }
                 field(Prepaid; Rec.Prepaid)
                 {

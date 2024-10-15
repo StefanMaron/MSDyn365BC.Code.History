@@ -44,7 +44,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Initialize();
 
         // Setup
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode());
 
         CreateJournalBatchWithMultipleJournalLines(GenJournalLine);
 
@@ -1036,17 +1036,17 @@ codeunit 134188 "WF Demo General Journal Line"
 
         // [WHEN] User opens the journal batch
         Commit();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Approval actions?
-        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalLine.Enabled, 'Send should be disabled');
-        Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalLine.Enabled, 'Send should be disabled');
-        Assert.Isfalse(GeneralJournal.SendApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsFalse(GeneralJournal.Approve.Visible, '');
-        Assert.IsFalse(GeneralJournal.Reject.Visible, '');
-        Assert.IsFalse(GeneralJournal.Delegate.Visible, '');
+        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.Isfalse(GeneralJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(GeneralJournal.Approve.Visible(), '');
+        Assert.IsFalse(GeneralJournal.Reject.Visible(), '');
+        Assert.IsFalse(GeneralJournal.Delegate.Visible(), '');
 
         // [THEN] Close the journal
         GeneralJournal.Close();
@@ -1059,17 +1059,17 @@ codeunit 134188 "WF Demo General Journal Line"
 
         // [WHEN] User opens the journal batch
         Commit();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Approval actions?
-        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalLine.Enabled, 'Send should be disabled');
-        Assert.IsTrue(GeneralJournal.CancelApprovalRequestJournalLine.Enabled, 'Send should be enabled');
-        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsTrue(GeneralJournal.Approve.Visible, '');
-        Assert.IsTrue(GeneralJournal.Reject.Visible, '');
-        Assert.IsTrue(GeneralJournal.Delegate.Visible, '');
+        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsTrue(GeneralJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be enabled');
+        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsTrue(GeneralJournal.Approve.Visible(), '');
+        Assert.IsTrue(GeneralJournal.Reject.Visible(), '');
+        Assert.IsTrue(GeneralJournal.Delegate.Visible(), '');
 
         // [THEN] Close the journal
         GeneralJournal.Close();
@@ -1100,17 +1100,17 @@ codeunit 134188 "WF Demo General Journal Line"
 
         // [WHEN] User opens the journal batch
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Approval actions?
-        Assert.IsTrue(PaymentJournal.SendApprovalRequestJournalLine.Enabled, 'Send should be enabled');
-        Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalLine.Enabled, 'Send should be disabled');
-        Assert.IsTrue(PaymentJournal.SendApprovalRequestJournalBatch.Enabled, 'SendBatch should be enabled');
-        Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsFalse(PaymentJournal.Approve.Visible, '');
-        Assert.IsFalse(PaymentJournal.Reject.Visible, '');
-        Assert.IsFalse(PaymentJournal.Delegate.Visible, '');
+        Assert.IsTrue(PaymentJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be enabled');
+        Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsTrue(PaymentJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be enabled');
+        Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(PaymentJournal.Approve.Visible(), '');
+        Assert.IsFalse(PaymentJournal.Reject.Visible(), '');
+        Assert.IsFalse(PaymentJournal.Delegate.Visible(), '');
 
         // [THEN] Close the journal
         PaymentJournal.Close();
@@ -1123,17 +1123,17 @@ codeunit 134188 "WF Demo General Journal Line"
 
         // [WHEN] User opens the journal batch
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Approval actions?
-        Assert.IsFalse(PaymentJournal.SendApprovalRequestJournalLine.Enabled, 'Send should be disabled');
-        Assert.IsTrue(PaymentJournal.CancelApprovalRequestJournalLine.Enabled, 'Send should be enabled');
-        Assert.IsFalse(PaymentJournal.SendApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsTrue(PaymentJournal.Approve.Visible, '');
-        Assert.IsTrue(PaymentJournal.Reject.Visible, '');
-        Assert.IsTrue(PaymentJournal.Delegate.Visible, '');
+        Assert.IsFalse(PaymentJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsTrue(PaymentJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be enabled');
+        Assert.IsFalse(PaymentJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsTrue(PaymentJournal.Approve.Visible(), '');
+        Assert.IsTrue(PaymentJournal.Reject.Visible(), '');
+        Assert.IsTrue(PaymentJournal.Delegate.Visible(), '');
 
         // [THEN] Close the journal
         PaymentJournal.Close();
@@ -1164,17 +1164,17 @@ codeunit 134188 "WF Demo General Journal Line"
 
         // [WHEN] User opens the journal batch
         Commit();
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Approval actions?
-        Assert.IsTrue(CashReceiptJournal.SendApprovalRequestJournalLine.Enabled, 'Send should be enabled');
-        Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled, 'Send should be disabled');
-        Assert.IsTrue(CashReceiptJournal.SendApprovalRequestJournalBatch.Enabled, 'SendBatch should be enabled');
-        Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsFalse(CashReceiptJournal.Approve.Visible, '');
-        Assert.IsFalse(CashReceiptJournal.Reject.Visible, '');
-        Assert.IsFalse(CashReceiptJournal.Delegate.Visible, '');
+        Assert.IsTrue(CashReceiptJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be enabled');
+        Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsTrue(CashReceiptJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be enabled');
+        Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(CashReceiptJournal.Approve.Visible(), '');
+        Assert.IsFalse(CashReceiptJournal.Reject.Visible(), '');
+        Assert.IsFalse(CashReceiptJournal.Delegate.Visible(), '');
 
         // [THEN] Close the journal
         CashReceiptJournal.Close();
@@ -1187,17 +1187,17 @@ codeunit 134188 "WF Demo General Journal Line"
 
         // [WHEN] User opens the journal batch
         Commit();
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Approval actions?
-        Assert.IsFalse(CashReceiptJournal.SendApprovalRequestJournalLine.Enabled, 'Send should be disabled');
-        Assert.IsTrue(CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled, 'Send should be enabled');
-        Assert.IsFalse(CashReceiptJournal.SendApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
-        Assert.IsTrue(CashReceiptJournal.Approve.Visible, '');
-        Assert.IsTrue(CashReceiptJournal.Reject.Visible, '');
-        Assert.IsTrue(CashReceiptJournal.Delegate.Visible, '');
+        Assert.IsFalse(CashReceiptJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsTrue(CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be enabled');
+        Assert.IsFalse(CashReceiptJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsTrue(CashReceiptJournal.Approve.Visible(), '');
+        Assert.IsTrue(CashReceiptJournal.Reject.Visible(), '');
+        Assert.IsTrue(CashReceiptJournal.Delegate.Visible(), '');
 
         // [THEN] Close the journal
         CashReceiptJournal.Close();
@@ -1355,12 +1355,12 @@ codeunit 134188 "WF Demo General Journal Line"
 
     local procedure CreateDirectApprovalWorkflow(var Workflow: Record Workflow)
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode());
     end;
 
     local procedure CreateDirectApprovalEnabledWorkflow(var Workflow: Record Workflow)
     begin
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode());
     end;
 
     local procedure EnableWorkflow(var Workflow: Record Workflow)
@@ -1373,26 +1373,26 @@ codeunit 134188 "WF Demo General Journal Line"
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
         GenJournalBatch.Modify(true);
     end;
 
     local procedure CreateGeneralJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDecInRange(10000, 50000, 2));
     end;
 
     local procedure CreatePaymentJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
-        CreateJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate);
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        CreateJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate());
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDecInRange(10000, 50000, 2));
     end;
 
@@ -1422,11 +1422,11 @@ codeunit 134188 "WF Demo General Journal Line"
 
     local procedure CreateCashReceiptJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
-        CreateJournalBatch(GenJournalBatch, LibrarySales.SelectCashReceiptJnlTemplate);
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        CreateJournalBatch(GenJournalBatch, LibrarySales.SelectCashReceiptJnlTemplate());
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDecInRange(10000, 50000, 2));
     end;
 
@@ -1436,16 +1436,16 @@ codeunit 134188 "WF Demo General Journal Line"
         GenJournalLine1: Record "Gen. Journal Line";
         GenJournalLine3: Record "Gen. Journal Line";
     begin
-        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine1, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine1."Document Type"::Invoice, GenJournalLine1."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine1."Document Type"::Invoice, GenJournalLine1."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDecInRange(10000, 50000, 2));
         LibraryERM.CreateGeneralJnlLine(GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine2."Document Type"::Invoice, GenJournalLine2."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine2."Document Type"::Invoice, GenJournalLine2."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDecInRange(10000, 50000, 2));
         LibraryERM.CreateGeneralJnlLine(GenJournalLine3, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine3."Document Type"::Invoice, GenJournalLine3."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine3."Document Type"::Invoice, GenJournalLine3."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDecInRange(10000, 50000, 2));
     end;
 
@@ -1469,9 +1469,9 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        GeneralJournal.SendApprovalRequestJournalLine.Invoke;
+        GeneralJournal.SendApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure SendApprovalRequestForCashReceipt(GenJournalBatchName: Code[20])
@@ -1514,28 +1514,28 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
         GeneralJournal.FILTER.SetFilter("Line No.", Format(LineNo));
-        GeneralJournal.SendApprovalRequestJournalLine.Invoke;
+        GeneralJournal.SendApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure CancelApprovalRequestForGeneralJournal(GenJournalBatchName: Code[20])
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        GeneralJournal.CancelApprovalRequestJournalLine.Invoke;
+        GeneralJournal.CancelApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure CancelApprovalRequestForCashReceipt(GenJournalBatchName: Code[20])
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        CashReceiptJournal.OpenView;
+        CashReceiptJournal.OpenView();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        CashReceiptJournal.CancelApprovalRequestJournalLine.Invoke;
+        CashReceiptJournal.CancelApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure CancelApprovalRequestForPaymentJournal(GenJournalBatchName: Code[20])
@@ -1569,10 +1569,10 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
         GeneralJournal.FILTER.SetFilter("Line No.", Format(LineNo));
-        GeneralJournal.CancelApprovalRequestJournalLine.Invoke;
+        GeneralJournal.CancelApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure AssignApprovalEntry(var ApprovalEntry: Record "Approval Entry"; UserSetup: Record "User Setup")
@@ -1585,9 +1585,9 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         RequeststoApprove: TestPage "Requests to Approve";
     begin
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
-        RequeststoApprove.Approve.Invoke;
+        RequeststoApprove.Approve.Invoke();
     end;
 
     local procedure Reject(var ApprovalEntry: Record "Approval Entry")
@@ -1595,11 +1595,11 @@ codeunit 134188 "WF Demo General Journal Line"
         GeneralJournal: TestPage "General Journal";
         RequeststoApprove: TestPage "Requests to Approve";
     begin
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
-        GeneralJournal.Trap;
-        RequeststoApprove.Record.Invoke;
-        GeneralJournal.Reject.Invoke;
+        GeneralJournal.Trap();
+        RequeststoApprove.Record.Invoke();
+        GeneralJournal.Reject.Invoke();
     end;
 
     local procedure Delegate(var ApprovalEntry: Record "Approval Entry")
@@ -1607,11 +1607,11 @@ codeunit 134188 "WF Demo General Journal Line"
         GeneralJournal: TestPage "General Journal";
         RequeststoApprove: TestPage "Requests to Approve";
     begin
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
-        GeneralJournal.Trap;
-        RequeststoApprove.Record.Invoke;
-        GeneralJournal.Delegate.Invoke;
+        GeneralJournal.Trap();
+        RequeststoApprove.Record.Invoke();
+        GeneralJournal.Delegate.Invoke();
     end;
 
     local procedure VerifyApprovalEntryIsApproved(ApprovalEntry: Record "Approval Entry")
@@ -1654,9 +1654,9 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        Assert.AreEqual(CancelActionExpectedEnabled, GeneralJournal.CancelApprovalRequestJournalLine.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, GeneralJournal.CancelApprovalRequestJournalLine.Enabled(),
           'Wrong state for the Cancel action');
         GeneralJournal.Close();
     end;
@@ -1665,9 +1665,9 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenView;
+        PaymentJournal.OpenView();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        Assert.AreEqual(CancelActionExpectedEnabled, PaymentJournal.CancelApprovalRequestJournalLine.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, PaymentJournal.CancelApprovalRequestJournalLine.Enabled(),
           'Wrong state for the Cancel action');
         PaymentJournal.Close();
     end;
@@ -1698,9 +1698,9 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        CashReceiptJournal.OpenView;
+        CashReceiptJournal.OpenView();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        Assert.AreEqual(CancelActionExpectedEnabled, CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled(),
           'Wrong state for the Cancel action');
         CashReceiptJournal.Close();
     end;
@@ -1711,16 +1711,16 @@ codeunit 134188 "WF Demo General Journal Line"
         GeneralJournalPage: TestPage "General Journal";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        GeneralJournalPage.OpenView;
+        GeneralJournalPage.OpenView();
         GeneralJournalPage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
-        Assert.AreEqual(CommentActionIsVisible, GeneralJournalPage.Comments.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, GeneralJournalPage.Comments.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            GeneralJournalPage.Comments.Invoke;
-            if ApprovalComments.First then
+            GeneralJournalPage.Comments.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -1740,16 +1740,16 @@ codeunit 134188 "WF Demo General Journal Line"
         CashReceiptJournalPage: TestPage "Cash Receipt Journal";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        CashReceiptJournalPage.OpenView;
+        CashReceiptJournalPage.OpenView();
         CashReceiptJournalPage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
-        Assert.AreEqual(CommentActionIsVisible, CashReceiptJournalPage.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, CashReceiptJournalPage.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            CashReceiptJournalPage.Comment.Invoke;
-            if ApprovalComments.First then
+            CashReceiptJournalPage.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -1769,15 +1769,15 @@ codeunit 134188 "WF Demo General Journal Line"
         PaymentJournalPage: TestPage "Payment Journal";
         NumberOfComments: Integer;
     begin
-        PaymentJournalPage.OpenView;
+        PaymentJournalPage.OpenView();
         PaymentJournalPage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
-        Assert.AreEqual(CommentActionIsVisible, PaymentJournalPage.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, PaymentJournalPage.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            ApprovalComments.Trap;
-            PaymentJournalPage.Comment.Invoke;
-            if ApprovalComments.First then
+            ApprovalComments.Trap();
+            PaymentJournalPage.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -1853,13 +1853,13 @@ codeunit 134188 "WF Demo General Journal Line"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1876,13 +1876,13 @@ codeunit 134188 "WF Demo General Journal Line"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();

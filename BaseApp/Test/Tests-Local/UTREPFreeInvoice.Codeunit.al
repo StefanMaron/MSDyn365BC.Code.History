@@ -37,7 +37,7 @@ codeunit 144137 "UT REP Free Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceHeader."Payment Method Code" := PaymentMethodCode;
         SalesInvoiceHeader.Insert();
         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
@@ -51,7 +51,7 @@ codeunit 144137 "UT REP Free Invoice"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        PaymentMethod.Code := LibraryUTUtility.GetNewCode10;
+        PaymentMethod.Code := LibraryUTUtility.GetNewCode10();
         PaymentMethod."Free Type" := FreeType;
         PaymentMethod.Insert();
         exit(PaymentMethod.Code);
@@ -59,7 +59,7 @@ codeunit 144137 "UT REP Free Invoice"
 
     local procedure VerifyValuesOnXML(FreeInvText: Text; VATAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(FreeInvoiceCap, Format(FreeInvoiceTxt));
         LibraryReportDataset.AssertElementWithValueExists(FreeInvVATAmtCap, VATAmount);
         LibraryReportDataset.AssertElementWithValueExists(FreeInvTxtCap, FreeInvText);

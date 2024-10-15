@@ -457,14 +457,14 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlSOCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure FillCFJnlSODsctAndCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -546,14 +546,14 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlCustLEPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure FillCFJnlCustLEDsctCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -597,14 +597,14 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlVendorLECFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure FillCFJnlVendorLEDsctCFPmtTerm()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -643,14 +643,14 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlPOCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure FillCFJnlPODsctAndCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -689,28 +689,28 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlSvcCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure FillCFJnlSvcDsctAndCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure FillCFJnlSvcCFPmtTermsAndGroupBy()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure FillCFJnlSvcDsctAndCFPmtTermsAndGroupBy()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -732,7 +732,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         SetupCashFlowForJobs(CashFlowForecast, Job, JobPlanningLine, OldDate, NewDate);
 
         // Exercise
-        LibraryApplicationArea.EnableJobsSetup;
+        LibraryApplicationArea.EnableJobsSetup();
         ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
@@ -828,7 +828,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Initialize();
 
         // Setup account to pay taxes to (vendor)
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         Vendor.Get(
           LibraryPurchase.CreateVendorWithBusPostingGroups(
             GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group"));
@@ -1330,7 +1330,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlWithModifiedCustLEDueDateConsiderCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -1348,7 +1348,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlWithModifiedVendLEDueDateConsiderCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -1366,7 +1366,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlWithModifiedCustLEDsctDateConsiderCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -1384,7 +1384,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     [Scope('OnPrem')]
     procedure FillCFJnlWithModifiedVendLEDsctDateConsiderCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -1519,7 +1519,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Assert.AreEqual(CashFlowForecast."Amount (LCY)", 0, 'Unexpected Cashflow ammount');
 
         // Exercise
-        LibraryApplicationArea.EnableJobsSetup;
+        LibraryApplicationArea.EnableJobsSetup();
         ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
@@ -1551,7 +1551,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         PaymentTerms.GetDueDateCalculation(DueDateCalculation);
 
         // [WHEN] Run 'Suggest Worksheet Lines' report for the job
-        LibraryApplicationArea.EnableJobsSetup;
+        LibraryApplicationArea.EnableJobsSetup();
         ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
@@ -1649,7 +1649,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         FindFilledCashFlowJnlLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Sales Orders", SalesHeader."No.");
         Assert.AreNearlyEqual(
-          ExpectedAmount, CFWorksheetLine."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision,
+          ExpectedAmount, CFWorksheetLine."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
     end;
 
@@ -1748,7 +1748,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         FindFilledCashFlowJnlLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Purchase Orders", PurchaseHeader."No.");
         Assert.AreNearlyEqual(
-          ExpectedAmount, CFWorksheetLine."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision,
+          ExpectedAmount, CFWorksheetLine."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
     end;
 
@@ -1822,7 +1822,6 @@ codeunit 134551 "ERM Cash Flow Filling I"
         FixedAsset: Record "Fixed Asset";
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         FASetup: Record "FA Setup";
-        ExpectedDueAndCFDate: Date;
         InvestmentAmount: Decimal;
         ConsiderSource: array[16] of Boolean;
     begin
@@ -2311,7 +2310,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         FAJournalBatch: Record "FA Journal Batch";
         FAJournalLine: Record "FA Journal Line";
         NoSeries: Record "No. Series";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
     begin
         LibraryFA.CreateFixedAsset(FixedAsset);
         FixedAsset.Validate("Budgeted Asset", true);
@@ -2321,12 +2320,12 @@ codeunit 134551 "ERM Cash Flow Filling I"
         FAJournalTemplate.SetRange(Recurring, false);
         LibraryFA.FindFAJournalTemplate(FAJournalTemplate);
         LibraryFA.CreateFAJournalBatch(FAJournalBatch, FAJournalTemplate.Name);
-        FAJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        FAJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         FAJournalBatch.Modify(true);
 
         LibraryFA.CreateFAJournalLine(FAJournalLine, FAJournalTemplate.Name, FAJournalBatch.Name);
         NoSeries.Get(FAJournalBatch."No. Series");
-        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
+        FAJournalLine.Validate("Document No.", NoSeriesBatch.GetNextNo(FAJournalBatch."No. Series"));
         FAJournalLine.Validate("FA No.", FixedAsset."No.");
         FAJournalLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
         FAJournalLine.Validate(Amount, InvestmentAmount);
@@ -2336,7 +2335,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         LibraryFA.CreateFAJournalLine(FAJournalLine, FAJournalTemplate.Name, FAJournalBatch.Name);
         NoSeries.Get(FAJournalBatch."No. Series");
-        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
+        FAJournalLine.Validate("Document No.", NoSeriesBatch.GetNextNo(FAJournalBatch."No. Series"));
         FAJournalLine.Validate("FA No.", FixedAsset."No.");
         FAJournalLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
         FAJournalLine.Validate(Amount, InvestmentAmount + 100);

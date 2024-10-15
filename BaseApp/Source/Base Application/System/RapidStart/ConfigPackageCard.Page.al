@@ -58,7 +58,7 @@ page 8614 "Config. Package Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Unfavorable;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies the count of package errors. One line reflects one field of a record that failed validation.';
                 }
             }

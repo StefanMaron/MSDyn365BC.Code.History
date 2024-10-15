@@ -763,7 +763,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure SOWithPendPrepmtAndCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -813,14 +813,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure SOWithPendPrepmtDsctAndCFTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure POWithPendPrepmtAndCFPmtTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -873,7 +873,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure POWithPendPrepmtDsctAndCFTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -924,7 +924,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Setup: Create Cash Flow Forecast, suggest Cash Flow Worksheet Line and Register, find Cash Flow Analysis by Dimension and Update.
         Initialize();
         CreateAndPostCashFlowForecast(CashFlowForecast);
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         LibraryCashFlowForecast.FindCashFlowAnalysisView(AnalysisView);
         LibraryVariableStorage.Enqueue(CashFlowForecast."No.");  // Enqueue AnalysisByDimensionsHandler.
 
@@ -942,7 +942,6 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CashFlowAccount: Record "Cash Flow Account";
         CashFlowForecast: Record "Cash Flow Forecast";
         GLAccount: array[3] of Record "G/L Account";
-        AnalysisView: Record "Analysis View";
     begin
         // [SCENARIO 416767] "Suggest Cashflow Worksheet Lines" catches circular references.
         Initialize();
@@ -998,7 +997,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure ForecastingFCYAmountConsideringDiscountAndCFPmtTermsOnCustLE()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     local procedure ForecastingFCYAmountsOnReceivablesWithCFCardOptions(CashFlowForecast: Record "Cash Flow Forecast")
@@ -1024,7 +1023,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         AmountFCY := CustLedgerEntry.Amount;
         ExpectedAmount :=
-          Round(AmountFCY * RelationalExchangeRateAmount, LibraryERM.GetAmountRoundingPrecision) -
+          Round(AmountFCY * RelationalExchangeRateAmount, LibraryERM.GetAmountRoundingPrecision()) -
           LibraryCashFlowHelper.CalcCustDiscAmtLCY(
             CustLedgerEntry, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms), RelationalExchangeRateAmount);
 
@@ -1056,7 +1055,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure ForecastingFCYAmountConsideringDiscountAndCFPmtTermsOnVendLE()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     local procedure ForecastingFCYAmountsOnPayablesWithCFCardOptions(CashFlowForecast: Record "Cash Flow Forecast")
@@ -1082,7 +1081,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         AmountFCY := VendorLedgerEntry.Amount;
         ExpectedAmount :=
-          Round(AmountFCY * RelationalExchangeRateAmount, LibraryERM.GetAmountRoundingPrecision) -
+          Round(AmountFCY * RelationalExchangeRateAmount, LibraryERM.GetAmountRoundingPrecision()) -
           LibraryCashFlowHelper.CalcVendDiscAmtLCY(
             VendorLedgerEntry, LibraryCashFlowHelper.GetPmtTermsDiscountPercentage(PaymentTerms), RelationalExchangeRateAmount);
 
@@ -1306,14 +1305,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure SalesOrderInFCYWithCashFlowPaymentTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderInFCYWithDiscountAndCashFlowPaymentTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -1397,14 +1396,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure PurchaseOrderInFCYWithCashFlowPaymentTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderInFCYWithDiscountAndCashFlowPaymentTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -1486,14 +1485,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure ServiceOrderInFCYWithCashFlowPaymentTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderInFCYWithDiscountAndCashFlowPaymentTerms()
     begin
-        ThrowAndCatchCFPaymentTermsNotSupportedError;
+        ThrowAndCatchCFPaymentTermsNotSupportedError();
     end;
 
     [Test]
@@ -1508,7 +1507,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Initialize();
 
         // [GIVEN] Sales Order "A" without VAT
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Open "Sales Order List" page with SkipShowingLinesWithoutVAT = FALSE
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
@@ -1531,7 +1530,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Initialize();
 
         // [GIVEN] Sales Order "A" without VAT
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateVATPostingSetup(VatPostingSetup, false);
         SalesHeader."VAT Bus. Posting Group" := VatPostingSetup."VAT Bus. Posting Group";
         SalesHeader.Modify();
@@ -1672,7 +1671,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Initialize();
 
         // [GIVEN] Purchase Order "A" without VAT
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Open "Purchase Order List" page with SkipShowingLinesWithoutVAT = FALSE
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
@@ -1695,7 +1694,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Initialize();
 
         // [GIVEN] Purchase Order "A" without VAT
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreateVATPostingSetup(VatPostingSetup, false);
         PurchaseHeader."VAT Bus. Posting Group" := VatPostingSetup."VAT Bus. Posting Group";
         PurchaseHeader.Modify();
@@ -1928,7 +1927,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibrarySales.SetInvoiceRounding(false);
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -1977,19 +1976,19 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     var
         AccountScheduleNames: TestPage "Financial Reports";
     begin
-        AccountScheduleNames.OpenEdit;
+        AccountScheduleNames.OpenEdit();
         AccountScheduleNames.FILTER.SetFilter(Name, LayoutName);
-        AccountScheduleNames.Overview.Invoke;
+        AccountScheduleNames.Overview.Invoke();
     end;
 
     local procedure UpdateAnalysisViewList(AnalysisViewCode: Code[10])
     var
         AnalysisViewList: TestPage "Analysis View List";
     begin
-        AnalysisViewList.OpenView;
+        AnalysisViewList.OpenView();
         AnalysisViewList.FILTER.SetFilter(Code, AnalysisViewCode);
-        AnalysisViewList."&Update".Invoke;
-        AnalysisViewList.EditAnalysis.Invoke;
+        AnalysisViewList."&Update".Invoke();
+        AnalysisViewList.EditAnalysis.Invoke();
     end;
 
     local procedure ThrowAndCatchCFPaymentTermsNotSupportedError()
@@ -2098,7 +2097,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         CreateVATPostingSetup(VATPostingSetup, false);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesHeader."Your Reference" := YourReference;
         SalesHeader.Modify();
@@ -2158,7 +2157,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreateVATPostingSetup(VATPostingSetup, false);
         PurchaseHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         PurchaseHeader."Your Reference" := YourReference;
@@ -2355,7 +2354,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryCashFlowHelper.FillJournal(ConsiderSource, CashFlowForecastNo, true);
     end;
 
-    local procedure VerifyExpectedCFAmount(ExpectedAmount: Decimal; DocumentNo: Code[20]; SourceType: Option; CashFlowNo: Code[20])
+    local procedure VerifyExpectedCFAmount(ExpectedAmount: Decimal; DocumentNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CashFlowNo: Code[20])
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
     begin
@@ -2430,7 +2429,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryVariableStorage.Dequeue(CashFlowForcastNo);
         AccScheduleOverview.CurrentColumnName.SetValue(ColumnLayout);
         AccScheduleOverview.CashFlowFilter.SetValue(CashFlowForcastNo);
-        AccScheduleOverview.OK.Invoke;
+        AccScheduleOverview.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2443,14 +2442,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryVariableStorage.Dequeue(CashFlowFilter);
         AnalysisbyDimensions.PeriodType.SetValue(Format(PeriodType::Month));
         AnalysisbyDimensions.CashFlowFilter.SetValue(CashFlowFilter);
-        AnalysisbyDimensions.ShowMatrix.Invoke;
+        AnalysisbyDimensions.ShowMatrix.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AnalysisByDimensionsMatrixHandler(var AnalysisByDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
     begin
-        AnalysisByDimensionsMatrix.OK.Invoke;
+        AnalysisByDimensionsMatrix.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2472,7 +2471,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Expense""]".SetValue(true);  // Cash Flow Manual Expense.
         SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(true);  // Sale of Fixed Asset.
         SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(true);  // G/L Budget.
-        SuggestWorksheetLines.OK.Invoke;
+        SuggestWorksheetLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2495,7 +2494,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Expense""]".SetValue(false);  // Cash Flow Manual Expense.
         SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);  // Sale of Fixed Asset.
         SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);  // G/L Budget.
-        SuggestWorksheetLines.OK.Invoke;
+        SuggestWorksheetLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2519,30 +2518,30 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Expense""]".SetValue(false);  // Cash Flow Manual Expense.
         SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);  // Sale of Fixed Asset.
         SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);  // G/L Budget.
-        SuggestWorksheetLines.OK.Invoke;
+        SuggestWorksheetLines.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderListPageHandler(var SalesOrderList: TestPage "Sales Order List")
     begin
-        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderListPageHandler(var PurchaseOrderList: TestPage "Purchase Order List")
     begin
-        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderListWithVATPageHandler(var SalesOrderList: TestPage "Sales Order List")
     begin
-        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         SalesOrderList.Next();
-        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         SalesOrderList.Close();
     end;
 
@@ -2550,13 +2549,13 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure SalesOrderListAllOrdersVATPageHandler(var SalesOrderList: TestPage "Sales Order List")
     begin
-        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         SalesOrderList.Next();
-        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         SalesOrderList.Next();
-        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         SalesOrderList.Next();
-        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         SalesOrderList.Close();
     end;
 
@@ -2564,9 +2563,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure PurchaseOrderListWithVATPageHandler(var PurchaseOrderList: TestPage "Purchase Order List")
     begin
-        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseOrderList.Next();
-        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseOrderList.Close();
     end;
 
@@ -2574,15 +2573,14 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     [Scope('OnPrem')]
     procedure PurchaseOrderListAllOrdersVATPageHandler(var PurchaseOrderList: TestPage "Purchase Order List")
     begin
-        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseOrderList.Next();
-        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseOrderList.Next();
-        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseOrderList.Next();
-        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseOrderList.Close();
     end;
-
 }
 

@@ -9,6 +9,7 @@ table 579 "Apply Unapply Parameters"
 {
     Caption = 'Apply Unapply Parameters';
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -95,7 +95,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [GIVEN] FCY Sales Order with multiple lines
         Initialize();
         InitializeSalesMultipleLinesEqualAmountsScenario(
-          SalesHeader, InvoiceDiscountAmount, CreateCurrency, DeferralPercent, SetDateDay(1, WorkDate()));
+          SalesHeader, InvoiceDiscountAmount, CreateCurrency(), DeferralPercent, SetDateDay(1, WorkDate()));
 
         // [WHEN] set Invoice Discount Amount
         UpdateInvDiscAmtOnSalesOrder(SalesHeader, InvoiceDiscountAmount);
@@ -122,7 +122,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         // [GIVEN] FCY Purchase Order with multiple
         Initialize();
         InitializePurchaseMultipleLinesEqualAmountsScenario(
-          PurchaseHeader, InvoiceDiscountAmount, CreateCurrency, DeferralPercent, SetDateDay(1, WorkDate()));
+          PurchaseHeader, InvoiceDiscountAmount, CreateCurrency(), DeferralPercent, SetDateDay(1, WorkDate()));
 
         // [WHEN] Set Invoice Discount Amount
         UpdateInvDiscAmtOnPurchaseOrder(PurchaseHeader, InvoiceDiscountAmount);
@@ -764,7 +764,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
             ValidateDeferralSchedule(DeferralHeader, DeferralLine, "Deferral Document Type"::Sales,
               SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
               SalesLine."Deferral Code", SalesHeader."Posting Date",
-              SalesLine.GetDeferralAmount, NoOfPeriods, DeferralPercent);
+              SalesLine.GetDeferralAmount(), NoOfPeriods, DeferralPercent);
         until SalesLine.Next() = 0;
     end;
 
@@ -781,7 +781,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
             // The deferral schedule was created
             ValidateDeferralSchedule(DeferralHeader, DeferralLine, "Deferral Document Type"::Purchase,
               PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.",
-              PurchLine."Deferral Code", PurchHeader."Posting Date", PurchLine.GetDeferralAmount, NoOfPeriods, DeferralPercent);
+              PurchLine."Deferral Code", PurchHeader."Posting Date", PurchLine.GetDeferralAmount(), NoOfPeriods, DeferralPercent);
         until PurchLine.Next() = 0;
     end;
 
@@ -1027,7 +1027,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; VATProdPostingGroup: Code[20]; var DeferralPercent: Decimal)
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccount.Validate(
           "Default Deferral Template Code", CreateDeferralCode(CalcMethod::"Straight-Line", StartDate::"Posting Date", 3, DeferralPercent));
         GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
@@ -1122,8 +1122,8 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     local procedure UpdateVATPostingSetupAccounts(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         with VATPostingSetup do begin
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup());
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup());
             Modify(true);
         end;
     end;
@@ -1146,7 +1146,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         TaxGroupCode: Code[20];
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Tax Area Code", CreateTaxArea);
+        Customer.Validate("Tax Area Code", CreateTaxArea());
         Customer.Validate("Tax Liable", true);
         Customer.Validate("Prices Including VAT", false);
         Customer.Modify(true);
@@ -1178,7 +1178,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         TaxGroupCode: Code[20];
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Tax Area Code", CreateTaxArea);
+        Vendor.Validate("Tax Area Code", CreateTaxArea());
         Vendor.Validate("Tax Liable", true);
         Vendor.Validate("Prices Including VAT", false);
         Vendor.Modify(true);
@@ -1202,7 +1202,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
 
     local procedure SetupSalesTax(var TaxDetail: Record "Tax Detail"; var TaxJurisdiction: Record "Tax Jurisdiction"; TaxAreaCode: Code[20]; var TaxGroupCode: Code[20]; TaxType: Option; MaxAmountQty: Decimal; EffectiveDate: Date)
     begin
-        TaxGroupCode := CreateTaxGroup;
+        TaxGroupCode := CreateTaxGroup();
         CreateTaxJurisdiction(TaxJurisdiction);
         CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
         CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxType, EffectiveDate, false);

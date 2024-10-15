@@ -10,6 +10,7 @@ table 12122 "Customs Authority Vendor"
 {
     Caption = 'Customs Authority Vendor';
     LookupPageID = "Customs Authority Vendors";
+    DataClassification = CustomerContent;
 
     fields
     {

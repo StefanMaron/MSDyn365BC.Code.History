@@ -46,13 +46,13 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 1.Setup: Count number of existing Fixed Assets.
         Initialize();
-        FixedAssetCount := GetFACount;
+        FixedAssetCount := GetFACount();
 
         // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
         CreatePostPurchInvoice(PurchaseLine, LibraryRandom.RandInt(5) + 1); // Quantity should be greater than 1.
 
         // 3.Verify: Verify that Multiple Fixed Assets were created, FA Depreciation Book copied and Acqusition Cost posted.
-        Assert.AreEqual(FixedAssetCount + PurchaseLine."No. of Fixed Asset Cards", GetFACount, FixedAssetCountError);
+        Assert.AreEqual(FixedAssetCount + PurchaseLine."No. of Fixed Asset Cards", GetFACount(), FixedAssetCountError);
         VerifyNewFixedAssets(PurchaseLine."No.", PurchaseLine."No. of Fixed Asset Cards");
     end;
 
@@ -67,13 +67,13 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 1.Setup: Count number of existing Fixed Assets.
         Initialize();
-        FixedAssetCount := GetFACount;
+        FixedAssetCount := GetFACount();
 
         // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
         CreatePostPurchInvoice(PurchaseLine, 1); // Quantity should be equal to 1.
 
         // 3.Verify: Verify that Additonal Fixed Assets were not created.
-        Assert.AreEqual(FixedAssetCount + PurchaseLine."No. of Fixed Asset Cards", GetFACount, FixedAssetCountError);
+        Assert.AreEqual(FixedAssetCount + PurchaseLine."No. of Fixed Asset Cards", GetFACount(), FixedAssetCountError);
     end;
 
     [Test]
@@ -87,13 +87,13 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 1.Setup: Count number of existing Fixed Assets.
         Initialize();
-        FixedAssetCount := GetFACount;
+        FixedAssetCount := GetFACount();
 
         // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
         CreatePostPurchInvoice(PurchaseLine, 0); // Quantity should be equal to 0.
 
         // 3.Verify: Verify that Additonal Fixed Assets were not created.
-        Assert.AreEqual(FixedAssetCount + PurchaseLine.Quantity, GetFACount, FixedAssetCountError);
+        Assert.AreEqual(FixedAssetCount + PurchaseLine.Quantity, GetFACount(), FixedAssetCountError);
     end;
 
     [Test]
@@ -115,10 +115,10 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, false, true, false, false);
-        FAPostingGroup := CreateFAPostingGroup;
+        FAPostingGroup := CreateFAPostingGroup();
 
         // 2.Exercise: Create Purchase Invoice Header.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
 
         // 3. Exercise: Create Fixed Asset, Purchase Line.
         CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, FAPostingGroup, 1);
@@ -156,13 +156,13 @@ codeunit 144000 "IT - Fixed Assets"
         DepreciationBook := CreateDepreciationBook(true, false, true, false, false);
 
         // 2.Exercise: Create Purchase Invoice Header.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
 
         // 3. Exercise: Create Fixed Asset, FA Posting Group, Purchase Line.
-        CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, CreateFAPostingGroup, 1);
+        CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, CreateFAPostingGroup(), 1);
 
         // 4. Exercise: Create Fixed Asset, FA Posting Group, Purchase Line.
-        CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, CreateFAPostingGroup, 1);
+        CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, CreateFAPostingGroup(), 1);
 
         // 5. Post Purchase Invoice.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -193,10 +193,10 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, false, false, false, false);
-        FAPostingGroup := CreateFAPostingGroup;
+        FAPostingGroup := CreateFAPostingGroup();
 
         // 2.Exercise: Create Purchase Invoice Header.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
 
         // 3. Exercise: Create Fixed Asset, Purchase Line.
         CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, FAPostingGroup, 1);
@@ -233,10 +233,10 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, true, true, false, false);
-        FAPostingGroup := CreateFAPostingGroup;
+        FAPostingGroup := CreateFAPostingGroup();
 
         // 2.Exercise: Create Purchase Invoice Header.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
 
         // 3. Exercise: Create Fixed Asset, Purchase Line.
         CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, FAPostingGroup, 1);
@@ -271,7 +271,7 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(false, false, true, false, false);
-        FAPostingGroup := CreateFAPostingGroup;
+        FAPostingGroup := CreateFAPostingGroup();
 
         // 3. Create Fixed Assets, Post Acquisition Cost.
         PostAcqusitionCost(DepreciationBook, FAPostingGroup);
@@ -303,10 +303,10 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, false, true, false, false);
-        FAPostingGroup := CreateFAPostingGroup;
+        FAPostingGroup := CreateFAPostingGroup();
 
         // 2.Exercise: Create Purchase Invoice Header.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
 
         // 3. Exercise: Create Fixed Asset, Purchase Line.
         CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, FAPostingGroup, 1);
@@ -395,10 +395,10 @@ codeunit 144000 "IT - Fixed Assets"
 
         // 1.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, false, false, UseAnticipatedDepr, UseAccDecrDepr);
-        FAPostingGroup := CreateFAPostingGroup;
+        FAPostingGroup := CreateFAPostingGroup();
 
         // 2.Exercise: Create Purchase Invoice Header.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
 
         // 3. Exercise: Create Fixed Asset, Purchase Line.
         FANo := CreatePurchLine(PurchaseLine, PurchaseHeader, DepreciationBook, FAPostingGroup, 1);
@@ -538,10 +538,10 @@ codeunit 144000 "IT - Fixed Assets"
         FAPostingGroup.Validate("Acquisition Cost Account", FAPostingGroup2."Acquisition Cost Account");
         FAPostingGroup.Validate("Accum. Depreciation Account", FAPostingGroup2."Accum. Depreciation Account");
         FAPostingGroup.Validate("Depreciation Expense Acc.", FAPostingGroup2."Depreciation Expense Acc.");
-        FAPostingGroup.Validate("Custom 1 Account", CreateGLAccount);
-        FAPostingGroup.Validate("Custom 1 Expense Acc.", CreateGLAccount);
-        FAPostingGroup.Validate("Custom 2 Account", CreateGLAccount);
-        FAPostingGroup.Validate("Custom 2 Expense Acc.", CreateGLAccount);
+        FAPostingGroup.Validate("Custom 1 Account", CreateGLAccount());
+        FAPostingGroup.Validate("Custom 1 Expense Acc.", CreateGLAccount());
+        FAPostingGroup.Validate("Custom 2 Account", CreateGLAccount());
+        FAPostingGroup.Validate("Custom 2 Expense Acc.", CreateGLAccount());
         FAPostingGroup.Modify(true);
         exit(FAPostingGroup.Code);
     end;
@@ -558,8 +558,8 @@ codeunit 144000 "IT - Fixed Assets"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
-        CreatePurchLine(PurchaseLine, PurchaseHeader, GetDefaultDepreciationBook, CreateFAPostingGroup, NoOfFACards);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
+        CreatePurchLine(PurchaseLine, PurchaseHeader, GetDefaultDepreciationBook(), CreateFAPostingGroup(), NoOfFACards);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -790,7 +790,7 @@ codeunit 144000 "IT - Fixed Assets"
     begin
         RunCalculateDepreciation(
           CalculateDepreciation, DepreciationBookCode, CalcDate('<CM+1Y>', WorkDate()), true, UseAnticipatedDepr, UseAccDecrDepr);
-        CalculateDepreciation.OK.Invoke;
+        CalculateDepreciation.OK().Invoke();
     end;
 
     [Normal]

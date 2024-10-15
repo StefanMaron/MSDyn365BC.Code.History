@@ -50,7 +50,7 @@ codeunit 144166 "UT VAT Statement"
 
         // Setup: Update Additional Reprting Currency on GL Setup.
         Initialize();
-        UpdateAdditionalReportingCurrencyOnGLSetup;
+        UpdateAdditionalReportingCurrencyOnGLSetup();
         CalculateLineTotalOnVATStatement(LibraryRandom.RandDec(10, 2), LibraryRandom.RandDecInRange(11, 100, 2));  // Passing Random values for Add. Currency Nondeductable Amount and Add. Currency Nondeductable Base.
     end;
 
@@ -86,8 +86,8 @@ codeunit 144166 "UT VAT Statement"
         // Transaction Model property is set to Auto Commit because Commit is explicitly called in Function Template Selection of VATStmtManagement Codeunit.
         // Setup.
         Initialize();
-        RowNo := LibraryUTUtility.GetNewCode10;
-        RowNo2 := LibraryUTUtility.GetNewCode10;
+        RowNo := LibraryUTUtility.GetNewCode10();
+        RowNo2 := LibraryUTUtility.GetNewCode10();
 
         // Exercise.
         OpenAnnualVATCommunicationPage(RowNo, RowNo2);
@@ -109,8 +109,8 @@ codeunit 144166 "UT VAT Statement"
         // Transaction Model property is set to Auto Commit because Commit is explicitly called in Function Template Selection of VATStmtManagement Codeunit.
         // Setup.
         Initialize();
-        RowNo := LibraryUTUtility.GetNewCode10;
-        RowNo2 := LibraryUTUtility.GetNewCode10;
+        RowNo := LibraryUTUtility.GetNewCode10();
+        RowNo2 := LibraryUTUtility.GetNewCode10();
 
         // Exercise.
         OpenVATStatementPage(RowNo, RowNo2);
@@ -129,9 +129,9 @@ codeunit 144166 "UT VAT Statement"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
-        Currency."Residual Gains Account" := CreateGLAccount;
-        Currency."Residual Losses Account" := CreateGLAccount;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
+        Currency."Residual Gains Account" := CreateGLAccount();
+        Currency."Residual Losses Account" := CreateGLAccount();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -140,7 +140,7 @@ codeunit 144166 "UT VAT Statement"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyExchangeRate."Currency Code" := CreateCurrency;
+        CurrencyExchangeRate."Currency Code" := CreateCurrency();
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate."Relational Exch. Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate.Insert();
@@ -151,7 +151,7 @@ codeunit 144166 "UT VAT Statement"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -184,7 +184,7 @@ codeunit 144166 "UT VAT Statement"
         VATEntry.Type := VATEntry.Type::Purchase;
         VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        VATEntry."Bill-to/Pay-to No." := LibraryUTUtility.GetNewCode;
+        VATEntry."Bill-to/Pay-to No." := LibraryUTUtility.GetNewCode();
         VATEntry."Country/Region Code" := CountryRegionCode;
         VATEntry."Operation Occurred Date" := WorkDate();
         VATEntry."Nondeductible Amount" := LibraryRandom.RandDec(10, 2);
@@ -201,7 +201,7 @@ codeunit 144166 "UT VAT Statement"
         VATStatementLine."Statement Template Name" := VATStatementName."Statement Template Name";
         VATStatementLine."Statement Name" := VATStatementName.Name;
         VATStatementLine."Line No." := LibraryRandom.RandIntInRange(10000, 99999);  // Large random number is required for Line No.
-        VATStatementLine."Row No." := LibraryUTUtility.GetNewCode10;
+        VATStatementLine."Row No." := LibraryUTUtility.GetNewCode10();
         VATStatementLine.Type := Type;
         VATStatementLine."Amount Type" := AmountType;
         VATStatementLine."Gen. Posting Type" := VATStatementLine."Gen. Posting Type"::Purchase;
@@ -215,7 +215,7 @@ codeunit 144166 "UT VAT Statement"
     local procedure CreateVATStatementName(var VATStatementName: Record "VAT Statement Name"; PageID: Integer; ReportID: Integer)
     begin
         VATStatementName."Statement Template Name" := CreateVATStatementTemplate(PageID, ReportID);
-        VATStatementName.Name := LibraryUTUtility.GetNewCode10;
+        VATStatementName.Name := LibraryUTUtility.GetNewCode10();
         VATStatementName.Insert();
     end;
 
@@ -223,7 +223,7 @@ codeunit 144166 "UT VAT Statement"
     var
         VATStatementTemplate: Record "VAT Statement Template";
     begin
-        VATStatementTemplate.Name := LibraryUTUtility.GetNewCode10;
+        VATStatementTemplate.Name := LibraryUTUtility.GetNewCode10();
         VATStatementTemplate."Page ID" := PageID;
         VATStatementTemplate."VAT Statement Report ID" := VATStatementReportID;
         VATStatementTemplate.Insert();
@@ -234,26 +234,26 @@ codeunit 144166 "UT VAT Statement"
     var
         AnnualVATCommunication: TestPage "Annual VAT Communication";
     begin
-        AnnualVATCommunication.OpenEdit;
+        AnnualVATCommunication.OpenEdit();
         AnnualVATCommunication."Row No.".SetValue(RowNo);
         AnnualVATCommunication."Amount Type".SetValue(AnnualVATCommunication."Amount Type".GetOption(7));  // Set Amount Type as Non-Deductible Amount.
         AnnualVATCommunication.Next();
         AnnualVATCommunication."Row No.".SetValue(RowNo2);
         AnnualVATCommunication."Amount Type".SetValue(AnnualVATCommunication."Amount Type".GetOption(8));  // Set Amount Type as Non-Deductible Base.
-        AnnualVATCommunication.OK.Invoke;
+        AnnualVATCommunication.OK().Invoke();
     end;
 
     local procedure OpenVATStatementPage(RowNo: Code[10]; RowNo2: Code[10])
     var
         VATStatement: TestPage "VAT Statement";
     begin
-        VATStatement.OpenEdit;
+        VATStatement.OpenEdit();
         VATStatement."Row No.".SetValue(RowNo);
         VATStatement."Amount Type".SetValue(VATStatement."Amount Type".GetOption(7));  // Set Amount Type as Non-Deductible Amount.
         VATStatement.Next();
         VATStatement."Row No.".SetValue(RowNo2);
         VATStatement."Amount Type".SetValue(VATStatement."Amount Type".GetOption(8));  // Set Amount Type as Non-Deductible Base.
-        VATStatement.OK.Invoke;
+        VATStatement.OK().Invoke();
     end;
 
     local procedure VerifyVATStatementLine(RowNo: Code[10]; AmountType: Enum "VAT Statement Line Amount Type")
@@ -267,9 +267,9 @@ codeunit 144166 "UT VAT Statement"
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
-        VATPostingSetup."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
-        VATPostingSetup."Nondeductible VAT Account" := LibraryUTUtility.GetNewCode;
+        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
+        VATPostingSetup."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10();
+        VATPostingSetup."Nondeductible VAT Account" := LibraryUTUtility.GetNewCode();
         VATPostingSetup."Deductible %" := LibraryRandom.RandInt(5);
         VATPostingSetup.Insert();
     end;
@@ -279,13 +279,13 @@ codeunit 144166 "UT VAT Statement"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyExchangeRate;
+        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyExchangeRate();
         GeneralLedgerSetup.Modify();
     end;
 
     local procedure VerifyXMLValuesOnMiscellaneousReport(VATEntry: Record "VAT Entry")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalAmountCap, VATEntry."Nondeductible Amount");
         LibraryReportDataset.AssertElementWithValueExists(TotalAmountCap, VATEntry."Nondeductible Base");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -302,7 +302,7 @@ codeunit 144166 "UT VAT Statement"
         VATStatement."VAT Statement Line".SetFilter("Statement Name", StatementName);
         VATStatement.StartingDate.SetValue(WorkDate());
         VATStatement.EndingDate.SetValue(WorkDate());
-        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

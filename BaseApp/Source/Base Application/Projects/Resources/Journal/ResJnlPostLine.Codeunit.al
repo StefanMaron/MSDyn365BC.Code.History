@@ -43,69 +43,68 @@ codeunit 212 "Res. Jnl.-Post Line"
     begin
         IsHandled := false;
         OnBeforePostResJnlLine(ResJournalLineGlobal, IsHandled);
-        if not IsHandled then
-            with ResJournalLineGlobal do begin
-                if EmptyLine() then
-                    exit;
+        if not IsHandled then begin
+            if ResJournalLineGlobal.EmptyLine() then
+                exit;
 
-                ResJnlCheckLine.RunCheck(ResJournalLineGlobal);
-                OnCodeOnAfterRunCheck(ResJournalLineGlobal);
+            ResJnlCheckLine.RunCheck(ResJournalLineGlobal);
+            OnCodeOnAfterRunCheck(ResJournalLineGlobal);
 
-                if NextEntryNo = 0 then begin
-                    ResLedgerEntry.LockTable();
-                    NextEntryNo := ResLedgerEntry.GetLastEntryNo() + 1;
-                end;
-
-                if "Document Date" = 0D then
-                    "Document Date" := "Posting Date";
-
-                if ResourceRegister."No." = 0 then begin
-                    ResourceRegister.LockTable();
-                    if (not ResourceRegister.FindLast()) or (ResourceRegister."To Entry No." <> 0) then
-                        InsertRegister(ResJournalLineGlobal);
-                end;
-                ResourceRegister."To Entry No." := NextEntryNo;
-                OnBeforeResourceRegisterModify(ResJournalLineGlobal, ResourceRegister);
-                ResourceRegister.Modify();
-
-                Resource.Get("Resource No.");
-                Resource.CheckResourcePrivacyBlocked(true);
-
-                IsHandled := false;
-                OnBeforeCheckResourceBlocked(Resource, IsHandled);
-                if not IsHandled then
-                    Resource.TestField(Blocked, false);
-                "Resource Group No." := Resource."Resource Group No.";
-
-                ResLedgerEntry.Init();
-                ResLedgerEntry.CopyFromResJnlLine(ResJournalLineGlobal);
-
-                GetGLSetup();
-                ResLedgerEntry."Total Cost" := Round(ResLedgerEntry."Total Cost");
-                ResLedgerEntry."Total Price" := Round(ResLedgerEntry."Total Price");
-                if ResLedgerEntry."Entry Type" = ResLedgerEntry."Entry Type"::Sale then begin
-                    ResLedgerEntry.Quantity := -ResLedgerEntry.Quantity;
-                    ResLedgerEntry."Total Cost" := -ResLedgerEntry."Total Cost";
-                    ResLedgerEntry."Total Price" := -ResLedgerEntry."Total Price";
-                end;
-                ResLedgerEntry."Direct Unit Cost" := Round(ResLedgerEntry."Direct Unit Cost", GeneralLedgerSetup."Unit-Amount Rounding Precision");
-                ResLedgerEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(ResLedgerEntry."User ID"));
-                ResLedgerEntry."Entry No." := NextEntryNo;
-                ResourceUnitOfMeasure.Get(ResLedgerEntry."Resource No.", ResLedgerEntry."Unit of Measure Code");
-                if ResourceUnitOfMeasure."Related to Base Unit of Meas." then
-                    ResLedgerEntry."Quantity (Base)" := ResLedgerEntry.Quantity * ResLedgerEntry."Qty. per Unit of Measure";
-
-                if ResLedgerEntry."Entry Type" = ResLedgerEntry."Entry Type"::Usage then begin
-                    PostTimeSheetDetail(ResJournalLineGlobal, ResLedgerEntry."Quantity (Base)");
-                    ResLedgerEntry.Chargeable := IsChargable(ResJournalLineGlobal, ResLedgerEntry.Chargeable);
-                end;
-
-                OnBeforeResLedgEntryInsert(ResLedgerEntry, ResJournalLineGlobal);
-
-                ResLedgerEntry.Insert(true);
-
-                NextEntryNo := NextEntryNo + 1;
+            if NextEntryNo = 0 then begin
+                ResLedgerEntry.LockTable();
+                NextEntryNo := ResLedgerEntry.GetLastEntryNo() + 1;
             end;
+
+            if ResJournalLineGlobal."Document Date" = 0D then
+                ResJournalLineGlobal."Document Date" := ResJournalLineGlobal."Posting Date";
+
+            if ResourceRegister."No." = 0 then begin
+                ResourceRegister.LockTable();
+                if (not ResourceRegister.FindLast()) or (ResourceRegister."To Entry No." <> 0) then
+                    InsertRegister(ResJournalLineGlobal);
+            end;
+            ResourceRegister."To Entry No." := NextEntryNo;
+            OnBeforeResourceRegisterModify(ResJournalLineGlobal, ResourceRegister);
+            ResourceRegister.Modify();
+
+            Resource.Get(ResJournalLineGlobal."Resource No.");
+            Resource.CheckResourcePrivacyBlocked(true);
+
+            IsHandled := false;
+            OnBeforeCheckResourceBlocked(Resource, IsHandled);
+            if not IsHandled then
+                Resource.TestField(Blocked, false);
+            ResJournalLineGlobal."Resource Group No." := Resource."Resource Group No.";
+
+            ResLedgerEntry.Init();
+            ResLedgerEntry.CopyFromResJnlLine(ResJournalLineGlobal);
+
+            GetGLSetup();
+            ResLedgerEntry."Total Cost" := Round(ResLedgerEntry."Total Cost");
+            ResLedgerEntry."Total Price" := Round(ResLedgerEntry."Total Price");
+            if ResLedgerEntry."Entry Type" = ResLedgerEntry."Entry Type"::Sale then begin
+                ResLedgerEntry.Quantity := -ResLedgerEntry.Quantity;
+                ResLedgerEntry."Total Cost" := -ResLedgerEntry."Total Cost";
+                ResLedgerEntry."Total Price" := -ResLedgerEntry."Total Price";
+            end;
+            ResLedgerEntry."Direct Unit Cost" := Round(ResLedgerEntry."Direct Unit Cost", GeneralLedgerSetup."Unit-Amount Rounding Precision");
+            ResLedgerEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(ResLedgerEntry."User ID"));
+            ResLedgerEntry."Entry No." := NextEntryNo;
+            ResourceUnitOfMeasure.Get(ResLedgerEntry."Resource No.", ResLedgerEntry."Unit of Measure Code");
+            if ResourceUnitOfMeasure."Related to Base Unit of Meas." then
+                ResLedgerEntry."Quantity (Base)" := ResLedgerEntry.Quantity * ResLedgerEntry."Qty. per Unit of Measure";
+
+            if ResLedgerEntry."Entry Type" = ResLedgerEntry."Entry Type"::Usage then begin
+                PostTimeSheetDetail(ResJournalLineGlobal, ResLedgerEntry."Quantity (Base)");
+                ResLedgerEntry.Chargeable := IsChargable(ResJournalLineGlobal, ResLedgerEntry.Chargeable);
+            end;
+
+            OnBeforeResLedgEntryInsert(ResLedgerEntry, ResJournalLineGlobal);
+
+            ResLedgerEntry.Insert(true);
+
+            NextEntryNo := NextEntryNo + 1;
+        end;
 
         OnAfterPostResJnlLine(ResJournalLineGlobal, ResLedgerEntry);
     end;
@@ -129,24 +128,23 @@ codeunit 212 "Res. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with ResJournalLine do
-            if "Time Sheet No." <> '' then begin
-                TimeSheetDetail.Get("Time Sheet No.", "Time Sheet Line No.", "Time Sheet Date");
-                TimeSheetDetail."Posted Quantity" += QtyToPost;
-                TimeSheetDetail.Posted := TimeSheetDetail.Quantity = TimeSheetDetail."Posted Quantity";
-                TimeSheetDetail.Modify();
-                TimeSheetLine.Get("Time Sheet No.", "Time Sheet Line No.");
-                TimeSheetManagement.CreateTSPostingEntry(TimeSheetDetail, Quantity, "Posting Date", "Document No.", TimeSheetLine.Description);
+        if ResJournalLine."Time Sheet No." <> '' then begin
+            TimeSheetDetail.Get(ResJournalLine."Time Sheet No.", ResJournalLine."Time Sheet Line No.", ResJournalLine."Time Sheet Date");
+            TimeSheetDetail."Posted Quantity" += QtyToPost;
+            TimeSheetDetail.Posted := TimeSheetDetail.Quantity = TimeSheetDetail."Posted Quantity";
+            TimeSheetDetail.Modify();
+            TimeSheetLine.Get(ResJournalLine."Time Sheet No.", ResJournalLine."Time Sheet Line No.");
+            TimeSheetManagement.CreateTSPostingEntry(TimeSheetDetail, ResJournalLine.Quantity, ResJournalLine."Posting Date", ResJournalLine."Document No.", TimeSheetLine.Description);
 
-                TimeSheetDetail.SetRange("Time Sheet No.", "Time Sheet No.");
-                TimeSheetDetail.SetRange("Time Sheet Line No.", "Time Sheet Line No.");
-                TimeSheetDetail.SetRange(Posted, false);
-                OnPostTimeSheetDetailOnAfterSetTimeSheetDetailFilters(TimeSheetDetail, ResJournalLine);
-                if TimeSheetDetail.IsEmpty() then begin
-                    TimeSheetLine.Posted := true;
-                    TimeSheetLine.Modify();
-                end;
+            TimeSheetDetail.SetRange("Time Sheet No.", ResJournalLine."Time Sheet No.");
+            TimeSheetDetail.SetRange("Time Sheet Line No.", ResJournalLine."Time Sheet Line No.");
+            TimeSheetDetail.SetRange(Posted, false);
+            OnPostTimeSheetDetailOnAfterSetTimeSheetDetailFilters(TimeSheetDetail, ResJournalLine);
+            if TimeSheetDetail.IsEmpty() then begin
+                TimeSheetLine.Posted := true;
+                TimeSheetLine.Modify();
             end;
+        end;
     end;
 
     local procedure IsChargable(ResJournalLine: Record "Res. Journal Line"; Chargeable: Boolean): Boolean

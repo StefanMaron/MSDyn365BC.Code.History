@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ using Microsoft.EServices.EDocument;
 table 741 "VAT Report Line"
 {
     Caption = 'VAT Report Line';
+    DataClassification = CustomerContent;
 
     fields
     {

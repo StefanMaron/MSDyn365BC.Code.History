@@ -38,7 +38,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         CompanyInformation.Get();
 
         // Exercise & Verify: Value not correct and Value of VAT Registration Number not correct message, verification done in MessageHandler.
-        CompanyInformation.Validate("VAT Registration No.", CreateVATRegistrationNumber);
+        CompanyInformation.Validate("VAT Registration No.", CreateVATRegistrationNumber());
     end;
 
     [Test]
@@ -56,7 +56,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         CreateVendor(Vendor, true, '');
 
         // Exercise & Verify: Value not correct and Value of VAT Registration Number not correct message, verification done in MessageHandler.
-        Vendor.Validate("VAT Registration No.", CreateVATRegistrationNumber);
+        Vendor.Validate("VAT Registration No.", CreateVATRegistrationNumber());
     end;
 
     [Test]
@@ -74,7 +74,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         CreateCustomer(Customer, true, '');
 
         // Exercise & Verify: Value not correct and Value of VAT Registration Number not correct message, verification done in MessageHandler.
-        Customer.Validate("VAT Registration No.", CreateVATRegistrationNumber);
+        Customer.Validate("VAT Registration No.", CreateVATRegistrationNumber());
     end;
 
     [Test]
@@ -92,7 +92,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         CreateContact(Contact, Contact.Type::Person);
 
         // Exercise & Verify: Value not correct and Value of VAT Registration Number not correct message, verification done in MessageHandler.
-        Contact.Validate("VAT Registration No.", CreateVATRegistrationNumber);
+        Contact.Validate("VAT Registration No.", CreateVATRegistrationNumber());
     end;
 
     [Test]
@@ -125,11 +125,11 @@ codeunit 144145 "UT TAB Fiscal Code"
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
         // [WHEN] Validate "Company Information"."Fiscal Code" = 'MRTMTT25D09F205Z'
-        CompanyInformation.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode);
+        CompanyInformation.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode());
 
         // [THEN] No error/warning message is displayed
         Assert.AreEqual(
-          LibraryITLocalization.GetFiscalCode, CompanyInformation."Fiscal Code", CompanyInformation.FieldCaption("Fiscal Code"));
+          LibraryITLocalization.GetFiscalCode(), CompanyInformation."Fiscal Code", CompanyInformation.FieldCaption("Fiscal Code"));
     end;
 
     [Test]
@@ -144,11 +144,11 @@ codeunit 144145 "UT TAB Fiscal Code"
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
         // [WHEN] Validate "Company Information"."Fiscal Code" = '12345670124'
-        CompanyInformation.Validate("Fiscal Code", LibraryITLocalization.GetVATCode);
+        CompanyInformation.Validate("Fiscal Code", LibraryITLocalization.GetVATCode());
 
         // [THEN] No error/warning message is displayed
         Assert.AreEqual(
-          LibraryITLocalization.GetVATCode, CompanyInformation."Fiscal Code", CompanyInformation.FieldCaption("Fiscal Code"));
+          LibraryITLocalization.GetVATCode(), CompanyInformation."Fiscal Code", CompanyInformation.FieldCaption("Fiscal Code"));
     end;
 
     [Test]
@@ -183,7 +183,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // [SCENARIO 376053] Validate Vendor "Fiscal Code" with correct Fiscal Code 16-chars value
         // [WHEN] Validate Vendor."Fiscal Code" = 'MRTMTT25D09F205Z'
         // [THEN] No error/warning message is displayed
-        OnValidateFiscalCodeVendorPositiveScenario(false, LibraryITLocalization.GetFiscalCode);
+        OnValidateFiscalCodeVendorPositiveScenario(false, LibraryITLocalization.GetFiscalCode());
     end;
 
     [Test]
@@ -194,7 +194,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // [SCENARIO 376053] Validate Vendor (Individual Person) "Fiscal Code" with correct Fiscal Code 16-chars value
         // [WHEN] Validate Vendor."Fiscal Code" = 'MRTMTT25D09F205Z'
         // [THEN] No error/warning message is displayed
-        OnValidateFiscalCodeVendorPositiveScenario(true, LibraryITLocalization.GetFiscalCode);
+        OnValidateFiscalCodeVendorPositiveScenario(true, LibraryITLocalization.GetFiscalCode());
     end;
 
     [Test]
@@ -205,7 +205,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // [SCENARIO 376053] Validate Vendor "Fiscal Code" with correct VAT Code 11-chars value
         // [WHEN] Validate Vendor."Fiscal Code" = '12345670124'
         // [THEN] No error/warning message is displayed
-        OnValidateFiscalCodeVendorPositiveScenario(false, LibraryITLocalization.GetVATCode);
+        OnValidateFiscalCodeVendorPositiveScenario(false, LibraryITLocalization.GetVATCode());
     end;
 
     [Test]
@@ -216,7 +216,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // [SCENARIO 376053] Validate Vendor (Individual Person) "Fiscal Code" with correct VAT Code 11-chars value
         // [WHEN] Validate Vendor."Fiscal Code" = '12345670124'
         // [THEN] No error/warning message is displayed
-        OnValidateFiscalCodeVendorPositiveScenario(true, LibraryITLocalization.GetVATCode);
+        OnValidateFiscalCodeVendorPositiveScenario(true, LibraryITLocalization.GetVATCode());
     end;
 
     [Test]
@@ -251,7 +251,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // [SCENARIO 376053] Validate Customer "Fiscal Code" with correct Fiscal Code 16-chars value
         // [WHEN] Validate Customer."Fiscal Code" = 'MRTMTT25D09F205Z'
         // [THEN] No error/warning message is displayed
-        OnValidateFiscalCodeCustomerPositiveScenario(false, LibraryITLocalization.GetFiscalCode);
+        OnValidateFiscalCodeCustomerPositiveScenario(false, LibraryITLocalization.GetFiscalCode());
     end;
 
     [Test]
@@ -262,7 +262,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // [SCENARIO 376053] Validate Customer (Individual Person) "Fiscal Code" with correct Fiscal Code 16-chars value
         // [WHEN] Validate Customer."Fiscal Code" = 'MRTMTT25D09F205Z'
         // [THEN] No error/warning message is displayed
-        OnValidateFiscalCodeCustomerPositiveScenario(true, LibraryITLocalization.GetFiscalCode);
+        OnValidateFiscalCodeCustomerPositiveScenario(true, LibraryITLocalization.GetFiscalCode());
     end;
 
     [Test]
@@ -273,7 +273,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // [SCENARIO 376053] Validate Customer "Fiscal Code" with correct VAT Code 11-chars value
         // [WHEN] Validate Customer."Fiscal Code" = '12345670124'
         // [THEN] No error/warning message is displayed
-        OnValidateFiscalCodeCustomerPositiveScenario(false, LibraryITLocalization.GetVATCode);
+        OnValidateFiscalCodeCustomerPositiveScenario(false, LibraryITLocalization.GetVATCode());
     end;
 
     [Test]
@@ -284,7 +284,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // [SCENARIO 376053] Validate Customer (Individual Person) "Fiscal Code" with correct VAT Code 11-chars value
         // [WHEN] Validate Customer."Fiscal Code" = '12345670124'
         // [THEN] No error/warning message is displayed
-        OnValidateFiscalCodeCustomerPositiveScenario(true, LibraryITLocalization.GetVATCode);
+        OnValidateFiscalCodeCustomerPositiveScenario(true, LibraryITLocalization.GetVATCode());
     end;
 
     [Test]
@@ -319,10 +319,10 @@ codeunit 144145 "UT TAB Fiscal Code"
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
         // [WHEN] Validate Contact."Fiscal Code" = 'MRTMTT25D09F205Z'
-        Contact.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode);
+        Contact.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode());
 
         // [THEN] No error/warning message is displayed
-        Assert.AreEqual(LibraryITLocalization.GetFiscalCode, Contact."Fiscal Code", Contact.FieldCaption("Fiscal Code"));
+        Assert.AreEqual(LibraryITLocalization.GetFiscalCode(), Contact."Fiscal Code", Contact.FieldCaption("Fiscal Code"));
     end;
 
     [Test]
@@ -338,10 +338,10 @@ codeunit 144145 "UT TAB Fiscal Code"
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
         // [WHEN] Validate Contact."Fiscal Code" = '12345670124'
-        Contact.Validate("Fiscal Code", LibraryITLocalization.GetVATCode);
+        Contact.Validate("Fiscal Code", LibraryITLocalization.GetVATCode());
 
         // [THEN] No error/warning message is displayed
-        Assert.AreEqual(LibraryITLocalization.GetVATCode, Contact."Fiscal Code", Contact.FieldCaption("Fiscal Code"));
+        Assert.AreEqual(LibraryITLocalization.GetVATCode(), Contact."Fiscal Code", Contact.FieldCaption("Fiscal Code"));
     end;
 
     [Test]
@@ -380,7 +380,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         OpenContactListPage(ContactList, Contact."No.");
 
         // Exercise.
-        ContactList.Vendor.Invoke;
+        ContactList.Vendor.Invoke();
 
         // Verify: Verify Fiscal Code, Individual Person and Vendor Name.
         VerifyFiscalCodeIndividualPersonAndVendorName(Contact, IndividualPerson);
@@ -401,13 +401,13 @@ codeunit 144145 "UT TAB Fiscal Code"
 
         // [GIVEN] Customer "Bill" with "Fiscal Code" = "X".
         LibrarySales.CreateCustomer(BillToCustomer);
-        BillToCustomer.Validate("Fiscal Code", LibraryITLocalization.GetVATCode);
+        BillToCustomer.Validate("Fiscal Code", LibraryITLocalization.GetVATCode());
         BillToCustomer.Modify(true);
 
         // [GIVEN] Customer "Sell" with "Fiscal Code" = "Y" and "Bill-to Customer No." = "Bill".
         LibrarySales.CreateCustomer(SellToCustomer);
         SellToCustomer.Validate("Bill-to Customer No.", BillToCustomer."No.");
-        SellToCustomer.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode);
+        SellToCustomer.Validate("Fiscal Code", LibraryITLocalization.GetFiscalCode());
         SellToCustomer.Modify(true);
 
         // [WHEN] Create sales order for customer "Sell".
@@ -436,7 +436,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         Vendor: Record Vendor;
     begin
         Initialize();
-        CreateVendor(Vendor, Individual, CreateVATRegNoFormat);
+        CreateVendor(Vendor, Individual, CreateVATRegNoFormat());
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
         Vendor.Validate("Fiscal Code", Format(LibraryRandom.RandInt(100)));
     end;
@@ -446,7 +446,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         Vendor: Record Vendor;
     begin
         Initialize();
-        CreateVendor(Vendor, Individual, CreateVATRegNoFormat);
+        CreateVendor(Vendor, Individual, CreateVATRegNoFormat());
         Vendor.Validate("Fiscal Code", FiscalCode);
         Assert.AreEqual(FiscalCode, Vendor."Fiscal Code", Vendor.FieldCaption("Fiscal Code"));
     end;
@@ -456,7 +456,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         Customer: Record Customer;
     begin
         Initialize();
-        CreateCustomer(Customer, Individual, CreateVATRegNoFormat);
+        CreateCustomer(Customer, Individual, CreateVATRegNoFormat());
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
         Customer.Validate("Fiscal Code", Format(LibraryRandom.RandInt(100)));
     end;
@@ -466,7 +466,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         Customer: Record Customer;
     begin
         Initialize();
-        CreateCustomer(Customer, Individual, CreateVATRegNoFormat);
+        CreateCustomer(Customer, Individual, CreateVATRegNoFormat());
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
         Customer.Validate("Fiscal Code", FiscalCode);
         Assert.AreEqual(FiscalCode, Customer."Fiscal Code", Customer.FieldCaption("Fiscal Code"));
@@ -484,7 +484,7 @@ codeunit 144145 "UT TAB Fiscal Code"
 
     local procedure CreateContact(var Contact: Record Contact; ContactType: Enum "Contact Type")
     begin
-        Contact."No." := LibraryUTUtility.GetNewCode;
+        Contact."No." := LibraryUTUtility.GetNewCode();
         Contact."Company No." := Contact."No.";
         Contact."Company Name" := Contact."Company No.";
         Contact.Name := Contact."No.";
@@ -525,7 +525,7 @@ codeunit 144145 "UT TAB Fiscal Code"
 
     local procedure OpenContactListPage(var ContactList: TestPage "Contact List"; ContactNo: Code[20])
     begin
-        ContactList.OpenEdit;
+        ContactList.OpenEdit();
         ContactList.FILTER.SetFilter("No.", ContactNo);
     end;
 

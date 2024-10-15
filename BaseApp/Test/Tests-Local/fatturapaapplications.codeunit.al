@@ -287,8 +287,7 @@ codeunit 144207 "FatturaPA Applications"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         TempBlob: Codeunit "Temp Blob";
         ProgressiveNo: Code[20];
         FatturaProjectCode: Code[15];
@@ -315,8 +314,7 @@ codeunit 144207 "FatturaPA Applications"
           CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Client File Name should be country code + the transmitter's unique identity code + ‘_’ + unique progressive number of the file
-        NoSeriesManagement.FindNoSeriesLine(NoSeriesLine, NoSeries.Code, Today);
-        ProgressiveNo := NoSeriesLine."Last No. Used";
+        ProgressiveNo := NoSeriesCodeunit.GetLastNoUsed(NoSeries.Code);
         ExpectedFileName := GetFatturaFileName(ProgressiveNo);
 
         Assert.AreEqual(ExpectedFileName, ClientFileName, StrSubstNo(WrongFileNameErr, ExpectedFileName));
@@ -328,7 +326,7 @@ codeunit 144207 "FatturaPA Applications"
         if IsInitialized then
             exit;
 
-        LibraryITLocalization.SetupFatturaPA;
+        LibraryITLocalization.SetupFatturaPA();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
@@ -336,8 +334,8 @@ codeunit 144207 "FatturaPA Applications"
 
     local procedure CreatePostSalesDocWithFatturaCodes(var CustLedgerEntry: Record "Cust. Ledger Entry"; var FatturaProjectCode: Code[15]; var FatturaTenderCode: Code[15]; DocType: Enum "Gen. Journal Document Type")
     begin
-        FatturaProjectCode := LibraryITLocalization.CreateFatturaProjectCode;
-        FatturaTenderCode := LibraryITLocalization.CreateFatturaTenderCode;
+        FatturaProjectCode := LibraryITLocalization.CreateFatturaProjectCode();
+        FatturaTenderCode := LibraryITLocalization.CreateFatturaTenderCode();
         CreateNormalPostedSalesDoc(CustLedgerEntry, DocType, FatturaProjectCode, FatturaTenderCode);
     end;
 
@@ -367,15 +365,15 @@ codeunit 144207 "FatturaPA Applications"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
-        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
-        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode());
+        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode());
         SalesHeader.Validate("Fattura Project Code", FatturaProjectCode);
         SalesHeader.Validate("Fattura Tender Code", FatturaTenderCode);
         SalesHeader.Validate("Applies-to Doc. Type", AppliesToDocType);
         SalesHeader.Validate("Applies-to Doc. No.", AppliesToDocNo);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -393,7 +391,7 @@ codeunit 144207 "FatturaPA Applications"
     var
         TypeHelper: Codeunit "Type Helper";
     begin
-        exit(Format(DateToFormat, 0, TypeHelper.GetXMLDateFormat));
+        exit(Format(DateToFormat, 0, TypeHelper.GetXMLDateFormat()));
     end;
 
     local procedure DeleteServerFile(TempBlob: Text)
@@ -407,22 +405,22 @@ codeunit 144207 "FatturaPA Applications"
     begin
         FindNextElement(TempXMLBuffer);
         Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName(),
-          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
+          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName()));
         Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
     end;
 
     local procedure FindNextElement(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
-        if TempXMLBuffer.HasChildNodes then
+        if TempXMLBuffer.HasChildNodes() then
             TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
             if not (TempXMLBuffer.Next() > 0) then begin
-                TempXMLBuffer.GetParent;
+                TempXMLBuffer.GetParent();
                 TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
                 if not (TempXMLBuffer.Next() > 0) then
                     repeat
-                        TempXMLBuffer.GetParent;
+                        TempXMLBuffer.GetParent();
                         TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
                     until (TempXMLBuffer.Next() > 0);
             end;

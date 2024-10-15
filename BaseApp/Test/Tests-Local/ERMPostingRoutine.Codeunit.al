@@ -71,8 +71,6 @@ codeunit 144069 "ERM Posting Routine"
         DocumentShouldBeCopiedErr: Label 'Document should be copied';
         WrongConfirmationMsgErr: Label 'Wrong confirmation message';
         isInitialized: Boolean;
-        CheckTotalMsgErr: Label 'Total Reg. %1 is different from total Document %2.', Locked = true;
-        CheckTotalCurrMsgErr: Label 'Total Reg. %1 %3 is different from total Document %2 %3.', Locked = true;
         VATIdentifierMustHaveValueErr: Label 'VAT Identifier must have a value';
         TestfieldErr: Label 'TestField';
 
@@ -119,7 +117,10 @@ codeunit 144069 "ERM Posting Routine"
         PurchaseHeader.Modify(true);
 
         // Exercise: Post Purchase Invoice with Posting Date before Last Date Used of Number Series.
-        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchaseHeader.Receive := true;
+        PurchaseHeader.Ship := true;
+        PurchaseHeader.Invoice := true;
+        asserterror Codeunit.Run(Codeunit::"Purch.-Post", PurchaseHeader);
 
         // Verify: Verify Error: You cannot assign new numbers from the number series on a date before Number Series Line - Last Date Used.
         Assert.ExpectedError(StrSubstNo(NumberSeriesLastDateUsedErr, PurchaseHeader."Operation Type", LastDateUsed));
@@ -144,7 +145,10 @@ codeunit 144069 "ERM Posting Routine"
         SalesHeader.Modify(true);
 
         // Exercise: Post Sales Invoice with Posting Date before Last Date Used of Number Series used on Purchase Invoice.
-        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesHeader.Ship := true;
+        SalesHeader.Receive := true;
+        SalesHeader.Invoice := true;
+        asserterror Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
 
         // Verify: Verify Error: You cannot assign new numbers from the number series on a date before Number Series Line - Last Date Used.
         Assert.ExpectedError(StrSubstNo(NumberSeriesLastDateUsedErr, SalesHeader."Operation Type", LastDateUsed));
@@ -262,9 +266,13 @@ codeunit 144069 "ERM Posting Routine"
         Initialize();
         CreateSalesDocument(SalesHeader, DocumentType, false);  // Date Order - False.
         NoSeriesCode := SalesHeader."Operation Type";
+        UpdateNoSeries(NoSeriesCode, false);  // Date Order - False.
 
         // Exercise: Post Sales Document.
-        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesHeader.Ship := true;
+        SalesHeader.Receive := true;
+        SalesHeader.Invoice := true;
+        asserterror Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
 
         // Verify: Verify error, Date Order must have a value in No. Series.
         Assert.ExpectedError(DateOrderErr);
@@ -322,9 +330,13 @@ codeunit 144069 "ERM Posting Routine"
         Initialize();
         CreatePurchaseDocument(PurchaseHeader, DocumentType, false);  // Date Order - False.
         NoSeriesCode := PurchaseHeader."Operation Type";
+        UpdateNoSeries(NoSeriesCode, false);  // Date Order - False.
 
         // Exercise: Post Purchase Document.
-        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchaseHeader.Receive := true;
+        PurchaseHeader.Ship := true;
+        PurchaseHeader.Invoice := true;
+        asserterror Codeunit.Run(Codeunit::"Purch.-Post", PurchaseHeader);
 
         // Verify: Verify error, Date Order must have a value in No. Series.
         Assert.ExpectedError(DateOrderErr);
@@ -401,7 +413,7 @@ codeunit 144069 "ERM Posting Routine"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with Posting Date = "X"
-        CreateSalesDocumentForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, true, LibrarySales.CreateCustomerNo);
+        CreateSalesDocumentForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, true, LibrarySales.CreateCustomerNo());
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
@@ -446,12 +458,12 @@ codeunit 144069 "ERM Posting Routine"
 
         // [GIVEN] Posted Credit Memo with Posting Date = "X"
         CreateSalesDocumentForCustomer(
-          SalesHeader, SalesHeader."Document Type"::"Credit Memo", true, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", true, LibrarySales.CreateCustomerNo());
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreateSalesDocumentWithPostingNo(
-          SalesHeaderDst, LibrarySales.CreateCustomerNo,
+          SalesHeaderDst, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandInt(5), PostedDocNo);
         InitialPostingDate := SalesHeaderDst."Posting Date";
         LibraryVariableStorage.Enqueue(false);
@@ -488,7 +500,7 @@ codeunit 144069 "ERM Posting Routine"
         Initialize();
 
         // [GIVEN] Sales Quote with Posting Date = "X"
-        LibrarySales.CreateSalesHeader(SalesHeaderSrc, SalesHeaderSrc."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeaderSrc, SalesHeaderSrc."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -518,11 +530,11 @@ codeunit 144069 "ERM Posting Routine"
         Initialize();
 
         // [GIVEN] Sales Quote with Posting Date = "X"
-        LibrarySales.CreateSalesHeader(SalesHeaderSrc, SalesHeaderSrc."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeaderSrc, SalesHeaderSrc."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreateSalesDocumentWithPostingNo(
-          SalesHeaderDst, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(5),
+          SalesHeaderDst, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(5),
           LibraryUtility.GenerateRandomCode(SalesHeaderDst.FieldNo("Posting No."), DATABASE::"Sales Header"));
 
         // [WHEN] Run Copy Document from Sales Quote to Sales Document with Include Header = TRUE
@@ -555,7 +567,7 @@ codeunit 144069 "ERM Posting Routine"
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreatePurchaseHeaderWithPostingNo(
-          PurchHeader, LibraryPurchase.CreateVendorNo,
+          PurchHeader, LibraryPurchase.CreateVendorNo(),
           LibraryRandom.RandInt(5), PostedDocNo);
         InitialPostingDate := PurchHeader."Posting Date";
         LibraryVariableStorage.Enqueue(false);
@@ -601,7 +613,7 @@ codeunit 144069 "ERM Posting Routine"
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreatePurchaseHeaderWithPostingNo(
-          PurchHeaderDst, LibraryPurchase.CreateVendorNo,
+          PurchHeaderDst, LibraryPurchase.CreateVendorNo(),
           LibraryRandom.RandInt(5), PostedDocNo);
         InitialPostingDate := PurchHeaderDst."Posting Date";
         LibraryVariableStorage.Enqueue(false);
@@ -639,7 +651,7 @@ codeunit 144069 "ERM Posting Routine"
 
         // [GIVEN] Purchase Quote with Posting Date = "X"
         LibraryPurchase.CreatePurchHeader(
-          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo);
+          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         VendorNo := LibraryPurchase.CreateVendorNo();
@@ -670,11 +682,11 @@ codeunit 144069 "ERM Posting Routine"
 
         // [GIVEN] Purchase Quote with Posting Date = "X"
         LibraryPurchase.CreatePurchHeader(
-          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo);
+          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreatePurchaseHeaderWithPostingNo(
-          PurchHeaderDst, LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(5),
+          PurchHeaderDst, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandInt(5),
           LibraryUtility.GenerateRandomCode(PurchHeaderDst.FieldNo("Posting No."), DATABASE::"Purchase Header"));
 
         // [WHEN] Run Copy Document from Purchase Quote to Purchase Document with Include Header = TRUE
@@ -705,7 +717,7 @@ codeunit 144069 "ERM Posting Routine"
         CreateCustomerWithPostingSetup(Customer);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate());
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2), '', WorkDate());
         SalesHeader.Validate("Operation Occurred Date", WorkDate() - 1);
         SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
         SalesHeader.Modify(true);
@@ -737,7 +749,7 @@ codeunit 144069 "ERM Posting Routine"
         CreateVendorWithPostingSetup(Vendor);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, Vendor."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate());
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2), '', WorkDate());
         PurchaseHeader.Validate("Operation Occurred Date", WorkDate() - 1);
         PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
         PurchaseHeader.Modify(true);
@@ -767,8 +779,8 @@ codeunit 144069 "ERM Posting Routine"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
-          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(10, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
+          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), -LibraryRandom.RandDec(10, 2));
         GenJournalLine.Validate("Operation Occurred Date", WorkDate() - 1);
         GenJournalLine.Modify(true);
 
@@ -796,8 +808,8 @@ codeunit 144069 "ERM Posting Routine"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup,
-          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(10, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(),
+          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(10, 2));
         GenJournalLine.Validate("Operation Occurred Date", WorkDate() - 1);
         GenJournalLine.Modify(true);
 
@@ -819,6 +831,7 @@ codeunit 144069 "ERM Posting Routine"
         // [FEATURE] [Purchase][Preview][UI]
         // [SCENARIO 382392] Preview page have to been opened when value of "Purchase Order"."Check Total" are not equal to previewing "Gen. Journal Line"."Amount (LCY)" if LCY "Purchase Order"
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Purchase Invoice with "Currency Code" = '' and "Check Total" = 100 and "Amount Including VAT" = 200
         CreatePurchInvoice(PurchaseHeader, AmountIncludingVAT, '');
@@ -828,8 +841,9 @@ codeunit 144069 "ERM Posting Routine"
         OpenPreviewPurchInvoice(GLPostingPreview, PurchaseHeader);
 
         // [THEN] Preview page has been opened
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
         asserterror Error(''); // it is required to complete posting preview engine
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -844,9 +858,10 @@ codeunit 144069 "ERM Posting Routine"
         // [FEATURE] [Purchase]
         // [SCENARIO 382392] Preview page have to been opened when value of "Purchase Order"."Check Total" are not equal to SUM of "Purchase Line"."Amount Including VAT" if FCY "Purchase Order"
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] Purchase Invoice with "Currency Code" = "USD" and "Check Total" = 100 and "Amount Including VAT" = 200
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
         CreatePurchInvoice(PurchaseHeader, AmountIncludingVAT, CurrencyCode);
         Commit();
 
@@ -854,8 +869,9 @@ codeunit 144069 "ERM Posting Routine"
         OpenPreviewPurchInvoice(GLPostingPreview, PurchaseHeader);
 
         // [THEN] Preview page has been opened
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
         asserterror Error(''); // it is required to complete posting preview engine
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -918,8 +934,8 @@ codeunit 144069 "ERM Posting Routine"
     begin
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
 
         if isInitialized then
             exit;
@@ -1039,7 +1055,7 @@ codeunit 144069 "ERM Posting Routine"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
-        CustomerPostingGroup.Validate("Free Invoice Account", LibraryERM.CreateGLAccountNo);
+        CustomerPostingGroup.Validate("Free Invoice Account", LibraryERM.CreateGLAccountNo());
         CustomerPostingGroup.Modify(true);
         Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         Customer.Modify(true);
@@ -1067,12 +1083,12 @@ codeunit 144069 "ERM Posting Routine"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 100));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(10, 100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 100));
         PurchaseLine.Modify(true);
         AmountIncludingVAT := LibraryERM.InvoiceAmountRounding(PurchaseLine."Amount Including VAT", CurrencyCode);
@@ -1100,10 +1116,10 @@ codeunit 144069 "ERM Posting Routine"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.Trap;
+        PurchaseInvoice.Trap();
         PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
-        GLPostingPreview.Trap;
-        PurchaseInvoice.Preview.Invoke;
+        GLPostingPreview.Trap();
+        PurchaseInvoice.Preview.Invoke();
     end;
 
     local procedure UpdateNoSeries(NoSeriesCode: Code[20]; DateOrder: Boolean): Code[20]
@@ -1125,7 +1141,7 @@ codeunit 144069 "ERM Posting Routine"
         exit(NoSeriesLine."Last Date Used");
     end;
 
-    local procedure FindNoSeries(NoSeriesType: Option): Code[20]
+    local procedure FindNoSeries(NoSeriesType: Enum "No. Series Type"): Code[20]
     var
         NoSeries: Record "No. Series";
     begin
@@ -1218,7 +1234,7 @@ codeunit 144069 "ERM Posting Routine"
     begin
         ExpectedConfirmText := CopyDocDateOrderConfirmMsg;
         Assert.AreEqual(ExpectedConfirmText, Question, WrongConfirmationMsgErr);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

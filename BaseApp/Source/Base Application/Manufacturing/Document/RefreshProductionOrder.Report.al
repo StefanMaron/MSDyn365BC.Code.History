@@ -291,16 +291,14 @@ report 99001025 "Refresh Production Order"
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            SetSourceFilter(SourceType, Status.AsInteger(), ProdOrderNo, LineNo, true);
-            SetSourceFilter('', ProdOrderLineNo);
-            SetRange("Reservation Status", "Reservation Status"::Reservation);
-            if FindFirst() then begin
-                Get("Entry No.", not Positive);
-                exit(
-                  not (("Source Type" = SourceType2) and
-                       ("Source ID" = ProdOrderNo) and ("Source Subtype" = Status.AsInteger())));
-            end;
+        ReservEntry.SetSourceFilter(SourceType, Status.AsInteger(), ProdOrderNo, LineNo, true);
+        ReservEntry.SetSourceFilter('', ProdOrderLineNo);
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+        if ReservEntry.FindFirst() then begin
+            ReservEntry.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
+            exit(
+              not ((ReservEntry."Source Type" = SourceType2) and
+                   (ReservEntry."Source ID" = ProdOrderNo) and (ReservEntry."Source Subtype" = Status.AsInteger())));
         end;
 
         exit(false);
@@ -315,11 +313,10 @@ report 99001025 "Refresh Production Order"
         if IsHandled then
             exit;
 
-        with ProductionOrder do
-            if RoutingNo <> "Routing No." then begin
-                "Routing No." := RoutingNo;
-                Modify();
-            end;
+        if RoutingNo <> ProductionOrder."Routing No." then begin
+            ProductionOrder."Routing No." := RoutingNo;
+            ProductionOrder.Modify();
+        end;
     end;
 
     local procedure CheckProductionBOMStatus(ProdBOMNo: Code[20]; ProdBOMVersionNo: Code[20])

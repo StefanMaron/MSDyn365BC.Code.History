@@ -1,8 +1,12 @@
-#if not CLEAN21
+#if not CLEAN23
+#pragma warning disable AS0072
 codeunit 134167 "Copy Price Data Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not Used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -18,10 +22,8 @@ codeunit 134167 "Copy Price Data Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryJob: Codeunit "Library - Job";
         LibraryMarketing: codeunit "Library - Marketing";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryResource: Codeunit "Library - Resource";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -1070,7 +1072,6 @@ codeunit 134167 "Copy Price Data Test"
         JobResourcePrice: Record "Job Resource Price";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListCode: Code[20];
     begin
         Initialize();
         JobResourcePrice.DeleteAll();
@@ -1952,7 +1953,7 @@ codeunit 134167 "Copy Price Data Test"
         // [FEATURE] [CRM Integration]
         Initialize();
         LibraryCRMIntegration.ResetEnvironment();
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
 
         CRMIntegrationRecord.SetRange("Table ID", Database::"Customer Price Group");
         CRMIntegrationRecord.DeleteAll();
@@ -1983,7 +1984,7 @@ codeunit 134167 "Copy Price Data Test"
         // [FEATURE] [CRM Integration]
         Initialize();
         LibraryCRMIntegration.ResetEnvironment();
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
 
         CRMIntegrationRecord.SetRange("Table ID", Database::"Customer Price Group");
         CRMIntegrationRecord.DeleteAll();
@@ -2026,7 +2027,7 @@ codeunit 134167 "Copy Price Data Test"
         // [SCENARIO] All CRM coupling for 'Customer Price Group' and 'Sales Price' gets removed during datat update.
         Initialize();
         LibraryCRMIntegration.ResetEnvironment();
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
         CRMConnectionSetup.Get();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         // [GIVEN] Customer Price Group 'X' coupled to CRM Price List 'X', with two lines
@@ -2119,7 +2120,7 @@ codeunit 134167 "Copy Price Data Test"
         JobsSetup.Modify();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Copy Price Data Test");
     end;
 
@@ -2200,8 +2201,6 @@ codeunit 134167 "Copy Price Data Test"
 
     local procedure CreateResourceCost(var ResourceCost: Record "Resource Cost"; ResType: Integer; ResCode: Code[20])
     var
-        Resource: Record Resource;
-        ResourceGroup: Record "Resource Group";
         WorkType: Record "Work Type";
     begin
         ResourceCost.Type := ResType;

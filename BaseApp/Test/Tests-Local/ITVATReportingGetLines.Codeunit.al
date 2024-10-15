@@ -76,7 +76,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         end;
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -97,7 +97,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.ExpectedError(ErrorYouCannotRename);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -200,7 +200,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         end;
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -222,7 +222,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.ExpectedError(ErrorEditingIsNotAllowed);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.ExpectedError(ErrorEditingIsNotAllowed);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -262,11 +262,11 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
         // Create VAT Report.
         VATReport.OpenNew();
-        VATReport."No.".AssistEdit;
+        VATReport."No.".AssistEdit();
         Assert.AreNotEqual('', VATReport."No.".Value, ErrorShouldNotBeEmpty);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -283,11 +283,11 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         No := LibraryUtility.GenerateGUID();
         VATReport.OpenNew();
         VATReport."No.".SetValue(No);
-        VATReport.OK.Invoke;
+        VATReport.OK().Invoke();
         VATReportHeader.Get(No);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -315,19 +315,19 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
         // Create VAT Report.
         VATReport.OpenNew();
-        VATReport."VAT Report Config. Code".Activate;
+        VATReport."VAT Report Config. Code".Activate();
         VATReport."VAT Report Type".SetValue(VATReportHeader."VAT Report Type"::"Cancellation ");
-        VATReport."Original Report No.".Lookup;
+        VATReport."Original Report No.".Lookup();
 
         // Verify Original Report No. is filled.
         VATReport."Original Report No.".AssertEquals(VATReportHeader."No.");
         VATReportHeader2.Get(VATReport."No.".Value); // Important to get record before closing page.
-        VATReport.OK.Invoke;
+        VATReport.OK().Invoke();
         VATReportHeader2.Find(); // Refresh record.
         VATReportHeader2.TestField("Original Report No.", VATReportHeader."No.");
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -358,7 +358,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.ExpectedError(ErrorYouCannotSpecifyAnOriginalReport);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -377,7 +377,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.ExpectedError(ErrorYouCannotSpecifyTheSameReport);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -398,7 +398,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.ExpectedError(ErrorYouMustSpecifyAnOriginalReportNo);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -626,7 +626,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryVATUtils.VerifyGetLn(AccountType, DocumentType, GenPostingType, IndividualPerson, Resident, true, UsingFiscalCode);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -722,7 +722,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Initialize();
 
         // Setup.
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), UseThreshold);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -766,7 +766,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           StrSubstNo(ErrorUnexpectedValue, VATReportLine.FieldCaption(Base), VATReportLine.TableCaption()));
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -821,7 +821,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Initialize();
 
         // Setup.
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -858,7 +858,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.IsTrue(VATReportLine.IsEmpty, ErrorUnexpectedNumberOfLines); // No lines expected.
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -911,7 +911,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Initialize();
 
         // Setup.
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), UseThreshold);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -944,7 +944,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.AreEqual(ExpectedLineCount, ActualLineCount, ErrorUnexpectedNumberOfLines);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -1185,7 +1185,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
         if UnrealizedVAT then
-            LibraryVATUtils.SetupUnrealizedVAT;
+            LibraryVATUtils.SetupUnrealizedVAT();
 
         // Calculate Amounts.
         if InvoiceAboveThreshold then
@@ -1199,11 +1199,11 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
             CrMemoAmount := LibraryRandom.RandDecInDecimalRange(0, InvoiceAmount, 1);
 
         // Create and Post Invoice.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         CreatePostInvoiceJnlLine(GenJournalLine, AccountType, InvoiceAmount);
 
         // Create and Post Credit Memo.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         CreatePostCMJnlLine(GenJournalLine2, AccountType, GenJournalLine."Account No.", CrMemoAmount, '');
 
         // Apply Entries.
@@ -1230,7 +1230,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyVATReportLineCrMemo(VATReportLine, GenJournalLine, GenJournalLine2, InvoiceAboveThreshold, CreditMemoAboveThreshold);
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -1319,14 +1319,14 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         // Setup.
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
-        LibraryVATUtils.SetupUnrealizedVAT;
+        LibraryVATUtils.SetupUnrealizedVAT();
 
         // Calculate Amounts.
         InvoiceAmount := LibraryVATUtils.CalculateAmount(WorkDate(), true, true); // Invoice Amount is above threshold.
         PaymentAmount := LibraryRandom.RandDecInRange(0, 1, 1) * LibraryVATUtils.GetThresholdAmount(WorkDate(), true); // Payment Amount is below threshold.
 
         // Create and Post Invoice.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         CreatePostInvoiceJnlLine(GenJournalLine, AccountType, InvoiceAmount);
 
         // Create and Post Payment.
@@ -1360,7 +1360,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyVATReportLine2(VATReportLine, VATReportLine."Document Type"::Invoice, -GenJournalLine.Amount); // Initial Invoice Amount.
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -1452,7 +1452,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
         if UnrealizedVAT then
-            LibraryVATUtils.SetupUnrealizedVAT;
+            LibraryVATUtils.SetupUnrealizedVAT();
 
         // Calculate Amounts so that all 3 (Invoice, Payment, Credit Memo) are above the threshold.
         PaymentAmount := LibraryVATUtils.CalculateAmount(WorkDate(), true, true);
@@ -1460,7 +1460,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         CreditMemoAmount := InvoiceAmount - PaymentAmount;
 
         // Create and Post Invoice.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         CreatePostInvoiceJnlLine(GenJournalLine, AccountType, InvoiceAmount);
 
         // Create and Post Payment.
@@ -1468,7 +1468,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         PaymentDocNo := GenJournalLine2."Document No.";
 
         // Create and Post Credit Memo.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         CreatePostCMJnlLine(GenJournalLine2, AccountType, GenJournalLine."Account No.", CreditMemoAmount, GenJournalLine."Document No.");
 
         if Unapply then begin
@@ -1487,7 +1487,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyVATReportLine2(VATReportLine, VATReportLine."Document Type"::"Credit Memo", -GenJournalLine2.Amount); // Initial Credit Memo Amount.
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -1541,18 +1541,18 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
         if UnrealizedVAT then
-            LibraryVATUtils.SetupUnrealizedVAT;
+            LibraryVATUtils.SetupUnrealizedVAT();
 
         // Calculate Amounts.
         CrMemoAmount := LibraryVATUtils.GetThresholdAmount(WorkDate(), true) / 2; // Credit Memo Amount is below threshold.
         InvoiceAmount := 2.25 * LibraryVATUtils.GetThresholdAmount(WorkDate(), true); // Invoice Amount is above threshold.
 
         // Create and Post Invoice.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         CreatePostInvoiceJnlLine(GenJournalLine, AccountType, InvoiceAmount);
 
         // Create and Post Credit Memo.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         CreatePostCMJnlLine(GenJournalLine2, AccountType, GenJournalLine."Account No.", CrMemoAmount, '');
 
         // Post Partial Application.
@@ -1576,7 +1576,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyVATReportLine2(VATReportLine, VATReportLine."Document Type"::Invoice, -GenJournalLine.Amount); // Initial Invoice Amount.
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -1631,14 +1631,14 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
         if UnrealizedVAT then
-            LibraryVATUtils.SetupUnrealizedVAT;
+            LibraryVATUtils.SetupUnrealizedVAT();
 
         // Calculate Amounts.
         LineAmount := LibraryVATUtils.CalculateAmount(WorkDate(), true, true); // Above threshold.
 
         // Create and Post Invoice.
         GenPostingType := GetGenPostingType(AccountType);
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         LibraryVATUtils.CreateGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenPostingType, AccountType,
           CreateDefaultAccount(GenPostingType, AccountType), 3 * LineAmount);
@@ -1646,11 +1646,11 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Create and Post Credit Memo.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         CreateApplyCM(GenJournalLine2, GenJournalLine, GenPostingType, LineAmount);
 
         // Create and Post Credit Memo.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         EndDate := CreateApplyCM(GenJournalLine2, GenJournalLine, GenPostingType, LineAmount);
 
         // Create VAT Report.
@@ -1662,15 +1662,15 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.AreEqual(3, VATReportLine.Count, ErrorUnexpectedNumberOfLines);
         repeat
             if VATReportLine."Document Type" = VATReportLine."Document Type"::Invoice then
-                Assert.AreNearlyEqual(3 * LineAmount, Abs(VATReportLine."Amount Incl. VAT"), LibraryERM.GetAmountRoundingPrecision,
+                Assert.AreNearlyEqual(3 * LineAmount, Abs(VATReportLine."Amount Incl. VAT"), LibraryERM.GetAmountRoundingPrecision(),
                   StrSubstNo(ErrorUnexpectedValue, VATReportLine.FieldCaption("Amount Incl. VAT"), VATReportLine.TableCaption()))
             else
-                Assert.AreNearlyEqual(LineAmount, Abs(VATReportLine."Amount Incl. VAT"), LibraryERM.GetAmountRoundingPrecision,
+                Assert.AreNearlyEqual(LineAmount, Abs(VATReportLine."Amount Incl. VAT"), LibraryERM.GetAmountRoundingPrecision(),
                   StrSubstNo(ErrorUnexpectedValue, VATReportLine.FieldCaption("Amount Incl. VAT"), VATReportLine.TableCaption()));
         until VATReportLine.Next() = 0;
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -1816,14 +1816,14 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LineAmount := LibraryVATUtils.CalculateAmount(WorkDate(), true, true); // Above threshold.
 
         // Create Gen. Journal Line.
-        WorkDate(LibraryVATUtils.GetPostingDate); // Changing to new WORKDATE to have a single entry posted for specific date.
+        WorkDate(LibraryVATUtils.GetPostingDate()); // Changing to new WORKDATE to have a single entry posted for specific date.
         AccountNo := LibraryVATUtils.CreateGLAccount(GenPostingType);
         LibraryVATUtils.CreateGenJnlLine(
           GenJournalLine, DocumentType, GenPostingType, GenJournalLine."Account Type"::"G/L Account", AccountNo, LineAmount);
 
         // Update Individual Person, Resident.
         UseIndividual := (GenPostingType <> GenJournalLine."Gen. Posting Type"::Purchase);
-        UpdateIndResGenJnlLine(GenJournalLine, UseIndividual, Resident, LibraryVATUtils.GetCountryCode);
+        UpdateIndResGenJnlLine(GenJournalLine, UseIndividual, Resident, LibraryVATUtils.GetCountryCode());
 
         // Enter VAT Registration No.
         LibraryVATUtils.UpdateReqFldsGenJnlLine(GenJournalLine, true);
@@ -1854,7 +1854,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           StrSubstNo(ErrorUnexpectedValue, VATReportLine.FieldCaption("Amount Incl. VAT"), VATReportLine.TableCaption()));
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -1954,7 +1954,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Initialize();
 
         // Setup.
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -2004,7 +2004,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         until VATReportLine.Next() = 0;
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -2057,7 +2057,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Initialize();
 
         // Setup.
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -2115,7 +2115,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           StrSubstNo(ErrorUnexpectedValue, VATReportLine.FieldCaption(Base), VATReportLine.TableCaption()));
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -2133,7 +2133,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Initialize();
 
         // Setup.
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -2156,7 +2156,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           StrSubstNo(ErrorUnexpectedValue, VATReportLine.FieldCaption(Base), VATReportLine.TableCaption()));
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -2175,7 +2175,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Initialize();
 
         // Setup.
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -2199,7 +2199,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           StrSubstNo(ErrorUnexpectedValue, VATReportLine.FieldCaption(Base), VATReportLine.TableCaption()));
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -2219,7 +2219,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Initialize();
 
         // Setup.
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -2256,7 +2256,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           StrSubstNo(ErrorUnexpectedValue, VATReportLine.FieldCaption(Amount), VATReportLine.TableCaption()));
 
         // Tear Down.
-        LibraryVATUtils.TearDown;
+        LibraryVATUtils.TearDown();
     end;
 
     [Test]
@@ -2271,7 +2271,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         // [SCENARIO 376088] Sales Credit Memo posted without VAT Registration No. and Fiscal Code should be included into VAT Report
 
         Initialize();
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -2300,7 +2300,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         // [SCENARIO 376088] Purchase Credit Memo posted without VAT Registration No. and Fiscal Code should be included into VAT Report
 
         Initialize();
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -2535,17 +2535,17 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
     local procedure Initialize()
     begin
-        LibraryVATUtils.TearDown; // Cleanup.
+        LibraryVATUtils.TearDown(); // Cleanup.
         LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
 
         isInitialized := true;
-        LibraryVATUtils.CreateVATReportSetup;
+        LibraryVATUtils.CreateVATReportSetup();
         Commit();
 
-        LibraryVATUtils.TearDown; // Cleanup for the first test.
+        LibraryVATUtils.TearDown(); // Cleanup for the first test.
     end;
 
     local procedure AdjustAmountToApplyCLE(CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal): Decimal
@@ -2882,14 +2882,14 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         Amount :=
           LibraryVATUtils.AdjustAmountSign(Amount, GenJournalLine."Document Type"::Payment, AccountType, GetGenPostingType(AccountType));
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryVATUtils.FindBankAccount);
+        GenJournalLine.Validate("Bal. Account No.", LibraryVATUtils.FindBankAccount());
         SetAppliesTo(GenJournalLine, GenJournalLine."Document Type"::Invoice, AppliesToDocNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -2898,8 +2898,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchDocument(PurchaseHeader, PurchaseLine, DocumentType, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(1000, 2));
-        UpdatePostingDateInPurchaseDocument(PurchaseHeader, CalcDate('<CM+1Y>', GetLastVATEntryOpOccrDate));
+        CreatePurchDocument(PurchaseHeader, PurchaseLine, DocumentType, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(1000, 2));
+        UpdatePostingDateInPurchaseDocument(PurchaseHeader, CalcDate('<CM+1Y>', GetLastVATEntryOpOccrDate()));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -2908,7 +2908,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchDocumentWithVATSetup(PurchaseHeader, PurchaseLine, VATPostingSetup, DocumentType, LibraryRandom.RandDec(1000, 2));
-        UpdatePostingDateInPurchaseDocument(PurchaseHeader, CalcDate('<CM+1Y>', GetLastVATEntryOpOccrDate));
+        UpdatePostingDateInPurchaseDocument(PurchaseHeader, CalcDate('<CM+1Y>', GetLastVATEntryOpOccrDate()));
         PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -2955,7 +2955,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
         VATReportLine: Record "VAT Report Line";
     begin
-        WorkDate(LibraryVATUtils.GetPostingDate);
+        WorkDate(LibraryVATUtils.GetPostingDate());
         LibraryVATUtils.SetupThresholdAmount(WorkDate(), true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
@@ -3163,7 +3163,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     begin
         LibraryVariableStorage.Dequeue(No);
         VATReportList.GotoKey(No);
-        VATReportList.OK.Invoke;
+        VATReportList.OK().Invoke();
     end;
 }
 

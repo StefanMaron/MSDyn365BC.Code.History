@@ -225,7 +225,7 @@ codeunit 144072 "UT COD VAT Exemption"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -236,7 +236,7 @@ codeunit 144072 "UT COD VAT Exemption"
     begin
         GeneralPostingSetup."Gen. Bus. Posting Group" := GenBusPostingGroup;
         GeneralPostingSetup."Gen. Prod. Posting Group" := GenProdPostingGroup;
-        GeneralPostingSetup."Purch. Account" := CreateGLAccount;
+        GeneralPostingSetup."Purch. Account" := CreateGLAccount();
         GeneralPostingSetup.Insert();
     end;
 
@@ -244,7 +244,7 @@ codeunit 144072 "UT COD VAT Exemption"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -253,10 +253,10 @@ codeunit 144072 "UT COD VAT Exemption"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
-        Item."Inventory Posting Group" := LibraryUTUtility.GetNewCode10;
-        Item."Base Unit of Measure" := LibraryUTUtility.GetNewCode10;
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item."VAT Prod. Posting Group" := CreateVATProductPostingGroup();
+        Item."Inventory Posting Group" := LibraryUTUtility.GetNewCode10();
+        Item."Base Unit of Measure" := LibraryUTUtility.GetNewCode10();
         Item.Insert();
         exit(Item."No.");
     end;
@@ -266,7 +266,7 @@ codeunit 144072 "UT COD VAT Exemption"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
         NoSeries."Date Order" := true;
         NoSeries.Insert();
 
@@ -280,18 +280,18 @@ codeunit 144072 "UT COD VAT Exemption"
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VATExemption: Boolean)
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Pay-to Vendor No." := CreateVendor(PurchaseHeader."VAT Bus. Posting Group");
         PurchaseHeader."Buy-from Vendor No." := PurchaseHeader."Pay-to Vendor No.";
-        PurchaseHeader."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        PurchaseHeader."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         PurchaseHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup(VATExemption);
         PurchaseHeader."Posting Date" := WorkDate();
-        PurchaseHeader."Operation Type" := CreateNumberSeries;
+        PurchaseHeader."Operation Type" := CreateNumberSeries();
         PurchaseHeader."Operation Occurred Date" := WorkDate();
         PurchaseHeader."Document Date" := WorkDate();
-        PurchaseHeader."Posting No. Series" := CreateNumberSeries;
-        PurchaseHeader."Vendor Invoice No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Receiving No. Series" := CreateNumberSeries;
+        PurchaseHeader."Posting No. Series" := CreateNumberSeries();
+        PurchaseHeader."Vendor Invoice No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Receiving No. Series" := CreateNumberSeries();
         PurchaseHeader.Insert();
     end;
 
@@ -301,7 +301,7 @@ codeunit 144072 "UT COD VAT Exemption"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         CreateVATIdentifier(Item."VAT Prod. Posting Group");
         PurchaseLine."No." := Item."No.";
         PurchaseLine."Unit of Measure Code" := Item."Base Unit of Measure";
@@ -312,8 +312,8 @@ codeunit 144072 "UT COD VAT Exemption"
         PurchaseLine."Qty. to Receive" := PurchaseLine.Quantity;
         PurchaseLine."Qty. to Invoice" := PurchaseLine."Qty. to Receive";
         PurchaseLine."Gen. Bus. Posting Group" := PurchaseHeader."Gen. Bus. Posting Group";
-        PurchaseLine."Gen. Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
-        PurchaseLine."VAT Prod. Posting Group" := CreateVATPostingSetup;
+        PurchaseLine."Gen. Prod. Posting Group" := LibraryUTUtility.GetNewCode10();
+        PurchaseLine."VAT Prod. Posting Group" := CreateVATPostingSetup();
         PurchaseLine.Insert();
         exit(PurchaseLine."Gen. Prod. Posting Group");
     end;
@@ -321,13 +321,13 @@ codeunit 144072 "UT COD VAT Exemption"
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := CreateCustomer;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := CreateCustomer();
         SalesHeader."Bill-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup(true);  // Check VAT Exemption as True.
         SalesHeader."Posting Date" := WorkDate();
         SalesHeader."Document Date" := WorkDate();
-        SalesHeader."Operation Type" := CreateNumberSeries;
+        SalesHeader."Operation Type" := CreateNumberSeries();
         SalesHeader."Operation Occurred Date" := WorkDate();
         SalesHeader.Insert();
     end;
@@ -335,16 +335,16 @@ codeunit 144072 "UT COD VAT Exemption"
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     begin
         ServiceHeader."Document Type" := DocumentType;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceHeader."Customer No." := CreateCustomer;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceHeader."Customer No." := CreateCustomer();
         ServiceHeader."Bill-to Customer No." := ServiceHeader."Customer No.";
         ServiceHeader."Posting Date" := WorkDate();
         ServiceHeader."Document Date" := WorkDate();
-        ServiceHeader."Operation Type" := CreateNumberSeries;
-        ServiceHeader."Posting No. Series" := CreateNumberSeries;
+        ServiceHeader."Operation Type" := CreateNumberSeries();
+        ServiceHeader."Posting No. Series" := CreateNumberSeries();
         ServiceHeader."Operation Occurred Date" := WorkDate();
         ServiceHeader."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup(true);  // Check VAT Exemption as True.
-        ServiceHeader."Shipping No. Series" := CreateNumberSeries;
+        ServiceHeader."Shipping No. Series" := CreateNumberSeries();
         ServiceHeader.Insert();
     end;
 
@@ -361,7 +361,7 @@ codeunit 144072 "UT COD VAT Exemption"
         ServiceLine."Unit of Measure Code" := Item."Base Unit of Measure";
         ServiceLine.Quantity := LibraryRandom.RandInt(10);
         ServiceLine."Qty. to Invoice" := ServiceLine.Quantity;
-        ServiceLine."Shipment No." := LibraryUTUtility.GetNewCode;
+        ServiceLine."Shipment No." := LibraryUTUtility.GetNewCode();
         ServiceLine.Insert();
     end;
 
@@ -369,7 +369,7 @@ codeunit 144072 "UT COD VAT Exemption"
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
-        VATBusPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VATBusPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VATBusPostingGroup."Check VAT Exemption" := CheckVATExemption;
         VATBusPostingGroup.Insert();
         exit(VATBusPostingGroup.Code);
@@ -388,7 +388,7 @@ codeunit 144072 "UT COD VAT Exemption"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATPostingSetup."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
+        VATPostingSetup."VAT Prod. Posting Group" := LibraryUTUtility.GetNewCode10();
         VATPostingSetup.Insert();
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
@@ -397,7 +397,7 @@ codeunit 144072 "UT COD VAT Exemption"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VATProductPostingGroup.Insert();
         exit(VATProductPostingGroup.Code);
     end;
@@ -413,9 +413,9 @@ codeunit 144072 "UT COD VAT Exemption"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10;
-        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10();
+        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         Vendor."VAT Bus. Posting Group" := VATBusPostingGroup;
         Vendor.Insert();
         exit(Vendor."No.");

@@ -70,10 +70,10 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         CreateServiceDocumentAndUpdateServiceLine(
-          ServiceLine, CreateItem('', Item."Costing Method"::FIFO), CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+          ServiceLine, CreateItem('', Item."Costing Method"::FIFO), CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
@@ -109,7 +109,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
@@ -132,7 +132,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         // Setup: Update Sales and Receivables, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
@@ -155,7 +155,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
@@ -178,7 +178,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
@@ -230,7 +230,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         UpdateInventorySetup(true);
         LibraryInventory.CreateItemCategory(ItemCategory);
         CreateServiceDocumentAndUpdateServiceLine(
-          ServiceLine, CreateItem(ItemCategory.Code, Item."Costing Method"::Average), CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+          ServiceLine, CreateItem(ItemCategory.Code, Item."Costing Method"::Average), CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         CreateAndPostPurchaseDocument(PurchaseLine, ServiceLine."No.", ServiceLine.Quantity, false);  // False for Invoice.
@@ -261,7 +261,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         UpdateInventorySetup(true);
         LibraryInventory.CreateItemCategory(ItemCategory);
         CreateServiceDocumentAndUpdateServiceLine(
-          ServiceLine, CreateItem(ItemCategory.Code, Item."Costing Method"::Average), CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+          ServiceLine, CreateItem(ItemCategory.Code, Item."Costing Method"::Average), CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         CreateAndPostPurchaseDocument(PurchaseLine, ServiceLine."No.", ServiceLine.Quantity, false);  // False for Invoice.
@@ -293,13 +293,13 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         UpdateInventorySetup(true);
         LibraryInventory.CreateItemCategory(ItemCategory);
         CreateServiceDocumentAndUpdateServiceLine(
-          ServiceLine, CreateItem(ItemCategory.Code, Item."Costing Method"::Standard), CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+          ServiceLine, CreateItem(ItemCategory.Code, Item."Costing Method"::Standard), CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         ServiceLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, ServiceLine."No."));
         ServiceLine.Modify(true);
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
-        CreatePurchaseOrder(PurchaseLine, CreateVendor, ServiceLine."No.", ServiceLine.Quantity);
+        CreatePurchaseOrder(PurchaseLine, CreateVendor(), ServiceLine."No.", ServiceLine.Quantity);
         PurchaseLine.Validate("Variant Code", ServiceLine."Variant Code");
         PurchaseLine.Modify(true);
         PostPurchaseDocument(PurchaseLine, true);
@@ -333,16 +333,16 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Setup: Ship a Service Order and Receive a Purchase Order and Post Purchase Invoice using Item Charge Assignment.
         Initialize();
         CreateServiceDocumentAndUpdateServiceLine(
-          ServiceLine, CreateItem('', Item."Costing Method"::Average), CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+          ServiceLine, CreateItem('', Item."Costing Method"::Average), CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
-        CreatePurchaseOrder(PurchaseLine, CreateVendor, ServiceLine."No.", LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        CreatePurchaseOrder(PurchaseLine, CreateVendor(), ServiceLine."No.", LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostPurchaseDocument(PurchaseLine, false);
 
         // Post Charge Item.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        ItemChargeNo := LibraryInventory.CreateItemChargeNo;
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo();
         DocumentNo :=
           CreateAndPostChargeItemPurchaseDocument(
             PurchaseLine2, PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."No.", PurchaseLine."No.",
@@ -380,7 +380,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         CreateAndPostSalesDocument(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity, ItemLedgerEntry."Entry No.", true);
         CreateAndPostChargeItemPurchaseDocument(
           PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."Document No.", PurchaseLine."No.",
-          LibraryInventory.CreateItemChargeNo);
+          LibraryInventory.CreateItemChargeNo());
         CostPerUnit := PurchaseLine2."Line Amount" / PurchaseLine.Quantity;
 
         // Exercise: Run Adjust Cost Item Entries.
@@ -497,13 +497,13 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           ValueEntry, ValueEntry."Item Ledger Entry Type"::Sale, ValueEntry."Entry Type"::"Direct Cost", ItemJournalLine."Item No.", false,
           '');
         Assert.AreNearlyEqual(
-          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
         FindValueEntry(
           ValueEntry, ValueEntry."Item Ledger Entry Type"::Sale, ValueEntry."Entry Type"::"Direct Cost", ItemJournalLine."Item No.", true,
           '');
         Assert.AreNearlyEqual(
-          CostAmountActual2, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual2, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual2));
     end;
 
@@ -556,7 +556,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         CreateAndPostSalesDocument(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity, 0, true);
         CreateAndPostChargeItemPurchaseDocument(
           PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."Document No.", PurchaseLine."No.",
-          LibraryInventory.CreateItemChargeNo);
+          LibraryInventory.CreateItemChargeNo());
 
         // Exercise: Run Adjust Cost Item Entries.
         LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');  // Blank value for Item Category.
@@ -612,7 +612,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           ValueEntry, ValueEntry."Item Ledger Entry Type"::Transfer, ValueEntry."Entry Type"::"Direct Cost", ItemJournalLine."Item No.",
           true, TransferHeader."In-Transit Code");
         Assert.AreNearlyEqual(
-          -ItemJournalLine.Quantity * CostPerUnit, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          -ItemJournalLine.Quantity * CostPerUnit, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
     end;
 
@@ -639,7 +639,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         CreateAndPostSalesReturnOrder(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity, ItemLedgerEntry2."Entry No.");
         CreateAndPostChargeItemPurchaseDocument(
           PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."Document No.", PurchaseLine."No.",
-          LibraryInventory.CreateItemChargeNo);
+          LibraryInventory.CreateItemChargeNo());
 
         // Exercise: Run Adjust Cost Item Entries.
         LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');  // Blank value for Item Category.
@@ -722,9 +722,9 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Setup: Create Item, create and post Purchase Order, create Service Order.
         Initialize();
         CreatePurchaseOrder(
-          PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostPurchaseDocument(PurchaseLine, true);
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
 
         // Exercise: Post Service Order as ship and invoice.
@@ -751,9 +751,9 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         // Setup: Create Item, create and post Purchase Order, Service Order and Revaluation Journal.
         CreatePurchaseOrder(
-          PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostPurchaseDocument(PurchaseLine, true);
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, PurchaseLine.Quantity / 2);  // Take Partial Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), PurchaseLine.Quantity / 2);  // Take Partial Quantity.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."No.", true);
@@ -782,9 +782,9 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Setup: Create Item, create and post Purchase Order, Service Credit Memo.
         Initialize();
         CreatePurchaseOrder(
-          PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostPurchaseDocument(PurchaseLine, true);
-        CreateAndPostServiceCreditMemo(ServiceLine, PurchaseLine."No.", LibrarySales.CreateCustomerNo);
+        CreateAndPostServiceCreditMemo(ServiceLine, PurchaseLine."No.", LibrarySales.CreateCustomerNo());
 
         // Exercise: Run Adjust Cost Item Entries.
         LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');  // Blank value for Item Category.
@@ -795,7 +795,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           PurchaseLine."Unit Cost (LCY)" * ServiceLine.Quantity);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure PstdServInvStatisticsUsingServOrderWithLineDisc()
@@ -888,7 +888,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Setup: Create Item, create and post Purchase Order, Create Service Order.
         Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
 
         // Exercise: Post Service Order as ship.
         PostServiceOrder(ServiceLine, false, false);
@@ -914,13 +914,13 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         // Setup: Create Item, create and post Purchase Order, Service Order.
         Initialize();
-        CreatePurchaseOrder(PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        CreatePurchaseOrder(PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         DirectUnitCost := PurchaseLine."Direct Unit Cost";
         PostPartialPurchLineWithUpdate(PurchaseLine);
         AdjustedCost :=
           PurchaseLine."Quantity Invoiced" * DirectUnitCost + PurchaseLine."Qty. to Invoice" * PurchaseLine."Direct Unit Cost";
         PostPurchaseDocument(PurchaseLine, true);
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, PurchaseLine.Quantity);
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), PurchaseLine.Quantity);
         PostServiceOrder(ServiceLine, false, false);
 
         // Exercise: Run Adjust Cost Item Entries.
@@ -945,7 +945,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Setup: Create Item, create and post Purchase Order, create Service Invoice using Get Shipment Lines.
         Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         OrderNo := ServiceLine."Document No.";
         PostServiceOrder(ServiceLine, false, false);
         LibraryVariableStorage.Enqueue(ServiceLine."Document No.");  // Enqueue value for 'ShipmentLinePageHandler'.
@@ -975,8 +975,8 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
-        UpdateQtyToConsumeOnServiceLine(ServiceLine, ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        UpdateQtyToConsumeOnServiceLine(ServiceLine, ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction());
 
         // Exercise: Post Service Order as ship and consume.
         PostServiceOrder(ServiceLine, false, true);
@@ -1016,7 +1016,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), Quantity + LibraryRandom.RandInt(10), true);  // Use TRUE for Invoice and Random value for Quantity.
         CreateServiceDocumentAndUpdateServiceLine(
-          ServiceLine, PurchaseLine."No.", CreateCustomer, Quantity + LibraryRandom.RandInt(10));  // Use Random Quantity greater than Quantity To Consume.
+          ServiceLine, PurchaseLine."No.", CreateCustomer(), Quantity + LibraryRandom.RandInt(10));  // Use Random Quantity greater than Quantity To Consume.
         UpdateQtyToConsumeOnServiceLine(ServiceLine, Quantity);
         PostServiceOrder(ServiceLine, false, Consume);
         if Consume then
@@ -1045,7 +1045,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Setup: Create and post Purchase Order with charge Assignment, create Service Order.
         Initialize();
         PostChargeOnPurchaseDocument(PurchaseLine);
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
 
         // Exercise: Post Service Order as ship.
         PostServiceOrder(ServiceLine, true, false);
@@ -1070,7 +1070,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostChargeOnPurchaseDocument(PurchaseLine);
 
         // Exercise: Create and post Service Credit Memo.
-        CreateAndPostServiceCreditMemo(ServiceLine, PurchaseLine."No.", CreateCustomer);
+        CreateAndPostServiceCreditMemo(ServiceLine, PurchaseLine."No.", CreateCustomer());
 
         // Verify: Verify Original Cost and Adjusted Cost on posted Services Credit Memo Statistics
         VerifyCostOnPostedServiceCrMemoStatistics(
@@ -1092,7 +1092,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Setup: Create and post Purchase Order with charge Assignment, create Service Invoice using Get Shipment Lines.
         Initialize();
         PostChargeOnPurchaseDocument(PurchaseLine);
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         OrderNo := ServiceLine."Document No.";
         PostServiceOrder(ServiceLine, false, false);
         LibraryVariableStorage.Enqueue(ServiceLine."Document No.");  // Enqueue value for 'ShipmentLinePageHandler'.
@@ -1121,14 +1121,14 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Setup: Create and post Purchase Order.
         Initialize();
         CreatePurchaseOrder(
-          PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostPurchaseDocument(PurchaseLine, false);
 
         // Create Purchase Invoice for Charge Item and assign it to previous Posted Receipt, create and post Service Order.
         CreateAndPostChargeItemPurchaseDocument(
           PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."Document No.", PurchaseLine."No.",
-          LibraryInventory.CreateItemChargeNo);
-        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+          LibraryInventory.CreateItemChargeNo());
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostServiceOrder(ServiceLine, true, false);
 
         // Exercise: Run Adjust Cost Item Entries.
@@ -1321,7 +1321,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
     local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; No: Code[20]; Quantity: Decimal; Invoice: Boolean)
     begin
-        CreatePurchaseOrder(PurchaseLine, CreateVendor, No, Quantity);
+        CreatePurchaseOrder(PurchaseLine, CreateVendor(), No, Quantity);
         PostPurchaseDocument(PurchaseLine, Invoice);
     end;
 
@@ -1329,7 +1329,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     var
         Item: Record Item;
     begin
-        CreatePurchaseOrder(PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::FIFO), 1 + LibraryRandom.RandInt(5));  // Take more than 1 Random integer Quantity to create Rounding Entry.
+        CreatePurchaseOrder(PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::FIFO), 1 + LibraryRandom.RandInt(5));  // Take more than 1 Random integer Quantity to create Rounding Entry.
         PurchaseLine.Validate("Line Amount", PurchaseLine."Line Amount" - PurchaseLine."Line Amount" / 100);  // Decrease Line Amount for getting divided value
         PurchaseLine.Modify(true);
         PostPurchaseDocument(PurchaseLine, true);
@@ -1370,7 +1370,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         CreateAndApplySalesLine(SalesLine, SalesHeader, No, Quantity, ApplToItemEntry);
         PostSalesDocument(SalesLine, Invoice);
     end;
@@ -1381,7 +1381,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         SalesLine: Record "Sales Line";
         "Count": Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         for Count := 1 to TotalCount do
             CreateAndApplySalesLine(SalesLine, SalesHeader, ItemNo, 1, EntryNo);  // 1 is for Single Line Quantity.
         PostSalesDocument(SalesLine, true);
@@ -1391,7 +1391,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, No, Quantity);
         SalesLine.Validate("Appl.-from Item Entry", ApplFromItemEntry);
         SalesLine.Modify(true);
@@ -1451,7 +1451,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -1459,7 +1459,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Use Random value for Minimum Quantity and Discount Percentage.
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::Item, CreateItem('', Item."Costing Method"::Standard),
-          SalesLineDiscount."Sales Type"::Customer, CreateCustomer, WorkDate(), '', '', '', LibraryRandom.RandDec(10, 2));
+          SalesLineDiscount."Sales Type"::Customer, CreateCustomer(), WorkDate(), '', '', '', LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
     end;
@@ -1480,13 +1480,11 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         Item.SetRange("No.", ItemNo);
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID, CalculatePer::"Item Ledger Entry", false, false, false, CalcBase::" ",
+          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID(), "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false, "Inventory Value Calc. Base"::" ",
           false);
         ItemJournalLine.SetRange("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
         ItemJournalLine.SetRange("Item No.", ItemNo);
@@ -1519,7 +1517,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     local procedure CreatePurchaseOrderAndModifyLine(var PurchaseLine: Record "Purchase Line"; InventoryValueZero: Boolean)
     begin
         CreatePurchaseOrder(
-          PurchaseLine, CreateVendorWithInvoiceDiscount, CreateItemWithInventoryValueZero(InventoryValueZero),
+          PurchaseLine, CreateVendorWithInvoiceDiscount(), CreateItemWithInventoryValueZero(InventoryValueZero),
           LibraryRandom.RandInt(10));  // Using Random value for Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(50));  // Using Random value for Direct Unit Cost.
         PurchaseLine.Modify(true);
@@ -1566,7 +1564,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         // Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
         CreateServiceDocumentAndUpdateServiceLine(
-          ServiceLine, CreateItem('', Item."Costing Method"::FIFO), CreateCustomer, LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity.
+          ServiceLine, CreateItem('', Item."Costing Method"::FIFO), CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         CreateAndPostPurchaseDocument(PurchaseLine, ServiceLine."No.", ServiceLine.Quantity, false);  // False for Invoice.
@@ -1689,10 +1687,10 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         CreatePurchaseOrder(
-          PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreatePurchaseLine(
-          PurchaseLine2, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);  // Taking 1 for Item Charge.
+          PurchaseLine2, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);  // Taking 1 for Item Charge.
         LibraryInventory.CreateItemChargeAssignPurchase(
           ItemChargeAssignmentPurch, PurchaseLine2, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order, PurchaseLine."Document No.",
           PurchaseLine."Line No.", PurchaseLine."No.");
@@ -1784,7 +1782,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         FindValueEntry(ValueEntry, ItemLedgerEntryType, EntryType, ItemNo, Adjustment, LocationCode);
         Assert.AreNearlyEqual(
-          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
     end;
 
@@ -1808,10 +1806,10 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ItemLedgerEntry.TestField("Invoiced Quantity", InvoicedQuantity);
         ItemLedgerEntry.TestField("Applied Entry to Adjust", AppliedEntryToAdjust);
         Assert.AreNearlyEqual(
-          CostAmountActual, ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual, ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
         Assert.AreNearlyEqual(
-          CostAmountExpected, ItemLedgerEntry."Cost Amount (Expected)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountExpected, ItemLedgerEntry."Cost Amount (Expected)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemLedgerEntry.FieldCaption("Cost Amount (Expected)"), CostAmountExpected));
     end;
 
@@ -1850,14 +1848,14 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ServiceInvHeader.SetRange("Order No.", OrderNo);
         ServiceInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         ServiceInvHeader.FindFirst();
-        ServiceInvStatistics.Trap;
-        PostedServiceInvoice.OpenView;
+        ServiceInvStatistics.Trap();
+        PostedServiceInvoice.OpenView();
         PostedServiceInvoice.GotoRecord(ServiceInvHeader);
-        PostedServiceInvoice.Statistics.Invoke;
+        PostedServiceInvoice.Statistics.Invoke();
         Assert.AreNearlyEqual(
-          CostLCY, ServiceInvStatistics.CostLCY.AsDEcimal, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(ValidationError, Cost, CostLCY));
+          CostLCY, ServiceInvStatistics.CostLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(ValidationError, Cost, CostLCY));
         Assert.AreNearlyEqual(
-          TotalAdjCostLCY, ServiceInvStatistics.TotalAdjCostLCY.AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          TotalAdjCostLCY, ServiceInvStatistics.TotalAdjCostLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, Cost, TotalAdjCostLCY));
     end;
 
@@ -1869,10 +1867,10 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceDocNo);
         ServiceCrMemoHeader.FindFirst();
-        ServiceCreditMemoStatistics.Trap;
-        PostedServiceCreditMemo.OpenView;
+        ServiceCreditMemoStatistics.Trap();
+        PostedServiceCreditMemo.OpenView();
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
-        PostedServiceCreditMemo.Statistics.Invoke;
+        PostedServiceCreditMemo.Statistics.Invoke();
         ServiceCreditMemoStatistics.CostLCY.AssertEquals(CostLCY);
         ServiceCreditMemoStatistics.TotalAdjCostLCY.AssertEquals(TotalAdjCostLCY);
     end;
@@ -1884,9 +1882,9 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Enqueue values for 'ServiceOrderStatisticsPageHandler' and verification done in 'ServiceOrderStatisticsPageHandler'.
         LibraryVariableStorage.Enqueue(OriginalCost);
         LibraryVariableStorage.Enqueue(AdjustedCost);
-        ServiceOrder.OpenView;
+        ServiceOrder.OpenView();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
     end;
 
     [ConfirmHandler]
@@ -1915,7 +1913,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ServiceShipmentLine.FindFirst();
 
         GetServiceShipmentLines.SetRecord(ServiceShipmentLine);
-        GetServiceShipmentLines.GetShipmentLines;
+        GetServiceShipmentLines.GetShipmentLines();
     end;
 
     [ModalPageHandler]
@@ -1928,10 +1926,10 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         LibraryVariableStorage.Dequeue(CostLCY);
         LibraryVariableStorage.Dequeue(TotalAdjCostLCY);
         Assert.AreNearlyEqual(
-          CostLCY, ServiceOrderStatistics.OriginalCostLCY.AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          CostLCY, ServiceOrderStatistics.OriginalCostLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, Cost, CostLCY));
         Assert.AreNearlyEqual(
-          TotalAdjCostLCY, ServiceOrderStatistics.AdjustedCostLCY.AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          TotalAdjCostLCY, ServiceOrderStatistics.AdjustedCostLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, Cost, TotalAdjCostLCY));
     end;
 }

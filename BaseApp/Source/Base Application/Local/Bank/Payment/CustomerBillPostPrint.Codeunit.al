@@ -41,7 +41,6 @@ codeunit 12172 "Customer Bill - Post + Print"
         PostAndPrintQst: Label 'Do you want to post and print %1 %2?', Comment = '%1 = table caption, %2 = document no.';
         BillCode: Record Bill;
         InvalidListDateErr: Label 'The List Date must be greater than the Document Date of Customer Bill Line %1.';
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         Window: Dialog;
@@ -66,109 +65,106 @@ codeunit 12172 "Customer Bill - Post + Print"
         OldCustBillLine: Record "Customer Bill Line";
         BankAcc: Record "Bank Account";
         BillPostingGroup: Record "Bill Posting Group";
+        NoSeries: Codeunit "No. Series";
         BalanceAmount: Decimal;
     begin
         CustomerBillHeader.Copy(LocalCustomerBillHeader);
 
         OnBeforePost(CustomerBillHeader);
 
-        with CustomerBillHeader do begin
-            CheckCustBill(CustomerBillHeader);
+        CheckCustBill(CustomerBillHeader);
 
-            BankAcc.Get("Bank Account No.");
-            BillPostingGroup.Get("Bank Account No.", "Payment Method Code");
+        BankAcc.Get(CustomerBillHeader."Bank Account No.");
+        BillPostingGroup.Get(CustomerBillHeader."Bank Account No.", CustomerBillHeader."Payment Method Code");
 
-            case Type of
-                Type::"Bills For Collection":
-                    BillPostingGroup.TestField("Bills For Collection Acc. No.");
-                Type::"Bills For Discount":
-                    BillPostingGroup.TestField("Bills For Discount Acc. No.");
-                Type::"Bills Subject To Collection":
-                    BillPostingGroup.TestField("Bills Subj. to Coll. Acc. No.");
-            end;
+        case CustomerBillHeader.Type of
+            CustomerBillHeader.Type::"Bills For Collection":
+                BillPostingGroup.TestField("Bills For Collection Acc. No.");
+            CustomerBillHeader.Type::"Bills For Discount":
+                BillPostingGroup.TestField("Bills For Discount Acc. No.");
+            CustomerBillHeader.Type::"Bills Subject To Collection":
+                BillPostingGroup.TestField("Bills Subj. to Coll. Acc. No.");
+        end;
 
-            Window.Open(
-              Text1130012 + Text1130013 + Text1130014 + Text1130015);
+        Window.Open(
+          Text1130012 + Text1130013 + Text1130014 + Text1130015);
 
-            "Test Report" := false;
-            ListNumber := NoSeriesMgt.GetNextNo(BillCode."List No.", "List Date", true);
-            Modify();
+        CustomerBillHeader."Test Report" := false;
+        ListNumber := NoSeries.GetNextNo(BillCode."List No.", CustomerBillHeader."List Date");
+        CustomerBillHeader.Modify();
 
-            CustomerBillLine.SetRange("Customer Bill No.", "No.");
-            CustomerBillLine.SetCurrentKey("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts");
-            if CustomerBillLine.FindSet() then begin
-                InsertIssuedBillHeader(IssuedCustBillHeader, CustomerBillHeader, BillCode, ListNumber);
+        CustomerBillLine.SetRange("Customer Bill No.", CustomerBillHeader."No.");
+        CustomerBillLine.SetCurrentKey("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts");
+        if CustomerBillLine.FindSet() then begin
+            InsertIssuedBillHeader(IssuedCustBillHeader, CustomerBillHeader, BillCode, ListNumber);
+
+            OldCustBillLine := CustomerBillLine;
+            CustLedgEntry.LockTable();
+            BalanceAmount := 0;
+            BRNumber := NoSeries.GetNextNo(BillCode."Final Bill No.", CustomerBillHeader."List Date");
+            repeat
+                CustomerBillLine.TestField(Amount);
+                if CustomerBillLine."Document Date" > CustomerBillHeader."List Date" then
+                    Error(InvalidListDateErr, CustomerBillLine."Line No.");
+                CustomerBillLine.TestField("Due Date");
+
+                if (OldCustBillLine."Customer No." <> CustomerBillLine."Customer No.") or
+                   (OldCustBillLine."Due Date" <> CustomerBillLine."Due Date") or
+                   (OldCustBillLine."Customer Bank Acc. No." <> CustomerBillLine."Customer Bank Acc. No.") or
+                   (OldCustBillLine."Cumulative Bank Receipts" <> CustomerBillLine."Cumulative Bank Receipts")
+                then
+                    if OldCustBillLine."Cumulative Bank Receipts" then
+                        BRNumber := NoSeries.GetNextNo(BillCode."Final Bill No.", CustomerBillHeader."List Date");
+
+                UpdateCustLedgEntry(CustLedgEntry, CustomerBillLine);
+
+                BalanceAmount := BalanceAmount + CustomerBillLine.Amount;
+
+                PostCustBillLine(CustomerBillHeader, CustomerBillLine, CustLedgEntry);
+
+                InsertIssuedBillLine(CustomerBillLine, ListNumber, BRNumber);
+
+                if not CustomerBillLine."Cumulative Bank Receipts" then
+                    BRNumber := NoSeries.GetNextNo(BillCode."Final Bill No.", CustomerBillHeader."List Date");
 
                 OldCustBillLine := CustomerBillLine;
-                CustLedgEntry.LockTable();
-                BalanceAmount := 0;
-                BRNumber := NoSeriesMgt.GetNextNo(BillCode."Final Bill No.", "List Date", true);
-                repeat
-                    CustomerBillLine.TestField(Amount);
-                    if CustomerBillLine."Document Date" > "List Date" then
-                        Error(InvalidListDateErr, CustomerBillLine."Line No.");
-                    CustomerBillLine.TestField("Due Date");
+            until CustomerBillLine.Next() = 0;
+            PostBalanceAccount(CustomerBillHeader, CustLedgEntry, BillPostingGroup, BalanceAmount);
 
-                    if (OldCustBillLine."Customer No." <> CustomerBillLine."Customer No.") or
-                       (OldCustBillLine."Due Date" <> CustomerBillLine."Due Date") or
-                       (OldCustBillLine."Customer Bank Acc. No." <> CustomerBillLine."Customer Bank Acc. No.") or
-                       (OldCustBillLine."Cumulative Bank Receipts" <> CustomerBillLine."Cumulative Bank Receipts")
-                    then
-                        if OldCustBillLine."Cumulative Bank Receipts" then
-                            BRNumber := NoSeriesMgt.GetNextNo(BillCode."Final Bill No.", "List Date", true);
+            CustomerBillLine.DeleteAll(true);
+            CustomerBillHeader.Delete(true);
 
-                    UpdateCustLedgEntry(CustLedgEntry, CustomerBillLine);
+            Window.Close();
+            Commit();
 
-                    BalanceAmount := BalanceAmount + CustomerBillLine.Amount;
+            OnAfterPost(CustomerBillHeader, IssuedCustBillHeader);
 
-                    PostCustBillLine(CustomerBillHeader, CustomerBillLine, CustLedgEntry);
-
-                    InsertIssuedBillLine(CustomerBillLine, ListNumber, BRNumber);
-
-                    if not CustomerBillLine."Cumulative Bank Receipts" then
-                        BRNumber := NoSeriesMgt.GetNextNo(BillCode."Final Bill No.", "List Date", true);
-
-                    OldCustBillLine := CustomerBillLine;
-                until CustomerBillLine.Next() = 0;
-                PostBalanceAccount(CustomerBillHeader, CustLedgEntry, BillPostingGroup, BalanceAmount);
-
-                CustomerBillLine.DeleteAll(true);
-                Delete(true);
-
-                Window.Close();
-                Commit();
-
-                OnAfterPost(CustomerBillHeader, IssuedCustBillHeader);
-
-                IssuedCustBillHeader.SetRecFilter();
-                if HidePrintDialog then
-                    REPORT.SaveAsPdf(REPORT::"Issued Cust Bills Report", HTMLPath, IssuedCustBillHeader)
-                else
-                    REPORT.RunModal(REPORT::"Issued Cust Bills Report", false, false, IssuedCustBillHeader);
-            end else
-                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
-        end;
+            IssuedCustBillHeader.SetRecFilter();
+            if HidePrintDialog then
+                REPORT.SaveAsPdf(REPORT::"Issued Cust Bills Report", HTMLPath, IssuedCustBillHeader)
+            else
+                REPORT.RunModal(REPORT::"Issued Cust Bills Report", false, false, IssuedCustBillHeader);
+        end else
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     local procedure CheckCustBill(CustomerBillHeader: Record "Customer Bill Header")
     var
         PaymentMethod: Record "Payment Method";
     begin
-        with CustomerBillHeader do begin
-            TestField(Type);
-            TestField("Bank Account No.");
-            TestField("List Date");
-            TestField("Posting Date");
-            TestField("Payment Method Code");
+        CustomerBillHeader.TestField(Type);
+        CustomerBillHeader.TestField("Bank Account No.");
+        CustomerBillHeader.TestField("List Date");
+        CustomerBillHeader.TestField("Posting Date");
+        CustomerBillHeader.TestField("Payment Method Code");
 
-            PaymentMethod.Get("Payment Method Code");
-            BillCode.Get(PaymentMethod."Bill Code");
+        PaymentMethod.Get(CustomerBillHeader."Payment Method Code");
+        BillCode.Get(PaymentMethod."Bill Code");
 
-            BillCode.TestField("List No.");
-            BillCode.TestField("Final Bill No.");
-            if BillCode."Allow Issue" then
-                BillCode.TestField("Bills for Coll. Temp. Acc. No.");
-        end;
+        BillCode.TestField("List No.");
+        BillCode.TestField("Final Bill No.");
+        if BillCode."Allow Issue" then
+            BillCode.TestField("Bills for Coll. Temp. Acc. No.");
     end;
 
     local procedure InsertIssuedBillHeader(var IssuedCustBillHeader: Record "Issued Customer Bill Header"; CustomerBillHeader: Record "Customer Bill Header"; BillCode: Record Bill; ListNo: Code[20])
@@ -199,49 +195,47 @@ codeunit 12172 "Customer Bill - Post + Print"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
-        with GenJnlLine do begin
-            Init();
+        GenJnlLine.Init();
 
-            Validate("Posting Date", CustomerBillHeader."Posting Date");
-            "Document Date" := CustomerBillHeader."List Date";
+        GenJnlLine.Validate("Posting Date", CustomerBillHeader."Posting Date");
+        GenJnlLine."Document Date" := CustomerBillHeader."List Date";
 
-            if GenJnlCheckLine.DateNotAllowed("Posting Date") then
-                FieldError("Posting Date", Text12100);
+        if GenJnlCheckLine.DateNotAllowed(GenJnlLine."Posting Date") then
+            GenJnlLine.FieldError("Posting Date", Text12100);
 
-            if BillCode."Allow Issue" then begin
-                "Account Type" := "Account Type"::"G/L Account";
-                Validate("Account No.", BillCode."Bills for Coll. Temp. Acc. No.");
-                Description := 'Cli ' + CustomerBillLine."Customer No." + ' Rif. ' + BRNumber;
-            end else begin
-                "Account Type" := "Account Type"::Customer;
-                Validate("Account No.", CustomerBillLine."Customer No.");
-                "Due Date" := CustomerBillLine."Due Date";
-                "Document Type" := "Document Type"::Payment;
-                Description := 'Cli ' + CustomerBillLine."Customer No." + ' Ft. ' + CustLedgEntry."Document No.";
-                "External Document No." := CustLedgEntry."External Document No.";
-                "Bank Receipt" := true;
-                "Document Type to Close" := CustLedgEntry."Document Type";
-                "Document No. to Close" := CustLedgEntry."Document No.";
-                "Document Occurrence to Close" := CustLedgEntry."Document Occurrence";
-                "Allow Issue" := CustLedgEntry."Allow Issue";
-            end;
-
-            "Document No." := ListNumber;
-
-            Window.Update(1, "Account No.");
-            Window.Update(2, "Document No.");
-            Window.Update(3, BRNumber);
-
-            Validate(Amount, -CustomerBillLine.Amount);
-            "Reason Code" := CustomerBillHeader."Reason Code";
-            "Source Code" := BillCode."Bill Source Code";
-            "Shortcut Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
-            "Dimension Set ID" := CustLedgEntry."Dimension Set ID";
-
-            OnBeforePostCustomerBillLine(GenJnlLine, CustomerBillHeader, CustomerBillLine, CustLedgEntry, GenJnlPostLine);
-            GenJnlPostLine.RunWithoutCheck(GenJnlLine);
+        if BillCode."Allow Issue" then begin
+            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
+            GenJnlLine.Validate("Account No.", BillCode."Bills for Coll. Temp. Acc. No.");
+            GenJnlLine.Description := 'Cli ' + CustomerBillLine."Customer No." + ' Rif. ' + BRNumber;
+        end else begin
+            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+            GenJnlLine.Validate("Account No.", CustomerBillLine."Customer No.");
+            GenJnlLine."Due Date" := CustomerBillLine."Due Date";
+            GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+            GenJnlLine.Description := 'Cli ' + CustomerBillLine."Customer No." + ' Ft. ' + CustLedgEntry."Document No.";
+            GenJnlLine."External Document No." := CustLedgEntry."External Document No.";
+            GenJnlLine."Bank Receipt" := true;
+            GenJnlLine."Document Type to Close" := CustLedgEntry."Document Type";
+            GenJnlLine."Document No. to Close" := CustLedgEntry."Document No.";
+            GenJnlLine."Document Occurrence to Close" := CustLedgEntry."Document Occurrence";
+            GenJnlLine."Allow Issue" := CustLedgEntry."Allow Issue";
         end;
+
+        GenJnlLine."Document No." := ListNumber;
+
+        Window.Update(1, GenJnlLine."Account No.");
+        Window.Update(2, GenJnlLine."Document No.");
+        Window.Update(3, BRNumber);
+
+        GenJnlLine.Validate(Amount, -CustomerBillLine.Amount);
+        GenJnlLine."Reason Code" := CustomerBillHeader."Reason Code";
+        GenJnlLine."Source Code" := BillCode."Bill Source Code";
+        GenJnlLine."Shortcut Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := CustLedgEntry."Dimension Set ID";
+
+        OnBeforePostCustomerBillLine(GenJnlLine, CustomerBillHeader, CustomerBillLine, CustLedgEntry, GenJnlPostLine);
+        GenJnlPostLine.RunWithoutCheck(GenJnlLine);
     end;
 
     [Scope('OnPrem')]
@@ -255,35 +249,33 @@ codeunit 12172 "Customer Bill - Post + Print"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            Init();
+        GenJnlLine.Init();
 
-            Validate("Posting Date", CustomerBillHeader."Posting Date");
-            "Document Type" := "Document Type"::" ";
-            "Document No." := ListNumber;
-            "Document Date" := CustomerBillHeader."List Date";
-            "Account Type" := "Account Type"::"G/L Account";
+        GenJnlLine.Validate("Posting Date", CustomerBillHeader."Posting Date");
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+        GenJnlLine."Document No." := ListNumber;
+        GenJnlLine."Document Date" := CustomerBillHeader."List Date";
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
 
-            case CustomerBillHeader.Type of
-                CustomerBillHeader.Type::"Bills For Collection":
-                    Validate("Account No.", BillPostingGroup."Bills For Collection Acc. No.");
-                CustomerBillHeader.Type::"Bills For Discount":
-                    Validate("Account No.", BillPostingGroup."Bills For Discount Acc. No.");
-                CustomerBillHeader.Type::"Bills Subject To Collection":
-                    Validate("Account No.", BillPostingGroup."Bills Subj. to Coll. Acc. No.");
-            end;
-            OnPostBalanceAccountOnAfterValidateAccountNo(GenJnlLine, BillPostingGroup, CustomerBillHeader);
-
-            Description := CustomerBillHeader."Report Header";
-            Validate(Amount, BalanceAmount);
-            "Reason Code" := CustomerBillHeader."Reason Code";
-            "Source Code" := BillCode."Bill Source Code";
-            "Shortcut Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
-            "Dimension Set ID" := CustLedgEntry."Dimension Set ID";
-
-            GenJnlPostLine.RunWithoutCheck(GenJnlLine);
+        case CustomerBillHeader.Type of
+            CustomerBillHeader.Type::"Bills For Collection":
+                GenJnlLine.Validate("Account No.", BillPostingGroup."Bills For Collection Acc. No.");
+            CustomerBillHeader.Type::"Bills For Discount":
+                GenJnlLine.Validate("Account No.", BillPostingGroup."Bills For Discount Acc. No.");
+            CustomerBillHeader.Type::"Bills Subject To Collection":
+                GenJnlLine.Validate("Account No.", BillPostingGroup."Bills Subj. to Coll. Acc. No.");
         end;
+        OnPostBalanceAccountOnAfterValidateAccountNo(GenJnlLine, BillPostingGroup, CustomerBillHeader);
+
+        GenJnlLine.Description := CustomerBillHeader."Report Header";
+        GenJnlLine.Validate(Amount, BalanceAmount);
+        GenJnlLine."Reason Code" := CustomerBillHeader."Reason Code";
+        GenJnlLine."Source Code" := BillCode."Bill Source Code";
+        GenJnlLine."Shortcut Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := CustLedgEntry."Dimension Set ID";
+
+        GenJnlPostLine.RunWithoutCheck(GenJnlLine);
     end;
 
     local procedure UpdateCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerBillLine: Record "Customer Bill Line")

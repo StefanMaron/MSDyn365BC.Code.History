@@ -37,7 +37,7 @@ page 5098 "Task Card"
                     ApplicationArea = RelationshipMgmt;
                     Enabled = LocationEnable;
                     ToolTip = 'Specifies the location where the meeting will take place.';
-                    Visible = NOT IsSoftwareAsAService;
+                    Visible = not IsSoftwareAsAService;
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -195,7 +195,7 @@ page 5098 "Task Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Type';
                     ToolTip = 'Specifies the type of the task.';
-                    Visible = NOT IsSoftwareAsAService;
+                    Visible = not IsSoftwareAsAService;
 
                     trigger OnValidate()
                     begin

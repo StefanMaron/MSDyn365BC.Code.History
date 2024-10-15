@@ -53,9 +53,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         CreatePurchaseInvoice(PurchaseHeader);
 
         // Exercise
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        asserterror PurchaseInvoices.PostSelected.Invoke;
+        asserterror PurchaseInvoices.PostSelected.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBePostedErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
@@ -83,9 +83,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         CreatePurchaseInvoice(PurchaseHeader);
 
         // Exercise
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        asserterror PurchaseInvoices.Release.Invoke;
+        asserterror PurchaseInvoices.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -129,9 +129,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // Exercise
         Commit();
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        asserterror PurchaseInvoices.Release.Invoke;
+        asserterror PurchaseInvoices.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(PurchaseHeader.RecordId, 0, 1)));
@@ -174,9 +174,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         VerifyPurchaseInvIsPendingApproval(PurchaseHeader);
 
         // Exercise
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        asserterror PurchaseInvoices.Reopen.Invoke;
+        asserterror PurchaseInvoices.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -454,12 +454,12 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
 
         // [GIVEN] Enable workflows: 'Incoming Document' and 'Purchase Invoice Approval'
-        EnableIncDocWorkflow;
+        EnableIncDocWorkflow();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
-        EnablePurchInvWorkflow;
+        EnablePurchInvWorkflow();
 
         // [GIVEN] Create Incoming Document.
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         // [GIVEN] Genereated the Notification Entry for Incoming Document
@@ -522,15 +522,15 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseInvoice(PurchHeader);
         Commit();
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseInvoice.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(PurchaseInvoice.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseInvoice.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseInvoice.SendApprovalRequest.Invoke;
+        asserterror PurchaseInvoice.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -542,30 +542,30 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseInvoice.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(PurchaseInvoice.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(PurchaseInvoice.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(PurchaseInvoice.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(PurchaseInvoice.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseInvoice.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(PurchaseInvoice.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(PurchaseInvoice.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(PurchaseInvoice.Delegate.Visible(), 'Delegate should NOT be visible');
         PurchaseInvoice.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        PurchaseInvoice.SendApprovalRequest.Invoke;
+        PurchaseInvoice.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(PurchaseInvoice.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseInvoice.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseInvoice.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         PurchaseInvoice.Close();
@@ -574,13 +574,13 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(PurchaseInvoice.Approve.Visible, 'Approva should be visible');
-        Assert.IsTrue(PurchaseInvoice.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(PurchaseInvoice.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(PurchaseInvoice.Approve.Visible(), 'Approva should be visible');
+        Assert.IsTrue(PurchaseInvoice.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(PurchaseInvoice.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -601,15 +601,15 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseInvoice(PurchHeader);
         Commit();
-        PurchaseInvoices.OpenEdit;
+        PurchaseInvoices.OpenEdit();
         PurchaseInvoices.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseInvoices.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseInvoices.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseInvoices.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseInvoices.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseInvoices.SendApprovalRequest.Invoke;
+        asserterror PurchaseInvoices.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -621,27 +621,27 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseInvoices.OpenEdit;
+        PurchaseInvoices.OpenEdit();
         PurchaseInvoices.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseInvoices.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseInvoices.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseInvoices.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseInvoices.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         PurchaseInvoices.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
-        PurchaseInvoices.OpenEdit;
+        PurchaseInvoices.OpenEdit();
         PurchaseInvoices.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        PurchaseInvoices.SendApprovalRequest.Invoke;
+        PurchaseInvoices.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(PurchaseInvoices.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseInvoices.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseInvoices.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseInvoices.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -659,11 +659,11 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, '');
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         Commit();
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchHeader);
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseInvoice.SendApprovalRequest.Invoke;
+        asserterror PurchaseInvoice.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -843,12 +843,12 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         ApprovalEntry.Insert();
 
         // [GIVEN] Approval Entry is shown on Approval Entries page
-        ApprovalEntries.OpenEdit;
+        ApprovalEntries.OpenEdit();
         ApprovalEntries.GotoRecord(ApprovalEntry);
         Assert.AreEqual(ApprovalEntries.Status.Value, Format(ApprovalEntry.Status), '');
 
         // [WHEN] Click "verdue Entries" on Approval Entries page
-        ApprovalEntries."O&verdue Entries".Invoke;
+        ApprovalEntries."O&verdue Entries".Invoke();
 
         // [THEN] Approval Entry is not shown on page
         Assert.AreEqual(ApprovalEntries.Status.Value, '', '');
@@ -863,11 +863,11 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
-        LibraryERMCountryData.InitializeCountry;
+        LibraryERMCountryData.InitializeCountry();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         PostedApprovalEntry.DeleteAll();
         if IsInitialized then
             exit;
@@ -904,9 +904,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.SendApprovalRequest.Invoke;
+        PurchaseInvoice.SendApprovalRequest.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -968,9 +968,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Approve.Invoke;
+        PurchaseInvoice.Approve.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -978,9 +978,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Reject.Invoke;
+        PurchaseInvoice.Reject.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -988,9 +988,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Delegate.Invoke;
+        PurchaseInvoice.Delegate.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -998,9 +998,9 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.CancelApprovalRequest.Invoke;
+        PurchaseInvoice.CancelApprovalRequest.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -1018,26 +1018,26 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         WorkflowSetup: Codeunit "Workflow Setup";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceWorkflowCode());
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
 
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.PostDocumentAsyncCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.PostDocumentAsyncCode());
         WorkflowStep.FindFirst();
 
-        WorkflowStep.Validate("Function Name", WorkflowResponseHandling.PostDocumentCode);
+        WorkflowStep.Validate("Function Name", WorkflowResponseHandling.PostDocumentCode());
         WorkflowStep.Modify(true);
 
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode());
         WorkflowStep.FindFirst();
-        WorkflowStep.Validate("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode);
+        WorkflowStep.Validate("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode());
         WorkflowStep.Modify(true);
 
         LibraryPurchase.SelectPmtJnlBatch(GenJournalBatch);
         LibraryWorkflow.InsertPmtLineCreationArgument(WorkflowStep.ID, GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
 
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
         WorkflowStep.FindFirst();
 
         LibraryWorkflow.InsertNotificationArgument(WorkflowStep.ID, UserId, 0, '');
@@ -1052,11 +1052,11 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         WorkflowSetup: Codeunit "Workflow Setup";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.IncomingDocumentWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.IncomingDocumentWorkflowCode());
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
         WorkflowStep.FindFirst();
 
         LibraryWorkflow.InsertNotificationArgument(WorkflowStep.ID, UserId, 0, '');
@@ -1082,16 +1082,16 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PurchaseInvoice: TestPage "Purchase Invoice";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, PurchaseInvoice.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, PurchaseInvoice.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            PurchaseInvoice.Comment.Invoke;
-            if ApprovalComments.First then
+            PurchaseInvoice.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -1111,13 +1111,13 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1134,13 +1134,13 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1156,14 +1156,14 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         PurchaseInvoice: TestPage "Purchase Invoice";
         PurchaseInvoices: TestPage "Purchase Invoices";
     begin
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseInvoice.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseInvoice.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         PurchaseInvoice.Close();
 
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseInvoices.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseInvoices.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         PurchaseInvoices.Close();
     end;
 }

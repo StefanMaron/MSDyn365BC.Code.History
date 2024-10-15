@@ -5,6 +5,7 @@ using Microsoft.Inventory.Item;
 table 1637 "Office Suggested Line Item"
 {
     Caption = 'Office Suggested Line Item';
+    DataClassification = CustomerContent;
 
     fields
     {

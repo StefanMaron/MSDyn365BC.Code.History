@@ -11,6 +11,7 @@ table 475 "Vendor Payment Buffer"
     Caption = 'Vendor Payment Buffer';
     ReplicateData = false;
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

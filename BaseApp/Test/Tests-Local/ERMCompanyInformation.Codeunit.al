@@ -65,9 +65,9 @@ codeunit 144168 "ERM Company Information"
         REPORT.Run(REPORT::"Account Book Sheet - Print");
 
         // Verify: Verify Company Information and GL Account No. on Report - Account Book Sheet - Print.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account_No_', GLAccountNo);
-        VerifyCompanyInformation;
+        VerifyCompanyInformation();
     end;
 
     [Test]
@@ -84,8 +84,8 @@ codeunit 144168 "ERM Company Information"
         REPORT.Run(REPORT::"Account Book Sheet - Print");
 
         // Verify: Verify Company Information on Report - Account Book Sheet - Print.
-        LibraryReportDataset.LoadDataSetFile;
-        VerifyCompanyInformation;
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyCompanyInformation();
     end;
 
     [Test]
@@ -146,7 +146,7 @@ codeunit 144168 "ERM Company Information"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
 
         // Needed to close any write transactions before running report.
         Commit();
@@ -209,7 +209,7 @@ codeunit 144168 "ERM Company Information"
         AccountBookSheetPrint."G/L Account".SetFilter("Date Filter", Format(DateFilter));
         AccountBookSheetPrint.ProgressiveBalance.SetValue(true);
         AccountBookSheetPrint.ShowAmountsInAddReportingCurrency.SetValue(true);
-        AccountBookSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AccountBookSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure DeleteObjectOptionsIfNeeded()

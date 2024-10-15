@@ -99,7 +99,6 @@ page 5660 "Depreciation Table Lines"
     procedure CalcDeprPerc(DeprCode: Code[10]) TotDepr: Decimal
     var
         DeprTableLine: Record "Depreciation Table Line";
-        Depr: Decimal;
     begin
         TotDepr := 0;
 

@@ -138,8 +138,8 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaHeader.Init();
         TempFatturaHeader."Customer No" := Customer."No.";
         TempFatturaHeader."Document No." := Format(HeaderRecRef.Field(DocNoFieldNo).Value);
-        TempFatturaHeader."Payment Method Code" := HeaderRecRef.Field(PaymentMethodCodeFieldNo).Value;
-        TempFatturaHeader."Payment Terms Code" := HeaderRecRef.Field(PaymentTermsCodeFieldNo).Value;
+        TempFatturaHeader."Payment Method Code" := HeaderRecRef.Field(PaymentMethodCodeFieldNo).Value();
+        TempFatturaHeader."Payment Terms Code" := HeaderRecRef.Field(PaymentTermsCodeFieldNo).Value();
         if not InitFatturaHeaderWithCheck(TempFatturaHeader, LineRecRef, HeaderRecRef) then
             exit(false);
 
@@ -150,17 +150,17 @@ codeunit 12184 "Fattura Doc. Helper"
                 GetTipoDocumento(TempFatturaHeader, Customer, HeaderRecRef.Field(FatturaDocumentTypeFieldNo).Value), 1, Maxstrlen(TempFatturaHeader."Fattura Document Type"));
         if TempFatturaHeader."Document Type" = TempFatturaHeader."Document Type"::Invoice then begin
             TempFatturaHeader."Order No." := Format(HeaderRecRef.Field(OrderNoFieldNo).Value);
-            TempFatturaHeader."Customer Purchase Order No." := HeaderRecRef.Field(CustomerPurchaseOrderFieldNo).Value;
+            TempFatturaHeader."Customer Purchase Order No." := HeaderRecRef.Field(CustomerPurchaseOrderFieldNo).Value();
         end;
 
         GeneralLedgerSetup.Get();
         TempFatturaHeader."Currency Code" := Format(HeaderRecRef.Field(CurrencyCodeFieldNo));
-        TempFatturaHeader."Currency Factor" := HeaderRecRef.Field(CurrencyFactorFieldNo).Value;
+        TempFatturaHeader."Currency Factor" := HeaderRecRef.Field(CurrencyFactorFieldNo).Value();
 
-        TempFatturaHeader."Fattura Stamp" := HeaderRecRef.Field(FatturaStampFieldNo).Value;
-        TempFatturaHeader."Fattura Stamp Amount" := HeaderRecRef.Field(FatturaStampAmountFieldNo).Value;
-        TempFatturaHeader."Fattura Project Code" := HeaderRecRef.Field(FatturaProjectCodeFieldNo).Value;
-        TempFatturaHeader."Fattura Tender Code" := HeaderRecRef.Field(FatturaTenderCodeFieldNo).Value;
+        TempFatturaHeader."Fattura Stamp" := HeaderRecRef.Field(FatturaStampFieldNo).Value();
+        TempFatturaHeader."Fattura Stamp Amount" := HeaderRecRef.Field(FatturaStampAmountFieldNo).Value();
+        TempFatturaHeader."Fattura Project Code" := HeaderRecRef.Field(FatturaProjectCodeFieldNo).Value();
+        TempFatturaHeader."Fattura Tender Code" := HeaderRecRef.Field(FatturaTenderCodeFieldNo).Value();
         TempFatturaHeader."Transmission Type" := GetTransmissionType(Customer);
 
         TempFatturaHeader."Progressive No." := GetNextProgressiveNo();
@@ -168,7 +168,7 @@ codeunit 12184 "Fattura Doc. Helper"
         UpdateFattureHeaderWithApplicationInformation(TempFatturaHeader);
         UpdateFatturaHeaderWithTaxRepresentativeInformation(TempFatturaHeader);
         TempFatturaHeader.Insert();
-        PricesIncludingVAT := HeaderRecRef.Field(PricesIncludingVATFieldNo).Value;
+        PricesIncludingVAT := HeaderRecRef.Field(PricesIncludingVATFieldNo).Value();
         exit(true);
     end;
 
@@ -269,37 +269,35 @@ codeunit 12184 "Fattura Doc. Helper"
 
     local procedure CollectSelfBillingDocLinesInformation(var TempFatturaLine: Record "Fattura Line" temporary; var TempVATEntry: Record "VAT Entry" temporary)
     begin
-        with TempVATEntry do begin
-            SetCurrentKey(
-              "Document No.", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-              "VAT %", "Deductible %", "VAT Identifier", "Transaction No.", "Unrealized VAT Entry No.");
-            FindSet();
-            TempFatturaLine.Init();
-            TempFatturaLine.Quantity := 1;
-            repeat
-                SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
-                SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                CalcSums(Base, Amount);
+        TempVATEntry.SetCurrentKey(
+            "Document No.", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
+            "VAT %", "Deductible %", "VAT Identifier", "Transaction No.", "Unrealized VAT Entry No.");
+        TempVATEntry.FindSet();
+        TempFatturaLine.Init();
+        TempFatturaLine.Quantity := 1;
+        repeat
+            TempVATEntry.SetRange("VAT Bus. Posting Group", TempVATEntry."VAT Bus. Posting Group");
+            TempVATEntry.SetRange("VAT Prod. Posting Group", TempVATEntry."VAT Prod. Posting Group");
+            TempVATEntry.CalcSums(Base, Amount);
 
-                TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::Document;
-                TempFatturaLine.Description := StrSubstNo(ReverseChargeVATDescrLbl, "VAT %");
-                TempFatturaLine."Line No." += 1;
-                TempFatturaLine."Unit Price" := -Base;
-                TempFatturaLine.Amount := TempFatturaLine."Unit Price";
-                TempFatturaLine."VAT %" := "VAT %";
-                TempFatturaLine.Insert();
+            TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::Document;
+            TempFatturaLine.Description := StrSubstNo(ReverseChargeVATDescrLbl, TempVATEntry."VAT %");
+            TempFatturaLine."Line No." += 1;
+            TempFatturaLine."Unit Price" := -TempVATEntry.Base;
+            TempFatturaLine.Amount := TempFatturaLine."Unit Price";
+            TempFatturaLine."VAT %" := TempVATEntry."VAT %";
+            TempFatturaLine.Insert();
 
-                TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::VAT;
-                TempFatturaLine."VAT Base" := TempFatturaLine.Amount;
-                TempFatturaLine."VAT Amount" := -Amount;
-                TempFatturaLine.Description := BasicVATTypeLbl;
-                TempFatturaLine.Insert();
+            TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::VAT;
+            TempFatturaLine."VAT Base" := TempFatturaLine.Amount;
+            TempFatturaLine."VAT Amount" := -TempVATEntry.Amount;
+            TempFatturaLine.Description := BasicVATTypeLbl;
+            TempFatturaLine.Insert();
 
-                FindLast();
-                SetRange("VAT Bus. Posting Group");
-                SetRange("VAT Prod. Posting Group");
-            until Next() = 0;
-        end;
+            TempVATEntry.FindLast();
+            TempVATEntry.SetRange("VAT Bus. Posting Group");
+            TempVATEntry.SetRange("VAT Prod. Posting Group");
+        until TempVATEntry.Next() = 0;
     end;
 
     local procedure Initialize()
@@ -585,7 +583,7 @@ codeunit 12184 "Fattura Doc. Helper"
             FieldRef := HeaderRecRef.Field(InvoiceDiscountAmountFieldNo);
             if FieldRef.Class = FieldClass::FlowField then
                 FieldRef.CalcField();
-            TempFatturaHeader."Total Inv. Discount" := FieldRef.Value;
+            TempFatturaHeader."Total Inv. Discount" := FieldRef.Value();
         end else
             TempFatturaHeader."Total Inv. Discount" := CalcServInvDiscAmount(LineRecRef, TempFatturaHeader);
         TempFatturaHeader."Total Inv. Discount" := ExchangeToLCYAmount(TempFatturaHeader, TempFatturaHeader."Total Inv. Discount");
@@ -607,8 +605,8 @@ codeunit 12184 "Fattura Doc. Helper"
         if not FindSourceDocument(DocRecRef, AppliedCustLedgerEntry) then
             exit;
 
-        TempFatturaHeader."Appl. Fattura Project Code" := DocRecRef.Field(FatturaProjectCodeFieldNo).Value;
-        TempFatturaHeader."Appl. Fattura Tender Code" := DocRecRef.Field(FatturaTenderCodeFieldNo).Value;
+        TempFatturaHeader."Appl. Fattura Project Code" := DocRecRef.Field(FatturaProjectCodeFieldNo).Value();
+        TempFatturaHeader."Appl. Fattura Tender Code" := DocRecRef.Field(FatturaTenderCodeFieldNo).Value();
     end;
 
     local procedure UpdateFatturaHeaderWithTaxRepresentativeInformation(var TempFatturaHeader: Record "Fattura Header" temporary)
@@ -637,18 +635,16 @@ codeunit 12184 "Fattura Doc. Helper"
         VATEntry: Record "VAT Entry";
     begin
         FatturaSetup.VerifyAndSetData();
-        with TempVATEntry do begin
-            Reset();
-            DeleteAll();
+        TempVATEntry.Reset();
+        TempVATEntry.DeleteAll();
 
-            VATEntry.SetCurrentKey("Document No.", "Posting Date", "Unrealized VAT Entry No.");
-            VATEntry.SetRange("VAT Bus. Posting Group", FatturaSetup."Self-Billing VAT Bus. Group");
-            VATEntry.SetRange(Type, VATEntry.Type::Sale);
-            VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
-            VATEntry.SetFilter("Document Type", '%1|%2', VATEntry."Document Type"::Invoice, VATEntry."Document Type"::"Credit Memo");
-            VATEntry.SetFilter("Posting Date", DateFilter);
-            BuildVATEntryBufferWithLinks(TempVATEntry, VATEntry);
-        end;
+        VATEntry.SetCurrentKey("Document No.", "Posting Date", "Unrealized VAT Entry No.");
+        VATEntry.SetRange("VAT Bus. Posting Group", FatturaSetup."Self-Billing VAT Bus. Group");
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
+        VATEntry.SetFilter("Document Type", '%1|%2', VATEntry."Document Type"::Invoice, VATEntry."Document Type"::"Credit Memo");
+        VATEntry.SetFilter("Posting Date", DateFilter);
+        BuildVATEntryBufferWithLinks(TempVATEntry, VATEntry);
     end;
 
     [Scope('OnPrem')]
@@ -659,26 +655,24 @@ codeunit 12184 "Fattura Doc. Helper"
         LastPostingDate: Date;
         LastEntryNo: Integer;
     begin
-        with TempVATEntry do begin
-            if not VATEntry.FindSet() then
-                exit;
+        if not VATEntry.FindSet() then
+            exit;
 
-            FirstVATEntry := VATEntry;
-            repeat
-                TempVATEntry := VATEntry;
-                if (LastDocNo = VATEntry."Document No.") and (LastPostingDate = VATEntry."Posting Date") then
-                    "Related Entry No." := LastEntryNo
-                else begin
-                    "Related Entry No." := 0;
-                    LastEntryNo := VATEntry."Entry No.";
-                end;
-                LastDocNo := VATEntry."Document No.";
-                LastPostingDate := VATEntry."Posting Date";
-                Insert();
-            until VATEntry.Next() = 0;
-            TempVATEntry := FirstVATEntry;
-            Find();
-        end;
+        FirstVATEntry := VATEntry;
+        repeat
+            TempVATEntry := VATEntry;
+            if (LastDocNo = VATEntry."Document No.") and (LastPostingDate = VATEntry."Posting Date") then
+                TempVATEntry."Related Entry No." := LastEntryNo
+            else begin
+                TempVATEntry."Related Entry No." := 0;
+                LastEntryNo := VATEntry."Entry No.";
+            end;
+            LastDocNo := VATEntry."Document No.";
+            LastPostingDate := VATEntry."Posting Date";
+            TempVATEntry.Insert();
+        until VATEntry.Next() = 0;
+        TempVATEntry := FirstVATEntry;
+        TempVATEntry.Find();
     end;
 
     [Scope('OnPrem')]
@@ -764,11 +758,11 @@ codeunit 12184 "Fattura Doc. Helper"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         FatturaPANoSeries: Record "No. Series";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         SalesReceivablesSetup.Get();
         if FatturaPANoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.") then
-            exit(NoSeriesManagement.GetNextNo(FatturaPANoSeries.Code, Today, true));
+            exit(NoSeries.GetNextNo(FatturaPANoSeries.Code, Today()));
     end;
 
     [Scope('OnPrem')]
@@ -889,9 +883,9 @@ codeunit 12184 "Fattura Doc. Helper"
         QtyValue: Decimal;
     begin
         FieldRef := RecRef.Field(LineInvoiceDiscoutAmountFieldNo);
-        InvDiscAmount := FieldRef.Value;
+        InvDiscAmount := FieldRef.Value();
         FieldRef := RecRef.Field(QuantityFieldNo);
-        QtyValue := FieldRef.Value;
+        QtyValue := FieldRef.Value();
         if QtyValue = 0 then
             exit(0);
         exit(Round(InvDiscAmount / QtyValue));
@@ -1133,7 +1127,7 @@ codeunit 12184 "Fattura Doc. Helper"
         AttachedToLineNoFieldRef.SetFilter(Format(LineRecRef.Field(LineNoFieldNo).Value));
 
         if LineRecRef.FindSet() then begin
-            SourceNoNoValue := CurrRecRef.Field(NoFieldNo).Value;
+            SourceNoNoValue := CurrRecRef.Field(NoFieldNo).Value();
             repeat
                 InsertExtTextFatturaLine(TempFatturaLine, LineRecRef, StrSubstNo(TxtTok, SourceNoNoValue));
             until LineRecRef.Next() = 0;
@@ -1146,7 +1140,7 @@ codeunit 12184 "Fattura Doc. Helper"
             repeat
                 SourceTypeFound := Format(TypeFieldRef.Value) <> ' ';
                 if not SourceTypeFound then begin
-                    SourceNoNoValue := LineRecRef.Field(NoFieldNo).Value;
+                    SourceNoNoValue := LineRecRef.Field(NoFieldNo).Value();
                     if SourceNoNoValue <> '' then
                         InsertExtTextFatturaLine(TempFatturaLine, LineRecRef, SourceNoNoValue);
                 end;
@@ -1219,12 +1213,12 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::Document;
         TempFatturaLine."Line No." := DocLineNo;
         TempFatturaLine.Type := Format(LineRecRef.Field(LineTypeFieldNo).Value);
-        TempFatturaLine."No." := LineRecRef.Field(NoFieldNo).Value;
-        TempFatturaLine.Description := LineRecRef.Field(DescriptionFieldNo).Value;
+        TempFatturaLine."No." := LineRecRef.Field(NoFieldNo).Value();
+        TempFatturaLine.Description := LineRecRef.Field(DescriptionFieldNo).Value();
 
-        TempFatturaLine."VAT %" := LineRecRef.Field(VatPercFieldNo).Value;
-        Quantity := LineRecRef.Field(QuantityFieldNo).Value;
-        UnitPrice := LineRecRef.Field(UnitPriceFieldNo).Value;
+        TempFatturaLine."VAT %" := LineRecRef.Field(VatPercFieldNo).Value();
+        Quantity := LineRecRef.Field(QuantityFieldNo).Value();
+        UnitPrice := LineRecRef.Field(UnitPriceFieldNo).Value();
 
         Currency.Initialize(TempFatturaHeader."Currency Code");
         UnitPrice :=
@@ -1235,20 +1229,20 @@ codeunit 12184 "Fattura Doc. Helper"
             TempFatturaLine."Unit Price" := -UnitPrice
         else begin
             TempFatturaLine.Quantity := Quantity;
-            TempFatturaLine."Unit of Measure" := LineRecRef.Field(UnitOfMeasureFieldNo).Value;
+            TempFatturaLine."Unit of Measure" := LineRecRef.Field(UnitOfMeasureFieldNo).Value();
             TempFatturaLine."Unit Price" := UnitPrice;
         end;
 
         InvDiscAmountByQty :=
           ExchangeToLCYAmount(
             TempFatturaHeader, CalcInvDiscAmountDividedByQty(LineRecRef, QuantityFieldNo, LineInvDiscAmountFieldNo));
-        LineDiscountPct := LineRecRef.Field(LineDiscountPercFieldNo).Value;
+        LineDiscountPct := LineRecRef.Field(LineDiscountPercFieldNo).Value();
         if (InvDiscAmountByQty <> 0) or (LineDiscountPct <> 0) then begin
             TempFatturaLine."Discount Percent" := LineDiscountPct;
             TempFatturaLine."Discount Amount" := InvDiscAmountByQty;
         end;
 
-        TempFatturaLine.Amount := LineRecRef.Field(LineAmountFieldNo).Value;
+        TempFatturaLine.Amount := LineRecRef.Field(LineAmountFieldNo).Value();
         if (TempFatturaLine.Amount <> 0) and (InvDiscAmountByQty = 0) and (LineDiscountPct = 0) and (TempFatturaLine."Discount Amount" = 0) then
             TempFatturaLine.Amount := Round(Quantity * UnitPrice) - TempFatturaLine."Discount Amount"
         else
@@ -1273,7 +1267,7 @@ codeunit 12184 "Fattura Doc. Helper"
     var
         ExtendedTextValue: Text;
     begin
-        ExtendedTextValue := LineRecRef.Field(DescriptionFieldNo).Value;
+        ExtendedTextValue := LineRecRef.Field(DescriptionFieldNo).Value();
         if ExtendedTextValue <> '' then begin
             TempFatturaLine."Line No." += 1;
             TempFatturaLine."Ext. Text Source No" := CopyStr(NoValue, 1, 10);

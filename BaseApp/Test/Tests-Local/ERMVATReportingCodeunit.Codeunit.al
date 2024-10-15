@@ -137,9 +137,9 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         VATReportMediator.Print(VATReportHeader);
 
         // 3. Verify: A report is generated with the line
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('COMPANYNAME', COMPANYPROPERTY.DisplayName());
-        Assert.AreEqual(7, LibraryReportDataset.RowCount, PrintErr);
+        Assert.AreEqual(7, LibraryReportDataset.RowCount(), PrintErr);
 
         // 3b. Verify: Status is released
         VATReportHeader.Get(VATReportHeader."No.");
@@ -193,7 +193,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         VATReportMediator.Print(VATReportHeader);
 
         // 3. Verify: A report is generated with the lines
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('COMPANYNAME', COMPANYPROPERTY.DisplayName());
         for I := 1 to 7 do begin
             LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('%1_Document_No', Types[I]), VATReportLine[I]."Document No.");
@@ -210,7 +210,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         end;
 
         // Check totals
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'FE_Total_Base', Format(VATReportLine[1].Base + VATReportLine[2].Base, 0, DecimalFormatTxt));
         LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -221,7 +221,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
             LibraryReportDataset.AssertCurrentRowValueEquals(
               StrSubstNo('%1_Total_Amount', Types[I]), Format(VATReportLine[I].Amount, 0, DecimalFormatTxt));
         end;
-        Assert.AreEqual(8, LibraryReportDataset.RowCount, PrintErr);
+        Assert.AreEqual(8, LibraryReportDataset.RowCount(), PrintErr);
     end;
 
     [Test]
@@ -281,7 +281,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Run the Release function.
-        VATReportErrorLog.Trap;
+        VATReportErrorLog.Trap();
         VATReportMediator.Release(VATReportHeader);
 
         // 3. Verify: Status gets updated to Released.
@@ -338,8 +338,8 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
             exit;
 
         IsInitialized := true;
-        CreateVATReportSetup;
-        UpdateCompanyInformation;
+        CreateVATReportSetup();
+        UpdateCompanyInformation();
         Commit();
     end;
 
@@ -350,8 +350,8 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Create VAT Report Setup.
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert();
-        VATReportSetup."No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
-        VATReportSetup."Intermediary VAT Reg. No." := LibraryVATUtils.GenerateVATRegistrationNumber;
+        VATReportSetup."No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
+        VATReportSetup."Intermediary VAT Reg. No." := LibraryVATUtils.GenerateVATRegistrationNumber();
         VATReportSetup.Modify();
     end;
 
@@ -386,7 +386,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
     [Scope('OnPrem')]
     procedure ExportVATTransactionsHandler(var ExportVATTransactions: TestRequestPage "Export VAT Transactions")
     begin
-        ExportVATTransactions.Cancel.Invoke;
+        ExportVATTransactions.Cancel().Invoke();
     end;
 
     local procedure UpdateCompanyInformation()
@@ -396,7 +396,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         CompanyInformation.Get();
         CompanyInformation.County := LibraryUtility.GenerateGUID();
         CompanyInformation."Fiscal Code" := LibraryUtility.GenerateGUID();
-        CompanyInformation."VAT Registration No." := LibraryVATUtils.GenerateVATRegistrationNumber;
+        CompanyInformation."VAT Registration No." := LibraryVATUtils.GenerateVATRegistrationNumber();
         CompanyInformation."Industrial Classification" := '35.11.00';
         CompanyInformation.Modify();
     end;
@@ -405,7 +405,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
     [Scope('OnPrem')]
     procedure RequestPageReport740Handler(var PrintReport: TestRequestPage "VAT Report Print")
     begin
-        PrintReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PrintReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

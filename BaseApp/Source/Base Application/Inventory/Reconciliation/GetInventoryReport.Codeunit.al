@@ -41,9 +41,9 @@ codeunit 5845 "Get Inventory Report"
         Text003: Label 'Posting Type #3######';
         Window: Dialog;
         WindowIsOpen: Boolean;
-        WindowType: Text[80];
+        WindowType: Text;
         WindowNo: Text[20];
-        WindowPostingType: Text[80];
+        WindowPostingType: Text;
         WindowUpdateDateTime: DateTime;
         Text004: Label 'Show Item Direct Costs,Show Assembly Direct Cost,Show Revaluations,Show Roundings';
         Text005: Label 'Show WIP Consumption,Show WIP Capacity,Show WIP Output';
@@ -68,38 +68,34 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure CalcInvtPostings(var InventoryReportLine: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            Reset();
-            Clear(InventoryReportLine);
-            SetCurrentKey(
-              "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type", "Variance Type",
-              "Item Charge No.", "Location Code", "Variant Code");
-            SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
-            if Find('-') then
-                repeat
-                    UpDateWindow(Item.TableCaption(), "Item No.", '');
-                    SetRange("Item No.", "Item No.");
-                    if not Item.Get("Item No.") then
-                        Clear(Item);
-                    if Item.Type = Item.Type::Inventory then
-                        InsertItemInvtReportEntry(InventoryReportLine);
+        ValueEntry.Reset();
+        Clear(InventoryReportLine);
+        ValueEntry.SetCurrentKey(
+          "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type", "Variance Type",
+          "Item Charge No.", "Location Code", "Variant Code");
+        ValueEntry.SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
+        if ValueEntry.Find('-') then
+            repeat
+                UpDateWindow(Item.TableCaption(), ValueEntry."Item No.", '');
+                ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
+                if not Item.Get(ValueEntry."Item No.") then
+                    Clear(Item);
+                if Item.Type = Item.Type::Inventory then
+                    InsertItemInvtReportEntry(InventoryReportLine);
 
-                    SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
-                until Next() = 0;
-        end
+                ValueEntry.SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure InsertDiffReportEntry(var InventoryReportLine: Record "Inventory Report Entry")
     begin
-        with InventoryReportLine do begin
-            Init();
-            CalcDiff(InventoryReportLine);
-            Type := Type::" ";
-            "No." := '';
-            Description := '';
-            "Entry No." := "Entry No." + 1;
-            Insert();
-        end;
+        InventoryReportLine.Init();
+        CalcDiff(InventoryReportLine);
+        InventoryReportLine.Type := InventoryReportLine.Type::" ";
+        InventoryReportLine."No." := '';
+        InventoryReportLine.Description := '';
+        InventoryReportLine."Entry No." := InventoryReportLine."Entry No." + 1;
+        InventoryReportLine.Insert();
     end;
 
     local procedure DetermineDiffError(var InventoryReportLine: Record "Inventory Report Entry")
@@ -132,76 +128,74 @@ codeunit 5845 "Get Inventory Report"
         InvtPostingSetup: Record "Inventory Posting Setup";
         TempInvtPostingSetup: Record "Inventory Posting Setup" temporary;
     begin
-        with InvtPostingSetup do begin
-            if Find('-') then
-                repeat
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Inventory Account", "Inventory Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Account"));
-                        InsertGLInvtReportEntry(InventoryReportLine, "Inventory Account", InventoryReportLine.Inventory);
-                    end;
+        if InvtPostingSetup.Find('-') then
+            repeat
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("Inventory Account", InvtPostingSetup."Inventory Account");
+                if not TempInvtPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Inventory Account"));
+                    InsertGLInvtReportEntry(InventoryReportLine, InvtPostingSetup."Inventory Account", InventoryReportLine.Inventory);
+                end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Inventory Account (Interim)", "Inventory Account (Interim)");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Account (Interim)"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Inventory Account (Interim)", InventoryReportLine."Inventory (Interim)");
-                    end;
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("Inventory Account (Interim)", InvtPostingSetup."Inventory Account (Interim)");
+                if not TempInvtPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Inventory Account (Interim)"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, InvtPostingSetup."Inventory Account (Interim)", InventoryReportLine."Inventory (Interim)");
+                end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Material Variance Account", "Material Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Material Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Material Variance Account", InventoryReportLine."Material Variance");
-                    end;
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("Material Variance Account", InvtPostingSetup."Material Variance Account");
+                if not TempInvtPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Material Variance Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, InvtPostingSetup."Material Variance Account", InventoryReportLine."Material Variance");
+                end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Capacity Variance Account", "Capacity Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Capacity Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Capacity Variance Account", InventoryReportLine."Capacity Variance");
-                    end;
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("Capacity Variance Account", InvtPostingSetup."Capacity Variance Account");
+                if not TempInvtPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Capacity Variance Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, InvtPostingSetup."Capacity Variance Account", InventoryReportLine."Capacity Variance");
+                end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Mfg. Overhead Variance Account", "Mfg. Overhead Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Mfg. Overhead Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Mfg. Overhead Variance Account", InventoryReportLine."Mfg. Overhead Variance");
-                    end;
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("Mfg. Overhead Variance Account", InvtPostingSetup."Mfg. Overhead Variance Account");
+                if not TempInvtPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Mfg. Overhead Variance Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, InvtPostingSetup."Mfg. Overhead Variance Account", InventoryReportLine."Mfg. Overhead Variance");
+                end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Cap. Overhead Variance Account", "Cap. Overhead Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Cap. Overhead Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Cap. Overhead Variance Account", InventoryReportLine."Capacity Overhead Variance");
-                    end;
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("Cap. Overhead Variance Account", InvtPostingSetup."Cap. Overhead Variance Account");
+                if not TempInvtPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Cap. Overhead Variance Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, InvtPostingSetup."Cap. Overhead Variance Account", InventoryReportLine."Capacity Overhead Variance");
+                end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Subcontracted Variance Account", "Subcontracted Variance Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Subcontracted Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Subcontracted Variance Account", InventoryReportLine."Subcontracted Variance");
-                    end;
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("Subcontracted Variance Account", InvtPostingSetup."Subcontracted Variance Account");
+                if not TempInvtPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."Subcontracted Variance Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, InvtPostingSetup."Subcontracted Variance Account", InventoryReportLine."Subcontracted Variance");
+                end;
 
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("WIP Account", "WIP Account");
-                    if not TempInvtPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("WIP Account"));
-                        InsertGLInvtReportEntry(InventoryReportLine, "WIP Account", InventoryReportLine."WIP Inventory");
-                    end;
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("WIP Account", InvtPostingSetup."WIP Account");
+                if not TempInvtPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, InvtPostingSetup.FieldCaption(InvtPostingSetup."WIP Account"));
+                    InsertGLInvtReportEntry(InventoryReportLine, InvtPostingSetup."WIP Account", InventoryReportLine."WIP Inventory");
+                end;
 
-                    OnCalcInvtPostingSetupOnBeforeAssignTempInvtPostingSetup(InventoryReportLine, TempInvtPostingSetup, InvtReportHeader, InvtPostingSetup);
-                    TempInvtPostingSetup := InvtPostingSetup;
-                    TempInvtPostingSetup.Insert();
-                until Next() = 0;
-        end;
+                OnCalcInvtPostingSetupOnBeforeAssignTempInvtPostingSetup(InventoryReportLine, TempInvtPostingSetup, InvtReportHeader, InvtPostingSetup);
+                TempInvtPostingSetup := InvtPostingSetup;
+                TempInvtPostingSetup.Insert();
+            until InvtPostingSetup.Next() = 0;
     end;
 
     local procedure CalcGenPostingSetup(var InventoryReportLine: Record "Inventory Report Entry")
@@ -209,186 +203,175 @@ codeunit 5845 "Get Inventory Report"
         GenPostingSetup: Record "General Posting Setup";
         TempGenPostingSetup: Record "General Posting Setup" temporary;
     begin
-        with GenPostingSetup do begin
-            if Find('-') then
-                repeat
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("COGS Account", "COGS Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("COGS Account"));
-                        InsertGLInvtReportEntry(InventoryReportLine, "COGS Account", InventoryReportLine.COGS);
-                    end;
+        if GenPostingSetup.Find('-') then
+            repeat
+                TempGenPostingSetup.Reset();
+                TempGenPostingSetup.SetRange("COGS Account", GenPostingSetup."COGS Account");
+                if not TempGenPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, GenPostingSetup.FieldCaption(GenPostingSetup."COGS Account"));
+                    InsertGLInvtReportEntry(InventoryReportLine, GenPostingSetup."COGS Account", InventoryReportLine.COGS);
+                end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Inventory Adjmt. Account", "Inventory Adjmt. Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Adjmt. Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Inventory Adjmt. Account", InventoryReportLine."Inventory Adjmt.");
-                    end;
+                TempGenPostingSetup.Reset();
+                TempGenPostingSetup.SetRange("Inventory Adjmt. Account", GenPostingSetup."Inventory Adjmt. Account");
+                if not TempGenPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, GenPostingSetup.FieldCaption(GenPostingSetup."Inventory Adjmt. Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, GenPostingSetup."Inventory Adjmt. Account", InventoryReportLine."Inventory Adjmt.");
+                end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Invt. Accrual Acc. (Interim)", "Invt. Accrual Acc. (Interim)");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Invt. Accrual Acc. (Interim)"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Invt. Accrual Acc. (Interim)", InventoryReportLine."Invt. Accrual (Interim)");
-                    end;
+                TempGenPostingSetup.Reset();
+                TempGenPostingSetup.SetRange("Invt. Accrual Acc. (Interim)", GenPostingSetup."Invt. Accrual Acc. (Interim)");
+                if not TempGenPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, GenPostingSetup.FieldCaption(GenPostingSetup."Invt. Accrual Acc. (Interim)"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, GenPostingSetup."Invt. Accrual Acc. (Interim)", InventoryReportLine."Invt. Accrual (Interim)");
+                end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("COGS Account (Interim)", "COGS Account (Interim)");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("COGS Account (Interim)"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "COGS Account (Interim)", InventoryReportLine."COGS (Interim)");
-                    end;
+                TempGenPostingSetup.Reset();
+                TempGenPostingSetup.SetRange("COGS Account (Interim)", GenPostingSetup."COGS Account (Interim)");
+                if not TempGenPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, GenPostingSetup.FieldCaption(GenPostingSetup."COGS Account (Interim)"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, GenPostingSetup."COGS Account (Interim)", InventoryReportLine."COGS (Interim)");
+                end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Direct Cost Applied Account", "Direct Cost Applied Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Direct Cost Applied Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Direct Cost Applied Account", InventoryReportLine."Direct Cost Applied");
-                    end;
+                TempGenPostingSetup.Reset();
+                TempGenPostingSetup.SetRange("Direct Cost Applied Account", GenPostingSetup."Direct Cost Applied Account");
+                if not TempGenPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, GenPostingSetup.FieldCaption(GenPostingSetup."Direct Cost Applied Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, GenPostingSetup."Direct Cost Applied Account", InventoryReportLine."Direct Cost Applied");
+                end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Overhead Applied Account", "Overhead Applied Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Overhead Applied Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Overhead Applied Account", InventoryReportLine."Overhead Applied");
-                    end;
+                TempGenPostingSetup.Reset();
+                TempGenPostingSetup.SetRange("Overhead Applied Account", GenPostingSetup."Overhead Applied Account");
+                if not TempGenPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, GenPostingSetup.FieldCaption(GenPostingSetup."Overhead Applied Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, GenPostingSetup."Overhead Applied Account", InventoryReportLine."Overhead Applied");
+                end;
 
-                    TempGenPostingSetup.Reset();
-                    TempGenPostingSetup.SetRange("Purchase Variance Account", "Purchase Variance Account");
-                    if not TempGenPostingSetup.FindFirst() then begin
-                        UpDateWindow(WindowType, WindowNo, FieldCaption("Purchase Variance Account"));
-                        InsertGLInvtReportEntry(
-                          InventoryReportLine, "Purchase Variance Account", InventoryReportLine."Purchase Variance");
-                    end;
+                TempGenPostingSetup.Reset();
+                TempGenPostingSetup.SetRange("Purchase Variance Account", GenPostingSetup."Purchase Variance Account");
+                if not TempGenPostingSetup.FindFirst() then begin
+                    UpDateWindow(WindowType, WindowNo, GenPostingSetup.FieldCaption(GenPostingSetup."Purchase Variance Account"));
+                    InsertGLInvtReportEntry(
+                      InventoryReportLine, GenPostingSetup."Purchase Variance Account", InventoryReportLine."Purchase Variance");
+                end;
 
-                    OnCalcGenPostingSetupOnBeforeAssignTempGenPostingSetup(InventoryReportLine, TempGenPostingSetup, InvtReportHeader, GenPostingSetup);
-                    TempGenPostingSetup := GenPostingSetup;
-                    TempGenPostingSetup.Insert();
-                until Next() = 0;
-        end;
+                OnCalcGenPostingSetupOnBeforeAssignTempGenPostingSetup(InventoryReportLine, TempGenPostingSetup, InvtReportHeader, GenPostingSetup);
+                TempGenPostingSetup := GenPostingSetup;
+                TempGenPostingSetup.Insert();
+            until GenPostingSetup.Next() = 0;
     end;
 
     local procedure InsertGLInvtReportEntry(var InventoryReportLine: Record "Inventory Report Entry"; GLAccNo: Code[20]; var CostAmount: Decimal)
     var
         IsHandled: Boolean;
     begin
-        with InventoryReportLine do begin
-            Init();
-            if not GLAcc.Get(GLAccNo) then
-                exit;
-            GLAcc.SetFilter("Date Filter", InvtReportHeader.GetFilter("Posting Date Filter"));
-            IsHandled := false;
-            OnInsertGLInvtReportEntryBeforeCalcGLAccount(InvtReportHeader, InventoryReportLine, GLAcc, IsHandled, CostAmount, WindowPostingType);
-            if not IsHandled then
-                CostAmount := CalcGLAccount(GLAcc);
+        InventoryReportLine.Init();
+        if not GLAcc.Get(GLAccNo) then
+            exit;
+        GLAcc.SetFilter("Date Filter", InvtReportHeader.GetFilter("Posting Date Filter"));
+        IsHandled := false;
+        OnInsertGLInvtReportEntryBeforeCalcGLAccount(InvtReportHeader, InventoryReportLine, GLAcc, IsHandled, CostAmount, WindowPostingType);
+        if not IsHandled then
+            CostAmount := CalcGLAccount(GLAcc);
 
-            if CostAmount = 0 then
-                exit;
-            Type := Type::"G/L Account";
-            "No." := GLAcc."No.";
-            Description := GLAcc.Name;
-            "Entry No." := "Entry No." + 1;
-            Insert();
-        end;
+        if CostAmount = 0 then
+            exit;
+        InventoryReportLine.Type := InventoryReportLine.Type::"G/L Account";
+        InventoryReportLine."No." := GLAcc."No.";
+        InventoryReportLine.Description := GLAcc.Name;
+        InventoryReportLine."Entry No." := InventoryReportLine."Entry No." + 1;
+        InventoryReportLine.Insert();
     end;
 
     local procedure InsertItemInvtReportEntry(var InventoryReportLine: Record "Inventory Report Entry")
     begin
-        with InventoryReportLine do begin
-            Init();
-            CalcItem(InventoryReportLine);
-            "No." := ValueEntry."Item No.";
-            Description := Item.Description;
-            Type := Type::Item;
-            "Entry No." := "Entry No." + 1;
-            Insert();
-        end;
+        InventoryReportLine.Init();
+        CalcItem(InventoryReportLine);
+        InventoryReportLine."No." := ValueEntry."Item No.";
+        InventoryReportLine.Description := Item.Description;
+        InventoryReportLine.Type := InventoryReportLine.Type::Item;
+        InventoryReportLine."Entry No." := InventoryReportLine."Entry No." + 1;
+        InventoryReportLine.Insert();
     end;
 
     local procedure CalcItem(var InventoryReportLine: Record "Inventory Report Entry")
     begin
-        with ValueEntry do
+        repeat
+            ValueEntry.SetRange("Posting Date", ValueEntry."Posting Date");
             repeat
-                SetRange("Posting Date", "Posting Date");
-                repeat
-                    if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, false) then begin
-                        if Item."No." <> "Item No." then
-                            if not Item.Get("Item No.") then
-                                Item.Init();
-                        SetRange("Entry Type", "Entry Type");
-                        SetRange("Item Ledger Entry Type", "Item Ledger Entry Type");
-                        SetRange("Location Code", "Location Code");
-                        SetRange("Variance Type", "Variance Type");
-                        SetRange("Item Charge No.", "Item Charge No.");
+                if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, false) then begin
+                    if Item."No." <> ValueEntry."Item No." then
+                        if not Item.Get(ValueEntry."Item No.") then
+                            Item.Init();
+                    ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type");
+                    ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type");
+                    ValueEntry.SetRange("Location Code", ValueEntry."Location Code");
+                    ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type");
+                    ValueEntry.SetRange("Item Charge No.", ValueEntry."Item Charge No.");
 
-                        if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, true) then
-                            CalcValueEntries(InventoryReportLine);
+                    if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, true) then
+                        CalcValueEntries(InventoryReportLine);
 
-                        FindLast();
-                        SetRange("Entry Type");
-                        SetRange("Item Ledger Entry Type");
-                        SetRange("Location Code");
-                        SetRange("Variance Type");
-                        SetRange("Item Charge No.");
-                    end else
-                        FindLast();
-                until Next() = 0;
+                    ValueEntry.FindLast();
+                    ValueEntry.SetRange("Entry Type");
+                    ValueEntry.SetRange("Item Ledger Entry Type");
+                    ValueEntry.SetRange("Location Code");
+                    ValueEntry.SetRange("Variance Type");
+                    ValueEntry.SetRange("Item Charge No.");
+                end else
+                    ValueEntry.FindLast();
+            until ValueEntry.Next() = 0;
 
-                FindLast();
-                SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-            until Next() = 0;
+            ValueEntry.FindLast();
+            ValueEntry.SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
+        until ValueEntry.Next() = 0;
     end;
 
     local procedure ValueEntryInFilteredSet(var ValueEntry: Record "Value Entry"; var InvtReportHeader: Record "Inventory Report Header"; Detailed: Boolean): Boolean
     var
         TempValueEntry: Record "Value Entry" temporary;
     begin
-        with TempValueEntry do begin
-            SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
-            SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-            if Detailed then
-                SetFilter("Location Code", InvtReportHeader.GetFilter("Location Filter"));
+        TempValueEntry.SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
+        TempValueEntry.SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
+        if Detailed then
+            TempValueEntry.SetFilter("Location Code", InvtReportHeader.GetFilter("Location Filter"));
 
-            TempValueEntry := ValueEntry;
-            Insert();
-            exit(not IsEmpty);
-        end;
+        TempValueEntry := ValueEntry;
+        TempValueEntry.Insert();
+        exit(not TempValueEntry.IsEmpty);
     end;
 
     local procedure CalcValueEntries(var InventoryReportLine: Record "Inventory Report Entry")
     begin
-        with InventoryReportLine do begin
-            UpDateWindow(WindowType, WindowNo, Format(ValueEntry."Entry Type"));
-            "Direct Cost Applied Actual" := "Direct Cost Applied Actual" + CalcDirectCostAppliedActual(ValueEntry);
-            "Overhead Applied Actual" := "Overhead Applied Actual" + CalcOverheadAppliedActual(ValueEntry);
-            "Purchase Variance" := "Purchase Variance" + CalcPurchaseVariance(ValueEntry);
-            "Inventory Adjmt." := "Inventory Adjmt." + CalcInventoryAdjmt(ValueEntry);
-            "Invt. Accrual (Interim)" := "Invt. Accrual (Interim)" + CalcInvtAccrualInterim(ValueEntry);
-            COGS := COGS + CalcCOGS(ValueEntry);
-            "COGS (Interim)" := "COGS (Interim)" + CalcCOGSInterim(ValueEntry);
-            "WIP Inventory" := "WIP Inventory" + CalcWIPInventory(ValueEntry);
-            "Material Variance" := "Material Variance" + CalcMaterialVariance(ValueEntry);
-            "Capacity Variance" := "Capacity Variance" + CalcCapVariance(ValueEntry);
-            "Subcontracted Variance" := "Subcontracted Variance" + CalcSubcontractedVariance(ValueEntry);
-            "Capacity Overhead Variance" := "Capacity Overhead Variance" + CalcCapOverheadVariance(ValueEntry);
-            "Mfg. Overhead Variance" := "Mfg. Overhead Variance" + CalcMfgOverheadVariance(ValueEntry);
-            "Inventory (Interim)" := "Inventory (Interim)" + CalcInventoryInterim(ValueEntry);
-            "Direct Cost Applied WIP" := "Direct Cost Applied WIP" + CalcDirectCostAppliedToWIP(ValueEntry);
-            "Overhead Applied WIP" := "Overhead Applied WIP" + CalcOverheadAppliedToWIP(ValueEntry);
-            "Inventory To WIP" := "Inventory To WIP" + CalcInvtToWIP(ValueEntry);
-            "WIP To Interim" := "WIP To Interim" + CalcWIPToInvtInterim(ValueEntry);
-            Inventory := Inventory + CalcInventory(ValueEntry);
-            "Direct Cost Applied" := "Direct Cost Applied" + CalcDirectCostApplied(ValueEntry);
-            "Overhead Applied" := "Overhead Applied" + CalcOverheadApplied(ValueEntry);
+        UpDateWindow(WindowType, WindowNo, Format(ValueEntry."Entry Type"));
+        InventoryReportLine."Direct Cost Applied Actual" := InventoryReportLine."Direct Cost Applied Actual" + CalcDirectCostAppliedActual(ValueEntry);
+        InventoryReportLine."Overhead Applied Actual" := InventoryReportLine."Overhead Applied Actual" + CalcOverheadAppliedActual(ValueEntry);
+        InventoryReportLine."Purchase Variance" := InventoryReportLine."Purchase Variance" + CalcPurchaseVariance(ValueEntry);
+        InventoryReportLine."Inventory Adjmt." := InventoryReportLine."Inventory Adjmt." + CalcInventoryAdjmt(ValueEntry);
+        InventoryReportLine."Invt. Accrual (Interim)" := InventoryReportLine."Invt. Accrual (Interim)" + CalcInvtAccrualInterim(ValueEntry);
+        InventoryReportLine.COGS := InventoryReportLine.COGS + CalcCOGS(ValueEntry);
+        InventoryReportLine."COGS (Interim)" := InventoryReportLine."COGS (Interim)" + CalcCOGSInterim(ValueEntry);
+        InventoryReportLine."WIP Inventory" := InventoryReportLine."WIP Inventory" + CalcWIPInventory(ValueEntry);
+        InventoryReportLine."Material Variance" := InventoryReportLine."Material Variance" + CalcMaterialVariance(ValueEntry);
+        InventoryReportLine."Capacity Variance" := InventoryReportLine."Capacity Variance" + CalcCapVariance(ValueEntry);
+        InventoryReportLine."Subcontracted Variance" := InventoryReportLine."Subcontracted Variance" + CalcSubcontractedVariance(ValueEntry);
+        InventoryReportLine."Capacity Overhead Variance" := InventoryReportLine."Capacity Overhead Variance" + CalcCapOverheadVariance(ValueEntry);
+        InventoryReportLine."Mfg. Overhead Variance" := InventoryReportLine."Mfg. Overhead Variance" + CalcMfgOverheadVariance(ValueEntry);
+        InventoryReportLine."Inventory (Interim)" := InventoryReportLine."Inventory (Interim)" + CalcInventoryInterim(ValueEntry);
+        InventoryReportLine."Direct Cost Applied WIP" := InventoryReportLine."Direct Cost Applied WIP" + CalcDirectCostAppliedToWIP(ValueEntry);
+        InventoryReportLine."Overhead Applied WIP" := InventoryReportLine."Overhead Applied WIP" + CalcOverheadAppliedToWIP(ValueEntry);
+        InventoryReportLine."Inventory To WIP" := InventoryReportLine."Inventory To WIP" + CalcInvtToWIP(ValueEntry);
+        InventoryReportLine."WIP To Interim" := InventoryReportLine."WIP To Interim" + CalcWIPToInvtInterim(ValueEntry);
+        InventoryReportLine.Inventory := InventoryReportLine.Inventory + CalcInventory(ValueEntry);
+        InventoryReportLine."Direct Cost Applied" := InventoryReportLine."Direct Cost Applied" + CalcDirectCostApplied(ValueEntry);
+        InventoryReportLine."Overhead Applied" := InventoryReportLine."Overhead Applied" + CalcOverheadApplied(ValueEntry);
 
-            OnAfterCalcValueEntries(InventoryReportLine, ValueEntry);
-        end;
+        OnAfterCalcValueEntries(InventoryReportLine, ValueEntry);
     end;
 
     local procedure CalcGLAccount(var GLAcc: Record "G/L Account") Result: Decimal
@@ -400,447 +383,400 @@ codeunit 5845 "Get Inventory Report"
         if IsHandled then
             exit(Result);
 
-        with GLAcc do begin
-            UpDateWindow(TableCaption, "No.", WindowPostingType);
-            CalcFields("Net Change");
-            exit("Net Change");
-        end;
+        UpDateWindow(GLAcc.TableCaption(), GLAcc."No.", WindowPostingType);
+        GLAcc.CalcFields(GLAcc."Net Change");
+        exit(GLAcc."Net Change");
     end;
 
     local procedure CalcDiff(var InventoryReportLine: Record "Inventory Report Entry")
     var
         CalcInventoryReportLine: Record "Inventory Report Entry";
     begin
-        with InventoryReportLine do begin
-            CalcInventoryReportLine.Copy(InventoryReportLine);
-            Reset();
+        CalcInventoryReportLine.Copy(InventoryReportLine);
+        InventoryReportLine.Reset();
 
-            SetRange(Type, Type::"G/L Account");
-            CalcSums(
-              Inventory, "Inventory (Interim)", "WIP Inventory",
-              "Direct Cost Applied Actual", "Overhead Applied Actual", "Purchase Variance",
-              "Inventory Adjmt.", "Invt. Accrual (Interim)", COGS,
-              "COGS (Interim)", "Material Variance");
-            CalcSums(
-              "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
-              "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
-              "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
+        InventoryReportLine.SetRange(Type, InventoryReportLine.Type::"G/L Account");
+        InventoryReportLine.CalcSums(
+          Inventory, "Inventory (Interim)", "WIP Inventory",
+          "Direct Cost Applied Actual", "Overhead Applied Actual", "Purchase Variance",
+          "Inventory Adjmt.", "Invt. Accrual (Interim)", COGS,
+          "COGS (Interim)", "Material Variance");
+        InventoryReportLine.CalcSums(
+          "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
+          "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
+          "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
 
-            OnCalcDiffOnAfterCalcSumsTypeGLAccount(InventoryReportLine);
-            CalcInventoryReportLine := InventoryReportLine;
+        OnCalcDiffOnAfterCalcSumsTypeGLAccount(InventoryReportLine);
+        CalcInventoryReportLine := InventoryReportLine;
 
-            SetRange(Type, Type::Item);
-            CalcSums(
-              Inventory, "Inventory (Interim)", "WIP Inventory",
-              "Direct Cost Applied Actual", "Overhead Applied Actual", "Purchase Variance",
-              "Inventory Adjmt.", "Invt. Accrual (Interim)", COGS,
-              "COGS (Interim)", "Material Variance");
-            CalcSums(
-              "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
-              "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
-              "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
+        InventoryReportLine.SetRange(Type, InventoryReportLine.Type::Item);
+        InventoryReportLine.CalcSums(
+          Inventory, "Inventory (Interim)", "WIP Inventory",
+          "Direct Cost Applied Actual", "Overhead Applied Actual", "Purchase Variance",
+          "Inventory Adjmt.", "Invt. Accrual (Interim)", COGS,
+          "COGS (Interim)", "Material Variance");
+        InventoryReportLine.CalcSums(
+          "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
+          "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
+          "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
 
-            OnCalcDiffOnAfterCalcSumsTypeItem(InventoryReportLine);
-        end;
+        OnCalcDiffOnAfterCalcSumsTypeItem(InventoryReportLine);
 
-        with CalcInventoryReportLine do begin
-            Inventory := Inventory - InventoryReportLine.Inventory;
-            "Inventory (Interim)" := "Inventory (Interim)" - InventoryReportLine."Inventory (Interim)";
-            "WIP Inventory" := "WIP Inventory" - InventoryReportLine."WIP Inventory";
-            "Direct Cost Applied Actual" := "Direct Cost Applied Actual" - InventoryReportLine."Direct Cost Applied Actual";
-            "Overhead Applied Actual" := "Overhead Applied Actual" - InventoryReportLine."Overhead Applied Actual";
-            "Purchase Variance" := "Purchase Variance" - InventoryReportLine."Purchase Variance";
-            "Inventory Adjmt." := "Inventory Adjmt." - InventoryReportLine."Inventory Adjmt.";
-            "Invt. Accrual (Interim)" := "Invt. Accrual (Interim)" - InventoryReportLine."Invt. Accrual (Interim)";
-            COGS := COGS - InventoryReportLine.COGS;
-            "COGS (Interim)" := "COGS (Interim)" - InventoryReportLine."COGS (Interim)";
-            "Material Variance" := "Material Variance" - InventoryReportLine."Material Variance";
-            "Capacity Variance" := "Capacity Variance" - InventoryReportLine."Capacity Variance";
-            "Subcontracted Variance" := "Subcontracted Variance" - InventoryReportLine."Subcontracted Variance";
-            "Capacity Overhead Variance" := "Capacity Overhead Variance" - InventoryReportLine."Capacity Overhead Variance";
-            "Mfg. Overhead Variance" := "Mfg. Overhead Variance" - InventoryReportLine."Mfg. Overhead Variance";
-            "Direct Cost Applied WIP" := "Direct Cost Applied WIP" - InventoryReportLine."Direct Cost Applied WIP";
-            "Overhead Applied WIP" := "Overhead Applied WIP" - InventoryReportLine."Overhead Applied WIP";
-            "Inventory To WIP" := "Inventory To WIP" - InventoryReportLine."Inventory To WIP";
-            "WIP To Interim" := "WIP To Interim" - InventoryReportLine."WIP To Interim";
-            "Direct Cost Applied" := "Direct Cost Applied" - InventoryReportLine."Direct Cost Applied";
-            "Overhead Applied" := "Overhead Applied" - InventoryReportLine."Overhead Applied";
+        CalcInventoryReportLine.Inventory := CalcInventoryReportLine.Inventory - InventoryReportLine.Inventory;
+        CalcInventoryReportLine."Inventory (Interim)" := CalcInventoryReportLine."Inventory (Interim)" - InventoryReportLine."Inventory (Interim)";
+        CalcInventoryReportLine."WIP Inventory" := CalcInventoryReportLine."WIP Inventory" - InventoryReportLine."WIP Inventory";
+        CalcInventoryReportLine."Direct Cost Applied Actual" := CalcInventoryReportLine."Direct Cost Applied Actual" - InventoryReportLine."Direct Cost Applied Actual";
+        CalcInventoryReportLine."Overhead Applied Actual" := CalcInventoryReportLine."Overhead Applied Actual" - InventoryReportLine."Overhead Applied Actual";
+        CalcInventoryReportLine."Purchase Variance" := CalcInventoryReportLine."Purchase Variance" - InventoryReportLine."Purchase Variance";
+        CalcInventoryReportLine."Inventory Adjmt." := CalcInventoryReportLine."Inventory Adjmt." - InventoryReportLine."Inventory Adjmt.";
+        CalcInventoryReportLine."Invt. Accrual (Interim)" := CalcInventoryReportLine."Invt. Accrual (Interim)" - InventoryReportLine."Invt. Accrual (Interim)";
+        CalcInventoryReportLine.COGS := CalcInventoryReportLine.COGS - InventoryReportLine.COGS;
+        CalcInventoryReportLine."COGS (Interim)" := CalcInventoryReportLine."COGS (Interim)" - InventoryReportLine."COGS (Interim)";
+        CalcInventoryReportLine."Material Variance" := CalcInventoryReportLine."Material Variance" - InventoryReportLine."Material Variance";
+        CalcInventoryReportLine."Capacity Variance" := CalcInventoryReportLine."Capacity Variance" - InventoryReportLine."Capacity Variance";
+        CalcInventoryReportLine."Subcontracted Variance" := CalcInventoryReportLine."Subcontracted Variance" - InventoryReportLine."Subcontracted Variance";
+        CalcInventoryReportLine."Capacity Overhead Variance" := CalcInventoryReportLine."Capacity Overhead Variance" - InventoryReportLine."Capacity Overhead Variance";
+        CalcInventoryReportLine."Mfg. Overhead Variance" := CalcInventoryReportLine."Mfg. Overhead Variance" - InventoryReportLine."Mfg. Overhead Variance";
+        CalcInventoryReportLine."Direct Cost Applied WIP" := CalcInventoryReportLine."Direct Cost Applied WIP" - InventoryReportLine."Direct Cost Applied WIP";
+        CalcInventoryReportLine."Overhead Applied WIP" := CalcInventoryReportLine."Overhead Applied WIP" - InventoryReportLine."Overhead Applied WIP";
+        CalcInventoryReportLine."Inventory To WIP" := CalcInventoryReportLine."Inventory To WIP" - InventoryReportLine."Inventory To WIP";
+        CalcInventoryReportLine."WIP To Interim" := CalcInventoryReportLine."WIP To Interim" - InventoryReportLine."WIP To Interim";
+        CalcInventoryReportLine."Direct Cost Applied" := CalcInventoryReportLine."Direct Cost Applied" - InventoryReportLine."Direct Cost Applied";
+        CalcInventoryReportLine."Overhead Applied" := CalcInventoryReportLine."Overhead Applied" - InventoryReportLine."Overhead Applied";
 
-            OnCalcDiffOnBeforeCopytoInventoryReportEntry(CalcInventoryReportLine, InventoryReportLine);
-            InventoryReportLine.Copy(CalcInventoryReportLine);
-        end;
+        OnCalcDiffOnBeforeCopytoInventoryReportEntry(CalcInventoryReportLine, InventoryReportLine);
+        InventoryReportLine.Copy(CalcInventoryReportLine);
     end;
 
     local procedure DrillDownGL(var InvtReportEntry: Record "Inventory Report Entry")
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", InvtReportEntry."No.");
-            SetFilter("Posting Date", InvtReportEntry.GetFilter("Posting Date Filter"));
-            OnDrillDownGLBeforeRunPage(GLEntry, InvtReportEntry);
-            PAGE.Run(0, GLEntry, Amount);
-        end;
+        GLEntry.SetRange("G/L Account No.", InvtReportEntry."No.");
+        GLEntry.SetFilter("Posting Date", InvtReportEntry.GetFilter("Posting Date Filter"));
+        OnDrillDownGLBeforeRunPage(GLEntry, InvtReportEntry);
+        PAGE.Run(0, GLEntry, GLEntry.Amount);
     end;
 
     local procedure CalcDirectCostAppliedActual(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if "Entry Type" = "Entry Type"::"Direct Cost" then
-                case "Item Ledger Entry Type" of
-                    "Item Ledger Entry Type"::Purchase:
-                        begin
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
-                        end;
-                    "Item Ledger Entry Type"::" ":
-                        if "Order Type" = "Order Type"::Assembly then begin
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
-                        end;
-                end;
-            exit(0);
-        end;
-    end;
-
-    local procedure CalcOverheadAppliedActual(var ValueEntry: Record "Value Entry"): Decimal
-    begin
-        with ValueEntry do begin
-            if "Entry Type" = "Entry Type"::"Indirect Cost" then
-                case "Item Ledger Entry Type" of
-                    "Item Ledger Entry Type"::Purchase,
-                    "Item Ledger Entry Type"::Output,
-                    "Item Ledger Entry Type"::"Assembly Output":
-                        begin
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
-                        end;
-                    "Item Ledger Entry Type"::" ":
-                        if "Order Type" = "Order Type"::Assembly then begin
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
-                        end;
-                end;
-            exit(0);
-        end;
-    end;
-
-    local procedure CalcPurchaseVariance(var ValueEntry: Record "Value Entry"): Decimal
-    begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::Variance) and
-               ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Purchase)
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
-        end;
-    end;
-
-    local procedure CalcInventoryAdjmt(var ValueEntry: Record "Value Entry"): Decimal
-    begin
-        with ValueEntry do
-            case "Entry Type" of
-                "Entry Type"::Rounding,
-                "Entry Type"::Revaluation:
+        if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost" then
+            case ValueEntry."Item Ledger Entry Type" of
+                ValueEntry."Item Ledger Entry Type"::Purchase:
                     begin
-                        CalcSums("Cost Amount (Actual)");
-                        exit(-"Cost Amount (Actual)");
+                        ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
                     end;
-                "Entry Type"::"Direct Cost":
-                    case "Item Ledger Entry Type" of
-                        "Item Ledger Entry Type"::"Positive Adjmt.",
-                        "Item Ledger Entry Type"::"Negative Adjmt.",
-                        "Item Ledger Entry Type"::"Assembly Output",
-                        "Item Ledger Entry Type"::"Assembly Consumption",
-                        "Item Ledger Entry Type"::Transfer:
-                            begin
-                                CalcSums("Cost Amount (Actual)");
-                                exit(-"Cost Amount (Actual)");
-                            end;
-                        "Item Ledger Entry Type"::" ":
-                            if "Order Type" = "Order Type"::Assembly then begin
-                                CalcSums("Cost Amount (Actual)");
-                                exit(-"Cost Amount (Actual)");
-                            end;
+                ValueEntry."Item Ledger Entry Type"::" ":
+                    if ValueEntry."Order Type" = ValueEntry."Order Type"::Assembly then begin
+                        ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
                     end;
             end;
         exit(0);
     end;
 
+    local procedure CalcOverheadAppliedActual(var ValueEntry: Record "Value Entry"): Decimal
+    begin
+        if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Indirect Cost" then
+            case ValueEntry."Item Ledger Entry Type" of
+                ValueEntry."Item Ledger Entry Type"::Purchase,
+                ValueEntry."Item Ledger Entry Type"::Output,
+                ValueEntry."Item Ledger Entry Type"::"Assembly Output":
+                    begin
+                        ValueEntry.CalcSums("Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
+                    end;
+                ValueEntry."Item Ledger Entry Type"::" ":
+                    if ValueEntry."Order Type" = ValueEntry."Order Type"::Assembly then begin
+                        ValueEntry.CalcSums("Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
+                    end;
+            end;
+        exit(0);
+    end;
+
+    local procedure CalcPurchaseVariance(var ValueEntry: Record "Value Entry"): Decimal
+    begin
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Variance) and
+            (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Purchase)
+        then begin
+            ValueEntry.CalcSums("Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
+        end;
+        exit(0);
+    end;
+
+    local procedure CalcInventoryAdjmt(var ValueEntry: Record "Value Entry"): Decimal
+    begin
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::Rounding,
+            ValueEntry."Entry Type"::Revaluation:
+                begin
+                    ValueEntry.CalcSums("Cost Amount (Actual)");
+                    exit(-ValueEntry."Cost Amount (Actual)");
+                end;
+            ValueEntry."Entry Type"::"Direct Cost":
+                case ValueEntry."Item Ledger Entry Type" of
+                    ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.",
+                    ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
+                    ValueEntry."Item Ledger Entry Type"::"Assembly Output",
+                    ValueEntry."Item Ledger Entry Type"::"Assembly Consumption",
+                    ValueEntry."Item Ledger Entry Type"::Transfer:
+                        begin
+                            ValueEntry.CalcSums("Cost Amount (Actual)");
+                            exit(-ValueEntry."Cost Amount (Actual)");
+                        end;
+                    ValueEntry."Item Ledger Entry Type"::" ":
+                        if ValueEntry."Order Type" = ValueEntry."Order Type"::Assembly then begin
+                            ValueEntry.CalcSums("Cost Amount (Actual)");
+                            exit(-ValueEntry."Cost Amount (Actual)");
+                        end;
+                end;
+        end;
+        exit(0);
+    end;
+
     local procedure CalcInvtAccrualInterim(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::Revaluation]) and
-               ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Purchase)
-            then begin
-                CalcSums("Cost Amount (Expected)");
-                exit(-"Cost Amount (Expected)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation]) and
+           (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Purchase)
+        then begin
+            ValueEntry.CalcSums("Cost Amount (Expected)");
+            exit(-ValueEntry."Cost Amount (Expected)");
         end;
+        exit(0);
     end;
 
     local procedure CalcCOGS(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::"Direct Cost") and
-               ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Sale)
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
+           (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Sale)
+        then begin
+            ValueEntry.CalcSums("Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
     end;
 
     local procedure CalcCOGSInterim(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::Revaluation]) and
-               ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Sale)
-            then begin
-                CalcSums("Cost Amount (Expected)");
-                exit(-"Cost Amount (Expected)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation]) and
+           (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Sale)
+        then begin
+            ValueEntry.CalcSums("Cost Amount (Expected)");
+            exit(-ValueEntry."Cost Amount (Expected)");
         end;
+        exit(0);
     end;
 
     local procedure CalcWIPInventory(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do
-            if "Order Type" = "Order Type"::Production then
-                case "Item Ledger Entry Type" of
-                    "Item Ledger Entry Type"::Consumption:
-                        if "Entry Type" = "Entry Type"::"Direct Cost" then begin
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
-                        end;
-                    "Item Ledger Entry Type"::Output:
-                        case "Entry Type" of
-                            "Entry Type"::"Direct Cost":
-                                begin
-                                    CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
-                                    exit(-"Cost Amount (Actual)" - "Cost Amount (Expected)");
-                                end;
-                            "Entry Type"::Revaluation:
-                                begin
-                                    CalcSums("Cost Amount (Expected)");
-                                    exit(-"Cost Amount (Expected)");
-                                end;
-                        end;
-                    "Item Ledger Entry Type"::" ":
-                        if "Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::"Indirect Cost"] then begin
-                            CalcSums("Cost Amount (Actual)");
-                            exit("Cost Amount (Actual)");
-                        end;
-                end;
+        if ValueEntry."Order Type" = ValueEntry."Order Type"::Production then
+            case ValueEntry."Item Ledger Entry Type" of
+                ValueEntry."Item Ledger Entry Type"::Consumption:
+                    if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost" then begin
+                        ValueEntry.CalcSums("Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
+                    end;
+                ValueEntry."Item Ledger Entry Type"::Output:
+                    case ValueEntry."Entry Type" of
+                        ValueEntry."Entry Type"::"Direct Cost":
+                            begin
+                                ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
+                                exit(-ValueEntry."Cost Amount (Actual)" - ValueEntry."Cost Amount (Expected)");
+                            end;
+                        ValueEntry."Entry Type"::Revaluation:
+                            begin
+                                ValueEntry.CalcSums("Cost Amount (Expected)");
+                                exit(-ValueEntry."Cost Amount (Expected)");
+                            end;
+                    end;
+                ValueEntry."Item Ledger Entry Type"::" ":
+                    if ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::"Indirect Cost"] then begin
+                        ValueEntry.CalcSums("Cost Amount (Actual)");
+                        exit(ValueEntry."Cost Amount (Actual)");
+                    end;
+            end;
     end;
 
     local procedure CalcMaterialVariance(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::Variance) and
-               ("Item Ledger Entry Type" in ["Item Ledger Entry Type"::Output,
-                                             "Item Ledger Entry Type"::"Assembly Output"]) and
-               ("Variance Type" = "Variance Type"::Material)
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Variance) and
+            (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Output,
+                                                     ValueEntry."Item Ledger Entry Type"::"Assembly Output"]) and
+            (ValueEntry."Variance Type" = ValueEntry."Variance Type"::Material)
+        then begin
+            ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
     end;
 
     local procedure CalcCapVariance(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::Variance) and
-               ("Item Ledger Entry Type" in ["Item Ledger Entry Type"::Output,
-                                             "Item Ledger Entry Type"::"Assembly Output"]) and
-               ("Variance Type" = "Variance Type"::Capacity)
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Variance) and
+            (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Output,
+                                                     ValueEntry."Item Ledger Entry Type"::"Assembly Output"]) and
+            (ValueEntry."Variance Type" = ValueEntry."Variance Type"::Capacity)
+        then begin
+            ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
     end;
 
     local procedure CalcSubcontractedVariance(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::Variance) and
-               ("Item Ledger Entry Type" in ["Item Ledger Entry Type"::Output,
-                                             "Item Ledger Entry Type"::"Assembly Output"]) and
-               ("Variance Type" = "Variance Type"::Subcontracted)
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Variance) and
+            (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Output,
+                                                     ValueEntry."Item Ledger Entry Type"::"Assembly Output"]) and
+            (ValueEntry."Variance Type" = ValueEntry."Variance Type"::Subcontracted)
+        then begin
+            ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
     end;
 
     local procedure CalcCapOverheadVariance(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::Variance) and
-               ("Item Ledger Entry Type" in ["Item Ledger Entry Type"::Output,
-                                             "Item Ledger Entry Type"::"Assembly Output"]) and
-               ("Variance Type" = "Variance Type"::"Capacity Overhead")
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Variance) and
+            (ValueEntry."Item Ledger Entry Type" in ["Item Ledger Entry Type"::Output,
+                                                     "Item Ledger Entry Type"::"Assembly Output"]) and
+            (ValueEntry."Variance Type" = ValueEntry."Variance Type"::"Capacity Overhead")
+        then begin
+            ValueEntry.CalcSums("Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
     end;
 
     local procedure CalcMfgOverheadVariance(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::Variance) and
-               ("Item Ledger Entry Type" in ["Item Ledger Entry Type"::Output,
-                                             "Item Ledger Entry Type"::"Assembly Output"]) and
-               ("Variance Type" = "Variance Type"::"Manufacturing Overhead")
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Variance) and
+            (ValueEntry."Item Ledger Entry Type" in ["Item Ledger Entry Type"::Output,
+                                                      "Item Ledger Entry Type"::"Assembly Output"]) and
+            (ValueEntry."Variance Type" = ValueEntry."Variance Type"::"Manufacturing Overhead")
+        then begin
+            ValueEntry.CalcSums("Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
     end;
 
     local procedure CalcInventoryInterim(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::Revaluation]) and
-               ("Item Ledger Entry Type" in
+        if (ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation]) and
+            (ValueEntry."Item Ledger Entry Type" in
                 ["Item Ledger Entry Type"::Purchase,
-                 "Item Ledger Entry Type"::Sale,
-                 "Item Ledger Entry Type"::Output])
-            then begin
-                CalcSums("Cost Amount (Expected)");
-                exit("Cost Amount (Expected)");
-            end;
-            exit(0);
+                    "Item Ledger Entry Type"::Sale,
+                    "Item Ledger Entry Type"::Output])
+        then begin
+            ValueEntry.CalcSums("Cost Amount (Expected)");
+            exit(ValueEntry."Cost Amount (Expected)");
         end;
+        exit(0);
     end;
 
     local procedure CalcOverheadAppliedToWIP(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::"Indirect Cost") and
-               ("Item Ledger Entry Type" = "Item Ledger Entry Type"::" ") and
-               ("Order Type" = "Order Type"::Production)
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Indirect Cost") and
+           (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::" ") and
+           (ValueEntry."Order Type" = ValueEntry."Order Type"::Production)
+        then begin
+            ValueEntry.CalcSums("Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
     end;
 
     local procedure CalcDirectCostAppliedToWIP(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" = "Entry Type"::"Direct Cost") and
-               ("Item Ledger Entry Type" = "Item Ledger Entry Type"::" ") and
-               ("Order Type" = "Order Type"::Production)
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit(-"Cost Amount (Actual)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
+           (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::" ") and
+           (ValueEntry."Order Type" = ValueEntry."Order Type"::Production)
+        then begin
+            ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+            exit(-ValueEntry."Cost Amount (Actual)");
         end;
+        exit(0);
     end;
 
     local procedure CalcWIPToInvtInterim(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if ("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::Revaluation]) and
-               ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Output)
-            then begin
-                CalcSums("Cost Amount (Expected)");
-                exit(-"Cost Amount (Expected)");
-            end;
-            exit(0);
+        if (ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation]) and
+           (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Output)
+        then begin
+            ValueEntry.CalcSums(ValueEntry."Cost Amount (Expected)");
+            exit(-ValueEntry."Cost Amount (Expected)");
         end;
+        exit(0);
     end;
 
     local procedure CalcInvtToWIP(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do
-            if ("Entry Type" = "Entry Type"::"Direct Cost") and
-               ("Item Ledger Entry Type" in
-                ["Item Ledger Entry Type"::Output, "Item Ledger Entry Type"::Consumption])
-            then begin
-                CalcSums("Cost Amount (Actual)");
-                exit("Cost Amount (Actual)");
-            end;
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
+            (ValueEntry."Item Ledger Entry Type" in
+            [ValueEntry."Item Ledger Entry Type"::Output, ValueEntry."Item Ledger Entry Type"::Consumption])
+        then begin
+            ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+            exit(ValueEntry."Cost Amount (Actual)");
+        end;
     end;
 
     local procedure CalcInventory(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if "Item Ledger Entry Type" = "Item Ledger Entry Type"::" " then
-                exit(0);
-            CalcSums("Cost Amount (Actual)");
-            exit("Cost Amount (Actual)");
-        end;
+        if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::" " then
+            exit(0);
+        ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+        exit(ValueEntry."Cost Amount (Actual)");
     end;
 
     local procedure CalcDirectCostApplied(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if "Entry Type" = "Entry Type"::"Direct Cost" then
-                case "Item Ledger Entry Type" of
-                    "Item Ledger Entry Type"::Purchase:
-                        begin
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
+        if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost" then
+            case ValueEntry."Item Ledger Entry Type" of
+                ValueEntry."Item Ledger Entry Type"::Purchase:
+                    begin
+                        ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
+                    end;
+                ValueEntry."Item Ledger Entry Type"::" ":
+                    begin
+                        if ValueEntry."Order Type" = ValueEntry."Order Type"::Assembly then begin
+                            ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+                            exit(-ValueEntry."Cost Amount (Actual)");
                         end;
-                    "Item Ledger Entry Type"::" ":
-                        begin
-                            if "Order Type" = "Order Type"::Assembly then begin
-                                CalcSums("Cost Amount (Actual)");
-                                exit(-"Cost Amount (Actual)");
-                            end;
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
-                        end;
-                end;
-            exit(0);
-        end;
+                        ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
+                    end;
+            end;
+        exit(0);
     end;
 
     local procedure CalcOverheadApplied(var ValueEntry: Record "Value Entry"): Decimal
     begin
-        with ValueEntry do begin
-            if "Entry Type" = "Entry Type"::"Indirect Cost" then
-                case "Item Ledger Entry Type" of
-                    "Item Ledger Entry Type"::Purchase,
-                    "Item Ledger Entry Type"::Output,
-                    "Item Ledger Entry Type"::"Assembly Output":
-                        begin
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
+        if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Indirect Cost" then
+            case ValueEntry."Item Ledger Entry Type" of
+                ValueEntry."Item Ledger Entry Type"::Purchase,
+                ValueEntry."Item Ledger Entry Type"::Output,
+                ValueEntry."Item Ledger Entry Type"::"Assembly Output":
+                    begin
+                        ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
+                    end;
+                ValueEntry."Item Ledger Entry Type"::" ":
+                    begin
+                        if ValueEntry."Order Type" = ValueEntry."Order Type"::Assembly then begin
+                            ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+                            exit(-ValueEntry."Cost Amount (Actual)");
                         end;
-                    "Item Ledger Entry Type"::" ":
-                        begin
-                            if "Order Type" = "Order Type"::Assembly then begin
-                                CalcSums("Cost Amount (Actual)");
-                                exit(-"Cost Amount (Actual)");
-                            end;
-                            CalcSums("Cost Amount (Actual)");
-                            exit(-"Cost Amount (Actual)");
-                        end;
-                end;
-            exit(0);
-        end;
+                        ValueEntry.CalcSums(ValueEntry."Cost Amount (Actual)");
+                        exit(-ValueEntry."Cost Amount (Actual)");
+                    end;
+            end;
+        exit(0);
     end;
 
     local procedure CopyFiltersFronInventoryReportLine(var ValueEntry: Record "Value Entry"; var InventoryReportEntry: Record "Inventory Report Entry")
@@ -863,18 +799,16 @@ codeunit 5845 "Get Inventory Report"
     begin
         Selection := StrMenu(Text006, 2);
         CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-        with ValueEntry do begin
-            SetRange("Entry Type", "Entry Type"::"Direct Cost");
-            SetRange("Variance Type");
-            case Selection of
-                1:
-                    SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Purchase);
-                2:
-                    begin
-                        SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::" ");
-                        SetRange("Order Type", "Order Type"::Assembly);
-                    end;
-            end;
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetRange("Variance Type");
+        case Selection of
+            1:
+                ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Purchase);
+            2:
+                begin
+                    ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::" ");
+                    ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Assembly);
+                end;
         end;
     end;
 
@@ -917,11 +851,9 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersPurchaseVariance(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::Variance);
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Purchase);
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Purchase);
     end;
 
     procedure DrillDownInventoryAdjmt(var InvtReportEntry: Record "Inventory Report Entry")
@@ -938,31 +870,29 @@ codeunit 5845 "Get Inventory Report"
         if Selection = 0 then
             exit;
 
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
 
-            case Selection of
-                1:
-                    begin
-                        SetRange("Entry Type", "Entry Type"::"Direct Cost");
-                        SetFilter("Item Ledger Entry Type", '%1|%2|%3|%4|%5',
-                          "Item Ledger Entry Type"::"Positive Adjmt.",
-                          "Item Ledger Entry Type"::"Negative Adjmt.",
-                          "Item Ledger Entry Type"::"Assembly Output",
-                          "Item Ledger Entry Type"::"Assembly Consumption",
-                          "Item Ledger Entry Type"::Transfer);
-                    end;
-                2:
-                    begin
-                        SetRange("Entry Type", "Entry Type"::"Direct Cost");
-                        SetRange("Order Type", "Order Type"::Assembly);
-                        SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::" ");
-                    end;
-                3:
-                    SetRange("Entry Type", "Entry Type"::Revaluation);
-                4:
-                    SetRange("Entry Type", "Entry Type"::Rounding);
-            end;
+        case Selection of
+            1:
+                begin
+                    ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+                    ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2|%3|%4|%5',
+                      ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.",
+                      ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
+                      ValueEntry."Item Ledger Entry Type"::"Assembly Output",
+                      ValueEntry."Item Ledger Entry Type"::"Assembly Consumption",
+                      ValueEntry."Item Ledger Entry Type"::Transfer);
+                end;
+            2:
+                begin
+                    ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+                    ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Assembly);
+                    ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::" ");
+                end;
+            3:
+                ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
+            4:
+                ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Rounding);
         end;
     end;
 
@@ -974,12 +904,10 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersInvtAccrualInterim(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::"Direct Cost");
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Purchase);
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Purchase);
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownCOGS(var InvtReportEntry: Record "Inventory Report Entry")
@@ -989,12 +917,10 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersCOGS(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::"Direct Cost");
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Sale);
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Sale);
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownCOGSInterim(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1005,12 +931,10 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersCOGSInterim(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Direct Cost", "Entry Type"::Revaluation);
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Sale);
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetFilter("Entry Type", '%1|%2', ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation);
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Sale);
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownWIPInventory(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1059,14 +983,12 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersMaterialVariance(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::Variance);
-            SetRange("Variance Type", "Variance Type"::Material);
-            SetFilter("Item Ledger Entry Type", '%1|%2',
-              "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::"Assembly Output");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
+        ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type"::Material);
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Output");
     end;
 
     procedure DrillDownCapVariance(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1077,14 +999,12 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersCapVariance(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::Variance);
-            SetRange("Variance Type", "Variance Type"::Capacity);
-            SetFilter("Item Ledger Entry Type", '%1|%2',
-              "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::"Assembly Output");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
+        ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type"::Capacity);
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Output");
     end;
 
     procedure DrillDownSubcontractedVariance(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1095,14 +1015,12 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersSubcontractedVariance(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::Variance);
-            SetRange("Variance Type", "Variance Type"::Subcontracted);
-            SetFilter("Item Ledger Entry Type", '%1|%2',
-              "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::"Assembly Output");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
+        ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type"::Subcontracted);
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Output");
     end;
 
     procedure DrillDownCapOverheadVariance(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1113,14 +1031,12 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersCapOverheadVariance(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::Variance);
-            SetRange("Variance Type", "Variance Type"::"Capacity Overhead");
-            SetFilter("Item Ledger Entry Type", '%1|%2',
-              "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::"Assembly Output");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
+        ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type"::"Capacity Overhead");
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Output");
     end;
 
     procedure DrillDownMfgOverheadVariance(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1131,14 +1047,12 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersMfgOverheadVariance(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::Variance);
-            SetRange("Variance Type", "Variance Type"::"Manufacturing Overhead");
-            SetFilter("Item Ledger Entry Type", '%1|%2',
-              "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::"Assembly Output");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
+        ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type"::"Manufacturing Overhead");
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Output");
     end;
 
     procedure DrillDownInventoryInterim(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1149,15 +1063,13 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersInventoryInterim(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Direct Cost", "Entry Type"::Revaluation);
-            SetFilter("Item Ledger Entry Type", '%1|%2|%3',
-              "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::Purchase,
-              "Item Ledger Entry Type"::Sale);
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetFilter("Entry Type", '%1|%2', ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation);
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2|%3',
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::Purchase,
+          ValueEntry."Item Ledger Entry Type"::Sale);
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownOverheadAppliedToWIP(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1168,13 +1080,11 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersOverheadAppliedToWIP(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::"Indirect Cost");
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::" ");
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Indirect Cost");
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::" ");
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownDirectCostApplToWIP(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1185,13 +1095,11 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersDirectCostApplToWIP(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::"Direct Cost");
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::" ");
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::" ");
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownWIPToInvtInterim(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1202,13 +1110,11 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersWIPToInvtInterim(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Direct Cost", "Entry Type"::Revaluation);
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Output);
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetFilter("Entry Type", '%1|%2', ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation);
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Output);
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownInvtToWIP(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1226,15 +1132,13 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersInvtToWIP(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::"Direct Cost");
-            SetRange("Order Type", "Order Type"::Production);
-            SetFilter("Item Ledger Entry Type", '%1|%2',
-              "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::Consumption);
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::Consumption);
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownInventory(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1245,13 +1149,11 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersInventory(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type");
-            SetFilter("Item Ledger Entry Type", '<>%1', "Item Ledger Entry Type"::" ");
-            SetRange("Variance Type");
-            SetFilter("Item Ledger Entry Type", '<>%1', "Item Ledger Entry Type"::" ");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type");
+        ValueEntry.SetFilter("Item Ledger Entry Type", '<>%1', ValueEntry."Item Ledger Entry Type"::" ");
+        ValueEntry.SetRange("Variance Type");
+        ValueEntry.SetFilter("Item Ledger Entry Type", '<>%1', ValueEntry."Item Ledger Entry Type"::" ");
     end;
 
     procedure DrillDownDirectCostApplied(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1262,14 +1164,12 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersDirectCostApplied(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::"Direct Cost");
-            SetFilter("Item Ledger Entry Type", '%1|%2',
-              "Item Ledger Entry Type"::Purchase,
-              "Item Ledger Entry Type"::" ");
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
+          ValueEntry."Item Ledger Entry Type"::Purchase,
+          ValueEntry."Item Ledger Entry Type"::" ");
+        ValueEntry.SetRange("Variance Type");
     end;
 
     procedure DrillDownOverheadApplied(var InvtReportEntry: Record "Inventory Report Entry")
@@ -1280,16 +1180,14 @@ codeunit 5845 "Get Inventory Report"
 
     local procedure SetFiltersOverheadApplied(var ValueEntry: Record "Value Entry"; var InvtReportEntry: Record "Inventory Report Entry")
     begin
-        with ValueEntry do begin
-            CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
-            SetRange("Entry Type", "Entry Type"::"Indirect Cost");
-            SetFilter("Item Ledger Entry Type", '%1|%2|%3|%4',
-              "Item Ledger Entry Type"::Purchase,
-              "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::"Assembly Output",
-              "Item Ledger Entry Type"::" ");
-            SetRange("Variance Type");
-        end;
+        CopyFiltersFronInventoryReportLine(ValueEntry, InvtReportEntry);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Indirect Cost");
+        ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2|%3|%4',
+          ValueEntry."Item Ledger Entry Type"::Purchase,
+          ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Output",
+          ValueEntry."Item Ledger Entry Type"::" ");
+        ValueEntry.SetRange("Variance Type");
     end;
 
     local procedure DrillDownInventoryReportEntryAmount(var InvtReportEntry: Record "Inventory Report Entry"; DrillDownFieldNo: Integer; ActiveFieldNo: Integer)
@@ -1368,7 +1266,7 @@ codeunit 5845 "Get Inventory Report"
         WindowUpdateDateTime := CurrentDateTime;
     end;
 
-    local procedure UpDateWindow(NewWindowType: Text[80]; NewWindowNo: Code[20]; NewWindowPostingType: Text[80])
+    local procedure UpDateWindow(NewWindowType: Text; NewWindowNo: Code[20]; NewWindowPostingType: Text)
     begin
         WindowType := NewWindowType;
         WindowNo := NewWindowNo;
@@ -1396,19 +1294,17 @@ codeunit 5845 "Get Inventory Report"
     var
         InvtSetup: Record "Inventory Setup";
     begin
-        with InventoryReportLine do begin
-            if ("Inventory (Interim)" <> 0) or
-               ("WIP Inventory" <> 0) or
-               ("Invt. Accrual (Interim)" <> 0) or
-               ("COGS (Interim)" <> 0)
-            then begin
-                InvtSetup.Get();
-                "Expected Cost Posting Warning" := not InvtSetup."Expected Cost Posting to G/L";
-                Modify();
-                exit(true);
-            end;
-            exit(false);
+        if (InventoryReportLine."Inventory (Interim)" <> 0) or
+            (InventoryReportLine."WIP Inventory" <> 0) or
+            (InventoryReportLine."Invt. Accrual (Interim)" <> 0) or
+            (InventoryReportLine."COGS (Interim)" <> 0)
+        then begin
+            InvtSetup.Get();
+            InventoryReportLine."Expected Cost Posting Warning" := not InvtSetup."Expected Cost Posting to G/L";
+            InventoryReportLine.Modify();
+            exit(true);
         end;
+        exit(false);
     end;
 
     local procedure CheckIfNoDifference(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
@@ -1446,43 +1342,41 @@ codeunit 5845 "Get Inventory Report"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with InventoryReportLine do begin
-            ValueEntry.SetCurrentKey("Item No.", "Posting Date");
-            if ValueEntry.FindFirst() then
-                repeat
-                    ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
-                    ValueEntry.SetRange("Posting Date", ValueEntry."Posting Date");
-                    if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, false) then
-                        repeat
-                            ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type");
-                            ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type");
-                            ValueEntry.SetRange("Location Code", ValueEntry."Location Code");
-                            ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type");
+        ValueEntry.SetCurrentKey("Item No.", "Posting Date");
+        if ValueEntry.FindFirst() then
+            repeat
+                ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
+                ValueEntry.SetRange("Posting Date", ValueEntry."Posting Date");
+                if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, false) then
+                    repeat
+                        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type");
+                        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type");
+                        ValueEntry.SetRange("Location Code", ValueEntry."Location Code");
+                        ValueEntry.SetRange("Variance Type", ValueEntry."Variance Type");
 
-                            if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, true) then begin
-                                ValueEntry.SetRange("Cost Posted to G/L", 0);
-                                ValueEntry.SetFilter("Cost Amount (Actual)", '<>%1', 0);
-                                if ValueEntry.FindLast() then begin
-                                    "Cost is Posted to G/L Warning" := true;
-                                    Modify();
-                                    exit(true);
-                                end;
-                                ValueEntry.SetRange("Cost Posted to G/L");
-                                ValueEntry.SetRange("Cost Amount (Actual)");
+                        if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, true) then begin
+                            ValueEntry.SetRange("Cost Posted to G/L", 0);
+                            ValueEntry.SetFilter("Cost Amount (Actual)", '<>%1', 0);
+                            if ValueEntry.FindLast() then begin
+                                InventoryReportLine."Cost is Posted to G/L Warning" := true;
+                                InventoryReportLine.Modify();
+                                exit(true);
                             end;
-                            ValueEntry.FindLast();
-                            ValueEntry.SetRange("Entry Type");
-                            ValueEntry.SetRange("Item Ledger Entry Type");
-                            ValueEntry.SetRange("Location Code");
-                            ValueEntry.SetRange("Variance Type");
-                        until ValueEntry.Next() = 0;
+                            ValueEntry.SetRange("Cost Posted to G/L");
+                            ValueEntry.SetRange("Cost Amount (Actual)");
+                        end;
+                        ValueEntry.FindLast();
+                        ValueEntry.SetRange("Entry Type");
+                        ValueEntry.SetRange("Item Ledger Entry Type");
+                        ValueEntry.SetRange("Location Code");
+                        ValueEntry.SetRange("Variance Type");
+                    until ValueEntry.Next() = 0;
 
-                    if ValueEntry.FindLast() then;
-                    ValueEntry.SetRange("Item No.");
-                    ValueEntry.SetRange("Posting Date");
-                until ValueEntry.Next() = 0;
-            exit(false);
-        end;
+                if ValueEntry.FindLast() then;
+                ValueEntry.SetRange("Item No.");
+                ValueEntry.SetRange("Posting Date");
+            until ValueEntry.Next() = 0;
+        exit(false);
     end;
 
     local procedure CheckValueGLCompression(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
@@ -1491,20 +1385,18 @@ codeunit 5845 "Get Inventory Report"
         InStartDateCompr: Boolean;
         InEndDateCompr: Boolean;
     begin
-        with InventoryReportLine do begin
-            DateComprRegister.SetCurrentKey("Table ID");
-            DateComprRegister.SetFilter("Table ID", '%1|%2', DATABASE::"Value Entry", DATABASE::"G/L Entry");
-            DateComprRegister.SetFilter("Starting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-            InStartDateCompr := DateComprRegister.FindFirst();
-            DateComprRegister.SetFilter("Ending Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-            InEndDateCompr := DateComprRegister.FindFirst();
-            if InEndDateCompr or InStartDateCompr then begin
-                "Compression Warning" := true;
-                Modify();
-                exit(true);
-            end;
-            exit(false);
+        DateComprRegister.SetCurrentKey("Table ID");
+        DateComprRegister.SetFilter("Table ID", '%1|%2', DATABASE::"Value Entry", DATABASE::"G/L Entry");
+        DateComprRegister.SetFilter("Starting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
+        InStartDateCompr := DateComprRegister.FindFirst();
+        DateComprRegister.SetFilter("Ending Date", InvtReportHeader.GetFilter("Posting Date Filter"));
+        InEndDateCompr := DateComprRegister.FindFirst();
+        if InEndDateCompr or InStartDateCompr then begin
+            InventoryReportLine."Compression Warning" := true;
+            InventoryReportLine.Modify();
+            exit(true);
         end;
+        exit(false);
     end;
 
     local procedure CheckGLClosingOverlaps(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
@@ -1580,18 +1472,16 @@ codeunit 5845 "Get Inventory Report"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with InventoryReportLine do begin
-            GLEntry.Reset();
-            GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
-            GLEntry.SetRange("G/L Account No.", '');
-            GLEntry.SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-            if GLEntry.FindFirst() then begin
-                "Deleted G/L Accounts Warning" := true;
-                Modify();
-                exit(true);
-            end;
-            exit(false);
+        GLEntry.Reset();
+        GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
+        GLEntry.SetRange("G/L Account No.", '');
+        GLEntry.SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
+        if GLEntry.FindFirst() then begin
+            InventoryReportLine."Deleted G/L Accounts Warning" := true;
+            InventoryReportLine.Modify();
+            exit(true);
         end;
+        exit(false);
     end;
 
     local procedure CheckPostingDateToGLNotTheSame(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
@@ -1601,36 +1491,34 @@ codeunit 5845 "Get Inventory Report"
         TempInvtPostingSetup: Record "Inventory Posting Setup" temporary;
         TotalInventory: Decimal;
     begin
-        with InventoryReportLine do begin
-            ValueEntry.Reset();
-            ValueEntry.SetCurrentKey("Item No.");
-            if ValueEntry.FindFirst() then
-                repeat
-                    ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
-                    if ValueEntry."Item No." <> '' then
-                        TotalInventory := TotalInventory + CalcInventory(ValueEntry);
-                    ValueEntry.FindLast();
-                    ValueEntry.SetRange("Item No.");
-                until ValueEntry.Next() = 0;
+        ValueEntry.Reset();
+        ValueEntry.SetCurrentKey("Item No.");
+        if ValueEntry.FindFirst() then
+            repeat
+                ValueEntry.SetRange("Item No.", ValueEntry."Item No.");
+                if ValueEntry."Item No." <> '' then
+                    TotalInventory := TotalInventory + CalcInventory(ValueEntry);
+                ValueEntry.FindLast();
+                ValueEntry.SetRange("Item No.");
+            until ValueEntry.Next() = 0;
 
-            if InvtPostingSetup.Find('-') then
-                repeat
-                    TempInvtPostingSetup.Reset();
-                    TempInvtPostingSetup.SetRange("Inventory Account", InvtPostingSetup."Inventory Account");
-                    if not IsGLNotTheSameHandled(InventoryReportLine, InvtPostingSetup, TempInvtPostingSetup, TotalInventory) then
-                        if not TempInvtPostingSetup.FindFirst() then
-                            if GLAcc.Get(InvtPostingSetup."Inventory Account") then
-                                TotalInventory := TotalInventory - CalcGLAccount(GLAcc);
-                    TempInvtPostingSetup := InvtPostingSetup;
-                    TempInvtPostingSetup.Insert();
-                until InvtPostingSetup.Next() = 0;
-            if TotalInventory = 0 then begin
-                "Posting Date Warning" := true;
-                Modify();
-                exit(true);
-            end;
-            exit(false);
+        if InvtPostingSetup.Find('-') then
+            repeat
+                TempInvtPostingSetup.Reset();
+                TempInvtPostingSetup.SetRange("Inventory Account", InvtPostingSetup."Inventory Account");
+                if not IsGLNotTheSameHandled(InventoryReportLine, InvtPostingSetup, TempInvtPostingSetup, TotalInventory) then
+                    if not TempInvtPostingSetup.FindFirst() then
+                        if GLAcc.Get(InvtPostingSetup."Inventory Account") then
+                            TotalInventory := TotalInventory - CalcGLAccount(GLAcc);
+                TempInvtPostingSetup := InvtPostingSetup;
+                TempInvtPostingSetup.Insert();
+            until InvtPostingSetup.Next() = 0;
+        if TotalInventory = 0 then begin
+            InventoryReportLine."Posting Date Warning" := true;
+            InventoryReportLine.Modify();
+            exit(true);
         end;
+        exit(false);
     end;
 
     local procedure CheckDirectPostings(var InventoryReportLine: Record "Inventory Report Entry"): Boolean
@@ -1642,34 +1530,31 @@ codeunit 5845 "Get Inventory Report"
         if IsHandled then
             exit(isHandled);
 
-        with InventoryReportLine do begin
-            if Inventory +
-               "Inventory (Interim)" +
-               "WIP Inventory" +
-               "Direct Cost Applied Actual" +
-               "Overhead Applied Actual" +
-               "Purchase Variance" +
-               "Inventory Adjmt." +
-               "Invt. Accrual (Interim)" +
-               COGS +
-               "COGS (Interim)" +
-               "Material Variance" +
-               "Capacity Variance" +
-               "Subcontracted Variance" +
-               "Capacity Overhead Variance" +
-               "Mfg. Overhead Variance" +
-               "Direct Cost Applied WIP" +
-               "Overhead Applied WIP" +
-               "Direct Cost Applied" +
-               "Overhead Applied" <>
-               0
-            then begin
-                "Direct Postings Warning" := true;
-                Modify();
-                exit(true);
-            end;
-            exit(false);
+        if InventoryReportLine.Inventory +
+            InventoryReportLine."Inventory (Interim)" +
+            InventoryReportLine."WIP Inventory" +
+            InventoryReportLine."Direct Cost Applied Actual" +
+            InventoryReportLine."Overhead Applied Actual" +
+            InventoryReportLine."Purchase Variance" +
+            InventoryReportLine."Inventory Adjmt." +
+            InventoryReportLine."Invt. Accrual (Interim)" +
+            InventoryReportLine.COGS +
+            InventoryReportLine."COGS (Interim)" +
+            InventoryReportLine."Material Variance" +
+            InventoryReportLine."Capacity Variance" +
+            InventoryReportLine."Subcontracted Variance" +
+            InventoryReportLine."Capacity Overhead Variance" +
+            InventoryReportLine."Mfg. Overhead Variance" +
+            InventoryReportLine."Direct Cost Applied WIP" +
+            InventoryReportLine."Overhead Applied WIP" +
+            InventoryReportLine."Direct Cost Applied" +
+            InventoryReportLine."Overhead Applied" <> 0
+        then begin
+            InventoryReportLine."Direct Postings Warning" := true;
+            InventoryReportLine.Modify();
+            exit(true);
         end;
+        exit(false);
     end;
 
     local procedure IsGLNotTheSameHandled(var InventoryReportLine: Record "Inventory Report Entry"; var InvtPostingSetup: Record "Inventory Posting Setup"; var TempInvtPostingSetup: Record "Inventory Posting Setup" temporary; var TotalInventory: Decimal) IsHandled: Boolean

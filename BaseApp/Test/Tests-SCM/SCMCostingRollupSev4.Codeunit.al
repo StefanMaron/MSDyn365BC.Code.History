@@ -77,7 +77,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Setup. Make item, post receive and invoice purchase.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', LibraryRandom.RandDec(10, 2),
-          WorkDate, LibraryRandom.RandDec(100, 2), true, false);
+          WorkDate(), LibraryRandom.RandDec(100, 2), true, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -331,7 +331,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Setup: Create item with avg costing method and SKUs in three different locations
         LibraryInventory.UpdateAverageCostSettings(
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Day);
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
 
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, LibraryRandom.RandDec(10, 2));
         // Create SKUs for the item. These calls also create locations with no warehousing functionality
@@ -457,7 +457,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
     begin
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
         Item.Get(ItemNo);
-        Assert.AreNearlyEqual(ExpectedUnitCost, Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision, '');
+        Assert.AreNearlyEqual(ExpectedUnitCost, Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision(), '');
     end;
 
     [Test]
@@ -474,7 +474,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Setup: make item, setup inventory setup, post item journals
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
 
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
 
         UnitCost := LibraryRandom.RandDecInRange(1, 100, 2);

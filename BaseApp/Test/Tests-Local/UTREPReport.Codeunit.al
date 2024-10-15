@@ -70,7 +70,7 @@ codeunit 144149 "UT REP Report"
         CreateLIFOBandAndRunLIFOEntriesReport(IncrementValue);
 
         // Verify: Verify value on XML after running report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
     end;
 
@@ -92,7 +92,7 @@ codeunit 144149 "UT REP Report"
         REPORT.Run(REPORT::"LIFO Valuation");  // Invokes handler LIFOValuationReqPageHandler.
 
         // Verify: Verify values on XML after running report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NotDefMsgCap, StrSubstNo(LIFOBandsMsg));
         LibraryReportDataset.AssertElementWithValueExists('ItemNo', LifoBand."Item No.");
         LibraryReportDataset.AssertElementWithValueExists('OldItem', LifoBand."Item No.");
@@ -116,7 +116,7 @@ codeunit 144149 "UT REP Report"
         REPORT.Run(REPORT::"VAT Plafond Period");  // Invokes handler VATPlafondPeriodReqPageHandler.
 
         // Verify: Verify values on XML after running report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Year_VATPlafondPeriod', VATPlafondPeriod.Year);
         LibraryReportDataset.AssertElementWithValueExists('Amt_VATPlafondPeriod', VATPlafondPeriod.Amount);
     end;
@@ -131,7 +131,7 @@ codeunit 144149 "UT REP Report"
     begin
         // Purpose of the test is to verify On After Get Record Trigger of Posted Vendor Bill Header with currency of Report ID 12179 - Issued Vendor Bill List report.
         Initialize();
-        CurrencyCode := LibraryUTUtility.GetNewCode10;
+        CurrencyCode := LibraryUTUtility.GetNewCode10();
         IssuedVendBillListReport(CurrencyCode, CurrencyCode);
     end;
 
@@ -161,7 +161,7 @@ codeunit 144149 "UT REP Report"
         REPORT.Run(REPORT::"Issued Vendor Bill List");  // Invokes handler IssuedVendorBillListReqPageHandler.
 
         // Verify: Verify values on XML after running the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_PostedVendBillHdr', PostedVendorBillLine."Vendor Bill No.");
         LibraryReportDataset.AssertElementWithValueExists('CurrencyCode', ExpectedCurrencyCode);
         LibraryReportDataset.AssertElementWithValueExists(
@@ -204,7 +204,7 @@ codeunit 144149 "UT REP Report"
         RunCustomerBillsListReport(CustomerNo);
 
         // [THEN] Report contains first "Detailed Cust. Ledg. Entry"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DetailedCustLedgEntryEntryNoTok, DetailedCustLedgEntryNo[1]);
 
         // [THEN] Report doesn't contain second "Detailed Cust. Ledg. Entry"
@@ -235,15 +235,15 @@ codeunit 144149 "UT REP Report"
 
         // [GIVEN] Customer Bill Header for this Customer
         LibrarySales.CreateCustomerBillHeader(
-          CustomerBillHeader, LibraryERM.CreateBankAccountNo, PaymentMethod.Code, CustomerBillHeader.Type::"Bills Subject To Collection");
+          CustomerBillHeader, LibraryERM.CreateBankAccountNo(), PaymentMethod.Code, CustomerBillHeader.Type::"Bills Subject To Collection");
 
         // [GIVEN] 2 lines for Customer with same Due Date = "Date1" with Cumulative Bank Receipts = True
         CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate(), true);
         CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate(), true);
 
         // [GIVEN] 2 lines for Customer with same Due Date = "Date2" with Cumulative Bank Receipts = True
-        CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate + 1, true);
-        CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate + 1, true);
+        CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate() + 1, true);
+        CreateCustomerBillLine(CustomerBillHeader, Customer, LibraryRandom.RandDec(500, 2), WorkDate() + 1, true);
 
         Commit();
 
@@ -254,9 +254,9 @@ codeunit 144149 "UT REP Report"
         // RequestPage handled by ListOfBankReceiptsRequestPageHandler
 
         // [THEN] There are 4 lines with "IsFooter" = true in DataSet
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('IsFooter', 'true');
-        Assert.AreEqual(4, LibraryReportDataset.RowCount, 'Wrong footer row count');
+        Assert.AreEqual(4, LibraryReportDataset.RowCount(), 'Wrong footer row count');
     end;
 
     local procedure Initialize()
@@ -268,7 +268,7 @@ codeunit 144149 "UT REP Report"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode10;
+        BankAccount."No." := LibraryUTUtility.GetNewCode10();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -277,7 +277,7 @@ codeunit 144149 "UT REP Report"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         exit(Item."No.");
     end;
@@ -298,7 +298,7 @@ codeunit 144149 "UT REP Report"
         LifoBand.Definitive := false;
         LifoBand.Positive := true;
         LifoBand."Competence Year" := WorkDate();
-        LifoBand."Item No." := CreateItem;
+        LifoBand."Item No." := CreateItem();
         LifoBand."Increment Value" := IncrementValue;
         LifoBand."Residual Quantity" := LibraryRandom.RandDec(100, 2);
         LifoBand.Insert();
@@ -308,12 +308,12 @@ codeunit 144149 "UT REP Report"
     var
         PostedVendorBillHeader: Record "Posted Vendor Bill Header";
     begin
-        PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode;
-        PostedVendorBillHeader."Bank Account No." := CreateBankAccount;
+        PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode();
+        PostedVendorBillHeader."Bank Account No." := CreateBankAccount();
         PostedVendorBillHeader."Currency Code" := CurrencyCode;
         PostedVendorBillHeader.Insert();
         PostedVendorBillLine."Vendor Bill No." := PostedVendorBillHeader."No.";
-        PostedVendorBillLine."Vendor No." := CreateVendor;
+        PostedVendorBillLine."Vendor No." := CreateVendor();
         PostedVendorBillLine."Vendor Bank Acc. No." := PostedVendorBillHeader."Bank Account No.";
         PostedVendorBillLine.Insert();
     end;
@@ -329,7 +329,7 @@ codeunit 144149 "UT REP Report"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -414,7 +414,7 @@ codeunit 144149 "UT REP Report"
     begin
         LibraryVariableStorage.Dequeue(No);
         IssuedVendorBillListReport."Posted Vendor Bill Header".SetFilter("No.", No);
-        IssuedVendorBillListReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IssuedVendorBillListReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -422,7 +422,7 @@ codeunit 144149 "UT REP Report"
     procedure LIFOEntriesReqPageHandler(var LifoEntries: TestRequestPage "Lifo Entries")
     begin
         LifoEntries."Lifo Band".SetFilter("Competence Year", Format(WorkDate()));
-        LifoEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LifoEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -430,7 +430,7 @@ codeunit 144149 "UT REP Report"
     procedure LIFOValuationReqPageHandler(var LifoValuation: TestRequestPage "LIFO Valuation")
     begin
         LifoValuation."Lifo Band".SetFilter("Competence Year", Format(WorkDate()));
-        LifoValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        LifoValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -438,7 +438,7 @@ codeunit 144149 "UT REP Report"
     procedure VATPlafondPeriodReqPageHandler(var VATPlafondPeriod: TestRequestPage "VAT Plafond Period")
     begin
         VATPlafondPeriod.VATPlafondPeriod.SetFilter(Year, Format(Date2DMY(WorkDate(), 3)));
-        VATPlafondPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATPlafondPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -446,15 +446,15 @@ codeunit 144149 "UT REP Report"
     procedure CustomerBillsListRequestPageHandler(var CustomerBillsList: TestRequestPage "Customer Bills List")
     begin
         CustomerBillsList."Ending Date".SetValue(LibraryRandom.RandDate(10));
-        CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ListOfBankReceiptsRequestPageHandler(var ListOfBankReceipts: TestRequestPage "List of Bank Receipts")
     begin
-        ListOfBankReceipts."Customer Bill Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ListOfBankReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ListOfBankReceipts."Customer Bill Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ListOfBankReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

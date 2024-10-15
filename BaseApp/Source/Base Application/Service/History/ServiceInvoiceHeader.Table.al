@@ -46,6 +46,7 @@ table 5992 "Service Invoice Header"
     DrillDownPageID = "Posted Service Invoices";
     LookupPageID = "Posted Service Invoices";
     Permissions = TableData "Service Order Allocation" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -833,6 +834,10 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Allow Line Disc.';
         }
+        field(9001; "Quote No."; Code[20])
+        {
+            Caption = 'Quote No.';
+        }	
         field(12100; "Operation Type"; Code[20])
         {
             Caption = 'Operation Type';
@@ -960,8 +965,6 @@ table 5992 "Service Invoice Header"
 
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
-        ServCommentLine: Record "Service Comment Line";
-        ServInvLine: Record "Service Invoice Line";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
         Text1130000: Label 'You are not allowed to delete posted invoices.';
@@ -1078,6 +1081,27 @@ table 5992 "Service Invoice Header"
             else
                 exit('Unfavorable');
         end;
+    end;
+
+    procedure PrintToDocumentAttachment(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceInvoiceHeader.Count() = 1;
+        if ServiceInvoiceHeader.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(ServiceInvoiceHeader, ShowNotificationAction);
+            until ServiceInvoiceHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(ServiceInvoiceHeader: Record "Service Invoice Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ServiceInvoiceHeader.SetRecFilter();
+
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"SM.Invoice".AsInteger(), ServiceInvoiceHeader, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     [IntegrationEvent(false, false)]

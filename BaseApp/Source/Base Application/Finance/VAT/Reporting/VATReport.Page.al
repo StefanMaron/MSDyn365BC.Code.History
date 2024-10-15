@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -96,7 +96,9 @@ page 740 "VAT Report"
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"VAT Report Header"),
                               "No." = field("No."),
+#pragma warning disable AL0603
                               "VAT Report Config. Code" = field("VAT Report Config. Code");
+#pragma warning restore AL0603
             }
         }
     }

@@ -36,7 +36,7 @@ codeunit 144188 "RES Purchase Job IT"
         // Verify Job Ledger Entry after posting the Purchase Order with job.
 
         // Exercise.
-        DocumentNo := CreateAndPostPurchaseOrder;
+        DocumentNo := CreateAndPostPurchaseOrder();
 
         // Verify: Verify Unit Price in Job Ledger Entry.
         PurchaseInvLine.SetRange("Document No.", DocumentNo);
@@ -45,7 +45,7 @@ codeunit 144188 "RES Purchase Job IT"
         JobLedgerEntry.SetRange("Job No.", PurchaseInvLine."Job No.");
         JobLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
-          PurchaseInvLine."Job Unit Price", JobLedgerEntry."Unit Price", LibraryERM.GetAmountRoundingPrecision,
+          PurchaseInvLine."Job Unit Price", JobLedgerEntry."Unit Price", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(UnitPriceErr, JobLedgerEntry.FieldCaption("Unit Price"), PurchaseInvLine."Job Unit Price", JobLedgerEntry.TableCaption()));
     end;
 
@@ -58,11 +58,11 @@ codeunit 144188 "RES Purchase Job IT"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        PurchaseHeader.Validate("Currency Code", CreateCurrencyAndExchangeRate);
+        PurchaseHeader.Validate("Currency Code", CreateCurrencyAndExchangeRate());
         PurchaseHeader.Modify(true);
         CreatePurchaseLineWithJob(
           PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item));
-        CreatePurchaseLineWithJob(PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount);
+        CreatePurchaseLineWithJob(PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount());
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Using true for receive and invoice.
     end;
 
@@ -71,9 +71,9 @@ codeunit 144188 "RES Purchase Job IT"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Residual Gains Account", CreateGLAccount);
+        Currency.Validate("Residual Gains Account", CreateGLAccount());
         Currency.Validate("Residual Losses Account", Currency."Residual Gains Account");
-        Currency.Validate("Realized G/L Gains Account", CreateGLAccount);
+        Currency.Validate("Realized G/L Gains Account", CreateGLAccount());
         Currency.Validate("Realized G/L Losses Account", Currency."Realized G/L Gains Account");
         Currency.Modify(true);
 

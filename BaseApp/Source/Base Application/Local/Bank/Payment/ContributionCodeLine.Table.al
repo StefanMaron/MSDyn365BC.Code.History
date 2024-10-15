@@ -9,6 +9,7 @@ table 12107 "Contribution Code Line"
     Caption = 'Contribution Code Line';
     DrillDownPageID = "Contribution Code Lines";
     LookupPageID = "Contribution Code Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

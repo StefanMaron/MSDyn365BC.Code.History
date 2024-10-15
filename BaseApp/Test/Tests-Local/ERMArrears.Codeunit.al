@@ -362,7 +362,7 @@ codeunit 144095 "ERM Arrears"
         VerifyCalcInterestOnArrearsReport(
           TotalDayDiffVendCap, RateLabelVendCap, DiffInterestRate, InterestRate, PrintEndingDate, VendorLedgerEntry."Due Date");
         LibraryReportDataset.AssertElementWithValueExists(
-          VendRemainingAmountCap, Round(VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, '<'));  // Remaining Amount after partial payment.
+          VendRemainingAmountCap, Round(VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), '<'));  // Remaining Amount after partial payment.
     end;
 
     [Test]
@@ -519,7 +519,7 @@ codeunit 144095 "ERM Arrears"
         VerifyCalcInterestOnArrearsReport(
           TotalDayDiffCustCap, RateLabelCustCap, DiffInterestRate, InterestRate, PrintEndingDate, CustLedgerEntry."Due Date");
         LibraryReportDataset.AssertElementWithValueExists(
-          CustRemainingAmountCap, Round(CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, '<'));  // Remaining Amount after partial payment.
+          CustRemainingAmountCap, Round(CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), '<'));  // Remaining Amount after partial payment.
     end;
 
     [Test]
@@ -636,7 +636,7 @@ codeunit 144095 "ERM Arrears"
         VerifyCalcInterestOnArrearsReport(
           TotalDayDiffCustCap, RateLabelCustCap, DiffInterestRate, InterestRate, CalcDate('<-30D>', EndingDate), CustLedgerEntry."Due Date");   // 30 days for Days Difference.
         LibraryReportDataset.AssertElementWithValueExists(
-          CustRemainingAmountCap, Round(CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, '<'));  // Remaining Amount after payment.
+          CustRemainingAmountCap, Round(CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), '<'));  // Remaining Amount after payment.
     end;
 
     [Test]
@@ -753,7 +753,7 @@ codeunit 144095 "ERM Arrears"
         VerifyCalcInterestOnArrearsReport(
           TotalDayDiffVendCap, RateLabelVendCap, DiffInterestRate, InterestRate, CalcDate('<-30D>', EndingDate), VendorLedgerEntry."Due Date");  // 30 days for Days Difference.
         LibraryReportDataset.AssertElementWithValueExists(
-          VendRemainingAmountCap, Round(VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, '<'));  // Remaining Amount after partial payment.
+          VendRemainingAmountCap, Round(VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), '<'));  // Remaining Amount after partial payment.
     end;
 
     [Test]
@@ -768,7 +768,7 @@ codeunit 144095 "ERM Arrears"
         // Verify Customer and General ledger entries after issue Finance Charge Memo.
         // Setup: Create Reminder & Finance charge Term, post sales order & invoice, create Finance Charge Memo.
         Initialize();
-        CustomerNo := CreateAndPostSalesOrderAndInvoice;
+        CustomerNo := CreateAndPostSalesOrderAndInvoice();
         FinanceChargeMemoNo := CreateFinanceChargeMemo(CustomerNo);
         LibraryVariableStorage.Enqueue(FinanceChargeMemoNo);  // Enqueue value for IssueFinanceChargeMemosRequestPageHandler.
         Commit();  // Commit required for Run report.
@@ -792,7 +792,7 @@ codeunit 144095 "ERM Arrears"
         // Verify Customer and General ledger entries after issue Reminder.
         // Setup: Create Reminder & Finance charge Term, post sales order & invoice, create Reminder.
         Initialize();
-        CustomerNo := CreateAndPostSalesOrderAndInvoice;
+        CustomerNo := CreateAndPostSalesOrderAndInvoice();
         ReminderNo := CreateReminder(CustomerNo);
         LibraryVariableStorage.Enqueue(ReminderNo);  // Enqueue value for IssueReminderRequestPageHandler.
         Commit();  // Commit required for Run report.
@@ -818,7 +818,7 @@ codeunit 144095 "ERM Arrears"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
         GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
         GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -841,7 +841,7 @@ codeunit 144095 "ERM Arrears"
     var
         SalesHeader: Record "Sales Header";
     begin
-        CustomerNo := CreateAndUpdateCustomer(CreateAndUpdateFinanceChargeMemo, CreateReminderTermsWithReminderLevel);
+        CustomerNo := CreateAndUpdateCustomer(CreateAndUpdateFinanceChargeMemo(), CreateReminderTermsWithReminderLevel());
         CreateAndPostSalesDocument(SalesHeader."Document Type"::Order, CustomerNo);
         CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, CustomerNo);
     end;
@@ -896,7 +896,7 @@ codeunit 144095 "ERM Arrears"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Int. on Arrears Code", IntOnArrearsCode);
-        Customer.Validate("Payment Terms Code", FindPaymentTerm);
+        Customer.Validate("Payment Terms Code", FindPaymentTerm());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -982,7 +982,7 @@ codeunit 144095 "ERM Arrears"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Int. on Arrears Code", IntOnArrearsCode);
-        Vendor.Validate("Payment Terms Code", FindPaymentTerm);
+        Vendor.Validate("Payment Terms Code", FindPaymentTerm());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1070,20 +1070,20 @@ codeunit 144095 "ERM Arrears"
     var
         FinanceChargeMemo: TestPage "Finance Charge Memo";
     begin
-        FinanceChargeMemo.OpenEdit;
+        FinanceChargeMemo.OpenEdit();
         FinanceChargeMemo.FILTER.SetFilter("No.", No);
-        FinanceChargeMemo.SuggestFinChargeMemoLines.Invoke;  // Using SuggestFinChargeMemoLinesRequestPageHandler.
-        FinanceChargeMemo.Issue.Invoke;
+        FinanceChargeMemo.SuggestFinChargeMemoLines.Invoke();  // Using SuggestFinChargeMemoLinesRequestPageHandler.
+        FinanceChargeMemo.Issue.Invoke();
     end;
 
     local procedure SuggestAndIssueReminderLines(No: Code[20])
     var
         Reminder: TestPage Reminder;
     begin
-        Reminder.OpenEdit;
+        Reminder.OpenEdit();
         Reminder.FILTER.SetFilter("No.", No);
-        Reminder.SuggestReminderLines.Invoke;  // Using SuggestReminderLinesRequestPageHandler.
-        Reminder.Issue.Invoke;
+        Reminder.SuggestReminderLines.Invoke();  // Using SuggestReminderLinesRequestPageHandler.
+        Reminder.Issue.Invoke();
     end;
 
     local procedure UpdateInterestOnArrears(var InterestOnArrears: Record "Interest on Arrears"; InterestRate: Decimal)
@@ -1094,7 +1094,7 @@ codeunit 144095 "ERM Arrears"
 
     local procedure VerifyCalcInterestOnArrearsReport(DaysDiffCap: Text[50]; RateLabelCap: Text[50]; DiffInterestRate: Decimal; InterestRate: Decimal; InterestCalculationAsOf: Date; DueDate: Date)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DaysDiffCap, InterestCalculationAsOf - DueDate);
         LibraryReportDataset.AssertElementWithValueExists(RateLabelCap, GetInterestRate(DiffInterestRate, Format(InterestRate)));
     end;
@@ -1133,21 +1133,21 @@ codeunit 144095 "ERM Arrears"
         CalculateInterestOnArrears.PrintDetails.SetValue(PrintDetails);
         CalculateInterestOnArrears.FromPostingDate.SetValue(WorkDate());
         CalculateInterestOnArrears.ToPostingDate.SetValue(WorkDate());
-        CalculateInterestOnArrears.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalculateInterestOnArrears.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IssueFinanceChargeMemosRequestPageHandler(var IssueFinanceChargeMemos: TestRequestPage "Issue Finance Charge Memos")
     begin
-        IssueFinanceChargeMemos.OK.Invoke;
+        IssueFinanceChargeMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IssueReminderRequestPageHandler(var IssueReminders: TestRequestPage "Issue Reminders")
     begin
-        IssueReminders.OK.Invoke;
+        IssueReminders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1158,7 +1158,7 @@ codeunit 144095 "ERM Arrears"
     begin
         LibraryVariableStorage.Dequeue(No);
         SuggestFinChargeMemoLines."Finance Charge Memo Header".SetFilter("No.", No);
-        SuggestFinChargeMemoLines.OK.Invoke;
+        SuggestFinChargeMemoLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1169,7 +1169,7 @@ codeunit 144095 "ERM Arrears"
     begin
         LibraryVariableStorage.Dequeue(No);
         SuggestReminderLines."Reminder Header".SetFilter("No.", No);
-        SuggestReminderLines.OK.Invoke;
+        SuggestReminderLines.OK().Invoke();
     end;
 }
 

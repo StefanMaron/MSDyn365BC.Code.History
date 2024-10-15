@@ -1,4 +1,4 @@
-namespace Microsoft.Service.Document;
+﻿namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Inventory.Item;
@@ -19,11 +19,11 @@ codeunit 416 "Release Service Document"
     end;
 
     var
-        NothingToReleaseErr: Label 'There is nothing to release for %1 %2.', Comment = 'Example: There is nothing to release for Order 12345.';
         ServiceHeader: Record "Service Header";
         InvtSetup: Record "Inventory Setup";
         WhseServiceRelease: Codeunit "Whse.-Service Release";
         SkipWhseRequestOperations: Boolean;
+        NothingToReleaseErr: Label 'There is nothing to release for %1 %2.', Comment = 'Example: There is nothing to release for Order 12345.';
 
     local procedure "Code"()
     var
@@ -32,75 +32,73 @@ codeunit 416 "Release Service Document"
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         IsHandled: Boolean;
     begin
-        with ServiceHeader do begin
-            if "Release Status" = "Release Status"::"Released to Ship" then
-                exit;
+        if ServiceHeader."Release Status" = ServiceHeader."Release Status"::"Released to Ship" then
+            exit;
 
-            OnBeforeReleaseServiceDoc(ServiceHeader);
+        OnBeforeReleaseServiceDoc(ServiceHeader);
 
-            if "Document Type" = "Document Type"::Quote then
-                TestField("Bill-to Customer No.");
+        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::Quote then
+            ServiceHeader.TestField("Bill-to Customer No.");
 
-            IsHandled := FALSE;
-            OnBeforeNothingToReleaseErr(ServiceHeader, IsHandled);
-            if not IsHandled then begin
-                ServLine.SetRange("Document Type", "Document Type");
-                ServLine.SetRange("Document No.", "No.");
-                ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
-                ServLine.SetFilter(Quantity, '<>0');
-                if ServLine.IsEmpty() then
-                    Error(NothingToReleaseErr, "Document Type", "No.");
-            end;
+        CheckServiceItemBlockedForAllAndItemServiceBlocked(ServiceHeader);
 
-            IsHandled := false;
-            OnCodeOnBeforeCheckLocationCode(ServLine, IsHandled);
-            if not IsHandled then begin
-                InvtSetup.Get();
-                if InvtSetup."Location Mandatory" then begin
-                    ServLine.SetCurrentKey(Type);
-                    ServLine.SetRange(Type, ServLine.Type::Item);
-                    ServLine.SetRange("Location Code", '');
-                    if ServLine.FindSet() then
-                        repeat
-                            VerifyLocationCode(ServLine);
-                        until ServLine.Next() = 0;
-                    ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
-                end;
-            end;
-
-            OnCodeOnAfterCheck(ServiceHeader, ServLine);
-
-            ServLine.Reset();
-            Validate("Release Status", "Release Status"::"Released to Ship");
-            ServLine.SetServHeader(ServiceHeader);
-            ServLine.CalcVATAmountLines(0, ServiceHeader, ServLine, TempVATAmountLine0, ServLine.IsShipment());
-            ServLine.CalcVATAmountLines(1, ServiceHeader, ServLine, TempVATAmountLine1, ServLine.IsShipment());
-            ServLine.UpdateVATOnLines(0, ServiceHeader, ServLine, TempVATAmountLine0);
-            ServLine.UpdateVATOnLines(1, ServiceHeader, ServLine, TempVATAmountLine1);
-            Modify(true);
-
-            if "Document Type" = "Document Type"::Order then
-                if not SkipWhseRequestOperations then
-                    WhseServiceRelease.Release(ServiceHeader);
-
-            OnAfterReleaseServiceDoc(ServiceHeader);
+        IsHandled := false;
+        OnBeforeNothingToReleaseErr(ServiceHeader, IsHandled);
+        if not IsHandled then begin
+            ServLine.SetRange("Document Type", ServiceHeader."Document Type");
+            ServLine.SetRange("Document No.", ServiceHeader."No.");
+            ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
+            ServLine.SetFilter(Quantity, '<>0');
+            if ServLine.IsEmpty() then
+                Error(NothingToReleaseErr, ServiceHeader."Document Type", ServiceHeader."No.");
         end;
+
+        IsHandled := false;
+        OnCodeOnBeforeCheckLocationCode(ServLine, IsHandled);
+        if not IsHandled then begin
+            InvtSetup.Get();
+            if InvtSetup."Location Mandatory" then begin
+                ServLine.SetCurrentKey(Type);
+                ServLine.SetRange(Type, ServLine.Type::Item);
+                ServLine.SetRange("Location Code", '');
+                if ServLine.FindSet() then
+                    repeat
+                        VerifyLocationCode(ServLine);
+                    until ServLine.Next() = 0;
+                ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
+            end;
+        end;
+
+        OnCodeOnAfterCheck(ServiceHeader, ServLine);
+
+        ServLine.Reset();
+        ServiceHeader.Validate(ServiceHeader."Release Status", ServiceHeader."Release Status"::"Released to Ship");
+        ServLine.SetServHeader(ServiceHeader);
+        ServLine.CalcVATAmountLines(0, ServiceHeader, ServLine, TempVATAmountLine0, ServLine.IsShipment());
+        ServLine.CalcVATAmountLines(1, ServiceHeader, ServLine, TempVATAmountLine1, ServLine.IsShipment());
+        ServLine.UpdateVATOnLines(0, ServiceHeader, ServLine, TempVATAmountLine0);
+        ServLine.UpdateVATOnLines(1, ServiceHeader, ServLine, TempVATAmountLine1);
+        ServiceHeader.Modify(true);
+
+        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::Order then
+            if not SkipWhseRequestOperations then
+                WhseServiceRelease.Release(ServiceHeader);
+
+        OnAfterReleaseServiceDoc(ServiceHeader);
     end;
 
     procedure Reopen(var ServHeader: Record "Service Header")
     begin
-        with ServHeader do begin
-            if "Release Status" = "Release Status"::Open then
-                exit;
+        if ServHeader."Release Status" = ServHeader."Release Status"::Open then
+            exit;
 
-            OnBeforeReopenServiceDoc(ServHeader);
-            Validate("Release Status", "Release Status"::Open);
-            Modify(true);
-            if "Document Type" in ["Document Type"::Order] then
-                if not SkipWhseRequestOperations then
-                    WhseServiceRelease.Reopen(ServHeader);
-            OnAfterReopenServiceDoc(ServHeader);
-        end;
+        OnBeforeReopenServiceDoc(ServHeader);
+        ServHeader.Validate("Release Status", ServHeader."Release Status"::Open);
+        ServHeader.Modify(true);
+        if ServHeader."Document Type" in [ServHeader."Document Type"::Order] then
+            if not SkipWhseRequestOperations then
+                WhseServiceRelease.Reopen(ServHeader);
+        OnAfterReopenServiceDoc(ServHeader);
     end;
 
     procedure PerformManualRelease(var ServHeader: Record "Service Header")
@@ -133,6 +131,20 @@ codeunit 416 "Release Service Document"
     internal procedure SetSkipWhseRequestOperations(NewSkipWhseRequestOperations: Boolean)
     begin
         SkipWhseRequestOperations := NewSkipWhseRequestOperations;
+    end;
+
+    local procedure CheckServiceItemBlockedForAllAndItemServiceBlocked(var ServiceHeader2: Record "Service Header")
+    var
+        ServiceLine: Record "Service Line";
+        ServOrderManagement: Codeunit ServOrderManagement;
+    begin
+        ServiceLine.SetRange("Document Type", ServiceHeader2."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader2."No.");
+        if ServiceLine.FindSet() then
+            repeat
+                ServOrderManagement.CheckServiceItemBlockedForAll(ServiceLine);
+                ServOrderManagement.CheckItemServiceBlocked(ServiceLine);
+            until ServiceLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

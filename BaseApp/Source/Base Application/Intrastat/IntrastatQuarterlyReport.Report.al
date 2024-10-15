@@ -646,7 +646,6 @@ report 12161 "Intrastat - Quarterly Report"
     var
         Text000: Label 'WwWw';
         Text001: Label 'Statistics Period: %1';
-        Text002: Label 'All amounts are in %1';
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         IntrastatJnlLineTemp: Record "Intrastat Jnl. Line" temporary;

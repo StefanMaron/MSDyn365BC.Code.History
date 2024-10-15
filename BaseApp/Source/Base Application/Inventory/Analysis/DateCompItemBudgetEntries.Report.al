@@ -35,50 +35,48 @@ report 7139 "Date Comp. Item Budget Entries"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Comp. Item Budget Entries", '', ItemBudgetName."Budget Dimension 3 Code");
                 ItemBudgetEntry2 := "Item Budget Entry";
-                with ItemBudgetEntry2 do begin
-                    SetCurrentKey("Analysis Area", "Budget Name", "Item No.", Date);
-                    CopyFilters("Item Budget Entry");
-                    SetFilter(Date, DateComprMgt.GetDateFilter(Date, EntrdDateComprReg, false));
-                    SetRange("Analysis Area", "Analysis Area");
-                    SetRange("Budget Name", "Budget Name");
-                    SetRange("Item No.", "Item No.");
+                ItemBudgetEntry2.SetCurrentKey("Analysis Area", "Budget Name", "Item No.", Date);
+                ItemBudgetEntry2.CopyFilters("Item Budget Entry");
+                ItemBudgetEntry2.SetFilter(Date, DateComprMgt.GetDateFilter(ItemBudgetEntry2.Date, EntrdDateComprReg, false));
+                ItemBudgetEntry2.SetRange("Analysis Area", ItemBudgetEntry2."Analysis Area");
+                ItemBudgetEntry2.SetRange("Budget Name", ItemBudgetEntry2."Budget Name");
+                ItemBudgetEntry2.SetRange("Item No.", ItemBudgetEntry2."Item No.");
 
-                    LastEntryNo := LastEntryNo + 1;
+                LastEntryNo := LastEntryNo + 1;
 
-                    if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                        SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                    if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                        SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
-                    if Quantity >= 0 then
-                        SetFilter(Quantity, '>=0')
-                    else
-                        SetFilter(Quantity, '<0');
-                    if "Cost Amount" >= 0 then
-                        SetFilter("Cost Amount", '>=0')
-                    else
-                        SetFilter("Cost Amount", '<0');
-                    if "Sales Amount" >= 0 then
-                        SetFilter("Sales Amount", '>=0')
-                    else
-                        SetFilter("Sales Amount", '<0');
+                if RetainNo(ItemBudgetEntry2.FieldNo("Global Dimension 1 Code")) then
+                    ItemBudgetEntry2.SetRange(ItemBudgetEntry2."Global Dimension 1 Code", ItemBudgetEntry2."Global Dimension 1 Code");
+                if RetainNo(ItemBudgetEntry2.FieldNo("Global Dimension 2 Code")) then
+                    ItemBudgetEntry2.SetRange(ItemBudgetEntry2."Global Dimension 2 Code", ItemBudgetEntry2."Global Dimension 2 Code");
+                if ItemBudgetEntry2.Quantity >= 0 then
+                    ItemBudgetEntry2.SetFilter(Quantity, '>=0')
+                else
+                    ItemBudgetEntry2.SetFilter(Quantity, '<0');
+                if ItemBudgetEntry2."Cost Amount" >= 0 then
+                    ItemBudgetEntry2.SetFilter("Cost Amount", '>=0')
+                else
+                    ItemBudgetEntry2.SetFilter("Cost Amount", '<0');
+                if ItemBudgetEntry2."Sales Amount" >= 0 then
+                    ItemBudgetEntry2.SetFilter("Sales Amount", '>=0')
+                else
+                    ItemBudgetEntry2.SetFilter("Sales Amount", '<0');
 
-                    InitNewEntry(NewItemBudgetEntry);
+                InitNewEntry(NewItemBudgetEntry);
 
+                DimBufMgt.CollectDimEntryNo(
+                  TempSelectedDim, ItemBudgetEntry2."Dimension Set ID", ItemBudgetEntry2."Entry No.", 0, false, DimEntryNo);
+                ComprDimEntryNo := DimEntryNo;
+                SummarizeEntry(NewItemBudgetEntry, ItemBudgetEntry2);
+                while ItemBudgetEntry2.Next() <> 0 do begin
                     DimBufMgt.CollectDimEntryNo(
-                      TempSelectedDim, "Dimension Set ID", "Entry No.", 0, false, DimEntryNo);
-                    ComprDimEntryNo := DimEntryNo;
-                    SummarizeEntry(NewItemBudgetEntry, ItemBudgetEntry2);
-                    while Next() <> 0 do begin
-                        DimBufMgt.CollectDimEntryNo(
-                          TempSelectedDim, "Dimension Set ID", "Entry No.", ComprDimEntryNo, true, DimEntryNo);
-                        if DimEntryNo = ComprDimEntryNo then
-                            SummarizeEntry(NewItemBudgetEntry, ItemBudgetEntry2);
-                    end;
-
-                    InsertNewEntry(NewItemBudgetEntry, ComprDimEntryNo);
-
-                    ComprCollectedEntries();
+                      TempSelectedDim, ItemBudgetEntry2."Dimension Set ID", ItemBudgetEntry2."Entry No.", ComprDimEntryNo, true, DimEntryNo);
+                    if DimEntryNo = ComprDimEntryNo then
+                        SummarizeEntry(NewItemBudgetEntry, ItemBudgetEntry2);
                 end;
+
+                InsertNewEntry(NewItemBudgetEntry, ComprDimEntryNo);
+
+                ComprCollectedEntries();
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -389,16 +387,14 @@ report 7139 "Date Comp. Item Budget Entries"
 
     local procedure SummarizeEntry(var NewItemBudgetEntry: Record "Item Budget Entry"; ItemBudgetEntry: Record "Item Budget Entry")
     begin
-        with ItemBudgetEntry do begin
-            NewItemBudgetEntry.Quantity := NewItemBudgetEntry.Quantity + Quantity;
-            NewItemBudgetEntry."Cost Amount" := NewItemBudgetEntry."Cost Amount" + "Cost Amount";
-            NewItemBudgetEntry."Sales Amount" := NewItemBudgetEntry."Sales Amount" + "Sales Amount";
-            Delete();
-            if "Entry No." < LowestEntryNo then
-                LowestEntryNo := "Entry No.";
-            DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-            Window.Update(5, DateComprReg."No. Records Deleted");
-        end;
+        NewItemBudgetEntry.Quantity := NewItemBudgetEntry.Quantity + ItemBudgetEntry.Quantity;
+        NewItemBudgetEntry."Cost Amount" := NewItemBudgetEntry."Cost Amount" + ItemBudgetEntry."Cost Amount";
+        NewItemBudgetEntry."Sales Amount" := NewItemBudgetEntry."Sales Amount" + ItemBudgetEntry."Sales Amount";
+        ItemBudgetEntry.Delete();
+        if ItemBudgetEntry."Entry No." < LowestEntryNo then
+            LowestEntryNo := ItemBudgetEntry."Entry No.";
+        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+        Window.Update(5, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(ItemBudgetEntry);
     end;
@@ -433,33 +429,31 @@ report 7139 "Date Comp. Item Budget Entries"
     begin
         LastEntryNo := LastEntryNo + 1;
 
-        with ItemBudgetEntry2 do begin
-            NewItemBudgetEntry.Init();
-            NewItemBudgetEntry."Entry No." := LastEntryNo;
-            NewItemBudgetEntry."Analysis Area" := AnalysisAreaSelection;
-            NewItemBudgetEntry."Budget Name" := "Budget Name";
-            NewItemBudgetEntry."Item No." := "Item No.";
-            NewItemBudgetEntry.Date := GetRangeMin(Date);
-            NewItemBudgetEntry.Description := EntrdItemBudgetEntry.Description;
-            NewItemBudgetEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        NewItemBudgetEntry.Init();
+        NewItemBudgetEntry."Entry No." := LastEntryNo;
+        NewItemBudgetEntry."Analysis Area" := AnalysisAreaSelection;
+        NewItemBudgetEntry."Budget Name" := ItemBudgetEntry2."Budget Name";
+        NewItemBudgetEntry."Item No." := ItemBudgetEntry2."Item No.";
+        NewItemBudgetEntry.Date := ItemBudgetEntry2.GetRangeMin(ItemBudgetEntry2.Date);
+        NewItemBudgetEntry.Description := EntrdItemBudgetEntry.Description;
+        NewItemBudgetEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(ItemBudgetEntry2."User ID"));
 
-            if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                NewItemBudgetEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                NewItemBudgetEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
-            if RetainNo(FieldNo("Budget Dimension 1 Code")) then
-                NewItemBudgetEntry."Budget Dimension 1 Code" := "Budget Dimension 1 Code";
-            if RetainNo(FieldNo("Budget Dimension 2 Code")) then
-                NewItemBudgetEntry."Budget Dimension 2 Code" := "Budget Dimension 2 Code";
-            if RetainNo(FieldNo("Budget Dimension 3 Code")) then
-                NewItemBudgetEntry."Budget Dimension 3 Code" := "Budget Dimension 3 Code";
+        if RetainNo(ItemBudgetEntry2.FieldNo("Global Dimension 1 Code")) then
+            NewItemBudgetEntry."Global Dimension 1 Code" := ItemBudgetEntry2."Global Dimension 1 Code";
+        if RetainNo(ItemBudgetEntry2.FieldNo("Global Dimension 2 Code")) then
+            NewItemBudgetEntry."Global Dimension 2 Code" := ItemBudgetEntry2."Global Dimension 2 Code";
+        if RetainNo(ItemBudgetEntry2.FieldNo("Budget Dimension 1 Code")) then
+            NewItemBudgetEntry."Budget Dimension 1 Code" := ItemBudgetEntry2."Budget Dimension 1 Code";
+        if RetainNo(ItemBudgetEntry2.FieldNo("Budget Dimension 2 Code")) then
+            NewItemBudgetEntry."Budget Dimension 2 Code" := ItemBudgetEntry2."Budget Dimension 2 Code";
+        if RetainNo(ItemBudgetEntry2.FieldNo("Budget Dimension 3 Code")) then
+            NewItemBudgetEntry."Budget Dimension 3 Code" := ItemBudgetEntry2."Budget Dimension 3 Code";
 
-            Window.Update(1, NewItemBudgetEntry."Budget Name");
-            Window.Update(2, NewItemBudgetEntry."Item No.");
-            Window.Update(3, NewItemBudgetEntry.Date);
-            DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-            Window.Update(4, DateComprReg."No. of New Records");
-        end;
+        Window.Update(1, NewItemBudgetEntry."Budget Name");
+        Window.Update(2, NewItemBudgetEntry."Item No.");
+        Window.Update(3, NewItemBudgetEntry.Date);
+        DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+        Window.Update(4, DateComprReg."No. of New Records");
     end;
 
     local procedure InsertNewEntry(var NewItemBudgetEntry: Record "Item Budget Entry"; DimEntryNo: Integer)

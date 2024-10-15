@@ -460,7 +460,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ApplyPackageAndSetupProcessingOrder(ConfigPackage);
 
         Customer.SetRange(Name, CustomerName); // Customer name is equal to PK, so no falsepositive here
-        Assert.IsTrue(Customer.FindFirst, NonPKDataWasNotInserted);
+        Assert.IsTrue(Customer.FindFirst(), NonPKDataWasNotInserted);
     end;
 
     [Test]
@@ -471,7 +471,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         Customer: Record Customer;
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         CustomerName: Text[50];
     begin
         Initialize();
@@ -480,9 +480,8 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         SalesSetup.Get();
 
-        NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, SalesSetup."Customer Nos.", 0D);
-        NoSeriesLine.FindFirst();
-        NoSeriesLine."Allow Gaps in Nos." := false;
+        NoSeries.GetNoSeriesLine(NoSeriesLine, SalesSetup."Customer Nos.", 0D, true);
+        NoSeriesLine.Implementation := Enum::"No. Series Implementation"::Normal;
         NoSeriesLine."Last No. Used" := 'C00020';
         NoSeriesLine.Modify();
 
@@ -493,11 +492,10 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         SalesSetup.Get();
 
-        NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, SalesSetup."Customer Nos.", 0D);
-        NoSeriesLine.FindFirst();
+        NoSeries.GetNoSeriesLine(NoSeriesLine, SalesSetup."Customer Nos.", 0D, true);
 
         Assert.IsTrue(Customer."No." = NoSeriesLine."Last No. Used", SeriesNoNotAssigned);
-        NoSeriesLine."Allow Gaps in Nos." := true;
+        NoSeriesLine.Implementation := Enum::"No. Series Implementation"::Sequence;
         NoSeriesLine.Modify();
     end;
 
@@ -885,29 +883,29 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart.CreatePackageFieldData(
           ConfigPackageRecord, SalesHeader.FieldNo("Bill-to Customer No."), SalesHeader."Bill-to Customer No.");
         // [GIVEN] Open "Package Errors" page
-        ConfigPackageErrors.OpenView;
+        ConfigPackageErrors.OpenView();
 
         // [WHEN] Drill down on "Record ID"
-        ConfigPackageErrors.RecordIDValue.DrillDown; // handled by ConfigPackageErrorRecordHandler
+        ConfigPackageErrors.RecordIDValue.DrillDown(); // handled by ConfigPackageErrorRecordHandler
 
         // [THEN] Page 'Record' opened, where is 1 record with 3 editable columns:
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'Field4 caption');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Field4 visible');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'Field4 caption');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Field4 visible');
         // [THEN] Columnn #1: "Document Type" is 'Credit Memo' (part of the primary key)
-        Assert.AreEqual(SalesHeader.FieldCaption("Document Type"), LibraryVariableStorage.DequeueText, 'Field1 caption');
-        Assert.AreEqual(Format(SalesHeader."Document Type"), LibraryVariableStorage.DequeueText, 'Field1 value');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Field1 editable');
+        Assert.AreEqual(SalesHeader.FieldCaption("Document Type"), LibraryVariableStorage.DequeueText(), 'Field1 caption');
+        Assert.AreEqual(Format(SalesHeader."Document Type"), LibraryVariableStorage.DequeueText(), 'Field1 value');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Field1 editable');
         // [THEN] Columnn #2: "No." is 'X' (part of the primary key)
-        Assert.AreEqual(SalesHeader.FieldCaption("No."), LibraryVariableStorage.DequeueText, 'Field2 caption');
-        Assert.AreEqual(SalesHeader."No.", LibraryVariableStorage.DequeueText, 'Field2 value');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Field2 editable');
+        Assert.AreEqual(SalesHeader.FieldCaption("No."), LibraryVariableStorage.DequeueText(), 'Field2 caption');
+        Assert.AreEqual(SalesHeader."No.", LibraryVariableStorage.DequeueText(), 'Field2 value');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Field2 editable');
         // [THEN] Columnn #3: "Bill-to Customer No." is 'Z' (the failing field)
-        Assert.AreEqual(SalesHeader.FieldCaption("Bill-to Customer No."), LibraryVariableStorage.DequeueText, 'Field3 caption');
-        Assert.AreEqual(SalesHeader."Bill-to Customer No.", LibraryVariableStorage.DequeueText, 'Field3 value');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Field3 editable');
+        Assert.AreEqual(SalesHeader.FieldCaption("Bill-to Customer No."), LibraryVariableStorage.DequeueText(), 'Field3 caption');
+        Assert.AreEqual(SalesHeader."Bill-to Customer No.", LibraryVariableStorage.DequeueText(), 'Field3 value');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Field3 editable');
 
         ConfigPackageErrors.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -930,10 +928,10 @@ codeunit 136608 "ERM RS Validate and Apply"
         CreatePackageErrors(ConfigPackageError, ConfigPackageTable, 0);
 
         // [WHEN] Open Package card page
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         // [THEN] Action "Show Error" and "No. of Errors" are invisible
-        Assert.IsFalse(ConfigPackageCard."No. of Errors".Visible, 'No. of Errors.VISIBLE');
-        Assert.IsFalse(ConfigPackageCard.ShowError.Visible, 'ShowError.VISIBLE');
+        Assert.IsFalse(ConfigPackageCard."No. of Errors".Visible(), 'No. of Errors.VISIBLE');
+        Assert.IsFalse(ConfigPackageCard.ShowError.Visible(), 'ShowError.VISIBLE');
         ConfigPackageCard.Close();
     end;
 
@@ -957,12 +955,12 @@ codeunit 136608 "ERM RS Validate and Apply"
         CreatePackageErrors(ConfigPackageError, ConfigPackageTable, 1);
 
         // [WHEN] Open Package card page
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         // [THEN] Action "Show Error" is visible
-        Assert.IsTrue(ConfigPackageCard.ShowError.Visible, 'ShowError.VISIBLE');
+        Assert.IsTrue(ConfigPackageCard.ShowError.Visible(), 'ShowError.VISIBLE');
         // [THEN] "No. of Errors" is visible and equals '1'
-        Assert.IsTrue(ConfigPackageCard."No. of Errors".Visible, 'No. of Errors.VISIBLE');
-        Assert.AreEqual(1, ConfigPackageCard."No. of Errors".AsInteger, 'wrong No. of Errors');
+        Assert.IsTrue(ConfigPackageCard."No. of Errors".Visible(), 'No. of Errors.VISIBLE');
+        Assert.AreEqual(1, ConfigPackageCard."No. of Errors".AsInteger(), 'wrong No. of Errors');
         ConfigPackageCard.Close();
     end;
 
@@ -991,25 +989,25 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError."Field ID" := CountryRegion.FieldNo("EU Country/Region Code");
         CreatePackageErrors(ConfigPackageError, ConfigPackageTable, 2);
         // [GIVEN] Open Package card page
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         // [WHEN] Run Action "Show Error"
-        ConfigPackageErrors.Trap;
-        ConfigPackageCard.ShowError.Invoke;
+        ConfigPackageErrors.Trap();
+        ConfigPackageCard.ShowError.Invoke();
 
         // [THEN] Page 'Errors' opened where are 1 record: with "Table ID"
-        Assert.IsTrue(ConfigPackageErrors.First, 'Line #1 is not found');
+        Assert.IsTrue(ConfigPackageErrors.First(), 'Line #1 is not found');
         // [THEN] 1 record, where "Table ID" is '4', "Field Caption" is 'Residual Gains Account'
         ConfigPackageErrors."Field Caption".AssertEquals(Currency.FieldCaption("Residual Gains Account"));
-        Assert.AreEqual(DATABASE::Currency, ConfigPackageErrors."Table ID".AsInteger, 'Table ID for line #1');
+        Assert.AreEqual(DATABASE::Currency, ConfigPackageErrors."Table ID".AsInteger(), 'Table ID for line #1');
         // [THEN] 2 records, where "Table ID" is '9', "Field Caption" is 'EU Country/Region Code'
-        Assert.IsTrue(ConfigPackageErrors.Next, 'Line #2 is not found');
+        Assert.IsTrue(ConfigPackageErrors.Next(), 'Line #2 is not found');
         ConfigPackageErrors."Field Caption".AssertEquals(CountryRegion.FieldCaption("EU Country/Region Code"));
-        Assert.AreEqual(DATABASE::"Country/Region", ConfigPackageErrors."Table ID".AsInteger, 'Table ID for line #2');
-        Assert.IsTrue(ConfigPackageErrors.Next, 'Line #3 is not found');
-        Assert.AreEqual(DATABASE::"Country/Region", ConfigPackageErrors."Table ID".AsInteger, 'Table ID for line #3');
-        Assert.IsFalse(ConfigPackageErrors.Next, 'Line #4 must not exist');
+        Assert.AreEqual(DATABASE::"Country/Region", ConfigPackageErrors."Table ID".AsInteger(), 'Table ID for line #2');
+        Assert.IsTrue(ConfigPackageErrors.Next(), 'Line #3 is not found');
+        Assert.AreEqual(DATABASE::"Country/Region", ConfigPackageErrors."Table ID".AsInteger(), 'Table ID for line #3');
+        Assert.IsFalse(ConfigPackageErrors.Next(), 'Line #4 must not exist');
         // [THEN] "Field Caption" control does not support drilldown action
-        asserterror ConfigPackageErrors."Field Caption".DrillDown;
+        asserterror ConfigPackageErrors."Field Caption".DrillDown();
         Assert.ExpectedError('The NavDrilldownAction method is not supported.');
         ConfigPackageErrors.Close();
         ConfigPackageCard.Close();
@@ -1035,9 +1033,9 @@ codeunit 136608 "ERM RS Validate and Apply"
           0,// Primary priority
           0); // Related table priority
 
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         ConfigPackageCard.GotoRecord(ConfigPackage);
-        ConfigPackageCard.Control10.ValidateRelations.Invoke;
+        ConfigPackageCard.Control10.ValidateRelations.Invoke();
 
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         Assert.IsFalse(ConfigPackageError.IsEmpty, NoMigrationError);
@@ -1063,9 +1061,9 @@ codeunit 136608 "ERM RS Validate and Apply"
           0,// Primary priority
           0); // Related table priority
 
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         ConfigPackageCard.GotoRecord(ConfigPackage);
-        ConfigPackageCard.Control10.ApplyData.Invoke;
+        ConfigPackageCard.Control10.ApplyData.Invoke();
 
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         Assert.IsFalse(ConfigPackageError.IsEmpty, NoMigrationError);
@@ -1221,7 +1219,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // Create a package and include data with Dimension Set ID
         CreatePackageWithSalesHeaderAndDimension(ConfigPackage, ConfigPackageTable);
-        InsertDimSetEntryIfEmpty;
+        InsertDimSetEntryIfEmpty();
 
         // Exercise: Select 1 table from the package and apply it
         SelectOneTableAndApplyPackage(ConfigPackage, ConfigPackageTable, DATABASE::"Sales Header");
@@ -1407,7 +1405,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         Initialize();
 
         // [GIVEN] Config Package for new Production Forecast Entry with "Skip Table Triggers" = No
-        ProdForecastName := CreateProductionForecastName;
+        ProdForecastName := CreateProductionForecastName();
 
         TableID := DATABASE::"Production Forecast Entry";
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -1498,7 +1496,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ForecastQty := LibraryRandom.RandInt(100);
 
         // [GIVEN] Config Package for a new production forecast with one entry
-        ProdForecastName := CreateProductionForecastName;
+        ProdForecastName := CreateProductionForecastName();
 
         TableID := DATABASE::"Production Forecast Entry";
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -1549,7 +1547,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // [GIVEN] Customer has wrong relation (Customer Code = <random value>)
         LibraryRapidStart.CreatePackageDataForField(ConfigPackage, ConfigPackageTable, DATABASE::Customer,
-          Customer.FieldNo("Currency Code"), LibraryUtility.GenerateGUID, 1);
+          Customer.FieldNo("Currency Code"), LibraryUtility.GenerateGUID(), 1);
         Customer.Delete();
 
         // [GIVEN] "Config. Package Table"."Delayed Insert" = FALSE
@@ -1585,7 +1583,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // [GIVEN] Customer has wrong relation (Customer Code = <random value>)
         LibraryRapidStart.CreatePackageDataForField(ConfigPackage, ConfigPackageTable, DATABASE::Customer,
-          Customer.FieldNo("Currency Code"), LibraryUtility.GenerateGUID, 1);
+          Customer.FieldNo("Currency Code"), LibraryUtility.GenerateGUID(), 1);
         Customer.Delete();
 
         // [GIVEN] "Config. Package Table"."Delayed Insert" = TRUE
@@ -1610,7 +1608,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         // [SCENARIO 286354] Config. Package Table has visible field: "Delayed Insert"
         LibraryApplicationArea.EnableFoundationSetup();
         ConfigPackageSubform.OpenNew();
-        Assert.IsTrue(ConfigPackageSubform."Delayed Insert".Visible, 'The field "Delayed Insert" should be visible');
+        Assert.IsTrue(ConfigPackageSubform."Delayed Insert".Visible(), 'The field "Delayed Insert" should be visible');
     end;
 
     [Test]
@@ -2245,10 +2243,10 @@ codeunit 136608 "ERM RS Validate and Apply"
     var
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         ConfigPackageCard.GotoRecord(ConfigPackage);
         ConfigPackageCard.Control10.GotoKey(ConfigPackage.Code, DATABASE::"Gen. Journal Batch");
-        ConfigPackageCard.Control10.PackageErrors.Invoke;
+        ConfigPackageCard.Control10.PackageErrors.Invoke();
     end;
 
     local procedure CreateAdditionalPackageData(RecRef: RecordRef; ConfigPackageCode: Code[20]; FromRecordNo: Integer; NewRecordNo: Integer)
@@ -2263,7 +2261,7 @@ codeunit 136608 "ERM RS Validate and Apply"
             repeat
                 FieldRef := RecRef.Field("Field ID");
                 LibraryRapidStart.CreatePackageData("Package Code", "Table ID", NewRecordNo, "Field ID", Format(FieldRef.Value));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2364,8 +2362,8 @@ codeunit 136608 "ERM RS Validate and Apply"
     [Scope('OnPrem')]
     procedure ConfigPackageRecordsHandler(var ConfigPackageRecords: TestPage "Config. Package Records")
     begin
-        ConfigPackageRecords.ApplyData.Invoke;
-        ConfigPackageRecords.Cancel.Invoke;
+        ConfigPackageRecords.ApplyData.Invoke();
+        ConfigPackageRecords.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2374,17 +2372,17 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // 4th column is not visible
         LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field4.Caption);
-        LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field4.Visible);
+        LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field4.Visible());
         // Expecting 3 visible fields with values
         LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field1.Caption);
         LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field1.Value);
-        LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field1.Editable);
+        LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field1.Editable());
         LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field2.Caption);
         LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field2.Value);
-        LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field2.Editable);
+        LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field2.Editable());
         LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field3.Caption);
         LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field3.Value);
-        LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field3.Editable);
+        LibraryVariableStorage.Enqueue(ConfigPackageRecords.Field3.Editable());
     end;
 
     [EventSubscriber(ObjectType::Report, Report::"Config. Package - Process", 'OnBeforeTextTransformation', '', false, false)]
@@ -2399,16 +2397,16 @@ codeunit 136608 "ERM RS Validate and Apply"
                 begin
                     ConfigPackageProcess.AddRuleForField(
                       DATABASE::"Bank Account", BankAccount.FieldNo("SWIFT Code"),
-                      TempTransformationRule."Transformation Type"::"Remove Non-Alphanumeric Characters", TempField, TempTransformationRule);
+                      TempTransformationRule."Transformation Type"::"Remove Non-Alphanumeric Characters".AsInteger(), TempField, TempTransformationRule);
                     ConfigPackageProcess.AddRuleForField(
                       DATABASE::"Bank Account", BankAccount.FieldNo(IBAN),
-                      TempTransformationRule."Transformation Type"::"Remove Non-Alphanumeric Characters", TempField, TempTransformationRule);
+                      TempTransformationRule."Transformation Type"::"Remove Non-Alphanumeric Characters".AsInteger(), TempField, TempTransformationRule);
                 end;
             DATABASE::Customer:
                 begin
                     ConfigPackageProcess.AddRuleForField(
                       DATABASE::Customer, Customer.FieldNo(Name),
-                      TempTransformationRule."Transformation Type"::Replace, TempField, TempTransformationRule);
+                      TempTransformationRule."Transformation Type"::Replace.AsInteger(), TempField, TempTransformationRule);
                     TempTransformationRule."Find Value" := 'Mister';
                     TempTransformationRule."Replace Value" := 'Mr.';
                     TempTransformationRule.Modify();

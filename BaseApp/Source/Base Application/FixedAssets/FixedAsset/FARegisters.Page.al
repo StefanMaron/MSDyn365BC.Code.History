@@ -35,15 +35,28 @@ page 5627 "FA Registers"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the G/L register that was created when the entries were posted.';
                 }
+#if not CLEAN24
                 field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date when the entries in the register were posted.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field is obsolete. Use the System Created At field instead.';
+                    ObsoleteTag = '24.0';
                 }
                 field("Creation Time"; Rec."Creation Time")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the time when the entries in the register were posted.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field is obsolete. Use the System Created At field instead.';
+                    ObsoleteTag = '24.0';
+                }
+#endif
+                field(SystemCreatedAt; Rec.SystemCreatedAt)
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the date and time when the entries in the register were posted.';
                 }
                 field("User ID"; Rec."User ID")
                 {

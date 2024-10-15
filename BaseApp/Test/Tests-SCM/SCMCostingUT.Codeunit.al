@@ -57,7 +57,7 @@ codeunit 137811 "SCM - Costing UT"
         // restore original value of Inventory Setup
         if OldAvgCostCalcType <> InventorySetup."Average Cost Calc. Type" then begin
             InventorySetup."Average Cost Calc. Type" := OldAvgCostCalcType;
-            InventorySetup.Modify
+            InventorySetup.Modify();
         end;
     end;
 

@@ -14,6 +14,7 @@ table 12152 "Subcontractor Prices"
 {
     Caption = 'Subcontractor Prices';
     LookupPageID = "Subcontracting Prices";
+    DataClassification = CustomerContent;
 
     fields
     {

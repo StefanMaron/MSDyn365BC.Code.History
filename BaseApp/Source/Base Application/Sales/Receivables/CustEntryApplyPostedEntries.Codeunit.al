@@ -291,7 +291,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     begin
         IsHandled := false;
         OnBeforeUnApplyCustomer(DtldCustLedgEntry, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         DtldCustLedgEntry.TestField("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
@@ -576,11 +576,9 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            if not Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
-                exit(false);
-            exit("Unrealized VAT Type" <> "Unrealized VAT Type"::" ");
-        end;
+        if not VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
+            exit(false);
+        exit(VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" ");
     end;
 
     procedure PreviewApply(CustLedgEntry: Record "Cust. Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")

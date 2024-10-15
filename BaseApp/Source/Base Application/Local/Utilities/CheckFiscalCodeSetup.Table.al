@@ -7,6 +7,7 @@ namespace Microsoft.Utilities;
 table 12123 "Check Fiscal Code Setup"
 {
     Caption = 'Check Fiscal Code Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

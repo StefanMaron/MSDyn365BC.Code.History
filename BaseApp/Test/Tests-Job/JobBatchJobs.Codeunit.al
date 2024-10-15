@@ -46,17 +46,17 @@ codeunit 136310 "Job Batch Jobs"
         PostingDate: Date;
         NewRelationalExchangeRateAmount: Decimal;
         SalesLineTransferError: Label 'The lines were not transferred to an invoice.';
-        JobNoErr: Label 'The field Job No. of table Job Planning Line Invoice contains a value (%1) that cannot be found in the related table (Job).';
-        JobTaskNoErr: Label 'The field Job Task No. of table Job Planning Line Invoice contains a value (%1) that cannot be found in the related table (Job Task).';
-        LineNoErr: Label 'The field Job Planning Line No. of table Job Planning Line Invoice contains a value (%1) that cannot be found in the related table (Job Planning Line).';
+        JobNoErr: Label 'The field Project No. of table Project Planning Line Invoice contains a value (%1) that cannot be found in the related table (Project).';
+        JobTaskNoErr: Label 'The field Project Task No. of table Project Planning Line Invoice contains a value (%1) that cannot be found in the related table (Project Task).';
+        LineNoErr: Label 'The field Project Planning Line No. of table Project Planning Line Invoice contains a value (%1) that cannot be found in the related table (Project Planning Line).';
         WrongValueErr: Label 'Wrong value for field %1';
-        XJOBTxt: Label 'JOB';
+        XJOBTxt: Label 'PROJECT';
         XJ10Txt: Label 'J10';
         XJ99990Txt: Label 'J99990';
-        XJOBWIPTxt: Label 'JOB-WIP', Comment = 'Cashflow is a name of Cash Flow Forecast No. Series.';
+        XJOBWIPTxt: Label 'PROJECT-WIP', Comment = 'Cashflow is a name of Cash Flow Forecast No. Series.';
         XDefaultJobWIPNoTxt: Label 'WIP0000001', Comment = 'CF stands for Cash Flow.';
         XDefaultJobWIPEndNoTxt: Label 'WIP9999999';
-        XJobWIPDescriptionTxt: Label 'Job-WIP';
+        XJobWIPDescriptionTxt: Label 'PROJECT-WIP';
 
     [Test]
     [HandlerFunctions('ChangeJobDatesHandler')]
@@ -413,16 +413,16 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
 
         // 2. Exercise: Run Job Split Planning Line.
         RunJobSplitPlanningLine(JobTask);
 
         // 3. Verify: Verify Job Planning lines.
         VerifyValuesOnJobPlanningLine(
-          JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", LibraryJob.PlanningLineTypeSchedule, JobPlanningLine.Quantity);
+          JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", LibraryJob.PlanningLineTypeSchedule(), JobPlanningLine.Quantity);
         VerifyValuesOnJobPlanningLine(
-          JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", LibraryJob.PlanningLineTypeContract, JobPlanningLine.Quantity);
+          JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", LibraryJob.PlanningLineTypeContract(), JobPlanningLine.Quantity);
     end;
 
     [Test]
@@ -439,7 +439,7 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job and Job Task. Create and post Job Journal Line.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Item, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Item, JobTask, JobJournalLine);
         LibraryJob.PostJobJournal(JobJournalLine);
         LineNo := FindLastPlanningLineNo(JobTask);
 
@@ -447,8 +447,8 @@ codeunit 136310 "Job Batch Jobs"
         RunJobTransferToPlanningLines(JobJournalLine."Document No.");
 
         // 3. Verify: Verify Transfer Job Planning Line.
-        VerifyTransferJobPlanningLine(JobJournalLine, LibraryJob.PlanningLineTypeSchedule, LineNo);
-        VerifyTransferJobPlanningLine(JobJournalLine, LibraryJob.PlanningLineTypeContract, LineNo);
+        VerifyTransferJobPlanningLine(JobJournalLine, LibraryJob.PlanningLineTypeSchedule(), LineNo);
+        VerifyTransferJobPlanningLine(JobJournalLine, LibraryJob.PlanningLineTypeContract(), LineNo);
     end;
 
     [Test]
@@ -465,7 +465,7 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task, Job Planning Line and Job Journal Batch.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), CreateResource(), JobTask);
         CreateJobJournalBatch(JobJournalBatch);
 
         // 2. Exercise: Run Job Calc. Remaining Usage.
@@ -492,8 +492,8 @@ codeunit 136310 "Job Batch Jobs"
         Quantity := CreateAndPostPurchaseInvoice(JobTask);
 
         // 3. Verify: Verify Job Planning Lines.
-        VerifyValuesOnJobPlanningLine(JobTask."Job No.", JobTask."Job Task No.", LibraryJob.PlanningLineTypeSchedule, Quantity);
-        VerifyValuesOnJobPlanningLine(JobTask."Job No.", JobTask."Job Task No.", LibraryJob.PlanningLineTypeContract, Quantity);
+        VerifyValuesOnJobPlanningLine(JobTask."Job No.", JobTask."Job Task No.", LibraryJob.PlanningLineTypeSchedule(), Quantity);
+        VerifyValuesOnJobPlanningLine(JobTask."Job No.", JobTask."Job Task No.", LibraryJob.PlanningLineTypeContract(), Quantity);
     end;
 
     [Test]
@@ -510,7 +510,7 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
 
         // 2. Exercise: Transfer Job to Credit Memo.
         TransferJobToSales(JobPlanningLine, true);  // Use True for Credit Memo.
@@ -518,7 +518,7 @@ codeunit 136310 "Job Batch Jobs"
         // 3. Verify: Credit Memo must not exist.
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("Bill-to Customer No.", FindBillToCustomerNo(JobTask."Job No."));
-        Assert.IsFalse(SalesHeader.FindFirst, CreditMemoError);
+        Assert.IsFalse(SalesHeader.FindFirst(), CreditMemoError);
     end;
 
     [Test]
@@ -535,7 +535,7 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
 
         // 2. Exercise: Set Posting Date and Transfer Job to Credit Memo.
         PostingDate := WorkDate();  // Set global variable PostingDate.
@@ -563,11 +563,11 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task and Job Planning Line. Set Posting Date and Transfer Job to Credit Memo.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
         PostingDate := WorkDate();  // Set global variable PostingDate.
         CreateNewCreditMemo := true;  // Set global variable CreateNewCreditMemo.
         TransferJobToSales(JobPlanningLine, true);  // Use True for Credit Memo.
-        CreateJobPlanningLine(JobPlanningLine2, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine2, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
 
         // 2. Exercise: Transfer Job to Credit Memo.
         CreateNewCreditMemo := false;  // Set global variable CreateNewCreditMemo.
@@ -597,11 +597,11 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task and Job Planning Line. Set Posting Date and Transfer Job to Credit Memo.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
         PostingDate := WorkDate();  // Set global variable PostingDate.
         CreateNewCreditMemo := true;  // Set global variable CreateNewCreditMemo.
         TransferJobToSales(JobPlanningLine, true);  // Use True for Credit Memo.
-        CreateJobPlanningLine(JobPlanningLine2, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine2, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
 
         // 2. Exercise: Transfer Job to Credit Memo.
         CreateNewCreditMemo := false;  // Set global variable CreateNewCreditMemo.
@@ -628,7 +628,7 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task and Job planning Line.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
 
         // 2. Exercise: Run Job Create Sales Invoice.
         RunJobCreateSalesInvoice(JobTask);
@@ -650,7 +650,7 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task and Job planning Line. Transfer Job to Sales Invoice.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth(), LibraryJob.ResourceType(), CreateResource(), JobTask);
         TransferJobToSales(JobPlanningLine, false);  // Use False for Invoice.
 
         // 2. Exercise: Find and post Sales Invoice.
@@ -733,7 +733,7 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job, Job Task and Job planning Line with Item.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, CreateItem, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), CreateItem(), JobTask);
 
         // 2. Exercise: Run Job Create Sales Invoice.
         RunJobCreateSalesInvoice(JobTask);
@@ -765,9 +765,9 @@ codeunit 136310 "Job Batch Jobs"
         DiscountAmount := Round(JobJournalLine."Line Amount" * JobJournalLine."Line Discount %" / 100);
 
         // 3. Verify: Verify Line Amount and Line Discount Amount on Job Journal Line.
-        Assert.AreNearlyEqual(LineAmount, JobJournalLine."Line Amount", LibraryERM.GetAmountRoundingPrecision, 'Line Amount must match.');
+        Assert.AreNearlyEqual(LineAmount, JobJournalLine."Line Amount", LibraryERM.GetAmountRoundingPrecision(), 'Line Amount must match.');
         Assert.AreNearlyEqual(
-          DiscountAmount, JobJournalLine."Line Discount Amount", LibraryERM.GetAmountRoundingPrecision, 'Line Disc. Amount must match.');
+          DiscountAmount, JobJournalLine."Line Discount Amount", LibraryERM.GetAmountRoundingPrecision(), 'Line Disc. Amount must match.');
     end;
 
     [Test]
@@ -846,7 +846,7 @@ codeunit 136310 "Job Batch Jobs"
         UpdateCostFieldsInInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Never);
         UpdateAutomaticCostOnJobsSetup(true);
         // [GIVEN] Posted Purchase order
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         DocumentNo := CreateAndPostPurchaseOrder(JobTask, ItemNo);
         // [GIVEN] Posted revaluation entry with "Unit Cost (Revalued)" = "Y"
         UnitCost := UpdateUnitCostAndPostRevaluationJournal(ItemNo);
@@ -874,7 +874,7 @@ codeunit 136310 "Job Batch Jobs"
         // 1. Setup: Create Job,Job Task,Job planning Line and Sale Invoice.
         Initialize();
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, CreateItem, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), CreateItem(), JobTask);
         RunJobCreateSalesInvoice(JobTask);
 
         // 2. Exercise: Open Job List and Delete The Sales Invoice.
@@ -939,7 +939,7 @@ codeunit 136310 "Job Batch Jobs"
         Initialize();
         CreateJobAndJobTask(JobTask);
         CreateJobPlanningLine(
-          JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, CreateItem, JobTask);
+          JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), CreateItem(), JobTask);
 
         // Exercise: Validate Job, Job Task No and Job Planning Line No.
         CreateJobPlanningLineInvoiceTable(
@@ -1136,10 +1136,10 @@ codeunit 136310 "Job Batch Jobs"
         Initialize();
 
         // [GIVEN] Job "A" with blank "Currency Code", "Invoice Currency Code" = EUR, "Unit Price" = 50, "Currency Factor" = 0.5
-        CreateJobWithFCYPlanningLine(JobPlanningLineWithInvCurreny, '', LibraryERM.CreateCurrencyWithRandomExchRates);
+        CreateJobWithFCYPlanningLine(JobPlanningLineWithInvCurreny, '', LibraryERM.CreateCurrencyWithRandomExchRates());
 
         // [GIVEN] Job "B" wih "Currency Code" = USD, "Invoice Currency Code" is blank, "Unit Price" = 100
-        CreateJobWithFCYPlanningLine(JobPlanningLineWithCurrency, LibraryERM.CreateCurrencyWithRandomExchRates, '');
+        CreateJobWithFCYPlanningLine(JobPlanningLineWithCurrency, LibraryERM.CreateCurrencyWithRandomExchRates(), '');
 
         // [GIVEN] Job "C" wih blank "Currency Code", blank "Invoice Currency Code", "Unit Price" = 200
         CreateJobWithFCYPlanningLine(JobPlanningLineWithoutCurrency, '', '');
@@ -1177,12 +1177,12 @@ codeunit 136310 "Job Batch Jobs"
 
         // [GIVEN] Creage Job "J" and invoice "I" from job task 
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, CreateItem, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), CreateItem(), JobTask);
         RunJobCreateSalesInvoice(JobTask);
         InvoiceNo := FindSalesHeader(JobTask."Job No.", "Sales Document Type"::Invoice);
 
         // [WHEN] Action "Sales Invoices/Credit Memos" is being run from Job Card
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.FILTER.SetFilter("No.", JobTask."Job No.");
         JobCard.SalesInvoicesCreditMemos.Invoke();
 
@@ -1228,7 +1228,7 @@ codeunit 136310 "Job Batch Jobs"
         // [GIVEN] Create and post job journal line for 10 pcs from bin "B2".
         // [GIVEN] The bin "B2" is now empty.
         CreateJobAndJobTask(JobTask);
-        LibraryJob.CreateJobJournalLine(LibraryJob.UsageLineTypeBoth, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLine(LibraryJob.UsageLineTypeBoth(), JobTask, JobJournalLine);
         JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
         JobJournalLine.Validate("No.", Item."No.");
         JobJournalLine.Validate("Location Code", Location.Code);
@@ -1422,7 +1422,7 @@ codeunit 136310 "Job Batch Jobs"
 
         // [GIVEN] Create "Job Task" and "Job Planning Line".
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), CreateResource(), JobTask);
 
         // [GIVEN] Create "Job Journal Batch" and "Document No.".
         CreateJobJournalBatch(JobJournalBatch);
@@ -1444,7 +1444,7 @@ codeunit 136310 "Job Batch Jobs"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Batch Jobs");
         // Clear the needed global variables.
-        ClearGlobals;
+        ClearGlobals();
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
@@ -1483,17 +1483,17 @@ codeunit 136310 "Job Batch Jobs"
         // Create Job with Task. Create Job Planning Line. Create and Post two Item Journal Lines with different Unit Cost.
         // Create and Post two Job Journal Lines.
         CreateJobAndJobTask(JobTask);
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, CreateItem, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), CreateItem(), JobTask);
         UpdateUsageLinkOfJobPlanningLine(JobPlanningLine, true);
         Qty := LibraryRandom.RandInt(5);
         CreateAndPostItemJournalLine(JobPlanningLine."No.", Qty, LibraryRandom.RandInt(10));
         CreateAndPostItemJournalLine(JobPlanningLine."No.", JobPlanningLine.Quantity - Qty, LibraryRandom.RandInt(10));
 
         CreateAndPostJobJournalLine(
-          JobJournalLine, JobTask, LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::Item, JobPlanningLine."No.",
+          JobJournalLine, JobTask, LibraryJob.UsageLineTypeSchedule(), JobJournalLine.Type::Item, JobPlanningLine."No.",
           Qty, JobPlanningLine."Unit Cost", WorkDate());
         CreateAndPostJobJournalLine(
-          JobJournalLine, JobTask, LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::Item, JobPlanningLine."No.",
+          JobJournalLine, JobTask, LibraryJob.UsageLineTypeSchedule(), JobJournalLine.Type::Item, JobPlanningLine."No.",
           Qty, JobPlanningLine."Unit Cost", WorkDate());
 
         exit(JobPlanningLine."No.");
@@ -1538,9 +1538,9 @@ codeunit 136310 "Job Batch Jobs"
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesInvoice."Currency Code".AssistEdit;
+        SalesInvoice."Currency Code".AssistEdit();
     end;
 
     local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; LineType: Enum "Job Line Type"; ConsumableType: Enum "Job Planning Line Type"; No: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
@@ -1561,7 +1561,7 @@ codeunit 136310 "Job Batch Jobs"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchaseDocumentWithJob(PurchaseLine, JobTask, PurchaseHeader."Document Type"::Invoice, CreateItem);
+        CreatePurchaseDocumentWithJob(PurchaseLine, JobTask, PurchaseHeader."Document Type"::Invoice, CreateItem());
         Quantity := PurchaseLine.Quantity;
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1602,9 +1602,9 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure CreateUpdateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task") LineAmount: Decimal
     begin
-        CreateJobJournalLine(JobJournalLine, JobTask, CreateItem);
+        CreateJobJournalLine(JobJournalLine, JobTask, CreateItem());
         LineAmount := JobJournalLine."Line Amount";
-        JobJournalLine.Validate("Line Amount", JobJournalLine."Line Amount" - LibraryUtility.GenerateRandomFraction);  // Update Line Amount for generating Line Discount Amount.
+        JobJournalLine.Validate("Line Amount", JobJournalLine."Line Amount" - LibraryUtility.GenerateRandomFraction());  // Update Line Amount for generating Line Discount Amount.
         JobJournalLine.Modify(true);
         LibraryJob.PostJobJournal(JobJournalLine);
     end;
@@ -1619,15 +1619,15 @@ codeunit 136310 "Job Batch Jobs"
           Job, JobTask, Job."WIP Posting Method"::"Per Job",
           JobWIPMethod."Recognized Costs"::"At Completion", JobWIPMethod."Recognized Sales"::"At Completion", WIPTotal);
 
-        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), CreateResource(), JobTask);
         CreateAndPostJobJournalLine(
-          JobJournalLine, JobTask, LibraryJob.UsageLineTypeContract, LibraryJob.ResourceType, JobPlanningLine."No.",
+          JobJournalLine, JobTask, LibraryJob.UsageLineTypeContract(), LibraryJob.ResourceType(), JobPlanningLine."No.",
           JobPlanningLine.Quantity / 2, JobPlanningLine."Unit Cost", WorkDate());
         CreateJobTask(JobTask, Job, JobTask."Job Task Type"::Total, JobTask."WIP-Total"::Total);
         exit(JobPlanningLine."Total Price");
     end;
 
-    local procedure CreateInitialSetupForJobWithTask(var Job: Record Job; var JobTask: Record "Job Task"; WIPPostingMethod: Option; CostsRecognition: Option; SalesRecognition: Option; WIPTotal: Option)
+    local procedure CreateInitialSetupForJobWithTask(var Job: Record Job; var JobTask: Record "Job Task"; WIPPostingMethod: Option; CostsRecognition: Enum "Job WIP Recognized Costs Type"; SalesRecognition: Enum "Job WIP Recognized Sales Type"; WIPTotal: Option)
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
@@ -1704,7 +1704,7 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure CreateJobPlanningLineWithPlanningDate(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; PlanningDate: Date)
     begin
-        CreateJobPlanningLine(JobPlanningLine, LineType, LibraryJob.ResourceType, CreateResource, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LineType, LibraryJob.ResourceType(), CreateResource(), JobTask);
         with JobPlanningLine do begin
             Validate("Planning Date", PlanningDate);
             Validate("Qty. to Transfer to Journal", Quantity);
@@ -1741,7 +1741,7 @@ codeunit 136310 "Job Batch Jobs"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateJobTask(var JobTask: Record "Job Task"; Job: Record Job; JobTaskType: Option; WIPTotal: Option)
+    local procedure CreateJobTask(var JobTask: Record "Job Task"; Job: Record Job; JobTaskType: Enum "Job Task Type"; WIPTotal: Option)
     begin
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask.Validate("Job Task Type", JobTaskType);
@@ -1749,7 +1749,7 @@ codeunit 136310 "Job Batch Jobs"
         JobTask.Modify(true);
     end;
 
-    local procedure CreateJobWIPMethod(var JobWIPMethod: Record "Job WIP Method"; RecognizedCosts: Option; RecognizedSales: Option)
+    local procedure CreateJobWIPMethod(var JobWIPMethod: Record "Job WIP Method"; RecognizedCosts: Enum "Job WIP Recognized Costs Type"; RecognizedSales: Enum "Job WIP Recognized Sales Type")
     begin
         LibraryJob.CreateJobWIPMethod(JobWIPMethod);
         JobWIPMethod.Validate("Recognized Costs", RecognizedCosts);
@@ -1759,7 +1759,7 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure CreateResource(): Code[20]
     begin
-        exit(LibraryResource.CreateResourceNo);
+        exit(LibraryResource.CreateResourceNo());
     end;
 
     local procedure CreateItem(): Code[20]
@@ -1813,11 +1813,11 @@ codeunit 136310 "Job Batch Jobs"
         JobPlanningLine: Record "Job Planning Line";
         JobJournalLine: Record "Job Journal Line";
     begin
-        CreateJobPlanningLineWithPlanningDate(JobPlanningLine, JobTask, LibraryJob.PlanningLineTypeBoth, WorkDate());
+        CreateJobPlanningLineWithPlanningDate(JobPlanningLine, JobTask, LibraryJob.PlanningLineTypeBoth(), WorkDate());
         Cost += JobPlanningLine."Total Cost";
         CreateAndPostJobJournalLine(
-          JobJournalLine, JobTask, LibraryJob.UsageLineTypeBlank,
-          LibraryJob.ResourceType, JobPlanningLine."No.", JobPlanningLine.Quantity, JobPlanningLine."Unit Cost", WorkDate());
+          JobJournalLine, JobTask, LibraryJob.UsageLineTypeBlank(),
+          LibraryJob.ResourceType(), JobPlanningLine."No.", JobPlanningLine.Quantity, JobPlanningLine."Unit Cost", WorkDate());
         RunJobCalculateWIP(Job);
         RunJobPostWIPToGL(Job);
         VerifyWIPEntryAmountOnJobWIPGLEntry(Job."No.", -Cost, WorkDate());
@@ -1828,7 +1828,7 @@ codeunit 136310 "Job Batch Jobs"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        CreateJobPlanningLineWithPlanningDate(JobPlanningLine, JobTask, LibraryJob.PlanningLineTypeBoth, WorkDate());
+        CreateJobPlanningLineWithPlanningDate(JobPlanningLine, JobTask, LibraryJob.PlanningLineTypeBoth(), WorkDate());
         LineAmount += JobPlanningLine."Line Amount";
         TransferJobToSales(JobPlanningLine, false); // Use False for Invoice.
         FindAndPostSalesInvoice(Job."No.");
@@ -1920,7 +1920,7 @@ codeunit 136310 "Job Batch Jobs"
             repeat
                 CalcFields("Cost Amount (Actual)");
                 TotalCost += Abs("Cost Amount (Actual)");
-            until Next = 0;
+            until Next() = 0;
         end;
         exit(TotalCost);
     end;
@@ -1960,9 +1960,9 @@ codeunit 136310 "Job Batch Jobs"
     var
         JobList: TestPage "Job List";
     begin
-        JobList.OpenEdit;
+        JobList.OpenEdit();
         JobList.FILTER.SetFilter("No.", JobNo);
-        JobList.SalesInvoicesCreditMemos.Invoke;
+        JobList.SalesInvoicesCreditMemos.Invoke();
     end;
 
     local procedure UpdateUnitCostAndPostRevaluationJournal(ItemNo: Code[20]) UnitCostRevalued: Decimal
@@ -2012,7 +2012,7 @@ codeunit 136310 "Job Batch Jobs"
         JobCalculateWIP.SetTableView(Job);
 
         // Use Document No. as Job No. because value is not important.
-        JobCalculateWIP.InitializeRequest;
+        JobCalculateWIP.InitializeRequest();
         JobCalculateWIP.UseRequestPage(false);
         JobCalculateWIP.Run();
     end;
@@ -2098,7 +2098,7 @@ codeunit 136310 "Job Batch Jobs"
         JobsSetup.Modify(true);
     end;
 
-    local procedure UpdateCostFieldsInInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Option)
+    local procedure UpdateCostFieldsInInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -2116,7 +2116,7 @@ codeunit 136310 "Job Batch Jobs"
             if FindSet() then
                 repeat
                     LibraryJob.UpdateJobPostingGroup(JobPostingGroup);
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdateUnitCostOnRevaluationJournalLine(var ItemJournalLine: Record "Item Journal Line")
@@ -2178,8 +2178,8 @@ codeunit 136310 "Job Batch Jobs"
     begin
         with JobPlanningLine do begin
             Init();
-            "Job No." := LibraryUTUtility.GetNewCode;
-            "Job Task No." := LibraryUTUtility.GetNewCode;
+            "Job No." := LibraryUTUtility.GetNewCode();
+            "Job Task No." := LibraryUTUtility.GetNewCode();
             RecRef.GetTable(JobPlanningLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
             Insert();
@@ -2354,7 +2354,7 @@ codeunit 136310 "Job Batch Jobs"
                 Assert.AreEqual(JobTaskLine1."WIP-Total", "WIP-Total", StrSubstNo(WrongValueErr, FieldCaption("WIP-Total")));
                 Assert.AreEqual(JobTaskLine1."WIP Method", "WIP Method", StrSubstNo(WrongValueErr, FieldCaption("WIP Method")));
                 JobTaskLine1.Next();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2382,7 +2382,7 @@ codeunit 136310 "Job Batch Jobs"
     procedure ChangeExchangeRatePageHandler(var ChangeExchangeRate: TestPage "Change Exchange Rate")
     begin
         ChangeExchangeRate.RefExchRate.SetValue(NewRelationalExchangeRateAmount);
-        ChangeExchangeRate.OK.Invoke;
+        ChangeExchangeRate.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2400,7 +2400,7 @@ codeunit 136310 "Job Batch Jobs"
         ChangeJobDates.IncludeLineTypePlanning.SetValue(IncludeLineType);
         ChangeJobDates.IncludePlanDateFrom.SetValue(WorkDate());
         ChangeJobDates.IncludePlanDateTo.SetValue(WorkDate());
-        ChangeJobDates.OK.Invoke;
+        ChangeJobDates.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2410,7 +2410,7 @@ codeunit 136310 "Job Batch Jobs"
         JobPostWIPToGL.ReversalPostingDate.SetValue(WorkDate());
         JobPostWIPToGL.ReversalDocumentNo.SetValue(Format(LibraryRandom.RandInt(10)));  // Use random Reversal Document No.
         JobPostWIPToGL.ReverseOnly.SetValue(ReverseOnly);
-        JobPostWIPToGL.OK.Invoke;
+        JobPostWIPToGL.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2418,7 +2418,7 @@ codeunit 136310 "Job Batch Jobs"
     procedure JobTransferToPlanningLinesHandler(var JobTransferToPlanningLines: TestRequestPage "Job Transfer To Planning Lines")
     begin
         JobTransferToPlanningLines.TransferTo.SetValue(2);  // Use 2 for Both Budget and Billable.
-        JobTransferToPlanningLines.OK.Invoke;
+        JobTransferToPlanningLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2426,7 +2426,7 @@ codeunit 136310 "Job Batch Jobs"
     procedure JobCalcRemainingUsageHandler(var JobCalcRemainingUsage: TestRequestPage "Job Calc. Remaining Usage")
     begin
         JobCalcRemainingUsage.PostingDate.SetValue(Format(WorkDate()));
-        JobCalcRemainingUsage.OK.Invoke;
+        JobCalcRemainingUsage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2434,7 +2434,7 @@ codeunit 136310 "Job Batch Jobs"
     procedure JobTransferToCreditMemoHandler(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
     begin
         if (PostingDate = 0D) or CancelJobTransferToCreditMemo then begin
-            JobTransferToCreditMemo.Cancel.Invoke;
+            JobTransferToCreditMemo.Cancel().Invoke();
             exit
         end;
 
@@ -2443,9 +2443,9 @@ codeunit 136310 "Job Batch Jobs"
         // If Credit Memo is already exist then append to existing Credit Memo, otherwise create new Credit Memo.
         JobTransferToCreditMemo.CreateNewCreditMemo.SetValue(CreateNewCreditMemo);
         if not CreateNewCreditMemo then
-            JobTransferToCreditMemo.AppendToCreditMemoNo.Lookup;
+            JobTransferToCreditMemo.AppendToCreditMemoNo.Lookup();
 
-        JobTransferToCreditMemo.OK.Invoke;
+        JobTransferToCreditMemo.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2454,30 +2454,30 @@ codeunit 136310 "Job Batch Jobs"
     begin
         if AppendSalesInvoice then begin
             JobTransferToSalesInvoice.CreateNewInvoice.SetValue(AppendSalesInvoice);
-            JobTransferToSalesInvoice.AppendToSalesInvoiceNo.Lookup;
+            JobTransferToSalesInvoice.AppendToSalesInvoiceNo.Lookup();
         end;
-        JobTransferToSalesInvoice.OK.Invoke;
+        JobTransferToSalesInvoice.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobTransferToSalesInvoiceWithPostingDateHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
-        JobTransferToSalesInvoice.OK.Invoke;
+        JobTransferToSalesInvoice.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobCreateSalesInvoiceHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
     begin
-        JobCreateSalesInvoice.OK.Invoke;
+        JobCreateSalesInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesListHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.OK.Invoke;
+        SalesList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2497,7 +2497,7 @@ codeunit 136310 "Job Batch Jobs"
     [Scope('OnPrem')]
     procedure JobInvoicePageHandler(var JobInvoices: TestPage "Job Invoices")
     begin
-        JobInvoices.OpenSalesInvoiceCreditMemo.Invoke;
+        JobInvoices.OpenSalesInvoiceCreditMemo.Invoke();
     end;
 
     [ModalPageHandler]
@@ -2521,7 +2521,7 @@ codeunit 136310 "Job Batch Jobs"
     [Scope('OnPrem')]
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [Scope('OnPrem')]
@@ -2666,7 +2666,7 @@ codeunit 136310 "Job Batch Jobs"
     var
         JobList: TestPage "Job List";
     begin
-        JobList.OpenEdit;
+        JobList.OpenEdit();
         JobList.FILTER.SetFilter("No.", JobNo);
         JobList."Attached Documents".Documents.AssertEquals(1);
     end;

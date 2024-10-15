@@ -156,43 +156,41 @@ page 12188 "Manual vendor Payment Line"
                     Dimension: Code[20];
                     NextLineNo: Integer;
                 begin
-                    with VendorBillLine do begin
-                        LockTable();
-                        Reset();
-                        SetRange("Vendor Bill List No.", VendorBillNo);
-                        if not FindLast() then
-                            NextLineNo := 10000
-                        else
-                            NextLineNo := "Line No." + 10000;
-                        Init();
-                        "Vendor Bill List No." := VendorBillNo;
-                        "Line No." := NextLineNo;
-                        if VendorNo <> '' then
-                            "Vendor No." := VendorNo
-                        else
-                            Error(Text12100);
-                        "Vendor Bank Acc. No." := VendorBankAccount;
-                        "Document Type" := DocumentType;
-                        "Document No." := DocumentNo;
-                        Description := Desc;
-                        "Document Date" := DocumentDate;
-                        "Due Date" := PostingDate;
-                        "External Document No." := ExternalDocNo;
-                        "Instalment Amount" := TotalAmount;
-                        "Remaining Amount" := TotalAmount;
-                        "Gross Amount to Pay" := TotalAmount;
-                        "Amount to Pay" := TaxBaseAmount;
-                        "Manual Line" := true;
-                        "Cumulative Transfers" := true;
-                        SetWithholdCode(WithholdingTaxCode);
-                        SetSocialSecurityCode(SocialSecurityCode);
-                        DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, VendorNo);
-                        "Dimension Set ID" :=
-                            DimMgt.GetRecDefaultDimID(
-                                VendorBillLine, 0, DefaultDimSource, '', Dimension, Dimension, "Dimension Set ID", DATABASE::Vendor);
-                        OnInsertLineActionOnBeforeVendorBillLineInsert(VendorBillLine, VendorBillNo, PostingDate, VendorNo, TotalAmount, DocumentType, DocumentNo, DocumentDate);
-                        Insert(true)
-                    end;
+                    VendorBillLine.LockTable();
+                    VendorBillLine.Reset();
+                    VendorBillLine.SetRange("Vendor Bill List No.", VendorBillNo);
+                    if not VendorBillLine.FindLast() then
+                        NextLineNo := 10000
+                    else
+                        NextLineNo := VendorBillLine."Line No." + 10000;
+                    VendorBillLine.Init();
+                    VendorBillLine."Vendor Bill List No." := VendorBillNo;
+                    VendorBillLine."Line No." := NextLineNo;
+                    if VendorNo <> '' then
+                        VendorBillLine."Vendor No." := VendorNo
+                    else
+                        Error(Text12100);
+                    VendorBillLine."Vendor Bank Acc. No." := VendorBankAccount;
+                    VendorBillLine."Document Type" := DocumentType;
+                    VendorBillLine."Document No." := DocumentNo;
+                    VendorBillLine.Description := Desc;
+                    VendorBillLine."Document Date" := DocumentDate;
+                    VendorBillLine."Due Date" := PostingDate;
+                    VendorBillLine."External Document No." := ExternalDocNo;
+                    VendorBillLine."Instalment Amount" := TotalAmount;
+                    VendorBillLine."Remaining Amount" := TotalAmount;
+                    VendorBillLine."Gross Amount to Pay" := TotalAmount;
+                    VendorBillLine."Amount to Pay" := TaxBaseAmount;
+                    VendorBillLine."Manual Line" := true;
+                    VendorBillLine."Cumulative Transfers" := true;
+                    VendorBillLine.SetWithholdCode(WithholdingTaxCode);
+                    VendorBillLine.SetSocialSecurityCode(SocialSecurityCode);
+                    DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, VendorNo);
+                    VendorBillLine."Dimension Set ID" :=
+                        DimMgt.GetRecDefaultDimID(
+                            VendorBillLine, 0, DefaultDimSource, '', Dimension, Dimension, VendorBillLine."Dimension Set ID", DATABASE::Vendor);
+                    OnInsertLineActionOnBeforeVendorBillLineInsert(VendorBillLine, VendorBillNo, PostingDate, VendorNo, TotalAmount, DocumentType, DocumentNo, DocumentDate);
+                    VendorBillLine.Insert(true);
                     ClearAll();
                     CurrPage.Close();
                 end;

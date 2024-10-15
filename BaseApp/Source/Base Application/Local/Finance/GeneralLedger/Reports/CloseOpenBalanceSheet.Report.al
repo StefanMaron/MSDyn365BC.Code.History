@@ -498,7 +498,6 @@ report 12113 "Close/Open Balance Sheet"
         SelectedDim: Record "Selected Dimension";
         TempSelectedDim: Record "Selected Dimension" temporary;
         EntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
         DimBufMgt: Codeunit "Dimension Buffer Management";
@@ -559,11 +558,13 @@ report 12113 "Close/Open Balance Sheet"
     end;
 
     local procedure ValidateJnl()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         ClDocNo := '';
         if GenJnlBatch.Get(ClTemplateName, ClBatchName) then
             if GenJnlBatch."No. Series" <> '' then
-                ClDocNo := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", EndDateReq);
+                ClDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", EndDateReq);
     end;
 
     local procedure HandleGenJnlLine()
@@ -670,11 +671,13 @@ report 12113 "Close/Open Balance Sheet"
     end;
 
     local procedure ValidateOpJnl()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         OpDocNo := '';
         if GenJnlBatch.Get(OpTemplateName, OpBatchName) then
             if GenJnlBatch."No. Series" <> '' then
-                OpDocNo := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", EndDateReq);
+                OpDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", EndDateReq);
     end;
 
     local procedure TryInsertDimensionsUsingEntryNo(GLEntryNo: Integer; GLEntryDimensionSetID: Integer; var NextDimensionSetID: Integer): Integer

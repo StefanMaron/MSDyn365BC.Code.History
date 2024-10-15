@@ -13,6 +13,7 @@ table 12118 "Intra - form Buffer"
 #pragma warning restore AS0072
 #endif
     ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
+    DataClassification = CustomerContent;
 
     fields
     {

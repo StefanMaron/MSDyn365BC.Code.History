@@ -8,6 +8,7 @@ table 12101 "Interest on Arrears"
 {
     Caption = 'Interest on Arrears';
     LookupPageID = "Interest on Arrears";
+    DataClassification = CustomerContent;
 
     fields
     {

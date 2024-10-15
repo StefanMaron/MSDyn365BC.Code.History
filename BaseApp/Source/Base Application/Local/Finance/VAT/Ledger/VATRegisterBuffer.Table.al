@@ -9,6 +9,7 @@ using Microsoft.Finance.VAT.Setup;
 table 12148 "VAT Register - Buffer"
 {
     Caption = 'VAT Register - Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

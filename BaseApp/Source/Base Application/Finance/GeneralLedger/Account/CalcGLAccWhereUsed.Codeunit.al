@@ -58,141 +58,140 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         BillPostingGroup: Record "Bill Posting Group";
         Bill: Record Bill;
     begin
-        with GLAccWhereUsed do
-            case "Table ID" of
-                Database::Currency:
-                    begin
-                        Currency.Code := CopyStr("Key 1", 1, MaxStrLen(Currency.Code));
-                        PAGE.Run(0, Currency);
-                    end;
-                Database::"Gen. Journal Template":
-                    begin
-                        GenJnlTemplate.Name := CopyStr("Key 1", 1, MaxStrLen(GenJnlTemplate.Name));
-                        PAGE.Run(PAGE::"General Journal Templates", GenJnlTemplate);
-                    end;
-                Database::"Gen. Journal Batch":
-                    begin
-                        GenJnlBatch."Journal Template Name" := CopyStr("Key 1", 1, MaxStrLen(GenJnlBatch."Journal Template Name"));
-                        GenJnlBatch.Name := CopyStr("Key 2", 1, MaxStrLen(GenJnlBatch.Name));
-                        GenJnlBatch.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
-                        PAGE.Run(0, GenJnlBatch);
-                    end;
-                Database::"Customer Posting Group":
-                    begin
-                        CustPostingGr.Code := CopyStr("Key 1", 1, MaxStrLen(CustPostingGr.Code));
-                        PAGE.Run(0, CustPostingGr);
-                    end;
-                Database::"Vendor Posting Group":
-                    begin
-                        VendPostingGr.Code := CopyStr("Key 1", 1, MaxStrLen(VendPostingGr.Code));
-                        PAGE.Run(0, VendPostingGr);
-                    end;
-                Database::"Job Posting Group":
-                    begin
-                        JobPostingGr.Code := CopyStr("Key 1", 1, MaxStrLen(JobPostingGr.Code));
-                        PAGE.Run(0, JobPostingGr);
-                    end;
-                Database::"Gen. Jnl. Allocation":
-                    begin
-                        GenJnlAlloc."Journal Template Name" := CopyStr("Key 1", 1, MaxStrLen(GenJnlAlloc."Journal Template Name"));
-                        GenJnlAlloc."Journal Batch Name" := CopyStr("Key 2", 1, MaxStrLen(GenJnlAlloc."Journal Batch Name"));
-                        Evaluate(GenJnlAlloc."Journal Line No.", "Key 3");
-                        Evaluate(GenJnlAlloc."Line No.", "Key 4");
-                        GenJnlAlloc.SetRange("Journal Template Name", GenJnlAlloc."Journal Template Name");
-                        GenJnlAlloc.SetRange("Journal Batch Name", GenJnlAlloc."Journal Batch Name");
-                        GenJnlAlloc.SetRange("Journal Line No.", GenJnlAlloc."Journal Line No.");
-                        PAGE.Run(PAGE::Allocations, GenJnlAlloc);
-                    end;
-                Database::"General Posting Setup":
-                    begin
-                        GenPostingSetup."Gen. Bus. Posting Group" :=
-                          CopyStr("Key 1", 1, MaxStrLen(GenPostingSetup."Gen. Bus. Posting Group"));
-                        GenPostingSetup."Gen. Prod. Posting Group" :=
-                          CopyStr("Key 2", 1, MaxStrLen(GenPostingSetup."Gen. Prod. Posting Group"));
-                        PAGE.Run(0, GenPostingSetup);
-                    end;
-                Database::"Bank Account Posting Group":
-                    begin
-                        BankAccPostingGr.Code := CopyStr("Key 1", 1, MaxStrLen(BankAccPostingGr.Code));
-                        PAGE.Run(0, BankAccPostingGr);
-                    end;
-                Database::"VAT Posting Setup":
-                    begin
-                        VATPostingSetup."VAT Bus. Posting Group" :=
-                          CopyStr("Key 1", 1, MaxStrLen(VATPostingSetup."VAT Bus. Posting Group"));
-                        VATPostingSetup."VAT Prod. Posting Group" :=
-                          CopyStr("Key 2", 1, MaxStrLen(VATPostingSetup."VAT Prod. Posting Group"));
-                        PAGE.Run(0, VATPostingSetup);
-                    end;
-                Database::"FA Posting Group":
-                    begin
-                        FAPostingGr.Code := CopyStr("Key 1", 1, MaxStrLen(FAPostingGr.Code));
-                        PAGE.Run(PAGE::"FA Posting Group Card", FAPostingGr);
-                    end;
-                Database::"FA Allocation":
-                    begin
-                        FAAlloc.Code := CopyStr("Key 1", 1, MaxStrLen(FAAlloc.Code));
-                        Evaluate(FAAlloc."Allocation Type", "Key 2");
-                        Evaluate(FAAlloc."Line No.", "Key 3");
-                        FAAlloc.SetRange(Code, FAAlloc.Code);
-                        FAAlloc.SetRange("Allocation Type", FAAlloc."Allocation Type");
-                        OnShowSetupFormOnBeforeFAAllocationRunPage(FAAlloc, GLAccWhereUsed);
-                        PAGE.Run(0, FAAlloc);
-                    end;
-                Database::"Inventory Posting Setup":
-                    begin
-                        InventoryPostingSetup."Location Code" := CopyStr("Key 1", 1, MaxStrLen(InventoryPostingSetup."Location Code"));
-                        InventoryPostingSetup."Invt. Posting Group Code" :=
-                          CopyStr("Key 2", 1, MaxStrLen(InventoryPostingSetup."Invt. Posting Group Code"));
-                        PAGE.Run(PAGE::"Inventory Posting Setup", InventoryPostingSetup);
-                    end;
-                Database::"Service Contract Account Group":
-                    begin
-                        ServiceContractAccGr.Code := CopyStr("Key 1", 1, MaxStrLen(ServiceContractAccGr.Code));
-                        PAGE.Run(0, ServiceContractAccGr);
-                    end;
-                Database::"IC Partner":
-                    begin
-                        ICPartner.Code := CopyStr("Key 1", 1, MaxStrLen(ICPartner.Code));
-                        PAGE.Run(0, ICPartner);
-                    end;
-                Database::"Payment Method":
-                    begin
-                        PaymentMethod.Code := CopyStr("Key 1", 1, MaxStrLen(PaymentMethod.Code));
-                        PAGE.Run(0, PaymentMethod);
-                    end;
-                Database::"Sales & Receivables Setup":
-                    PAGE.Run(PAGE::"Sales & Receivables Setup");
-                Database::"Purchases & Payables Setup":
-                    PAGE.Run(PAGE::"Purchases & Payables Setup");
-                Database::"Withhold Code":
-                    begin
-                        WithholdCode.Code := CopyStr("Key 1", 1, MaxStrLen(WithholdCode.Code));
-                        PAGE.Run(0, WithholdCode);
-                    end;
-                Database::"Contribution Code":
-                    begin
-                        ContributionCode.Code := CopyStr("Key 1", 1, MaxStrLen(ContributionCode.Code));
-                        Evaluate(ContributionCode."Contribution Type", "Key 2");
-                        if ContributionCode."Contribution Type" = ContributionCode."Contribution Type"::INAIL then
-                            PAGE.Run(PAGE::"Contribution Codes-INAIL", ContributionCode)
-                        else
-                            PAGE.Run(PAGE::"Contribution Codes-INPS", ContributionCode);
-                    end;
-                Database::"Bill Posting Group":
-                    begin
-                        BillPostingGroup."No." := CopyStr("Key 1", 1, MaxStrLen(BillPostingGroup."No."));
-                        BillPostingGroup."Payment Method" := CopyStr("Key 2", 1, MaxStrLen(BillPostingGroup."Payment Method"));
-                        PAGE.Run(PAGE::"Bill Posting Group", BillPostingGroup);
-                    end;
-                Database::Bill:
-                    begin
-                        Bill.Code := CopyStr("Key 1", 1, MaxStrLen(Bill.Code));
-                        PAGE.Run(0, Bill);
-                    end;
-                else
-                    OnShowExtensionPage(GLAccWhereUsed);
-            end;
+        case GLAccWhereUsed."Table ID" of
+            Database::Currency:
+                begin
+                    Currency.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(Currency.Code));
+                    PAGE.Run(0, Currency);
+                end;
+            Database::"Gen. Journal Template":
+                begin
+                    GenJnlTemplate.Name := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(GenJnlTemplate.Name));
+                    PAGE.Run(PAGE::"General Journal Templates", GenJnlTemplate);
+                end;
+            Database::"Gen. Journal Batch":
+                begin
+                    GenJnlBatch."Journal Template Name" := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(GenJnlBatch."Journal Template Name"));
+                    GenJnlBatch.Name := CopyStr(GLAccWhereUsed."Key 2", 1, MaxStrLen(GenJnlBatch.Name));
+                    GenJnlBatch.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+                    PAGE.Run(0, GenJnlBatch);
+                end;
+            Database::"Customer Posting Group":
+                begin
+                    CustPostingGr.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(CustPostingGr.Code));
+                    PAGE.Run(0, CustPostingGr);
+                end;
+            Database::"Vendor Posting Group":
+                begin
+                    VendPostingGr.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(VendPostingGr.Code));
+                    PAGE.Run(0, VendPostingGr);
+                end;
+            Database::"Job Posting Group":
+                begin
+                    JobPostingGr.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(JobPostingGr.Code));
+                    PAGE.Run(0, JobPostingGr);
+                end;
+            Database::"Gen. Jnl. Allocation":
+                begin
+                    GenJnlAlloc."Journal Template Name" := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(GenJnlAlloc."Journal Template Name"));
+                    GenJnlAlloc."Journal Batch Name" := CopyStr(GLAccWhereUsed."Key 2", 1, MaxStrLen(GenJnlAlloc."Journal Batch Name"));
+                    Evaluate(GenJnlAlloc."Journal Line No.", GLAccWhereUsed."Key 3");
+                    Evaluate(GenJnlAlloc."Line No.", GLAccWhereUsed."Key 4");
+                    GenJnlAlloc.SetRange("Journal Template Name", GenJnlAlloc."Journal Template Name");
+                    GenJnlAlloc.SetRange("Journal Batch Name", GenJnlAlloc."Journal Batch Name");
+                    GenJnlAlloc.SetRange("Journal Line No.", GenJnlAlloc."Journal Line No.");
+                    PAGE.Run(PAGE::Allocations, GenJnlAlloc);
+                end;
+            Database::"General Posting Setup":
+                begin
+                    GenPostingSetup."Gen. Bus. Posting Group" :=
+                      CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(GenPostingSetup."Gen. Bus. Posting Group"));
+                    GenPostingSetup."Gen. Prod. Posting Group" :=
+                      CopyStr(GLAccWhereUsed."Key 2", 1, MaxStrLen(GenPostingSetup."Gen. Prod. Posting Group"));
+                    PAGE.Run(0, GenPostingSetup);
+                end;
+            Database::"Bank Account Posting Group":
+                begin
+                    BankAccPostingGr.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(BankAccPostingGr.Code));
+                    PAGE.Run(0, BankAccPostingGr);
+                end;
+            Database::"VAT Posting Setup":
+                begin
+                    VATPostingSetup."VAT Bus. Posting Group" :=
+                      CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(VATPostingSetup."VAT Bus. Posting Group"));
+                    VATPostingSetup."VAT Prod. Posting Group" :=
+                      CopyStr(GLAccWhereUsed."Key 2", 1, MaxStrLen(VATPostingSetup."VAT Prod. Posting Group"));
+                    PAGE.Run(0, VATPostingSetup);
+                end;
+            Database::"FA Posting Group":
+                begin
+                    FAPostingGr.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(FAPostingGr.Code));
+                    PAGE.Run(PAGE::"FA Posting Group Card", FAPostingGr);
+                end;
+            Database::"FA Allocation":
+                begin
+                    FAAlloc.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(FAAlloc.Code));
+                    Evaluate(FAAlloc."Allocation Type", GLAccWhereUsed."Key 2");
+                    Evaluate(FAAlloc."Line No.", GLAccWhereUsed."Key 3");
+                    FAAlloc.SetRange(Code, FAAlloc.Code);
+                    FAAlloc.SetRange("Allocation Type", FAAlloc."Allocation Type");
+                    OnShowSetupFormOnBeforeFAAllocationRunPage(FAAlloc, GLAccWhereUsed);
+                    PAGE.Run(0, FAAlloc);
+                end;
+            Database::"Inventory Posting Setup":
+                begin
+                    InventoryPostingSetup."Location Code" := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(InventoryPostingSetup."Location Code"));
+                    InventoryPostingSetup."Invt. Posting Group Code" :=
+                      CopyStr(GLAccWhereUsed."Key 2", 1, MaxStrLen(InventoryPostingSetup."Invt. Posting Group Code"));
+                    PAGE.Run(PAGE::"Inventory Posting Setup", InventoryPostingSetup);
+                end;
+            Database::"Service Contract Account Group":
+                begin
+                    ServiceContractAccGr.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(ServiceContractAccGr.Code));
+                    PAGE.Run(0, ServiceContractAccGr);
+                end;
+            Database::"IC Partner":
+                begin
+                    ICPartner.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(ICPartner.Code));
+                    PAGE.Run(0, ICPartner);
+                end;
+            Database::"Payment Method":
+                begin
+                    PaymentMethod.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(PaymentMethod.Code));
+                    PAGE.Run(0, PaymentMethod);
+                end;
+            Database::"Sales & Receivables Setup":
+                PAGE.Run(PAGE::"Sales & Receivables Setup");
+            Database::"Purchases & Payables Setup":
+                PAGE.Run(PAGE::"Purchases & Payables Setup");
+            Database::"Withhold Code":
+                begin
+                    WithholdCode.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(WithholdCode.Code));
+                    PAGE.Run(0, WithholdCode);
+                end;
+            Database::"Contribution Code":
+                begin
+                    ContributionCode.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(ContributionCode.Code));
+                    Evaluate(ContributionCode."Contribution Type", GLAccWhereUsed."Key 2");
+                    if ContributionCode."Contribution Type" = ContributionCode."Contribution Type"::INAIL then
+                        PAGE.Run(PAGE::"Contribution Codes-INAIL", ContributionCode)
+                    else
+                        PAGE.Run(PAGE::"Contribution Codes-INPS", ContributionCode);
+                end;
+            Database::"Bill Posting Group":
+                begin
+                    BillPostingGroup."No." := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(BillPostingGroup."No."));
+                    BillPostingGroup."Payment Method" := CopyStr(GLAccWhereUsed."Key 2", 1, MaxStrLen(BillPostingGroup."Payment Method"));
+                    PAGE.Run(PAGE::"Bill Posting Group", BillPostingGroup);
+                end;
+            Database::Bill:
+                begin
+                    Bill.Code := CopyStr(GLAccWhereUsed."Key 1", 1, MaxStrLen(Bill.Code));
+                    PAGE.Run(0, Bill);
+                end;
+            else
+                OnShowExtensionPage(GLAccWhereUsed);
+        end;
     end;
 
     procedure DeleteGLNo(GLAccNo: Code[20]): Boolean

@@ -79,14 +79,14 @@ codeunit 144051 "UT REP AUTOPAY"
 
         // Setup.
         Initialize();
-        IssuedBillNo := CreateIssuedCustomerBill;
+        IssuedBillNo := CreateIssuedCustomerBill();
         LibraryVariableStorage.Enqueue(IssuedBillNo);  // Enqueue value for IssuedCustBillsReportRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Issued Cust Bills Report");
 
         // Verify: Verify TestReportText on XML of Report - 12174 Issued Cust Bills Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TestReportCap, Format(IssuedBillNo));
     end;
 
@@ -181,7 +181,7 @@ codeunit 144051 "UT REP AUTOPAY"
         REPORT.Run(REPORT::"Vendor Account Bills List");
 
         // Verify: Verify VendorBillAmnt on XML of Report - 12116 Vendor Account Bills List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendorBillAmountCap, AmountToPay);
     end;
 
@@ -218,7 +218,7 @@ codeunit 144051 "UT REP AUTOPAY"
         REPORT.Run(REPORT::"List of Bank Receipts");
 
         // Verify: Verify No_CustBillHdr on XML of Report - 12170 List of Bank Receipts.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CustBillHeaderNoCap, CustomerBillNo);
     end;
 
@@ -243,7 +243,7 @@ codeunit 144051 "UT REP AUTOPAY"
         VendorBillHeader: Record "Vendor Bill Header";
     begin
         // Purpose of the test is to validate Vendor Bill Line - OnAfterGetRecord Trigger of Report - 12178 Vendor Bill Report.
-        VendorBillReport(LibraryUTUtility.GetNewCode10, VendorBillHeader."List Status"::Open);
+        VendorBillReport(LibraryUTUtility.GetNewCode10(), VendorBillHeader."List Status"::Open);
     end;
 
     local procedure VendorBillReport(CurrencyCode: Code[10]; ListStatus: Option)
@@ -259,7 +259,7 @@ codeunit 144051 "UT REP AUTOPAY"
         REPORT.Run(REPORT::"Vendor Bill Report");
 
         // Verify: Verify No_VendBillHdr on XML of Report - 12178 Vendor Bill Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendBillHeaderNoCap, VendorBillNo);
     end;
 
@@ -287,7 +287,7 @@ codeunit 144051 "UT REP AUTOPAY"
     begin
         // Purpose of the test is to validate Posted Vendor Bill Header - OnAfterGetRecord Trigger with Currency of Report - 12179 Issued Vendor Bill List.
         Initialize();
-        CurrencyCode := LibraryUTUtility.GetNewCode10;
+        CurrencyCode := LibraryUTUtility.GetNewCode10();
         OnAfterGetRecPstdVendBillHdrIssuedVendBillList(CurrencyCode, CurrencyCode);
     end;
 
@@ -298,7 +298,7 @@ codeunit 144051 "UT REP AUTOPAY"
         PostedVendorBillHeaderNo: Code[20];
     begin
         // Setup: Create Vendor Bank Account and Posted Vendor Bill.
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         PostedVendorBillHeaderNo := CreatePostedVendorBill(CurrencyCode, Vendor."No.", VendorBankAccount.Code);
         LibraryVariableStorage.Enqueue(PostedVendorBillHeaderNo);  // Enqueue for IssuedVendorBillListRequestPageHandler.
@@ -323,9 +323,9 @@ codeunit 144051 "UT REP AUTOPAY"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
-        BankAccount.ABI := CopyStr(LibraryUTUtility.GetNewCode10, 1, 5);
-        BankAccount.CAB := CopyStr(LibraryUTUtility.GetNewCode10, 1, 5);
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
+        BankAccount.ABI := CopyStr(LibraryUTUtility.GetNewCode10(), 1, 5);
+        BankAccount.CAB := CopyStr(LibraryUTUtility.GetNewCode10(), 1, 5);
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -335,12 +335,12 @@ codeunit 144051 "UT REP AUTOPAY"
         CustomerBillHeader: Record "Customer Bill Header";
         CustomerBillLine: Record "Customer Bill Line";
     begin
-        CustomerBillHeader."No." := LibraryUTUtility.GetNewCode;
-        CustomerBillHeader."Bank Account No." := CreateBankAccount;
+        CustomerBillHeader."No." := LibraryUTUtility.GetNewCode();
+        CustomerBillHeader."Bank Account No." := CreateBankAccount();
         CustomerBillHeader."Test Report" := TestReport;
         CustomerBillHeader.Insert();
         CustomerBillLine."Customer Bill No." := CustomerBillHeader."No.";
-        CustomerBillLine."Customer No." := CreateCustomer;
+        CustomerBillLine."Customer No." := CreateCustomer();
         CustomerBillLine."Cumulative Bank Receipts" := CumulativeBankReceipts;
         CustomerBillLine.Insert();
         exit(CustomerBillHeader."No.");
@@ -350,7 +350,7 @@ codeunit 144051 "UT REP AUTOPAY"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -373,7 +373,7 @@ codeunit 144051 "UT REP AUTOPAY"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Customer No." := CreateCustomer;
+        CustLedgerEntry."Customer No." := CreateCustomer();
         CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Amount (LCY)" := LibraryRandom.RandDec(10, 2);
         CustLedgerEntry."Due Date" := CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate());  // Using earlier date than WORKDATE as Due Date must be earlier than Ending Date.
@@ -385,11 +385,11 @@ codeunit 144051 "UT REP AUTOPAY"
         IssuedCustomerBillHeader: Record "Issued Customer Bill Header";
         IssuedCustomerBillLine: Record "Issued Customer Bill Line";
     begin
-        IssuedCustomerBillHeader."No." := LibraryUTUtility.GetNewCode;
-        IssuedCustomerBillHeader."Bank Account No." := CreateBankAccount;
+        IssuedCustomerBillHeader."No." := LibraryUTUtility.GetNewCode();
+        IssuedCustomerBillHeader."Bank Account No." := CreateBankAccount();
         IssuedCustomerBillHeader.Insert();
         IssuedCustomerBillLine."Customer Bill No." := IssuedCustomerBillHeader."No.";
-        IssuedCustomerBillLine."Customer No." := CreateCustomer;
+        IssuedCustomerBillLine."Customer No." := CreateCustomer();
         IssuedCustomerBillLine.Insert();
         exit(IssuedCustomerBillHeader."No.");
     end;
@@ -399,8 +399,8 @@ codeunit 144051 "UT REP AUTOPAY"
         PostedVendorBillHeader: Record "Posted Vendor Bill Header";
         PostedVendorBillLine: Record "Posted Vendor Bill Line";
     begin
-        PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode;
-        PostedVendorBillHeader."Bank Account No." := CreateBankAccount;
+        PostedVendorBillHeader."No." := LibraryUTUtility.GetNewCode();
+        PostedVendorBillHeader."Bank Account No." := CreateBankAccount();
         PostedVendorBillHeader."Currency Code" := CurrencyCode;
         PostedVendorBillHeader.Insert();
         PostedVendorBillLine."Vendor Bill No." := PostedVendorBillHeader."No.";
@@ -414,19 +414,19 @@ codeunit 144051 "UT REP AUTOPAY"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Name := LibraryUTUtility.GetNewCode;
-        Vendor.Address := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor.Name := LibraryUTUtility.GetNewCode();
+        Vendor.Address := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
 
     local procedure CreateVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; VendorNo: Code[20])
     begin
-        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10();
         VendorBankAccount."Vendor No." := VendorNo;
-        VendorBankAccount.ABI := CopyStr(LibraryUTUtility.GetNewCode10, 1, 5);
-        VendorBankAccount.CAB := CopyStr(LibraryUTUtility.GetNewCode10, 1, 5);
+        VendorBankAccount.ABI := CopyStr(LibraryUTUtility.GetNewCode10(), 1, 5);
+        VendorBankAccount.CAB := CopyStr(LibraryUTUtility.GetNewCode10(), 1, 5);
         VendorBankAccount.Insert();
     end;
 
@@ -437,12 +437,12 @@ codeunit 144051 "UT REP AUTOPAY"
         VendorBankAccount: Record "Vendor Bank Account";
         VendorNo: Code[20];
     begin
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreateVendorBankAccount(VendorBankAccount, VendorNo);
-        VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
+        VendorBillHeader."No." := LibraryUTUtility.GetNewCode();
         VendorBillHeader."Currency Code" := CurrencyCode;
         VendorBillHeader."List Status" := ListStatus;
-        VendorBillHeader."Bank Account No." := CreateBankAccount;
+        VendorBillHeader."Bank Account No." := CreateBankAccount();
         VendorBillHeader.Insert();
         VendorBillLine."Vendor No." := VendorNo;
         VendorBillLine."Vendor Bank Acc. No." := VendorBankAccount.Code;
@@ -471,7 +471,7 @@ codeunit 144051 "UT REP AUTOPAY"
     begin
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
-        VendorLedgerEntry."Vendor No." := CreateVendor;
+        VendorLedgerEntry."Vendor No." := CreateVendor();
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Vendor Bill No." :=
@@ -487,7 +487,7 @@ codeunit 144051 "UT REP AUTOPAY"
 
     local procedure VerifyValuesOnXML(Caption: Text; Caption2: Text; Value: Variant; Value2: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, Value2);
     end;
@@ -501,7 +501,7 @@ codeunit 144051 "UT REP AUTOPAY"
         LibraryVariableStorage.Dequeue(No);
         CustomerBillsList."Ending Date".SetValue(WorkDate());
         CustomerBillsList.Customer.SetFilter("No.", No);
-        CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -513,7 +513,7 @@ codeunit 144051 "UT REP AUTOPAY"
         LibraryVariableStorage.Dequeue(No);
         CustomerSheetPrint.Customer.SetFilter("No.", No);
         CustomerSheetPrint.Customer.SetFilter("Date Filter", Format(WorkDate()));
-        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -524,7 +524,7 @@ codeunit 144051 "UT REP AUTOPAY"
     begin
         LibraryVariableStorage.Dequeue(No);
         IssuedCustBillsReport."Issued Customer Bill Header".SetFilter("No.", No);
-        IssuedCustBillsReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IssuedCustBillsReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -535,7 +535,7 @@ codeunit 144051 "UT REP AUTOPAY"
     begin
         LibraryVariableStorage.Dequeue(No);
         IssuedVendorBillList."Posted Vendor Bill Header".SetFilter("No.", No);
-        IssuedVendorBillList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IssuedVendorBillList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -546,7 +546,7 @@ codeunit 144051 "UT REP AUTOPAY"
     begin
         LibraryVariableStorage.Dequeue(No);
         ListOfBankReceipts."Customer Bill Header".SetFilter("No.", No);
-        ListOfBankReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ListOfBankReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -560,7 +560,7 @@ codeunit 144051 "UT REP AUTOPAY"
         LibraryVariableStorage.Dequeue(EndingDate);
         VendorAccountBillsList.Vendor.SetFilter("No.", No);
         VendorAccountBillsList.EndingDate.SetValue(EndingDate);
-        VendorAccountBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorAccountBillsList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -571,7 +571,7 @@ codeunit 144051 "UT REP AUTOPAY"
     begin
         LibraryVariableStorage.Dequeue(No);
         VendorBillReport."Vendor Bill Header".SetFilter("No.", No);
-        VendorBillReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorBillReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

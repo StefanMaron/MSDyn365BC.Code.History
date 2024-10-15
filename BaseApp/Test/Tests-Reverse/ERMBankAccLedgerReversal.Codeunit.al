@@ -55,7 +55,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
 
         // Create and post General Journal Line and Reverse Bank Ledger Entry for Vendor.
         CreateAndReverseBankLedgerEntry(
-          GenJournalLine."Account Type"::Vendor, CreateVendor, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), GenJournalLine."Document Type"::Payment,
           GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(5, 2));
     end;
 
@@ -73,7 +73,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
 
         // Create and post General Journal Line and Reverse Bank Ledger Entry for GL Account.
         CreateAndReverseBankLedgerEntry(
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJournalLine."Document Type"::" ",
           GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(5, 2));
     end;
 
@@ -91,7 +91,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
 
         // Create and post General Journal Line and Reverse Bank Ledger Entry for Bank Account.
         CreateAndReverseBankLedgerEntry(
-          GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(), GenJournalLine."Document Type"::" ",
           GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(5, 2));
     end;
 
@@ -129,7 +129,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
 
         // Setup: Create Bank Account with Currency and post Gen. Jnl. Line with Bank Account No. as Bal. Account.
         Initialize();
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, Currency.Code, true);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");  // Enqueue values for BankAccountListReqPageHandler.
         Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate());
@@ -174,7 +174,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
 
         // Setup: Create Bank Account with Currency and post Gen. Jnl. Line with Bank Account No. as Bal. Account.
         Initialize();
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, Currency.Code, true);
         Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, Currency.Code, '', WorkDate());
 
@@ -217,7 +217,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         // Setup: Create Bank Account and post Gen. Jnl. Line with Bank Account No. as Bal. Account. Reverse Bank Account Ledger Entries.
         Initialize();
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, '', true);
-        ReverseBankLedgerEntry;
+        ReverseBankLedgerEntry();
         Commit();  // Required to run the report.
 
         // Exercise.
@@ -296,7 +296,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         BankAccountLabels.Run();
 
         // Verify: Verify All Bank Account with Different Label Format.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyLabels(BankAccount, 1, NumberOfColumns);
         VerifyLabels(BankAccount2, 2, NumberOfColumns);
         VerifyLabels(BankAccount3, 3, NumberOfColumns);
@@ -340,7 +340,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         BankAccount.Modify(true);
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, CreateVendor,
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, CreateVendor(),
           LibraryRandom.RandInt(100), BankAccount."No.");  // Using Random value for Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryVariableStorage.Enqueue(ReportBooleanOption);  // Enqueue value for various Request Page Handlers.
@@ -419,15 +419,15 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         Amount2: Decimal;
     begin
         SelectGenJournalBatch(GenJournalBatch);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, DocumentType, AccountType, AccountNo, Amount, FindBankAccount);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, DocumentType, AccountType, AccountNo, Amount, FindBankAccount());
         Amount2 := GenJournalLine.Amount;
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, DocumentType2, AccountType, GenJournalLine."Account No.", -Amount, FindBankAccount);
+          GenJournalLine, GenJournalBatch, DocumentType2, AccountType, GenJournalLine."Account No.", -Amount, FindBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         Amount2 += GenJournalLine.Amount;
 
         // Exercise: Reverse Bank Ledger Entry from GL Register.
-        ReverseBankLedgerEntry;
+        ReverseBankLedgerEntry();
 
         // Verify: Verify Bank Ledger Entries Amount.
         Assert.AreEqual(Amount2, CalculateBankLedgerEntryAmount(GenJournalLine."Document No."), 'Amount must be equal');
@@ -452,21 +452,21 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
 
     local procedure VerifyBankAccountListReport(BankAccountNo: Code[20]; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account__No__', BankAccountNo);
         LibraryReportDataset.AssertElementWithValueExists('BankAccBalance', Amount);
     end;
 
     local procedure VerifyBankAccountRegisterReport(BankAccountNo: Code[20]; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account_Ledger_Entry__Bank_Account_No__', BankAccountNo);
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account_Ledger_Entry___Credit_Amount__LCY__', Amount);
     end;
 
     local procedure VerifyBankAccDetailTrialBalReport(GenJournalLine: Record "Gen. Journal Line"; SignFactor: Integer)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_BankAccount', GenJournalLine."Bal. Account No.");
         LibraryReportDataset.AssertElementWithValueExists('DocNo_BankAccLedg', GenJournalLine."Document No.");
         LibraryReportDataset.AssertElementWithValueExists('DocType_BankAccLedg', Format(GenJournalLine."Document Type"::Payment));
@@ -513,7 +513,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LibraryVariableStorage.Dequeue(No);
         BankAccountList."Bank Account".SetFilter("No.", No);
         BankAccountList.PrintAmountsInLCY.SetValue(ShowBalanceInLCY);  // Setting Show Balance In LCY.
-        BankAccountList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -524,7 +524,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         LibraryVariableStorage.Dequeue(LabelFormat);  // Dequeue variable.
         BankAccountLabels.LabelFormat.SetValue(LabelFormat);  // Setting Label Format.
-        BankAccountLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -535,7 +535,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         LibraryVariableStorage.Dequeue(ShowBalanceInLCY);  // Dequeue variable
         BankAccountRegister.PrintAmountsInLCY.SetValue(ShowBalanceInLCY);  // Setting Show Balance In LCY.
-        BankAccountRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -546,7 +546,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         LibraryVariableStorage.Dequeue(IncludeReversedEntries);  // Dequeue variable
         BankAccDetailTrialBal.PrintReversedEntries.SetValue(IncludeReversedEntries);  // Setting Include Reversed Entries.
-        BankAccDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

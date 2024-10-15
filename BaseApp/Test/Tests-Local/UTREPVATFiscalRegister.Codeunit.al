@@ -50,12 +50,11 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     procedure OnPreReportDateVATRegisterPrintError()
     var
         NoSeries: Record "No. Series";
-        PrintingType: Option Test,Final,Reprint;
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12120 VAT Register - Print when Ending Date is earlier than Starting Date.
         // Setup.
         Initialize();
-        UpdateCompanyInformationRegisterCompanyNumber;
+        UpdateCompanyInformationRegisterCompanyNumber();
         CreateNumberSeries(NoSeries);
         EnqueueValuesForVATRegisterPrintRequestPageHandler(
           NoSeries."VAT Register", PrintingType::Final, CalcDate('<' + Format(-LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Enqueue earlier Ending Date than Starting Date for handler - VATRegisterPrintRequestPageHandler.
@@ -79,7 +78,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         // Setup & Exercise.
         Initialize();
         VATPrintRegisterWithVATBookEntry(
-          VATBookEntry, CreateVendor, VATBookEntry.Type::Purchase, VATBookEntry."VAT Calculation Type"::"Normal VAT",
+          VATBookEntry, CreateVendor(), VATBookEntry.Type::Purchase, VATBookEntry."VAT Calculation Type"::"Normal VAT",
           VATBookEntry."Document Type"::Invoice);
 
         // Verify: Verify values on XML of Report - VAT Register - Print.
@@ -99,7 +98,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         // Setup & Exercise.
         Initialize();
         VATPrintRegisterWithVATBookEntry(
-          VATBookEntry, CreateCustomer, VATBookEntry.Type::Sale, VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT",
+          VATBookEntry, CreateCustomer(), VATBookEntry.Type::Sale, VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT",
           VATBookEntry."Document Type"::"Credit Memo");
 
         // Verify: Verify values on XML of Report - VAT Register - Print.
@@ -121,7 +120,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
 
         // Setup: Create a VAT Book Entry of Payment Document Type with Unrealized VAT for Sales.
         Initialize();
-        UpdateCompanyInformationRegisterCompanyNumber;
+        UpdateCompanyInformationRegisterCompanyNumber();
         CreateNumberSeries(NoSeries);
         CreateVATBookEntry(
           VATBookEntry, CreateCustomerWithNameAndVATReg(Customer), NoSeries.Code, VATBookEntry.Type::Sale,
@@ -146,7 +145,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
 
         // Setup: Create a VAT Book Entry of Payment Document Type with Unrealized VAT for Purchase.
         Initialize();
-        UpdateCompanyInformationRegisterCompanyNumber;
+        UpdateCompanyInformationRegisterCompanyNumber();
         CreateNumberSeries(NoSeries);
         CreateVATBookEntry(
           VATBookEntry, CreateVendorWithNameAndVATReg(Vendor), NoSeries.Code, VATBookEntry.Type::Purchase,
@@ -162,7 +161,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; NoSeries: Code[20]; Type: Option; VATCalculationType: Enum "Tax Calculation Type"; DocumentType: Enum "Gen. Journal Document Type")
+    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; NoSeries: Code[20]; Type: Enum "General Posting Type"; VATCalculationType: Enum "Tax Calculation Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         VATBookEntry2: Record "VAT Book Entry";
     begin
@@ -172,8 +171,8 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         VATBookEntry."No. Series" := NoSeries;
         VATBookEntry."Posting Date" := WorkDate();
         VATBookEntry."Sell-to/Buy-from No." := SellToBuyFromNo;
-        VATBookEntry."Document No." := LibraryUTUtility.GetNewCode;
-        VATBookEntry."VAT Identifier" := CreateVATIdentifier;
+        VATBookEntry."Document No." := LibraryUTUtility.GetNewCode();
+        VATBookEntry."VAT Identifier" := CreateVATIdentifier();
         VATBookEntry."Unrealized VAT" := true;
         VATBookEntry."VAT Calculation Type" := VATCalculationType;
         VATBookEntry."Unrealized Amount" := LibraryRandom.RandDec(10, 2);
@@ -208,17 +207,17 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
 
     local procedure CreateCustomerWithNameAndVATReg(var Customer: Record Customer): Code[20]
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         with Customer do begin
             Validate(Name, "No.");
-            Validate("VAT Registration No.", CreateVATRegister);
+            Validate("VAT Registration No.", CreateVATRegister());
             Modify(true);
             exit("No.");
         end;
@@ -226,8 +225,8 @@ codeunit 144160 "UT REP VAT Fiscal Register"
 
     local procedure CreateNumberSeries(var NoSeries: Record "No. Series")
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
-        NoSeries."VAT Register" := CreateVATRegister;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
+        NoSeries."VAT Register" := CreateVATRegister();
         NoSeries.Insert();
     end;
 
@@ -235,7 +234,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     var
         VATIdentifier: Record "VAT Identifier";
     begin
-        VATIdentifier.Code := LibraryUTUtility.GetNewCode10;
+        VATIdentifier.Code := LibraryUTUtility.GetNewCode10();
         VATIdentifier.Insert();
         exit(VATIdentifier.Code);
     end;
@@ -244,7 +243,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     var
         VATRegister: Record "VAT Register";
     begin
-        VATRegister.Code := LibraryUTUtility.GetNewCode10;
+        VATRegister.Code := LibraryUTUtility.GetNewCode10();
         VATRegister.Insert();
         exit(VATRegister.Code);
     end;
@@ -253,32 +252,32 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
 
     local procedure CreateVendorWithNameAndVATReg(var Vendor: Record Vendor): Code[20]
     begin
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         with Vendor do begin
             Validate(Name, "No.");
-            Validate("VAT Registration No.", CreateVATRegister);
+            Validate("VAT Registration No.", CreateVATRegister());
             Modify(true);
             exit("No.");
         end;
     end;
 
-    local procedure EnqueueValuesForVATRegisterPrintRequestPageHandler(VATRegisterCode: Code[10]; PrintingType: Option; PeriodEndingDate: Date)
+    local procedure EnqueueValuesForVATRegisterPrintRequestPageHandler(VATRegisterCode: Code[10]; PrintingTypeLocal: Option; PeriodEndingDate: Date)
     begin
         LibraryVariableStorage.Enqueue(VATRegisterCode);
-        LibraryVariableStorage.Enqueue(PrintingType);
+        LibraryVariableStorage.Enqueue(PrintingTypeLocal);
         LibraryVariableStorage.Enqueue(PeriodEndingDate);
     end;
 
     local procedure RunReportVATRegisterPrint(VATRegister: Code[10]; PrintType: Option)
     begin
-        EnqueueValuesForVATRegisterPrintRequestPageHandler(VATRegister, PrintingType, WorkDate()); // Enqueue WORKDATE as PeriodEndingDate for handler - VATRegisterPrintRequestPageHandler.
+        EnqueueValuesForVATRegisterPrintRequestPageHandler(VATRegister, PrintType, WorkDate()); // Enqueue WORKDATE as PeriodEndingDate for handler - VATRegisterPrintRequestPageHandler.
         REPORT.Run(REPORT::"VAT Register - Print"); // Opens handler - VATRegisterPrintRequestPageHandler.
     end;
 
@@ -293,16 +292,16 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CompanyInformation."Register Company No." := LibraryUTUtility.GetNewCode;
+        CompanyInformation."Register Company No." := LibraryUTUtility.GetNewCode();
         CompanyInformation.Modify();
     end;
 
-    local procedure VATPrintRegisterWithVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; Type: Option; VATCalculationType: Enum "Tax Calculation Type"; DocumentType: Enum "Gen. Journal Document Type")
+    local procedure VATPrintRegisterWithVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; Type: Enum "General Posting Type"; VATCalculationType: Enum "Tax Calculation Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         NoSeries: Record "No. Series";
     begin
         // Setup.
-        UpdateCompanyInformationRegisterCompanyNumber;
+        UpdateCompanyInformationRegisterCompanyNumber();
         CreateNumberSeries(NoSeries);
         CreateVATBookEntry(VATBookEntry, SellToBuyFromNo, NoSeries.Code, Type, VATCalculationType, DocumentType);
 
@@ -312,7 +311,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
 
     local procedure VerifyValuesOnVATRegisterPrintReport(IntraText: Text; SellToBuyFromNo: Code[20]; PrintLegend: Boolean; EntryNo: Integer; ExpectedAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(UnrealizedVATSellToBuyFromNoCap, SellToBuyFromNo);
         LibraryReportDataset.AssertElementWithValueExists(UnrealizedVATEntryNoCap, EntryNo);
         LibraryReportDataset.AssertElementWithValueExists(SignumUnrealizedAmountCap, ExpectedAmount);
@@ -322,7 +321,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
 
     local procedure VerifyUnrealizedSectionOnVATRegisterPrintReport(Name: Text[100]; VATRegNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(UnrealizedVATNameCap, Name);
         LibraryReportDataset.AssertElementWithValueExists(UnrealizedVATVATRegCap, VATRegNo);
     end;
@@ -332,18 +331,18 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     procedure VATRegisterPrintRequestPageHandler(var VATRegisterPrint: TestRequestPage "VAT Register - Print")
     var
         VATRegister: Variant;
-        PrintingType: Variant;
+        PrintingTypeVariant: Variant;
         PeriodEndingDate: Variant;
     begin
         LibraryVariableStorage.Dequeue(VATRegister);
-        LibraryVariableStorage.Dequeue(PrintingType);
+        LibraryVariableStorage.Dequeue(PrintingTypeVariant);
         LibraryVariableStorage.Dequeue(PeriodEndingDate);
         VATRegisterPrint.VATRegister.SetValue(VATRegister);
         VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate());
         VATRegisterPrint.PeriodEndingDate.SetValue(PeriodEndingDate);
-        VATRegisterPrint.PrintingType.SetValue(PrintingType);
-        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);
-        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATRegisterPrint.PrintingType.SetValue(PrintingTypeVariant);
+        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode());
+        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

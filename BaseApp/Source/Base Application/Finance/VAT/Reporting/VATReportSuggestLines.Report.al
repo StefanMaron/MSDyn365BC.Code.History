@@ -252,20 +252,18 @@ report 741 "VAT Report Suggest Lines"
 
     local procedure IsInvoice(VATEntry: Record "VAT Entry"): Boolean
     begin
-        with VATEntry do
-            exit(
-              ((Type = Type::Sale) and (TotalBase < 0)) or
-              ((Type = Type::Purchase) and (TotalBase > 0)) or
-              ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT"));
+        exit(
+              ((VATEntry.Type = VATEntry.Type::Sale) and (TotalBase < 0)) or
+              ((VATEntry.Type = VATEntry.Type::Purchase) and (TotalBase > 0)) or
+              (VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Full VAT"));
     end;
 
     local procedure IsCreditMemo(VATEntry: Record "VAT Entry"): Boolean
     begin
-        with VATEntry do
-            exit(
-              ((Type = Type::Sale) and (TotalBase > 0)) or
-              ((Type = Type::Purchase) and (TotalBase < 0)) or
-              ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT"));
+        exit(
+              ((VATEntry.Type = VATEntry.Type::Sale) and (TotalBase > 0)) or
+              ((VATEntry.Type = VATEntry.Type::Purchase) and (TotalBase < 0)) or
+              (VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Full VAT"));
     end;
 
     local procedure DetermineGroupType(var VATEntry: Record "VAT Entry"): Enum "Gen. Journal Document Type"
@@ -278,14 +276,12 @@ report 741 "VAT Report Suggest Lines"
 
     local procedure TotalVATEntryBase(VATEntry: Record "VAT Entry"): Decimal
     begin
-        with VATEntry do
-            exit(Base + "Nondeductible Base" + "Unrealized Base");
+        exit(VATEntry.Base + VATEntry."Nondeductible Base" + VATEntry."Unrealized Base");
     end;
 
     local procedure TotalVATEntryAmount(VATEntry: Record "VAT Entry"): Decimal
     begin
-        with VATEntry do
-            exit(Amount + "Nondeductible Amount" + "Unrealized Amount");
+        exit(VATEntry.Amount + VATEntry."Nondeductible Amount" + VATEntry."Unrealized Amount");
     end;
 
     local procedure UpdateVatReportLineAmount(var VATReportLine: Record "VAT Report Line"; DocumentNo: Code[20])

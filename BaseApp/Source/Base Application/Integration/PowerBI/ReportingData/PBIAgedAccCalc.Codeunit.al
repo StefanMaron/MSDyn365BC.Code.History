@@ -73,44 +73,40 @@ codeunit 6306 "PBI Aged Acc. Calc"
     begin
         AgedAccReceivable.InitParameters(BusinessChartBuffer, PeriodLength, NoOfPeriods, TempEntryNoAmountBuffer2);
 
-        with BusinessChartBuffer do begin
-            PeriodIndex := TempEntryNoAmountBuffer."Entry No.";
-            FormatedPeriod := CopyStr(AgedAccReceivable.FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, PeriodOption), 1, 30);
-        end;
+        PeriodIndex := TempEntryNoAmountBuffer."Entry No.";
+        FormatedPeriod := CopyStr(AgedAccReceivable.FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, PeriodOption), 1, 30);
     end;
 
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary)
     begin
-        with TempPowerBIChartBuffer do begin
-            if FindLast() then
-                ID += 1
-            else
-                ID := 1;
-            Value := TempEntryNoAmountBuffer.Amount;
-            "Measure Name" := TempEntryNoAmountBuffer."Business Unit Code";
-            Date := FormatedPeriod;
-            "Period Type" := BusinessChartBuffer."Period Length";
-            "Period Type Sorting" := BusinessChartBuffer."Period Length";
-            case "Period Type" of
-                BusinessChartBuffer."Period Length"::Day:
-                    "Date Sorting" := TempEntryNoAmountBuffer."Entry No.";
-                BusinessChartBuffer."Period Length"::Week:
-                    "Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 10;
-                BusinessChartBuffer."Period Length"::Month:
-                    "Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 100;
-                BusinessChartBuffer."Period Length"::Quarter:
-                    "Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 1000;
-                BusinessChartBuffer."Period Length"::Year:
-                    "Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 10000;
-                BusinessChartBuffer."Period Length"::"Accounting Period":
-                    "Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 100000;
-            end;
-            if TempEntryNoAmountBuffer."Entry No." = 0 then
-                "Date Sorting" := 0;
-            if TempEntryNoAmountBuffer."Entry No." = (NoOfPeriods - 1) then
-                "Date Sorting" := 1000000;
-            Insert();
+        if TempPowerBIChartBuffer.FindLast() then
+            TempPowerBIChartBuffer.ID += 1
+        else
+            TempPowerBIChartBuffer.ID := 1;
+        TempPowerBIChartBuffer.Value := TempEntryNoAmountBuffer.Amount;
+        TempPowerBIChartBuffer."Measure Name" := TempEntryNoAmountBuffer."Business Unit Code";
+        TempPowerBIChartBuffer.Date := FormatedPeriod;
+        TempPowerBIChartBuffer."Period Type" := BusinessChartBuffer."Period Length";
+        TempPowerBIChartBuffer."Period Type Sorting" := BusinessChartBuffer."Period Length";
+        case TempPowerBIChartBuffer."Period Type" of
+            BusinessChartBuffer."Period Length"::Day:
+                TempPowerBIChartBuffer."Date Sorting" := TempEntryNoAmountBuffer."Entry No.";
+            BusinessChartBuffer."Period Length"::Week:
+                TempPowerBIChartBuffer."Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 10;
+            BusinessChartBuffer."Period Length"::Month:
+                TempPowerBIChartBuffer."Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 100;
+            BusinessChartBuffer."Period Length"::Quarter:
+                TempPowerBIChartBuffer."Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 1000;
+            BusinessChartBuffer."Period Length"::Year:
+                TempPowerBIChartBuffer."Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 10000;
+            BusinessChartBuffer."Period Length"::"Accounting Period":
+                TempPowerBIChartBuffer."Date Sorting" := TempEntryNoAmountBuffer."Entry No." * 100000;
         end;
+        if TempEntryNoAmountBuffer."Entry No." = 0 then
+            TempPowerBIChartBuffer."Date Sorting" := 0;
+        if TempEntryNoAmountBuffer."Entry No." = (NoOfPeriods - 1) then
+            TempPowerBIChartBuffer."Date Sorting" := 1000000;
+        TempPowerBIChartBuffer.Insert();
     end;
 }
 

@@ -11,6 +11,7 @@ table 12154 "Transport Reason Code"
 {
     Caption = 'Transport Reason Code';
     LookupPageID = "Transport Reason Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

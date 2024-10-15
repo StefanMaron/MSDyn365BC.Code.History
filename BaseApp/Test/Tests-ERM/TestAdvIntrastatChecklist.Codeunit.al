@@ -505,9 +505,9 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
     begin
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
         IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
-        IntrastatJnlBatch.SetRecFilter;
+        IntrastatJnlBatch.SetRecFilter();
         IntrastatJnlLine.SetRange(Type);
-        Commit;
+        Commit();
         RunIntrastatMakeDiscReport(IntrastatJnlBatch, IntrastatJnlLine);
     end;
 

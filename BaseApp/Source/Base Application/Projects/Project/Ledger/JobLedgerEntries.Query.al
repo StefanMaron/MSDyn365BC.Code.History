@@ -4,7 +4,7 @@ using Microsoft.Projects.Project.Job;
 
 query 268 "Job Ledger Entries"
 {
-    Caption = 'Job Ledger Entries';
+    Caption = 'Project Ledger Entries';
 
     elements
     {

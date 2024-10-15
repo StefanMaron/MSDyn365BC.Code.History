@@ -21,6 +21,7 @@ table 5409 "Prod. Order Routing Line"
     DrillDownPageID = "Prod. Order Routing";
     LookupPageID = "Prod. Order Routing";
     Permissions = TableData "Prod. Order Capacity Need" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -866,7 +867,6 @@ table 5409 "Prod. Order Routing Line"
         Text004: Label 'Some routing lines are referring to the operation just deleted. The references are\in the fields %1 and %2.\\This may have to be corrected as a routing line referring to a non-existent\operation will lead to serious errors in capacity planning.\\Do you want to see a list of the lines in question?\(Access the columns Next Operation No. and Previous Operation No.)';
         Text005: Label 'Routing Lines referring to deleted Operation No. %1';
         Text006: Label 'A %1 %2 can not be inserted, modified, or deleted.';
-        Text007: Label 'You cannot change %1, because there is at least one %2 associated with %3 %4 %5.';
         Text008: Label 'You cannot change the %1 from %2 to %3.';
         Text009: Label 'If you change the %1 to %2, then all related allocated capacity will be deleted, and you will not be able to change the %1 of the operation again.\\Are you sure that you want to continue?';
         Text1130001: Label 'You can not modify %1 %2 %3 because exists Sucontractor Purchase Order %4 associated with it.';
@@ -1496,7 +1496,7 @@ table 5409 "Prod. Order Routing Line"
             SubcontractorPrices."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
             SubcontractorPrices."Start Date" := WorkDate();
             SubcontractorPrices."Currency Code" := '';
-            SubcontractingPriceMgt.RoutingPricelistCost(
+            SubcontractingPriceMgt.GetRoutingPricelistCost(
               SubcontractorPrices,
               WorkCenter,
               "Direct Unit Cost",

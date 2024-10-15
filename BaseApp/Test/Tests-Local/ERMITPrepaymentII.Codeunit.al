@@ -1288,9 +1288,9 @@ codeunit 144173 "ERM IT Prepayment II"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
         CustomerLedgerEntries.Close();
     end;
 
@@ -1500,29 +1500,19 @@ codeunit 144173 "ERM IT Prepayment II"
 
     local procedure GetLastNoUsed(NoSeriesCode: Code[20]): Code[20]
     var
-        NoSeriesLineSales: Record "No. Series Line Sales";
+        NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLineSales.SetRange("Last Date Used", WorkDate());
-        NoSeriesLineSales.FindFirst();
-        exit(NoSeriesLineSales."Last No. Used");
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.SetRange("Last Date Used", WorkDate());
+        NoSeriesLine.FindFirst();
+        exit(NoSeriesLine."Last No. Used");
     end;
 
-    local procedure GetLastNoUsedPurchase(NoSeriesCode: Code[20]): Code[20]
+    local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]): Code[20]
     var
-        NoSeriesLinePurchase: Record "No. Series Line Purchase";
+        NoSeries: Codeunit "No. Series";
     begin
-        NoSeriesLinePurchase.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLinePurchase.SetRange("Last Date Used", WorkDate());
-        NoSeriesLinePurchase.FindFirst();
-        exit(NoSeriesLinePurchase."Last No. Used");
-    end;
-
-    local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]) DocumentNo: Code[20]
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-    begin
-        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        exit(NoSeries.PeekNextNo(NoSeriesCode));
     end;
 
     local procedure PostSalesPrepaymentInvoice(var SalesHeader: Record "Sales Header"; DocumentNo: Code[20])
@@ -1535,9 +1525,9 @@ codeunit 144173 "ERM IT Prepayment II"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
-        CustomerLedgerEntries.UnapplyEntries.Invoke;
+        CustomerLedgerEntries.UnapplyEntries.Invoke();
         CustomerLedgerEntries.Close();
     end;
 
@@ -1587,7 +1577,7 @@ codeunit 144173 "ERM IT Prepayment II"
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchInvHeader.FindFirst();
-        PurchInvHeader.TestField("No.", GetLastNoUsedPurchase(PurchaseHeader."Operation Type"));
+        PurchInvHeader.TestField("No.", GetLastNoUsed(PurchaseHeader."Operation Type"));
         PurchInvHeader.TestField("Operation Type", PurchaseHeader."Operation Type");
         PurchInvHeader.TestField("Prepayment Invoice", PrepaymentInvoice);
     end;
@@ -1598,7 +1588,7 @@ codeunit 144173 "ERM IT Prepayment II"
     begin
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchCrMemoHdr.FindFirst();
-        PurchCrMemoHdr.TestField("No.", GetLastNoUsedPurchase(PurchaseHeader."Operation Type"));
+        PurchCrMemoHdr.TestField("No.", GetLastNoUsed(PurchaseHeader."Operation Type"));
         PurchCrMemoHdr.TestField("Operation Type", PurchaseHeader."Operation Type");
         PurchCrMemoHdr.TestField("Prepayment Credit Memo", true);
     end;
@@ -1632,18 +1622,18 @@ codeunit 144173 "ERM IT Prepayment II"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(-Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountErr);
-        Assert.AreNearlyEqual(-Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, AmountErr);
-        Assert.AreNearlyEqual(-UnrealizedAmount, VATEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, AmountErr);
-        Assert.AreNearlyEqual(-UnrealizedBase, VATEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision, AmountErr);
+        Assert.AreNearlyEqual(-Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountErr);
+        Assert.AreNearlyEqual(-Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), AmountErr);
+        Assert.AreNearlyEqual(-UnrealizedAmount, VATEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(), AmountErr);
+        Assert.AreNearlyEqual(-UnrealizedBase, VATEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision(), AmountErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ConfirmHandler]
@@ -1672,14 +1662,14 @@ codeunit 144173 "ERM IT Prepayment II"
     [Scope('OnPrem')]
     procedure PostApplicationHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 }
 

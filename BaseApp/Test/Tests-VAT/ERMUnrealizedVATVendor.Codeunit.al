@@ -340,7 +340,7 @@
 
         // [GIVEN] Enable GLSetup."Unealized VAT".  Config "VAT Posting Setup"."Unrealized VAT Type" = Percentage.
         EnableUnrealizedSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage);
-        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
 
         // [GIVEN] Create and Post Purchase Invoice with two lines:
         // [GIVEN] Positive Line: Quantity = 1,"Unit Price" = 1000, VAT Amount = 200
@@ -1010,10 +1010,10 @@
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNo);
         VendorLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure ApplyVendorPaymentToInvoice(InvoiceDocNo: Code[20]; PaymentDocNo: Code[20])
@@ -1071,7 +1071,7 @@
         LibraryInventory: Codeunit "Library - Inventory";
     begin
         // Create a new Item and Update VAT Prod. Posting Group.
-        ModifyItemNoSeries;
+        ModifyItemNoSeries();
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
@@ -1101,7 +1101,7 @@
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1196,7 +1196,7 @@
         RunCopyPurchaseDocument(PurchaseHeader, PostedInvoiceNo);
         RemoveAppliestoDocument(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         exit(PurchaseHeader."No.");
     end;
 
@@ -1357,7 +1357,7 @@
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
-        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Modify(true);
     end;
 
@@ -1386,7 +1386,7 @@
     begin
         with VATPostingSetup do begin
             Validate("Unrealized VAT Type", UnrealizedVATType);
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -1417,7 +1417,7 @@
         GLEntry.SetRange("Bal. Account No.", VATPostingSetup."Purch. VAT Unreal. Account");
         GLEntry.FindLast();
         UnrealizedVATAmount := LibraryERM.VATAmountRounding(GenJournalLine."Amount (LCY)" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), GenJournalLine."Currency Code");
-        Assert.AreNearlyEqual(UnrealizedVATAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+        Assert.AreNearlyEqual(UnrealizedVATAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntry.FieldCaption(Amount));
 
         FindLastVATEntry(VATEntry, GLEntry."Document No.");
         Assert.AreEqual(VATEntry."VAT Reporting Date", GLEntry."VAT Reporting Date", 'VATEntry and GLEntry should have the same VAT Date');
@@ -1456,7 +1456,7 @@
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntry.FieldCaption(Amount));
 
         Assert.AreNotEqual(GLEntry."VAT Reporting Date", '', 'VAT Reporting Date in GLEntry is Empty');
     end;
@@ -1507,7 +1507,7 @@
     var
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
         Assert.AreNearlyEqual(
           ExpectedBase, VATEntry."Unrealized Base", AmountRoundingPrecision,
           VATEntry.FieldCaption("Unrealized Base"));
@@ -1526,7 +1526,7 @@
     var
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
         Assert.AreNearlyEqual(
           ExpectedBase, VATEntry.Base, AmountRoundingPrecision, VATEntry.FieldCaption(Base));
         Assert.AreNearlyEqual(
@@ -1548,7 +1548,7 @@
                 VerifyUnrealizedVATEntryAmounts(
                   VATEntry, PurchaseLine[i].Amount, PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount, 0, 0);
                 VATEntryNo[ArrayLen(PurchaseLine) - i + 1] := "Entry No.";
-                Next;
+                Next();
             end;
         end;
     end;
@@ -1573,7 +1573,7 @@
                   VATEntry,
                   PurchaseLine[i].Amount * VATPart,
                   (PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount) * VATPart);
-                Next;
+                Next();
             end;
         end;
     end;
@@ -1628,15 +1628,15 @@
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

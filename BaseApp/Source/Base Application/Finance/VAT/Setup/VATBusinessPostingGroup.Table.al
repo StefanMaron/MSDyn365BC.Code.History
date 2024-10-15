@@ -12,6 +12,7 @@ table 323 "VAT Business Posting Group"
     DataCaptionFields = "Code", Description;
     DrillDownPageID = "VAT Business Posting Groups";
     LookupPageID = "VAT Business Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -8,6 +8,7 @@ table 12189 "Service Tariff Number"
 {
     Caption = 'Service Tariff Number';
     LookupPageID = "Service Tariff Numbers";
+    DataClassification = CustomerContent;
 
     fields
     {

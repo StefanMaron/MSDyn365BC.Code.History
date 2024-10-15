@@ -17,6 +17,7 @@ using Microsoft.Finance.VAT.Setup;
 table 290 "VAT Amount Line"
 {
     Caption = 'VAT Amount Line';
+    DataClassification = CustomerContent;
 
     fields
     {

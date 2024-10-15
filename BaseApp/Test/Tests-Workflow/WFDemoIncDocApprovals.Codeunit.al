@@ -54,9 +54,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         CreateIncomingDocAttachment(IncomingDocument, IncomingDocumentAttachment, 'pdf');
 
         // Exercise
-        IncomingDocuments.OpenView;
+        IncomingDocuments.OpenView();
         IncomingDocuments.GotoRecord(IncomingDocument);
-        asserterror IncomingDocuments.SetReadyForOCR.Invoke;
+        asserterror IncomingDocuments.SetReadyForOCR.Invoke();
 
         // Verify
         Assert.ExpectedError(OCRWhenApprovalIsCompleteErr);
@@ -89,9 +89,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         CreateIncomingDocAttachment(IncomingDocument, IncomingDocumentAttachment, 'xml');
 
         // Exercise
-        IncomingDocuments.OpenView;
+        IncomingDocuments.OpenView();
         IncomingDocuments.GotoRecord(IncomingDocument);
-        asserterror IncomingDocuments.CreateDocument.Invoke;
+        asserterror IncomingDocuments.CreateDocument.Invoke();
 
         // Verify
         Assert.ExpectedError(DocWhenApprovalIsCompleteErr);
@@ -135,9 +135,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         VerifyIncomingDocumentIsPendingApproval(IncomingDocument);
 
         // Exercise
-        IncomingDocuments.OpenView;
+        IncomingDocuments.OpenView();
         IncomingDocuments.GotoRecord(IncomingDocument);
-        asserterror IncomingDocuments.SetReadyForOCR.Invoke;
+        asserterror IncomingDocuments.SetReadyForOCR.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(IncomingDocument.RecordId, 0, 1)));
@@ -181,9 +181,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         VerifyIncomingDocumentIsPendingApproval(IncomingDocument);
 
         // Exercise
-        IncomingDocuments.OpenView;
+        IncomingDocuments.OpenView();
         IncomingDocuments.GotoRecord(IncomingDocument);
-        asserterror IncomingDocuments.CreateDocument.Invoke;
+        asserterror IncomingDocuments.CreateDocument.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(IncomingDocument.RecordId, 0, 1)));
@@ -227,9 +227,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         VerifyIncomingDocumentIsPendingApproval(IncomingDocument);
 
         // Exercise
-        IncomingDocuments.OpenView;
+        IncomingDocuments.OpenView();
         IncomingDocuments.GotoRecord(IncomingDocument);
-        asserterror IncomingDocuments.Reopen.Invoke;
+        asserterror IncomingDocuments.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -630,22 +630,22 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Purchase Header approval disabled.
         Initialize();
-        // EnableIncDocWorkflow;
+        // EnableIncDocWorkflow();
 
         // [WHEN] Purchase Header card is opened.
         CreateIncomingDocument(IncomingDocument);
         CreateIncomingDocAttachment(IncomingDocument, IncomingDocumentAttachment, 'xml');
 
         Commit();
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(IncomingDocumentCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(IncomingDocumentCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(IncomingDocumentCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(IncomingDocumentCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror IncomingDocumentCard.SendApprovalRequest.Invoke;
+        asserterror IncomingDocumentCard.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -658,28 +658,28 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // LibraryWorkflow.CreateEnabledWorkflow(Workflow,WorkflowSetup.IncomingDocumentApprovalWorkflowCode);
 
         // [WHEN] PurchHeader card is opened.
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(IncomingDocumentCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(IncomingDocumentCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(IncomingDocumentCard.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(IncomingDocumentCard.RejectApproval.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(IncomingDocumentCard.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(IncomingDocumentCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(IncomingDocumentCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(IncomingDocumentCard.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(IncomingDocumentCard.RejectApproval.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(IncomingDocumentCard.Delegate.Visible(), 'Delegate should NOT be visible');
         IncomingDocumentCard.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        IncomingDocumentCard.SendApprovalRequest.Invoke;
+        IncomingDocumentCard.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(IncomingDocumentCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(IncomingDocumentCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(IncomingDocumentCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(IncomingDocumentCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         IncomingDocumentCard.Close();
@@ -688,13 +688,13 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(IncomingDocument.RecordId);
 
         // [WHEN] PurchHeader card is opened.
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(IncomingDocumentCard.OCRResultFileName.Visible, 'Approva should be visible');
-        Assert.IsTrue(IncomingDocumentCard.Delegate.Visible, 'Reject should be visible');
-        Assert.IsTrue(IncomingDocumentCard."VAT Amount".Visible, 'Delegate should be visible');
+        Assert.IsTrue(IncomingDocumentCard.OCRResultFileName.Visible(), 'Approva should be visible');
+        Assert.IsTrue(IncomingDocumentCard.Delegate.Visible(), 'Reject should be visible');
+        Assert.IsTrue(IncomingDocumentCard."VAT Amount".Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -713,7 +713,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] PurchHeader approval disabled.
         Initialize();
-        EnableIncDocWorkflow;
+        EnableIncDocWorkflow();
 
         // [WHEN] PurchHeader card is opened.
         CreateIncomingDocument(IncomingDocument);
@@ -721,15 +721,15 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
 
         // CreatePurchaseInvoice(PurchHeader);
         Commit();
-        IncomingDocuments.OpenEdit;
+        IncomingDocuments.OpenEdit();
         IncomingDocuments.GotoRecord(IncomingDocument);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(IncomingDocuments.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(IncomingDocuments.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(IncomingDocuments.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(IncomingDocuments.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror IncomingDocuments.SendApprovalRequest.Invoke;
+        asserterror IncomingDocuments.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -742,26 +742,26 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         // LibraryWorkflow.CreateEnabledWorkflow(Workflow,WorkflowSetup.IncomingDocumentApprovalWorkflowCode);
 
         // [WHEN] PurchHeader card is opened.
-        IncomingDocuments.OpenEdit;
+        IncomingDocuments.OpenEdit();
         IncomingDocuments.GotoRecord(IncomingDocument);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(IncomingDocuments.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(IncomingDocuments.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(IncomingDocuments.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(IncomingDocuments.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         IncomingDocuments.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         // LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
-        IncomingDocuments.OpenEdit;
+        IncomingDocuments.OpenEdit();
         IncomingDocuments.GotoRecord(IncomingDocument);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        IncomingDocuments.SendApprovalRequest.Invoke;
+        IncomingDocuments.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(IncomingDocuments.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(IncomingDocuments.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(IncomingDocuments.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(IncomingDocuments.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -951,11 +951,11 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         PostedApprovalEntry: Record "Posted Approval Entry";
     begin
         UserSetup.DeleteAll();
-        LibraryERMCountryData.InitializeCountry;
+        LibraryERMCountryData.InitializeCountry();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         PostedApprovalEntry.DeleteAll();
         if IsInitialized then
             exit;
@@ -967,7 +967,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     var
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.IncomingDocumentApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.IncomingDocumentApprovalWorkflowCode());
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
           Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
         LibraryWorkflow.EnableWorkflow(Workflow);
@@ -1004,9 +1004,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
 
-        ImportAttachmentIncDoc.SetTestMode;
+        ImportAttachmentIncDoc.SetTestMode();
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment,
-          MakeEmptyFile(LibraryUtility.GenerateGUID + '.txt'));
+          MakeEmptyFile(LibraryUtility.GenerateGUID() + '.txt'));
     end;
 
     [MessageHandler]
@@ -1020,9 +1020,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     var
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
-        IncomingDocumentCard.OpenView;
+        IncomingDocumentCard.OpenView();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
-        IncomingDocumentCard.SendApprovalRequest.Invoke;
+        IncomingDocumentCard.SendApprovalRequest.Invoke();
         IncomingDocumentCard.Close();
     end;
 
@@ -1065,9 +1065,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     var
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
-        IncomingDocumentCard.OpenView;
+        IncomingDocumentCard.OpenView();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
-        IncomingDocumentCard.Approve.Invoke;
+        IncomingDocumentCard.Approve.Invoke();
         IncomingDocumentCard.Close();
     end;
 
@@ -1075,9 +1075,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     var
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
-        IncomingDocumentCard.OpenView;
+        IncomingDocumentCard.OpenView();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
-        IncomingDocumentCard.RejectApproval.Invoke;
+        IncomingDocumentCard.RejectApproval.Invoke();
         IncomingDocumentCard.Close();
     end;
 
@@ -1085,9 +1085,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     var
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
-        IncomingDocumentCard.OpenView;
+        IncomingDocumentCard.OpenView();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
-        IncomingDocumentCard.Delegate.Invoke;
+        IncomingDocumentCard.Delegate.Invoke();
         IncomingDocumentCard.Close();
     end;
 
@@ -1095,9 +1095,9 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     var
         IncomingDocumentCard: TestPage "Incoming Document";
     begin
-        IncomingDocumentCard.OpenView;
+        IncomingDocumentCard.OpenView();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
-        IncomingDocumentCard.CancelApprovalRequest.Invoke;
+        IncomingDocumentCard.CancelApprovalRequest.Invoke();
         IncomingDocumentCard.Close();
     end;
 
@@ -1108,11 +1108,11 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         WorkflowSetup: Codeunit "Workflow Setup";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.IncomingDocumentWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.IncomingDocumentWorkflowCode());
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
         WorkflowStep.FindFirst();
 
         LibraryWorkflow.InsertNotificationArgument(WorkflowStep.ID, UserId, 0, '');
@@ -1156,16 +1156,16 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentPage: TestPage "Incoming Document";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        IncomingDocumentPage.OpenView;
+        IncomingDocumentPage.OpenView();
         IncomingDocumentPage.GotoRecord(IncomingDocument);
 
-        Assert.AreEqual(CommentActionIsVisible, IncomingDocumentPage.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, IncomingDocumentPage.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            IncomingDocumentPage.Comment.Invoke;
-            if ApprovalComments.First then
+            IncomingDocumentPage.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -1185,13 +1185,13 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1208,13 +1208,13 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1230,15 +1230,15 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentPage: TestPage "Incoming Document";
         IncomingDocuments: TestPage "Incoming Documents";
     begin
-        IncomingDocumentPage.OpenView;
+        IncomingDocumentPage.OpenView();
         IncomingDocumentPage.GotoRecord(IncomingDocument);
-        Assert.AreEqual(CancelActionExpectedEnabled, IncomingDocumentPage.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, IncomingDocumentPage.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         IncomingDocumentPage.Close();
 
-        IncomingDocuments.OpenView;
+        IncomingDocuments.OpenView();
         IncomingDocuments.GotoRecord(IncomingDocument);
-        Assert.AreEqual(CancelActionExpectedEnabled, IncomingDocuments.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, IncomingDocuments.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         IncomingDocuments.Close();
     end;

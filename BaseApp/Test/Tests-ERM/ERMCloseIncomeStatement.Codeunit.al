@@ -89,7 +89,7 @@ codeunit 134228 "ERM Close Income Statement"
         DocumentNo := CloseIncomeStatementWithPostingLines(GenJournalLine);
 
         // [GIVEN] Update General Ledger Setup for Additional Reporting Currency.
-        AdditionalReportingCurrency := UpdateCurOnGeneralLedgerSetup(CreateCurrency);
+        AdditionalReportingCurrency := UpdateCurOnGeneralLedgerSetup(CreateCurrency());
 
         // [WHEN] Run "Close Income Statement"
         CloseIncomeStatement(GenJournalLine, IncStr(GenJournalLine."Document No."));
@@ -116,9 +116,9 @@ codeunit 134228 "ERM Close Income Statement"
         Initialize();
         // [GIVEN] New Fiscal Year
         LibraryFiscalYear.CloseFiscalYear();
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         LibraryFiscalYear.CreateFiscalYear();
-        AdditionalReportingCurrency := UpdateCurOnGeneralLedgerSetup(CreateCurrency);
+        AdditionalReportingCurrency := UpdateCurOnGeneralLedgerSetup(CreateCurrency());
         Amount := 1;
 
         LibraryERM.CreateGLAccount(GLAccount);
@@ -175,7 +175,7 @@ codeunit 134228 "ERM Close Income Statement"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         AddtionalReportingCurrency: Code[10];
         DocumentNo: Code[20];
     begin
@@ -184,16 +184,16 @@ codeunit 134228 "ERM Close Income Statement"
         // [GIVEN] Close and create new Fiscal year and Update General Ledger Setup.
         Initialize();
         LibraryFiscalYear.CloseFiscalYear();
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         LibraryFiscalYear.CreateFiscalYear();
-        AddtionalReportingCurrency := UpdateCurOnGeneralLedgerSetup(CreateCurrency);
+        AddtionalReportingCurrency := UpdateCurOnGeneralLedgerSetup(CreateCurrency());
 
         // [GIVEN] Posted Gen. Journal Lines.
         CreateGeneralJournalLines(
           GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
+        DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
         Commit();
 
         // [WHEN] Run "Close Income Statement"
@@ -224,7 +224,7 @@ codeunit 134228 "ERM Close Income Statement"
         // [GIVEN] Created General Journal Line by "Close Income Statement" report
         Initialize();
         LibraryFiscalYear.CloseFiscalYear();
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         LibraryFiscalYear.CreateFiscalYear();
 
         CreateGeneralJournalLines(GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));
@@ -278,12 +278,12 @@ codeunit 134228 "ERM Close Income Statement"
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         // [GIVEN] Posted Documents with dimenion code "G" for Business Unit "B1" at date "Date2" < "Date1"
         // [GIVEN] Total Amount of posted documents for "B1" is "A1"
-        BusinessUnitCode[1] := CreateBusinessUnitCode;
+        BusinessUnitCode[1] := CreateBusinessUnitCode();
         CreateGenJournalLinesWithDim(
           GenJournalLine, TempDimensionSetEntry, PostingDate, GLAccountNo, BusinessUnitCode[1]);
         // [GIVEN] Posted Documents with dimenion code "G" for Business Unit "Y" at date "Date2" < "Date1"
         // [GIVEN] Summary Amount of posted documents for "Y" = "Amount Y"
-        BusinessUnitCode[2] := CreateBusinessUnitCode;
+        BusinessUnitCode[2] := CreateBusinessUnitCode();
         CreateGenJournalLinesWithDim(
           GenJournalLine, TempDimensionSetEntry, PostingDate, GLAccountNo, BusinessUnitCode[2]);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -586,13 +586,13 @@ codeunit 134228 "ERM Close Income Statement"
         // Create General Journal Lines in an open Fiscal Year; Generate random No. of Lines from 1 to 10 and
         // take any Random Amount from 1 to 1000.
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
-        GenJournalBatch."Bal. Account No." := CreateBalanceGLAccountNo;
+        GenJournalBatch."Bal. Account No." := CreateBalanceGLAccountNo();
         GenJournalBatch.Modify();
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-              GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(1000));
+              GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandInt(1000));
             GenJournalLine.Validate("Posting Date", PostingDate);
             GenJournalLine.Modify(true);
         end;
@@ -619,7 +619,7 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.SetupNewBatch();
-        GenJournalBatch.Validate("Posting No. Series", CreateNoSeries);
+        GenJournalBatch.Validate("Posting No. Series", CreateNoSeries());
         GenJournalBatch.Modify(true);
     end;
 
@@ -692,7 +692,7 @@ codeunit 134228 "ERM Close Income Statement"
         Amount: Decimal;
     begin
         LibraryFiscalYear.CloseFiscalYear();
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         LibraryFiscalYear.CreateFiscalYear();
         Amount := LibraryRandom.RandIntInRange(10, 20);
         LibraryERM.CreateGLAccount(GLAccount);
@@ -717,7 +717,7 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // Close existing Fiscal Year and Create new Fiscal Year.
         LibraryFiscalYear.CloseFiscalYear();
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         LibraryFiscalYear.CreateFiscalYear();
 
         // Create random Transactions in General Journal Line, Post the Journal Lines, Close the Fiscal Year and run Close Income Statement Batch Job.
@@ -736,9 +736,9 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(DocumentNo);
-        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
-        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
-        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
         LibraryVariableStorage.Enqueue(PostToRetainedEarningsAcc);
         LibraryVariableStorage.Enqueue(ClosePerBusinessUnit);
         LibraryVariableStorage.Enqueue(UseDimensions);
@@ -856,7 +856,7 @@ codeunit 134228 "ERM Close Income Statement"
             ConfirmCloseAccPeriodQst:
                 Reply := true;
             ConfirmDeleteGLAccountQst:
-                Reply := LibraryVariableStorage.DequeueBoolean;
+                Reply := LibraryVariableStorage.DequeueBoolean();
             else
                 Error(UnexpectedConfirmErr, Question);
         end;
@@ -866,18 +866,18 @@ codeunit 134228 "ERM Close Income Statement"
     [Scope('OnPrem')]
     procedure CloseIncomeStatementRequestPageHandler(var CloseIncomeStatement: TestRequestPage "Close Income Statement")
     begin
-        CloseIncomeStatement.FiscalYearEndingDate.SetValue(LibraryVariableStorage.DequeueDate); // Fiscal Year Ending Date
-        CloseIncomeStatement.GenJournalTemplate.SetValue(LibraryVariableStorage.DequeueText); // Gen. Journal Template
-        CloseIncomeStatement.GenJournalBatch.SetValue(LibraryVariableStorage.DequeueText); // Gen. Journal Batch
-        CloseIncomeStatement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText); // Document No.
-        CloseIncomeStatement.BalancingAccountNo.SetValue(LibraryVariableStorage.DequeueText);
-        CloseIncomeStatement.NetProfitAccountNo.SetValue(LibraryVariableStorage.DequeueText);
-        CloseIncomeStatement.NetLossAccountNo.SetValue(LibraryVariableStorage.DequeueText);
-        CloseIncomeStatement.PostToRetainedEarningsAccount.SetValue(LibraryVariableStorage.DequeueInteger); // Post to Retained Earnings Account
-        CloseIncomeStatement.ClosePerBusUnit.SetValue(LibraryVariableStorage.DequeueBoolean); // Close Business Unit Code
-        if LibraryVariableStorage.DequeueBoolean then // get stored flag for usage Dimensions
-            CloseIncomeStatement.Dimensions.AssistEdit; // Select Dimensions
-        CloseIncomeStatement.OK.Invoke;
+        CloseIncomeStatement.FiscalYearEndingDate.SetValue(LibraryVariableStorage.DequeueDate()); // Fiscal Year Ending Date
+        CloseIncomeStatement.GenJournalTemplate.SetValue(LibraryVariableStorage.DequeueText()); // Gen. Journal Template
+        CloseIncomeStatement.GenJournalBatch.SetValue(LibraryVariableStorage.DequeueText()); // Gen. Journal Batch
+        CloseIncomeStatement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText()); // Document No.
+        CloseIncomeStatement.BalancingAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        CloseIncomeStatement.NetProfitAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        CloseIncomeStatement.NetLossAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        CloseIncomeStatement.PostToRetainedEarningsAccount.SetValue(LibraryVariableStorage.DequeueInteger()); // Post to Retained Earnings Account
+        CloseIncomeStatement.ClosePerBusUnit.SetValue(LibraryVariableStorage.DequeueBoolean()); // Close Business Unit Code
+        if LibraryVariableStorage.DequeueBoolean() then // get stored flag for usage Dimensions
+            CloseIncomeStatement.Dimensions.AssistEdit(); // Select Dimensions
+        CloseIncomeStatement.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -886,9 +886,9 @@ codeunit 134228 "ERM Close Income Statement"
     begin
         // Select only two created dimensions
         DimensionSelectionMultiple.FILTER.SetFilter(Code, LibraryERM.GetGlobalDimensionCode(1));
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.First();
         DimensionSelectionMultiple.Selected.SetValue(true);
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 }
 

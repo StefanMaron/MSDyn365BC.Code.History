@@ -32,7 +32,9 @@ codeunit 134982 "ERM Financial Reports"
         IsInitialized: Boolean;
         ReportErr: Label '%1 must be %2 in Report.', Locked = true;
         DepreciationBookErr: Label '%1 does not exist.', Locked = true;
+#if not CLEAN24
         RelatedNoSeriesTok: Label 'Related No. Series', Locked = true;
+#endif
         RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2.', Comment = '%1=Field Caption,%2=Field Value;';
         RowMustNotExistErr: Label 'Row Must Not Exist';
         FiscalYearStartingDateErr: Label 'Enter the starting date for the fiscal year.';
@@ -82,9 +84,9 @@ codeunit 134982 "ERM Financial Reports"
         RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, false, false, DateFilter);
 
         // Verify: Verify Amounts on Detail Trial Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
-        if LibraryReportDataset.GetNextRow then begin
+        if LibraryReportDataset.GetNextRow() then begin
             LibraryReportDataset.AssertCurrentRowValueEquals('StartBalance', 1);
             LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmount_GLEntry', 1);
             LibraryReportDataset.AssertCurrentRowValueEquals('GLBalance', 2);
@@ -113,9 +115,9 @@ codeunit 134982 "ERM Financial Reports"
         RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, false, false, '');
 
         // Verify: Verify Amounts on Detail Trial Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
-        if LibraryReportDataset.GetNextRow then
+        if LibraryReportDataset.GetNextRow() then
             LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmount_GLEntry', GenJournalLine.Amount)
         else
             Error(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount);
@@ -139,7 +141,7 @@ codeunit 134982 "ERM Financial Reports"
         RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, true, false, '');
 
         // Verify: Verify Amounts on Detail Trial Balance Report after Entries has been reversed.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
         LibraryReportDataset.AssertElementWithValueExists('DebitAmount_GLEntry', GenJournalLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists('DebitAmount_GLEntry', -GenJournalLine.Amount);
@@ -163,7 +165,7 @@ codeunit 134982 "ERM Financial Reports"
         RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, true, true, '');
 
         // Verify: Verify GLBalance in Detail Trial Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyDetailTrialBalanceReport(GenJournalLine, 'GLBalance');
     end;
 
@@ -188,8 +190,8 @@ codeunit 134982 "ERM Financial Reports"
         TrialBalanceReportDateFilter(GenJournalLine."Account No.", true, false, false, false, GenJournalLine."Posting Date");
 
         // Verify: Verify Error in Detail Trial Balance Report when Exclude G/L Account that have Balance Only True.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, RowMustNotExistErr);
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), RowMustNotExistErr);
     end;
 
     [Test]
@@ -218,7 +220,7 @@ codeunit 134982 "ERM Financial Reports"
         RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, true, false, false, '');
 
         // Verify: Verify Credit Amount in Detail Trial Balance Report when Print Closing Entry Within the Period is True.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyDetailTrialBalanceReport(GenJournalLine, 'CreditAmount_GLEntry');
     end;
 
@@ -239,7 +241,7 @@ codeunit 134982 "ERM Financial Reports"
         BankAccDetailTrialBalReport(GenJournalLine."Bal. Account No.", false, false);
 
         // Verify: Verify Balance(LCY) in Bank Acc. Detail Trial Balance Report when Print Reverse Entry option is false.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyBankLedgerEntry(GenJournalLine, 'BankAccBalanceLCY');
     end;
 
@@ -263,7 +265,7 @@ codeunit 134982 "ERM Financial Reports"
         BankAccDetailTrialBalReport(GenJournalLine."Bal. Account No.", false, true);
 
         // Verify: Verify Amount(LCY) in Bank Acc. Detail Trial Balance Report when Print Reverse Entry option is True.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyBankLedgerEntry(GenJournalLine, 'EntryAmtLcy_BankAccLedg');
     end;
 
@@ -284,8 +286,8 @@ codeunit 134982 "ERM Financial Reports"
         BankAccTrialReportDateFilter(GenJournalLine."Bal. Account No.", true, false, GenJournalLine."Posting Date");
 
         // Verify: Verify Error in Detail Trial Balance Report when Exclude G/L Account that have Balance Only True.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, RowMustNotExistErr);
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), RowMustNotExistErr);
     end;
 
     [Test]
@@ -313,9 +315,9 @@ codeunit 134982 "ERM Financial Reports"
         BankAccReconTest.Run();
 
         // Verify: Verify Statement Amount in Bank Reconciliation Test Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Bank_Acc__Reconciliation_Line__Document_No__', GenJournalLine."Document No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Document_No__', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Acc__Reconciliation_Line__Statement_Amount_', -GenJournalLine.Amount);
     end;
@@ -357,9 +359,9 @@ codeunit 134982 "ERM Financial Reports"
         FixedAssetDetailReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false, false);
 
         // Verify: Verify Amount on Fixed Asset Detail Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('FA_Ledger_Entry__Document_No__', GenJournalLine."Document No.");
-        if LibraryReportDataset.GetNextRow then
+        if LibraryReportDataset.GetNextRow() then
             LibraryReportDataset.AssertCurrentRowValueEquals('FA_Ledger_Entry_Amount', GenJournalLine.Amount)
         else
             Error(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount);
@@ -383,7 +385,7 @@ codeunit 134982 "ERM Financial Reports"
         FixedAssetDetailReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false, true);
 
         // Verify: Verify Amounts on Fixed Asset Detail Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('FA_Ledger_Entry_Amount', GenJournalLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists('FA_Ledger_Entry_Amount', -GenJournalLine.Amount);
     end;
@@ -427,9 +429,9 @@ codeunit 134982 "ERM Financial Reports"
         RunMaintenanceDetailsReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false);
 
         // Verify: Verify Amount, FA Postind Date and User ID on Maintenance Details Report when Print Reversed Entries option is false.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Maintenance_Ledger_Entry__Document_No__', GenJournalLine."Document No.");
-        if LibraryReportDataset.GetNextRow then begin
+        if LibraryReportDataset.GetNextRow() then begin
             LibraryReportDataset.AssertCurrentRowValueEquals('Maintenance_Ledger_Entry_Amount', GenJournalLine.Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Maintenance_Ledger_Entry__Posting_Date_', Format(GenJournalLine."Posting Date"));
@@ -466,7 +468,7 @@ codeunit 134982 "ERM Financial Reports"
         GLEntry.FindLast();
 
         // Verify: Verify Amount on Maintenance Details Report when Print Reversed Entries option is True.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyMaintenanceLedgerEntryAmount(
           'Maintenance_Ledger_Entry__Document_No__', GenJournalLine."Document No.", GenJournalLine.Amount);
         VerifyMaintenanceLedgerEntryAmount(
@@ -486,7 +488,7 @@ codeunit 134982 "ERM Financial Reports"
         // Setup: Create Currency, update General Ledger Setup and find a Customer whose Country/Region Code and VAT Registration No is not
         // Blank.
         Initialize();
-        LibraryERM.SetAddReportingCurrency(CreateCurrencyAndExchangeRate);
+        LibraryERM.SetAddReportingCurrency(CreateCurrencyAndExchangeRate());
         FindCustomerVATRegistration(Customer);
         CreateAndPostSalesInvoice(Customer."No.");
 
@@ -510,7 +512,7 @@ codeunit 134982 "ERM Financial Reports"
         // Setup: Create Currency, update General Ledger Setup and find a Customer whose Country/Region Code and VAT Registration No is not
         // Blank.
         Initialize();
-        LibraryERM.SetAddReportingCurrency(CreateCurrencyAndExchangeRate);
+        LibraryERM.SetAddReportingCurrency(CreateCurrencyAndExchangeRate());
         FindCustomerVATRegistration(Customer);
         CreateAndPostSalesInvoice(Customer."No.");
 
@@ -532,16 +534,17 @@ codeunit 134982 "ERM Financial Reports"
 
         // Setup: Create and post General Journal Line.
         Initialize();
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
 
         // Exercise. Save Chart Of Account Report for the G/L Account Created.
         ChartOfAccountsReport(GLAccount."No.");
 
         // Verify: Verify Chart Of Account Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyChartOfAccountReport(GLAccount);
     end;
 
+#if not CLEAN24
     [Test]
     [HandlerFunctions('RHNoSeriesCheck')]
     [Scope('OnPrem')]
@@ -554,19 +557,20 @@ codeunit 134982 "ERM Financial Reports"
 
         // Setup: Create No. Series.
         Initialize();
-        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
+        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode();
         FindNoSeriesLine(NoSeriesLine, NoSeriesCode);
 
         // Exercise. Save No. Series Check Report.
         NoSeriesCodeReport(NoSeriesCode);
 
         // Verify: Verify No. Series Check Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No__Series_Line__Series_Code_', NoSeriesLine."Series Code");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No__Series_Line__Series_Code_', NoSeriesLine."Series Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Starting_No__', NoSeriesLine."Starting No.");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('RHGLDocumentNos')]
@@ -642,7 +646,7 @@ codeunit 134982 "ERM Financial Reports"
 
         TrialBalanceReport(GenJournalLine1."Account No." + '|' + GenJournalLine2."Account No.");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyTrialBalanceReportWithPageBreakGroup(GenJournalLine1, GenJournalLine2);
     end;
 
@@ -689,10 +693,11 @@ codeunit 134982 "ERM Financial Reports"
         TrialBalanceBudgetReport(GenJournalLine."Account No.", GenJournalLine."Posting Date");
 
         // Verify: Verify Trial Balance Budget Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyTrialBalanceBudgetReport(GenJournalLine, BudgetAtDate);
     end;
 
+#if not CLEAN24
     [Test]
     [HandlerFunctions('RHNoSeriesReport')]
     [Scope('OnPrem')]
@@ -705,16 +710,16 @@ codeunit 134982 "ERM Financial Reports"
 
         // Setup.
         Initialize();
-        NoSeriesCode := CreateNoSeries;
+        NoSeriesCode := CreateNoSeries();
 
         // Exercise.
         SaveNoSeriesReport(NoSeriesCode);
 
         // Verify: Verify Report Data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         FindNoSeriesLine(NoSeriesLine, NoSeriesCode);
         LibraryReportDataset.SetRange('No__Series_Line_Series_Code', NoSeriesLine."Series Code");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No__Series_Line_Series_Code', NoSeriesLine."Series Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Starting_No__', NoSeriesLine."Starting No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Ending_No__', NoSeriesLine."Ending No.");
@@ -732,20 +737,21 @@ codeunit 134982 "ERM Financial Reports"
 
         // Setup: Create Two new No. Series and create relation in them.
         Initialize();
-        NoSeriesCode := CreateNoSeries;
-        RelatedNoSeriesCode := CreateNoSeries;
+        NoSeriesCode := CreateNoSeries();
+        RelatedNoSeriesCode := CreateNoSeries();
         LibraryUtility.CreateNoSeriesRelationship(NoSeriesCode, RelatedNoSeriesCode);
 
         // Exercise.
         SaveNoSeriesReport(NoSeriesCode);
 
         // Verify: Verify Related No. Series Code in Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Related_No__SeriesCaption', RelatedNoSeriesTok);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Related_No__SeriesCaption', RelatedNoSeriesTok);
         LibraryReportDataset.AssertCurrentRowValueEquals('NoSeriesLine2_Series_Code', RelatedNoSeriesCode);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('RHClosingTrialBalance')]
@@ -806,7 +812,7 @@ codeunit 134982 "ERM Financial Reports"
 
         // Setup: Create and post General Journal Line with New GL Account and Add additional Currency.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGeneralJournalLine(
@@ -838,7 +844,7 @@ codeunit 134982 "ERM Financial Reports"
 
         // Setup: Create and post Sales Invoice with New Customer.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateAndPostSalesInvoice(CustomerNo);
         Customer.Get(CustomerNo);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
@@ -854,14 +860,14 @@ codeunit 134982 "ERM Financial Reports"
         ReconcileCustAndVendAccs.Run();
 
         // Verify: Verify Saved Report Data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_GLAccount', GLAccountNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_GLAccount', GLAccountNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('Name_GLAccount', GLAccount.Name);
 
         LibraryReportDataset.SetRange('GetTableName', Customer.FieldCaption("Customer Posting Group"));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'GetTableName', Customer.FieldCaption("Customer Posting Group"));
         LibraryReportDataset.AssertCurrentRowValueEquals('ReconCustVendBufferPostingGroup', Customer."Customer Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('AccountType', CustomerPostingGroup.FieldCaption("Receivables Account"));
@@ -898,7 +904,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         // Setup: Create GL Accounts with 20 length of Consolidate Acccounts.
         Initialize();
-        CreateGLAccountWithConsolidateAccount;
+        CreateGLAccountWithConsolidateAccount();
 
         // Excercise: Run the Export Consolidate Report.
         Commit();
@@ -1078,9 +1084,9 @@ codeunit 134982 "ERM Financial Reports"
         RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, false, false, '');
 
         // [THEN] Verify External Document No. on Detail Trial Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ExtDocNo_GLEntry', GenJournalLine."External Document No.")
     end;
 
@@ -1525,7 +1531,7 @@ codeunit 134982 "ERM Financial Reports"
             FindSet();
             repeat
                 Sum += "Statement Amount";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1543,7 +1549,7 @@ codeunit 134982 "ERM Financial Reports"
         TrialBalanceReport(GenJournalLine."Account No.");
 
         // Verify: Verify Trial Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -1617,7 +1623,7 @@ codeunit 134982 "ERM Financial Reports"
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.", -LibraryRandom.RandDec(5, 2));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount());
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1663,14 +1669,14 @@ codeunit 134982 "ERM Financial Reports"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccount.Validate("VAT Prod. Posting Group", VATProdPostGroup);
         GLAccount.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
         SalesLine.Modify(true);
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-        GeneralPostingSetup.Validate("Sales Pmt. Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Validate("Sales Pmt. Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
         GeneralPostingSetup.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -1680,7 +1686,7 @@ codeunit 134982 "ERM Financial Reports"
         DepreciationBookCode: Code[10];
     begin
         // Create General Journal Line for Fixed Asset and Post with random values.
-        DepreciationBookCode := CreateDepreciationBook;
+        DepreciationBookCode := CreateDepreciationBook();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"Fixed Asset",
           CreateFixedAsset(DepreciationBookCode), LibraryRandom.RandDec(100, 2));
@@ -1770,7 +1776,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Modify(true);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1818,6 +1824,7 @@ codeunit 134982 "ERM Financial Reports"
         exit(CustAccAmount);
     end;
 
+#if not CLEAN24
     local procedure NoSeriesCodeReport(SeriesCode: Code[20])
     var
         NoSeries: Record "No. Series";
@@ -1829,6 +1836,7 @@ codeunit 134982 "ERM Financial Reports"
         Commit();
         NoSeriesCheck.Run();
     end;
+#endif
 
     local procedure GLDocumentNosReport(DocumentNo: Code[20])
     var
@@ -1861,7 +1869,7 @@ codeunit 134982 "ERM Financial Reports"
         GLAccount.SetFilter("No.", GLAccountNoFilter);
         TrialBalance.SetTableView(GLAccount);
         Commit();
-        TrialBalance.Run
+        TrialBalance.Run();
     end;
 
     local procedure TrialBalanceBudgetReport(GLAccountNo: Code[20]; PostingDate: Date)
@@ -1897,8 +1905,8 @@ codeunit 134982 "ERM Financial Reports"
     begin
         with GLAccount do begin
             LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Consol. Debit Acc.", LibraryUTUtility.GetNewCode);
-            Validate("Consol. Credit Acc.", LibraryUTUtility.GetNewCode);
+            Validate("Consol. Debit Acc.", LibraryUTUtility.GetNewCode());
+            Validate("Consol. Credit Acc.", LibraryUTUtility.GetNewCode());
             Modify(true);
         end;
     end;
@@ -2002,11 +2010,11 @@ codeunit 134982 "ERM Financial Reports"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account",
-          CreateBankAccount, LibraryRandom.RandDec(1000, 2));
+          CreateBankAccount(), LibraryRandom.RandDec(1000, 2));
         GenJournalLine.Validate(
           "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount());
         GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
         GenJournalLine.Modify(true);
 
@@ -2031,7 +2039,7 @@ codeunit 134982 "ERM Financial Reports"
         ReversalEntry: Record "Reversal Entry";
     begin
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseTransaction(FindGLEntry(GenJournalLine."Document No."));
@@ -2045,7 +2053,7 @@ codeunit 134982 "ERM Financial Reports"
         VATVIESDeclarationDisk.InitializeRequest(true);
         VATVIESDeclarationDisk.SetTableView(VATEntry);
         VATVIESDeclarationDisk.RunModal();
-        FileName := VATVIESDeclarationDisk.GetFileName;
+        FileName := VATVIESDeclarationDisk.GetFileName();
     end;
 
     local procedure RunDetailTrialBalanceReport(No: Code[20]; ExcludeGLBalanceOnly: Boolean; PrintClosingEntry: Boolean; PrintReverseEnteries: Boolean; PrintOnlyCorrections: Boolean; DateFilter: Text[30])
@@ -2119,7 +2127,7 @@ codeunit 134982 "ERM Financial Reports"
         ClosingTrialBalance.Run();
 
         // Verify: Verify Amounts on Detail Trial Balance Report. Customized Formual required to Increase the Date.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyColumnValues(GenJournalLine."Account No.", Amount, 'FiscalYearBalance');
         VerifyColumnValues(GenJournalLine."Bal. Account No.", Amount, 'NegFiscalYearBalance');
         LibraryReportDataset.Reset();
@@ -2128,6 +2136,7 @@ codeunit 134982 "ERM Financial Reports"
             Format(CalcDate('<30D+11M>', GenJournalLine."Posting Date"))));
     end;
 
+#if not CLEAN24
     local procedure SaveNoSeriesReport(NoSeriesCode: Code[20])
     var
         NoSeries: Record "No. Series";
@@ -2139,6 +2148,7 @@ codeunit 134982 "ERM Financial Reports"
         Commit();
         NoSeriesReport.Run();
     end;
+#endif
 
     local procedure SuggestBankRecLines(BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
@@ -2190,7 +2200,7 @@ codeunit 134982 "ERM Financial Reports"
     local procedure VerifyColumnValues(AccountNo: Code[20]; ExpectedAmount: Decimal; FiscalYearBalance: Text[30])
     begin
         LibraryReportDataset.SetRange('No_GLAccount', AccountNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_GLAccount', AccountNo);
         LibraryReportDataset.AssertCurrentRowValueEquals(FiscalYearBalance, ExpectedAmount);
     end;
@@ -2200,7 +2210,7 @@ codeunit 134982 "ERM Financial Reports"
         VATVIESDeclarationTaxAuth: Report "VAT- VIES Declaration Tax Auth";
     begin
         Clear(VATVIESDeclarationTaxAuth);
-        VATVIESDeclarationTaxAuth.InitializeRequest(IncludeAdditionalCurrAmount, WorkDate(), WorkDate, CustomerVATRegistrationNo);
+        VATVIESDeclarationTaxAuth.InitializeRequest(IncludeAdditionalCurrAmount, WorkDate(), WorkDate(), CustomerVATRegistrationNo);
         Commit();
         VATVIESDeclarationTaxAuth.Run();
     end;
@@ -2208,7 +2218,7 @@ codeunit 134982 "ERM Financial Reports"
     local procedure VerifyChartOfAccountReport(GLAccount: Record "G/L Account")
     begin
         LibraryReportDataset.SetRange('G_L_Account___No__', GLAccount."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'G_L_Account___No__', GLAccount."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Gen__Bus__Posting_Group_', GLAccount."Gen. Bus. Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Gen__Prod__Posting_Group_', GLAccount."Gen. Prod. Posting Group");
@@ -2216,9 +2226,9 @@ codeunit 134982 "ERM Financial Reports"
 
     local procedure VerifyGLDocumentNosReport(GenJournalLine: Record "Gen. Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('GLEntry__Document_No__', GenJournalLine."Document No.");
-        if LibraryReportDataset.GetNextRow then begin
+        if LibraryReportDataset.GetNextRow() then begin
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntry__Document_No__', Format(GenJournalLine."Document No."));
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntry__Posting_Date_', Format(GenJournalLine."Posting Date"));
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntry__G_L_Account_No__', Format(GenJournalLine."Account No."))
@@ -2228,10 +2238,10 @@ codeunit 134982 "ERM Financial Reports"
 
     local procedure VerifyGLRegisterReport(GenJournalLine: Record "Gen. Journal Line"; GLRegisterNo: Integer)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('G_L_Register__No__', GLRegisterNo);
         LibraryReportDataset.SetRange('G_L_Entry__Document_No__', GenJournalLine."Document No.");
-        if LibraryReportDataset.GetNextRow then begin
+        if LibraryReportDataset.GetNextRow() then begin
             LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Entry__Document_No__', GenJournalLine."Document No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Entry__G_L_Account_No__', GenJournalLine."Account No.")
         end else
@@ -2241,7 +2251,7 @@ codeunit 134982 "ERM Financial Reports"
     local procedure VerifyMaintenanceLedgerEntryAmount(RowCaption: Text; RowValue: Text; Amount: Decimal)
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, RowCaption, RowValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('Maintenance_Ledger_Entry_Amount', Amount);
     end;
@@ -2260,7 +2270,7 @@ codeunit 134982 "ERM Financial Reports"
     local procedure VerifyTrialBalanceReportField(GenJournalLine: Record "Gen. Journal Line"; DataSetField: Text; Value: Decimal)
     begin
         LibraryReportDataset.SetRange('G_L_Account_No_', GenJournalLine."Account No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'G_L_Account_No_', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(DataSetField, Value);
     end;
@@ -2274,7 +2284,7 @@ codeunit 134982 "ERM Financial Reports"
 
         LibraryReportDataset.SetRange('G_L_Account_No_', GenJournalLine."Account No.");
         ActualRowQty := 0;
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             ActualRowQty += 1;
 
         Assert.AreEqual(NoOfBlankLines, ActualRowQty - 1, BlankLinesQtyErr);
@@ -2283,7 +2293,7 @@ codeunit 134982 "ERM Financial Reports"
     local procedure VerifyTrialBalanceBudgetReport(GenJournalLine: Record "Gen. Journal Line"; BudgetAtDate: Decimal)
     begin
         LibraryReportDataset.SetRange('G_L_Account_No_', GenJournalLine."Account No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'G_L_Account_No_', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Net_Change_', GenJournalLine."Debit Amount");
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAcc2__Budget_at_Date_', BudgetAtDate);
@@ -2292,28 +2302,28 @@ codeunit 134982 "ERM Financial Reports"
     local procedure VerifyDetailTrialBalanceReport(GenJournalLine: Record "Gen. Journal Line"; Amount: Text[30])
     begin
         LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DocumentNo_GLEntry', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(Amount, -GenJournalLine.Amount);
     end;
 
     local procedure VerifyBankLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; Amount: Text[30])
     begin
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DocNo_BankAccLedg', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(Amount, -GenJournalLine.Amount);
     end;
 
     local procedure VerifyTotalValueofItemSupplies(ExpectedAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalValueofItemSupplies', ExpectedAmount);
     end;
 
     local procedure VerifyCountryCodeInVATVIES(CountryCodeExists: Code[10]; CountryCodeNotExists: Code[10])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CountryRegionCode', CountryCodeExists);
         LibraryReportDataset.AssertElementWithValueNotExist('CountryRegionCode', CountryCodeNotExists);
     end;
@@ -2329,7 +2339,7 @@ codeunit 134982 "ERM Financial Reports"
 
     local procedure ValidateFixedAssetDetailsReportHeader(DepreciationBookCode: Code[10])
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(1, 1, 'Fixed Asset - Details');
         LibraryReportValidation.VerifyCellValue(1, 13, Format(Today, 0, 4));
         LibraryReportValidation.VerifyCellValue(2, 1, StrSubstNo('Depreciation Book: %1', DepreciationBookCode));
@@ -2370,7 +2380,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHBankLedgerEntry(var BankAccDetailTrialBal: TestRequestPage "Bank Acc. - Detail Trial Bal.")
     begin
         CurrentSaveValuesId := REPORT::"Bank Acc. - Detail Trial Bal.";
-        BankAccDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2378,7 +2388,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHCheckBankAccReconciliation(var BankAccReconTest: TestRequestPage "Bank Acc. Recon. - Test")
     begin
         CurrentSaveValuesId := REPORT::"Bank Acc. Recon. - Test";
-        BankAccReconTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccReconTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2386,7 +2396,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHChartOfAccount(var ChartofAccounts: TestRequestPage "Chart of Accounts")
     begin
         CurrentSaveValuesId := REPORT::"Chart of Accounts";
-        ChartofAccounts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ChartofAccounts.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2394,7 +2404,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHClosingTrialBalance(var ClosingTrialBalance: TestRequestPage "Closing Trial Balance")
     begin
         CurrentSaveValuesId := REPORT::"Closing Trial Balance";
-        ClosingTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ClosingTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2423,7 +2433,7 @@ codeunit 134982 "ERM Financial Reports"
         DetailTrialBalance.InclClosingEntriesWithinPeriod.SetValue(PrintClosingEntry);
         DetailTrialBalance.IncludeReversedEntries.SetValue(PrintReverseEnteries);
         DetailTrialBalance.PrintCorrectionsOnly.SetValue(PrintOnlyCorrections);
-        DetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2431,7 +2441,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHGLDocumentNos(var GLDocumentNos: TestRequestPage "G/L Document Nos.")
     begin
         CurrentSaveValuesId := REPORT::"G/L Document Nos.";
-        GLDocumentNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLDocumentNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2439,7 +2449,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHGLRegisterReport(var GLRegisterReport: TestRequestPage "G/L Register")
     begin
         CurrentSaveValuesId := REPORT::"G/L Register";
-        GLRegisterReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        GLRegisterReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -2447,7 +2457,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHAccTrialBalance(var BankAccDetailTrialBal: TestRequestPage "Bank Acc. - Detail Trial Bal.")
     begin
         CurrentSaveValuesId := REPORT::"Bank Acc. - Detail Trial Bal.";
-        BankAccDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2456,7 +2466,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         CurrentSaveValuesId := REPORT::"Fixed Asset - Details";
         if FixedAssetDetails.Editable then;
-        FixedAssetDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
         Sleep(200);
     end;
 
@@ -2466,16 +2476,17 @@ codeunit 134982 "ERM Financial Reports"
     begin
         CurrentSaveValuesId := REPORT::"Fixed Asset - Details";
         if FixedAssetDetails.Editable then;
-        FixedAssetDetails.SaveAsExcel(LibraryReportValidation.GetFileName);
+        FixedAssetDetails.SaveAsExcel(LibraryReportValidation.GetFileName());
         Sleep(200);
     end;
 
+#if not CLEAN24
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHNoSeriesReport(var NoSeriesReport: TestRequestPage "No. Series")
     begin
         CurrentSaveValuesId := REPORT::"No. Series";
-        NoSeriesReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        NoSeriesReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2483,15 +2494,16 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHNoSeriesCheck(var NoSeriesCheck: TestRequestPage "No. Series Check")
     begin
         CurrentSaveValuesId := REPORT::"No. Series Check";
-        NoSeriesCheck.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        NoSeriesCheck.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHMaintenanceDetails(var MaintenanceDetails: TestRequestPage "Maintenance - Details")
     begin
         CurrentSaveValuesId := REPORT::"Maintenance - Details";
-        MaintenanceDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        MaintenanceDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2499,7 +2511,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHDetailTrialBalanceWithDateFilter(var DetailTrialBalance: TestRequestPage "Detail Trial Balance")
     begin
         CurrentSaveValuesId := REPORT::"Detail Trial Balance";
-        DetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2507,7 +2519,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHTrialBalance(var TrialBalance: TestRequestPage "Trial Balance")
     begin
         CurrentSaveValuesId := REPORT::"Trial Balance";
-        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2515,7 +2527,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHTrialBalanceBudget(var TrialBalanceBudget: TestRequestPage "Trial Balance/Budget")
     begin
         CurrentSaveValuesId := REPORT::"Trial Balance/Budget";
-        TrialBalanceBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalanceBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2523,7 +2535,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHReconcileCustandVendAccs(var ReconcileCustandVendAccs: TestRequestPage "Reconcile Cust. and Vend. Accs")
     begin
         CurrentSaveValuesId := REPORT::"Reconcile Cust. and Vend. Accs";
-        ReconcileCustandVendAccs.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReconcileCustandVendAccs.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2533,7 +2545,7 @@ codeunit 134982 "ERM Financial Reports"
         CurrentSaveValuesId := REPORT::"Fixed Asset - Details";
         FixedAssetDetails.DepreciationBook.SetValue('');
         FixedAssetDetails.IncludeReversedEntries.SetValue(false);
-        FixedAssetDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        FixedAssetDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -2543,7 +2555,7 @@ codeunit 134982 "ERM Financial Reports"
         CurrentSaveValuesId := REPORT::"Maintenance - Details";
         MaintenanceDetails.DepreciationBook.SetValue('');
         MaintenanceDetails.IncludeReversedEntries.SetValue(false);
-        MaintenanceDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        MaintenanceDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -2551,7 +2563,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHVATVIESDeclarationTaxAuth(var VATVIESDeclarationTaxAuth: TestRequestPage "VAT- VIES Declaration Tax Auth")
     begin
         CurrentSaveValuesId := REPORT::"VAT- VIES Declaration Tax Auth";
-        VATVIESDeclarationTaxAuth.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATVIESDeclarationTaxAuth.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2559,8 +2571,8 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHImportConsolidationFromFile(var ImportConsolidationFromFile: TestRequestPage "Import Consolidation from File")
     begin
         CurrentSaveValuesId := REPORT::"Import Consolidation from File";
-        Assert.IsTrue(ImportConsolidationFromFile.FileNameControl.Enabled, FileNameNotEnabledErr);
-        Assert.IsTrue(ImportConsolidationFromFile.FileNameControl.Editable, FileNameNotEditableErr);
+        Assert.IsTrue(ImportConsolidationFromFile.FileNameControl.Enabled(), FileNameNotEnabledErr);
+        Assert.IsTrue(ImportConsolidationFromFile.FileNameControl.Editable(), FileNameNotEditableErr);
         Assert.AreEqual(Format(FilePathTxt), ImportConsolidationFromFile.FileNameControl.Value, FileNameNotPersistedErr);
     end;
 
@@ -2569,8 +2581,8 @@ codeunit 134982 "ERM Financial Reports"
     procedure RHExportConsolidationToFile(var ExportConsolidation: TestRequestPage "Export Consolidation")
     begin
         CurrentSaveValuesId := REPORT::"Export Consolidation";
-        Assert.IsTrue(ExportConsolidation.ClientFileNameControl.Enabled, FileNameNotEnabledErr);
-        Assert.IsTrue(ExportConsolidation.ClientFileNameControl.Editable, FileNameNotEditableErr);
+        Assert.IsTrue(ExportConsolidation.ClientFileNameControl.Enabled(), FileNameNotEnabledErr);
+        Assert.IsTrue(ExportConsolidation.ClientFileNameControl.Editable(), FileNameNotEditableErr);
         Assert.AreEqual(Format(FilePathTxt), ExportConsolidation.ClientFileNameControl.Value, FileNameNotPersistedErr);
     end;
 
@@ -2581,8 +2593,8 @@ codeunit 134982 "ERM Financial Reports"
         CurrentSaveValuesId := REPORT::"Export Consolidation";
         ExportConsolidation.StartDate.SetValue(WorkDate());
         ExportConsolidation.EndDate.SetValue(WorkDate());
-        ExportConsolidation.ClientFileNameControl.SetValue(LibraryReportDataset.GetParametersFileName);
-        ExportConsolidation.OK.Invoke;
+        ExportConsolidation.ClientFileNameControl.SetValue(LibraryReportDataset.GetParametersFileName());
+        ExportConsolidation.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2597,7 +2609,7 @@ codeunit 134982 "ERM Financial Reports"
     procedure VATVIESDeclDiskRequestPageHandler(var VATVIESDeclarationDisk: TestRequestPage "VAT- VIES Declaration Disk")
     begin
         VATVIESDeclarationDisk.UseAmtsInAddCurr.Value();
-        VATVIESDeclarationDisk.OK.Invoke;
+        VATVIESDeclarationDisk.OK().Invoke();
     end;
 
     [RequestPageHandler]

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +15,7 @@ table 291 "Shipping Agent"
     DataCaptionFields = "Code", Name;
     DrillDownPageID = "Shipping Agents";
     LookupPageID = "Shipping Agents";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -135,7 +136,12 @@ table 291 "Shipping Agent"
         end;
     end;
 
+#if not CLEAN24
+    [Obsolete('Field length for PackageTrackingNo will be increased to 50.', '24.0')]
     procedure GetTrackingInternetAddr(PackageTrackingNo: Text[30]) TrackingInternetAddr: Text
+#else
+    procedure GetTrackingInternetAddr(PackageTrackingNo: Text[50]) TrackingInternetAddr: Text
+#endif
     var
         HttpStr: Text;
         HttpsStr: Text;

@@ -49,7 +49,7 @@ codeunit 143005 "Library - IT Datifattura"
             VATReportSetup.Init();
             VATReportSetup.Insert(true);
         end;
-        VATReportSetup.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        VATReportSetup.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         VATReportSetup.Validate("Intermediary VAT Reg. No.", '19988771002');
         VATReportSetup.Validate("Intermediary CAF Reg. No.", Format(LibraryRandom.RandInt(100)));
         VATReportSetup.Validate("Intermediary Date", CalcDate('<-3M>', Today));

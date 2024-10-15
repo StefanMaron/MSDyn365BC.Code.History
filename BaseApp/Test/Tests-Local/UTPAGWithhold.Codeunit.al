@@ -31,8 +31,8 @@ codeunit 144094 "UT PAG Withhold"
 
         // Setup: Create Vendor Bill Line and open Page - Subform Sent Vendor Bill Lines.
         Initialize();
-        SubformSentVendorBillLines.OpenEdit;
-        SubformSentVendorBillLines.FILTER.SetFilter("Vendor No.", CreateVendorBillLine);
+        SubformSentVendorBillLines.OpenEdit();
+        SubformSentVendorBillLines.FILTER.SetFilter("Vendor No.", CreateVendorBillLine());
 
         // Exercise & Verify: Verify expected message in handler - MessageHandler.
         SubformSentVendorBillLines."Amount to Pay".SetValue(LibraryRandom.RandDec(10, 2));
@@ -53,9 +53,9 @@ codeunit 144094 "UT PAG Withhold"
         // Setup: Open Page Contribution Code Lines from Page Contribution Code.
         Initialize();
         ContributionCode.OpenNew();
-        ContributionCode.Code.SetValue(LibraryUTUtility.GetNewCode);
-        ContributionCodeLines.Trap;
-        ContributionCode."Soc. Sec. Code Lines".Invoke;
+        ContributionCode.Code.SetValue(LibraryUTUtility.GetNewCode());
+        ContributionCodeLines.Trap();
+        ContributionCode."Soc. Sec. Code Lines".Invoke();
 
         // Exercise.
         ContributionCodeLines."Starting Date".SetValue(WorkDate());
@@ -63,7 +63,7 @@ codeunit 144094 "UT PAG Withhold"
         // Verify: Verify Table - Contribution Code Line exists.
         ContributionCodeLine.SetRange(Code, Format(ContributionCode.Code));
         ContributionCodeLines.Close();
-        Assert.IsTrue(ContributionCodeLine.FindFirst, StrSubstNo(ValueMustExistMsg, ContributionCodeLine.TableCaption()));
+        Assert.IsTrue(ContributionCodeLine.FindFirst(), StrSubstNo(ValueMustExistMsg, ContributionCodeLine.TableCaption()));
         ContributionCode.Close();
     end;
 
@@ -80,13 +80,13 @@ codeunit 144094 "UT PAG Withhold"
 
         // Setup: Open Page Withholding Tax Card.
         Initialize();
-        WithholdingTaxCard.OpenEdit;
-        WithholdingTaxCard.FILTER.SetFilter("Document No.", CreateWithholdingTax);
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.FILTER.SetFilter("Document No.", CreateWithholdingTax());
         WithholdingTaxCard."Vendor No.".SetValue('');  // Blank value of Vendor.
-        Navigate.Trap;
+        Navigate.Trap();
 
         // Exercise.
-        WithholdingTaxCard.Navigate.Invoke;
+        WithholdingTaxCard.Navigate.Invoke();
 
         // Verify: Verify Withholding Tax - Table Name and Number of Records on page - Navigate.
         WithholdingTax.SetRange("Document No.", Format(WithholdingTaxCard."Document No."));
@@ -107,12 +107,12 @@ codeunit 144094 "UT PAG Withhold"
 
         // Setup: Open Page Withholding Tax List.
         Initialize();
-        WithholdingTaxList.OpenEdit;
-        WithholdingTaxList.FILTER.SetFilter("Document No.", CreateWithholdingTax);
-        Navigate.Trap;
+        WithholdingTaxList.OpenEdit();
+        WithholdingTaxList.FILTER.SetFilter("Document No.", CreateWithholdingTax());
+        Navigate.Trap();
 
         // Exercise.
-        WithholdingTaxList.Navigate.Invoke;
+        WithholdingTaxList.Navigate.Invoke();
 
         // Verify: Verify Withholding Tax - Table Name and Number of Records on page - Navigate.
         WithholdingTax.SetRange("Document No.", Format(WithholdingTaxList."Document No."));
@@ -135,10 +135,10 @@ codeunit 144094 "UT PAG Withhold"
         Initialize();
         OpenContributionCard(ContributionCard);
         ContributionCard."Vendor No.".SetValue('');  // Blank value of Vendor.
-        Navigate.Trap;
+        Navigate.Trap();
 
         // Exercise.
-        ContributionCard.Navigate.Invoke;
+        ContributionCard.Navigate.Invoke();
 
         // Verify: Verify Contributions - Table Name and Number of Records on page - Navigate.
         Contributions.SetRange("Document No.", Format(ContributionCard."Document No."));
@@ -161,7 +161,7 @@ codeunit 144094 "UT PAG Withhold"
         EnqueueSocialSecurityCodeAndINAILCode(Format(ContributionCard."Social Security Code"), Format(ContributionCard."INAIL Code"));
 
         // Exercise & Verify: Verify Social Security Code and INAIL Code on handler - ContributionListModalPageHandler.
-        ContributionCard.ListINPS.Invoke;
+        ContributionCard.ListINPS.Invoke();
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 144094 "UT PAG Withhold"
         EnqueueSocialSecurityCodeAndINAILCode(Format(ContributionCard."Social Security Code"), Format(ContributionCard."INAIL Code"));
 
         // Exercise & Verify: Verify Social Security Code and INAIL Code on handler - ContributionListModalPageHandler.
-        ContributionCard.ListINAIL.Invoke;
+        ContributionCard.ListINAIL.Invoke();
     end;
 
     [Test]
@@ -195,12 +195,12 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Navigate Action of Page - 12115 Contribution List.
 
         // Setup: Open Page Contribution List.
-        ContributionList.OpenEdit;
-        ContributionList.FILTER.SetFilter("Document No.", CreateContributions);
-        Navigate.Trap;
+        ContributionList.OpenEdit();
+        ContributionList.FILTER.SetFilter("Document No.", CreateContributions());
+        Navigate.Trap();
 
         // Exercise.
-        ContributionList.Navigate.Invoke;
+        ContributionList.Navigate.Invoke();
 
         // Verify: Verify Contributions - Table Name and Number of Records on page - Navigate.
         Contributions.SetRange("Document No.", Format(ContributionList."Document No."));
@@ -263,8 +263,8 @@ codeunit 144094 "UT PAG Withhold"
 
         // Setup: Create Purchase with Contribution.
         Initialize();
-        CreatePurchWithhContribution(PurchWithhContribution, CreatePurchaseHeader);
-        WithhTaxesContributionCard.OpenEdit;
+        CreatePurchWithhContribution(PurchWithhContribution, CreatePurchaseHeader());
+        WithhTaxesContributionCard.OpenEdit();
         WithhTaxesContributionCard.GotoRecord(PurchWithhContribution);
         WithhTaxesContributionCard."INAIL Contribution Base".SetValue(-LibraryRandom.RandDec(10, 2));
 
@@ -291,11 +291,11 @@ codeunit 144094 "UT PAG Withhold"
         CreatePurchaseLine(PurchaseLine);
         CreatePurchWithhContribution(PurchWithhContribution, PurchaseLine."Document No.");
         CreateWithholdCodeLine(PurchWithhContribution."Withholding Tax Code");
-        WithhTaxesContributionCard.OpenEdit;
+        WithhTaxesContributionCard.OpenEdit();
         WithhTaxesContributionCard.GotoRecord(PurchWithhContribution);
 
         // Exercise.
-        WithhTaxesContributionCard.Calculate.Invoke;
+        WithhTaxesContributionCard.Calculate.Invoke();
 
         // Verify: Verify Total Amount is updated as Purchase Line - Line Amount on Withh. Taxes-Contribution Card.
         WithhTaxesContributionCard.TotalAmount.AssertEquals(PurchaseLine."VAT Base Amount");
@@ -315,13 +315,13 @@ codeunit 144094 "UT PAG Withhold"
 
         // Setup: Open Page Computed Contribution.
         Initialize();
-        DocumentNo := CreateComputedContribution;
-        ComputedContributionPage.OpenEdit;
+        DocumentNo := CreateComputedContribution();
+        ComputedContributionPage.OpenEdit();
         ComputedContributionPage.FILTER.SetFilter("Document No.", DocumentNo);
-        Navigate.Trap;
+        Navigate.Trap();
 
         // Exercise.
-        ComputedContributionPage.Navigate.Invoke;
+        ComputedContributionPage.Navigate.Invoke();
 
         // Verify: Verify Computed Contribution - Table Name and Number of Records on page - Navigate.
         ComputedContribution.SetRange("Document No.", DocumentNo);
@@ -343,13 +343,13 @@ codeunit 144094 "UT PAG Withhold"
 
         // Setup: Open Page Computed Withholding Tax.
         Initialize();
-        DocumentNo := CreateComputedWithholdingTax;
-        ComputedWithholdingTaxPage.OpenEdit;
+        DocumentNo := CreateComputedWithholdingTax();
+        ComputedWithholdingTaxPage.OpenEdit();
         ComputedWithholdingTaxPage.FILTER.SetFilter("Document No.", DocumentNo);
-        Navigate.Trap;
+        Navigate.Trap();
 
         // Exercise:
-        ComputedWithholdingTaxPage.Navigate.Invoke;
+        ComputedWithholdingTaxPage.Navigate.Invoke();
 
         // Verify: Verify Computed Withholding Tax - Table Name and Number of Records on page - Navigate.
         ComputedWithholdingTax.SetRange("Document No.", DocumentNo);
@@ -367,8 +367,8 @@ codeunit 144094 "UT PAG Withhold"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Buy-from Vendor No." := CreateVendor;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Buy-from Vendor No." := CreateVendor();
         PurchaseHeader.Insert();
         exit(PurchaseHeader."No.");
     end;
@@ -376,7 +376,7 @@ codeunit 144094 "UT PAG Withhold"
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
-        PurchaseLine."Document No." := CreatePurchaseHeader;
+        PurchaseLine."Document No." := CreatePurchaseHeader();
         PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
         PurchaseLine."VAT Base Amount" := LibraryRandom.RandDec(10, 2);
         PurchaseLine.Insert();
@@ -393,7 +393,7 @@ codeunit 144094 "UT PAG Withhold"
             Contributions."Entry No." := Contributions2."Entry No." + 1;
         Contributions."Social Security Code" := CreateContributionCode(ContributionCode."Contribution Type"::INPS);
         Contributions."INAIL Code" := CreateContributionCode(ContributionCode."Contribution Type"::INAIL);
-        Contributions."Document No." := LibraryUTUtility.GetNewCode;
+        Contributions."Document No." := LibraryUTUtility.GetNewCode();
         Contributions."Posting Date" := WorkDate();
         Contributions.Insert();
         exit(Contributions."Document No.");
@@ -403,7 +403,7 @@ codeunit 144094 "UT PAG Withhold"
     var
         ContributionCode: Record "Contribution Code";
     begin
-        ContributionCode.Code := LibraryUTUtility.GetNewCode;
+        ContributionCode.Code := LibraryUTUtility.GetNewCode();
         ContributionCode."Contribution Type" := ContributionType;
         ContributionCode.Insert();
         exit(ContributionCode.Code);
@@ -413,7 +413,7 @@ codeunit 144094 "UT PAG Withhold"
     begin
         PurchWithhContribution."Document Type" := PurchWithhContribution."Document Type"::Order;
         PurchWithhContribution."No." := No;
-        PurchWithhContribution."Withholding Tax Code" := LibraryUTUtility.GetNewCode;
+        PurchWithhContribution."Withholding Tax Code" := LibraryUTUtility.GetNewCode();
         PurchWithhContribution.Insert();
     end;
 
@@ -430,7 +430,7 @@ codeunit 144094 "UT PAG Withhold"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -439,8 +439,8 @@ codeunit 144094 "UT PAG Withhold"
     var
         VendorBillLine: Record "Vendor Bill Line";
     begin
-        VendorBillLine."Vendor Bill List No." := LibraryUTUtility.GetNewCode;
-        VendorBillLine."Vendor No." := CreateVendor;
+        VendorBillLine."Vendor Bill List No." := LibraryUTUtility.GetNewCode();
+        VendorBillLine."Vendor No." := CreateVendor();
         VendorBillLine."Withholding Tax Amount" := LibraryRandom.RandDec(10, 2);
         VendorBillLine."Remaining Amount" := LibraryRandom.RandDecInRange(10, 50, 2); // Remaining Amount  should be greater than - Amount to Pay.
         VendorBillLine.Insert();
@@ -455,7 +455,7 @@ codeunit 144094 "UT PAG Withhold"
         WithholdingTax."Entry No." := 1;
         if WithholdingTax2.FindLast() then
             WithholdingTax."Entry No." := WithholdingTax2."Entry No." + 1;
-        WithholdingTax."Document No." := LibraryUTUtility.GetNewCode;
+        WithholdingTax."Document No." := LibraryUTUtility.GetNewCode();
         WithholdingTax."Posting Date" := WorkDate();
         WithholdingTax.Insert();
         exit(WithholdingTax."Document No.");
@@ -465,9 +465,9 @@ codeunit 144094 "UT PAG Withhold"
     var
         ComputedWithholdingTax: Record "Computed Withholding Tax";
     begin
-        ComputedWithholdingTax."Vendor No." := LibraryUTUtility.GetNewCode;
+        ComputedWithholdingTax."Vendor No." := LibraryUTUtility.GetNewCode();
         ComputedWithholdingTax."Document Date" := WorkDate();
-        ComputedWithholdingTax."Document No." := LibraryUTUtility.GetNewCode;
+        ComputedWithholdingTax."Document No." := LibraryUTUtility.GetNewCode();
         ComputedWithholdingTax."Posting Date" := WorkDate();
         ComputedWithholdingTax.Insert();
         exit(ComputedWithholdingTax."Document No.");
@@ -477,9 +477,9 @@ codeunit 144094 "UT PAG Withhold"
     var
         ComputedContribution: Record "Computed Contribution";
     begin
-        ComputedContribution."Vendor No." := LibraryUTUtility.GetNewCode;
+        ComputedContribution."Vendor No." := LibraryUTUtility.GetNewCode();
         ComputedContribution."Document Date" := WorkDate();
-        ComputedContribution."Document No." := LibraryUTUtility.GetNewCode;
+        ComputedContribution."Document No." := LibraryUTUtility.GetNewCode();
         ComputedContribution."Posting Date" := WorkDate();
         ComputedContribution.Insert();
         exit(ComputedContribution."Document No.");
@@ -493,7 +493,7 @@ codeunit 144094 "UT PAG Withhold"
 
     local procedure FilterOnContributions(var Contributions: Record Contributions)
     begin
-        Contributions.SetRange("Document No.", CreateContributions);
+        Contributions.SetRange("Document No.", CreateContributions());
         Contributions.SetFilter("Social Security Code", '<>%1', '');
         Contributions.SetFilter("INAIL Code", '<>%1', '');
         Contributions.FindFirst();
@@ -501,8 +501,8 @@ codeunit 144094 "UT PAG Withhold"
 
     local procedure OpenContributionCard(var ContributionCard: TestPage "Contribution Card")
     begin
-        ContributionCard.OpenEdit;
-        ContributionCard.FILTER.SetFilter("Document No.", CreateContributions);
+        ContributionCard.OpenEdit();
+        ContributionCard.FILTER.SetFilter("Document No.", CreateContributions());
     end;
 
     local procedure VerifyTableNameAndNumberOfRecords(Navigate: TestPage Navigate; TableName: Text[50]; NoOfRecords: Integer)
@@ -522,7 +522,7 @@ codeunit 144094 "UT PAG Withhold"
         LibraryVariableStorage.Dequeue(INAILCode);
         ContributionList."Social Security Code".AssertEquals(SocialSecurityCode);
         ContributionList."INAIL Code".AssertEquals(INAILCode);
-        ContributionList.OK.Invoke;
+        ContributionList.OK().Invoke();
     end;
 
     [PageHandler]
@@ -536,7 +536,7 @@ codeunit 144094 "UT PAG Withhold"
         LibraryVariableStorage.Dequeue(INAILCode);
         INPSContributionList."Social Security Code".AssertEquals(SocialSecurityCode);
         INPSContributionList."INAIL Code".AssertEquals(INAILCode);
-        INPSContributionList.OK.Invoke;
+        INPSContributionList.OK().Invoke();
     end;
 
     [PageHandler]
@@ -550,7 +550,7 @@ codeunit 144094 "UT PAG Withhold"
         LibraryVariableStorage.Dequeue(INAILCode);
         INAILContributionList."Social Security Code".AssertEquals(SocialSecurityCode);
         INAILContributionList."INAIL Code".AssertEquals(INAILCode);
-        INAILContributionList.OK.Invoke;
+        INAILContributionList.OK().Invoke();
     end;
 
     [MessageHandler]

@@ -11,6 +11,7 @@ table 12170 "Payment Lines"
     Caption = 'Payment Lines';
     DrillDownPageID = "Payment Terms Lines";
     LookupPageID = "Payment Terms Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

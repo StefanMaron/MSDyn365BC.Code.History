@@ -502,14 +502,14 @@ codeunit 136320 "Job Consump. Whse. Handling"
     local procedure RunJobCalcRemainingUsage(JobJournalBatch: Record "Job Journal Batch"; JobTask: Record "Job Task")
     var
         JobCalcRemainingUsage: Report "Job Calc. Remaining Usage";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         JobTask.SetRange("Job No.", JobTask."Job No.");
         JobTask.SetRange("Job Task No.", JobTask."Job Task No.");
         Commit();  // Commit required for batch report.
         Clear(JobCalcRemainingUsage);
         JobCalcRemainingUsage.SetBatch(JobJournalBatch."Journal Template Name", JobJournalBatch.Name);
-        JobCalcRemainingUsage.SetDocNo(NoSeriesManagement.GetNextNo(JobJournalBatch."No. Series", WorkDate(), false));
+        JobCalcRemainingUsage.SetDocNo(NoSeries.PeekNextNo(JobJournalBatch."No. Series"));
         JobCalcRemainingUsage.SetTableView(JobTask);
         JobCalcRemainingUsage.Run();
     end;
@@ -525,7 +525,7 @@ codeunit 136320 "Job Consump. Whse. Handling"
     [Scope('OnPrem')]
     procedure WhseSrcCreateDocReqHandler(var WhseSourceCreateDocumentReqPage: TestRequestPage "Whse.-Source - Create Document")
     begin
-        WhseSourceCreateDocumentReqPage.OK.Invoke();
+        WhseSourceCreateDocumentReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -533,7 +533,7 @@ codeunit 136320 "Job Consump. Whse. Handling"
     procedure JobCalcRemainingUsageHandler(var JobCalcRemainingUsage: TestRequestPage "Job Calc. Remaining Usage")
     begin
         JobCalcRemainingUsage.PostingDate.SetValue(Format(WorkDate()));
-        JobCalcRemainingUsage.OK.Invoke;
+        JobCalcRemainingUsage.OK().Invoke();
     end;
 
     [ConfirmHandler]

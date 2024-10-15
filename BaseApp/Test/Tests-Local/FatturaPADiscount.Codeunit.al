@@ -40,9 +40,9 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with Quantity = 5, "Line Amount" = 100, "Invoice Discount Amount" = 20
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
         UpdateDiscAmountInSalesLine(SalesLine, SalesHeader, 1 / LibraryRandom.RandIntInRange(3, 10), 0);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -83,9 +83,9 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with Quantity = 5, "Line Amount" = 100, "Invoice Discount Amount" = 20
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::"Credit Memo");
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::"Credit Memo");
         UpdateDiscAmountInSalesLine(SalesLine, SalesHeader, 1 / LibraryRandom.RandIntInRange(3, 10), 0);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -126,7 +126,7 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Service Invoice with Quantity = 5, "Line Amount" = 100, "Invoice Discount Amount" = 20
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateServiceDocument(
           ServiceHeader, CustomerNo, ServiceHeader."Document Type"::Invoice);
         UpdateDiscAmountInServiceLine(ServiceLine, ServiceHeader, 1 / LibraryRandom.RandIntInRange(3, 10), 0);
@@ -172,7 +172,7 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Service Invoice with Quantity = 5, "Line Amount" = 100, "Invoice Discount Amount" = 20
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateServiceDocument(
           ServiceHeader, CustomerNo, ServiceHeader."Document Type"::"Credit Memo");
         UpdateDiscAmountInServiceLine(ServiceLine, ServiceHeader, 1 / LibraryRandom.RandIntInRange(3, 10), 0);
@@ -218,9 +218,9 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Line Discount %" = 5
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
         UpdateDiscAmountInSalesLine(SalesLine, SalesHeader, 0, LibraryRandom.RandIntInRange(3, 10));
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -255,9 +255,9 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Line Discount %" = 5
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::"Credit Memo");
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::"Credit Memo");
         UpdateDiscAmountInSalesLine(SalesLine, SalesHeader, 0, LibraryRandom.RandIntInRange(3, 10));
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -291,7 +291,7 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Service Invoice with "Line Discount %" = 5
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateServiceDocument(
           ServiceHeader, CustomerNo, ServiceHeader."Document Type"::Invoice);
         UpdateDiscAmountInServiceLine(ServiceLine, ServiceHeader, 0, LibraryRandom.RandIntInRange(3, 10));
@@ -327,7 +327,7 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Service Credit Memo with "Line Discount %" = 5
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateServiceDocument(
           ServiceHeader, CustomerNo, ServiceHeader."Document Type"::"Credit Memo");
         UpdateDiscAmountInServiceLine(ServiceLine, ServiceHeader, 0, LibraryRandom.RandIntInRange(3, 10));
@@ -364,9 +364,9 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Line Discount %" = 5
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
         UpdateDiscAmountInSalesLine(SalesLine, SalesHeader, 0, LibraryRandom.RandIntInRange(3, 10));
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -401,9 +401,9 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Line Discount %" = 5
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::"Credit Memo");
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::"Credit Memo");
         UpdateDiscAmountInSalesLine(SalesLine, SalesHeader, 0, LibraryRandom.RandIntInRange(3, 10));
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -437,7 +437,7 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Service Invoice with "Line Discount %" = 5
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateServiceDocument(
           ServiceHeader, CustomerNo, ServiceHeader."Document Type"::Invoice);
         UpdateDiscAmountInServiceLine(ServiceLine, ServiceHeader, 0, LibraryRandom.RandIntInRange(3, 10));
@@ -473,7 +473,7 @@ codeunit 144204 "FatturaPA Discount"
         Initialize();
 
         // [GIVEN] Posted Service Credit Memo with "Line Discount %" = 5
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateServiceDocument(
           ServiceHeader, CustomerNo, ServiceHeader."Document Type"::"Credit Memo");
         UpdateDiscAmountInServiceLine(ServiceLine, ServiceHeader, 0, LibraryRandom.RandIntInRange(3, 10));
@@ -509,7 +509,7 @@ codeunit 144204 "FatturaPA Discount"
 
         // [GIVEN] Posted sales invoice with "Line Amount" = 0 and "Line Discount %" = 100
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CreateCustomer, SalesHeader."Document Type"::Invoice);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer(), SalesHeader."Document Type"::Invoice);
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.Validate("Line Discount %", 100);
         SalesLine.Modify(true);
@@ -543,7 +543,7 @@ codeunit 144204 "FatturaPA Discount"
         CreateItemWithPrice(Item, LibraryRandom.RandDec(100, 2));
 
         // [GIVEN] Sales Invoice with Quantity = 5, Unit Price = "120", "Line Discount Percent" = "20", Amount = "400"
-        CreateFatturaSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateFatturaCustomerNoWithPricesIncludingVAT);
+        CreateFatturaSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateFatturaCustomerNoWithPricesIncludingVAT());
         CreateSalesLinesForItemNoWithLineDiscount(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandInt(20));
 
         // [GIVEN] Sales Invoice was posted
@@ -578,7 +578,7 @@ codeunit 144204 "FatturaPA Discount"
         // [GIVEN] Posted Sales Invoice with Quantity = 5, "Line Amount" = 100, "Line Discount %" = 10, "Invoice Discount Amount" = 20
         CustomerNo := CreateCustomer();
         CreateSalesDocument(
-          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
+          SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
         UpdateDiscAmountInSalesLine(
           SalesLine, SalesHeader, 1 / LibraryRandom.RandIntInRange(3, 10), LibraryRandom.RandIntInRange(3, 10));
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -641,7 +641,7 @@ codeunit 144204 "FatturaPA Discount"
         if IsInitialized then
             exit;
 
-        LibraryITLocalization.SetupFatturaPA;
+        LibraryITLocalization.SetupFatturaPA();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
@@ -661,8 +661,8 @@ codeunit 144204 "FatturaPA Discount"
     local procedure CreateFatturaSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
-        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode());
+        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode());
         SalesHeader.Modify(true);
     end;
 
@@ -689,7 +689,7 @@ codeunit 144204 "FatturaPA Discount"
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         Customer.Validate("Prices Including VAT", true);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -711,20 +711,20 @@ codeunit 144204 "FatturaPA Discount"
 
     local procedure CreatePaymentMethod(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentMethodCode());
     end;
 
     local procedure CreatePaymentTerms(): Code[10]
     begin
-        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        exit(LibraryITLocalization.CreateFatturaPaymentTermsCode());
     end;
 
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustomerNo: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerNo);
         ServiceHeader.Validate("Order Date", WorkDate());
-        ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod);
-        ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        ServiceHeader.Validate("Payment Method Code", CreatePaymentMethod());
+        ServiceHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         ServiceHeader.Modify(true);
     end;
 

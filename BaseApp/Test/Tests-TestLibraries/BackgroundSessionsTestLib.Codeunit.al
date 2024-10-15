@@ -24,7 +24,7 @@ codeunit 132460 "Background Sessions Test Lib"
         Timeout := 60000;
         Flagged := SessionManagement.StopAllOnCurrentServerInstance(ActiveSession."Client Type"::Background);
         if not SessionManagement.WaitForAllToStopOnCurrentServerInstance(Timeout) then
-            Error(Text002, Flagged, ServiceInstanceId, SessionId, Timeout, GetSessionEventDump);
+            Error(Text002, Flagged, ServiceInstanceId(), SessionId(), Timeout, GetSessionEventDump());
     end;
 
     [Scope('OnPrem')]
@@ -36,7 +36,7 @@ codeunit 132460 "Background Sessions Test Lib"
         if not SessionManagement.WaitForSessionToStop(Session, Timeout) then begin
             if AbortOnTimeout then
                 Abort(Session);
-            Error(Text001, Session, ServiceInstanceId, Timeout, SessionId, GetSessionEventDump);
+            Error(Text001, Session, ServiceInstanceId(), Timeout, SessionId(), GetSessionEventDump());
         end;
     end;
 
@@ -45,7 +45,7 @@ codeunit 132460 "Background Sessions Test Lib"
     var
         ActiveSession: Record "Active Session";
     begin
-        exit(SessionManagement.ActiveSessionCount(ServiceInstanceId, ActiveSession."Client Type"::Background));
+        exit(SessionManagement.ActiveSessionCount(ServiceInstanceId(), ActiveSession."Client Type"::Background));
     end;
 
     [Scope('OnPrem')]
@@ -55,7 +55,7 @@ codeunit 132460 "Background Sessions Test Lib"
     begin
         Timeout := 20000;
         if not SessionManagement.SynchronousStopSession(Session, Timeout) then
-            Error(Text003, Session, ServiceInstanceId, SessionId, Timeout, GetSessionEventDump);
+            Error(Text003, Session, ServiceInstanceId(), SessionId(), Timeout, GetSessionEventDump());
     end;
 
     [Scope('OnPrem')]
@@ -70,9 +70,9 @@ codeunit 132460 "Background Sessions Test Lib"
     begin
         // Selects all sessions from the ALTest session onwards.
         SessionEvent.LockTable();
-        SessionEvent.SetRange("Server Instance ID", ServiceInstanceId);
+        SessionEvent.SetRange("Server Instance ID", ServiceInstanceId());
         SessionEvent.SetRange("User ID", UserId);
-        SessionEvent.SetFilter("Session ID", '>=%1', SessionId);
+        SessionEvent.SetFilter("Session ID", '>=%1', SessionId());
         SessionEvent.Ascending(false);
 
         if SessionEvent.FindSet() then

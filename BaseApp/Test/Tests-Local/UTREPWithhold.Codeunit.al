@@ -75,7 +75,7 @@ codeunit 144093 "UT REP Withhold"
           FromPaymentDate, FromRelatedDate);
 
         // Exercise.
-        asserterror RunReportCompensationDetails;  // Opens handler - CompensationDetailsRequestPageHandler.
+        asserterror RunReportCompensationDetails();  // Opens handler - CompensationDetailsRequestPageHandler.
 
         // Verify: Verify Error Code. Actual error message: From Payment Date and To Payment Date must be filled or From Related Date and To Related Date must be filled.
         Assert.ExpectedErrorCode(DialogErr);
@@ -99,7 +99,7 @@ codeunit 144093 "UT REP Withhold"
         EnqueueVendorNoAndDates(WithholdingTax."Vendor No.", WithholdingTax."Payment Date", WithholdingTax."Related Date");  // Enqueue values for handler - CompensationDetailsRequestPageHandler.
 
         // Exercise.
-        RunReportCompensationDetails;  // Opens handler - CompensationDetailsRequestPageHandler.
+        RunReportCompensationDetails();  // Opens handler - CompensationDetailsRequestPageHandler.
 
         // Verify: Verify Withholding Tax - Vendor Number, Total Amount, Document Number and Withholding Tax Percentage on XML of Report - Compensation Details.
         VerifyValuesOnReport(
@@ -143,7 +143,7 @@ codeunit 144093 "UT REP Withhold"
         CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false), true);  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
 
         // Exercise.
-        RunReportWithholdingTaxes;  // Opens handler - WithholdingTaxesRequestPageHandler.
+        RunReportWithholdingTaxes();  // Opens handler - WithholdingTaxesRequestPageHandler.
 
         // Verify: Verify Withholding Taxes - Vendor Number, Total Amount, Withholding Tax Amount on XML of Report - Withholding Taxes.
         VerifyValuesOnReport(
@@ -218,7 +218,7 @@ codeunit 144093 "UT REP Withhold"
         EnqueueVendorNoAndDates('', WorkDate(), WorkDate());  // Enqueue Value for WithholdingTaxTestRequestPageHandler.
 
         // Exercise.
-        asserterror RunReportWithholdingTaxTest;  // Opens handler - WithholdingTaxTestRequestPageHandler.
+        asserterror RunReportWithholdingTaxTest();  // Opens handler - WithholdingTaxTestRequestPageHandler.
 
         // Verify: Verify Error Code. Actual error message: No. filter must be set before running the report.
         Assert.ExpectedErrorCode(DialogErr);
@@ -233,10 +233,10 @@ codeunit 144093 "UT REP Withhold"
 
         // Setup: Create vendor with blank Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
         Initialize();
-        EnqueueVendorNoAndDates(CreateVendor('', '', true), 0D, WorkDate());  // Start Date -0D, End Date -WORKDATE, Enqueue Value for WithholdingTaxTestRequestPageHandler.
+        EnqueueVendorNoAndDates(CreateVendor('', '', true), 0D, WorkDate());  // Start Date -0D, End Date -WorkDate(), Enqueue Value for WithholdingTaxTestRequestPageHandler.
 
         // Exercise.
-        asserterror RunReportWithholdingTaxTest;  // Opens handler - WithholdingTaxTestRequestPageHandler.
+        asserterror RunReportWithholdingTaxTest();  // Opens handler - WithholdingTaxTestRequestPageHandler.
 
         // Verify: Verify Error Code. Actual error message: Starting Date must not be blank.
         Assert.ExpectedErrorCode(DialogErr);
@@ -251,10 +251,10 @@ codeunit 144093 "UT REP Withhold"
 
         // Setup: Create vendor with blank Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
         Initialize();
-        EnqueueVendorNoAndDates(CreateVendor('', '', true), WorkDate(), 0D);  // Start Date -WORKDATE, End Date -0D, Enqueue Value for WithholdingTaxTestRequestPageHandler.
+        EnqueueVendorNoAndDates(CreateVendor('', '', true), WorkDate(), 0D);  // Start Date -WorkDate(), End Date -0D, Enqueue Value for WithholdingTaxTestRequestPageHandler.
 
         // Exercise.
-        asserterror RunReportWithholdingTaxTest;  // Opens handler - WithholdingTaxTestRequestPageHandler.
+        asserterror RunReportWithholdingTaxTest();  // Opens handler - WithholdingTaxTestRequestPageHandler.
 
         // Verify: Verify Error Code. Actual error message: Ending Date must not be blank.
         Assert.ExpectedErrorCode(DialogErr);
@@ -273,7 +273,7 @@ codeunit 144093 "UT REP Withhold"
           CreateVendor('', '', true), CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()), WorkDate());  // Enqueue Value for WithholdingTaxTestRequestPageHandler, Calculated Start Date greater than End Date.
 
         // Exercise.
-        asserterror RunReportWithholdingTaxTest;  // Opens handler - WithholdingTaxTestRequestPageHandler.
+        asserterror RunReportWithholdingTaxTest();  // Opens handler - WithholdingTaxTestRequestPageHandler.
 
         // Verify: Verify Error Code. Actual error message: Start Date cannot be greater than End Date.
         Assert.ExpectedErrorCode(DialogErr);
@@ -301,7 +301,7 @@ codeunit 144093 "UT REP Withhold"
         // Setup: VAT Registration error text with VAT Registration Number and Country/Region Code, VAT Registration No. required 9 digit value.
         Initialize();
         WithholdingTaxTestValidation(
-          Format(LibraryRandom.RandIntInRange(100000000, 999999999)), VATRegistrationNoFormatTxt, CreateCountryRegionCode);
+          Format(LibraryRandom.RandIntInRange(100000000, 999999999)), VATRegistrationNoFormatTxt, CreateCountryRegionCode());
     end;
 
     [Test]
@@ -326,10 +326,10 @@ codeunit 144093 "UT REP Withhold"
         CreateVendorAndWithholdingTax(Vendor, VATRegistrationNo, CountryRegionCode, false);  // Individual Person mark FALSE.
 
         // Exercise.
-        RunReportWithholdingTaxTest;  // Opens handler - WithholdingTaxTestRequestPageHandler.
+        RunReportWithholdingTaxTest();  // Opens handler - WithholdingTaxTestRequestPageHandler.
 
         // Verify: Verify VAT Registration Number error text on XML of Report - Withholding Tax - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ErrorTextNumberCap, VATRegistrationNoErrorTxt);
     end;
 
@@ -346,7 +346,7 @@ codeunit 144093 "UT REP Withhold"
         CreateVendorAndWithholdingTax(Vendor, '', '', true);  // Create vendor with Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
 
         // Exercise.
-        RunReportWithholdingTaxTest;  // Opens handler - WithholdingTaxTestRequestPageHandler.
+        RunReportWithholdingTaxTest();  // Opens handler - WithholdingTaxTestRequestPageHandler.
 
         // Verify: Verify Vendor Number,Fiscal Code,Birth Date on XML of Report - Withholding Tax - Test.
         VerifyValuesOnReport(
@@ -366,10 +366,10 @@ codeunit 144093 "UT REP Withhold"
         CreateWithholdingTaxPayment(WithholdingTaxPayment);
 
         // Exercise.
-        RunReportSummaryWithholdingPayment;  // Opens handler - SummaryWithholdingPaymentRequestPageHandler.
+        RunReportSummaryWithholdingPayment();  // Opens handler - SummaryWithholdingPaymentRequestPageHandler.
 
         // Verify: Verify Withholding Tax Payment - Withholding Tax Payment Caption, Total Amount, Withholding Tax Amount on XML of Report - Withholding Tax Payment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(WithholdingTaxPaymentCap, WithholdingTaxPayment.TableCaption());
         LibraryReportDataset.AssertElementWithValueExists(WithholdingTaxPaymentTotalAmountCap, WithholdingTaxPayment."Total Amount");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -589,7 +589,7 @@ codeunit 144093 "UT REP Withhold"
         WithholdingTax."Withholding Tax %" := LibraryRandom.RandDec(10, 2);
         WithholdingTax.Month := Date2DMY(WorkDate(), 2);  // 2 returns month.
         WithholdingTax.Year := Date2DMY(WorkDate(), 3);  // 3 returns year.
-        WithholdingTax."Withholding Tax Code" := CreateWithholdCode;
+        WithholdingTax."Withholding Tax Code" := CreateWithholdCode();
         WithholdingTax."Withholding Tax Amount" := WithholdingTax."Total Amount";
         if FillInTaxCode then
             WithholdingTax."Tax Code" := Format(LibraryRandom.RandIntInRange(1000, 9999));  // Using range for taking 4 character of Tax Code.
@@ -663,7 +663,7 @@ codeunit 144093 "UT REP Withhold"
 
     local procedure VerifyValuesOnReport(VendorNoCaption: Text; ExpectedCaption: Text; ExpectedCaption2: Text; VendorNo: Code[20]; ExpectedValue: Variant; ExpectedValue2: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendorNoCaption, VendorNo);
         LibraryReportDataset.AssertElementWithValueExists(ExpectedCaption, ExpectedValue);
         LibraryReportDataset.AssertElementWithValueExists(ExpectedCaption2, ExpectedValue2);
@@ -699,7 +699,7 @@ codeunit 144093 "UT REP Withhold"
         Certifications.INAILCertification.SetValue(true);
         Certifications.ReportingFinale.SetValue(true);
         Certifications.PrintSubstituteData.SetValue(true);
-        Certifications.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Certifications.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -718,7 +718,7 @@ codeunit 144093 "UT REP Withhold"
         CompensationDetails.ToPaymentDate.SetValue(WorkDate());
         CompensationDetails.FromRelatedDate.SetValue(FromRelatedDate);
         CompensationDetails.ToRelatedDate.SetValue(WorkDate());
-        CompensationDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CompensationDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -730,14 +730,14 @@ codeunit 144093 "UT REP Withhold"
         LibraryVariableStorage.Dequeue(ContributionType);
         Contribution.ContributionType.SetValue(ContributionType);
         Contribution.FinalPrinting.SetValue(true);
-        Contribution.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Contribution.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SummaryWithholdingPaymentRequestPageHandler(var SummaryWithholdingPayment: TestRequestPage "Summary Withholding Payment")
     begin
-        SummaryWithholdingPayment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SummaryWithholdingPayment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -745,7 +745,7 @@ codeunit 144093 "UT REP Withhold"
     procedure WithholdingTaxesRequestPageHandler(var WithholdingTaxes: TestRequestPage "Withholding Taxes")
     begin
         WithholdingTaxes.FinalPrinting.SetValue(true);
-        WithholdingTaxes.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WithholdingTaxes.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -762,7 +762,7 @@ codeunit 144093 "UT REP Withhold"
         WithholdingTaxTest.Vendor.SetFilter("No.", No);
         WithholdingTaxTest.StartingDate.SetValue(StartDate);
         WithholdingTaxTest.EndingDate.SetValue(EndDate);
-        WithholdingTaxTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WithholdingTaxTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

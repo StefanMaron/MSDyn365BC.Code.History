@@ -247,37 +247,35 @@ report 12123 "Lifo Entries"
     var
         LifoBand3: Record "Lifo Band";
     begin
-        with LifoBand3 do
-            if (not CompYearBlank) then begin
-                Reset();
-                CopyFilters("Lifo Band");
-                if FindSet() then
-                    repeat
-                        if LifoBand2.Get("Entry No.") then
-                            LifoBand2.Mark(true);
-                    until Next() = 0;
-            end;
+        if (not CompYearBlank) then begin
+            LifoBand3.Reset();
+            LifoBand3.CopyFilters("Lifo Band");
+            if LifoBand3.FindSet() then
+                repeat
+                    if LifoBand2.Get(LifoBand3."Entry No.") then
+                        LifoBand2.Mark(true);
+                until LifoBand3.Next() = 0;
+        end;
     end;
 
     [Scope('OnPrem')]
     procedure ValuesCalculation()
     begin
-        with LifoBand2 do
-            if FindSet() then begin
-                AbsorbedQty := "Lifo Band"."Absorbed Quantity";
-                ResidualQty := "Lifo Band"."Residual Quantity";
-                IncrementValue := "Lifo Band"."Increment Value";
-                repeat
-                    if (not Mark()) and
-                       ("Closed by Entry No." = "Lifo Band"."Entry No.")
-                    then begin
-                        AbsorbedQty += "Increment Quantity";
-                        ResidualQty += -"Residual Quantity";
-                        IncrementValue += -"Increment Value";
-                        InventoryValue += -"Increment Value";
-                    end;
-                until Next() = 0;
-            end;
+        if LifoBand2.FindSet() then begin
+            AbsorbedQty := "Lifo Band"."Absorbed Quantity";
+            ResidualQty := "Lifo Band"."Residual Quantity";
+            IncrementValue := "Lifo Band"."Increment Value";
+            repeat
+                if (not LifoBand2.Mark()) and
+                   (LifoBand2."Closed by Entry No." = "Lifo Band"."Entry No.")
+                then begin
+                    AbsorbedQty += LifoBand2."Increment Quantity";
+                    ResidualQty += -LifoBand2."Residual Quantity";
+                    IncrementValue += -LifoBand2."Increment Value";
+                    InventoryValue += -LifoBand2."Increment Value";
+                end;
+            until LifoBand2.Next() = 0;
+        end;
     end;
 }
 

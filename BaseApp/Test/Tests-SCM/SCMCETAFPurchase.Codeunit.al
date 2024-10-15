@@ -30,7 +30,7 @@ codeunit 137601 "SCM CETAF Purchase"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Purchase");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
@@ -696,7 +696,7 @@ codeunit 137601 "SCM CETAF Purchase"
           LibraryRandom.RandInt(10), WorkDate(), LibraryRandom.RandDec(100, 5));
         LibraryPatterns.MAKEPurchaseReturnOrder(
           PurchaseHeader1, PurchaseLine1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", PurchaseLine.Quantity,
-          WorkDate, LibraryRandom.RandDec(100, 5));
+          WorkDate(), LibraryRandom.RandDec(100, 5));
 
         // Cost modification.
         // for Purchase.
@@ -909,7 +909,7 @@ codeunit 137601 "SCM CETAF Purchase"
 
         // Cost modification.
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderInv, PurchaseHeaderInv."Document Type"::Invoice, '');
-        PurchaseHeaderInv.Validate("Posting Date", WorkDate + 3);
+        PurchaseHeaderInv.Validate("Posting Date", WorkDate() + 3);
         PurchRcptLine.SetRange("Order No.", PurchaseHeader1."No.");
         PurchRcptLine.FindFirst();
         LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(

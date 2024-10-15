@@ -8,6 +8,7 @@ table 12124 "Activity Code"
 {
     Caption = 'Activity Code';
     LookupPageID = 12124;
+    DataClassification = CustomerContent;
 
     fields
     {

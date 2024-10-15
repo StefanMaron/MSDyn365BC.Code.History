@@ -31,59 +31,56 @@ codeunit 12171 "Vend. Bill List-Change Status"
         PaymentMethod: Record "Payment Method";
         BillCode: Record Bill;
         VendorBillLine: Record "Vendor Bill Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         NextVendBillNo: Code[20];
 
     [Scope('OnPrem')]
     procedure FromOpenToSent(var VendorBillHeader: Record "Vendor Bill Header")
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         OnBeforeFromOpenToSent(VendorBillHeader);
 
-        with VendorBillHeader do begin
-            TestField("Posting Date");
+        VendorBillHeader.TestField("Posting Date");
 
-            VendorBillLine.Reset();
-            VendorBillLine.SetRange("Vendor Bill List No.", "No.");
-            VendorBillLine.SetCurrentKey("Vendor No.", "External Document No.", "Document Date");
-            if not VendorBillLine.Find('-') then
-                Error(Text001);
+        VendorBillLine.Reset();
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
+        VendorBillLine.SetCurrentKey("Vendor No.", "External Document No.", "Document Date");
+        if not VendorBillLine.Find('-') then
+            Error(Text001);
 
-            PaymentMethod.Get("Payment Method Code");
-            BillCode.LockTable();
-            BillCode.Get(PaymentMethod."Bill Code");
-            if (BillCode."Vendor Bill List" = '') or
-               (BillCode."Vendor Bill No." = '')
-            then
-                Error(Text002,
-                  BillCode.FieldCaption("Vendor Bill List"),
-                  BillCode.FieldCaption("Vendor Bill No."),
-                  FieldCaption("Payment Method Code"),
-                  BillCode.TableCaption());
-            "Vendor Bill List No." := NoSeriesMgt.GetNextNo(BillCode."Vendor Bill List",
-                "Posting Date", true);
-            "List Status" := "List Status"::Sent;
-            "User ID" := UserId;
-            Modify();
+        PaymentMethod.Get(VendorBillHeader."Payment Method Code");
+        BillCode.LockTable();
+        BillCode.Get(PaymentMethod."Bill Code");
+        if (BillCode."Vendor Bill List" = '') or
+           (BillCode."Vendor Bill No." = '')
+        then
+            Error(Text002,
+              BillCode.FieldCaption("Vendor Bill List"),
+              BillCode.FieldCaption("Vendor Bill No."),
+              VendorBillHeader.FieldCaption("Payment Method Code"),
+              BillCode.TableCaption());
+        VendorBillHeader."Vendor Bill List No." := NoSeries.GetNextNo(BillCode."Vendor Bill List", VendorBillHeader."Posting Date");
+        VendorBillHeader."List Status" := VendorBillHeader."List Status"::Sent;
+        VendorBillHeader."User ID" := UserId;
+        VendorBillHeader.Modify();
 
-            repeat
-                if VendorBillLine."Due Date" = 0D then
-                    Error(Text003,
-                      VendorBillLine.FieldCaption("Due Date"),
-                      VendorBillLine.FieldCaption("Line No."),
-                      VendorBillLine."Line No.");
-                if not VendorBillLine."Manual Line" then begin
-                    NextVendBillNo := NoSeriesMgt.GetNextNo(BillCode."Vendor Bill No.",
-                        "Posting Date", true);
-                    VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");
-                    VendLedgEntry."Vendor Bill List" := "Vendor Bill List No.";
-                    VendLedgEntry."Vendor Bill No." := NextVendBillNo;
-                    VendLedgEntry.Modify();
-                end;
-                VendorBillLine."Vendor Bill No." := NextVendBillNo;
-                OnFromOpenToSentOnBeforeVendorBillLineModify(VendorBillLine);
-                VendorBillLine.Modify();
-            until VendorBillLine.Next() = 0;
-        end;
+        repeat
+            if VendorBillLine."Due Date" = 0D then
+                Error(Text003,
+                  VendorBillLine.FieldCaption("Due Date"),
+                  VendorBillLine.FieldCaption("Line No."),
+                  VendorBillLine."Line No.");
+            if not VendorBillLine."Manual Line" then begin
+                NextVendBillNo := NoSeries.GetNextNo(BillCode."Vendor Bill No.", VendorBillHeader."Posting Date");
+                VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");
+                VendLedgEntry."Vendor Bill List" := VendorBillHeader."Vendor Bill List No.";
+                VendLedgEntry."Vendor Bill No." := NextVendBillNo;
+                VendLedgEntry.Modify();
+            end;
+            VendorBillLine."Vendor Bill No." := NextVendBillNo;
+            OnFromOpenToSentOnBeforeVendorBillLineModify(VendorBillLine);
+            VendorBillLine.Modify();
+        until VendorBillLine.Next() = 0;
 
         OnAfterFromOpenToSent(VendorBillHeader);
     end;
@@ -93,30 +90,28 @@ codeunit 12171 "Vend. Bill List-Change Status"
     begin
         OnBeforeFromSentToOpen(VendorBillHeader);
 
-        with VendorBillHeader do begin
-            if not Confirm(Text004, false, FieldCaption("Vendor Bill List No.")) then
-                exit;
+        if not Confirm(Text004, false, VendorBillHeader.FieldCaption("Vendor Bill List No.")) then
+            exit;
 
-            "Vendor Bill List No." := '';
-            "List Status" := "List Status"::Open;
-            "User ID" := UserId;
-            Modify();
+        VendorBillHeader."Vendor Bill List No." := '';
+        VendorBillHeader."List Status" := VendorBillHeader."List Status"::Open;
+        VendorBillHeader."User ID" := UserId;
+        VendorBillHeader.Modify();
 
-            VendorBillLine.Reset();
-            VendorBillLine.SetRange("Vendor Bill List No.", "No.");
-            VendorBillLine.SetCurrentKey("Vendor No.", "External Document No.", "Document Date");
-            if VendorBillLine.FindSet() then
-                repeat
-                    if not VendorBillLine."Manual Line" then begin
-                        VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");
-                        VendLedgEntry."Vendor Bill List" := '';
-                        VendLedgEntry."Vendor Bill No." := '';
-                        VendLedgEntry.Modify();
-                    end;
-                    VendorBillLine."Vendor Bill No." := '';
-                    VendorBillLine.Modify();
-                until VendorBillLine.Next() = 0;
-        end;
+        VendorBillLine.Reset();
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
+        VendorBillLine.SetCurrentKey("Vendor No.", "External Document No.", "Document Date");
+        if VendorBillLine.FindSet() then
+            repeat
+                if not VendorBillLine."Manual Line" then begin
+                    VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");
+                    VendLedgEntry."Vendor Bill List" := '';
+                    VendLedgEntry."Vendor Bill No." := '';
+                    VendLedgEntry.Modify();
+                end;
+                VendorBillLine."Vendor Bill No." := '';
+                VendorBillLine.Modify();
+            until VendorBillLine.Next() = 0;
 
         OnAfterFromSentToOpen(VendorBillHeader);
     end;
