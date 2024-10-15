@@ -30,6 +30,12 @@ codeunit 2674 "Alloc. Acc. Handle Doc. Post"
             PurchaseLine."VAT Prod. Posting Group" := VATProdPostingGroupCode;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Deferral Utilities", 'OnBeforeCreateDeferralSchedule', '', false, false)]
+    local procedure OnBeforeCreateDeferralSchedule(var RedistributeDeferralSchedule: Boolean)
+    begin
+        RedistributeDeferralSchedule := true;
+    end;
+
     procedure SetVATBusPostingGroupCode(NewVATBusPostingGroupCode: Code[20])
     begin
         VATBusPostingGroupCode := NewVATBusPostingGroupCode;
