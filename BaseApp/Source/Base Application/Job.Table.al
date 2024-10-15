@@ -91,7 +91,13 @@
             var
                 JobPlanningLine: Record "Job Planning Line";
                 JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateStatus(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if xRec.Status <> Status then begin
                     if Status = Status::Completed then
                         Validate(Complete, true);
@@ -1808,6 +1814,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var Job: Record Job; var xJob: Record Job; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateStatus(var Job: Record Job; xJob: Record Job; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
