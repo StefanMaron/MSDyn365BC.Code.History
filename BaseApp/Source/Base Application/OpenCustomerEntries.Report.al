@@ -353,7 +353,7 @@ report 10053 "Open Customer Entries"
                 exit('101,1,' + Text002);
 
             GetCurrencyRecord(Currency, CurrencyCode);
-            exit('101,4,' + StrSubstNo(Text002, Currency.Description));
+            exit(StrSubstNo(Text002, Currency.Description));
         end;
         exit('');
     end;

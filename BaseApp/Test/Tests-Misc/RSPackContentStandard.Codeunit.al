@@ -13,7 +13,7 @@ codeunit 138300 "RS Pack Content - Standard"
         LibraryDemoData: Codeunit "Library - Demo Data";
         NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
         NoSalesHeaderErr: Label 'There is no Sales Header within the filter.';
-        PostingOutsideFYIsOnErr: Label 'Posting Outside Fiscal Year option is on';
+        PostingAfterWDIsOnErr: Label 'Posting After Working Date option is on';
         XOUTGOINGTxt: Label 'OUTGOING';
         NonStockNoSeriesTok: Label 'NS-ITEM';
         TransShipmentNoSeriesTok: Label 'T-SHPT';
@@ -36,13 +36,13 @@ codeunit 138300 "RS Pack Content - Standard"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PostingOutsideFYIsOn()
+    procedure PostingAfterWDIsOn()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        // [SCENARIO 169269] "Posting Outside Fiscal Year Not Allowed" is on in "My Settings"
+        // [SCENARIO 169269] "Posting After Working Date Not Allowed" is on in "My Settings"
 
-        Assert.IsTrue(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode), PostingOutsideFYIsOnErr);
+        Assert.IsTrue(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterWorkingDateNotAllowedCode()), PostingAfterWDIsOnErr);
     end;
 
     [Test]

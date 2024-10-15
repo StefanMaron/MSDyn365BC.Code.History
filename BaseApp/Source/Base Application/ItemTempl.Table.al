@@ -17,10 +17,20 @@ table 1382 "Item Templ."
         {
             Caption = 'Base Unit of Measure';
             TableRelation = "Unit of Measure";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Base Unit of Measure"));
+            end;
         }
         field(9; "Price Unit Conversion"; Integer)
         {
             Caption = 'Price Unit Conversion';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Price Unit Conversion"));
+            end;
         }
         field(10; Type; Enum "Item Type")
         {
@@ -30,72 +40,139 @@ table 1382 "Item Templ."
             begin
                 if (Type = Type::Service) or (Type = Type::"Non-Inventory") then
                     Validate("Inventory Posting Group", '');
+
+                ValidateItemField(FieldNo(Type));
             end;
         }
         field(11; "Inventory Posting Group"; Code[20])
         {
             Caption = 'Inventory Posting Group';
             TableRelation = "Inventory Posting Group";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Inventory Posting Group"));
+            end;
         }
         field(12; "Shelf No."; Code[10])
         {
             Caption = 'Shelf No.';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Shelf No."));
+            end;
         }
         field(14; "Item Disc. Group"; Code[20])
         {
             Caption = 'Item Disc. Group';
             TableRelation = "Item Discount Group";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Item Disc. Group"));
+            end;
         }
         field(15; "Allow Invoice Disc."; Boolean)
         {
             Caption = 'Allow Invoice Disc.';
             InitValue = true;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Allow Invoice Disc."));
+            end;
         }
         field(16; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Statistics Group"));
+            end;
         }
         field(17; "Commission Group"; Integer)
         {
             Caption = 'Commission Group';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Commission Group"));
+            end;
         }
         field(18; "Unit Price"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Unit Price';
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Unit Price"));
+            end;
         }
         field(19; "Price/Profit Calculation"; Enum "Item Price Profit Calculation")
         {
             Caption = 'Price/Profit Calculation';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Price/Profit Calculation"));
+            end;
         }
         field(20; "Profit %"; Decimal)
         {
             Caption = 'Profit %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Profit %"));
+            end;
         }
         field(21; "Costing Method"; Enum "Costing Method")
         {
             Caption = 'Costing Method';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Costing Method"));
+            end;
         }
         field(22; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Unit Cost"));
+            end;
         }
         field(24; "Standard Cost"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Standard Cost';
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Standard Cost"));
+            end;
         }
         field(28; "Indirect Cost %"; Decimal)
         {
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Indirect Cost %"));
+            end;
         }
         field(31; "Vendor No."; Code[20])
         {
@@ -103,45 +180,83 @@ table 1382 "Item Templ."
             TableRelation = Vendor;
             ValidateTableRelation = true;
 
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Vendor No."));
+            end;
         }
         field(32; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Vendor Item No."));
+            end;
         }
         field(33; "Lead Time Calculation"; DateFormula)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Lead Time Calculation';
 
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Lead Time Calculation"));
+            end;
         }
         field(34; "Reorder Point"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Reorder Point';
             DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Reorder Point"));
+            end;
         }
         field(35; "Maximum Inventory"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Maximum Inventory';
             DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Maximum Inventory"));
+            end;
         }
         field(36; "Reorder Quantity"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Reorder Quantity';
             DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Reorder Quantity"));
+            end;
         }
         field(37; "Alternative Item No."; Code[20])
         {
             Caption = 'Alternative Item No.';
             TableRelation = Item;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Alternative Item No."));
+            end;
         }
         field(38; "Unit List Price"; Decimal)
         {
             AutoFormatType = 2;
             Caption = 'Unit List Price';
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Unit List Price"));
+            end;
         }
         field(39; "Duty Due %"; Decimal)
         {
@@ -149,42 +264,82 @@ table 1382 "Item Templ."
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Duty Due %"));
+            end;
         }
         field(40; "Duty Code"; Code[10])
         {
             Caption = 'Duty Code';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Duty Code"));
+            end;
         }
         field(41; "Gross Weight"; Decimal)
         {
             Caption = 'Gross Weight';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Gross Weight"));
+            end;
         }
         field(42; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Net Weight"));
+            end;
         }
         field(43; "Units per Parcel"; Decimal)
         {
             Caption = 'Units per Parcel';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Units per Parcel"));
+            end;
         }
         field(44; "Unit Volume"; Decimal)
         {
             Caption = 'Unit Volume';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Unit Volume"));
+            end;
         }
         field(45; Durability; Code[10])
         {
             Caption = 'Durability';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo(Durability));
+            end;
         }
         field(46; "Freight Type"; Code[10])
         {
             Caption = 'Freight Type';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Freight Type"));
+            end;
         }
         field(47; "Tariff No."; Code[20])
         {
@@ -192,83 +347,167 @@ table 1382 "Item Templ."
             TableRelation = "Tariff Number";
             ValidateTableRelation = false;
 
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Tariff No."));
+            end;
         }
         field(48; "Duty Unit Conversion"; Decimal)
         {
             Caption = 'Duty Unit Conversion';
             DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Duty Unit Conversion"));
+            end;
         }
         field(49; "Country/Region Purchased Code"; Code[10])
         {
             Caption = 'Country/Region Purchased Code';
             TableRelation = "Country/Region";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Country/Region Purchased Code"));
+            end;
         }
         field(50; "Budget Quantity"; Decimal)
         {
             Caption = 'Budget Quantity';
             DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Budget Quantity"));
+            end;
         }
         field(51; "Budgeted Amount"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Budgeted Amount';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Budgeted Amount"));
+            end;
         }
         field(52; "Budget Profit"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Budget Profit';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Budget Profit"));
+            end;
         }
         field(54; Blocked; Boolean)
         {
             Caption = 'Blocked';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo(Blocked));
+            end;
         }
         field(56; "Block Reason"; Text[250])
         {
             Caption = 'Block Reason';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Block Reason"));
+            end;
         }
         field(87; "Price Includes VAT"; Boolean)
         {
             Caption = 'Price Includes VAT';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Price Includes VAT"));
+            end;
         }
         field(90; "VAT Bus. Posting Gr. (Price)"; Code[20])
         {
             Caption = 'VAT Bus. Posting Gr. (Price)';
             TableRelation = "VAT Business Posting Group";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("VAT Bus. Posting Gr. (Price)"));
+            end;
         }
         field(91; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Gen. Prod. Posting Group"));
+            end;
         }
         field(95; "Country/Region of Origin Code"; Code[10])
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Country/Region of Origin Code"));
+            end;
         }
         field(96; "Automatic Ext. Texts"; Boolean)
         {
             Caption = 'Automatic Ext. Texts';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Automatic Ext. Texts"));
+            end;
         }
         field(97; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
             TableRelation = "No. Series";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("No. Series"));
+            end;
         }
         field(98; "Tax Group Code"; Code[20])
         {
             Caption = 'Tax Group Code';
             TableRelation = "Tax Group";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Tax Group Code"));
+            end;
         }
         field(99; "VAT Prod. Posting Group"; Code[20])
         {
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("VAT Prod. Posting Group"));
+            end;
         }
         field(100; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Reserve';
             InitValue = Optional;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo(Reserve));
+            end;
         }
         field(105; "Global Dimension 1 Code"; Code[20])
         {
@@ -299,27 +538,52 @@ table 1382 "Item Templ."
             Caption = 'Stockout Warning';
             OptionCaption = 'Default,No,Yes';
             OptionMembers = Default,No,Yes;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Stockout Warning"));
+            end;
         }
         field(121; "Prevent Negative Inventory"; Option)
         {
             Caption = 'Prevent Negative Inventory';
             OptionCaption = 'Default,No,Yes';
             OptionMembers = Default,No,Yes;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Prevent Negative Inventory"));
+            end;
         }
         field(910; "Assembly Policy"; Enum "Assembly Policy")
         {
             AccessByPermission = TableData "BOM Component" = R;
             Caption = 'Assembly Policy';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Assembly Policy"));
+            end;
         }
         field(1217; GTIN; Code[14])
         {
             Caption = 'GTIN';
             Numeric = true;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo(GTIN));
+            end;
         }
         field(1700; "Default Deferral Template Code"; Code[10])
         {
             Caption = 'Default Deferral Template Code';
             TableRelation = "Deferral Template"."Deferral Code";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Default Deferral Template Code"));
+            end;
         }
         field(5401; "Lot Size"; Decimal)
         {
@@ -327,6 +591,11 @@ table 1382 "Item Templ."
             Caption = 'Lot Size';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Lot Size"));
+            end;
         }
         field(5402; "Serial Nos."; Code[20])
         {
@@ -335,8 +604,7 @@ table 1382 "Item Templ."
 
             trigger OnValidate()
             begin
-                if "Serial Nos." <> '' then
-                    TestField("Item Tracking Code");
+                ValidateItemField(FieldNo("Serial Nos."));
             end;
         }
         field(5407; "Scrap %"; Decimal)
@@ -346,11 +614,21 @@ table 1382 "Item Templ."
             DecimalPlaces = 0 : 2;
             MaxValue = 100;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Scrap %"));
+            end;
         }
         field(5410; "Discrete Order Quantity"; Integer)
         {
             Caption = 'Discrete Order Quantity';
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Discrete Order Quantity"));
+            end;
         }
         field(5411; "Minimum Order Quantity"; Decimal)
         {
@@ -358,6 +636,11 @@ table 1382 "Item Templ."
             Caption = 'Minimum Order Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Minimum Order Quantity"));
+            end;
         }
         field(5412; "Maximum Order Quantity"; Decimal)
         {
@@ -365,6 +648,11 @@ table 1382 "Item Templ."
             Caption = 'Maximum Order Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Maximum Order Quantity"));
+            end;
         }
         field(5413; "Safety Stock Quantity"; Decimal)
         {
@@ -372,6 +660,11 @@ table 1382 "Item Templ."
             Caption = 'Safety Stock Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Safety Stock Quantity"));
+            end;
         }
         field(5414; "Order Multiple"; Decimal)
         {
@@ -379,21 +672,41 @@ table 1382 "Item Templ."
             Caption = 'Order Multiple';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Order Multiple"));
+            end;
         }
         field(5415; "Safety Lead Time"; DateFormula)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Safety Lead Time';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Safety Lead Time"));
+            end;
         }
         field(5417; "Flushing Method"; Enum "Flushing Method")
         {
             AccessByPermission = TableData "Production Order" = R;
             Caption = 'Flushing Method';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Flushing Method"));
+            end;
         }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Replenishment System';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Replenishment System"));
+            end;
         }
         field(5422; "Rounding Precision"; Decimal)
         {
@@ -401,41 +714,81 @@ table 1382 "Item Templ."
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Rounding Precision"));
+            end;
         }
         field(5428; "Time Bucket"; DateFormula)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Time Bucket';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Time Bucket"));
+            end;
         }
         field(5440; "Reordering Policy"; Enum "Reordering Policy")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Reordering Policy';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Reordering Policy"));
+            end;
         }
         field(5441; "Include Inventory"; Boolean)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Include Inventory';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Include Inventory"));
+            end;
         }
         field(5442; "Manufacturing Policy"; Enum "Manufacturing Policy")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Manufacturing Policy';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Manufacturing Policy"));
+            end;
         }
         field(5443; "Rescheduling Period"; DateFormula)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Rescheduling Period';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Rescheduling Period"));
+            end;
         }
         field(5444; "Lot Accumulation Period"; DateFormula)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Lot Accumulation Period';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Lot Accumulation Period"));
+            end;
         }
         field(5445; "Dampener Period"; DateFormula)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Dampener Period';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Dampener Period"));
+            end;
         }
         field(5446; "Dampener Quantity"; Decimal)
         {
@@ -443,6 +796,11 @@ table 1382 "Item Templ."
             Caption = 'Dampener Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Dampener Quantity"));
+            end;
         }
         field(5447; "Overflow Level"; Decimal)
         {
@@ -450,30 +808,60 @@ table 1382 "Item Templ."
             Caption = 'Overflow Level';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Overflow Level"));
+            end;
         }
         field(5701; "Manufacturer Code"; Code[10])
         {
             Caption = 'Manufacturer Code';
             TableRelation = Manufacturer;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Manufacturer Code"));
+            end;
         }
         field(5702; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Item Category Code"));
+            end;
         }
         field(5711; "Purchasing Code"; Code[10])
         {
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Purchasing Code"));
+            end;
         }
         field(5900; "Service Item Group"; Code[10])
         {
             Caption = 'Service Item Group';
             TableRelation = "Service Item Group".Code;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Service Item Group"));
+            end;
         }
         field(6502; "Expiration Calculation"; DateFormula)
         {
             Caption = 'Expiration Calculation';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Expiration Calculation"));
+            end;
         }
         field(6500; "Item Tracking Code"; Code[10])
         {
@@ -482,8 +870,7 @@ table 1382 "Item Templ."
 
             trigger OnValidate()
             begin
-                if "Item Tracking Code" <> '' then
-                    TestField(Type, Type::Inventory);
+                ValidateItemField(FieldNo("Item Tracking Code"));
             end;
         }
         field(6501; "Lot Nos."; Code[20])
@@ -493,95 +880,184 @@ table 1382 "Item Templ."
 
             trigger OnValidate()
             begin
-                if "Lot Nos." <> '' then
-                    TestField("Item Tracking Code");
+                ValidateItemField(FieldNo("Lot Nos."));
             end;
         }
         field(7301; "Special Equipment Code"; Code[10])
         {
             Caption = 'Special Equipment Code';
             TableRelation = "Special Equipment";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Special Equipment Code"));
+            end;
         }
         field(7302; "Put-away Template Code"; Code[10])
         {
             Caption = 'Put-away Template Code';
             TableRelation = "Put-away Template Header";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Put-away Template Code"));
+            end;
         }
         field(7300; "Warehouse Class Code"; Code[10])
         {
             Caption = 'Warehouse Class Code';
             TableRelation = "Warehouse Class";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Warehouse Class Code"));
+            end;
         }
         field(7380; "Phys Invt Counting Period Code"; Code[10])
         {
             Caption = 'Phys Invt Counting Period Code';
             TableRelation = "Phys. Invt. Counting Period";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Phys Invt Counting Period Code"));
+            end;
         }
         field(7384; "Use Cross-Docking"; Boolean)
         {
             AccessByPermission = TableData "Bin Content" = R;
             Caption = 'Use Cross-Docking';
             InitValue = true;
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Use Cross-Docking"));
+            end;
         }
         field(8003; "Sales Blocked"; Boolean)
         {
             Caption = 'Sales Blocked';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Sales Blocked"));
+            end;
         }
         field(8004; "Purchasing Blocked"; Boolean)
         {
             Caption = 'Purchasing Blocked';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Purchasing Blocked"));
+            end;
         }
         field(8510; "Over-Receipt Code"; Code[20])
         {
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Over-Receipt Code"));
+            end;
         }
         field(10004; "Duty Class"; Code[10])
         {
             Caption = 'Duty Class';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Duty Class"));
+            end;
         }
         field(27000; "SAT Item Classification"; Code[10])
         {
             Caption = 'SAT Item Classification';
             TableRelation = "SAT Classification";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("SAT Item Classification"));
+            end;
         }
         field(27024; "SAT Hazardous Material"; Code[10])
         {
             Caption = 'SAT Hazardous Material';
             TableRelation = "SAT Hazardous Material";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("SAT Hazardous Material"));
+            end;
         }
         field(27025; "SAT Packaging Type"; Code[10])
         {
             Caption = 'SAT Packaging Type';
             TableRelation = "SAT Packaging Type";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("SAT Packaging Type"));
+            end;
         }
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
             TableRelation = "Routing Header";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Routing No."));
+            end;
         }
         field(99000751; "Production BOM No."; Code[20])
         {
             Caption = 'Production BOM No.';
             TableRelation = "Production BOM Header";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Production BOM No."));
+            end;
         }
         field(99000757; "Overhead Rate"; Decimal)
         {
             AccessByPermission = TableData "Production Order" = R;
             AutoFormatType = 2;
             Caption = 'Overhead Rate';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Overhead Rate"));
+            end;
         }
         field(99000773; "Order Tracking Policy"; Enum "Order Tracking Policy")
         {
             Caption = 'Order Tracking Policy';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Order Tracking Policy"));
+            end;
         }
         field(99000875; Critical; Boolean)
         {
             Caption = 'Critical';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo(Critical));
+            end;
         }
         field(99008500; "Common Item No."; Code[20])
         {
             Caption = 'Common Item No.';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Common Item No."));
+            end;
         }
     }
 
@@ -658,5 +1134,43 @@ table 1382 "Item Templ."
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
                 if DestDefaultDimension.Insert(true) then;
             until SourceDefaultDimension.Next() = 0;
+    end;
+
+    local procedure ValidateItemField(FieldId: Integer)
+    var
+        ItemRecRef: RecordRef;
+        ItemTemplRecRef: RecordRef;
+        ItemFieldRef: FieldRef;
+        ItemTemplFieldRef: FieldRef;
+    begin
+        ItemTemplRecRef.GetTable(Rec);
+        ItemRecRef.Open(Database::Item, true);
+        TransferFieldValues(ItemTemplRecRef, ItemRecRef, false);
+        ItemRecRef.Insert();
+
+        ItemFieldRef := ItemRecRef.Field(FieldId);
+        ItemTemplFieldRef := ItemTemplRecRef.Field(FieldId);
+        ItemFieldRef.Validate(ItemTemplFieldRef.Value);
+
+        TransferFieldValues(ItemTemplRecRef, ItemRecRef, true);
+
+        ItemTemplRecRef.SetTable(Rec);
+        Modify();
+    end;
+
+    local procedure TransferFieldValues(var SrcRecRef: RecordRef; var DestRecRef: RecordRef; Reverse: Boolean)
+    var
+        SrcFieldRef: FieldRef;
+        DestFieldRef: FieldRef;
+        i: Integer;
+    begin
+        for i := 3 to SrcRecRef.FieldCount do begin
+            SrcFieldRef := SrcRecRef.FieldIndex(i);
+            DestFieldRef := DestRecRef.Field(SrcFieldRef.Number);
+            if not Reverse then
+                DestFieldRef.Value := SrcFieldRef.Value
+            else
+                SrcFieldRef.Value := DestFieldRef.Value;
+        end;
     end;
 }
