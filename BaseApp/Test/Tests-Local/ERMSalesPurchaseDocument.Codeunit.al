@@ -2206,6 +2206,72 @@ codeunit 142053 "ERM Sales/Purchase Document"
         SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelSalesCrMemoCancelledSalesInvoiceWithGLAndBlankedGenGroups()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CancelPostedSalesCrMemo: Codeunit "Cancel Posted Sales Cr. Memo";
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 431382] Cancel posted sales credit memo that canceled posted sales invoice with G/L account with blank gen. posting groups
+        Initialize();
+        if GeneralPostingSetup.Get('', '') then
+            GeneralPostingSetup.Delete();
+
+        // [GIVEN] Cancelled by sales credit memo "PSCM" posted sales invoice with g/l account with blank gen. posting groups
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        UpdateCustomerGenBusPostingGroup(CustomerNo, '');
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+        UpdateGLAccGenProdPostingGroup(GLAccountNo, '');
+        DocumentNo := CreateAndPostSalesInvoiceWithGLAccount(CustomerNo, GLAccountNo);
+        CancelSalesInvoice(SalesCrMemoHeader, DocumentNo);
+
+        // [WHEN] Cancel "PSCM"
+        CancelPostedSalesCrMemo.CancelPostedCrMemo(SalesCrMemoHeader);
+        LibrarySmallBusiness.FindSalesCorrectiveInvoice(SalesInvoiceHeader, SalesCrMemoHeader);
+
+        // [THEN] "PSCM" was cancelled and a new invoice was created
+        SalesInvoiceHeader.TestField("Sell-to Customer No.", CustomerNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelPurchaseCrMemoCancelledPurchaseInvoiceWithGLAndBlankedGenGroups()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CancelPostedPurchCrMemo: Codeunit "Cancel Posted Purch. Cr. Memo";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 431382] Cancel posted Purchase credit memo that canceled posted Purchase invoice with G/L account with blank gen. posting groups
+        Initialize();
+        if GeneralPostingSetup.Get('', '') then
+            GeneralPostingSetup.Delete();
+
+        // [GIVEN] Cancelled by Purchase credit memo "PPCM" posted Purchase invoice with g/l account with blank gen. posting groups
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        UpdateVendorGenBusPostingGroup(VendorNo, '');
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
+        UpdateGLAccGenProdPostingGroup(GLAccountNo, '');
+        DocumentNo := CreateAndPostPurchInvoiceWithGLAccount(VendorNo, GLAccountNo);
+        CancelPurchInvoice(PurchCrMemoHdr, DocumentNo);
+
+        // [WHEN] Cancel "PPCM"
+        CancelPostedPurchCrMemo.CancelPostedCrMemo(PurchCrMemoHdr);
+        LibrarySmallBusiness.FindPurchCorrectiveInvoice(PurchInvHeader, PurchCrMemoHdr);
+
+        // [THEN] "PPCM" was cancelled and a new invoice was created
+        PurchInvHeader.TestField("Buy-from Vendor No.", VendorNo);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2359,6 +2425,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);

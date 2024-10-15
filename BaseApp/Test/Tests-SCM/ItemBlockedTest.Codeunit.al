@@ -23,6 +23,7 @@ codeunit 134815 "Item Blocked Test"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         IsInitialized: Boolean;
         PurchasingBlockedCopyFromItemErr: Label 'You cannot purchase item %1 because the Purchasing Blocked check box is selected on the item card.';
+        BlockedErr: Label 'You cannot choose item number %1 because the Blocked check box is selected on its item card.', Comment = '%1 - Item No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -562,6 +563,25 @@ codeunit 134815 "Item Blocked Test"
         // [THEN] Line is created
         ItemJournalLine.Find;
         ItemJournalLine.TestField("Item No.", Item."No.");
+    end;
+
+    [Test]
+    procedure BlockedItemOnItemJournalLine()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Item Journal] [UT]
+        // [SCENARIO 429193] Specify blocked item number in error message in item journal.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Blocked, true);
+        Item.Modify(true);
+
+        asserterror LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 0);
+
+        Assert.ExpectedError(StrSubstNo(BlockedErr, Item."No."));
     end;
 
     local procedure Initialize()

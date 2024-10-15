@@ -1651,7 +1651,7 @@
                 if IsDeferralToBeDefaulted("Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesCommentDocTypeInt) then
                     InitSalesDeferralCode(ToSalesLine);
 
-            if ToSalesLine."Document Type" <> ToSalesLine."Document Type"::Order then begin
+            if not (ToSalesLine."Document Type" in ["Sales Document Type"::Order, "Sales Document Type"::Quote]) then begin
                 ToSalesLine."Drop Shipment" := false;
                 ToSalesLine."Special Order" := false;
             end;
@@ -5637,18 +5637,16 @@
                         ToAssemblyLine."Unit Cost" := FromAsmLine."Unit Cost";
                     ToAssemblyLine."Cost Amount" := ToAssemblyLine.CalcCostAmount(ToAssemblyLine.Quantity, ToAssemblyLine."Unit Cost");
                     if AvailabilityCheck then begin
-                        with ToAssemblyLine do begin
-                            "Quantity (Base)" :=
-                              UOMMgt.CalcBaseQty(
-                                "No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
-                            "Remaining Quantity" := "Quantity (Base)";
-                            "Quantity to Consume" := ToAsmHeader."Quantity to Assemble" * FromAsmLine."Quantity per";
-                            "Quantity to Consume (Base)" :=
-                              UOMMgt.CalcBaseQty(
-                                "No.", "Variant Code", "Unit of Measure Code", "Quantity to Consume", "Qty. per Unit of Measure");
-                        end;
-                    end else
-                        ToAssemblyLine.Validate("Quantity to Consume", ToAsmHeader."Quantity to Assemble" * FromAsmLine."Quantity per");
+                        ToAssemblyLine."Quantity (Base)" :=
+                          UOMMgt.CalcBaseQty(
+                            ToAssemblyLine."No.", ToAssemblyLine."Variant Code", ToAssemblyLine."Unit of Measure Code",
+                            ToAssemblyLine.Quantity, ToAssemblyLine."Qty. per Unit of Measure");
+                        ToAssemblyLine."Remaining Quantity" := ToAssemblyLine."Quantity (Base)";
+                        ToAssemblyLine.InitQtyToConsume();
+                    end else begin
+                        ToAssemblyLine.InitQtyToConsume();
+                        ToAssemblyLine.Validate("Quantity to Consume");
+                    end;
                 end;
                 CopyFromAsmOrderDimToLine(ToAssemblyLine, FromAsmLine, BasicAsmOrderCopy);
                 OnCreateToAsmLinesOnBeforeToAssemblyLineModify(ToAsmHeader, ToAssemblyLine, FromAsmLine, ToSalesLine, BasicAsmOrderCopy, AvailabilityCheck);
@@ -5690,6 +5688,11 @@
 
     local procedure GetAppliedQuantityForAsmLine(BasicAsmOrderCopy: Boolean; ToAsmHeader: Record "Assembly Header"; TempFromAsmLine: Record "Assembly Line" temporary; ToSalesLine: Record "Sales Line"): Decimal
     begin
+        if (TempFromAsmLine.Type = TempFromAsmLine.Type::Resource) and
+           (TempFromAsmLine."Resource Usage Type" = TempFromAsmLine."Resource Usage Type"::Fixed)
+        then
+            exit(TempFromAsmLine."Quantity per");
+
         if BasicAsmOrderCopy then
             exit(ToAsmHeader.Quantity * TempFromAsmLine."Quantity per");
         case ToSalesLine."Document Type" of

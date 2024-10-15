@@ -823,6 +823,91 @@ codeunit 137140 "SCM Inventory Documents"
         // [THEN] An error is thrown.
     end;
 
+    [Test]
+    procedure AutoReserveSalesLineFromInventoryReceipt()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [FEATURE] [Reservation]
+        // [SCENARIO 426870] Auto reserve sales line from inventory receipt.
+        Initialize();
+        AllowInvtDocReservationInInventorySetup();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateItem(Item);
+
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(
+          InvtDocumentHeader, InvtDocumentLine, LibraryInventory.CreateItemNo(), 0, LibraryRandom.RandIntInRange(20, 40));
+        LibraryInventory.CreateInvtDocumentLine(
+          InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, LibraryRandom.RandIntInRange(20, 40));
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
+
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        ReservationEntry.SetSourceFilter(
+          Database::"Invt. Document Line", InvtDocumentLine."Document Type".AsInteger(), InvtDocumentLine."Document No.",
+          InvtDocumentLine."Line No.", false);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Item No.", Item."No.");
+        ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
+        ReservationEntry.TestField("Item No.", Item."No.");
+        ReservationEntry.TestField("Source Type", Database::"Sales Line");
+        ReservationEntry.TestField("Source ID", SalesLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationModalPageHandler,AvailableInvtDocLinesModalPageHandler')]
+    procedure AutoReservePurchaseLineForInventoryShipment()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [FEATURE] [Reservation]
+        // [SCENARIO 426870] Auto reserve purchase line for inventory shipment.
+        Initialize();
+        AllowInvtDocReservationInInventorySetup();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateItem(Item);
+
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(
+          InvtDocumentHeader, InvtDocumentLine, LibraryInventory.CreateItemNo(), 0, LibraryRandom.RandIntInRange(20, 40));
+        LibraryInventory.CreateInvtDocumentLine(
+          InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, LibraryRandom.RandInt(10));
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandIntInRange(20, 40), Location.Code, WorkDate());
+
+        PurchaseLine.ShowReservation();
+
+        ReservationEntry.SetSourceFilter(
+          Database::"Invt. Document Line", InvtDocumentLine."Document Type".AsInteger(), InvtDocumentLine."Document No.",
+          InvtDocumentLine."Line No.", false);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Item No.", Item."No.");
+        ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
+        ReservationEntry.TestField("Item No.", Item."No.");
+        ReservationEntry.TestField("Source Type", Database::"Purchase Line");
+        ReservationEntry.TestField("Source ID", PurchaseLine."Document No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -832,6 +917,7 @@ codeunit 137140 "SCM Inventory Documents"
         if isInitialized then
             exit;
 
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
 
@@ -969,6 +1055,15 @@ codeunit 137140 "SCM Inventory Documents"
         InventorySetup.Modify();
     end;
 
+    local procedure AllowInvtDocReservationInInventorySetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup."Allow Invt. Doc. Reservation" := true;
+        InventorySetup.Modify();
+    end;
+
     local procedure PostItemJournalLine(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -1075,6 +1170,18 @@ codeunit 137140 "SCM Inventory Documents"
     procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ReservationModalPageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation.AvailableToReserve.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure AvailableInvtDocLinesModalPageHandler(var AvailableInvtDocLines: TestPage "Available - Invt. Doc. Lines")
+    begin
+        AvailableInvtDocLines.Reserve.Invoke();
     end;
 }
 
