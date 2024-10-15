@@ -80,6 +80,7 @@ codeunit 6302 "Power BI Label Mgt."
             Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
 
         GetReportLabels(TempPowerBIReportLabels);
+        OnAfterGeneratePowerBILabels(TempPowerBIReportLabels);
 
         if LanguageChanged then
             GlobalLanguage(PreviousLanguage);
@@ -122,6 +123,11 @@ codeunit 6302 "Power BI Label Mgt."
         TempPowerBIReportLabels."Label ID" := LabelName;
         TempPowerBIReportLabels."Text Value" := LabelText;
         TempPowerBIReportLabels.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterGeneratePowerBILabels(var PowerBIReportLabels: Record "Power BI Report Labels" temporary)
+    begin
     end;
 }
 

@@ -530,6 +530,7 @@ codeunit 137008 "SCM Planning Options"
         PurchPayablesSetup.Modify(true);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure RequisitionLineValidateDueDateUpdatesUnitCost()
@@ -575,6 +576,7 @@ codeunit 137008 "SCM Planning Options"
         with RequisitionLine do
             Assert.AreEqual(UnitCost, "Direct Unit Cost", StrSubstNo(WrongFieldValueErr, FieldCaption("Direct Unit Cost"), TableCaption));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -994,6 +996,7 @@ codeunit 137008 "SCM Planning Options"
         SKU.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateItemPurchasePrice(ItemNo: Code[20]; VendorNo: Code[20]; StartingDate: Date; EndingDate: Date; UnitCost: Decimal)
     var
         PurchPrice: Record "Purchase Price";
@@ -1008,6 +1011,7 @@ codeunit 137008 "SCM Planning Options"
             Insert(true);
         end;
     end;
+#endif
 
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Quantity: Decimal; AvailableDate: Date)
     var

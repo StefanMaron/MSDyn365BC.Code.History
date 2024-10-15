@@ -574,6 +574,7 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationSynchJobListPage.Close();
     end;
 
+#if not CLEAN19
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -618,6 +619,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
+#endif
 
     [Test]
     [HandlerFunctions('FailedSyncNotification,RecallNotificationHandler')]

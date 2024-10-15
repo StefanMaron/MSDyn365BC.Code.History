@@ -6,11 +6,9 @@ table 906 "Assembly Comment Line"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Assembly Comment Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Assembly Order,,,Blanket Order,Posted Assembly';
-            OptionMembers = Quote,"Assembly Order",,,"Blanket Order","Posted Assembly";
         }
         field(2; "Document No."; Code[20])
         {

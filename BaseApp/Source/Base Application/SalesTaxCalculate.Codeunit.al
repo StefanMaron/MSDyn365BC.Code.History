@@ -674,9 +674,7 @@ codeunit 398 "Sales Tax Calculate"
             else
                 ExchangeFactor := SalesHeader."Currency Factor";
             CopyTaxDifferencesToTemp(
-              TaxAmountDifference."Document Product Area"::Sales,
-              SalesLine."Document Type".AsInteger(),
-              SalesLine."Document No.");
+                "Sales Tax Document Area"::Sales, SalesLine."Document Type".AsInteger(), SalesLine."Document No.");
             SalesHeader.CalcFields(Amount);
         end;
         if not GetSalesTaxCountry(SalesLine."Tax Area Code") then
@@ -784,9 +782,7 @@ codeunit 398 "Sales Tax Calculate"
             until SalesInvoiceLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
-          TaxAmountDifference."Document Product Area"::"Posted Sale",
-          TaxAmountDifference."Document Type"::Invoice,
-          SalesInvoiceHeader."No.");
+            "Sales Tax Document Area"::"Posted Sale", TaxAmountDifference."Document Type"::Invoice, SalesInvoiceHeader."No.");
     end;
 
     procedure AddSalesCrMemoLines(DocNo: Code[20])
@@ -815,9 +811,7 @@ codeunit 398 "Sales Tax Calculate"
             until SalesCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
-          TaxAmountDifference."Document Product Area"::"Posted Sale",
-          TaxAmountDifference."Document Type"::"Credit Memo",
-          SalesCrMemoHeader."No.");
+            "Sales Tax Document Area"::"Posted Sale", TaxAmountDifference."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
     end;
 
     procedure AddPurchLine(PurchLine: Record "Purchase Line")
@@ -846,9 +840,7 @@ codeunit 398 "Sales Tax Calculate"
             else
                 ExchangeFactor := PurchHeader."Currency Factor";
             CopyTaxDifferencesToTemp(
-              TaxAmountDifference."Document Product Area"::Purchase,
-              PurchLine."Document Type".AsInteger(),
-              PurchLine."Document No.");
+                "Sales Tax Document Area"::Purchase, PurchLine."Document Type".AsInteger(), PurchLine."Document No.");
         end;
         if not GetSalesTaxCountry(PurchLine."Tax Area Code") then
             exit;
@@ -952,9 +944,7 @@ codeunit 398 "Sales Tax Calculate"
             until PurchInvLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
-          TaxAmountDifference."Document Product Area"::"Posted Purchase",
-          TaxAmountDifference."Document Type"::Invoice,
-          PurchInvHeader."No.");
+            "Sales Tax Document Area"::"Posted Purchase", TaxAmountDifference."Document Type"::Invoice, PurchInvHeader."No.");
     end;
 
     procedure AddPurchCrMemoLines(DocNo: Code[20])
@@ -983,9 +973,7 @@ codeunit 398 "Sales Tax Calculate"
             until PurchCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
-          TaxAmountDifference."Document Product Area"::"Posted Purchase",
-          TaxAmountDifference."Document Type"::"Credit Memo",
-          PurchCrMemoHeader."No.");
+            "Sales Tax Document Area"::"Posted Purchase", TaxAmountDifference."Document Type"::"Credit Memo", PurchCrMemoHeader."No.");
     end;
 
     procedure AddServiceLine(ServiceLine: Record "Service Line")
@@ -1006,9 +994,7 @@ codeunit 398 "Sales Tax Calculate"
             else
                 ExchangeFactor := ServiceHeader."Currency Factor";
             CopyTaxDifferencesToTemp(
-              TaxAmountDifference."Document Product Area"::Service,
-              ServiceLine."Document Type".AsInteger(),
-              ServiceLine."Document No.");
+                "Sales Tax Document Area"::Service, ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.");
         end;
         if not GetSalesTaxCountry(ServiceLine."Tax Area Code") then
             exit;
@@ -1094,7 +1080,7 @@ codeunit 398 "Sales Tax Calculate"
             until ServInvLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
-          TaxAmountDifference."Document Product Area"::"Posted Service",
+          "Sales Tax Document Area"::"Posted Service",
           TaxAmountDifference."Document Type"::Invoice,
           ServInvHeader."No.");
     end;
@@ -1125,7 +1111,7 @@ codeunit 398 "Sales Tax Calculate"
             until ServCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
-          TaxAmountDifference."Document Product Area"::"Posted Service",
+          "Sales Tax Document Area"::"Posted Service",
           TaxAmountDifference."Document Type"::"Credit Memo",
           ServCrMemoHeader."No.");
     end;
@@ -1170,8 +1156,6 @@ codeunit 398 "Sales Tax Calculate"
                     else
                         TaxDetail.SetFilter("Tax Type", '%1|%2', TaxDetail."Tax Type"::"Sales and Use Tax",
                           TaxDetail."Tax Type"::"Sales Tax Only");
-                    if not TaxDetail.FindLast then
-                        Delete;
                     TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
                     if TaxDetail.FindLast then begin
                         "Tax Type" := "Tax Type"::"Excise Tax";
@@ -1421,7 +1405,8 @@ codeunit 398 "Sales Tax Calculate"
                 TempSalesTaxAmountLine.Insert();
             until SalesTaxLine2.Next() = 0;
 
-        CreateSingleTaxDifference(ProductArea, DocumentType, DocumentNo);
+        CreateSingleTaxDifference(
+            "Sales Tax Document Area".FromInteger(ProductArea), DocumentType, DocumentNo);
     end;
 
     procedure DistTaxOverSalesLines(var SalesLine: Record "Sales Line")
@@ -1852,9 +1837,7 @@ codeunit 398 "Sales Tax Calculate"
         TempPurchHeader.DeleteAll();
 
         CreateSingleTaxDifference(
-          TaxAmountDifference."Document Product Area"::Purchase,
-          PurchHeader."Document Type".AsInteger(),
-          PurchHeader."No.");
+            "Sales tax Document Area"::Purchase, PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
     end;
 
     procedure ReadTempSalesHeader(TempSalesHeader: Record "Sales Header" temporary)
@@ -1871,12 +1854,10 @@ codeunit 398 "Sales Tax Calculate"
         TempSalesHeader.DeleteAll();
 
         CreateSingleTaxDifference(
-          TaxAmountDifference."Document Product Area"::Sales,
-          SalesHeader."Document Type".AsInteger(),
-          SalesHeader."No.");
+            "Sales Tax Document Area"::Sales, SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
-    local procedure CopyTaxDifferencesToTemp(ProductArea: Integer; DocumentType: Integer; DocumentNo: Code[20])
+    local procedure CopyTaxDifferencesToTemp(ProductArea: Enum "Sales Tax Document Area"; DocumentType: Integer; DocumentNo: Code[20])
     begin
         TaxAmountDifference.Reset();
         TaxAmountDifference.SetRange("Document Product Area", ProductArea);
@@ -1891,7 +1872,7 @@ codeunit 398 "Sales Tax Calculate"
             CreateSingleTaxDifference(ProductArea, DocumentType, DocumentNo);
     end;
 
-    local procedure CreateSingleTaxDifference(ProductArea: Integer; DocumentType: Integer; DocumentNo: Code[20])
+    local procedure CreateSingleTaxDifference(ProductArea: Enum "Sales Tax Document Area"; DocumentType: Integer; DocumentNo: Code[20])
     begin
         TempTaxAmountDifference.Reset();
         TempTaxAmountDifference.DeleteAll();
@@ -1949,9 +1930,7 @@ codeunit 398 "Sales Tax Calculate"
         else
             ExchangeFactor := PurchHeader."Currency Factor";
         CopyTaxDifferencesToTemp(
-          TaxAmountDifference."Document Product Area"::Purchase,
-          PurchHeader."Document Type".AsInteger(),
-          PurchHeader."No.");
+            "Sales Tax Document Area"::Purchase, PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
 
         PurchHeaderRead := true;
     end;

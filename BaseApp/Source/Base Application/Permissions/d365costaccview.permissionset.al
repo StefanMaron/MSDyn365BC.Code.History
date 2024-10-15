@@ -16,5 +16,6 @@ permissionset 5269 "D365 COSTACC, VIEW"
                   tabledata "Cost Journal Template" = R,
                   tabledata "Cost Object" = R,
                   tabledata "Cost Register" = R,
-                  tabledata "Cost Type" = R;
+                  tabledata "Cost Type" = R,
+                  tabledata "G/L Account" = R;
 }

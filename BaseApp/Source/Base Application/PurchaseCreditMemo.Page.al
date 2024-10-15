@@ -880,10 +880,9 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1346,6 +1345,7 @@ page 52 "Purchase Credit Memo"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category8;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1377,7 +1377,7 @@ page 52 "Purchase Credit Memo"
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ToolTip = 'Finalize and print the document or journal. The values and quantities are posted to the related accounts.';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
@@ -1425,13 +1425,13 @@ page 52 "Purchase Credit Memo"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         StatusStyleTxt := GetStatusStyleText();
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
     end;
 
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingOption;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1465,11 +1465,8 @@ page 52 "Purchase Credit Memo"
         IsOfficeAddin := OfficeMgt.IsAvailable;
         IsSaaS := EnvironmentInfo.IsSaaS;
 
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
+
         if ("No." <> '') and ("Buy-from Vendor No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 

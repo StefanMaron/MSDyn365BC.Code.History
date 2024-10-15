@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135502 "Customer Entity E2E Test"
 {
     Subtype = Test;
@@ -491,4 +492,4 @@ codeunit 135502 "Customer Entity E2E Test"
         end;
     end;
 }
-
+#endif

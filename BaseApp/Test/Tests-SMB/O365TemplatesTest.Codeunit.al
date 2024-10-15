@@ -9,7 +9,6 @@ codeunit 138012 "O365 Templates Test"
     end;
 
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -153,7 +152,7 @@ codeunit 138012 "O365 Templates Test"
     procedure SaveCustomerWithDimensionsAsTemplate()
     var
         Customer: Record Customer;
-        CustomerConfigTemplateHeaderCode: Code[10];
+        CustomerConfigTemplateHeaderCode: Code[20];
     begin
         // [FEATURE] [Customer]
         Initialize();
@@ -162,7 +161,7 @@ codeunit 138012 "O365 Templates Test"
         CreateTemplateFromCustomer(Customer, CustomerConfigTemplateHeaderCode);
 
         ValidateCustomerVsConfigTemplate(Customer, CustomerConfigTemplateHeaderCode);
-        VerifyDimensionsSavedCorrectly(Customer."No.", DATABASE::Customer, CustomerConfigTemplateHeaderCode);
+        VerifyDimensionsSavedCorrectly(Customer."No.", DATABASE::Customer, CustomerConfigTemplateHeaderCode, Database::"Customer Templ.");
     end;
 
     [Test]
@@ -171,7 +170,7 @@ codeunit 138012 "O365 Templates Test"
     procedure SaveItemWithDimensionsAsTemplate()
     var
         Item: Record Item;
-        ItemConfigTemplateHeaderCode: Code[10];
+        ItemConfigTemplateHeaderCode: Code[20];
     begin
         // [FEATURE] [Item]
         Initialize();
@@ -180,7 +179,7 @@ codeunit 138012 "O365 Templates Test"
         CreateTemplateFromItem(Item, ItemConfigTemplateHeaderCode);
 
         ValidateItemVsConfigTemplate(Item, ItemConfigTemplateHeaderCode);
-        VerifyDimensionsSavedCorrectly(Item."No.", DATABASE::Item, ItemConfigTemplateHeaderCode);
+        VerifyDimensionsSavedCorrectly(Item."No.", DATABASE::Item, ItemConfigTemplateHeaderCode, Database::"Item Templ.");
     end;
 
     [Test]
@@ -189,7 +188,7 @@ codeunit 138012 "O365 Templates Test"
     procedure SaveVendorWithDimensionsAsTemplate()
     var
         Vendor: Record Vendor;
-        VendorConfigTemplateHeaderCode: Code[10];
+        VendorConfigTemplateHeaderCode: Code[20];
     begin
         // [FEATURE] [Vendor]
         Initialize();
@@ -198,235 +197,7 @@ codeunit 138012 "O365 Templates Test"
         CreateTemplateFromVendor(Vendor, VendorConfigTemplateHeaderCode);
 
         ValidateVendorVsConfigTemplate(Vendor, VendorConfigTemplateHeaderCode);
-        VerifyDimensionsSavedCorrectly(Vendor."No.", DATABASE::Vendor, VendorConfigTemplateHeaderCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ReadCustomerTemplateFromConfigTemplateHeader()
-    var
-        Customer: Record Customer;
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        CreateCustomerWithTemplateFieldsSet(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
-        ReadCustTemplFromConfigTempl(ConfigTemplHeaderCode, TempMiniCustomerTemplate);
-
-        ValidateCustTemplVsConfigTemplate(TempMiniCustomerTemplate);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ReadItemTemplateFromConfigTemplateHeader()
-    var
-        Item: Record Item;
-        TempItemTemplate: Record "Item Template" temporary;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Item]
-        Initialize();
-
-        CreateItemWithTemplateFieldsSet(Item);
-        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-        ReadItemTemplFromConfigTempl(ConfigTemplHeaderCode, TempItemTemplate);
-
-        ValidateItemTemplVsConfigTemplate(TempItemTemplate);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ReadVendorTemplateFromConfigTemplateHeader()
-    var
-        Vendor: Record Vendor;
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Vendor]
-        Initialize();
-
-        CreateVendorWithTemplateFieldsSet(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
-        ReadVendTemplFromConfigTempl(ConfigTemplHeaderCode, TempMiniVendorTemplate);
-
-        ValidateVendTemplVsConfigTemplate(TempMiniVendorTemplate);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure UpdateCustomerTemplateTest()
-    var
-        Customer: Record Customer;
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
-
-        UpdateCustomerTemplate(ConfigTemplHeaderCode, TempMiniCustomerTemplate);
-        ValidateCustTemplVsConfigTemplate(TempMiniCustomerTemplate);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure UpdateItemTemplateTest()
-    var
-        Item: Record Item;
-        TempItemTemplate: Record "Item Template" temporary;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Item]
-        Initialize();
-
-        CreateBlankItem(Item);
-        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-        UpdateItemTemplate(ConfigTemplHeaderCode, TempItemTemplate);
-
-        ValidateItemTemplVsConfigTemplate(TempItemTemplate);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure UpdateVendorTemplateTest()
-    var
-        Vendor: Record Vendor;
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Vendor]
-        Initialize();
-
-        CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
-
-        UpdateVendorTemplate(ConfigTemplHeaderCode, TempMiniVendorTemplate);
-        ValidateVendTemplVsConfigTemplate(TempMiniVendorTemplate);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure DeleteCustomerTemplateTest()
-    var
-        Customer: Record Customer;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        CreateCustomerWithTemplateFieldsSet(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
-        DeleteCustTemplateFromConfigTempl(ConfigTemplHeaderCode);
-
-        ValidateThereIsNoTemplate(ConfigTemplHeaderCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure DeleteItemTemplateTest()
-    var
-        Item: Record Item;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Item]
-        Initialize();
-
-        CreateItemWithTemplateFieldsSet(Item);
-        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-        DeleteItemTemplateFromConfigTempl(ConfigTemplHeaderCode);
-
-        ValidateThereIsNoTemplate(ConfigTemplHeaderCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure DeleteVendorTemplateTest()
-    var
-        Vendor: Record Vendor;
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Vendor]
-        Initialize();
-
-        CreateVendorWithTemplateFieldsSet(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
-        DeleteVendTemplateFromConfigTempl(ConfigTemplHeaderCode);
-
-        ValidateThereIsNoTemplate(ConfigTemplHeaderCode);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomerTemplateFieldDefinitionsMatchCustomerFields()
-    var
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-        RecRefCust: RecordRef;
-        RecRefMiniCustTempl: RecordRef;
-        FieldRefArray: array[24] of FieldRef;
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        RecRefCust.Open(DATABASE::Customer);
-        TempMiniCustomerTemplate.Init();
-        RecRefMiniCustTempl.GetTable(TempMiniCustomerTemplate);
-
-        TempMiniCustomerTemplate.CreateFieldRefArray(FieldRefArray, RecRefMiniCustTempl);
-        TemplateFieldDefinitionsMatchTableFields(RecRefCust, FieldRefArray);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorTemplateFieldDefinitionsMatchVendorFields()
-    var
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
-        RecRefVend: RecordRef;
-        RecRefVendTempl: RecordRef;
-        FieldRefArray: array[20] of FieldRef;
-    begin
-        // [FEATURE] [Vendor]
-        Initialize();
-
-        RecRefVend.Open(DATABASE::Vendor);
-        TempMiniVendorTemplate.Init();
-        RecRefVendTempl.GetTable(TempMiniVendorTemplate);
-
-        TempMiniVendorTemplate.CreateFieldRefArray(FieldRefArray, RecRefVendTempl);
-        TemplateFieldDefinitionsMatchTableFields(RecRefVend, FieldRefArray);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemTemplateFieldDefinitionsMatchItemFields()
-    var
-        TempItemTemplate: Record "Item Template" temporary;
-        RecRefItem: RecordRef;
-        RecRefItemTempl: RecordRef;
-        FieldRefArray: array[17] of FieldRef;
-    begin
-        // [FEATURE] [Item]
-        Initialize();
-
-        RecRefItem.Open(DATABASE::Item);
-        TempItemTemplate.Init();
-        RecRefItemTempl.GetTable(TempItemTemplate);
-
-        TempItemTemplate.CreateFieldRefArray(FieldRefArray, RecRefItemTempl);
-        TemplateFieldDefinitionsMatchTableFields(RecRefItem, FieldRefArray);
+        VerifyDimensionsSavedCorrectly(Vendor."No.", DATABASE::Vendor, VendorConfigTemplateHeaderCode, Database::"Vendor Templ.");
     end;
 
     [Test]
@@ -771,7 +542,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerWithTemplateFieldsSet: Record Customer;
         CustomerCard: TestPage "Customer Card";
         CustomerNo: Variant;
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
         NoSeries: Code[20];
         ExpectedNo: Code[20];
     begin
@@ -870,14 +641,14 @@ codeunit 138012 "O365 Templates Test"
     end;
 
     [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,CustomerTemplateCardHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,CustomerTemplateCardHandler')]
     [Scope('OnPrem')]
     procedure CreateCustomerFromTemplateWhenMultipleTemplatesDefined()
     var
         CustomerFromTemplate: Record Customer;
         CustomerCard: TestPage "Customer Card";
-        CustomerTemplateCode: Code[10];
-        BlankCustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
+        BlankCustomerTemplateCode: Code[20];
         CustomerNo: Text;
     begin
         // [FEATURE] [Customer]
@@ -897,7 +668,7 @@ codeunit 138012 "O365 Templates Test"
     end;
 
     [Test]
-    [HandlerFunctions('CustomerConfigTemplatesHandler,VendorTemplateCardHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,VendorTemplateCardHandler')]
     [Scope('OnPrem')]
     procedure CreateVendorFromTemplateWhenMultipleTemplatesDefined()
     var
@@ -914,12 +685,10 @@ codeunit 138012 "O365 Templates Test"
 
         CreateVendorWithTemplateFieldsSet(VendorWithTemplateFieldsSet);
         CreateTemplateFromVendor(VendorWithTemplateFieldsSet, VendorTemplateCode);
+        LibraryVariableStorage.Enqueue(VendorTemplateCode);
 
         CreateBlankVendor(BlankVendor);
         CreateTemplateFromVendor(BlankVendor, BlankVendorTemplateCode);
-
-        LibraryVariableStorage.Enqueue(NoActionTok);
-        LibraryVariableStorage.Enqueue(OKActionTok);
 
         VendorCard.OpenNew;
 
@@ -932,7 +701,7 @@ codeunit 138012 "O365 Templates Test"
     end;
 
     [Test]
-    [HandlerFunctions('ItemConfigTemplatesHandler,ItemTemplateCardHandler')]
+    [HandlerFunctions('SelectItemTemplListModalPageHandler,ItemTemplateCardHandler')]
     [Scope('OnPrem')]
     procedure CreateItemFromTemplateWhenMultipleTemplatesDefined()
     var
@@ -940,8 +709,8 @@ codeunit 138012 "O365 Templates Test"
         ItemWithTemplateFieldsSet: Record Item;
         BlankItem: Record Item;
         ItemCard: TestPage "Item Card";
-        ItemTemplateCode: Code[10];
-        BlankItemTemplateCode: Code[10];
+        ItemTemplateCode: Code[20];
+        BlankItemTemplateCode: Code[20];
         ItemNo: Text;
     begin
         // [FEATURE] [Item]
@@ -949,12 +718,10 @@ codeunit 138012 "O365 Templates Test"
 
         CreateItemWithTemplateFieldsSet(ItemWithTemplateFieldsSet);
         CreateTemplateFromItem(ItemWithTemplateFieldsSet, ItemTemplateCode);
+        LibraryVariableStorage.Enqueue(ItemTemplateCode);
 
         CreateBlankItem(BlankItem);
         CreateTemplateFromItem(BlankItem, BlankItemTemplateCode);
-
-        LibraryVariableStorage.Enqueue(NoActionTok);
-        LibraryVariableStorage.Enqueue(OKActionTok);
 
         ItemCard.OpenNew;
         ItemCard.Description.SetValue('Test');
@@ -970,7 +737,7 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure CreateCustomerFromTemplateVerifyContacts()
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
         Contact: Record Contact;
         CustomerCard: TestPage "Customer Card";
         CustomerNo: Code[20];
@@ -982,8 +749,8 @@ codeunit 138012 "O365 Templates Test"
 
         // [GIVEN] Customer Template
         UpdateMarketingSetup;
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+        LibraryVariableStorage.Enqueue(CustomerTempl.Code);
         ContactsCount := Contact.Count();
 
         // [WHEN] Create Customer from Template
@@ -1000,7 +767,7 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure CreateVendorFromTemplateVerifyContacts()
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
+        VendorTempl: Record "Vendor Templ.";
         Contact: Record Contact;
         VendorCard: TestPage "Vendor Card";
         VendorNo: Code[20];
@@ -1012,8 +779,8 @@ codeunit 138012 "O365 Templates Test"
 
         // [GIVEN] Vendor Template
         UpdateMarketingSetup;
-        LibrarySmallBusiness.CreateVendorTemplate(ConfigTemplateHeader);
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+        LibraryVariableStorage.Enqueue(VendorTempl.Code);
         ContactsCount := Contact.Count();
 
         // [WHEN] Create Vendor from Template
@@ -1024,399 +791,6 @@ codeunit 138012 "O365 Templates Test"
 
         // [THEN] One Contact created for Vendor
         VerifyOneVendorContactDoesExist(VendorNo, ContactsCount);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler,ConfigTemplatesSelectionHandler')]
-    [Scope('OnPrem')]
-    procedure ValidateThatTheLastSelectionIsSavedForCustomer()
-    var
-        Customer: Record Customer;
-        CustomerCard: TestPage "Customer Card";
-        CustomerTemplateCode: array[10] of Code[10];
-        TotalNoOfTemplates: Integer;
-        SelectedTemplateIndex: Integer;
-        LoopIndex: Integer;
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        TotalNoOfTemplates := LibraryRandom.RandIntInRange(3, 10);
-        SelectedTemplateIndex := LibraryRandom.RandIntInRange(3, TotalNoOfTemplates);
-        CreateBlankCustomer(Customer);
-
-        for LoopIndex := 1 to TotalNoOfTemplates do
-            CreateTemplateFromCustomer(Customer, CustomerTemplateCode[LoopIndex]);
-
-        LibraryVariableStorage.Enqueue(Format(TemplateSelectionAction::SelectTemplate));
-        LibraryVariableStorage.Enqueue(CustomerTemplateCode[SelectedTemplateIndex]);
-
-        CustomerCard.OpenNew;
-        CustomerCard.Name.SetValue('Test1');
-        CustomerCard.Close;
-
-        LibraryVariableStorage.Enqueue(Format(TemplateSelectionAction::VerifyDefaultSelection));
-        LibraryVariableStorage.Enqueue(CustomerTemplateCode[SelectedTemplateIndex]);
-
-        CustomerCard.OpenNew;
-        CustomerCard.Name.SetValue('Test2');
-        CustomerCard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler,ConfigTemplatesSelectionHandler')]
-    [Scope('OnPrem')]
-    procedure ValidateThatTheLastSelectionIsSavedForVendor()
-    var
-        Vendor: Record Vendor;
-        VendorCard: TestPage "Vendor Card";
-        VendorTemplateCode: array[10] of Code[10];
-        TotalNoOfTemplates: Integer;
-        SelectedTemplateIndex: Integer;
-        LoopIndex: Integer;
-    begin
-        // [FEATURE] [Vendor]
-        Initialize();
-
-        TotalNoOfTemplates := LibraryRandom.RandIntInRange(3, 10);
-        SelectedTemplateIndex := LibraryRandom.RandIntInRange(3, TotalNoOfTemplates);
-        CreateBlankVendor(Vendor);
-
-        for LoopIndex := 1 to TotalNoOfTemplates do
-            CreateTemplateFromVendor(Vendor, VendorTemplateCode[LoopIndex]);
-
-        LibraryVariableStorage.Enqueue(Format(TemplateSelectionAction::SelectTemplate));
-        LibraryVariableStorage.Enqueue(VendorTemplateCode[SelectedTemplateIndex]);
-
-        VendorCard.OpenNew;
-        VendorCard.Name.SetValue('Test1');
-        VendorCard.Close;
-
-        LibraryVariableStorage.Enqueue(Format(TemplateSelectionAction::VerifyDefaultSelection));
-        LibraryVariableStorage.Enqueue(VendorTemplateCode[SelectedTemplateIndex]);
-        VendorCard.OpenNew;
-        VendorCard.Name.SetValue('Test2');
-        VendorCard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler,ConfigTemplatesSelectionHandler')]
-    [Scope('OnPrem')]
-    procedure ValidateThatTheLastSelectionIsSavedForItem()
-    var
-        Item: Record Item;
-        ItemCard: TestPage "Item Card";
-        ItemTemplateCode: array[10] of Code[10];
-        TotalNoOfTemplates: Integer;
-        SelectedTemplateIndex: Integer;
-        LoopIndex: Integer;
-    begin
-        // [FEATURE] [Item]
-        Initialize();
-
-        TotalNoOfTemplates := LibraryRandom.RandIntInRange(3, 10);
-        SelectedTemplateIndex := LibraryRandom.RandIntInRange(3, TotalNoOfTemplates);
-        CreateBlankItem(Item);
-
-        for LoopIndex := 1 to TotalNoOfTemplates do
-            CreateTemplateFromItem(Item, ItemTemplateCode[LoopIndex]);
-
-        LibraryVariableStorage.Enqueue(Format(TemplateSelectionAction::SelectTemplate));
-        LibraryVariableStorage.Enqueue(ItemTemplateCode[SelectedTemplateIndex]);
-
-        ItemCard.OpenNew;
-        ItemCard.Description.SetValue('Test1');
-        ItemCard.Close;
-
-        LibraryVariableStorage.Enqueue(Format(TemplateSelectionAction::VerifyDefaultSelection));
-        LibraryVariableStorage.Enqueue(ItemTemplateCode[SelectedTemplateIndex]);
-        ItemCard.OpenNew;
-        ItemCard.Description.SetValue('Test2');
-        ItemCard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyCustomerTemplateToCustomer()
-    var
-        CustomerFromTemplate: Record Customer;
-        CustomerCard: TestPage "Customer Card";
-        CustomerTemplateCode: Code[10];
-        BlankCustomerTemplateCode: Code[10];
-        CustomerNo: Text;
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        CreateBlankCustomerTemplateFromCustomer(CustomerTemplateCode, BlankCustomerTemplateCode);
-
-        LibraryVariableStorage.Enqueue(BlankCustomerTemplateCode);
-
-        CustomerCard.OpenNew;
-        CustomerCard.Name.SetValue('Test');
-        CustomerNo := CustomerCard."No.".Value;
-        LibraryVariableStorage.Enqueue(CustomerTemplateCode);
-        CustomerCard.ApplyTemplate.Invoke;
-        CustomerCard.Close;
-
-        CustomerFromTemplate.Get(CustomerNo);
-        ValidateCustomerVsConfigTemplateWithEmptyDim(CustomerFromTemplate, CustomerTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyVendorTemplateToVendor()
-    var
-        VendorFromTemplate: Record Vendor;
-        VendorWithTemplateFieldsSet: Record Vendor;
-        BlankVendor: Record Vendor;
-        VendorCard: TestPage "Vendor Card";
-        VendorTemplateCode: Code[10];
-        BlankVendorTemplateCode: Code[10];
-        VendorNo: Text;
-    begin
-        // [FEATURE] [Vendor]
-        Initialize();
-
-        CreateVendorWithTemplateFieldsSet(VendorWithTemplateFieldsSet);
-        CreateTemplateFromVendor(VendorWithTemplateFieldsSet, VendorTemplateCode);
-
-        CreateBlankVendor(BlankVendor);
-        CreateTemplateFromVendor(BlankVendor, BlankVendorTemplateCode);
-
-        LibraryVariableStorage.Enqueue(BlankVendorTemplateCode);
-
-        VendorCard.OpenNew;
-        VendorCard.Name.SetValue('Test');
-        VendorNo := VendorCard."No.".Value;
-        LibraryVariableStorage.Enqueue(VendorTemplateCode);
-        VendorCard.ApplyTemplate.Invoke;
-        VendorCard.Close;
-
-        VendorFromTemplate.Get(VendorNo);
-        ValidateVendorVsConfigTemplateWithEmptyDim(VendorFromTemplate, VendorTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyItemTemplateToItem()
-    var
-        ItemFromTemplate: Record Item;
-        ItemWithTemplateFieldsSet: Record Item;
-        BlankItem: Record Item;
-        ItemCard: TestPage "Item Card";
-        ItemTemplateCode: Code[10];
-        BlankItemTemplateCode: Code[10];
-        ItemNo: Text;
-    begin
-        // [FEATURE] [Item]
-        Initialize();
-
-        CreateItemWithTemplateFieldsSet(ItemWithTemplateFieldsSet);
-        CreateTemplateFromItem(ItemWithTemplateFieldsSet, ItemTemplateCode);
-
-        CreateBlankItem(BlankItem);
-        CreateTemplateFromItem(BlankItem, BlankItemTemplateCode);
-
-        LibraryVariableStorage.Enqueue(BlankItemTemplateCode);
-
-        ItemCard.OpenNew;
-        ItemCard.Description.SetValue('Test');
-        ItemNo := ItemCard."No.".Value;
-        LibraryVariableStorage.Enqueue(ItemTemplateCode);
-        ItemCard.ApplyTemplate.Invoke;
-        ItemCard.Close;
-
-        ItemFromTemplate.Get(ItemNo);
-        ValidateItemVsConfigTemplateWithEmptyDim(ItemFromTemplate, ItemTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyCustomerTemplateWithDimToCustomer()
-    var
-        CustomerFromTemplate: Record Customer;
-        CustomerCard: TestPage "Customer Card";
-        CustomerTemplateCode: Code[10];
-        CustomerNo: Code[20];
-    begin
-        // [FEATURE] [Customer][Default Dimension]
-        // [SCENARIO 209195] Customer should have default dimensions from Customer Template after applying the template when "Customer Nos." is not default
-        Initialize();
-
-        // [GIVEN] Customer Template with default dimensions
-        CustomerTemplateCode := CreateCustTemplateWithDimFromCustomer;
-        LibraryVariableStorage.Enqueue(CustomerTemplateCode);
-
-        // [GIVEN] Sales & Receivables Setup Customer "No. Series" is not default
-        UpdateSalesReceivablesSetupCustNoSeries;
-
-        // [WHEN] Applying the template
-        CustomerCard.OpenNew;
-        CustomerCard."No.".SetValue(LibraryUtility.GenerateRandomCode(CustomerFromTemplate.FieldNo("No."), DATABASE::Customer));
-        CustomerCard.Name.SetValue('Test');
-        CustomerNo := CustomerCard."No.".Value;
-        LibraryVariableStorage.Enqueue(CustomerTemplateCode);
-        CustomerCard.ApplyTemplate.Invoke;
-        CustomerCard.Close;
-
-        // [THEN] Customer has default dimensions from template
-        CustomerFromTemplate.Get(CustomerNo);
-        ValidateCustomerVsConfigTemplate(CustomerFromTemplate, CustomerTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyVendorTemplateWithDimToVendor()
-    var
-        VendorFromTemplate: Record Vendor;
-        VendorCard: TestPage "Vendor Card";
-        VendorTemplateCode: Code[10];
-        VendorNo: Code[20];
-    begin
-        // [FEATURE] [Vendor][Default Dimension]
-        // [SCENARIO 209195] Vendor should have default dimensions from Vendor Template after applying the template when "Vendor Nos." is not default
-        Initialize();
-
-        // [GIVEN] Vendor Template with default dimensions
-        VendorTemplateCode := CreateVendTemplateWithDimFromVendor;
-        LibraryVariableStorage.Enqueue(VendorTemplateCode);
-
-        // [GIVEN] Purchases & Payables Setup Vendor "No. Series" is not default
-        UpdatePurchasesPayablesSetupVendNoSeries;
-
-        // [WHEN] Applying the template
-        VendorCard.OpenNew;
-        VendorCard."No.".SetValue(LibraryUtility.GenerateRandomCode(VendorFromTemplate.FieldNo("No."), DATABASE::Vendor));
-        VendorCard.Name.SetValue('Test');
-        VendorNo := VendorCard."No.".Value;
-        LibraryVariableStorage.Enqueue(VendorTemplateCode);
-        VendorCard.ApplyTemplate.Invoke;
-        VendorCard.Close;
-
-        // [THEN] Vendor has default dimensions from template
-        VendorFromTemplate.Get(VendorNo);
-        ValidateVendorVsConfigTemplate(VendorFromTemplate, VendorTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyItemTemplateWithDimToItem()
-    var
-        ItemFromTemplate: Record Item;
-        ItemCard: TestPage "Item Card";
-        ItemTemplateCode: Code[10];
-        ItemNo: Code[20];
-    begin
-        // [FEATURE] [Item][Default Dimension]
-        // [SCENARIO 209195] Item should have default dimensions from Item Template after applying the template when "Item Nos." is not default
-        Initialize();
-
-        // [GIVEN] Vendor Template with default dimensions
-        ItemTemplateCode := CreateItemTemplateWithDimFromItem;
-        LibraryVariableStorage.Enqueue(ItemTemplateCode);
-
-        // [GIVEN] Inventory Setup with Item "No. Series" is not default
-        UpdateInventorySetupItemNoSeries;
-
-        // [WHEN] Applying the template
-        ItemCard.OpenNew;
-        ItemCard."No.".SetValue(LibraryUtility.GenerateRandomCode(ItemFromTemplate.FieldNo("No."), DATABASE::Item));
-        ItemCard.Description.SetValue('Test');
-        ItemNo := ItemCard."No.".Value;
-        LibraryVariableStorage.Enqueue(ItemTemplateCode);
-        ItemCard.ApplyTemplate.Invoke;
-        ItemCard.Close;
-
-        // [THEN] Item has default dimensions from template
-        ItemFromTemplate.Get(ItemNo);
-        ValidateItemVsConfigTemplate(ItemFromTemplate, ItemTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure NewCustomerTemplateCreatesConfigTemplate()
-    var
-        CustomerFromTemplate: Record Customer;
-        CustomerWithTemplateFieldsSet: Record Customer;
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        CustomerTemplateCode: Code[10];
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        CreateCustomerWithTemplateFieldsSet(CustomerWithTemplateFieldsSet);
-        CreateTemplateFromCustomer(CustomerWithTemplateFieldsSet, CustomerTemplateCode);
-        ConfigTemplateHeader.Get(CustomerTemplateCode);
-        TempMiniCustomerTemplate.InitializeTempRecordFromConfigTemplate(TempMiniCustomerTemplate, ConfigTemplateHeader);
-        TempMiniCustomerTemplate.Delete(true);
-
-        TempMiniCustomerTemplate.Insert(true);
-        TempMiniCustomerTemplate.NewCustomerFromTemplate(CustomerFromTemplate);
-
-        CustomerFromTemplate.Get(CustomerFromTemplate."No.");
-        ValidateCustomerVsConfigTemplateWithEmptyDim(CustomerFromTemplate, CustomerTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure NewVendorTemplateCreatesConfigTemplate()
-    var
-        VendorFromTemplate: Record Vendor;
-        VendorWithTemplateFieldsSet: Record Vendor;
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        VendorTemplateCode: Code[10];
-    begin
-        // [FEATURE] [Vendor]
-        Initialize();
-
-        CreateVendorWithTemplateFieldsSet(VendorWithTemplateFieldsSet);
-        CreateTemplateFromVendor(VendorWithTemplateFieldsSet, VendorTemplateCode);
-        ConfigTemplateHeader.Get(VendorTemplateCode);
-        TempMiniVendorTemplate.InitializeTempRecordFromConfigTemplate(TempMiniVendorTemplate, ConfigTemplateHeader);
-        TempMiniVendorTemplate.Delete(true);
-
-        TempMiniVendorTemplate.Insert(true);
-        TempMiniVendorTemplate.NewVendorFromTemplate(VendorFromTemplate);
-
-        VendorFromTemplate.Get(VendorFromTemplate."No.");
-        ValidateVendorVsConfigTemplateWithEmptyDim(VendorFromTemplate, VendorTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure NewItemTemplateCreatesConfigTemplate()
-    var
-        ItemFromTemplate: Record Item;
-        ItemWithTemplateFieldsSet: Record Item;
-        TempItemTemplate: Record "Item Template" temporary;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ItemTemplateCode: Code[10];
-    begin
-        // [FEATURE] [Item]
-        Initialize();
-
-        CreateItemWithTemplateFieldsSet(ItemWithTemplateFieldsSet);
-        CreateTemplateFromItem(ItemWithTemplateFieldsSet, ItemTemplateCode);
-        ConfigTemplateHeader.Get(ItemTemplateCode);
-        TempItemTemplate.InitializeTempRecordFromConfigTemplate(TempItemTemplate, ConfigTemplateHeader);
-        TempItemTemplate.Delete(true);
-
-        TempItemTemplate.Insert(true);
-        TempItemTemplate.NewItemFromTemplate(ItemFromTemplate);
-
-        ValidateItemVsConfigTemplateWithEmptyDim(ItemFromTemplate, ItemTemplateCode);
     end;
 
     [Test]
@@ -1509,97 +883,6 @@ codeunit 138012 "O365 Templates Test"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure DimensionsCRUDTest()
-    var
-        Dimension1: Record Dimension;
-        Dimension2: Record Dimension;
-        Dimension3: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        DefaultDimension: Record "Default Dimension";
-        Item: Record Item;
-        TempDimensionsTemplate: Record "Dimensions Template" temporary;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        ItemTemplateCard: TestPage "Item Template Card";
-        DimensionsTemplateList: TestPage "Dimensions Template List";
-        DimensionsTemplateListUpdate: TestPage "Dimensions Template List";
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Dimension]
-        Initialize();
-
-        CreateDimension(Dimension1);
-        CreateDimension(Dimension2);
-        CreateDimension(Dimension3);
-
-        CreateItemWithTemplateFieldsSet(Item);
-        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-
-        ConfigTemplates.OpenView;
-        ItemTemplateCard.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-
-        // Test create
-        DimensionsTemplateList.Trap;
-        ItemTemplateCard."Default Dimensions".Invoke;
-
-        DimensionsTemplateList.New;
-        DimensionsTemplateList."Dimension Code".SetValue(Dimension1.Code);
-
-        DimensionValue.SetRange("Dimension Code", Dimension1.Code);
-        DimensionValue.FindFirst;
-        DimensionsTemplateList."Dimension Value Code".SetValue(DimensionValue.Code);
-        DimensionsTemplateList."<Dimension Value Code>".SetValue(DefaultDimension."Value Posting"::"Code Mandatory");
-
-        DimensionsTemplateList.New;
-        DimensionsTemplateList."Dimension Code".SetValue(Dimension2.Code);
-        DimensionsTemplateList.OK.Invoke;
-
-        VerifyDefaultDimensionsTemplateSavedCorrectly(
-          ConfigTemplHeaderCode, Dimension1.Code, DimensionValue.Code, DefaultDimension."Value Posting"::"Code Mandatory");
-        VerifyDefaultDimensionsTemplateSavedCorrectly(ConfigTemplHeaderCode, Dimension2.Code, '', DefaultDimension."Value Posting"::" ");
-
-        // Test update
-        DimensionsTemplateListUpdate.Trap;
-        ItemTemplateCard."Default Dimensions".Invoke;
-        DimensionsTemplateListUpdate.First;
-        DimensionsTemplateListUpdate."Dimension Code".SetValue(Dimension3.Code);
-        DimensionsTemplateListUpdate.Next;
-        DimensionValue.SetRange("Dimension Code", Dimension2.Code);
-        DimensionValue.FindFirst;
-        DimensionsTemplateListUpdate."Dimension Value Code".SetValue(DimensionValue.Code);
-        DimensionsTemplateListUpdate."<Dimension Value Code>".SetValue(DefaultDimension."Value Posting"::"Code Mandatory");
-        DimensionsTemplateListUpdate.OK.Invoke;
-
-        VerifyDefaultDimensionsTemplateSavedCorrectly(ConfigTemplHeaderCode, Dimension3.Code, '', DefaultDimension."Value Posting"::" ");
-        VerifyDefaultDimensionsTemplateSavedCorrectly(
-          ConfigTemplHeaderCode, Dimension2.Code, DimensionValue.Code, DefaultDimension."Value Posting"::"Code Mandatory");
-        ItemTemplateCard.OK.Invoke;
-
-        // Test delete
-        // Page Testability can't invoke Delete test on table level
-        ConfigTemplateHeader.Get(GetDimensionsTemplateCode(ConfigTemplHeaderCode, Dimension2.Code));
-        TempDimensionsTemplate.InitializeTempRecordFromConfigTemplate(
-          TempDimensionsTemplate, ConfigTemplateHeader, ConfigTemplHeaderCode, DATABASE::Item);
-        TempDimensionsTemplate.Delete(true);
-
-        VerifyNumberOfDimensionsTemplateRelatedToMasterTemplate(ConfigTemplHeaderCode, 1);
-
-        ConfigTemplateHeader.Get(GetDimensionsTemplateCode(ConfigTemplHeaderCode, Dimension3.Code));
-        TempDimensionsTemplate.InitializeTempRecordFromConfigTemplate(
-          TempDimensionsTemplate, ConfigTemplateHeader, ConfigTemplHeaderCode, DATABASE::Item);
-        TempDimensionsTemplate.Delete(true);
-
-        Clear(ConfigTemplateHeader);
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::"Default Dimension");
-        Assert.IsFalse(ConfigTemplateHeader.FindFirst, 'There should be no Dimensions template in the database');
-
-        VerifyNumberOfDimensionsTemplateRelatedToMasterTemplate(ConfigTemplHeaderCode, 0);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure NewGeneralTemplateInConfigTemplateList()
     var
@@ -1615,210 +898,6 @@ codeunit 138012 "O365 Templates Test"
         Assert.AreEqual('', ConfigTemplateHeaderPage.Code.Value, 'Template not opened in new mode.');
         ConfigTemplateHeaderPage.Close;
         ConfigTemplates.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure EditGeneralTemplateInConfigTemplateList()
-    var
-        DefaultDimension: Record "Default Dimension";
-        ConfigTemplates: TestPage "Config Templates";
-        ConfigTemplateHeaderPage: TestPage "Config. Template Header";
-    begin
-        // [FEATURE] [Dimension]
-        Initialize();
-
-        CreateDefaultDimension(DefaultDimension);
-        CreateTemplateFromDimension(DefaultDimension);
-
-        ConfigTemplates.OpenView;
-        ConfigTemplateHeaderPage.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-
-        Assert.IsTrue(ConfigTemplateHeaderPage.Code.Editable, 'Template page opened in read-only mode.');
-        Assert.AreEqual(DefaultDimension."No.", ConfigTemplateHeaderPage.Code.Value, 'Wrong template opened.');
-
-        ConfigTemplateHeaderPage.Close;
-        ConfigTemplates.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure RenameTemplate()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        Customer: Record Customer;
-        NewTemplateCode: Code[10];
-        TemplateCode: Code[10];
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer, TemplateCode);
-
-        NewTemplateCode := LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
-        UpdateCodeOnConfigTempate(TemplateCode, NewTemplateCode);
-
-        ValidateThereIsNoTemplate(TemplateCode);
-        ValidateCustomerVsConfigTemplateWithEmptyDim(Customer, NewTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure CreateTemplateInDifferentLanguageCode()
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-        TemplateName: Code[10];
-        OtherLanguageID: Integer;
-        OriginalLanguageID: Integer;
-    begin
-        // [FEATURE] [Language]
-        Initialize();
-
-        OriginalLanguageID := GlobalLanguage;
-        OtherLanguageID := GetDifferentLanguageID;
-        CreateTemplateInLanguage(TemplateName, Item, OtherLanguageID);
-        Assert.AreNotEqual(OriginalLanguageID, OtherLanguageID, 'Language ID should be reverted to original languageID');
-
-        ConfigTemplateLine.SetRange("Data Template Code", TemplateName);
-        ConfigTemplateLine.FindSet();
-
-        repeat
-            Assert.AreEqual(OtherLanguageID, ConfigTemplateLine."Language ID", 'Wrong Language ID was set on configuration template line');
-        until ConfigTemplateLine.Next = 0;
-
-        CreateItemFromTemplateAndCompareWithOriginal(Item);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyTemplateWithoutLanguageCode()
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-        TemplateName: Code[10];
-    begin
-        // [FEATURE] [Language]
-        Initialize();
-        CreateTemplateInLanguage(TemplateName, Item, GlobalLanguage);
-
-        ConfigTemplateLine.SetRange("Data Template Code", TemplateName);
-        ConfigTemplateLine.ModifyAll("Language ID", 0);
-
-        CreateItemFromTemplateAndCompareWithOriginal(Item);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ModifyTemplateLineToAnotherLanguageCode()
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-        TemplateName: Code[10];
-        OtherLanguageID: Integer;
-        OriginalLanguageID: Integer;
-    begin
-        // [FEATURE] [Language]
-        Initialize();
-
-        OriginalLanguageID := GlobalLanguage;
-        OtherLanguageID := GetDifferentLanguageID;
-        CreateTemplateInLanguage(TemplateName, Item, OtherLanguageID);
-        Assert.AreNotEqual(OriginalLanguageID, OtherLanguageID, 'Language ID should be reverted to original languageID');
-
-        GlobalLanguage(OtherLanguageID);
-
-        ConfigTemplateLine.SetRange("Data Template Code", TemplateName);
-        ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Allow Invoice Disc."));
-        ConfigTemplateLine.FindFirst;
-        ConfigTemplateLine.Validate("Default Value", Format(false));
-        ConfigTemplateLine.Modify(true);
-
-        Assert.AreEqual(GlobalLanguage, ConfigTemplateLine."Language ID", 'Language ID was not updated');
-
-        GlobalLanguage(OriginalLanguageID);
-
-        CreateItemFromTemplateAndCompareWithOriginal(Item);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NewOpensItemTemplateCardInItemContext()
-    var
-        Item: Record Item;
-        ItemCard: TestPage "Item Card";
-        ConfigTemplates: TestPage "Config Templates";
-        ItemTemplateCard: TestPage "Item Template Card";
-    begin
-        // [FEATURE] [Item]
-        Initialize();
-
-        CreateBlankItem(Item);
-        ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
-
-        ConfigTemplates.Trap;
-        ItemCard.Templates.Invoke;
-
-        ItemTemplateCard.Trap;
-        ConfigTemplates.NewItemTemplate.Invoke;
-
-        ItemTemplateCard."Template Name".AssertEquals('');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NewOpensCustomerTemplateCardInCustomerContext()
-    var
-        Customer: Record Customer;
-        CustomerCard: TestPage "Customer Card";
-        ConfigTemplates: TestPage "Config Templates";
-        CustTemplateCard: TestPage "Cust. Template Card";
-    begin
-        // [FEATURE] [Customer]
-        Initialize();
-
-        CreateBlankCustomer(Customer);
-        CustomerCard.OpenEdit;
-        CustomerCard.GotoRecord(Customer);
-
-        ConfigTemplates.Trap;
-        CustomerCard.Templates.Invoke;
-
-        CustTemplateCard.Trap;
-        ConfigTemplates.NewCustomerTemplate.Invoke;
-
-        CustTemplateCard."Template Name".AssertEquals('');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NewOpensVendorTemplateCardInVendorContext()
-    var
-        Vendor: Record Vendor;
-        VendorCard: TestPage "Vendor Card";
-        ConfigTemplates: TestPage "Config Templates";
-        VendorTemplateCard: TestPage "Vendor Template Card";
-    begin
-        // [FEATURE] [Vendor]
-        Initialize();
-
-        CreateBlankVendor(Vendor);
-        VendorCard.OpenEdit;
-        VendorCard.GotoRecord(Vendor);
-
-        ConfigTemplates.Trap;
-        VendorCard.Templates.Invoke;
-
-        VendorTemplateCard.Trap;
-        ConfigTemplates.NewVendorTemplate.Invoke;
-        VendorTemplateCard."Template Name".AssertEquals('');
     end;
 
     [Test]
@@ -1840,172 +919,9 @@ codeunit 138012 "O365 Templates Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemTemplateEnabledFieldSynchronizedWithConfigTemplateHeader()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        ItemTemplateCard: TestPage "Item Template Card";
-    begin
-        // [FEATURE] [Item]
-        // [SCENARIO 159448] Field "Enabled" in item template card should be synchronized with configuration template
-
-        // [GIVEN] Create new item template
-        Initialize();
-
-        CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
-
-        // [WHEN] Open item template card from configuration templates list
-        ConfigTemplates.OpenEdit;
-        ConfigTemplates.GotoRecord(ConfigTemplateHeader);
-        ItemTemplateCard.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [THEN] "Enabled" = TRUE in template card
-        ItemTemplateCard.TemplateEnabled.AssertEquals(true);
-
-        // [WHEN] Set "Enabled" = FALSE in template card
-        ItemTemplateCard.TemplateEnabled.SetValue(false);
-        ConfigTemplateHeader.Find;
-
-        // [THEN] Record in table "Config. Template Header" is updated: "Enabled" = FALSE
-        ConfigTemplateHeader.TestField(Enabled, false);
-
-        // [WHEN] Set "Enabled" = TRUE in template card
-        ItemTemplateCard.TemplateEnabled.SetValue(true);
-        ConfigTemplateHeader.Find;
-
-        // [THEN] Record in table "Config. Template Header" is updated: "Enabled" = TRUE
-        ConfigTemplateHeader.TestField(Enabled, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemTemplateFieldsSynchronizedWithConfigTemplateLine()
-    var
-        ItemCategory: Record "Item Category";
-        ServiceItemGroup: Record "Service Item Group";
-        Item: Record Item;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        ItemTemplateCard: TestPage "Item Template Card";
-        ServiceItemGroupCode: Code[10];
-    begin
-        // [FEATURE] [Item]
-        // [SCENARIO 382249] Item Category Code and Service Item Group code should be saved in Configuration Templates for Item table after they have been updated on Item Template page.
-        Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-
-        // [GIVEN] Item template "T".
-        CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
-
-        // [GIVEN] Open item template card from configuration templates list.
-        ConfigTemplates.OpenEdit;
-        ConfigTemplates.GotoRecord(ConfigTemplateHeader);
-        ItemTemplateCard.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [GIVEN] Item Category field is updated on the item template card. New value = "IC".
-        LibraryInventory.CreateItemCategory(ItemCategory);
-        ItemTemplateCard."Item Category Code".SetValue(ItemCategory.Code);
-
-        // [GIVEN] Service Item Group field is updated on the item template card. New value = "SIG".
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        LibraryService.CreateServiceItemGroup(ServiceItemGroup);
-        ServiceItemGroupCode := ServiceItemGroup.Code;
-        ItemTemplateCard."Service Item Group".SetValue(ServiceItemGroupCode);
-        LibraryLowerPermissions.SetO365Full;
-
-        // [WHEN] Close the item template card.
-        ItemTemplateCard.OK.Invoke;
-
-        // [THEN] New configuration template line for "T" is created, "Field No." = Item Category Code, "Default Value" = "IC".
-        VerifyConfigTemplateLine(
-          ConfigTemplateHeader.Code, DATABASE::Item, Item.FieldNo("Item Category Code"), ItemCategory.Code);
-
-        // [THEN] New configuration template line for "T" is created, "Field No." = Service Item Group, "Default Value" = "SIG".
-        VerifyConfigTemplateLine(
-          ConfigTemplateHeader.Code, DATABASE::Item, Item.FieldNo("Service Item Group"), ServiceItemGroupCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler,ConfigTemplatesCountVerificationHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewItemFromTemplateWithTwoEnabledTemplates()
-    var
-        ItemTemplate: Record "Item Template";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item]
-        // [SCENARIO 159448] Item template should be selected from a list when creating a new item with two item templates enabled
-        Initialize();
-
-        // [GIVEN] Create two enabled item templates "T1" and "T2"
-        CreateConfigTemplateFromItemWithEnabledOption(true);
-        CreateConfigTemplateFromItemWithEnabledOption(true);
-        // [GIVEN] Create one disabled template "T3"
-        CreateConfigTemplateFromItemWithEnabledOption(false);
-
-        // [WHEN] Create new item from template
-        EnqueueEnabledTemplates;
-        ItemTemplate.NewItemFromTemplate(Item);
-
-        // [THEN] List of item templates with two elements "T1" and "T2" is presented
-        // Verified in ConfigTemplatesCountVerificationHandler
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewItemFromTemplateWithOneEnabledTemplate()
-    var
-        Item: Record Item;
-        ItemTemplate: Record "Item Template";
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Item]
-        // [SCENARIO 159448] New item should be created according to template without user confirmation if there is only one enabled item template
-        Initialize();
-
-        // [GIVEN] Create disabled item template "T1"
-        CreateConfigTemplateFromItemWithEnabledOption(false);
-        // [GIVEN] Create enabled item template "T2"
-        ConfigTemplHeaderCode := CreateConfigTemplateFromItemWithEnabledOption(true);
-
-        // [WHEN] Create new item from template
-        ItemTemplate.NewItemFromTemplate(Item);
-
-        // [THEN] New item is created from template "T2"
-        ValidateItemVsConfigTemplateWithEmptyDim(Item, ConfigTemplHeaderCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewItemFromTemplateNoEnabledTemplates()
-    var
-        Item: Record Item;
-        ItemTemplate: Record "Item Template";
-    begin
-        // [FEATURE] [Item]
-        // [SCENARIO 159448] Blank item is created when all item templates are disabled
-        Initialize();
-
-        // [GIVEN] Create two disabled item templates
-        CreateConfigTemplateFromItemWithEnabledOption(false);
-        CreateConfigTemplateFromItemWithEnabledOption(false);
-
-        // [WHEN] Create new item from template
-        ItemTemplate.NewItemFromTemplate(Item);
-
-        // [THEN] Blank item is created
-        ValidateItemVsBlankTemplate(Item);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ItemTemplateValidateTableRelations()
     var
-        ItemTemplate: Record "Item Template";
+        ItemTemplate: Record "Item Templ.";
     begin
         // [SCENARIO] Item Template does not allow non-existing values in table relation fields.
 
@@ -2062,75 +978,75 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure CustomerTemplateValidateTableRelations()
     var
-        MiniCustomerTemplate: Record "Mini Customer Template";
+        CustomerTempl: Record "Customer Templ.";
     begin
         // [SCENARIO] Customer Template does not allow non-existing values in table relation fields.
 
         // [GIVEN] A customer template
-        MiniCustomerTemplate.Init();
+        CustomerTempl.Init();
 
         // [WHEN] Assigning a non-existing "Document Sending Profile"
-        asserterror MiniCustomerTemplate.Validate("Document Sending Profile", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Document Sending Profile", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Customer Posting Group"
-        asserterror MiniCustomerTemplate.Validate("Customer Posting Group", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Customer Posting Group", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Currency Code"
-        asserterror MiniCustomerTemplate.Validate("Currency Code", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Currency Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Customer Price Group"
-        asserterror MiniCustomerTemplate.Validate("Customer Price Group", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Customer Price Group", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Language Code"
-        asserterror MiniCustomerTemplate.Validate("Language Code", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Language Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Payment Terms Code"
-        asserterror MiniCustomerTemplate.Validate("Payment Terms Code", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Payment Terms Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Fin. Charge Terms Code"
-        asserterror MiniCustomerTemplate.Validate("Fin. Charge Terms Code", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Fin. Charge Terms Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Customer Disc. Group"
-        asserterror MiniCustomerTemplate.Validate("Customer Disc. Group", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Customer Disc. Group", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Country/Region Code"
-        asserterror MiniCustomerTemplate.Validate("Country/Region Code", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Country/Region Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Payment Method Code"
-        asserterror MiniCustomerTemplate.Validate("Payment Method Code", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Payment Method Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Gen. Bus. Posting Group"
-        asserterror MiniCustomerTemplate.Validate("Gen. Bus. Posting Group", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Gen. Bus. Posting Group", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Reminder Terms Code"
-        asserterror MiniCustomerTemplate.Validate("Reminder Terms Code", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("Reminder Terms Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "VAT Bus. Posting Group"
-        asserterror MiniCustomerTemplate.Validate("VAT Bus. Posting Group", LibraryUtility.GenerateGUID);
+        asserterror CustomerTempl.Validate("VAT Bus. Posting Group", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
     end;
@@ -2139,377 +1055,62 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure VendorTemplateValidateTableRelations()
     var
-        MiniVendorTemplate: Record "Mini Vendor Template";
+        VendorTempl: Record "Vendor Templ.";
     begin
         // [SCENARIO] Vendor Template does not allow non-existing values in table relation fields.
 
         // [GIVEN] A vendor template
-        MiniVendorTemplate.Init();
+        VendorTempl.Init();
 
         // [WHEN] Assigning a non-existing "Vendor Posting Group"
-        asserterror MiniVendorTemplate.Validate("Vendor Posting Group", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Vendor Posting Group", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Currency Code"
-        asserterror MiniVendorTemplate.Validate("Currency Code", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Currency Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Language Code"
-        asserterror MiniVendorTemplate.Validate("Language Code", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Language Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Payment Terms Code"
-        asserterror MiniVendorTemplate.Validate("Payment Terms Code", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Payment Terms Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Fin. Charge Terms Code"
-        asserterror MiniVendorTemplate.Validate("Fin. Charge Terms Code", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Fin. Charge Terms Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Invoice Disc. Code"
-        asserterror MiniVendorTemplate.Validate("Invoice Disc. Code", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Invoice Disc. Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Country/Region Code"
-        asserterror MiniVendorTemplate.Validate("Country/Region Code", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Country/Region Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Payment Method Code"
-        asserterror MiniVendorTemplate.Validate("Payment Method Code", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Payment Method Code", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Gen. Bus. Posting Group"
-        asserterror MiniVendorTemplate.Validate("Gen. Bus. Posting Group", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("Gen. Bus. Posting Group", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "VAT Bus. Posting Group"
-        asserterror MiniVendorTemplate.Validate("VAT Bus. Posting Group", LibraryUtility.GenerateGUID);
+        asserterror VendorTempl.Validate("VAT Bus. Posting Group", LibraryUtility.GenerateGUID);
         // [THEN] An error is thrown.
         Assert.AssertPrimRecordNotFound;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomerTemplateEnabledFieldSynchronizedWithConfigTemplateHeader()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        CustTemplateCard: TestPage "Cust. Template Card";
-    begin
-        // [FEATURE] [Customer]
-        // [SCENARIO 159448] Field "Enabled" in customer template card should be synchronized with configuration template
-
-        // [GIVEN] Create new customer template
-        Initialize();
-
-        CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Customer);
-
-        // [WHEN] Open customer template card from configuration templates list
-        ConfigTemplates.OpenEdit;
-        ConfigTemplates.GotoRecord(ConfigTemplateHeader);
-        CustTemplateCard.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [THEN] "Enabled" = TRUE in template card
-        CustTemplateCard.TemplateEnabled.AssertEquals(true);
-
-        // [WHEN] Set "Enabled" = FALSE in template card
-        CustTemplateCard.TemplateEnabled.SetValue(false);
-        ConfigTemplateHeader.Find;
-
-        // [THEN] Record in table "Config. Template Header" is updated: "Enabled" = FALSE
-        ConfigTemplateHeader.TestField(Enabled, false);
-
-        // [WHEN] Set "Enabled" = TRUE in template card
-        CustTemplateCard.TemplateEnabled.SetValue(true);
-        ConfigTemplateHeader.Find;
-
-        // [THEN] Record in table "Config. Template Header" is updated: "Enabled" = TRUE
-        ConfigTemplateHeader.TestField(Enabled, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler,ConfigTemplatesCountVerificationHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewCustomerFromTemplateWithTwoEnabledTemplates()
-    var
-        MiniCustomerTemplate: Record "Mini Customer Template";
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Customer]
-        // [SCENARIO 159448] Customer template should be selected from a list when creating a new customer with two customer templates enabled
-
-        Initialize();
-
-        // [GIVEN] Create two enabled customer templates "T1" and "T2"
-        CreateConfigTemplateFromCustomerWithEnabledOption(true);
-        CreateConfigTemplateFromCustomerWithEnabledOption(true);
-        // [GIVEN] Create one disabled template "T3"
-        CreateConfigTemplateFromCustomerWithEnabledOption(false);
-
-        // [WHEN] Create new customer from template
-        EnqueueEnabledTemplates;
-        MiniCustomerTemplate.NewCustomerFromTemplate(Customer);
-
-        // [THEN] List of customer templates with two elements "T1" and "T2" is presented
-        // Verified in ConfigTemplatesCountVerificationHandler
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewCustomerFromTemplateWithOneEnabledTemplate()
-    var
-        Customer: Record Customer;
-        MiniCustomerTemplate: Record "Mini Customer Template";
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Customer]
-        // [SCENARIO 159448] New customer should be created according to template without user confirmation if there is only one enabled customer template
-
-        Initialize();
-
-        // [GIVEN] Create disabled customer template "T1"
-        CreateConfigTemplateFromCustomerWithEnabledOption(false);
-        // [GIVEN] Create enabled customer template "T2"
-        ConfigTemplHeaderCode := CreateConfigTemplateFromCustomerWithEnabledOption(true);
-
-        // [WHEN] Create new customer from template
-        MiniCustomerTemplate.NewCustomerFromTemplate(Customer);
-
-        // [THEN] New customer is created from template "T2"
-        ValidateCustomerVsConfigTemplateWithEmptyDim(Customer, ConfigTemplHeaderCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewCustomerFromTemplateNoEnabledTemplates()
-    var
-        Customer: Record Customer;
-        MiniCustomerTemplate: Record "Mini Customer Template";
-    begin
-        // [FEATURE] [Customer]
-        // [SCENARIO 159448] Blank customer is created when all customer templates are disabled
-
-        Initialize();
-
-        // [GIVEN] Create two disabled customer templates
-        CreateConfigTemplateFromCustomerWithEnabledOption(false);
-        CreateConfigTemplateFromCustomerWithEnabledOption(false);
-
-        // [WHEN] Create new customer from template
-        MiniCustomerTemplate.NewCustomerFromTemplate(Customer);
-
-        // [THEN] Blank customer is created
-        ValidateCustomerVsBlankTemplate(Customer);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorTemplateEnabledFieldSynchronizedWithConfigTemplateHeader()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        VendorTemplateCard: TestPage "Vendor Template Card";
-    begin
-        // [FEATURE] [Vendor]
-        // [SCENARIO 159448] Field "Enabled" in vendor template card should be synchronized with configuration template
-
-        // [GIVEN] Create new vendor template
-        Initialize();
-
-        CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Vendor);
-
-        // [WHEN] Open vendor template card from configuration templates list
-        ConfigTemplates.OpenEdit;
-        ConfigTemplates.GotoRecord(ConfigTemplateHeader);
-        VendorTemplateCard.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [THEN] "Enabled" = TRUE in template card
-        VendorTemplateCard.TemplateEnabled.AssertEquals(true);
-
-        // [WHEN] Set "Enabled" = FALSE in template card
-        VendorTemplateCard.TemplateEnabled.SetValue(false);
-        ConfigTemplateHeader.Find;
-
-        // [THEN] Record in table "Config. Template Header" is updated: "Enabled" = FALSE
-        ConfigTemplateHeader.TestField(Enabled, false);
-
-        // [WHEN] Set "Enabled" = TRUE in template card
-        VendorTemplateCard.TemplateEnabled.SetValue(true);
-        ConfigTemplateHeader.Find;
-
-        // [THEN] Record in table "Config. Template Header" is updated: "Enabled" = TRUE
-        ConfigTemplateHeader.TestField(Enabled, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler,ConfigTemplatesCountVerificationHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewVendorFromTemplateWithTwoEnabledTemplates()
-    var
-        MiniVendorTemplate: Record "Mini Vendor Template";
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [Vendor]
-        // [SCENARIO 159448] Vendor template should be selected from a list when creating a new vendor with two vendor templates enabled
-
-        Initialize();
-
-        // [GIVEN] Create two enabled vendor templates "T1" and "T2"
-        CreateConfigTemplateFromVendorWithEnabledOption(true);
-        CreateConfigTemplateFromVendorWithEnabledOption(true);
-        // [GIVEN] Create one disabled template "T3"
-        CreateConfigTemplateFromVendorWithEnabledOption(false);
-
-        // [WHEN] Create new vendor from template
-        EnqueueEnabledTemplates;
-        MiniVendorTemplate.NewVendorFromTemplate(Vendor);
-
-        // [THEN] List of vendor templates with two elements "T1" and "T2" is presented
-        // Verified in ConfigTemplatesCountVerificationHandler
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewVendorFromTemplateWithOneEnabledTemplate()
-    var
-        Vendor: Record Vendor;
-        MiniVendorTemplate: Record "Mini Vendor Template";
-        ConfigTemplHeaderCode: Code[10];
-    begin
-        // [FEATURE] [Vendor]
-        // [SCENARIO 159448] New vendor should be created according to template without user confirmation if there is only one enabled vendor template
-
-        Initialize();
-
-        // [GIVEN] Create disabled vendor template "T1"
-        CreateConfigTemplateFromVendorWithEnabledOption(false);
-        // [GIVEN] Create enabled vendor template "T2"
-        ConfigTemplHeaderCode := CreateConfigTemplateFromVendorWithEnabledOption(true);
-
-        // [WHEN] Create new vendor from template
-        MiniVendorTemplate.NewVendorFromTemplate(Vendor);
-
-        // [THEN] New vendor is created from template "T2"
-        ValidateVendorVsConfigTemplateWithEmptyDim(Vendor, ConfigTemplHeaderCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure CreateNewVendorFromTemplateNoEnabledTemplates()
-    var
-        Vendor: Record Vendor;
-        MiniVendorTemplate: Record "Mini Vendor Template";
-    begin
-        // [FEATURE] [Vendor]
-        // [SCENARIO 159448] Blank vendor is created when all vendor templates are disabled
-
-        Initialize();
-
-        // [GIVEN] Create two disabled vendor templates
-        CreateConfigTemplateFromVendorWithEnabledOption(false);
-        CreateConfigTemplateFromVendorWithEnabledOption(false);
-
-        // [WHEN] Create new vendor from template
-        MiniVendorTemplate.NewVendorFromTemplate(Vendor);
-
-        // [THEN] Blank vendor is created
-        ValidateVendorVsBlankTemplate(Vendor);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler,ConfigTemplatesCountVerificationHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyCustomerWithTemplateWhenOneEnabled()
-    var
-        Customer: Record Customer;
-        MiniCustomerTemplate: Record "Mini Customer Template";
-    begin
-        // [FEATURE] [UT] [Customer]
-        // [SCENARIO 382241] Only Enabled=TRUE customer templates are shown when perform "Apply Template" action
-        Initialize();
-        LibrarySales.CreateCustomer(Customer);
-
-        // [GIVEN] Create disabled customer template "T1"
-        CreateConfigTemplateFromCustomerWithEnabledOption(false);
-        // [GIVEN] Create enabled customer template "T2"
-        CreateConfigTemplateFromCustomerWithEnabledOption(true);
-
-        // [WHEN] Perform Customer->"Apply Template" action
-        EnqueueEnabledTemplates;
-        Assert.AreEqual(1, LibraryVariableStorage.PeekInteger(1), '');
-        MiniCustomerTemplate.UpdateCustomerFromTemplate(Customer);
-
-        // [THEN] Customer template list is shown with only "T2" template
-        // Verified in ConfigTemplatesCountVerificationHandler
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler,ConfigTemplatesCountVerificationHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyVendorWithTemplateWhenOneEnabled()
-    var
-        Vendor: Record Vendor;
-        MiniVendorTemplate: Record "Mini Vendor Template";
-    begin
-        // [FEATURE] [UT] [Vendor]
-        // [SCENARIO 382241] Only Enabled=TRUE vendor templates are shown when perform "Apply Template" action
-        Initialize();
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // [GIVEN] Create disabled vendor template "T1"
-        CreateConfigTemplateFromVendorWithEnabledOption(false);
-        // [GIVEN] Create enabled vendor template "T2"
-        CreateConfigTemplateFromVendorWithEnabledOption(true);
-
-        // [WHEN] Perform Vendor->"Apply Template" action
-        EnqueueEnabledTemplates;
-        Assert.AreEqual(1, LibraryVariableStorage.PeekInteger(1), '');
-        MiniVendorTemplate.UpdateVendorFromTemplate(Vendor);
-
-        // [THEN] Vendor template list is shown with only "T2" template
-        // Verified in ConfigTemplatesCountVerificationHandler
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler,ConfigTemplatesCountVerificationHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyItemWithTemplateWhenOneEnabled()
-    var
-        Item: Record Item;
-        ItemTemplate: Record "Item Template";
-    begin
-        // [FEATURE] [UT] [Item]
-        // [SCENARIO 382241] Only Enabled=TRUE item templates are shown when perform "Apply Template" action
-        Initialize();
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] Create disabled item template "T1"
-        CreateConfigTemplateFromItemWithEnabledOption(false);
-        // [GIVEN] Create enabled item template "T2"
-        CreateConfigTemplateFromItemWithEnabledOption(true);
-
-        // [WHEN] Perform Item->"Apply Template" action
-        EnqueueEnabledTemplates;
-        Assert.AreEqual(1, LibraryVariableStorage.PeekInteger(1), '');
-        ItemTemplate.UpdateItemFromTemplate(Item);
-
-        // [THEN] Item template list is shown with only "T2" template
-        // Verified in ConfigTemplatesCountVerificationHandler
     end;
 
     [Test]
@@ -2517,7 +1118,7 @@ codeunit 138012 "O365 Templates Test"
     procedure ItemTemplateDefaultCostingMethodNewTemplate()
     var
         InventorySetup: Record "Inventory Setup";
-        ItemTemplateCard: TestPage "Item Template Card";
+        ItemTemplateCard: TestPage "Item Templ. Card";
     begin
         // [FEATURE] [UT] [Item]
         // [SCENARIO] New Item Templates take the costing method from Inventory Setup
@@ -2531,53 +1132,6 @@ codeunit 138012 "O365 Templates Test"
         ItemTemplateCard.OpenNew;
 
         // [THEN] The Costing Method equals Average
-        ItemTemplateCard."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::Average);
-        ItemTemplateCard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ItemTemplateDefaultCostingMethodPartialTemplate()
-    var
-        InventorySetup: Record "Inventory Setup";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-        ItemTemplateCard: TestPage "Item Template Card";
-        ConfigTemplates: TestPage "Config Templates";
-        TemplateCode: Code[20];
-    begin
-        // [FEATURE] [UT] [Item]
-        // [SCENARIO] Templates without Costing Method take the costing method from Inventory Setup
-
-        // [GIVEN] A template with Costing Method FIFO
-        TemplateCode := CreateConfigTemplateFromItemWithEnabledOption(true);
-
-        // [GIVEN] Default Costing Method Average in the Inventory Setup
-        InventorySetup.Get();
-        InventorySetup.Validate("Default Costing Method", InventorySetup."Default Costing Method"::Average);
-        InventorySetup.Modify();
-
-        // [WHEN] Opening the Item Template Card for the Template
-        ItemTemplateCard.Trap;
-        ConfigTemplates.OpenEdit;
-        ConfigTemplates.GotoKey(TemplateCode);
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [THEN] The Costing Method on the Template Card is FIFO
-        ItemTemplateCard."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::FIFO);
-        ItemTemplateCard.Close;
-
-        // [WHEN] Deleting the Costing method from the template and reopening the template
-        ConfigTemplateLine.SetRange("Data Template Code", TemplateCode);
-        ConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
-        ConfigTemplateLine.DeleteAll();
-
-        ItemTemplateCard.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [THEN] The Costing method is Average
         ItemTemplateCard."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::Average);
         ItemTemplateCard.Close;
     end;
@@ -2638,86 +1192,13 @@ codeunit 138012 "O365 Templates Test"
     [Test]
     [HandlerFunctions('ItemTemplateCardHandler')]
     [Scope('OnPrem')]
-    procedure ItemTemplateCardUpdateNoSeries()
-    var
-        Item: Record Item;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        ItemTemplateCard: TestPage "Item Template Card";
-        ConfigTemplHeaderCode: Code[10];
-        NoSeriesCode: Code[20];
-    begin
-        // [FEATURE] [No. Series] [Item]
-        // [SCENARIO 229503] User sets No. Series on Item Template Card
-        Initialize();
-
-        // [GIVEN] Configuration Template for blank Item
-        CreateBlankItem(Item);
-        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-
-        // [GIVEN] Item Template Card is opened for the Config. Template
-        ItemTemplateCard.Trap;
-        ConfigTemplates.OpenView;
-        ConfigTemplates.GotoKey(ConfigTemplHeaderCode);
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [WHEN] Set No. Series ="S" on the Item Template Card
-        ItemTemplateCard.NoSeries.SetValue(NoSeriesCode);
-        ItemTemplateCard.Close;
-
-        // [THEN] Instance No. Series = "S" in the Config. Template Header
-        ConfigTemplateHeader.Get(ConfigTemplHeaderCode);
-        ConfigTemplateHeader.TestField("Instance No. Series", NoSeriesCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ItemTemplateCardResetNoSeries()
-    var
-        Item: Record Item;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        ItemTemplateCard: TestPage "Item Template Card";
-        ConfigTemplHeaderCode: Code[10];
-        NoSeriesCode: Code[20];
-    begin
-        // [FEATURE] [No. Series] [Item]
-        // [SCENARIO 229503] User clears No. Series value on Item Template Card
-        Initialize();
-
-        // [GIVEN] Configuration Template "" for blank Item with No. Series = "S"
-        CreateBlankItem(Item);
-        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-        UpdateConfigTemplateHeaderNoSeries(ConfigTemplHeaderCode, NoSeriesCode);
-
-        // [GIVEN] Item Template Card is opened for the Config. Template
-        ItemTemplateCard.Trap;
-        ConfigTemplates.OpenView;
-        ConfigTemplates.GotoKey(ConfigTemplHeaderCode);
-        ConfigTemplates."Edit Template".Invoke;
-        ItemTemplateCard.NoSeries.AssertEquals(NoSeriesCode);
-
-        // [WHEN] Set No. Series ="S" on the Item Template Card
-        ItemTemplateCard.NoSeries.SetValue('');
-        ItemTemplateCard.Close;
-
-        // [THEN] Instance No. Series = "S" in Config. Template Header
-        ConfigTemplateHeader.Get(ConfigTemplHeaderCode);
-        ConfigTemplateHeader.TestField("Instance No. Series", '');
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
     procedure CreateItemFromItemTemplateWithNoSeries()
     var
+        ItemTempl: Record "Item Templ.";
         Item: Record Item;
         ItemCard: TestPage "Item Card";
         ItemNo: Variant;
-        ConfigTemplHeaderCode: Code[10];
+        ConfigTemplHeaderCode: Code[20];
         NoSeriesCode: Code[20];
         ExpectedNo: Code[20];
     begin
@@ -2729,7 +1210,9 @@ codeunit 138012 "O365 Templates Test"
         CreateBlankItem(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
         NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-        UpdateConfigTemplateHeaderNoSeries(ConfigTemplHeaderCode, NoSeriesCode);
+        ItemTempl.Get(ConfigTemplHeaderCode);
+        ItemTempl."No. Series" := NoSeriesCode;
+        ItemTempl.Modify(true);
         ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate);
 
         // [WHEN] Create new Item
@@ -2744,86 +1227,13 @@ codeunit 138012 "O365 Templates Test"
     [Test]
     [HandlerFunctions('CustomerTemplateCardHandler')]
     [Scope('OnPrem')]
-    procedure CustomerTemplateCardUpdateNoSeries()
-    var
-        Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        CustTemplateCard: TestPage "Cust. Template Card";
-        ConfigTemplHeaderCode: Code[10];
-        NoSeriesCode: Code[20];
-    begin
-        // [FEATURE] [No. Series] [Customer]
-        // [SCENARIO 229503] User sets No. Series on Customer Template Card
-        Initialize();
-
-        // [GIVEN] Configuration Template for blank Customer
-        CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-
-        // [GIVEN] Customer Template Card is opened for the Config. Template
-        CustTemplateCard.Trap;
-        ConfigTemplates.OpenView;
-        ConfigTemplates.GotoKey(ConfigTemplHeaderCode);
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [WHEN] Set No. Series ="S" on the Customer Template Card
-        CustTemplateCard.NoSeries.SetValue(NoSeriesCode);
-        CustTemplateCard.Close;
-
-        // [THEN] Instance No. Series = "S" in the Config. Template Header
-        ConfigTemplateHeader.Get(ConfigTemplHeaderCode);
-        ConfigTemplateHeader.TestField("Instance No. Series", NoSeriesCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure CustomerTemplateCardResetNoSeries()
-    var
-        Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        CustTemplateCard: TestPage "Cust. Template Card";
-        ConfigTemplHeaderCode: Code[10];
-        NoSeriesCode: Code[20];
-    begin
-        // [FEATURE] [No. Series] [Customer]
-        // [SCENARIO 229503] User clears No. Series value on Customer Template Card
-        Initialize();
-
-        // [GIVEN] Configuration Template "" for blank Customer with No. Series = "S"
-        CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-        UpdateConfigTemplateHeaderNoSeries(ConfigTemplHeaderCode, NoSeriesCode);
-
-        // [GIVEN] Customer Template Card is opened for the Config. Template
-        CustTemplateCard.Trap;
-        ConfigTemplates.OpenView;
-        ConfigTemplates.GotoKey(ConfigTemplHeaderCode);
-        ConfigTemplates."Edit Template".Invoke;
-        CustTemplateCard.NoSeries.AssertEquals(NoSeriesCode);
-
-        // [WHEN] Set No. Series ="S" on the Customer Template Card
-        CustTemplateCard.NoSeries.SetValue('');
-        CustTemplateCard.Close;
-
-        // [THEN] Instance No. Series = "S" in Config. Template Header
-        ConfigTemplateHeader.Get(ConfigTemplHeaderCode);
-        ConfigTemplateHeader.TestField("Instance No. Series", '');
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
     procedure CreateCustomerFromCustomerTemplateWithNoSeries()
     var
+        CustomerTempl: Record "Customer Templ.";
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
         CustomerNo: Variant;
-        ConfigTemplHeaderCode: Code[10];
+        ConfigTemplHeaderCode: Code[20];
         NoSeriesCode: Code[20];
         ExpectedNo: Code[20];
     begin
@@ -2835,7 +1245,9 @@ codeunit 138012 "O365 Templates Test"
         CreateBlankCustomer(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
         NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-        UpdateConfigTemplateHeaderNoSeries(ConfigTemplHeaderCode, NoSeriesCode);
+        CustomerTempl.Get(ConfigTemplHeaderCode);
+        CustomerTempl."No. Series" := NoSeriesCode;
+        CustomerTempl.Modify(true);
         ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate);
 
         // [WHEN] Create new Customer
@@ -2850,86 +1262,13 @@ codeunit 138012 "O365 Templates Test"
     [Test]
     [HandlerFunctions('VendorTemplateCardHandler')]
     [Scope('OnPrem')]
-    procedure VendorTemplateCardUpdateNoSeries()
-    var
-        Vendor: Record Vendor;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        VendorTemplateCard: TestPage "Vendor Template Card";
-        ConfigTemplHeaderCode: Code[10];
-        NoSeriesCode: Code[20];
-    begin
-        // [FEATURE] [No. Series] [Vendor]
-        // [SCENARIO 229503] User sets No. Series on Vendor Template Card
-        Initialize();
-
-        // [GIVEN] Configuration Template for blank Vendor
-        CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-
-        // [GIVEN] Vendor Template Card is opened for the Config. Template
-        VendorTemplateCard.Trap;
-        ConfigTemplates.OpenView;
-        ConfigTemplates.GotoKey(ConfigTemplHeaderCode);
-        ConfigTemplates."Edit Template".Invoke;
-
-        // [WHEN] Set No. Series ="S" on the Vendor Template Card
-        VendorTemplateCard.NoSeries.SetValue(NoSeriesCode);
-        VendorTemplateCard.Close;
-
-        // [THEN] Instance No. Series = "S" in the Config. Template Header
-        ConfigTemplateHeader.Get(ConfigTemplHeaderCode);
-        ConfigTemplateHeader.TestField("Instance No. Series", NoSeriesCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure VendorTemplateCardResetNoSeries()
-    var
-        Vendor: Record Vendor;
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-        VendorTemplateCard: TestPage "Vendor Template Card";
-        ConfigTemplHeaderCode: Code[10];
-        NoSeriesCode: Code[20];
-    begin
-        // [FEATURE] [No. Series] [Vendor]
-        // [SCENARIO 229503] User clears No. Series value on Vendor Template Card
-        Initialize();
-
-        // [GIVEN] Configuration Template "" for blank Vendor with No. Series = "S"
-        CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-        UpdateConfigTemplateHeaderNoSeries(ConfigTemplHeaderCode, NoSeriesCode);
-
-        // [GIVEN] Vendor Template Card is opened for the Config. Template
-        VendorTemplateCard.Trap;
-        ConfigTemplates.OpenView;
-        ConfigTemplates.GotoKey(ConfigTemplHeaderCode);
-        ConfigTemplates."Edit Template".Invoke;
-        VendorTemplateCard.NoSeries.AssertEquals(NoSeriesCode);
-
-        // [WHEN] Set No. Series ="S" on the Vendor Template Card
-        VendorTemplateCard.NoSeries.SetValue('');
-        VendorTemplateCard.Close;
-
-        // [THEN] Instance No. Series = "S" in Config. Template Header
-        ConfigTemplateHeader.Get(ConfigTemplHeaderCode);
-        ConfigTemplateHeader.TestField("Instance No. Series", '');
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
     procedure CreateVendorFromVendorTemplateWithNoSeries()
     var
+        VendorTempl: Record "Vendor Templ.";
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
         VendorNo: Variant;
-        ConfigTemplHeaderCode: Code[10];
+        ConfigTemplHeaderCode: Code[20];
         NoSeriesCode: Code[20];
         ExpectedNo: Code[20];
     begin
@@ -2941,7 +1280,9 @@ codeunit 138012 "O365 Templates Test"
         CreateBlankVendor(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
         NoSeriesCode := LibraryERM.CreateNoSeriesCode;
-        UpdateConfigTemplateHeaderNoSeries(ConfigTemplHeaderCode, NoSeriesCode);
+        VendorTempl.Get(ConfigTemplHeaderCode);
+        VendorTempl."No. Series" := NoSeriesCode;
+        VendorTempl.Modify(true);
         ExpectedNo := LibraryUtility.GetNextNoFromNoSeries(NoSeriesCode, WorkDate);
 
         // [WHEN] Create new Vendor
@@ -2954,189 +1295,13 @@ codeunit 138012 "O365 Templates Test"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure InsertItemWithGlobalDimensionsFromTemplate()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ItemTemplate: Record "Item Template";
-        Item: Record Item;
-        TemplateCode: Code[10];
-        GlobalDim1ValCode: Code[20];
-        GlobalDim2ValCode: Code[20];
-    begin
-        // [FEATURE] [Dimension] [Item]
-        // [SCENARIO 252076] Global dimensions codes are populated when insert item from template with these dimensions.
-        Initialize();
-
-        // [GIVEN] Item template with both global dimensions codes
-        TemplateCode := CreateItemTemplateWithGlobDimFromItem(GlobalDim1ValCode, GlobalDim2ValCode);
-        ConfigTemplateHeader.Get(TemplateCode);
-
-        // [WHEN] Insert new item from this template
-        ItemTemplate.InsertItemFromTemplate(ConfigTemplateHeader, Item);
-
-        // [THEN] The codes of the global dimensions of the new created item are equal to the codes of the global dimensions of the template
-        Item.TestField("Global Dimension 1 Code", GlobalDim1ValCode);
-        Item.TestField("Global Dimension 2 Code", GlobalDim2ValCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTemplateCardHandler,TemplateSelectionPageHandler')]
-    [Scope('OnPrem')]
-    procedure UpdateItemWithGlobalDimensionsFromTemplate()
-    var
-        TempItemTemplate: Record "Item Template" temporary;
-        Item: Record Item;
-        TemplateCode: Code[10];
-        GlobalDim1ValCode: Code[20];
-        GlobalDim2ValCode: Code[20];
-    begin
-        // [FEATURE] [Dimension] [Item]
-        // [SCENARIO 252076] Global dimensions codes are populated when update item from template with these dimensions.
-        Initialize();
-
-        // [GIVEN] Blank item
-        CreateBlankItem(Item);
-
-        // [GIVEN] Item template with both global dimensions codes
-        TemplateCode := CreateItemTemplateWithGlobDimFromItem(GlobalDim1ValCode, GlobalDim2ValCode);
-        ReadItemTemplFromConfigTempl(TemplateCode, TempItemTemplate);
-        LibraryVariableStorage.Enqueue(TemplateCode);
-
-        // [WHEN] Update the item from this template
-        TempItemTemplate.UpdateItemFromTemplate(Item);
-
-        // [THEN] The codes of the global dimensions of the updated item are equal to the codes of the global dimensions of the template
-        Item.TestField("Global Dimension 1 Code", GlobalDim1ValCode);
-        Item.TestField("Global Dimension 2 Code", GlobalDim2ValCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure InsertCustomerWithGlobalDimensionsFromTemplate()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        MiniCustomerTemplate: Record "Mini Customer Template";
-        Customer: Record Customer;
-        TemplateCode: Code[10];
-        GlobalDim1ValCode: Code[20];
-        GlobalDim2ValCode: Code[20];
-    begin
-        // [FEATURE] [Dimension] [Customer]
-        // [SCENARIO 252076] Global dimensions codes are populated when insert customer from template with these dimensions.
-        Initialize();
-
-        // [GIVEN] Customer template with both global dimensions codes
-        TemplateCode := CreateCustTemplateWithGlobDimFromCustomer(GlobalDim1ValCode, GlobalDim2ValCode);
-        ConfigTemplateHeader.Get(TemplateCode);
-
-        // [WHEN] Insert new customer from this template
-        MiniCustomerTemplate.InsertCustomerFromTemplate(ConfigTemplateHeader, Customer);
-
-        // [THEN] The codes of the global dimensions of the new created customer are equal to the codes of the global dimensions of the template
-        Customer.TestField("Global Dimension 1 Code", GlobalDim1ValCode);
-        Customer.TestField("Global Dimension 2 Code", GlobalDim2ValCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler,TemplateSelectionPageHandler')]
-    [Scope('OnPrem')]
-    procedure UpdateCustomerWithGlobalDimensionsFromTemplate()
-    var
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-        Customer: Record Customer;
-        TemplateCode: Code[10];
-        GlobalDim1ValCode: Code[20];
-        GlobalDim2ValCode: Code[20];
-    begin
-        // [FEATURE] [Dimension] [Customer]
-        // [SCENARIO 252076] Global dimensions codes are populated when update customer from template with these dimensions.
-        Initialize();
-
-        // [GIVEN] Blank customer
-        CreateBlankCustomer(Customer);
-
-        // [GIVEN] Customer template with both global dimensions codes
-        TemplateCode := CreateCustTemplateWithGlobDimFromCustomer(GlobalDim1ValCode, GlobalDim2ValCode);
-        ReadCustTemplFromConfigTempl(TemplateCode, TempMiniCustomerTemplate);
-        LibraryVariableStorage.Enqueue(TemplateCode);
-
-        // [WHEN] Update the customer from this template
-        TempMiniCustomerTemplate.UpdateCustomerFromTemplate(Customer);
-
-        // [THEN] The codes of the global dimensions of the updated customer are equal to the codes of the global dimensions of the template
-        Customer.TestField("Global Dimension 1 Code", GlobalDim1ValCode);
-        Customer.TestField("Global Dimension 2 Code", GlobalDim2ValCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure InsertVendorWithGlobalDimensionsFromTemplate()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        MiniVendorTemplate: Record "Mini Vendor Template";
-        Vendor: Record Vendor;
-        TemplateCode: Code[10];
-        GlobalDim1ValCode: Code[20];
-        GlobalDim2ValCode: Code[20];
-    begin
-        // [FEATURE] [Dimension] [Vendor]
-        // [SCENARIO 252076] Global dimensions codes are populated when insert vendor from template with these dimensions.
-        Initialize();
-
-        // [GIVEN] Vendor template with both global dimensions codes
-        TemplateCode := CreateVendTemplateWithGlobDimFromVendor(GlobalDim1ValCode, GlobalDim2ValCode);
-        ConfigTemplateHeader.Get(TemplateCode);
-
-        // [WHEN] Insert new vendor from this template
-        MiniVendorTemplate.InsertVendorFromTemplate(ConfigTemplateHeader, Vendor);
-
-        // [THEN] The codes of the global dimensions of the new created vendor are equal to the codes of the global dimensions of the template
-        Vendor.TestField("Global Dimension 1 Code", GlobalDim1ValCode);
-        Vendor.TestField("Global Dimension 2 Code", GlobalDim2ValCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorTemplateCardHandler,TemplateSelectionPageHandler')]
-    [Scope('OnPrem')]
-    procedure UpdateVendorWithGlobalDimensionsFromTemplate()
-    var
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
-        Vendor: Record Vendor;
-        TemplateCode: Code[10];
-        GlobalDim1ValCode: Code[20];
-        GlobalDim2ValCode: Code[20];
-    begin
-        // [FEATURE] [Dimension] [Vendor]
-        // [SCENARIO 252076] Global dimensions codes are populated when update vendor from template with these dimensions.
-        Initialize();
-
-        // [GIVEN] Blank vendor
-        CreateBlankVendor(Vendor);
-
-        // [GIVEN] Vendor template with both global dimensions codes
-        TemplateCode := CreateVendTemplateWithGlobDimFromVendor(GlobalDim1ValCode, GlobalDim2ValCode);
-        ReadVendTemplFromConfigTempl(TemplateCode, TempMiniVendorTemplate);
-        LibraryVariableStorage.Enqueue(TemplateCode);
-
-        // [WHEN] Update the vendor from this template
-        TempMiniVendorTemplate.UpdateVendorFromTemplate(Vendor);
-
-        // [THEN] The codes of the global dimensions of the updated vendor are equal to the codes of the global dimensions of the template
-        Vendor.TestField("Global Dimension 1 Code", GlobalDim1ValCode);
-        Vendor.TestField("Global Dimension 2 Code", GlobalDim2ValCode);
-    end;
-
-    [Test]
     [HandlerFunctions('PostCodeModalPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerTemplateLookupCity()
     var
+        CustomerTempl: Record "Customer Templ.";
         PostCode: Record "Post Code";
-        CustTemplateCard: TestPage "Cust. Template Card";
+        CustTemplateCard: TestPage "Customer Templ. Card";
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Post Codes page used for lookup of City field for Customer Template page
@@ -3146,7 +1311,9 @@ codeunit 138012 "O365 Templates Test"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] Open customer template card from configuration templates list
-        OpenCustomerTemplateCard(CustTemplateCard);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+        CustTemplateCard.OpenEdit();
+        CustTemplateCard.GoToRecord(CustomerTempl);
 
         // [WHEN] Lookup for City field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
@@ -3164,8 +1331,9 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure CustomerTemplateLookupPostCode()
     var
+        CustomerTempl: Record "Customer Templ.";
         PostCode: Record "Post Code";
-        CustTemplateCard: TestPage "Cust. Template Card";
+        CustTemplateCard: TestPage "Customer Templ. Card";
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Post Codes page used for lookup of Post Code field for Customer Template page
@@ -3175,7 +1343,9 @@ codeunit 138012 "O365 Templates Test"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] Open customer template card from configuration templates list
-        OpenCustomerTemplateCard(CustTemplateCard);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+        CustTemplateCard.OpenEdit();
+        CustTemplateCard.GoToRecord(CustomerTempl);
 
         // [WHEN] Lookup for Post Code field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
@@ -3193,8 +1363,9 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure CustomerTemplateValidateCountryCode()
     var
+        CustomerTempl: Record "Customer Templ.";
         PostCode: Record "Post Code";
-        CustTemplateCard: TestPage "Cust. Template Card";
+        CustTemplateCard: TestPage "Customer Templ. Card";
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Changing Country/Region Code on Customer Template page leads to clear Country and Post Code fields
@@ -3204,7 +1375,9 @@ codeunit 138012 "O365 Templates Test"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] Open customer template card from configuration templates list
-        OpenCustomerTemplateCard(CustTemplateCard);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+        CustTemplateCard.OpenEdit();
+        CustTemplateCard.GoToRecord(CustomerTempl);
 
         // [GIVEN] Lookup for Post Code field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
@@ -3225,8 +1398,9 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure VendorTemplateLookupCity()
     var
+        VendorTempl: Record "Vendor Templ.";
         PostCode: Record "Post Code";
-        VendorTemplateCard: TestPage "Vendor Template Card";
+        VendorTemplateCard: TestPage "Vendor Templ. Card";
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Post Codes page used for lookup of City field for Vendor Template page
@@ -3236,7 +1410,9 @@ codeunit 138012 "O365 Templates Test"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] Open Vendor Template card from configuration templates list
-        OpenVendorTemplateCard(VendorTemplateCard);
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+        VendorTemplateCard.OpenEdit();
+        VendorTemplateCard.GoToRecord(VendorTempl);
 
         // [WHEN] Lookup for City field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
@@ -3254,8 +1430,9 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure VendorTemplateLookupPostCode()
     var
+        VendorTempl: Record "Vendor Templ.";
         PostCode: Record "Post Code";
-        VendorTemplateCard: TestPage "Vendor Template Card";
+        VendorTemplateCard: TestPage "Vendor Templ. Card";
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Post Codes page used for lookup of Post Code field for Vendor Template page
@@ -3265,7 +1442,9 @@ codeunit 138012 "O365 Templates Test"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] Open Vendor Template card from configuration templates list
-        OpenVendorTemplateCard(VendorTemplateCard);
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+        VendorTemplateCard.OpenEdit();
+        VendorTemplateCard.GoToRecord(VendorTempl);
 
         // [WHEN] Lookup for Post Code field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
@@ -3283,8 +1462,9 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure VendorTemplateValidateCountryCode()
     var
+        VendorTempl: Record "Vendor Templ.";
         PostCode: Record "Post Code";
-        VendorTemplateCard: TestPage "Vendor Template Card";
+        VendorTemplateCard: TestPage "Vendor Templ. Card";
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Changing Country/Region Code on Vendor Template page leads to clear Country and Post Code fields
@@ -3294,7 +1474,9 @@ codeunit 138012 "O365 Templates Test"
         LibraryERM.CreatePostCode(PostCode);
 
         // [GIVEN] Open Vendor Template card from configuration templates list
-        OpenVendorTemplateCard(VendorTemplateCard);
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+        VendorTemplateCard.OpenEdit();
+        VendorTemplateCard.GoToRecord(VendorTempl);
 
         // [GIVEN] Lookup for Post Code field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
@@ -3310,327 +1492,7 @@ codeunit 138012 "O365 Templates Test"
         VendorTemplateCard.OK.Invoke;
     end;
 
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler,VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure RelatedTemplateFromAnotherTableOnValidate()
-    var
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        ConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplHeaderCodeCustomer: Code[10];
-        ConfigTemplHeaderCodeVendor: Code[10];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 309201] Set Related Template Code to Code from another table's template in Config. Template Line OnValidate
-        Initialize();
-
-        // [GIVEN] Customer Template C001
-        CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCodeCustomer);
-        // [GIVEN] Vendor Template V001
-        CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCodeVendor);
-
-        // [WHEN] Validate "Template Code" to V001
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
-        ConfigTemplateLine.Validate("Template Code", ConfigTemplHeaderCodeVendor);
-
-        // [THEN] "Template Code" = V001
-        ConfigTemplateLine.TestField("Template Code", ConfigTemplHeaderCodeVendor);
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler,VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure RelatedTemplateAddedTwiceOnValidate()
-    var
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        ConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplHeaderCodeCustomer: Code[10];
-        ConfigTemplHeaderCodeVendor: Code[10];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 309201] Set Related Template Code to Code from another table's template twice in Config. Template Line OnValidate
-        Initialize();
-
-        // [GIVEN] Customer Template C001
-        CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCodeCustomer);
-        // [GIVEN] Vendor Template V001
-        CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCodeVendor);
-
-        // [GIVEN] ConfigTemplateLine CTL1 with "Template Code" = V001
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
-        ConfigTemplateLine.Validate("Template Code", ConfigTemplHeaderCodeVendor);
-        ConfigTemplateLine.Modify(true);
-
-        // [WHEN]  Validate "Template Code" to V001 the second time
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
-        asserterror ConfigTemplateLine.Validate("Template Code", ConfigTemplHeaderCodeVendor);
-        Assert.ExpectedError(StrSubstNo(DuplicateRelationErr, ConfigTemplHeaderCodeVendor));
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler,VendorTemplateCardHandler,ConfigTemplateListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RelatedTemplateFromAnotherTableOnLookup()
-    var
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        ConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplateSubform: TestPage "Config. Template Subform";
-        ConfigTemplHeaderCodeCustomer: Code[10];
-        ConfigTemplHeaderCodeVendor: Code[10];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 309201] Set Related Template Code to Code from another table's template in Config. Template Line OnLookup
-        Initialize();
-
-        // [GIVEN] Customer Template C001
-        CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCodeCustomer);
-        // [GIVEN] Vendor Template V001
-        CreateBlankVendor(Vendor);
-        CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCodeVendor);
-
-        // [WHEN] Validate "Template Code" to V001
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
-        ConfigTemplateLine.Modify(true);
-        ConfigTemplateSubform.OpenEdit;
-        ConfigTemplateSubform.GotoRecord(ConfigTemplateLine);
-        LibraryVariableStorage.Enqueue(ConfigTemplHeaderCodeVendor);
-        ConfigTemplateSubform."Template Code".Lookup;
-        ConfigTemplateSubform.Close;
-
-        // [THEN] "Template Code" = V001
-        ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateLine."Data Template Code");
-        ConfigTemplateLine.SetRange("Line No.", ConfigTemplateLine."Line No.");
-        ConfigTemplateLine.FindFirst;
-        ConfigTemplateLine.TestField("Template Code", ConfigTemplHeaderCodeVendor);
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerTemplateCardHandler,ConfigTemplateListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure SetRelatedTemplateToItselfOnLookup()
-    var
-        Customer: Record Customer;
-        ConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplateSubform: TestPage "Config. Template Subform";
-        ConfigTemplHeaderCodeCustomer: Code[10];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 309201] Set Related Template Code to Template's Code in Config. Template Line OnLookup
-        Initialize();
-
-        // [GIVEN] Customer Template C001
-        CreateBlankCustomer(Customer);
-        CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCodeCustomer);
-
-        // [WHEN] Validate "Template Code" to C001
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplHeaderCodeCustomer);
-        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::"Related Template");
-        ConfigTemplateLine.Modify(true);
-        ConfigTemplateSubform.OpenEdit;
-        ConfigTemplateSubform.GotoRecord(ConfigTemplateLine);
-        LibraryVariableStorage.Enqueue(ConfigTemplHeaderCodeCustomer);
-        asserterror ConfigTemplateSubform."Template Code".Lookup;
-        Assert.ExpectedError(RelationErr);
-        ConfigTemplateSubform.Close;
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyCustomerTemplateWithDimToCustomers()
-    var
-        Customer: array[2] of Record Customer;
-        MiniCustomerTemplate: Record "Mini Customer Template";
-        CustomerTemplateCode: Code[10];
-        CustomerNo: Code[20];
-    begin
-        // [FEATURE] [Customer] [Default Dimension]
-        // [SCENARIO 341169] Customers should have default dimensions from Customer Template after applying the template.
-        Initialize();
-
-        // [GIVEN] Customer Template with default dimensions.
-        CustomerTemplateCode := CreateCustTemplateWithDimFromCustomer();
-        LibraryVariableStorage.Enqueue(CustomerTemplateCode);
-
-        // [GIVEN] Two blank Customers.
-        CreateBlankCustomer(Customer[1]);
-        CreateBlankCustomer(Customer[2]);
-
-        // [WHEN] Applying the template.
-        Customer[1].SetFilter("No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
-        MiniCustomerTemplate.UpdateCustomersFromTemplate(Customer[1]);
-
-        // [THEN] Customers has default dimensions from template.
-        Customer[1].Find();
-        ValidateCustomerVsConfigTemplate(Customer[1], CustomerTemplateCode);
-        Customer[2].Find();
-        ValidateCustomerVsConfigTemplate(Customer[2], CustomerTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyVendorTemplateWithDimToVendors()
-    var
-        MiniVendorTemplate: Record "Mini Vendor Template";
-        Vendor: array[2] of Record Vendor;
-        VendorTemplateCode: Code[10];
-        VendorNo: Code[20];
-    begin
-        // [FEATURE] [Vendor] [Default Dimension]
-        // [SCENARIO 341169] Vendors should have default dimensions from Vendor Template after applying the template.
-        Initialize();
-
-        // [GIVEN] Vendor Template with default dimensions.
-        VendorTemplateCode := CreateVendTemplateWithDimFromVendor();
-        LibraryVariableStorage.Enqueue(VendorTemplateCode);
-
-        // [GIVEN] Two blank Vendors.
-        CreateBlankVendor(Vendor[1]);
-        CreateBlankVendor(Vendor[2]);
-
-        // [WHEN] Applying the template.
-        Vendor[1].SetFilter("No.", '%1|%2', Vendor[1]."No.", Vendor[2]."No.");
-        MiniVendorTemplate.UpdateVendorsFromTemplate(Vendor[1]);
-
-        // [THEN] Vendors has default dimensions from template.
-        Vendor[1].Find();
-        ValidateVendorVsConfigTemplate(Vendor[1], VendorTemplateCode);
-        Vendor[2].Find();
-        ValidateVendorVsConfigTemplate(Vendor[2], VendorTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyItemTemplateWithDimToItems()
-    var
-        Item: array[2] of Record Item;
-        ItemTemplate: Record "Item Template";
-        ItemTemplateCode: Code[10];
-        ItemNo: Code[20];
-    begin
-        // [FEATURE] [Item] [Default Dimension]
-        // [SCENARIO 341169] Item should have default dimensions from Item Template after applying the template.
-        Initialize();
-
-        // [GIVEN] Item Template with default dimensions.
-        ItemTemplateCode := CreateItemTemplateWithDimFromItem();
-        LibraryVariableStorage.Enqueue(ItemTemplateCode);
-
-        // [GIVEN] Two blank Items.
-        CreateBlankItem(Item[1]);
-        CreateBlankItem(Item[2]);
-
-        // [WHEN] Applying the template.
-        Item[1].SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
-        ItemTemplate.UpdateItemsFromTemplate(Item[1]);
-
-        // [THEN] Items has default dimensions from template.
-        Item[1].Find();
-        ValidateItemVsConfigTemplate(Item[1], ItemTemplateCode);
-        Item[2].Find();
-        ValidateItemVsConfigTemplate(Item[2], ItemTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,CustomerTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyCustomerTemplateWithDimToCustomerWithSameDim()
-    var
-        Customer: Record Customer;
-        MiniCustomerTemplate: Record "Mini Customer Template";
-        CustomerTemplateCode: Code[10];
-    begin
-        // [FEATURE] [Customer] [Default Dimension]
-        // [SCENARIO 352563] Applying Customer Template with Default Dimension overwrites Customer's Default Dimension values.
-        Initialize();
-
-        // [GIVEN] Customer Template with default dimensions.
-        CustomerTemplateCode := CreateCustTemplateWithDimFromCustomer();
-        LibraryVariableStorage.Enqueue(CustomerTemplateCode);
-
-        // [GIVEN] Customer with different values for default dimensions of template.
-        Customer.GET(GlobalTemplateName);
-        ChangeDefaultDimensionsValues(DATABASE::Customer, Customer."No.");
-
-        // [WHEN] Applying the template.
-        MiniCustomerTemplate.UpdateCustomerFromTemplate(Customer);
-
-        // [THEN] Customer has default dimension values from template.
-        ValidateCustomerVsConfigTemplate(Customer, CustomerTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,VendorTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyVendorTemplateWithDimToVendorWithSameDim()
-    var
-        MiniVendorTemplate: Record "Mini Vendor Template";
-        Vendor: Record Vendor;
-        VendorTemplateCode: Code[10];
-    begin
-        // [FEATURE] [Vendor] [Default Dimension]
-        // [SCENARIO 352563] Applying Vendor Template with Default Dimension overwrites Vendor's Default Dimension values.
-        Initialize();
-
-        // [GIVEN] Vendor Template with default dimensions.
-        VendorTemplateCode := CreateVendTemplateWithDimFromVendor();
-        LibraryVariableStorage.Enqueue(VendorTemplateCode);
-
-        // [GIVEN] Vendor with different values for default dimensions of template.
-        Vendor.GET(GlobalTemplateName);
-        ChangeDefaultDimensionsValues(DATABASE::Vendor, Vendor."No.");
-
-        // [WHEN] Applying the template.
-        MiniVendorTemplate.UpdateVendorFromTemplate(Vendor);
-
-        // [THEN] Vendors has default dimension values from template.
-        ValidateVendorVsConfigTemplate(Vendor, VendorTemplateCode);
-    end;
-
-    [Test]
-    [HandlerFunctions('TemplateSelectionPageHandler,ItemTemplateCardHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyItemTemplateWithDimToItemWithSameDim()
-    var
-        Item: Record Item;
-        ItemTemplate: Record "Item Template";
-        ItemTemplateCode: Code[10];
-    begin
-        // [FEATURE] [Item] [Default Dimension]
-        // [SCENARIO 352563] Applying Item Template with Default Dimension overwrites Item's Default Dimension values.
-        Initialize();
-
-        // [GIVEN] Item Template with default dimensions.
-        ItemTemplateCode := CreateItemTemplateWithDimFromItem();
-        LibraryVariableStorage.Enqueue(ItemTemplateCode);
-
-        // [GIVEN] Item with different values for default dimensions of template.
-        Item.GET(GlobalTemplateName);
-        ChangeDefaultDimensionsValues(DATABASE::Item, Item."No.");
-
-        // [WHEN] Applying the template.
-        ItemTemplate.UpdateItemFromTemplate(Item);
-
-        // [THEN] Items has default dimensions values from template.
-        ValidateItemVsConfigTemplate(Item, ItemTemplateCode);
-    end;
-
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure CustomerFromContactUsingTemplate()
@@ -3661,6 +1523,7 @@ codeunit 138012 "O365 Templates Test"
         Customer.TestField("Tax Area Code", CustomerTemplate."Tax Area Code");
         Customer.TestField("Credit Limit (LCY)", CustomerTemplate."Credit Limit (LCY)");
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -3676,7 +1539,7 @@ codeunit 138012 "O365 Templates Test"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Templates Test");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         ClearTable(DATABASE::"Item Identifier");
         ClearTable(DATABASE::Job);
         ClearTable(DATABASE::"Job Planning Line");
@@ -3704,12 +1567,14 @@ codeunit 138012 "O365 Templates Test"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Templates Test");
     end;
 
+#if not CLEAN18
     local procedure CreateCustomerFromContact(Contact: Record Contact; CustomerTemplateCode: Code[10]; var Customer: Record Customer)
     begin
         Contact.SetHideValidationDialog(true);
         Contact.CreateCustomer(CustomerTemplateCode);
         FindCustomerByCompanyName(Customer, Contact.Name);
     end;
+#endif
 
     local procedure FindCustomerByCompanyName(var Customer: Record Customer; CompanyName: Text[100])
     begin
@@ -3727,6 +1592,7 @@ codeunit 138012 "O365 Templates Test"
         exit(TaxArea.Code);
     end;
 
+#if not CLEAN18
     local procedure CreateCustomerTemplateForContact(VATBusPostingGroupCode: Code[20]): Code[10]
     var
         CountryRegion: Record "Country/Region";
@@ -3746,6 +1612,7 @@ codeunit 138012 "O365 Templates Test"
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code);
         exit(CustomerTemplate.Code);
     end;
+#endif
 
     local procedure ChangeDefaultDimensionsValues(TableID: Integer; No: Code[20])
     var
@@ -3828,43 +1695,33 @@ codeunit 138012 "O365 Templates Test"
         Vendor.Insert(true);
     end;
 
-    local procedure CreateConfigTemplateHeader(var ConfigTemplateHeader: Record "Config. Template Header"; TableID: Integer)
-    begin
-        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
-        ConfigTemplateHeader.Validate("Table ID", TableID);
-        ConfigTemplateHeader.Modify(true);
-    end;
-
-    local procedure CreateConfigTemplateFromItemWithEnabledOption(IsTemplateEnabled: Boolean): Code[10]
+    local procedure CreateConfigTemplateFromItemWithEnabledOption(): Code[20]
     var
         Item: Record Item;
-        ConfigTemplHeaderCode: Code[10];
+        ConfigTemplHeaderCode: Code[20];
     begin
         CreateItemWithTemplateFieldsSet(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-        SetTemplateEnabled(ConfigTemplHeaderCode, IsTemplateEnabled);
         exit(ConfigTemplHeaderCode);
     end;
 
-    local procedure CreateConfigTemplateFromCustomerWithEnabledOption(IsTemplateEnabled: Boolean): Code[10]
+    local procedure CreateConfigTemplateFromCustomerWithEnabledOption(): Code[20]
     var
         Customer: Record Customer;
-        ConfigTemplHeaderCode: Code[10];
+        ConfigTemplHeaderCode: Code[20];
     begin
         CreateCustomerWithTemplateFieldsSet(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
-        SetTemplateEnabled(ConfigTemplHeaderCode, IsTemplateEnabled);
         exit(ConfigTemplHeaderCode);
     end;
 
-    local procedure CreateConfigTemplateFromVendorWithEnabledOption(IsTemplateEnabled: Boolean): Code[10]
+    local procedure CreateConfigTemplateFromVendorWithEnabledOption(): Code[20]
     var
         Vendor: Record Vendor;
-        ConfigTemplHeaderCode: Code[10];
+        ConfigTemplHeaderCode: Code[20];
     begin
         CreateVendorWithTemplateFieldsSet(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
-        SetTemplateEnabled(ConfigTemplHeaderCode, IsTemplateEnabled);
         exit(ConfigTemplHeaderCode);
     end;
 
@@ -3989,46 +1846,43 @@ codeunit 138012 "O365 Templates Test"
         DefaultDimension.Insert();
     end;
 
-    local procedure CreateTemplateFromCustomer(Customer: Record Customer; var ConfigTemplHeaderCode: Code[10])
+    local procedure CreateTemplateFromCustomer(Customer: Record Customer; var ConfigTemplHeaderCode: Code[20])
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        MiniCustomerTemplate: Record "Mini Customer Template";
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
         GlobalTemplateName := Customer."No.";
-        MiniCustomerTemplate.SaveAsTemplate(Customer);
+        CustomerTemplMgt.SaveAsTemplate(Customer);
 
-        ConfigTemplateHeader.SetRange(Description, Customer."No.");
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        ConfigTemplateHeader.FindLast;
-        ConfigTemplHeaderCode := ConfigTemplateHeader.Code;
+        CustomerTempl.SetRange(Description, GlobalTemplateName);
+        CustomerTempl.FindLast();
+        ConfigTemplHeaderCode := CustomerTempl.Code;
     end;
 
-    local procedure CreateTemplateFromItem(Item: Record Item; var ConfigTemplHeaderCode: Code[10])
+    local procedure CreateTemplateFromItem(Item: Record Item; var ConfigTemplHeaderCode: Code[20])
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ItemTemplate: Record "Item Template";
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         GlobalTemplateName := Item."No.";
-        ItemTemplate.SaveAsTemplate(Item);
+        ItemTemplMgt.SaveAsTemplate(Item);
 
-        ConfigTemplateHeader.SetRange(Description, Item."No.");
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.FindLast;
-        ConfigTemplHeaderCode := ConfigTemplateHeader.Code;
+        ItemTempl.SetRange(Description, GlobalTemplateName);
+        ItemTempl.FindLast();
+        ConfigTemplHeaderCode := ItemTempl.Code;
     end;
 
-    local procedure CreateTemplateFromVendor(Vendor: Record Vendor; var ConfigTemplHeaderCode: Code[10])
+    local procedure CreateTemplateFromVendor(Vendor: Record Vendor; var ConfigTemplHeaderCode: Code[20])
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        MiniVendorTemplate: Record "Mini Vendor Template";
+        VendorTempl: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
     begin
         GlobalTemplateName := Vendor."No.";
-        MiniVendorTemplate.SaveAsTemplate(Vendor);
+        VendorTemplMgt.SaveAsTemplate(Vendor);
 
-        ConfigTemplateHeader.SetRange(Description, Vendor."No.");
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
-        ConfigTemplateHeader.FindLast;
-        ConfigTemplHeaderCode := ConfigTemplateHeader.Code;
+        VendorTempl.SetRange(Description, GlobalTemplateName);
+        VendorTempl.FindLast();
+        ConfigTemplHeaderCode := VendorTempl.Code;
     end;
 
     local procedure CreateTemplateFromDimension(DefaultDimension: Record "Default Dimension")
@@ -4042,7 +1896,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplateHeader.OK.Invoke;
     end;
 
-    local procedure CreateBlankCustomerTemplateFromCustomer(var CustomerTemplateCode: Code[10]; var BlankCustomerTemplateCode: Code[10])
+    local procedure CreateBlankCustomerTemplateFromCustomer(var CustomerTemplateCode: Code[20]; var BlankCustomerTemplateCode: Code[20])
     var
         CustomerWithTemplateFieldsSet: Record Customer;
         BlankCustomer: Record Customer;
@@ -4054,10 +1908,10 @@ codeunit 138012 "O365 Templates Test"
         CreateTemplateFromCustomer(BlankCustomer, BlankCustomerTemplateCode);
     end;
 
-    local procedure CreateCustTemplateWithDimFromCustomer(): Code[10]
+    local procedure CreateCustTemplateWithDimFromCustomer(): Code[20]
     var
         Customer: Record Customer;
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
     begin
         CreateCustomerWithDimensions(Customer);
         CreateTemplateFromCustomer(Customer, CustomerTemplateCode);
@@ -4087,7 +1941,7 @@ codeunit 138012 "O365 Templates Test"
     local procedure CreateCustTemplateWithGlobDimFromCustomer(var GlobalDim1ValCode: Code[20]; var GlobalDim2ValCode: Code[20]): Code[10]
     var
         Customer: Record Customer;
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
     begin
         CreateCustomerWithGlobalDimensions(Customer, GlobalDim1ValCode, GlobalDim2ValCode);
         CreateTemplateFromCustomer(Customer, CustomerTemplateCode);
@@ -4112,18 +1966,6 @@ codeunit 138012 "O365 Templates Test"
         CreateItemWithGlobalDimensions(Item, GlobalDim1ValCode, GlobalDim2ValCode);
         CreateTemplateFromItem(Item, ItemTemplateCode);
         exit(ItemTemplateCode);
-    end;
-
-    local procedure EnqueueEnabledTemplates()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.SetRange(Enabled, true);
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Count);
-        ConfigTemplateHeader.FindSet();
-        repeat
-            LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Description);
-        until ConfigTemplateHeader.Next = 0;
     end;
 
     local procedure GetDefaultItemNoWithSeries(var ItemNo: Code[20]; var NoSeries: Code[20])
@@ -4153,39 +1995,6 @@ codeunit 138012 "O365 Templates Test"
         VendorNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate);
     end;
 
-    local procedure OpenCustomerTemplateCard(var CustTemplateCard: TestPage "Cust. Template Card")
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-    begin
-        CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Customer);
-        ConfigTemplates.OpenEdit;
-        ConfigTemplates.GotoRecord(ConfigTemplateHeader);
-        CustTemplateCard.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-    end;
-
-    local procedure OpenVendorTemplateCard(var VendorTemplateCard: TestPage "Vendor Template Card")
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: TestPage "Config Templates";
-    begin
-        CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Vendor);
-        ConfigTemplates.OpenEdit;
-        ConfigTemplates.GotoRecord(ConfigTemplateHeader);
-        VendorTemplateCard.Trap;
-        ConfigTemplates."Edit Template".Invoke;
-    end;
-
-    local procedure SetTemplateEnabled(ConfigTemplHeaderCode: Code[10]; IsEnabled: Boolean)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.Get(ConfigTemplHeaderCode);
-        ConfigTemplateHeader.Validate(Enabled, IsEnabled);
-        ConfigTemplateHeader.Modify(true);
-    end;
-
     local procedure ValidateCustomerVsBlankTemplate(Customer: Record Customer)
     var
         BlankCustomer: Record Customer;
@@ -4196,21 +2005,29 @@ codeunit 138012 "O365 Templates Test"
         ValidateCustomerVsConfigTemplateWithEmptyDim(Customer, ConfigTemplateCode);
     end;
 
-    local procedure ValidateCustomerVsConfigTemplate(Customer: Record Customer; ConfigTemplHeaderCode: Code[10])
+    local procedure ValidateCustomerVsConfigTemplate(Customer: Record Customer; ConfigTemplHeaderCode: Code[20])
     var
+        CustomerTempl: Record "Customer Templ.";
+        TemplateRecRef: RecordRef;
         RecRef: RecordRef;
     begin
+        CustomerTempl.Get(ConfigTemplHeaderCode);
+        TemplateRecRef.GetTable(CustomerTempl);
         RecRef.GetTable(Customer);
-        ValidateRecRefVsConfigTemplate(RecRef, ConfigTemplHeaderCode);
+        ValidateRecRefVsConfigTemplate(RecRef, TemplateRecRef);
         VerifyCustomerDimensionsVsTemplate(Customer, ConfigTemplHeaderCode);
     end;
 
-    local procedure ValidateCustomerVsConfigTemplateWithEmptyDim(Customer: Record Customer; ConfigTemplHeaderCode: Code[10])
+    local procedure ValidateCustomerVsConfigTemplateWithEmptyDim(Customer: Record Customer; ConfigTemplHeaderCode: Code[20])
     var
+        CustomerTempl: Record "Customer Templ.";
+        TemplateRecRef: RecordRef;
         RecRef: RecordRef;
     begin
+        CustomerTempl.Get(ConfigTemplHeaderCode);
+        TemplateRecRef.GetTable(CustomerTempl);
         RecRef.GetTable(Customer);
-        ValidateRecRefVsConfigTemplate(RecRef, ConfigTemplHeaderCode);
+        ValidateRecRefVsConfigTemplate(RecRef, TemplateRecRef);
         VerifyEmptyDefaultDimension(DATABASE::Customer, Customer."No.");
     end;
 
@@ -4224,21 +2041,29 @@ codeunit 138012 "O365 Templates Test"
         ValidateItemVsConfigTemplateWithEmptyDim(Item, ConfigTemplateCode);
     end;
 
-    local procedure ValidateItemVsConfigTemplate(Item: Record Item; ConfigTemplHeaderCode: Code[10])
+    local procedure ValidateItemVsConfigTemplate(Item: Record Item; ConfigTemplHeaderCode: Code[20])
     var
+        ItemTempl: Record "Item Templ.";
+        TemplateRecRef: RecordRef;
         RecRef: RecordRef;
     begin
+        ItemTempl.Get(ConfigTemplHeaderCode);
+        TemplateRecRef.GetTable(ItemTempl);
         RecRef.GetTable(Item);
-        ValidateRecRefVsConfigTemplate(RecRef, ConfigTemplHeaderCode);
+        ValidateRecRefVsConfigTemplate(RecRef, TemplateRecRef);
         VerifyItemDimensionsVsTemplate(Item, ConfigTemplHeaderCode);
     end;
 
-    local procedure ValidateItemVsConfigTemplateWithEmptyDim(Item: Record Item; ConfigTemplHeaderCode: Code[10])
+    local procedure ValidateItemVsConfigTemplateWithEmptyDim(Item: Record Item; ConfigTemplHeaderCode: Code[20])
     var
+        ItemTempl: Record "Item Templ.";
+        TemplateRecRef: RecordRef;
         RecRef: RecordRef;
     begin
+        ItemTempl.Get(ConfigTemplHeaderCode);
+        TemplateRecRef.GetTable(ItemTempl);
         RecRef.GetTable(Item);
-        ValidateRecRefVsConfigTemplate(RecRef, ConfigTemplHeaderCode);
+        ValidateRecRefVsConfigTemplate(RecRef, TemplateRecRef);
         VerifyEmptyDefaultDimension(DATABASE::Item, Item."No.");
     end;
 
@@ -4254,65 +2079,55 @@ codeunit 138012 "O365 Templates Test"
         ValidateVendorVsConfigTemplateWithEmptyDim(Vendor, ConfigTemplateCode);
     end;
 
-    local procedure ValidateVendorVsConfigTemplate(Vendor: Record Vendor; ConfigTemplHeaderCode: Code[10])
+    local procedure ValidateVendorVsConfigTemplate(Vendor: Record Vendor; ConfigTemplHeaderCode: Code[20])
     var
+        VendorTempl: Record "Vendor Templ.";
+        TemplateRecRef: RecordRef;
         RecRef: RecordRef;
     begin
+        VendorTempl.Get(ConfigTemplHeaderCode);
+        TemplateRecRef.GetTable(VendorTempl);
         RecRef.GetTable(Vendor);
-        ValidateRecRefVsConfigTemplate(RecRef, ConfigTemplHeaderCode);
+        ValidateRecRefVsConfigTemplate(RecRef, TemplateRecRef);
         VerifyVendorDimensionsVsTemplate(Vendor, ConfigTemplHeaderCode);
     end;
 
     local procedure ValidateVendorVsConfigTemplateWithEmptyDim(Vendor: Record Vendor; ConfigTemplHeaderCode: Code[10])
     var
+        VendorTempl: Record "Vendor Templ.";
+        TemplateRecRef: RecordRef;
         RecRef: RecordRef;
     begin
+        VendorTempl.Get(ConfigTemplHeaderCode);
+        TemplateRecRef.GetTable(VendorTempl);
         RecRef.GetTable(Vendor);
-        ValidateRecRefVsConfigTemplate(RecRef, ConfigTemplHeaderCode);
+        ValidateRecRefVsConfigTemplate(RecRef, TemplateRecRef);
         VerifyEmptyDefaultDimension(DATABASE::Vendor, Vendor."No.");
     end;
 
-    local procedure ValidateCustTemplVsConfigTemplate(var TempMiniCustomerTemplate: Record "Mini Customer Template" temporary)
+    local procedure ValidateRecRefVsConfigTemplate(RecRef: RecordRef; TemplateRecRef: RecordRef)
     var
-        RecRef: RecordRef;
+        TemplateField: Record Field;
+        TemplateFieldRef: FieldRef;
+        InstanceFieldRef: FieldRef;
+        TableId: Integer;
     begin
-        RecRef.GetTable(TempMiniCustomerTemplate);
-        ValidateRecRefVsConfigTemplate(RecRef, TempMiniCustomerTemplate.Code);
-    end;
-
-    local procedure ValidateVendTemplVsConfigTemplate(var TempMiniVendorTemplate: Record "Mini Vendor Template" temporary)
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(TempMiniVendorTemplate);
-        ValidateRecRefVsConfigTemplate(RecRef, TempMiniVendorTemplate.Code);
-    end;
-
-    local procedure ValidateItemTemplVsConfigTemplate(var TempItemTemplate: Record "Item Template" temporary)
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(TempItemTemplate);
-        ValidateRecRefVsConfigTemplate(RecRef, TempItemTemplate.Code);
-    end;
-
-    local procedure ValidateRecRefVsConfigTemplate(RecRef: RecordRef; TemplateCode: Code[10])
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-        FieldRef: FieldRef;
-    begin
-        with ConfigTemplateLine do begin
-            SetRange("Data Template Code", TemplateCode);
-            SetRange(Type, Type::Field);
-            FindSet();
-            repeat
-                FieldRef := RecRef.Field("Field ID");
-                Assert.AreEqual(
-                  Format(FieldRef.Value),
-                  "Default Value",
-                  StrSubstNo('<%1> field was different than in the template.', FieldRef.Caption));
-            until Next = 0;
+        TableId := TemplateRecRef.Number;
+        TemplateField.SetRange(TableNo, TableId);
+        case TableId of
+            1381:
+                TemplateField.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4&<%5', 1, 2, 107, 10092, 2000000000);
+            1383:
+                TemplateField.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4&<%5', 1, 2, 107, 5050, 2000000000);
+            1382:
+                TemplateField.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4&<%5', 1, 2, 90, 97, 2000000000);
         end;
+        TemplateField.FindSet();
+        repeat
+            InstanceFieldRef := RecRef.Field(TemplateField."No.");
+            TemplateFieldRef := TemplateRecRef.Field(TemplateField."No.");
+            Assert.AreEqual(Format(InstanceFieldRef), Format(TemplateFieldRef), StrSubstNo('<%1> field was different than in the template.', InstanceFieldRef.Caption));
+        until TemplateField.Next() = 0;
     end;
 
     local procedure ValidateFieldDefinitionsMatch(FieldRef1: FieldRef; FieldRef2: FieldRef)
@@ -4328,93 +2143,6 @@ codeunit 138012 "O365 Templates Test"
         Assert.AreEqual(FieldRef1.Relation, FieldRef2.Relation, ErrorMessageForFieldComparison(FieldRef1, FieldRef2, 'table relation'));
     end;
 
-    local procedure ValidateThereIsNoTemplate(TemplateCode: Code[20])
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-    begin
-        Assert.IsFalse(ConfigTemplateHeader.Get(TemplateCode), 'Config Template Header should not exist');
-
-        ConfigTemplateLine.SetRange("Data Template Code", TemplateCode);
-        Assert.IsFalse(ConfigTemplateLine.FindLast, 'There should be no Config Template Lines present');
-    end;
-
-    local procedure ReadCustTemplFromConfigTempl(TemplateCode: Code[20]; var TempMiniCustomerTemplate: Record "Mini Customer Template" temporary)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.Get(TemplateCode);
-        TempMiniCustomerTemplate.InitializeTempRecordFromConfigTemplate(TempMiniCustomerTemplate, ConfigTemplateHeader);
-    end;
-
-    local procedure ReadVendTemplFromConfigTempl(TemplateCode: Code[20]; var TempMiniVendorTemplate: Record "Mini Vendor Template" temporary)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.Get(TemplateCode);
-        TempMiniVendorTemplate.InitializeTempRecordFromConfigTemplate(TempMiniVendorTemplate, ConfigTemplateHeader);
-    end;
-
-    local procedure ReadItemTemplFromConfigTempl(TemplateCode: Code[20]; var TempItemTemplate: Record "Item Template" temporary)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.Get(TemplateCode);
-        TempItemTemplate.InitializeTempRecordFromConfigTemplate(TempItemTemplate, ConfigTemplateHeader);
-    end;
-
-    local procedure UpdateCustomerTemplate(ConfigTemplateHeaderCode: Code[10]; var TempMiniCustomerTemplate: Record "Mini Customer Template" temporary)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.Get(ConfigTemplateHeaderCode);
-        TempMiniCustomerTemplate.InitializeTempRecordFromConfigTemplate(TempMiniCustomerTemplate, ConfigTemplateHeader);
-        TempMiniCustomerTemplate."Credit Limit (LCY)" := LibraryRandom.RandDecInRange(1, 1000, 1);
-        TempMiniCustomerTemplate.Modify(true);
-    end;
-
-    local procedure UpdateVendorTemplate(ConfigTemplateHeaderCode: Code[10]; var TempMiniVendorTemplate: Record "Mini Vendor Template" temporary)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.Get(ConfigTemplateHeaderCode);
-        TempMiniVendorTemplate.InitializeTempRecordFromConfigTemplate(TempMiniVendorTemplate, ConfigTemplateHeader);
-        TempMiniVendorTemplate."Prices Including VAT" := not TempMiniVendorTemplate."Prices Including VAT";
-        TempMiniVendorTemplate.Modify(true);
-    end;
-
-    local procedure UpdateItemTemplate(ConfigTemplateHeaderCode: Code[10]; var TempItemTemplate: Record "Item Template" temporary)
-    begin
-        ConfigTemplateHeader.Get(ConfigTemplateHeaderCode);
-        TempItemTemplate.InitializeTempRecordFromConfigTemplate(TempItemTemplate, ConfigTemplateHeader);
-        TempItemTemplate."Allow Invoice Disc." := not TempItemTemplate."Allow Invoice Disc.";
-        TempItemTemplate.Modify(true);
-    end;
-
-    local procedure DeleteCustTemplateFromConfigTempl(ConfigTemplateCode: Code[10])
-    var
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-    begin
-        ReadCustTemplFromConfigTempl(ConfigTemplateCode, TempMiniCustomerTemplate);
-        TempMiniCustomerTemplate.Delete(true);
-    end;
-
-    local procedure DeleteVendTemplateFromConfigTempl(ConfigTemplateCode: Code[10])
-    var
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
-    begin
-        ReadVendTemplFromConfigTempl(ConfigTemplateCode, TempMiniVendorTemplate);
-        TempMiniVendorTemplate.Delete(true);
-    end;
-
-    local procedure DeleteItemTemplateFromConfigTempl(ConfigTemlateHeaderCode: Code[10])
-    var
-        TempItemTemplate: Record "Item Template" temporary;
-    begin
-        ReadItemTemplFromConfigTempl(ConfigTemlateHeaderCode, TempItemTemplate);
-        TempItemTemplate.Delete(true);
-    end;
-
     local procedure ErrorMessageForFieldComparison(FieldRef1: FieldRef; FieldRef2: FieldRef; MismatchType: Text): Text
     begin
         exit(
@@ -4427,49 +2155,55 @@ codeunit 138012 "O365 Templates Test"
 
     local procedure ValidateCustCity(CityName: Code[10]; ExpectedPostCode: Code[10]; ExpectedCountryRegionCode: Code[10])
     var
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
+        TempCustomerTempl: Record "Customer Templ." temporary;
     begin
-        TempMiniCustomerTemplate.Insert();
-        TempMiniCustomerTemplate.Validate(City, CityName);
-        Assert.AreEqual(ExpectedPostCode, TempMiniCustomerTemplate."Post Code", 'Wrong "Post Code"');
-        Assert.AreEqual(ExpectedCountryRegionCode, TempMiniCustomerTemplate."Country/Region Code", 'Wrong "Country/Region Code"');
+        TempCustomerTempl.Insert();
+        TempCustomerTempl.Validate(City, CityName);
+        Assert.AreEqual(ExpectedPostCode, TempCustomerTempl."Post Code", 'Wrong "Post Code"');
+        Assert.AreEqual(ExpectedCountryRegionCode, TempCustomerTempl."Country/Region Code", 'Wrong "Country/Region Code"');
     end;
 
     local procedure ValidateCustPostCode(ExpectedCityName: Code[10]; PostCode: Code[10]; ExpectedCountryRegionCode: Code[10])
     var
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
+        TempCustomerTempl: Record "Customer Templ." temporary;
     begin
-        TempMiniCustomerTemplate.Insert();
-        TempMiniCustomerTemplate.Validate("Post Code", PostCode);
-        Assert.AreEqual(ExpectedCityName, TempMiniCustomerTemplate.City, 'Wrong City');
-        Assert.AreEqual(ExpectedCountryRegionCode, TempMiniCustomerTemplate."Country/Region Code", 'Wrong "Country/Region Code"');
+        TempCustomerTempl.Insert();
+        TempCustomerTempl.Validate("Post Code", PostCode);
+        Assert.AreEqual(ExpectedCityName, TempCustomerTempl.City, 'Wrong City');
+        Assert.AreEqual(ExpectedCountryRegionCode, TempCustomerTempl."Country/Region Code", 'Wrong "Country/Region Code"');
     end;
 
     local procedure ValidateVendCity(CityName: Code[10]; ExpectedPostCode: Code[10]; ExpectedCountryRegionCode: Code[10])
     var
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
+        TempVendorTempl: Record "Vendor Templ." temporary;
     begin
-        TempMiniVendorTemplate.Insert();
-        TempMiniVendorTemplate.Validate(City, CityName);
-        Assert.AreEqual(ExpectedPostCode, TempMiniVendorTemplate."Post Code", 'Wrong "Post Code"');
-        Assert.AreEqual(ExpectedCountryRegionCode, TempMiniVendorTemplate."Country/Region Code", 'Wrong "Country/Region Code"');
+        TempVendorTempl.Insert();
+        TempVendorTempl.Validate(City, CityName);
+        Assert.AreEqual(ExpectedPostCode, TempVendorTempl."Post Code", 'Wrong "Post Code"');
+        Assert.AreEqual(ExpectedCountryRegionCode, TempVendorTempl."Country/Region Code", 'Wrong "Country/Region Code"');
     end;
 
     local procedure ValidateVendPostCode(ExpectedCityName: Code[10]; PostCode: Code[10]; ExpectedCountryRegionCode: Code[10])
     var
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
+        TempVendorTempl: Record "Vendor Templ." temporary;
     begin
-        TempMiniVendorTemplate.Insert();
-        TempMiniVendorTemplate.Validate("Post Code", PostCode);
-        Assert.AreEqual(ExpectedCityName, TempMiniVendorTemplate.City, 'Wrong City');
-        Assert.AreEqual(ExpectedCountryRegionCode, TempMiniVendorTemplate."Country/Region Code", 'Wrong "Country/Region Code"');
+        TempVendorTempl.Insert();
+        TempVendorTempl.Validate("Post Code", PostCode);
+        Assert.AreEqual(ExpectedCityName, TempVendorTempl.City, 'Wrong City');
+        Assert.AreEqual(ExpectedCountryRegionCode, TempVendorTempl."Country/Region Code", 'Wrong "Country/Region Code"');
     end;
 
     local procedure DeleteConfigurationTemplates()
     var
         ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
+        VendorTempl: Record "Vendor Templ.";
+        ItemTempl: Record "Item Templ.";
     begin
         ConfigTemplateHeader.DeleteAll(true);
+        CustomerTempl.DeleteAll(true);
+        VendorTempl.DeleteAll(true);
+        ItemTempl.DeleteAll(true);
     end;
 
     local procedure EnsureRecordExistAndGetValue(FieldNo: Integer; TableNo: Integer): Text
@@ -4510,39 +2244,6 @@ codeunit 138012 "O365 Templates Test"
         end;
     end;
 
-    local procedure VerifyDefaultDimensionsTemplateSavedCorrectly(ParentTemplateCode: Code[10]; DimensionCode: Code[20]; DimensionValueCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-        TempDimensionsTemplate: Record "Dimensions Template" temporary;
-        "Field": Record "Field";
-        DimensionConfigTemplateCode: Code[10];
-        ValuePostingText: Text;
-    begin
-        // Dimension Value Code is used to identify Dimension Template since it is part of the primary key
-        DimensionConfigTemplateCode := GetDimensionsTemplateCode(ParentTemplateCode, DimensionCode);
-
-        ConfigTemplateLine.SetRange("Data Template Code", DimensionConfigTemplateCode);
-        Assert.AreEqual(3, ConfigTemplateLine.Count, 'Not all values were saved as Config Template Line');
-
-        TempDimensionsTemplate.Insert();
-        Clear(ConfigTemplateLine);
-        ConfigTemplateLine.SetRange("Data Template Code", DimensionConfigTemplateCode);
-        ConfigTemplateLine.SetRange("Field ID", TempDimensionsTemplate.FieldNo("Dimension Value Code"));
-        ConfigTemplateLine.FindFirst;
-        Assert.AreEqual(ConfigTemplateLine."Default Value", DimensionValueCode, 'Value in template does not match saved value');
-
-        Clear(ConfigTemplateLine);
-        ConfigTemplateLine.SetRange("Data Template Code", DimensionConfigTemplateCode);
-        ConfigTemplateLine.SetRange("Field ID", TempDimensionsTemplate.FieldNo("Value Posting"));
-        ConfigTemplateLine.FindFirst;
-
-        Field.Get(DATABASE::"Default Dimension", ConfigTemplateLine."Field ID");
-        ValuePostingText := SelectStr(ValuePosting.AsInteger() + 1, Field.OptionString);
-        Assert.AreEqual(ConfigTemplateLine."Default Value", ValuePostingText, 'Value in template does not match saved value');
-
-        VerifyDefaultDimensionsTemplateRelatedToParentTemplate(ParentTemplateCode, DimensionConfigTemplateCode);
-    end;
-
     local procedure VerifyDefaultDimensionsTemplateRelatedToParentTemplate(ConfigTemplateHeaderCode: Code[10]; DimensionsTemplateHeaderCode: Code[10])
     var
         ConfigTemplateLine: Record "Config. Template Line";
@@ -4564,33 +2265,6 @@ codeunit 138012 "O365 Templates Test"
             Assert.AreEqual(ExpectedNumberOfTemplates, ConfigTemplateLine.Count, 'Wrong number of related templates found')
         else
             Assert.IsFalse(ConfigTemplateLine.FindFirst, 'There shoudl be no templates in the system');
-    end;
-
-    local procedure VerifyConfigTemplateHeaderExists(TemplateName: Text[50])
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.SetFilter(Description, TemplateName);
-
-        Assert.AreEqual(1, ConfigTemplateHeader.Count, 'There was more than one config template header in the system with given name');
-    end;
-
-    local procedure GetDimensionsTemplateCode(ParentTemplateCode: Code[10]; DimensionsCode: Code[20]): Code[10]
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-    begin
-        ConfigTemplateHeader.SetRange(Description, ParentTemplateCode);
-        ConfigTemplateHeader.FindSet();
-
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-            ConfigTemplateLine.SetRange("Default Value", DimensionsCode);
-            if ConfigTemplateLine.FindFirst then
-                exit(ConfigTemplateHeader.Code);
-        until ConfigTemplateHeader.Next = 0;
-
-        Error(CouldNotFindDimensionWithCodeErr, DimensionsCode);
     end;
 
     local procedure AddDefaultDimensionsToRecord(RecordNo: Code[20]; TableID: Integer; NumberOfDimensions: Integer)
@@ -4637,19 +2311,23 @@ codeunit 138012 "O365 Templates Test"
         DefaultDimension.Insert();
     end;
 
-    local procedure VerifyDimensionsSavedCorrectly(MasterRecordNo: Code[20]; TableID: Integer; ConfigTemplateHeaderCode: Code[10])
+    local procedure VerifyDimensionsSavedCorrectly(MasterRecordNo: Code[20]; TableID: Integer; ConfigTemplateHeaderCode: Code[20]; DstTableId: Integer)
     var
         DefaultDimension: Record "Default Dimension";
+        DstDefaultDimension: Record "Default Dimension";
     begin
         DefaultDimension.SetRange("No.", MasterRecordNo);
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.FindSet();
 
+        DstDefaultDimension.SetRange("Table ID", DstTableId);
+        DstDefaultDimension.SetRange("No.", ConfigTemplateHeaderCode);
         repeat
-            VerifyDefaultDimensionsTemplateSavedCorrectly(
-              ConfigTemplateHeaderCode, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code",
-              DefaultDimension."Value Posting");
-        until DefaultDimension.Next = 0;
+            DstDefaultDimension.SetRange("Dimension Code", DefaultDimension."Dimension Code");
+            DstDefaultDimension.SetRange("Dimension Value Code", DefaultDimension."Dimension Value Code");
+            Assert.RecordIsNotEmpty(DstDefaultDimension);
+        until DefaultDimension.Next() = 0;
+
     end;
 
     local procedure InsertPostCodeRec(CityName: Code[10]; PostCode: Code[10]; ExpectedRegionCode: Code[10])
@@ -4681,25 +2359,6 @@ codeunit 138012 "O365 Templates Test"
                 exit(true);
 
         exit(false);
-    end;
-
-    local procedure UpdateCodeOnConfigTempate(OldTemplateCode: Code[10]; NewTemplateCode: Code[10])
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-        ExpectedCount: Integer;
-    begin
-        ConfigTemplateLine.SetRange("Data Template Code", OldTemplateCode);
-        ExpectedCount := ConfigTemplateLine.Count();
-
-        ConfigTemplateHeader.Get(OldTemplateCode);
-        ConfigTemplateHeader.Rename(NewTemplateCode);
-
-        ConfigTemplateHeader.Get(NewTemplateCode);
-
-        ConfigTemplateLine.SetRange("Data Template Code", NewTemplateCode);
-        Assert.AreEqual(
-          ExpectedCount, ConfigTemplateLine.Count, 'Not all lines where transfered to ConfigTemplateLine wile rename Header');
     end;
 
     local procedure UpdateMarketingSetup()
@@ -4748,59 +2407,58 @@ codeunit 138012 "O365 Templates Test"
         InventorySetup.Modify();
     end;
 
-    local procedure UpdateConfigTemplateHeaderNoSeries(ConfigTemplHeaderCode: Code[20]; NoSeriesCode: Code[20])
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.Get(ConfigTemplHeaderCode);
-        ConfigTemplateHeader.SetNoSeries(NoSeriesCode);
-    end;
-
-    local procedure VerifyItemDimensionsVsTemplate(Item: Record Item; ConfigTemplateHeaderCode: Code[10])
+    local procedure VerifyItemDimensionsVsTemplate(Item: Record Item; ConfigTemplateHeaderCode: Code[20])
     var
         DefaultDimension: Record "Default Dimension";
+        SourceDefaultDimension: Record "Default Dimension";
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Item);
         DefaultDimension.SetRange("No.", Item."No.");
-        DefaultDimension.FindSet();
+
+        SourceDefaultDimension.SetRange("Table ID", Database::"Item Templ.");
+        SourceDefaultDimension.SetRange("No.", ConfigTemplateHeaderCode);
+        SourceDefaultDimension.FindSet();
         repeat
-            VerifyDefaultDimensionsVsTemplate(
-              DefaultDimension, GetDimensionsTemplateCode(ConfigTemplateHeaderCode, DefaultDimension."Dimension Code"));
-        until DefaultDimension.Next = 0;
+            DefaultDimension.SetRange("Dimension Code", SourceDefaultDimension."Dimension Code");
+            DefaultDimension.SetRange("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
+            Assert.RecordIsNotEmpty(DefaultDimension);
+        until SourceDefaultDimension.Next() = 0;
     end;
 
-    local procedure VerifyCustomerDimensionsVsTemplate(Customer: Record Customer; ConfigTemplateHeaderCode: Code[10])
+    local procedure VerifyCustomerDimensionsVsTemplate(Customer: Record Customer; ConfigTemplateHeaderCode: Code[20])
     var
         DefaultDimension: Record "Default Dimension";
+        SourceDefaultDimension: Record "Default Dimension";
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Customer);
         DefaultDimension.SetRange("No.", Customer."No.");
-        DefaultDimension.FindSet();
+
+        SourceDefaultDimension.SetRange("Table ID", Database::"Customer Templ.");
+        SourceDefaultDimension.SetRange("No.", ConfigTemplateHeaderCode);
+        SourceDefaultDimension.FindSet();
         repeat
-            VerifyDefaultDimensionsVsTemplate(
-              DefaultDimension, GetDimensionsTemplateCode(ConfigTemplateHeaderCode, DefaultDimension."Dimension Code"));
-        until DefaultDimension.Next = 0;
+            DefaultDimension.SetRange("Dimension Code", SourceDefaultDimension."Dimension Code");
+            DefaultDimension.SetRange("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
+            Assert.RecordIsNotEmpty(DefaultDimension);
+        until SourceDefaultDimension.Next() = 0;
     end;
 
-    local procedure VerifyVendorDimensionsVsTemplate(Vendor: Record Vendor; ConfigTemplateHeaderCode: Code[10])
+    local procedure VerifyVendorDimensionsVsTemplate(Vendor: Record Vendor; ConfigTemplateHeaderCode: Code[20])
     var
         DefaultDimension: Record "Default Dimension";
+        SourceDefaultDimension: Record "Default Dimension";
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Vendor);
         DefaultDimension.SetRange("No.", Vendor."No.");
-        DefaultDimension.FindSet();
-        repeat
-            VerifyDefaultDimensionsVsTemplate(
-              DefaultDimension, GetDimensionsTemplateCode(ConfigTemplateHeaderCode, DefaultDimension."Dimension Code"));
-        until DefaultDimension.Next = 0;
-    end;
 
-    local procedure VerifyDefaultDimensionsVsTemplate(DefaultDimension: Record "Default Dimension"; ConfigTemplateHeaderCode: Code[10])
-    var
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(DefaultDimension);
-        ValidateRecRefVsConfigTemplate(RecRef, ConfigTemplateHeaderCode);
+        SourceDefaultDimension.SetRange("Table ID", Database::"Vendor Templ.");
+        SourceDefaultDimension.SetRange("No.", ConfigTemplateHeaderCode);
+        SourceDefaultDimension.FindSet();
+        repeat
+            DefaultDimension.SetRange("Dimension Code", SourceDefaultDimension."Dimension Code");
+            DefaultDimension.SetRange("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
+            Assert.RecordIsNotEmpty(DefaultDimension);
+        until SourceDefaultDimension.Next() = 0;
     end;
 
     local procedure VerifyEmptyDefaultDimension(TableID: Integer; No: Code[20])
@@ -5011,153 +2669,59 @@ codeunit 138012 "O365 Templates Test"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerConfigTemplatesHandler(var ConfigTemplates: TestPage "Config Templates")
-    var
-        MiniCustomerTemplate: Record "Mini Customer Template";
-        CustTemplateCard: TestPage "Cust. Template Card";
-        ActionToInvoke: Variant;
-        ExpectedTemplateName: Variant;
-        CloseAction: Variant;
-        TemplateName: Text[50];
+    procedure VendorTemplateCardHandler(var VendorTemplateCard: TestPage "Vendor Templ. Card")
     begin
-        LibraryVariableStorage.Dequeue(ActionToInvoke);
-
-        if (Format(ActionToInvoke) = NewActionTok) or (Format(ActionToInvoke) = EditActionTok) then begin
-            CustTemplateCard.Trap;
-
-            if Format(ActionToInvoke) = NewActionTok then begin
-                ConfigTemplates.NewCustomerTemplate.Invoke;
-                Assert.AreEqual('', CustTemplateCard."Template Name".Value, 'Wrong template opened.');
-                TemplateName :=
-                  LibraryUtility.GenerateRandomCode(MiniCustomerTemplate.FieldNo("Template Name"), DATABASE::"Mini Customer Template");
-                CustTemplateCard."Template Name".SetValue(TemplateName);
-                CustTemplateCard.City.Activate;
-                VerifyConfigTemplateHeaderExists(TemplateName);
-            end;
-
-            if Format(ActionToInvoke) = EditActionTok then begin
-                ConfigTemplates."Edit Template".Invoke;
-                LibraryVariableStorage.Dequeue(ExpectedTemplateName);
-                Assert.AreEqual(ExpectedTemplateName, CustTemplateCard."Template Name".Value, 'Wrong template opened.');
-            end;
-
-            Assert.IsTrue(CustTemplateCard."Template Name".Editable, 'Template page opened in read-only mode.');
-            CustTemplateCard.Close;
-        end;
-
-        LibraryVariableStorage.Dequeue(CloseAction);
-
-        if Format(CloseAction) = CancelActionTok then
-            ConfigTemplates.Cancel.Invoke;
-
-        if Format(CloseAction) = OKActionTok then
-            ConfigTemplates.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ItemConfigTemplatesHandler(var ConfigTemplates: TestPage "Config Templates")
-    var
-        ItemTemplate: Record "Item Template";
-        ItemTemplatePage: TestPage "Item Template Card";
-        ActionToInvoke: Variant;
-        ExpectedTemplateName: Variant;
-        CloseAction: Variant;
-        TemplateName: Text[50];
-    begin
-        LibraryVariableStorage.Dequeue(ActionToInvoke);
-
-        if (Format(ActionToInvoke) = NewActionTok) or (Format(ActionToInvoke) = EditActionTok) then begin
-            ItemTemplatePage.Trap;
-
-            if Format(ActionToInvoke) = NewActionTok then begin
-                ConfigTemplates.NewItemTemplate.Invoke;
-                Assert.AreEqual('', ItemTemplatePage."Template Name".Value, 'Wrong template opened.');
-                TemplateName :=
-                  LibraryUtility.GenerateRandomCode(ItemTemplate.FieldNo("Template Name"), DATABASE::"Item Template");
-                ItemTemplatePage."Template Name".SetValue(TemplateName);
-                ItemTemplatePage."Base Unit of Measure".Activate;
-                VerifyConfigTemplateHeaderExists(TemplateName);
-            end;
-
-            if Format(ActionToInvoke) = EditActionTok then begin
-                ConfigTemplates."Edit Template".Invoke;
-                LibraryVariableStorage.Dequeue(ExpectedTemplateName);
-                Assert.AreEqual(ExpectedTemplateName, ItemTemplatePage."Template Name".Value, 'Wrong template opened.');
-            end;
-
-            Assert.IsTrue(ItemTemplatePage."Template Name".Editable, 'Template page opened in read-only mode.');
-            ItemTemplatePage.Close;
-        end;
-
-        LibraryVariableStorage.Dequeue(CloseAction);
-
-        if Format(CloseAction) = CancelActionTok then
-            ConfigTemplates.Cancel.Invoke;
-
-        if Format(CloseAction) = OKActionTok then
-            ConfigTemplates.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ConfigTemplatesSelectionHandler(var ConfigTemplates: TestPage "Config Templates")
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ActionNameVariant: Variant;
-        TemplateNameVariant: Variant;
-        ActionName: Text;
-        TemplateName: Text;
-    begin
-        LibraryVariableStorage.Dequeue(ActionNameVariant);
-        LibraryVariableStorage.Dequeue(TemplateNameVariant);
-
-        ActionName := Format(ActionNameVariant);
-        TemplateName := Format(TemplateNameVariant);
-        if ActionName = Format(TemplateSelectionAction::SelectTemplate) then begin
-            ConfigTemplateHeader.Get(TemplateName);
-            ConfigTemplates.GotoRecord(ConfigTemplateHeader);
-        end else
-            if ActionName = Format(TemplateSelectionAction::VerifyDefaultSelection) then begin
-                ConfigTemplateHeader.Get(TemplateName);
-                ConfigTemplates."Template Name".AssertEquals(ConfigTemplateHeader.Description);
-            end;
-        ConfigTemplates.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure VendorTemplateCardHandler(var VendorTemplateCard: TestPage "Vendor Template Card")
-    begin
-        VendorTemplateCard."Template Name".SetValue(GlobalTemplateName);
+        VendorTemplateCard.Description.SetValue(GlobalTemplateName);
         VendorTemplateCard.OK.Invoke;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTemplateCardHandler(var CustTemplateCard: TestPage "Cust. Template Card")
+    procedure CustomerTemplateCardHandler(var CustTemplateCard: TestPage "Customer Templ. Card")
     begin
-        CustTemplateCard."Template Name".SetValue(GlobalTemplateName);
+        CustTemplateCard.Description.SetValue(GlobalTemplateName);
         CustTemplateCard.OK.Invoke;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ItemTemplateCardHandler(var ItemTemplateCard: TestPage "Item Template Card")
+    procedure ItemTemplateCardHandler(var ItemTemplateCard: TestPage "Item Templ. Card")
     begin
-        ItemTemplateCard."Template Name".SetValue(GlobalTemplateName);
+        ItemTemplateCard.Description.SetValue(GlobalTemplateName);
         ItemTemplateCard.OK.Invoke;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure TemplateSelectionPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListModalPageHandler(var SelectTemplList: TestPage "Select Customer Templ. List")
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
     begin
-        ConfigTemplateHeader.Get(LibraryVariableStorage.DequeueText);
-        ConfigTemplates.GotoRecord(ConfigTemplateHeader);
-        ConfigTemplates.OK.Invoke;
+        CustomerTempl.Get(LibraryVariableStorage.DequeueText);
+        SelectTemplList.GotoRecord(CustomerTempl);
+        SelectTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectTemplList: TestPage "Select Vendor Templ. List")
+    var
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        VendorTempl.Get(LibraryVariableStorage.DequeueText);
+        SelectTemplList.GotoRecord(VendorTempl);
+        SelectTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectTemplList: TestPage "Select Item Templ. List")
+    var
+        ItemTempl: Record "Item Templ.";
+    begin
+        ItemTempl.Get(LibraryVariableStorage.DequeueText);
+        SelectTemplList.GotoRecord(ItemTempl);
+        SelectTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5175,31 +2739,6 @@ codeunit 138012 "O365 Templates Test"
     begin
         ConfigTemplateList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         ConfigTemplateList.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ConfigTemplatesCountVerificationHandler(var ConfigTemplates: TestPage "Config Templates")
-    var
-        TemplatesCount: Integer;
-        ExpectedTemplatesCount: Integer;
-        ConfigTemplateName: array[2] of Text;
-        I: Integer;
-    begin
-        ExpectedTemplatesCount := LibraryVariableStorage.DequeueInteger;
-        for I := 1 to ExpectedTemplatesCount do
-            ConfigTemplateName[I] := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(ConfigTemplateName[I]));
-
-        ConfigTemplates.First;
-        repeat
-            TemplatesCount += 1;
-            Assert.IsTrue(
-              IsValueInArray(
-                ConfigTemplateName, ConfigTemplates."Template Name".Value),
-              StrSubstNo(UnexpectedTemplateInListErr, ConfigTemplates."Template Name"));
-        until not ConfigTemplates.Next;
-
-        Assert.AreEqual(ExpectedTemplatesCount, TemplatesCount, WrongTemplatesCountErr);
     end;
 }
 

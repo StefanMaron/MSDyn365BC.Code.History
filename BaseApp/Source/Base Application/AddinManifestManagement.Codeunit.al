@@ -17,6 +17,8 @@ codeunit 1652 "Add-in Manifest Management"
         NodeType: Option Version,ProviderName,DefaultLocale,DisplayName,Description,DesktopSourceLoc,TabletSourceLoc,PhoneSourceLoc,AppDomain,IconUrl,HighResolutionIconUrl;
         TestMode: Boolean;
         BrandingFolderTxt: Label 'ProjectMadeira/', Locked = true;
+        ManifestFileNameTxt: Label '%1.xml', Locked = true;
+        ManifestZipFileNameTxt: Label 'OutlookAddins.zip', Comment = 'Name of the zip file containing Outlook Addin manifest files.';
 
     [Scope('OnPrem')]
     procedure DownloadManifestToClient(var NewOfficeAddin: Record "Office Add-in"; FileName: Text): Boolean
@@ -125,6 +127,39 @@ codeunit 1652 "Add-in Manifest Management"
         end else begin
             SetNodeValue(ManifestText, GetImageUrl('OfficeAddin_64x.png'), NodeType::IconUrl, 0);
             SetNodeValue(ManifestText, GetImageUrl('OfficeAddin_80x.png'), NodeType::HighResolutionIconUrl, 0);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure DownloadMultipleManifestsToClient(var OfficeAddin: Record "Office Add-in"): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        DataCompression: Codeunit "Data Compression";
+        MemoryStream: Dotnet MemoryStream;
+        UTF8Encoding: DotNet UTF8Encoding;
+        ServerLocation: Text;
+        ManifestText: Text;
+    begin
+        if OfficeAddin.Count() = 1 then begin
+            // If there's a single file, download the xml directly instead of the zip file
+            if OfficeAddin.FindFirst() then;
+            ServerLocation := SaveManifestToServer(OfficeAddin);
+            FileManagement.DownloadHandler(ServerLocation, '', '', '', StrSubstNo(ManifestFileNameTxt, OfficeAddin.Name))
+        end else begin
+            // Create and download .zip file containing the outlook add-ins
+            if not OfficeAddin.Findset() then
+                exit;
+            DataCompression.CreateZipArchive();
+            repeat
+                GenerateManifest(OfficeAddin, ManifestText);
+                UTF8Encoding := UTF8Encoding.UTF8Encoding();
+                MemoryStream := MemoryStream.MemoryStream(UTF8Encoding.GetBytes(ManifestText));
+                DataCompression.AddEntry(MemoryStream, StrSubstNo(ManifestFileNameTxt, OfficeAddin.Name));
+            until OfficeAddin.Next() = 0;
+            MemoryStream := MemoryStream.MemoryStream();
+            DataCompression.SaveZipArchive(MemoryStream);
+            DataCompression.CloseZipArchive();
+            FileManagement.DownloadFromStreamHandler(MemoryStream, '', '', '', ManifestZipFileNameTxt);
         end;
     end;
 

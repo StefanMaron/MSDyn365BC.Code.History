@@ -60,6 +60,13 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of an item, resource, cost, or a standard text on the line.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Return Reason Code"; "Return Reason Code")
                 {
                     ApplicationArea = Service;
@@ -331,6 +338,7 @@ page 5934 "Service Invoice Subform"
                         PickPrice();
                     end;
                 }
+#if not CLEAN19
                 action("Get Li&ne Discount")
                 {
                     AccessByPermission = TableData "Sales Line Discount" = R;
@@ -349,6 +357,7 @@ page 5934 "Service Invoice Subform"
                         PickDiscount();
                     end;
                 }
+#endif
                 action(GetLineDiscount)
                 {
                     AccessByPermission = TableData "Sales Discount Access" = R;

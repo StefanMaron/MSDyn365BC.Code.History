@@ -196,7 +196,9 @@ page 10043 "Purchase Stats."
         Clear(PurchPost);
         Clear(TaxAmount);
 
-        SalesTaxCalculate.StartSalesTaxCalculation;
+        SalesTaxCalculate.StartSalesTaxCalculation();
+        OnAfterStartSalesTaxCalculation();
+
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
         PurchLine.SetFilter(Type, '>0');
@@ -236,9 +238,11 @@ page 10043 "Purchase Stats."
             Clear(Vend);
 
         TempSalesTaxLine.ModifyAll(Modified, false);
-        SetVATSpecification;
+        SetVATSpecification();
 
-        GetVATSpecification;
+        GetVATSpecification();
+
+        OnAfterOnAfterGetRecord(TotalAmount2, TaxAmount);
     end;
 
     trigger OnOpenPage()
@@ -251,12 +255,21 @@ page 10043 "Purchase Stats."
           not ("Document Type" in ["Document Type"::Quote, "Document Type"::"Blanket Order"]);
         CurrPage.Editable := AllowVATDifference or AllowInvDisc;
         TaxArea.Get("Tax Area Code");
-        SetVATSpecification;
+        SetVATSpecification();
+
+        OnAfterOnOpenPage(AllowVATDifference);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        IsHandled: Boolean;
     begin
-        GetVATSpecification;
+        IsHandled := false;
+        OnBeforeQueryClosePage(IsHandled);
+        if IsHandled then
+            exit(true);
+
+        GetVATSpecification();
         if TempSalesTaxLine.GetAnyLineModified then
             UpdateVATOnPurchLines;
         exit(true);
@@ -275,7 +288,6 @@ page 10043 "Purchase Stats."
         TempSalesTaxLine: Record "Sales Tax Amount Line" temporary;
         PurchSetup: Record "Purchases & Payables Setup";
         TaxArea: Record "Tax Area";
-        SalesTaxDifference: Record "Sales Tax Amount Difference";
         PurchPost: Codeunit "Purch.-Post";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         TotalAmount1: Decimal;
@@ -381,19 +393,20 @@ page 10043 "Purchase Stats."
     var
         PurchLine: Record "Purchase Line";
     begin
-        GetVATSpecification;
+        GetVATSpecification();
 
         PurchLine.Reset();
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
 
         if TempSalesTaxLine.GetAnyLineModified then begin
-            SalesTaxCalculate.StartSalesTaxCalculation;
+            SalesTaxCalculate.StartSalesTaxCalculation();
             SalesTaxCalculate.PutSalesTaxAmountLineTable(
               TempSalesTaxLine,
-              SalesTaxDifference."Document Product Area"::Purchase,
+              "Sales Tax Document Area"::Purchase.AsInteger(),
               "Document Type".AsInteger(), "No.");
+            OnBeforeDistTaxOverPurchLines(PurchLine);
             SalesTaxCalculate.DistTaxOverPurchLines(PurchLine);
             SalesTaxCalculate.SaveTaxDifferences;
         end;
@@ -455,6 +468,38 @@ page 10043 "Purchase Stats."
                         BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Difference";
                 until Next() = 0;
         end;
+
+        OnAfterUpdateTaxBreakdown(TotalAmount2, TaxAmount);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeQueryClosePage(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDistTaxOverPurchLines(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterStartSalesTaxCalculation()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var TotalAmount2: Decimal; var TaxAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateTaxBreakdown(var TotalAmount2: Decimal; var TaxAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var AllowVATDifference: Boolean)
+    begin
     end;
 }
 

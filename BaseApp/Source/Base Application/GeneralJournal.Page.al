@@ -1,4 +1,4 @@
-﻿page 39 "General Journal"
+page 39 "General Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
     // // Classic mode (Show more columns action) - When IsSimplePage is set to false. This view supports showing all the traditional columns. All the lines for all
@@ -989,7 +989,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         if IsSimplePage then
                             if GeneralLedgerSetup."Post with Job Queue" then
@@ -1007,6 +1007,7 @@
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category9;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1029,7 +1030,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         if GeneralLedgerSetup."Post & Print with Job Queue" then
                             NewDocumentNo()

@@ -320,8 +320,10 @@ page 10141 "Deposit Subform"
         GenJnlShowCard: Codeunit "Gen. Jnl.-Show Card";
         GenJnlShowEntries: Codeunit "Gen. Jnl.-Show Entries";
         GenJnlApply: Codeunit "Gen. Jnl.-Apply";
-        ShortcutDimCode: array[8] of Code[20];
         DocumentTypeErr: Label 'Document Type should be Payment or Refund.';
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     local procedure CopyValuesFromHeader()
     var

@@ -336,6 +336,13 @@ report 10148 "List Price Sheet"
     {
     }
 
+    trigger OnInitReport()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
+
     trigger OnPreReport()
     begin
         MainTitle := StrSubstNo(Text000, DateReq);

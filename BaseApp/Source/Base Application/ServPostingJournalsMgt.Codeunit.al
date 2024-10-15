@@ -1,4 +1,4 @@
-codeunit 5987 "Serv-Posting Journals Mgt."
+﻿codeunit 5987 "Serv-Posting Journals Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd;
 
@@ -26,7 +26,9 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         Invoice: Boolean;
         ItemJnlRollRndg: Boolean;
         ServiceLinePostingDate: Date;
+#if not CLEAN19
         SalesTaxPosted: Boolean;
+#endif
 
     procedure Initialize(var TempServHeader: Record "Service Header"; TmpConsume: Boolean; TmpInvoice: Boolean)
     var
@@ -304,6 +306,13 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             until TempWhseJnlLine2.Next() = 0;
     end;
 
+    procedure PostLines(ServiceHeader: Record "Service Header"; var InvoicePostingInterface: Interface "Invoice Posting"; var Window: Dialog; var TotalAmount: Decimal)
+    begin
+        InvoicePostingInterface.PostLines(ServiceHeader, GenJnlPostLine, Window, TotalAmount);
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by W1 version of PostInvoicePostBufferLine() without Sales Tax related parameters.', '19.0')]
     procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35]; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; TaxOption: Option ,VAT,SalesTax; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax; var TotalServiceLineLCY: Record "Service Line")
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -313,17 +322,55 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         with GenJnlLine do begin
             if not SalesTaxPosted then begin
                 SalesTaxPosted := true;
-                if TaxOption = TaxOption::SalesTax then begin
+                if TaxOption = TaxOption::SalesTax then
                     if ServiceHeader."Tax Area Code" <> '' then begin
                         PostSalesTaxToGL(
                           TempSalesTaxAmtLine, TotalServiceLineLCY, "Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SalesTaxCountry);
                         if Invoice then
                             TaxAmountDifference.ClearDocDifference(
-                              TaxAmountDifference."Document Product Area"::Service, ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.");
+                                "Sales Tax Document Area"::Service.AsInteger(), ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.");
                     end;
-                end;
             end;
 
+            InitNewLine(
+              ServiceLinePostingDate, ServiceHeader."Document Date", InvoicePostBuffer."Entry Description",
+              InvoicePostBuffer."Global Dimension 1 Code", InvoicePostBuffer."Global Dimension 2 Code",
+              InvoicePostBuffer."Dimension Set ID", ServiceHeader."Reason Code");
+
+            CopyDocumentFields("Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
+
+            CopyFromServiceHeader(ServiceHeader);
+#if not CLEAN19            
+            CopyFromInvoicePostBuffer(InvoicePostBuffer);
+#else
+            InvoicePostBuffer.CopyToGenJnlLine(GenJnlLine);
+#endif
+            "Gen. Posting Type" := "Gen. Posting Type"::Sale;
+
+            OnBeforePostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GenJnlPostLine);
+            GLEntryNo := GenJnlPostLine.RunWithCheck(GenJnlLine);
+            OnAfterPostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
+        end;
+    end;
+#endif
+
+    procedure PostLedgerEntry(ServiceHeader: Record "Service Header"; var InvoicePostingInterface: Interface "Invoice Posting")
+    begin
+        InvoicePostingInterface.PostLedgerEntry(ServiceHeader, GenJnlPostLine);
+    end;
+
+    procedure PostBalancingEntry(ServiceHeader: Record "Service Header"; var InvoicePostingInterface: Interface "Invoice Posting")
+    begin
+        InvoicePostingInterface.PostBalancingEntry(ServiceHeader, GenJnlPostLine);
+    end;
+
+#if not CLEAN19
+    procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        GLEntryNo: Integer;
+    begin
+        with GenJnlLine do begin
             InitNewLine(
               ServiceLinePostingDate, ServiceHeader."Document Date", InvoicePostBuffer."Entry Description",
               InvoicePostBuffer."Global Dimension 1 Code", InvoicePostBuffer."Global Dimension 2 Code",
@@ -340,7 +387,9 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             OnAfterPostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
         end;
     end;
+#endif
 
+#if not CLEAN19
     procedure PostCustomerEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -374,13 +423,15 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
     end;
+#endif
 
+#if not CLEAN19
     procedure PostBalancingEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         with GenJnlLine do begin
             InitNewLine(
               ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."Posting Description",
@@ -414,7 +465,9 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             OnAfterPostBalancingEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
     end;
+#endif
 
+#if not CLEAN19
     local procedure SetApplyToDocNo(ServiceHeader: Record "Service Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         with GenJnlLine do begin
@@ -425,6 +478,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             "Applies-to Doc. No." := DocNo;
         end;
     end;
+#endif
 
     procedure PostResJnlLineShip(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
     var
@@ -694,7 +748,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ServiceLinePostingDate := PostingDate;
     end;
 
-    local procedure PostSalesTaxToGL(var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; var TotalServiceLineLCY: Record "Service Line"; GenJnlLineDocType: Enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax)
+    internal procedure PostSalesTaxToGL(var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; var TotalServiceLineLCY: Record "Service Line"; GenJnlLineDocType: Enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax)
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
         GenJnlLine: Record "Gen. Journal Line";

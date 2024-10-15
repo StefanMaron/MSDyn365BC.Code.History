@@ -109,14 +109,14 @@ codeunit 144057 "CFDI Customer Consent Tests"
     [Scope('OnPrem')]
     procedure CustomerConsentConfirmationPageChooseNoModalPageHandler(var CustConsentConfPage: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfPage.No().Invoke();
+        CustConsentConfPage.Cancel.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerConsentConfirmationPageChooseYesModalPageHandler(var CustConsentConfPage: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfPage.Yes().Invoke();
+        CustConsentConfPage.Accept.Invoke();
     end;
 
     [ConfirmHandler]

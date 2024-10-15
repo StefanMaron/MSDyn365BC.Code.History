@@ -13,7 +13,9 @@ codeunit 135976 "Upgrade Monitor Field Tests"
         if not UpgradeStatus.UpgradeTriggered() then
             exit;
 
-        FieldMonitoringSetup.Get();
+        if UpgradeStatus.UpgradeTagPresentBeforeUpgrade(UpgradeTagDefinitions.GetUpgradeMonitorNotificationUpgradeTag()) then
+            exit;
+
         Assert.AreEqual(1, FieldMonitoringSetup."Notification Count", 'Monitor notification count after upgrade should equal same value in setup - 1');
     end;
 }

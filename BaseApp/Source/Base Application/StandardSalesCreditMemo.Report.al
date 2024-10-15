@@ -451,7 +451,7 @@ report 1307 "Standard Sales - Credit Memo"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
-#if not CLEAN16
+#if not CLEAN17
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;

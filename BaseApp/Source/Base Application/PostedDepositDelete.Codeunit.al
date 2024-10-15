@@ -1,4 +1,4 @@
-﻿codeunit 10144 "Posted Deposit-Delete"
+codeunit 10144 "Posted Deposit-Delete"
 {
     Permissions = TableData "Posted Deposit Header" = rd,
                   TableData "Posted Deposit Line" = rd;

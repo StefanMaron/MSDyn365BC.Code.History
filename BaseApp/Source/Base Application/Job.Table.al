@@ -1,4 +1,4 @@
-﻿table 167 Job
+table 167 Job
 {
     Caption = 'Job';
     DataCaptionFields = "No.", Description;

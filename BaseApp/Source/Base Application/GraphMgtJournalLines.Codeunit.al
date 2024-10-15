@@ -17,6 +17,15 @@ codeunit 5478 "Graph Mgt - Journal Lines"
         GenJournalLine.SetRange("Journal Batch Name", JournalLineBatchName);
     end;
 
+    procedure SetJournalLineTemplateAndBatchV2(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+
+        GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+    end;
+
     procedure SetJournalLineFilters(var GenJournalLine: Record "Gen. Journal Line")
     begin
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::" ");

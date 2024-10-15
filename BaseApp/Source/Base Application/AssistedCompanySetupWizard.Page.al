@@ -145,7 +145,7 @@ page 1803 "Assisted Company Setup Wizard"
 
                         trigger OnValidate()
                         begin
-                            SetTaxAreaCodeVisible;
+                            SetTaxAreaCodeVisible();
                         end;
                     }
                     field("VAT Registration No."; "VAT Registration No.")
@@ -242,7 +242,7 @@ page 1803 "Assisted Company Setup Wizard"
                     }
                 }
             }
-#if not CLEAN18
+#if not CLEAN19
             group(Control29)
             {
                 ShowCaption = false;
@@ -304,6 +304,9 @@ page 1803 "Assisted Company Setup Wizard"
                 part(OnlineBanckAccountLinkPagePart; "Online Bank Accounts")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The Bank Feed setup is no longer configured in this wizard.';
+                    ObsoleteTag = '19.0';
                 }
             }
 #endif
@@ -340,7 +343,7 @@ page 1803 "Assisted Company Setup Wizard"
                     Visible = ShowBankAccountCreationWarning;
                 }
             }
-#if not CLEAN18
+#if not CLEAN19
             group(Control6)
             {
                 ShowCaption = false;
@@ -554,7 +557,7 @@ page 1803 "Assisted Company Setup Wizard"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetTaxAreaCodeVisible;
+        SetTaxAreaCodeVisible();
     end;
 
     trigger OnAfterGetRecord()
@@ -572,6 +575,9 @@ page 1803 "Assisted Company Setup Wizard"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
+        CompanyData := CompanyData::None;
+        Clear(AccountingPeriodStartDate);
+
         ResetWizardControls;
         ShowIntroStep;
         TypeSelectionEnabled := LoadConfigTypes and not PackageImported();
@@ -592,19 +598,25 @@ page 1803 "Assisted Company Setup Wizard"
 
     var
         MediaRepositoryStandard: Record "Media Repository";
+#if not CLEAN19
         TempSavedBankAccount: Record "Bank Account" temporary;
+#endif
         TempBankAccount: Record "Bank Account" temporary;
         BankAccount: Record "Bank Account";
         TempOnlineBankAccLink: Record "Online Bank Acc. Link" temporary;
         MediaRepositoryDone: Record "Media Repository";
         MediaResourcesStandard: Record "Media Resources";
         MediaResourcesDone: Record "Media Resources";
+#if not CLEAN19
         InventorySetup: Record "Inventory Setup";
+#endif
         AssistedCompanySetup: Codeunit "Assisted Company Setup";
         ClientTypeManagement: Codeunit "Client Type Management";
         CompanyInfoNotification: Notification;
         AccountingPeriodStartDate: Date;
+#if not CLEAN19
         UserAccountingPeriodStartDate: Date;
+#endif
         CompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data";
         TypeStandard: Boolean;
         TypeEvaluation: Boolean;
@@ -622,7 +634,9 @@ page 1803 "Assisted Company Setup Wizard"
         TypeSelectionEnabled: Boolean;
         StandardVisible: Boolean;
         EvaluationVisible: Boolean;
+#if not CLEAN19
         SkipAccountingPeriod: Boolean;
+#endif
         ShowCompanyInfoDownloadedNotification: Boolean;
         IsCompanyInfoDownloadedNotificationEnabled: Boolean;
         NotificationSent: Boolean;
@@ -631,17 +645,25 @@ page 1803 "Assisted Company Setup Wizard"
         NoSetupTypeSelectedQst: Label 'You have not selected a type of setup. If you proceed, Business Central will not be fully functional until you manually complete the required setups, or run this assisted setup guide again.\\Do you want to continue?';
         HelpLbl: Label 'Learn more about setting up your company';
         HelpLinkTxt: Label 'http://go.microsoft.com/fwlink/?LinkId=746160', Locked = true;
+#if not CLEAN19
         BankAccountInformationUpdated: Boolean;
+#endif
         TaxAreaCodeVisible: Boolean;
+#if not CLEAN19
         TermsOfUseLbl: Label 'Envestnet Yodlee Terms of Use';
         TermsOfUseUrlTxt: Label 'https://go.microsoft.com/fwlink/?LinkId=746179', Locked = true;
+#endif
         LogoPositionOnDocumentsShown: Boolean;
         ShowBankAccountCreationWarning: Boolean;
         InvalidPhoneNumberErr: Label 'The phone number is invalid.';
+#if not CLEAN19
         CostMethodeLbl: Label 'Learn more';
         CostMethodUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=858295', Locked = true;
+#endif
         BankAccountLinkingFailedMsg: Label 'Linking the company bank account failed with the following message:\''%1''\Link the company bank account from the Bank Accounts page.', Comment = '%1 - an error message';
+#if not CLEAN19       
         AccountingPeriodStartDateBlankErr: Label 'You have not specified a start date for the fiscal year. You must either specify a date in the Fiscal Year Start Date field or select the Skip for Now field.';
+#endif
         GraphURLEndpointLbl: Label '%1v1.0/organization', Locked = true;
         ResourceNameTxt: Label 'Azure Service', Locked = true;
         BearerLbl: Label 'Bearer %1', Comment = '%1 = Access Token', Locked = true;
@@ -669,20 +691,21 @@ page 1803 "Assisted Company Setup Wizard"
                         ShowSelectTypeStep;
                 end;
             Step::"Company Details":
-                begin
+                if TypeEvaluation then begin
+                    Step := Step::Done;
+                    ShowDoneStep;
+                end else begin
                     SendCompanyInfoDownloadedFromOfficeNotification();
-                    if TypeEvaluation then begin
-                        Step := Step::Done;
-                        ShowDoneStep;
-                    end else
-                        ShowCompanyDetailsStep;
+                    ShowCompanyDetailsStep;
                 end;
             Step::"Communication Details":
                 ShowCommunicationDetailsStep;
             Step::"Payment Details":
                 begin
+#if not CLEAN19
                     if not Backwards then
                         PopulateBankAccountInformation;
+#endif
                     ShowPaymentDetailsStep;
                     ShowBankAccountCreationWarning := not ValidateBankAccountNotEmpty;
                 end;
@@ -743,8 +766,6 @@ page 1803 "Assisted Company Setup Wizard"
 
     local procedure ResetWizardControls()
     begin
-        CompanyData := CompanyData::None;
-
         // Buttons
         BackEnabled := true;
         NextEnabled := true;
@@ -762,7 +783,9 @@ page 1803 "Assisted Company Setup Wizard"
     local procedure InitializeRecord()
     var
         CompanyInformation: Record "Company Information";
+#if not CLEAN19
         AccountingPeriod: Record "Accounting Period";
+#endif
     begin
         Init;
 
@@ -773,11 +796,13 @@ page 1803 "Assisted Company Setup Wizard"
         end else
             Name := CompanyName;
 
+#if not CLEAN19
         SkipAccountingPeriod := not AccountingPeriod.IsEmpty;
         if not SkipAccountingPeriod then begin
             AccountingPeriodStartDate := CalcDate('<-CY>', Today);
             UserAccountingPeriodStartDate := AccountingPeriodStartDate;
         end;
+#endif
 
         Insert;
     end;
@@ -836,6 +861,7 @@ page 1803 "Assisted Company Setup Wizard"
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue;
     end;
 
+#if not CLEAN19
     local procedure PopulateBankAccountInformation()
     begin
         if BankAccountInformationUpdated then
@@ -890,6 +916,16 @@ page 1803 "Assisted Company Setup Wizard"
         IBAN := BufferBankAccount.IBAN;
     end;
 
+    local procedure IsBankAccountFormatValid(BankAccount: Text): Boolean
+    var
+        VarInt: Integer;
+        Which: Text;
+    begin
+        Which := ' -';
+        exit(Evaluate(VarInt, DelChr(BankAccount, '=', Which)));
+    end;
+#endif
+
     local procedure SetTaxAreaCodeVisible()
     var
         TaxArea: Record "Tax Area";
@@ -903,15 +939,6 @@ page 1803 "Assisted Company Setup Wizard"
             exit;
 
         TaxAreaCodeVisible := true;
-    end;
-
-    local procedure IsBankAccountFormatValid(BankAccount: Text): Boolean
-    var
-        VarInt: Integer;
-        Which: Text;
-    begin
-        Which := ' -';
-        exit(Evaluate(VarInt, DelChr(BankAccount, '=', Which)));
     end;
 
     local procedure ValidateBankAccountNotEmpty(): Boolean

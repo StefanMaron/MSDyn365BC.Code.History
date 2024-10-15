@@ -282,9 +282,11 @@ page 10123 "Bank Rec. Adj. Lines Subform"
     var
         AccName: Text[100];
         BalAccName: Text[100];
-        ShortcutDimCode: array[8] of Code[20];
         BankRecHdr: Record "Bank Rec. Header";
         LastBankRecLine: Record "Bank Rec. Line";
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     procedure SetupTotals()
     begin

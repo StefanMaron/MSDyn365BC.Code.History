@@ -66,42 +66,25 @@ table 99 "Item Vendor"
 
     trigger OnDelete()
     begin
-        if ItemReferenceMgt.IsEnabled() then
-            DeleteItemReference();
-#if not CLEAN16
-        if not ItemReferenceMgt.IsEnabled() then
-            DeleteItemCrossReference();
-#endif
+        DeleteItemReference();
     end;
 
     trigger OnInsert()
     begin
-        if ItemReferenceMgt.IsEnabled() then
-            InsertItemReference();
-#if not CLEAN16
-        if not ItemReferenceMgt.IsEnabled() then
-            InsertItemCrossReference();
-#endif
+        InsertItemReference();
     end;
 
     trigger OnModify()
     begin
-        if ItemReferenceMgt.IsEnabled() then
-            UpdateItemReference();
-#if not CLEAN16
-        if not ItemReferenceMgt.IsEnabled() then
-            UpdateItemCrossReference();
+        UpdateItemReference();
+#if not CLEAN18
+        UpdateItemCrossReference();
 #endif
     end;
 
     trigger OnRename()
     begin
-        if ItemReferenceMgt.IsEnabled() then
-            UpdateItemReference();
-#if not CLEAN16
-        if not ItemReferenceMgt.IsEnabled() then
-            UpdateItemCrossReference();
-#endif
+        UpdateItemReference();
     end;
 
     var
@@ -145,48 +128,15 @@ table 99 "Item Vendor"
                     ItemReferenceMgt.UpdateItemReference(Rec, xRec);
     end;
 
-#if not CLEAN16
-    local procedure InsertItemCrossReference()
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-        DistIntegration: Codeunit "Dist. Integration";
-    begin
-        if ItemCrossReference.WritePermission then
-            if ("Vendor No." <> '') and ("Item No." <> '') then
-                DistIntegration.InsertItemCrossReference(Rec);
-    end;
-#endif
-
-#if not CLEAN16
-    local procedure DeleteItemCrossReference()
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-        DistIntegration: Codeunit "Dist. Integration";
-    begin
-        if ItemCrossReference.WritePermission then
-            if ("Vendor No." <> '') and ("Item No." <> '') then
-                DistIntegration.DeleteItemCrossReference(Rec);
-    end;
-#endif
-
-#if not CLEAN16
+#if not CLEAN18
     local procedure UpdateItemCrossReference()
     var
-        ItemCrossReference: Record "Item Cross Reference";
-        DistIntegration: Codeunit "Dist. Integration";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdateItemCrossReference(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
-
-        if ItemCrossReference.WritePermission then
-            if ("Vendor No." <> '') and ("Item No." <> '') then
-                if ("Vendor No." <> xRec."Vendor No.") or ("Item No." <> xRec."Item No.") or
-                   ("Variant Code" <> xRec."Variant Code") or ("Vendor Item No." <> xRec."Vendor Item No.")
-                then
-                    DistIntegration.UpdateItemCrossReference(Rec, xRec);
     end;
 #endif
 

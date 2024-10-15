@@ -44,11 +44,15 @@ codeunit 10090 "Export Payments (ACH)"
         ExportFileNotEndedFileNotStartedErr: Label 'Cannot end export file until an export file is started.';
         ExportFileNotEndedFileNotEndedErr: Label 'Cannot end export file until export batch is ended.';
         FileDoesNoteExistErr: Label 'File %1 does not exist.', Comment = '%1 = the file name.';
+#if not CLEAN17
         DidTransmissionWorkQst: Label 'Did the transmission work properly?';
+#endif
         InvalidPaymentSpecErr: Label 'Either %1 or %2 must refer to either a %3 or a %4 for an electronic payment.', Comment = '%1 = Account Type, %2 = the account,%3 = Vendor table, %4 = Customer table';
         CustomerBlockedErr: Label '%1 is blocked for %2 processing.', Comment = '%1 = account type, %2 = customer.blocked';
         PrivacyBlockedErr: Label '%1 is blocked for privacy.', Comment = '%1 = account type';
+#if not CLEAN17
         ConfirmTransmissioinQst: Label 'You must now run the program that transmits the payments file to the bank. Transmit the file named %1 located at %2 to %3 (%4 %5 %6).  After the transmission is completed, you will be asked if it worked correctly.  Are you ready to transmit (answer No to cancel the transmission process)?', Comment = '%1 = full  filename, %2 = file path, %3 = file name, %4 = bank account table, %5 = bank account no.caption, %6 = bank account no. ';
+#endif
         VendorTransitNumNotValidErr: Label 'The specified transit number %1 for vendor %2  is not valid.', Comment = '%1 the transit number, %2 The Vendor No.';
         CustTransitNumNotValidErr: Label 'The specified transit number %1 for customer %2  is not valid.', Comment = '%1 the transit number, %2 The customer  No.';
         BankTransitNumNotValidErr: Label 'The specified transit number %1 for bank %2  is not valid.', Comment = '%1 the transit number, %2 The bank  No.';

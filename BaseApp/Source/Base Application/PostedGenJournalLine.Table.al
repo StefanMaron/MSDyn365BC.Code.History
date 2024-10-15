@@ -1110,11 +1110,9 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Payment Related Information 2';
         }
-        field(10045; "GST/HST"; Option)
+        field(10045; "GST/HST"; Enum "GST HST Tax Type")
         {
             Caption = 'GST/HST';
-            OptionCaption = ' ,Acquisition,Self Assessment,Rebate,New Housing Rebates,Pension Rebate';
-            OptionMembers = " ",Acquisition,"Self Assessment",Rebate,"New Housing Rebates","Pension Rebate";
         }
         field(10046; "EFT Export Sequence No."; Integer)
         {

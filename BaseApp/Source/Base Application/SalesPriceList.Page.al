@@ -378,13 +378,14 @@ page 7016 "Sales Price List"
         }
     }
 
+#if not CLEAN19
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-
+#endif
     trigger OnOpenPage()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";

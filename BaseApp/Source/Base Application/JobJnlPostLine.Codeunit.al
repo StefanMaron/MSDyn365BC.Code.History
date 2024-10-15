@@ -1,4 +1,4 @@
-﻿codeunit 1012 "Job Jnl.-Post Line"
+codeunit 1012 "Job Jnl.-Post Line"
 {
     Permissions = TableData "Job Ledger Entry" = imd,
                   TableData "Job Register" = imd,
@@ -339,7 +339,9 @@
                     ItemJnlLine2 := ItemJnlLine;
                     ItemJnlPostLine.RunWithCheck(ItemJnlLine);
                     ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
-                    PostWhseJnlLine(ItemJnlLine2, ItemJnlLine2.Quantity, ItemJnlLine2."Quantity (Base)", TempTrackingSpecification);
+
+                    if JobJnlLine.IsInventoriableItem() then
+                        PostWhseJnlLine(ItemJnlLine2, ItemJnlLine2.Quantity, ItemJnlLine2."Quantity (Base)", TempTrackingSpecification);
                 end;
             end;
 

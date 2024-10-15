@@ -131,7 +131,7 @@ report 29 "Export Acc. Sched. to Excel"
                                 ColumnNo := ColumnNo + 1;
                                 if IncludeRow(AccSchedLine) then
                                     EnterCell(
-                                      RowNo, ColumnNo, MatrixMgt.FormatValue(ColumnValue, ColumnLayout."Rounding Factor", UseAmtsInAddCurr),
+                                      RowNo, ColumnNo, MatrixMgt.FormatAmount(ColumnValue, ColumnLayout."Rounding Factor", UseAmtsInAddCurr),
                                       AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
                                       '', TempExcelBuffer."Cell Type"::Number)
                             until ColumnLayout.Next() = 0;

@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 132461 "Outlook Synch Data Generator"
 {
 
@@ -182,4 +183,4 @@ codeunit 132461 "Outlook Synch Data Generator"
         exit(DurationMinBegin);
     end;
 }
-
+#endif

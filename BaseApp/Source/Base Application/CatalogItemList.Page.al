@@ -78,21 +78,18 @@ page 5726 "Catalog Item List"
 #if not CLEAN18
                 field("Item Template Code"; "Item Template Code")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the code for the item template used for this catalog item.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This control will be removed with other functionality related to "old" templates. Use "Item Templ. Code" control instead.';
                     ObsoleteTag = '18.0';
-                    Visible = not NewItemTemplateCodeVisible;
+                    Visible = false;
                 }
 #endif
                 field("Item Templ. Code"; "Item Templ. Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for the item template used for this catalog item. 1';
-#if not CLEAN18
-                    Visible = NewItemTemplateCodeVisible;
-#endif
+                    ToolTip = 'Specifies the code for the item template used for this catalog item.';
                 }
                 field("Last Date Modified"; "Last Date Modified")
                 {
@@ -176,22 +173,5 @@ page 5726 "Catalog Item List"
             }
         }
     }
-
-#if not CLEAN18
-    var
-        NewItemTemplateCodeVisible: Boolean;
-
-    trigger OnOpenPage()
-    begin
-        SetItemTemplateCodeVisibility();
-    end;
-
-    local procedure SetItemTemplateCodeVisibility()
-    var
-        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
-    begin
-        NewItemTemplateCodeVisible := ItemTemplMgt.IsEnabled();
-    end;
-#endif
 }
 

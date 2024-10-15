@@ -48,7 +48,7 @@ table 467 "Workflow Webhook Entry"
         field(17; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

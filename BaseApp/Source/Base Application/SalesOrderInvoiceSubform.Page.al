@@ -36,14 +36,20 @@ page 10029 "Sales Order Invoice Subform"
                         NoOnAfterValidate();
                     end;
                 }
+#if not CLEAN19
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the cross-reference number of the item specified on the line.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
 
                     trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemCrossReference: Record "Item Cross Reference";
                     begin
                         // Item Cross Ref - start
                         if Type = Type::Item then begin
@@ -60,6 +66,7 @@ page 10029 "Sales Order Invoice Subform"
                         // Item Cross Ref - end
                     end;
                 }
+#endif
                 field("Variant Code"; "Variant Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -433,7 +440,7 @@ page 10029 "Sales Order Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Charge &Assignment';
                     Ellipsis = true;
-					Enabled = Type = Type::"Charge (Item)";
+                    Enabled = Type = Type::"Charge (Item)";
                     ToolTip = 'Record additional direct costs, for example for freight. This action is available only for Charge (Item) line types.';
 
                     trigger OnAction()
@@ -446,7 +453,7 @@ page 10029 "Sales Order Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-					Enabled = Type = Type::Item;
+                    Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
@@ -470,9 +477,12 @@ page 10029 "Sales Order Invoice Subform"
     end;
 
     var
+#if not CLEAN19
         SalesHeader: Record "Sales Header";
-        ItemCrossReference: Record "Item Cross Reference";
+#endif
         TransferExtendedText: Codeunit "Transfer Extended Text";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
 
     procedure ApproveCalcInvDisc()

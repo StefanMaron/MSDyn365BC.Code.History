@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135514 "Sales Order Line E2E Test"
 {
     Subtype = Test;
@@ -486,6 +487,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         VerifyTotals(SalesHeader, 0, SalesHeader."Invoice Discount Calculation"::"%");
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure TestInsertingLineKeepsOrderDiscountAmt()
@@ -518,6 +520,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [THEN] Discount Amount is Kept
         VerifyTotals(SalesHeader, DiscountAmount, SalesHeader."Invoice Discount Calculation"::Amount);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -875,4 +878,4 @@ codeunit 135514 "Sales Order Line E2E Test"
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(DiscountAmount, SalesHeader);
     end;
 }
-
+#endif

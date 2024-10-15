@@ -11,7 +11,9 @@ permissionset 8707 "D365 ITEM, VIEW"
                   tabledata "Item Budget Entry" = R,
                   tabledata "Item Budget Name" = R,
                   tabledata "Item Category" = R,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Reference" = R,
                   tabledata "Job Planning Line" = r,
                   tabledata "Purch. Cr. Memo Line" = r,

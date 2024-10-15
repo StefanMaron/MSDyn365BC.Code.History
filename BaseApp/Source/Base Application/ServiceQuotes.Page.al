@@ -1,4 +1,4 @@
-﻿page 9317 "Service Quotes"
+page 9317 "Service Quotes"
 {
     ApplicationArea = Service;
     Caption = 'Service Quotes';

@@ -463,12 +463,18 @@
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
-#if not CLEAN16
+#if not CLEAN19
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference No.';
+                    ObsoleteTag = '19.0';
                 }
                 column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference No.';
+                    ObsoleteTag = '19.0';
                 }
 #endif
                 column(ItemReferenceNo_Line; "Item Reference No.")
@@ -873,12 +879,11 @@
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
                 PaymentServiceSetup: Record "Payment Service Setup";
-                SalesReceivablesSetup: Record "Sales & Receivables Setup";
+#if not CLEAN19
                 O365PaymentInstructions: Record "O365 Payment Instructions";
+#endif                
                 ArchiveManagement: Codeunit ArchiveManagement;
                 SalesPost: Codeunit "Sales-Post";
-                EnvInfoProxy: Codeunit "Env. Info Proxy";
-                NoSeriesManagement: Codeunit NoSeriesManagement;
             begin
                 FirstLineHasBeenOutput := false;
                 Clear(Line);
@@ -887,23 +892,22 @@
                 SalesPost.GetSalesLines(Header, Line, 0);
                 OnAfterSalesPostGetSalesLines(Header, Line);
                 VATAmountLine.DeleteAll();
+
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
                 Line.CalcSalesTaxLines(Header, Line);
                 OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(Header, Line, VATAmountLine);
-
-                if EnvInfoProxy.IsInvoicing then
-                    "Language Code" := Language.GetUserLanguageCode;
 
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
 
+#if not CLEAN19
                 Clear(PaymentInstructionsTxt);
                 if O365PaymentInstructions.Get("Payment Instructions Id") then
                     PaymentInstructionsTxt := O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage;
-
+#endif
                 FormatAddr.GetCompanyAddr("Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
                 FormatAddr.SalesHeaderBillTo(CustAddr, Header);
                 ShowShippingAddr := FormatAddr.SalesHeaderShipTo(ShipToAddr, CustAddr, Header);
@@ -912,14 +916,6 @@
                 InvoiceNoText := InvNoLbl;
                 BodyContentText := BodyLbl;
                 ChecksPayableText := StrSubstNo(ChecksPayableLbl, CompanyInfo.Name);
-
-                if EnvInfoProxy.IsInvoicing then begin
-                    if SalesReceivablesSetup.Get then
-                        if SalesReceivablesSetup."Posted Invoice Nos." <> '' then
-                            NextInvoiceNo := NoSeriesManagement.ClearStateAndGetNextNo(SalesReceivablesSetup."Posted Invoice Nos.");
-                    InvoiceNoText := ExpectedlInvNoLbl;
-                    BodyContentText := RealBodyLbl;
-                end;
 
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
@@ -1111,7 +1107,6 @@
         ClosingLbl: Label 'Sincerely';
         PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 = Discount Due Date %2 = value of Payment Discount % ';
         BodyLbl: Label 'Thank you for your business. Your draft invoice is attached to this message.';
-        RealBodyLbl: Label 'Thank you for your business. Your invoice is attached to this message.';
         DocumentTitleText: Text;
         InvoiceNoText: Text;
         BodyContentText: Text;
@@ -1126,7 +1121,6 @@
         LineAmountLbl: Label 'Line Amount';
         SalespersonLbl2: Label 'Salesperson';
         NextInvoiceNo: Text;
-        ExpectedlInvNoLbl: Label 'Expected Invoice No.';
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     begin

@@ -7,7 +7,7 @@ codeunit 920 "Period Form Lines Mgt."
 
     var
         DummyBuffer: Record "Customer Sales Buffer";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
 
     procedure FindDate(var BufferRecord: Variant; var DateRec: Record Date; Which: Text[3]; PeriodType: Option): Boolean
     var
@@ -17,7 +17,7 @@ codeunit 920 "Period Form Lines Mgt."
     begin
         RecRef.GetTable(BufferRecord);
         CopyPeriodStartFilter(RecRef, DateRec);
-        FoundDate := PeriodFormMgt.FindDate(Which, DateRec, PeriodType);
+        FoundDate := PeriodPageMgt.FindDate(Which, DateRec, "Analysis Period Type".FromInteger(PeriodType));
         if not FoundDate then
             exit(false);
 
@@ -37,7 +37,7 @@ codeunit 920 "Period Form Lines Mgt."
     begin
         RecRef.GetTable(BufferRecord);
         CopyPeriodStartFilter(RecRef, DateRec);
-        ResultSteps := PeriodFormMgt.NextDate(Steps, DateRec, PeriodType);
+        ResultSteps := PeriodPageMgt.NextDate(Steps, DateRec, "Analysis Period Type".FromInteger(PeriodType));
         if ResultSteps = 0 then
             exit(0);
 

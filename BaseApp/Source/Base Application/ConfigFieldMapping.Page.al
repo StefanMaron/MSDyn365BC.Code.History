@@ -2,7 +2,7 @@ page 8636 "Config. Field Mapping"
 {
     Caption = 'Config. Field Mapping';
     PageType = List;
-    SourceTable = "Config. Field Mapping";
+    SourceTable = "Config. Field Map";
 
     layout
     {

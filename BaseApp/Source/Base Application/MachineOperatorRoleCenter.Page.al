@@ -1,6 +1,6 @@
 page 9013 "Machine Operator Role Center"
 {
-    Caption = 'Machine Operator - Manufacturing Comprehensive', Comment = '{Dependency=Match,"ProfileDescription_MACHINEOPERATOR"}';
+    Caption = 'Machine Operator - Manufacturing Comprehensive';
     PageType = RoleCenter;
 
     layout

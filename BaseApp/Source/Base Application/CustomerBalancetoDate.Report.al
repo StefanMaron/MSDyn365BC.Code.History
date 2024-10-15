@@ -415,7 +415,7 @@ report 121 "Customer - Balance to Date"
                         RemainingAmt := "Remaining Amount";
                         CurrencyCode := "Currency Code";
                     end;
-                    if RemainingAmt <> 0 then
+                    if (RemainingAmt <> 0) or ShowEntriesWithZeroBalance then
                         CurrencyTotalBuffer.UpdateTotal(
                           CurrencyCode,
                           RemainingAmt,
@@ -433,6 +433,8 @@ report 121 "Customer - Balance to Date"
             CustLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
             CustLedgerEntry.CalcFields("Remaining Amount");
             if CustLedgerEntry."Remaining Amount" <> 0 then
+                exit(true);
+            if ShowEntriesWithZeroBalance then
                 exit(true);
             if PrintUnappliedEntries then
                 exit(CheckUnappliedEntryExists(EntryNo));

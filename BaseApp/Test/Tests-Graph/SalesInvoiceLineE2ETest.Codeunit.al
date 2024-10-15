@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135511 "Sales Invoice Line E2E Test"
 {
     Subtype = Test;
@@ -761,6 +762,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         VerifyTotals(SalesHeader, 0, SalesHeader."Invoice Discount Calculation"::"%");
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure TestInsertingLineKeepsInvoiceDiscountAmt()
@@ -793,6 +795,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [THEN] Discount Amount is Kept
         VerifyTotals(SalesHeader, DiscountAmount, SalesHeader."Invoice Discount Calculation"::Amount);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1200,4 +1203,4 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         Assert.AreEqual(UnitOfMeasure.Code, UoMCodeValue, 'UnitOfMeasure code complex type should not be null in ' + JSONTxt);
     end;
 }
-
+#endif

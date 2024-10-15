@@ -20,6 +20,7 @@ codeunit 137281 "O365 Location Transfers"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         WrongInventoryErr: Label 'The amount of inventory transfered is incorrect.';
         TestFieldErr: Label '%1 must be equal to ''No''  in Location';
@@ -907,6 +908,7 @@ codeunit 137281 "O365 Location Transfers"
         Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibraryTemplates.EnableTemplatesFeature();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Location Transfers");
     end;
@@ -1035,10 +1037,10 @@ codeunit 137281 "O365 Location Transfers"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ItemTemplateModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure ItemTemplateModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]

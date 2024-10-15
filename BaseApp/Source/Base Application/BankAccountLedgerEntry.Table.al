@@ -323,6 +323,9 @@ table 271 "Bank Account Ledger Entry"
         {
             Enabled = false;
         }
+        key(key10; "Statement No.", "Statement Line No.")
+        {
+        }
     }
 
     fieldgroups
@@ -331,6 +334,10 @@ table 271 "Bank Account Ledger Entry"
         {
         }
     }
+    trigger OnInsert()
+    begin
+        UpdateBankAccReconciliationLine();
+    end;
 
     var
         DimMgt: Codeunit DimensionManagement;
@@ -360,8 +367,50 @@ table 271 "Bank Account Ledger Entry"
         "User ID" := UserId;
         "Bal. Account Type" := GenJnlLine."Bal. Account Type";
         "Bal. Account No." := GenJnlLine."Bal. Account No.";
-
+        if GenJnlLine."Linked Table ID" <> 0 then
+            SetBankAccReconciliationLine(GenJnlLine);
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
+    end;
+
+    Local procedure SetBankAccReconciliationLine(GenJnlLine: Record "Gen. Journal Line")
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+    begin
+        if GenJnlLine."Linked Table ID" <> Database::"Bank Acc. Reconciliation Line" then
+            exit;
+        if IsNullGuid(GenJnlLine."Linked System ID") then
+            exit;
+        if not BankAccReconciliationLine.GetBySystemId(GenJnlLine."Linked System ID") then
+            exit;
+        BankAccountLedgerEntry.SetCurrentKey("Statement No.", "Statement Line No.");
+        BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
+        BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+        if not BankAccountLedgerEntry.IsEmpty then
+            exit;
+        "Statement Status" := "Statement Status"::"Bank Acc. Entry Applied";
+        "Statement No." := BankAccReconciliationLine."Statement No.";
+        "Statement Line No." := BankAccReconciliationLine."Statement Line No.";
+    end;
+
+    local procedure UpdateBankAccReconciliationLine()
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        if "Statement No." = '' then
+            exit;
+        if not BankAccReconciliationLine.Get(BankAccReconciliationLine."Statement Type"::"Bank Reconciliation", "Bank Account No.", "Statement No.", "Statement Line No.") then
+            exit;
+        if BankAccReconciliationLine."Statement Amount" = Amount then begin
+            BankAccReconciliationLine."Applied Amount" += Amount;
+            BankAccReconciliationLine.Difference := BankAccReconciliationLine."Statement Amount" - BankAccReconciliationLine."Applied Amount";
+            BankAccReconciliationLine."Applied Entries" := "Entry No.";
+            BankAccReconciliationLine.Modify();
+        end else begin
+            "Statement Status" := "Statement Status"::Open;
+            "Statement No." := '';
+            "Statement Line No." := 0;
+        end;
     end;
 
     procedure UpdateDebitCredit(Correction: Boolean)

@@ -1,4 +1,4 @@
-﻿report 1305 "Standard Sales - Order Conf."
+report 1305 "Standard Sales - Order Conf."
 {
     RDLCLayout = './StandardSalesOrderConf.rdlc';
     WordLayout = './StandardSalesOrderConf.docx';
@@ -509,7 +509,7 @@
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
                 }
-#if not CLEAN16
+#if not CLEAN17
                 column(CrossReferenceNo; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;

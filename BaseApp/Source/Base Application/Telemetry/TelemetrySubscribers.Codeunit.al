@@ -37,6 +37,7 @@ codeunit 1351 "Telemetry Subscribers"
         JobQueueEntryStartedAllTxt: Label 'Job queue entry started: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryFinishedAllTxt: Label 'Job queue entry finished: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryEnqueuedAllTxt: Label 'Job queue entry enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryNotEnqueuedTxt: Label 'Job queue entry not enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
         UndoSalesShipmentCategoryTxt: Label 'AL UndoSalesShipmentNoOfLines', Locked = true;
         UndoSalesShipmentNoOfLinesTxt: Label 'UndoNoOfLines = %1', Locked = true;
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
@@ -46,7 +47,6 @@ codeunit 1351 "Telemetry Subscribers"
         PostedDepositLinesLbl: Label 'Posted deposit line information', Locked = true;	
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
         BankAccountRecPostedWithBankAccCurrencyCodeMsg: Label 'Bank Account Reconciliation posted with CurrencyCode set to: %1', Locked = true;
-        BankAccountRecImportedBankStatementLinesCountMsg: Label 'Number of imported lines in bank statement: %1', Locked = true;
         BankAccountRecAutoMatchMsg: Label 'Total number of lines in the bank statement: %1; Total number of automatches: %2', Locked = true;
         BankAccountRecTextToAccountCountLbl: Label 'Number of lines where Text-To-Applied was used: %1', Locked = true;
         BankAccountRecTransferToGJMsg: Label 'Lines of Bank Statement to transfer to GJ: %1', Locked = true;
@@ -55,6 +55,7 @@ codeunit 1351 "Telemetry Subscribers"
         SalesInvoiceInformationLbl: Label 'Sales invoice posted: %1', Locked = true;
         EmailCategoryLbl: Label 'Email', Locked = true;
         UserPlansTelemetryLbl: Label 'User with %1 plans opened the %2 page.', Comment = '%1 - User plans; %2 - page name', Locked = true;
+        LogNonInventoryUsageLbl: Label 'Non-inventory usage logging', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnProfileChanged', '', true, true)]
     local procedure SendTraceOnProfileChanged(PrevAllProfile: Record "All Profile"; CurrentAllProfile: Record "All Profile")
@@ -298,8 +299,6 @@ codeunit 1351 "Telemetry Subscribers"
 
         TranslationHelper.SetGlobalLanguageToDefault();
 
-        Session.LogMessage('0000AIX', StrSubstNo(JobQueueEntryEnqueuedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Recurring Job", JobQueueEntry.Status, JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
-
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
         Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
@@ -310,7 +309,12 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
         Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
 
-        Session.LogMessage('0000E24', StrSubstNo(JobQueueEntryEnqueuedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
+        if IsNullGuid(JobQueueEntry."System Task ID") then
+            Session.LogMessage('0000FNY', StrSubstNo(JobQueueEntryNotEnqueuedTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions)
+        else begin
+            Session.LogMessage('0000AIX', StrSubstNo(JobQueueEntryEnqueuedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Recurring Job", JobQueueEntry.Status, JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+            Session.LogMessage('0000E24', StrSubstNo(JobQueueEntryEnqueuedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
+        end;
 
         TranslationHelper.RestoreGlobalLanguage();
     end;
@@ -341,42 +345,65 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterExecuteJob', '', false, false)]
     local procedure SendTraceOnJobQueueEntryFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
+#else
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterSuccessExecuteJob', '', false, false)]
+    local procedure SendTraceOnJobQueueEntryFinished(var JobQueueEntry: Record "Job Queue Entry")
+#endif
     var
         TranslationHelper: Codeunit "Translation Helper";
+#if not CLEAN19
         Result: Text[10];
+#endif
     begin
         if not IsSaaS then
             exit;
 
+#if not CLEAN19
         if WasSuccess then
             Result := 'Success'
         else
             Result := 'Fail';
+#endif
 
         TranslationHelper.SetGlobalLanguageToDefault();
 
         Session.LogMessage('000082C', StrSubstNo(JobQueueEntryFinishedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run",
-            JobQueueEntry."Object ID to Run", Result, JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+            JobQueueEntry."Object ID to Run", 'Success', JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"),
+            Verbosity::Normal,
+            DataClassification::OrganizationIdentifiableInformation,
+            TelemetryScope::ExtensionPublisher,
+            'Category',
+            JobQueueEntriesCategoryTxt);
 
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterHandleRequest', '', false, false)]
     local procedure SendTraceOnJobQueueEntryRequestFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean; JobQueueExecutionTime: Integer)
+#else
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterSuccessHandleRequest', '', false, false)]
+    local procedure SendTraceOnJobQueueEntryRequestFinished(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer)
+#endif
     var
         TranslationHelper: Codeunit "Translation Helper";
+#if not CLEAN19
         Result: Text[10];
+#endif
         Dimensions: Dictionary of [Text, Text];
     begin
         if not IsSaaS() then
             exit;
 
+#if not CLEAN19
         if WasSuccess then
             Result := 'Success'
         else
             Result := 'Fail';
+#endif
 
         TranslationHelper.SetGlobalLanguageToDefault();
 
@@ -385,10 +412,12 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
         Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
-        Dimensions.Add('JobQueueResult', Result);
         Dimensions.Add('JobQueueExecutionTimeInMs', Format(JobQueueExecutionTime));
         Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
         Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+#if not CLEAN19
+        Dimensions.Add('JobQueueResult', Result);
+#endif
 
         Session.LogMessage('0000E26', StrSubstNo(JobQueueEntryFinishedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
 
@@ -469,10 +498,36 @@ codeunit 1351 "Telemetry Subscribers"
         LogNumberOfSalesInvoiceLines(SalesInvoiceHeader);
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Sales - Invoice", 'OnAfterGetRecordSalesInvoiceHeader', '', true, true)]
-    local procedure LogNumberOfSalesInvoiceLinesForReport206(SalesInvoiceHeader: Record "Sales Invoice Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", 'OnSendDailyTelemetry', '', true, true)]
+    local procedure LogNonInventoryUsage()
+    var
+        TelemetryQuery: Query "Non-Inventory Telemetry";
+        Attributes: Dictionary of [Text, Text];
     begin
-        LogNumberOfSalesInvoiceLines(SalesInvoiceHeader);
+        TelemetryQuery.SetRange(Location_Code, '');
+        TelemetryQuery.Open();
+        if TelemetryQuery.Read() then
+            Attributes.Add('NoOfNonInventoryItemLedgerEntriesWithoutLocation', Format(TelemetryQuery.NoOfNonInventory))
+        else
+            Attributes.Add('NoOfNonInventoryItemLedgerEntriesWithoutLocation', '0');
+        TelemetryQuery.Close();
+
+        TelemetryQuery.SetFilter(Location_Code, '<> ''''');
+        TelemetryQuery.Open();
+        if TelemetryQuery.Read() then
+            Attributes.Add('NoOfNonInventoryItemLedgerEntriesWithLocation', Format(TelemetryQuery.NoOfNonInventory))
+        else
+            Attributes.Add('NoOfNonInventoryItemLedgerEntriesWithLocation', '0');
+        TelemetryQuery.Close();
+
+        Session.LogMessage(
+            '0000FD5',
+            LogNonInventoryUsageLbl,
+            Verbosity::Normal,
+            DataClassification::SystemMetadata,
+            TelemetryScope::All,
+            Attributes
+        );
     end;
 
     local procedure LogNumberOfSalesInvoiceLines(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -555,12 +610,6 @@ codeunit 1351 "Telemetry Subscribers"
             Get(BankAccReconciliation."Bank Account No.");
             Session.LogMessage('0000AHX', StrSubstNo(BankAccountRecPostedWithBankAccCurrencyCodeMsg, BankAccount."Currency Code"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
         end;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, codeunit::"Process Bank Acc. Rec Lines", 'OnAfterImportBankStatement', '', true, true)]
-    local procedure LogTelemetryOnBankAccRecOnAfterImportBankStatement(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DataExch: Record "Data Exch.")
-    begin
-        Session.LogMessage('0000AHY', StrSubstNo(BankAccountRecImportedBankStatementLinesCountMsg, DataExch.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, codeunit::"Match Bank Rec. Lines", 'OnAfterMatchBankRecLinesMatchSingle', '', true, true)]

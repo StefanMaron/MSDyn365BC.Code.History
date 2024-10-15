@@ -33,13 +33,12 @@ page 6009 "Res. Gr. Alloc. per Serv Order"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        DateControl;
-                        SetColumns(SetWanted::Initial);
+                        DateControl();
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -50,8 +49,8 @@ page 6009 "Res. Gr. Alloc. per Serv Order"
 
                     trigger OnValidate()
                     begin
-                        DateControl;
-                        SetColumns(SetWanted::Initial);
+                        DateControl();
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(ColumnsSet; ColumnsSet)
@@ -102,7 +101,7 @@ page 6009 "Res. Gr. Alloc. per Serv Order"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Previous);
+                    SetMatrixColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -117,7 +116,7 @@ page 6009 "Res. Gr. Alloc. per Serv Order"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Next);
+                    SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -125,7 +124,7 @@ page 6009 "Res. Gr. Alloc. per Serv Order"
 
     trigger OnOpenPage()
     begin
-        SetColumns(SetWanted::Initial);
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
         if HasFilter then
             ResourceGrFilter := GetFilter("Resource Group Filter");
     end;
@@ -137,8 +136,7 @@ page 6009 "Res. Gr. Alloc. per Serv Order"
         FilterTokens: Codeunit "Filter Tokens";
         DateFilter: Text;
         ResourceGrFilter: Text;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        SetWanted: Option Initial,Previous,Same,Next;
+        PeriodType: Enum "Analysis Period Type";
         PKFirstRecInCurrSet: Text[1024];
         MatrixColumnCaptions: array[32] of Text[100];
         ColumnsSet: Text[1024];
@@ -151,12 +149,21 @@ page 6009 "Res. Gr. Alloc. per Serv Order"
         DateFilter := ResRec2.GetFilter("Date Filter");
     end;
 
-    procedure SetColumns(SetWanted: Option Initial,Previous,Same,Next)
+#if not CLEAN19
+    [Obsolete('Replaced by SetMatrixColumns().', '19.0')]
+    procedure SetColumns(SetType: Option Initial,Previous,Same,Next)
+    begin
+        SetMatrixColumns("Matrix Page Step Type".FromInteger(SetType));
+    end;
+#endif
+
+    procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, 32, false, PeriodType, DateFilter,
-          PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnsSet, CurrSetLength, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), 32, false, PeriodType, DateFilter,
+            PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnsSet, CurrSetLength, MatrixRecords);
     end;
 }
 

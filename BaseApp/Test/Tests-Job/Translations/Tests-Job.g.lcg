@@ -878,15 +878,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType AutoReserveNotPossibleMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2478735241 - NamedType 3892700456" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Description should be %1 which from Item Cross Reference card.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType CrossRefDescriptionErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2478735241 - NamedType 4105436554" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Description 2 should be empty.]]></Val>
@@ -957,15 +948,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 Field Caption %2 Table Caption %3 Field Caption%4 value, %5 Table Caption %6 value %7 Field Caption %8 value.%9 value.]D;]A;(LookupHint=Codeunit Job Reservation - NamedType PlanningLinesReservationErrorForReserve)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2478735241 - NamedType 3276535216" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Description in Requisition Line should be same as in Item Cross Reference]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType ReqLineCrossRefDescriptionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2478735241 - NamedType 3970321001" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1346,6 +1328,15 @@
       <Cmt Name="Dev"><![CDATA[You cannot delete job JOB001 because it has open or submitted time sheet lines.]D;]A;(LookupHint=Codeunit UT T Job - NamedType TimeSheetLinesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3226441871 - NamedType 1609326224" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Rounding of the field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job Journal Line - NamedType RoundingTo0Err)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3251676635 - NamedType 1574108426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Actual: ]]></Val>
@@ -1443,6 +1434,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job Planning Line - NamedType RecordExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3251676635 - NamedType 1609326224" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Rounding of the field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job Planning Line - NamedType RoundingTo0Err)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3251676635 - NamedType 2122875971" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

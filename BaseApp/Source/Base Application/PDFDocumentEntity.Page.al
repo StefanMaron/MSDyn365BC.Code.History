@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5529 "PDF Document Entity"
 {
     Caption = 'pdfDocument', Locked = true;
@@ -64,4 +65,4 @@ page 5529 "PDF Document Entity"
         PdfGenerated: Boolean;
         ConflictingIdsErr: Label 'You have specified conflicting identifiers: %1 and %2.', Comment = '%1 - a GUID, %2 - a GUID';
 }
-
+#endif

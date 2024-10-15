@@ -145,6 +145,15 @@ report 10166 "Sales Promotion V16"
     {
     }
 
+#if not CLEAN19
+    trigger OnInitReport()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureDisabled();
+    end;
+#endif
+
     trigger OnPreReport()
     begin
         CompanyInformation.Get();

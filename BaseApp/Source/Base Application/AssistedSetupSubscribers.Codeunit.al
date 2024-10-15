@@ -1,4 +1,4 @@
-﻿codeunit 1814 "Assisted Setup Subscribers"
+codeunit 1814 "Assisted Setup Subscribers"
 {
 
     var
@@ -10,13 +10,15 @@
         EmailSetupShortTxt: Label 'Outgoing email';
         SMTPSetupDescriptionTxt: Label 'Choose the email account your business will use to send out invoices and other documents. You can use a Microsoft 365 account or another provider.';
         EmailAccountSetupDescriptionTxt: Label 'Set up the email accounts your business will use to send out invoices and other documents. You can use a Microsoft 365 account or another provider.';
-        OfficeAddinSetupTitleTxt: Label 'Set up your Business Inbox in Outlook';
-        OfficeAddinSetupShortTitleTxt: Label 'Set up your Business Inbox', MaxLength = 50;
-        OfficeAddinSetupDescriptionTxt: Label 'Configure Exchange so that users can complete business tasks without leaving their Outlook inbox.';
-        ODataWizardTitleTxt: Label 'Set up reporting data for your own reports';
-        ODataWizardShortTitleTxt: Label 'Set up reporting data', MaxLength = 50;
-        ODataWizardHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115254', Locked = true;
-        ODataWizardDescriptionTxt: Label 'Create data sets that you can use for building reports in Excel, Power BI, or any other reporting tool that works with an OData data source.';
+        OutlookAddinCentralizedSetupTitleTxt: Label 'Outlook Add-in Centralized Deployment';
+        OutlookAddinCentralizedSetupShortTitleTxt: Label 'Outlook Add-in Centralized Deployment', MaxLength = 50;
+        OutlookAddinCentralizedSetupDescriptionTxt: Label 'Deploy Outlook add-in for specific users, groups, or the entire organization.';
+        TeamsAppCentralizedDeploymentTitleTxt: Label 'Teams App Centralized Deployment';
+        TeamsAppCentralizedDeploymentShortTitleTxt: Label 'Teams App Centralized Deployment', MaxLength = 50;
+        TeamsAppCentralizedDeploymentDescriptionTxt: Label 'Deploy the Business Central app for Teams for specific users, groups, or the entire organization.';
+        ExcelAddinCentralizedDeploymentTitleTxt: Label 'Excel Add-in Centralized Deployment';
+        ExcelAddinCentralizedDeploymentShortTitleTxt: Label 'Excel Add-in Centralized Deployment', MaxLength = 50;
+        ExcelAddinCentralizedDeploymentDescriptionTxt: Label 'Deploy the Excel add-in for specific users, groups, or the entire organization.';
         DataMigrationTitleTxt: Label 'Migrate business data';
         DataMigrationShortTitleTxt: Label 'Migrate data', MaxLength = 50;
         DataMigrationDescriptionTxt: Label 'Import existing data to Business Central from your former system.';
@@ -73,7 +75,9 @@
         VideoIntrotoDynamics365forFinancialsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828681', Locked = true;
         VideoAzureAIforFinancialsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828680', Locked = true;
         VideoImportbusinessdataTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828660', Locked = true;
-        HelpSetuptheOfficeaddinTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828690', Locked = true;
+        HelpSetupOutlookCentralizedDeploymentTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2170959', Locked = true;
+        HelpSetupTeamsCentralizedDeploymentTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2170851', Locked = true;
+        HelpSetupExcelCentralizedDeploymentTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2163968', Locked = true;
         HelpWorkwithPowerBINameTxt: Label 'Work with Power BI';
         HelpCreateasalesinvoiceNameTxt: Label 'Create a sales invoice';
         HelpAddacustomerNameTxt: Label 'Add a customer';
@@ -128,6 +132,10 @@
         UpdateUsersFromOfficeTitleTxt: Label 'Fetch users from Microsoft 365';
         UpdateUsersFromOfficeShortTitleTxt: Label 'Update users', MaxLength = 50;
         UpdateUsersFromOfficeDescriptionTxt: Label 'Get the latest information about users and licenses for Business Central from Microsoft 365.';
+        SetupTimeSheetsTitleTxt: Label 'Set Up Time Sheets';
+        SetupTimeSheetsShortTitleTxt: Label 'Set up Time Sheets', MaxLength = 50;
+        SetupTimeSheetsHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2166666';
+        SetupTimeSheetsDescriptionTxt: Label 'Track the time used on jobs, register absences, or create simple time registrations for team members on any device.';
 
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
@@ -177,9 +185,36 @@
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
             PAGE::"Curr. Exch. Rate Service List", Language.GetDefaultApplicationLanguageId(), SetupExchangeRatesTitleTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
+        GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Outlook Individual Deployment");
+#if not CLEAN19
+        GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Exchange Setup Wizard");
+#endif
+
+        GuidedExperience.InsertAssistedSetup(OutlookAddinCentralizedSetupTitleTxt, OutlookAddinCentralizedSetupShortTitleTxt, OutlookAddinCentralizedSetupDescriptionTxt, 5, ObjectType::Page,
+            Page::"Outlook Centralized Deployment", AssistedSetupGroup::DoMoreWithBC, VideoRunyourbusinesswithOffice365Txt, VideoCategory::DoMoreWithBC, HelpSetupOutlookCentralizedDeploymentTxt);
+        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"Outlook Centralized Deployment", Language.GetDefaultApplicationLanguageId(), OutlookAddinCentralizedSetupTitleTxt);
+        GLOBALLANGUAGE(CurrentGlobalLanguage);
+
+        if EnvironmentInfo.IsSaaS() then begin
+            GuidedExperience.InsertAssistedSetup(TeamsAppCentralizedDeploymentTitleTxt, TeamsAppCentralizedDeploymentShortTitleTxt, TeamsAppCentralizedDeploymentDescriptionTxt, 5, ObjectType::Page,
+                Page::"Teams Centralized Deployment", AssistedSetupGroup::DoMoreWithBC, '', VideoCategory::DoMoreWithBC, HelpSetupTeamsCentralizedDeploymentTxt);
+            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                PAGE::"Teams Centralized Deployment", Language.GetDefaultApplicationLanguageId(), TeamsAppCentralizedDeploymentTitleTxt);
+            GLOBALLANGUAGE(CurrentGlobalLanguage);
+        end;
+        GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Teams Individual Deployment");
+
+        GuidedExperience.InsertAssistedSetup(ExcelAddinCentralizedDeploymentTitleTxt, ExcelAddinCentralizedDeploymentShortTitleTxt, ExcelAddinCentralizedDeploymentDescriptionTxt, 5, ObjectType::Page,
+            Page::"Excel Centralized Depl. Wizard", AssistedSetupGroup::DoMoreWithBC, '', VideoCategory::DoMoreWithBC, HelpSetupExcelCentralizedDeploymentTxt);
+        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Excel Centralized Depl. Wizard", Language.GetDefaultApplicationLanguageId(), ExcelAddinCentralizedDeploymentTitleTxt);
+        GLOBALLANGUAGE(CurrentGlobalLanguage);
 
         // Analysis
-
         GuidedExperience.InsertAssistedSetup(CashFlowForecastTitleTxt, CashFlowForecastShortTitleTxt, CashFlowForecastDescriptionTxt, 5, ObjectType::Page,
             Page::"Cash Flow Forecast Wizard", AssistedSetupGroup::DoMoreWithBC, '', VideoCategory::DoMoreWithBC, HelpSetupCashFlowForecastTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
@@ -189,14 +224,6 @@
 
         // Customize for your need
         InitializeCustomize();
-
-        // Setup Group
-        GuidedExperience.InsertAssistedSetup(ODataWizardTitleTxt, ODataWizardShortTitleTxt, ODataWizardDescriptionTxt, 10, ObjectType::Page,
-            Page::"OData Setup Wizard", AssistedSetupGroup::FinancialReporting, '', VideoCategory::FinancialReporting, ODataWizardHelpTxt);
-        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-            PAGE::"OData Setup Wizard", Language.GetDefaultApplicationLanguageId(), ODataWizardTitleTxt);
-        GLOBALLANGUAGE(CurrentGlobalLanguage);
 
         if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
             GuidedExperience.InsertAssistedSetup(ItemAppWorkflowTitleTxt, ItemAppWorkflowShortTitleTxt, ItemAppWorkflowDescriptionTxt, 3, ObjectType::Page,
@@ -333,19 +360,18 @@
             GLOBALLANGUAGE(CurrentGlobalLanguage);
         end;
 
+        GuidedExperience.InsertAssistedSetup(SetupTimeSheetsTitleTxt, SetupTimeSheetsShortTitleTxt, SetupTimeSheetsDescriptionTxt, 10, ObjectType::Page,
+            Page::"Time Sheet Setup Wizard", AssistedSetupGroup::DoMoreWithBC, '', VideoCategory::DoMoreWithBC, SetupTimeSheetsHelpTxt);
+        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            PAGE::"Time Sheet Setup Wizard", Language.GetDefaultApplicationLanguageId(), SetupTimeSheetsTitleTxt);
+        GLOBALLANGUAGE(CurrentGlobalLanguage);
+
         GuidedExperience.InsertAssistedSetup(CustomizeDocumentLayoutsTitleTxt, CustomizeDocumentLayoutsShortTitleTxt, CustomizeDocumentLayoutsDescTxt, 10, ObjectType::Page,
             Page::"Custom Report Layouts", AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, CustomizeDocumentLayoutsHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
             PAGE::"Custom Report Layouts", Language.GetDefaultApplicationLanguageId(), CustomizeDocumentLayoutsTitleTxt);
-        GLOBALLANGUAGE(CurrentGlobalLanguage);
-
-
-        GuidedExperience.InsertAssistedSetup(OfficeAddinSetupTitleTxt, OfficeAddinSetupShortTitleTxt, OfficeAddinSetupDescriptionTxt, 5, ObjectType::Page,
-            Page::"Exchange Setup Wizard", AssistedSetupGroup::DoMoreWithBC, VideoRunyourbusinesswithOffice365Txt, VideoCategory::DoMoreWithBC, HelpSetuptheOfficeaddinTxt);
-        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-            PAGE::"Exchange Setup Wizard", Language.GetDefaultApplicationLanguageId(), OfficeAddinSetupTitleTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 

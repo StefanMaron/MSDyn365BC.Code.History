@@ -1159,7 +1159,9 @@ codeunit 139301 "Assisted Company Setup Tests"
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
+#if not CLEAN19
         AssistedCompanySetupWizard."Costing Method".AssertEquals(InventorySetup."Default Costing Method");
+#endif
         InventorySetup.TestField("Default Costing Method", CostingMethod);
         InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
         InventorySetup.TestField("Automatic Cost Posting", true);
@@ -1167,6 +1169,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         InventorySetup.TestField("Average Cost Calc. Type", InventorySetup."Average Cost Calc. Type"::Item);
     end;
 
+#if not CLEAN19
     local procedure OpenWizardAndGoToCostAccountingPage(var AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard")
     begin
         AssistedCompanySetupWizard.Trap;
@@ -1176,7 +1179,7 @@ codeunit 139301 "Assisted Company Setup Tests"
             AssistedCompanySetupWizard.ActionNext.Invoke;
         until AssistedCompanySetupWizard."Costing Method".Visible = true;
     end;
-
+#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostCodeModalPageHandler(var PostCodes: TestPage "Post Codes")

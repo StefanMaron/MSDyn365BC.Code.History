@@ -36,6 +36,9 @@ codeunit 137038 "SCM Transfers"
         UpdateLineDimQst: Label 'You have changed one or more dimensions on the';
         TransferOrderSubpageNotUpdatedErr: Label 'Transfer Order subpage is not updated.';
         AnotherItemWithSameDescTxt: Label 'We found an item with the description';
+        RoundingTo0Err: Label 'Rounding of the field';
+        RoundingErr: Label 'is of lesser precision than expected';
+        RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -2024,7 +2027,7 @@ codeunit 137038 "SCM Transfers"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Shipment] [Item Tracking] [Pick] [Basic Warehousing]
@@ -2056,7 +2059,7 @@ codeunit 137038 "SCM Transfers"
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty / 2);
-        TransferLine.OpenItemTrackingLines(0);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
         LibraryInventory.ReleaseTransferOrder(TransferHeader);
 
         // [GIVEN] Create warehouse shipment.
@@ -2091,6 +2094,291 @@ codeunit 137038 "SCM Transfers"
         ItemLedgerEntry.TestField("Lot No.", LotNo);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingErrorThrownWhenInvalidQuantityEntered0OnTransferLine()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding error should be thrown if the entered base quantity does not match the rounding precision.
+        Initialize();
+
+        // [GIVEN] At transfer line using base UoM with rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemUOM.Code);
+
+        // [WHEN] Setting the quantity to 0.4.
+        TransferLine.Validate(Quantity, 0.4);
+
+        // [THEN] No error is thrown an base qty is 0.4.
+        Assert.AreEqual(0.4, TransferLine."Quantity (Base)", 'Expected quantity to be 0.4.');
+
+        // [WHEN] Setting the quantity to 0.41.
+        asserterror TransferLine.Validate(Quantity, 0.41);
+
+        // [THEN] An rounding error is thrown.
+        Assert.ExpectedError(RoundingErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQuantityIsRoundedTo0OnTransferLine()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // base quantity is rounded to zero.
+        Initialize();
+
+        // [GIVEN] A transfer line using non-base UoM with a rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/6.
+        TransferLine.Validate(Quantity, 1 / 6);
+
+        // [THEN] Base quantity is 1 and no error is thrown.
+        Assert.AreEqual(1, TransferLine."Quantity (Base)", 'Expected quantity to be 1.');
+
+        // [WHEN] Setting the quantity to 1/121 (1 / 121 = 0.00826 * 6 = 0.04956, which gets rounded to 0).
+        asserterror TransferLine.Validate(Quantity, 1 / 121);
+
+        // [THEN] A rounding to zero error is thrown.
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferLineQuantityIsRoundedWithRoundingPrecisionSpecified()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] When converting to base UoM the specified rounding precision should be used.
+        Initialize();
+
+        // [GIVEN] A transfer line using non-base UoM with a rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/3 (1/3 = 0.333333 * 6 = 1.99998, which gets rounded to 2).
+        TransferLine.Validate(Quantity, 1 / 3);
+
+        // [THEN] The base quantity is rounded to 2.
+        Assert.AreEqual(2, TransferLine."Quantity (Base)", 'Expected value to be rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingBalanceErrThrownWhenInvalidQtyToShipEntered0OnTransferLine()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding error should be thrown if the entered base quantity does not match the rounding precision.
+        Initialize();
+
+        // [GIVEN] At transfer line using base UoM with rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemUOM.Code);
+
+        // [WHEN] Setting the quantity to 0.4.
+        TransferLine.Validate(Quantity, 0.4);
+        TransferLine.Validate("Qty. to Ship", 0.4);
+
+        // [THEN] No error is thrown an base qty is 0.4.
+        Assert.AreEqual(0.4, TransferLine."Qty. to Ship", 'Expected quantity to be 0.4.');
+
+        // [WHEN] Setting the quantity to 0.39.
+        asserterror TransferLine.Validate("Qty. to Ship", 0.39);
+
+        // [THEN] An rounding error is thrown.
+        Assert.ExpectedError(RoundingBalanceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyToShipIsRoundedTo0OnTransferLine()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // base quantity is rounded to zero.
+        Initialize();
+
+        // [GIVEN] A transfer line using non-base UoM with a rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/6.
+        TransferLine.Validate(Quantity, 1);
+        TransferLine.Validate("Qty. to Ship", 1 / 6);
+
+        // [THEN] Base quantity is 1 and no error is thrown.
+        Assert.AreEqual(1, TransferLine."Qty. to Ship (Base)", 'Expected quantity to be 1.');
+
+        // [WHEN] Setting the quantity to 1/121 (1 / 121 = 0.00826 * 6 = 0.04956, which gets rounded to 0).
+        asserterror TransferLine.Validate("Qty. to Ship", 1 / 121);
+
+        // [THEN] A rounding to zero error is thrown.
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferLineQtyToShipIsRoundedWithRoundingPrecisionSpecified()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] When converting to base UoM the specified rounding precision should be used.
+        Initialize();
+
+        // [GIVEN] A transfer line using non-base UoM with a rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/3 (1/3 = 0.333333 * 6 = 1.99998, which gets rounded to 2).
+        TransferLine.Validate(Quantity, 1);
+        TransferLine.Validate("Qty. to Ship", 1 / 3);
+
+        // [THEN] The base quantity is rounded to 2.
+        Assert.AreEqual(2, TransferLine."Qty. to Ship (Base)", 'Expected value to be rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingBalanceErrorThrownWhenInvalidQtyToReceiveEntered0OnTransferLine()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding error should be thrown if the entered base quantity does not match the rounding precision.
+        Initialize();
+
+        // [GIVEN] At transfer line using base UoM with rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemUOM.Code);
+
+        // [WHEN] Setting the quantity to 0.4.
+        TransferLine.Validate(Quantity, 0.4);
+        TransferLine.Validate("Qty. to Ship", 0.4);
+        TransferLine.Validate("Qty. to Receive", 0.4);
+
+        // [THEN] No error is thrown an base qty is 0.4.
+        Assert.AreEqual(0.4, TransferLine."Qty. to Receive (Base)", 'Expected quantity to be 0.4.');
+
+        // [WHEN] Setting the quantity to 0.39.
+        asserterror TransferLine.Validate("Qty. to Receive", 0.39);
+
+        // [THEN] An rounding error is thrown.
+        Assert.ExpectedError(RoundingBalanceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyToReceiveIsRoundedTo0OnTransferLine()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // base quantity is rounded to zero.
+        Initialize();
+
+        // [GIVEN] A transfer line using non-base UoM with a rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+
+        // [WHEN] Setting the quantity to 1/6.
+        TransferLine.Validate(Quantity, 1);
+        TransferLine.Validate("Qty. to Ship", 1 / 6);
+        TransferLine.Validate("Qty. to Receive", 1 / 6);
+
+        // [THEN] Base quantity is 1 and no error is thrown.
+        Assert.AreEqual(1, TransferLine."Qty. to Receive (Base)", 'Expected quantity to be 1.');
+
+        // [WHEN] Setting the quantity to 1/121 (1 / 121 = 0.00826 * 6 = 0.04956, which gets rounded to 0).
+        asserterror TransferLine.Validate("Qty. to Receive", 1 / 121);
+
+        // [THEN] A rounding to zero error is thrown.
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferLineQtyToReceiveIsRoundedWithRoundingPrecisionSpecified()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+    begin
+        // [SCENARIO] When converting to base UoM the specified rounding precision should be used.
+        Initialize();
+
+        // [GIVEN] A transfer line using non-base UoM with a rounding precision of 0.1.
+        SetupForUoMTest(Item, TransferHeader, TransferLine, BaseUOM, NonBaseUOM, ItemUOM, ItemNonBaseUOM, 1, 6, 0.1);
+        TransferLine.Validate("Unit of Measure Code", ItemNonBaseUOM.Code);
+        TransferLine.Validate(Quantity, 1);
+        TransferLine.Validate("Qty. to Ship", 1 / 3);
+        TransferLine.Modify();
+
+        // [WHEN] Setting the quantity to 1/3 (1/3 = 0.333333 * 6 = 1.99998, which gets rounded to 2).
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+
+        TransferLine.Validate("Qty. to Receive", 1 / 3);
+
+        // [THEN] The base quantity is rounded to 2.
+        Assert.AreEqual(2, TransferLine."Qty. to Receive (Base)", 'Expected value to be rounded correctly.');
     end;
 
     [Test]
@@ -3072,6 +3360,53 @@ codeunit 137038 "SCM Transfers"
             TestField("Shipment Date", ShipmentDate);
             TestField("Expected Receipt Date", ReceiptDate);
         end;
+    end;
+
+    local procedure SetupForUoMTest(
+        var Item: Record Item;
+        var TransferHeader: Record "Transfer Header";
+        var TransferLine: Record "Transfer Line";
+        var BaseUoM: Record "Unit of Measure";
+        var NonBaseUOM: Record "Unit of Measure";
+        var ItemUOM: Record "Item Unit of Measure";
+        var ItemNonBaseUOM: Record "Item Unit of Measure";
+        BaseQtyPerUOM: Integer;
+        NonBaseQtyPerUOM: Integer;
+        QtyRoundingPrecision: Decimal
+    )
+    var
+        LocationA: Record Location;
+        LocationB: Record Location;
+        LocationTransit: Record Location;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemNonBaseUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        LibraryWarehouse.CreateTransferLocations(LocationA, LocationB, LocationTransit);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationA.Code, LocationB.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 0);
+
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::Purchase, Item."No.", NonBaseQtyPerUOM
+        );
+        ItemJournalLine."Location Code" := LocationA.Code;
+        ItemJournalLine."Posting Date" := CalcDate('<-1W>', WorkDate());
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     [MessageHandler]

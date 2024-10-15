@@ -219,7 +219,6 @@ page 408 "G/L Balance by Dimension"
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
                 }
                 field(ShowInAddCurr; "Show In Add. Currency")
@@ -259,7 +258,6 @@ page 408 "G/L Balance by Dimension"
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -298,14 +296,13 @@ page 408 "G/L Balance by Dimension"
                     trigger OnAction()
                     var
                         TempDimCode: Text[30];
-                        MATRIX_Step: Option First,Previous,Next;
                     begin
                         TempDimCode := ColumnDimCode;
                         ColumnDimCode := LineDimCode;
                         LineDimCode := TempDimCode;
                         ValidateLineDimCode;
                         ValidateColumnDimCode;
-                        MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                     end;
                 }
             }
@@ -344,10 +341,8 @@ page 408 "G/L Balance by Dimension"
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
-                var
-                    MATRIX_Step: Option Initial,Previous,Same,Next;
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -361,10 +356,8 @@ page 408 "G/L Balance by Dimension"
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
-                var
-                    MATRIX_Step: Option Initial,Previous,Same,Next;
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -383,7 +376,6 @@ page 408 "G/L Balance by Dimension"
     trigger OnOpenPage()
     var
         AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
-        MATRIX_Step: Option Initial,Previous,Same,Next;
         GLAccGlobalDim1Filter: Text;
         GlAccGlobalDim2Filter: Text;
     begin
@@ -418,7 +410,8 @@ page 408 "G/L Balance by Dimension"
 
         MATRIX_NoOfColumns := 32;
         SetDateFilter("Date Filter");
-        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -531,15 +524,15 @@ page 408 "G/L Balance by Dimension"
     local procedure FindPeriod(SearchText: Code[10])
     var
         Period: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if "Date Filter" <> '' then begin
             Period.SetFilter("Period Start", "Date Filter");
-            if not PeriodFormMgt.FindDate('+', Period, "Period Type") then
-                PeriodFormMgt.FindDate('+', Period, "Period Type"::Day);
+            if not PeriodPageMgt.FindDate('+', Period, "Period Type") then
+                PeriodPageMgt.FindDate('+', Period, "Period Type"::Day);
             Period.SetRange("Period Start");
         end;
-        if PeriodFormMgt.FindDate(SearchText, Period, "Period Type") then
+        if PeriodPageMgt.FindDate(SearchText, Period, "Period Type") then
             if "Closing Entries" = "Closing Entries"::Include then
                 Period."Period End" := ClosingDate(Period."Period End");
         if "Amount Type" = "Amount Type"::"Net Change" then begin
@@ -627,7 +620,7 @@ page 408 "G/L Balance by Dimension"
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
         case DimOption of
@@ -651,7 +644,7 @@ page 408 "G/L Balance by Dimension"
                     else
                         if not PeriodInitialized and (InternalDateFilter <> '') then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, "Period Type");
+                    Found := PeriodPageMgt.FindDate(Which, Period, "Period Type");
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -696,7 +689,7 @@ page 408 "G/L Balance by Dimension"
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         ResultSteps: Integer;
     begin
         case DimOption of
@@ -714,7 +707,7 @@ page 408 "G/L Balance by Dimension"
                     if "Date Filter" <> '' then
                         Period.SetFilter("Period Start", "Date Filter");
                     Evaluate(Period."Period Start", DimCodeBuf.Code);
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, "Period Type");
+                    ResultSteps := PeriodPageMgt.NextDate(Steps, Period, "Period Type");
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -753,7 +746,7 @@ page 408 "G/L Balance by Dimension"
         exit(ResultSteps);
     end;
 
-    local procedure MATRIX_GenerateColumnCaptions(Step: Option Initial,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         CurrentColumn: Record "Dimension Code Buffer";
         Found: Boolean;
@@ -763,8 +756,8 @@ page 408 "G/L Balance by Dimension"
         Clear(MATRIX_ColumnCaptions);
         "Column Set" := '';
 
-        case Step of
-            Step::Initial:
+        case StepType of
+            "Matrix Page Step Type"::Initial:
                 begin
                     if (ColumnDimOption = ColumnDimOption::Period) and ("Period Type" <> "Period Type"::"Accounting Period")
                        and ("Date Filter" = '')
@@ -775,18 +768,18 @@ page 408 "G/L Balance by Dimension"
                         Which := '-';
                     Found := FindRec(ColumnDimOption, CurrentColumn, Which);
                 end;
-            Step::Previous:
+            "Matrix Page Step Type"::Previous:
                 begin
                     CurrentColumn.SetPosition(MATRIX_PrimaryKeyFirstColInSet);
                     Found := FindRec(ColumnDimOption, CurrentColumn, '=');
                     NextRec(ColumnDimOption, CurrentColumn, -MATRIX_NoOfColumns)
                 end;
-            Step::Same:
+            "Matrix Page Step Type"::Same:
                 begin
                     CurrentColumn.SetPosition(MATRIX_PrimaryKeyFirstColInSet);
                     Found := FindRec(ColumnDimOption, CurrentColumn, '=');
                 end;
-            Step::Next:
+            "Matrix Page Step Type"::Next:
                 begin
                     CurrentColumn.SetPosition(MATRIX_PrimaryKeyFirstColInSet);
                     Found := FindRec(ColumnDimOption, CurrentColumn, '=');
@@ -816,75 +809,57 @@ page 408 "G/L Balance by Dimension"
     end;
 
     local procedure ColumnDimCodeOnAfterValidate()
-    var
-        MATRIX_Steps: Option First,Previous,Next;
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_Steps::First);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure DateFilterOnAfterValidate()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
         if ColumnDimOption = ColumnDimOption::Period then begin
             PeriodInitialized := true;
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
         end;
     end;
 
     local procedure GLAccFilterOnAfterValidate()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
         if ColumnDimOption = ColumnDimOption::"G/L Account" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure GlobalDim2FilterOnAfterValidat()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
         if ColumnDimOption = ColumnDimOption::"Dimension 2" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure GlobalDim1FilterOnAfterValidat()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
         if ColumnDimOption = ColumnDimOption::"Dimension 1" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure BusUnitFilterOnAfterValidate()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
         if ColumnDimOption = ColumnDimOption::"Business Unit" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure ShowColumnNameOnAfterValidate()
-    var
-        MATRIX_Step: Option Initial,Previous,Same,Next;
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_Step::Same);
+        GenerateColumnCaptions("Matrix Page Step Type"::Same);
     end;
 
     local procedure PeriodTypeOnAfterValidate()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
         if ColumnDimOption = ColumnDimOption::Period then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure AmountTypeOnAfterValidate()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
         if ColumnDimOption = ColumnDimOption::Period then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure SetDateFilter(DateFilter: Text[250])
