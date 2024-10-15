@@ -121,10 +121,14 @@ codeunit 5058 "BankCont-Update"
             TransferFields(BankAcc);
             Validate(Name);
             Validate("E-Mail");
-            "No." := '';
-            "No. Series" := '';
-            RMSetup.TestField("Contact Nos.");
-            NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+            IsHandled := false;
+            OnInitContactFromBankAccountOnBeforeAssignNo(Contact, BankAcc, RMSetup, IsHandled);
+            if not IsHandled then begin
+                "No." := '';
+                "No. Series" := '';
+                RMSetup.TestField("Contact Nos.");
+                NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+            end;
             Type := Type::Company;
             TypeChange();
             SetSkipDefault();
@@ -165,6 +169,11 @@ codeunit 5058 "BankCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactInsert(var Contact: Record Contact; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitContactFromBankAccountOnBeforeAssignNo(var Contact: Record Contact; BankAccount: Record "Bank Account"; MarketingSetup: Record "Marketing Setup"; var IsHandled: Boolean)
     begin
     end;
 

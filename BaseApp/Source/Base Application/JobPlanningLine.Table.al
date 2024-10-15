@@ -106,10 +106,7 @@
                         exit;
                 end;
 
-                GetJob();
-                "Customer Price Group" := Job."Customer Price Group";
-                "Price Calculation Method" := Job.GetPriceCalculationMethod();
-                "Cost Calculation Method" := Job.GetCostCalculationMethod();
+                CopyFieldsFromJob();
 
                 case Type of
                     Type::Resource:
@@ -1315,7 +1312,14 @@
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         LockTable();
         GetJob();
         if Job.Blocked = Job.Blocked::All then
@@ -1456,6 +1460,16 @@
         end;
     end;
 
+    local procedure CopyFieldsFromJob()
+    begin
+        GetJob();
+        Rec."Customer Price Group" := Job."Customer Price Group";
+        Rec."Price Calculation Method" := Job.GetPriceCalculationMethod();
+        Rec."Cost Calculation Method" := Job.GetCostCalculationMethod();
+
+        OnAfterCopyFieldsFromJob(Rec, xRec, Job);
+    end;
+
     local procedure CheckQuantityPosted()
     var
         IsHandled: Boolean;
@@ -1575,6 +1589,7 @@
     begin
         if ("Job No." <> Job."No.") and ("Job No." <> '') then
             Job.Get("Job No.");
+        OnAfterGetJob(Rec, Job);
     end;
 
     procedure UpdateCurrencyFactor()
@@ -1588,6 +1603,7 @@
             "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
         end else
             "Currency Factor" := 0;
+        OnAfterUpdateCurrencyFactor(Rec);
     end;
 
     local procedure ItemExists(ItemNo: Code[20]): Boolean
@@ -1625,7 +1641,13 @@
     procedure InitRoundingPrecisions()
     var
         Currency: Record Currency;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitRoundingPrecisions(Rec, AmountRoundingPrecision, UnitAmountRoundingPrecision, AmountRoundingPrecisionFCY, UnitAmountRoundingPrecisionFCY, IsHandled);
+        if IsHandled then
+            exit;
+
         if (AmountRoundingPrecision = 0) or
            (UnitAmountRoundingPrecision = 0) or
            (AmountRoundingPrecisionFCY = 0) or
@@ -1867,16 +1889,22 @@
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
                 if RetrieveCostPrice(CurrFieldNo) then begin
-                    if GetSKU() then
-                        RetrievedCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
-                    else
-                        RetrievedCost := Item."Unit Cost" * "Qty. per Unit of Measure";
+                    CalculateRetrievedCost(RetrievedCost);
                     "Unit Cost" := ConvertAmountToFCY(RetrievedCost, UnitAmountRoundingPrecisionFCY);
                     "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
         else
             RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)");
+    end;
+
+    local procedure CalculateRetrievedCost(var RetrievedCost: Decimal)
+    begin
+        if GetSKU() then
+            RetrievedCost := SKU."Unit Cost" * Rec."Qty. per Unit of Measure"
+        else
+            RetrievedCost := Item."Unit Cost" * Rec."Qty. per Unit of Measure";
+        OnAfterCalculateRetrievedCost(Rec, xRec, SKU, Item, RetrievedCost);
     end;
 
 #if not CLEAN21
@@ -2034,6 +2062,7 @@
     begin
         GetJob();
         RecalculateAmounts(Job."Exch. Calculation (Price)", xRec."Unit Price", "Unit Price", "Unit Price (LCY)");
+        OnAfterUpdateUnitPrice(Rec, xRec, AmountRoundingPrecision, AmountRoundingPrecisionFCY);
     end;
 
     local procedure RecalculateAmounts(JobExchCalculation: Option "Fixed FCY","Fixed LCY"; xAmount: Decimal; var Amount: Decimal; var AmountLCY: Decimal)
@@ -2432,7 +2461,6 @@
         OrderPromisingLines: Page "Order Promising Lines";
     begin
         OrderPromisingLine.SetRange("Source Type", OrderPromisingLine."Source Type"::Job);
-        OrderPromisingLine.SetRange("Source Type", OrderPromisingLine."Source Type"::Job);
         OrderPromisingLine.SetRange("Source ID", "Job No.");
         OrderPromisingLine.SetRange("Source Line No.", "Job Contract Entry No.");
 
@@ -2540,7 +2568,13 @@
         PaymentTerms: Record "Payment Terms";
         DueDateCalculation: DateFormula;
         xPlanningDueDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePlannedDueDate(Rec, Changed, IsHandled);
+        if IsHandled then
+            exit(Changed);
+
         xPlanningDueDate := "Planning Due Date";
         if "Planning Date" = 0D then
             exit(false);
@@ -2756,12 +2790,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateRetrievedCost(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item; var RetrievedCost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromGLAccount(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFieldsFromJob(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; Job: Record Job)
     begin
     end;
 
@@ -2792,6 +2836,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteAmounts(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetJob(var JobPlanningLine: Record "Job Planning Line"; var Job: Record Job)
     begin
     end;
 
@@ -2859,7 +2908,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCurrencyFactor(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateTotalPrice(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateUnitPrice(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var AmountRoundingPrecision: Decimal; var AmountRoundingPrecisionFCY: Decimal)
     begin
     end;
 
@@ -2899,7 +2958,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRoundingPrecisions(JobPlanningLine: Record "Job Planning Line"; var AmountRoundingPrecision: Decimal; var UnitAmountRoundingPrecision: Decimal; var AmountRoundingPrecisionFCY: Decimal; var UnitAmountRoundingPrecisionFCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRecalculateAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePlannedDueDate(var JobPlanningLine: Record "Job Planning Line"; var Changed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 

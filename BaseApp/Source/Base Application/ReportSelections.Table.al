@@ -172,7 +172,13 @@ table 77 "Report Selections"
         ReportSelections: Record "Report Selections";
         ReportLayoutSelection: Record "Report Layout Selection";
         ShowEmailBodyDefinedError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckEmailBodyUsage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Use for Email Body" then begin
             ReportSelections.SetEmailBodyUsageFilters(Usage);
             ReportSelections.SetFilter(Sequence, '<>%1', Sequence);
@@ -195,6 +201,8 @@ table 77 "Report Selections"
         SetRange(Usage, ReportUsage);
         SetRange("Use for Email Body", true);
         SetRange(Default, true);
+
+        OnAfterSetEmailUsageFilters(Rec, ReportUsage);
     end;
 
     procedure SetEmailBodyUsageFilters(ReportUsage: Enum "Report Selection Usage")
@@ -213,6 +221,8 @@ table 77 "Report Selections"
         SetRange(Usage, ReportUsage);
         SetRange("Use for Email Attachment", true);
         SetRange(Default, true);
+
+        OnAfterSetEmailAttachmentUsageFilters(Rec, ReportUsage);
     end;
 
     procedure FindReportUsageForCust(ReportUsage: Enum "Report Selection Usage"; CustNo: Code[20]; var ReportSelections: Record "Report Selections")
@@ -290,6 +300,18 @@ table 77 "Report Selections"
 
         PrintDocumentsWithCheckDialogCommon(
           ReportUsage, RecordVariant, IsGUI, CustomerNoFieldNo, true, DATABASE::Customer, DummyDocumentPrintBuffer);
+    end;
+
+    procedure PrintWithCheckForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; VendorNoFieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintWithCheckForVend(ReportUsage, RecordVariant, VendorNoFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        PrintWithDialogWithCheckForVend(ReportUsage, RecordVariant, true, VendorNoFieldNo);
     end;
 
     procedure PrintWithDialogWithCheckForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; IsGUI: Boolean; VendorNoFieldNo: Integer)
@@ -1432,7 +1454,7 @@ table 77 "Report Selections"
                         SaveReportAsPDFInTempBlob(TempBlob, "Report ID", DocumentRecord, "Custom Report Layout Code", ReportUsage);
                     TempBlob.CreateInStream(AttachmentStream);
 
-                    OnSendEmailDirectlyOnBeforeEmailWithAttachment(RecordVariant, TempAttachReportSelections, TempBlob);
+                    OnSendEmailDirectlyOnBeforeEmailWithAttachment(RecordVariant, TempAttachReportSelections, TempBlob, DocumentMailing);
                     AllEmailsWereSuccessful :=
                         AllEmailsWereSuccessful and
                         DocumentMailing.EmailFile(
@@ -2006,12 +2028,27 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetEmailAttachmentUsageFilters(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetEmailUsageFilters(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; FilePath: Text[250]; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCanSaveReportAsPDF(ReportId: Integer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEmailBodyUsage(var ReportSelections: Record "Report Selections"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2062,6 +2099,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintWithCheck(ReportUsage: Integer; RecordVariant: Variant; CustomerNoFieldNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintWithCheckForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; VendorNoFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2218,7 +2260,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSendEmailDirectlyOnBeforeEmailWithAttachment(RecordVariant: Variant; ReportSelection: Record "Report Selections"; var TempBlob: Codeunit "Temp Blob")
+    local procedure OnSendEmailDirectlyOnBeforeEmailWithAttachment(RecordVariant: Variant; ReportSelection: Record "Report Selections"; var TempBlob: Codeunit "Temp Blob"; var DocumentMailing: Codeunit "Document-Mailing")
     begin
     end;
 

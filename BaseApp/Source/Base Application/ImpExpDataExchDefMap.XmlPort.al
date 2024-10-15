@@ -305,6 +305,10 @@
                         {
                             Occurrence = Optional;
                         }
+                        fieldattribute(ExportIfNotBlank; "Data Exch. Column Def"."Export If Not Blank")
+                        {
+                            Occurrence = Optional;
+                        }
                     }
                     tableelement("Data Exch. Mapping"; "Data Exch. Mapping")
                     {
@@ -643,6 +647,10 @@
                                 fieldelement(Direction; TempTransformationRuleRec.Direction)
                                 {
                                 }
+                                fieldelement(ExportFromDateType; TempTransformationRuleRec."Extract From Date Type")
+                                {
+                                    MinOccurs = Zero;
+                                }
                                 trigger OnAfterInsertRecord()
                                 var
                                     TransformationRuleRec: Record "Transformation Rule";
@@ -651,6 +659,8 @@
                                         TransformationRuleRec := TempTransformationRuleRec;
                                         TransformationRuleRec.Insert();
                                     end;
+                                    FindValue := '';
+                                    ReplaceValue := '';
                                 end;
                             }
 

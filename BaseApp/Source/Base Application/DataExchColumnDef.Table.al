@@ -92,6 +92,10 @@ table 1223 "Data Exch. Column Def"
             OptionCaption = ' ,Header,Footer';
             OptionMembers = " ",Header,Footer;
         }
+        field(20; "Export If Not Blank"; Boolean)
+        {
+            Caption = 'Export If Not Blank';
+        }
     }
 
     keys

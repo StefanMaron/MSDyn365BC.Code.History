@@ -289,7 +289,6 @@ page 104 "Account Schedule"
 
     actions
     {
-#pragma warning disable AS0074
 #if not CLEAN22
         area(navigation)
         {
@@ -316,7 +315,6 @@ page 104 "Account Schedule"
             }
         }
 #endif
-#pragma warning restore AS0074
         area(processing)
         {
             action(Indent)
@@ -416,7 +414,6 @@ page 104 "Account Schedule"
                         AccSchedManagement.InsertCostTypes(AccSchedLine);
                     end;
                 }
-#pragma warning disable AS0074
 #if not CLEAN22
                 action(EditColumnLayoutSetup)
                 {
@@ -527,7 +524,6 @@ page 104 "Account Schedule"
                     ObsoleteTag = '22.0';
                 }
 #endif
-#pragma warning restore AS0074
             }
             group(Category_Category4)
             {

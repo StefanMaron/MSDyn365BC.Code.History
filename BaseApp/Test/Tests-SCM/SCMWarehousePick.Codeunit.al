@@ -1620,6 +1620,46 @@ codeunit 137055 "SCM Warehouse Pick"
         Assert.ExpectedError('Status must not be changed when a Whse. Worksheet Line');
     end;
 
+    [Test]
+    procedure ReservedQtyOnInventoryCalculatedCorrectlyForNonDPnPLocation()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        BinType: Record "Bin Type";
+        TempBinType: Record "Bin Type" temporary;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        CreatePick: Codeunit "Create Pick";
+        ReservedQty: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 437213] "Qty. Reserved on Inventory" used for available qty. for picking calculation must not depend on bin types for non-DPnP locations.
+        Initialize();
+        ReservedQty := LibraryRandom.RandIntInRange(10, 20);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.FindBin(Bin, LocationOrange.Code, '', 1);
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", LocationOrange.Code, Bin.Code, LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", ReservedQty, LocationOrange.Code, WorkDate());
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        CutPasteBinTypes(TempBinType, BinType);
+
+        Assert.AreEqual(
+          ReservedQty,
+          CreatePick.CalcReservedQtyOnInventory(Item."No.", LocationOrange.Code, '', ItemTrackingSetup), '');
+
+        // Tear down
+        CutPasteBinTypes(BinType, TempBinType);
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -1731,6 +1771,17 @@ codeunit 137055 "SCM Warehouse Pick"
         PurchaseLine.Validate(Quantity, Quantity);
         PurchaseLine.Validate("Unit of Measure Code", UoM);
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CutPasteBinTypes(var ToBinType: Record "Bin Type"; var FromBinType: Record "Bin Type")
+    begin
+        ToBinType.DeleteAll();
+        if FromBinType.FindSet() then
+            repeat
+                ToBinType := FromBinType;
+                FromBinType.Delete();
+                ToBinType.Insert();
+            until FromBinType.Next() = 0;
     end;
 
     local procedure NoSeriesSetup()

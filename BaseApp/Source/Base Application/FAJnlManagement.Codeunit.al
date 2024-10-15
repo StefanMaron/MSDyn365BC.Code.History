@@ -30,6 +30,7 @@ codeunit 5638 FAJnlManagement
             FAJnlTemplate.SetRange("Page ID", PageID);
         FAJnlTemplate.SetRange(Recurring, RecurringJnl);
         FAJnlTemplate.SetRange(Type, PageTemplate);
+        OnTemplateSelectionOnAfterFAJnlTemplateSetFilters(FAJnlTemplate, FAJnlLine);
 
         case FAJnlTemplate.Count of
             0:
@@ -221,6 +222,11 @@ codeunit 5638 FAJnlManagement
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenJournal(var CurrentJnlBatchName: Code[10]; var FAJournalLine: Record "FA Journal Line")
     begin
-    end;    
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTemplateSelectionOnAfterFAJnlTemplateSetFilters(var FAJournalTemplate: Record "FA Journal Template"; var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
 }
 

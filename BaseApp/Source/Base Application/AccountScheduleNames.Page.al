@@ -23,7 +23,6 @@ page 103 "Account Schedule Names"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the row definition.';
                 }
-#pragma warning disable AS0074
 #if not CLEAN22
                 field("Default Column Layout"; Rec."Default Column Layout")
                 {
@@ -35,7 +34,6 @@ page 103 "Account Schedule Names"
                     Visible = false;
                 }
 #endif
-#pragma warning restore AS0074
                 field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Suite;
@@ -83,7 +81,6 @@ page 103 "Account Schedule Names"
                     AccSchedule.Run();
                 end;
             }
-#pragma warning disable AS0074
 #if not CLEAN22
             action(EditColumnLayoutSetup)
             {
@@ -106,7 +103,6 @@ page 103 "Account Schedule Names"
                 end;
             }
 #endif
-#pragma warning restore AS0074
             action(CopyAccountSchedule)
             {
                 ApplicationArea = Basic, Suite;
@@ -152,7 +148,6 @@ page 103 "Account Schedule Names"
         }
         area(navigation)
         {
-#pragma warning disable AS0074
 #if not CLEAN22
             action(Overview)
             {
@@ -257,7 +252,6 @@ page 103 "Account Schedule Names"
                     ObsoleteTag = '22.0';
                 }
 #endif
-#pragma warning restore AS0074
                 actionref(CopyAccountSchedule_Promoted; CopyAccountSchedule)
                 {
                 }
@@ -272,7 +266,6 @@ page 103 "Account Schedule Names"
             {
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
 
-#pragma warning disable AS0074
 #if not CLEAN22
                 actionref(Print_Promoted; Print)
                 {
@@ -281,7 +274,6 @@ page 103 "Account Schedule Names"
                     ObsoleteTag = '22.0';
                 }
 #endif
-#pragma warning restore AS0074
             }
             group(Category_Report)
             {

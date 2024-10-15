@@ -90,6 +90,7 @@
                     SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
                     SetRange("Part of Book Value", true);
                     SetRange("FA Posting Date", 0D, FAPostingDate - 1);
+                    OnCheckNormalPostingOnBeforeCalcSumsForBookValue(FALedgEntry, FAPostingDate);
                     CalcSums(Amount);
                     BookValue := Amount;
                     SetRange("Part of Book Value");
@@ -112,6 +113,7 @@
                     SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
                     SetFilter("FA Posting Date", '%1..', FAPostingDate);
                     SetRange(Reversed, false);
+                    OnCheckNormalPostingOnBeforeFind(FALedgEntry, FAPostingDate);
                     if Find('-') then
                         repeat
                             if "Part of Book Value" then
@@ -418,6 +420,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckForError(FALedgEntry2: Record "FA Ledger Entry"; var FAJnlLine: Record "FA Journal Line"; FAPostingTypeSetup: Record "FA Posting Type Setup"; NewAmount: Decimal; BookValue: Decimal; SalvageValue: Decimal; DeprBasis: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckNormalPostingOnBeforeCalcSumsForBookValue(var FALedgerEntry: Record "FA Ledger Entry"; FAPostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckNormalPostingOnBeforeFind(var FALedgerEntry: Record "FA Ledger Entry"; FAPostingDate: Date)
     begin
     end;
 

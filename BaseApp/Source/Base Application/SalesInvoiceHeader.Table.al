@@ -914,7 +914,7 @@ table 112 "Sales Invoice Header"
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
-        TestField("No. Printed");
+        CheckNoPrinted();
         LockTable();
         PostSalesDelete.DeleteSalesInvLines(Rec);
 
@@ -946,6 +946,18 @@ table 112 "Sales Invoice Header"
     begin
         CalcFields("Amount Including VAT", "Remaining Amount");
         exit("Amount Including VAT" = "Remaining Amount");
+    end;
+
+    procedure CheckNoPrinted()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNoPrinted(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.TestField("No. Printed");
     end;
 
     procedure SendRecords(ShowRequestPage: Boolean; SendAsEmail: Boolean)
@@ -1309,6 +1321,11 @@ table 112 "Sales Invoice Header"
     procedure GetDefaultEmailDocumentName(): Text[150]
     begin
         exit(DocTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoPrinted(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

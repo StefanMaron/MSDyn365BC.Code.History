@@ -186,8 +186,8 @@ codeunit 138200 "Normal DemoData"
         InteractionTemplate: Record "Interaction Template";
     begin
         // [FEATURE] [CRM] [Interaction Template]
-        // [SCENARIO 174769] Interaction Template should have 15 templates.
-        Assert.RecordCount(InteractionTemplate, 40);
+        // [SCENARIO 174769] Interaction Template should have 41 templates.
+        Assert.RecordCount(InteractionTemplate, 41);
     end;
 
     [Test]

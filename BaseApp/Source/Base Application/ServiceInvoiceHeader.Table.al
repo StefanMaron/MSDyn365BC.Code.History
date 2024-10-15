@@ -854,7 +854,13 @@ table 5992 "Service Invoice Header"
         DummyReportSelections: Record "Report Selections";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
         DocumentTypeTxt: Text[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendRecords(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.SendCustomerRecords(
           DummyReportSelections.Usage::"SM.Invoice".AsInteger(), Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
@@ -866,7 +872,13 @@ table 5992 "Service Invoice Header"
         DummyReportSelections: Record "Report Selections";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
         DocumentTypeTxt: Text[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendProfile(Rec, DocumentSendingProfile, IsHandled);
+        if IsHandled then
+            exit;
+
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.Send(
           DummyReportSelections.Usage::"SM.Invoice".AsInteger(), Rec, "No.", "Bill-to Customer No.",
@@ -943,6 +955,16 @@ table 5992 "Service Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceInvoiceHeader: Record "Service Invoice Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendProfile(var ServiceInvoiceHeader: Record "Service Invoice Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendRecords(var ServiceInvoiceHeader: Record "Service Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -178,6 +178,7 @@ table 5805 "Item Charge Assignment (Purch)"
     trigger OnDelete()
     begin
         TestField("Qty. Assigned", 0);
+        Validate("Qty. to Assign", 0);
     end;
 
     var

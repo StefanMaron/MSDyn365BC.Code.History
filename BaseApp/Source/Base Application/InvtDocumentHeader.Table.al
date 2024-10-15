@@ -90,7 +90,7 @@
         field(11; "Salesperson/Purchaser Code"; Code[20])
         {
             Caption = 'Salesperson/Purchaser Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -139,6 +139,7 @@
             trigger OnValidate()
             begin
                 if "Posting No. Series" <> '' then begin
+                    InvtSetup.Get();
                     TestNoSeries();
                     NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;

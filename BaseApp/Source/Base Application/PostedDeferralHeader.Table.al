@@ -131,6 +131,7 @@ table 1704 "Posted Deferral Header"
         PostedDeferralLine.SetRange("Document Type", DocumentType);
         PostedDeferralLine.SetRange("Document No.", DocumentNo);
         PostedDeferralLine.SetRange("Line No.", LineNo);
+        OnDeleteLinesOnAfterSetFilters(PostedDeferralLine);
         PostedDeferralLine.DeleteAll();
     end;
 
@@ -165,6 +166,11 @@ table 1704 "Posted Deferral Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedDeferralHeaderInsert(var PostedDeferralHeader: Record "Posted Deferral Header"; DeferralHeader: Record "Deferral Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteLinesOnAfterSetFilters(var PostedDeferralLine: Record "Posted Deferral Line")
     begin
     end;
 }

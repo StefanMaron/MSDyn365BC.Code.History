@@ -414,6 +414,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Data Exch. Field Grouping" = RM,
                   tabledata "Data Exch. FlowField Gr. Buff." = RM,
                   tabledata "Data Exchange Type" = RM,
+				  tabledata "Data Exch. Table Filter" = RM,
                   tabledata "Data Migration Entity" = RM,
                   tabledata "Data Migration Error" = RIMD,
                   tabledata "Data Migration Parameters" = RIMD,
@@ -927,7 +928,10 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Package No. Information" = RIMD,
                   tabledata "Payable Vendor Ledger Entry" = RM,
                   tabledata "Payment Application Proposal" = RM,
+#if not CLEAN22
                   tabledata "Payment Buffer" = RM,
+#endif
+                  tabledata "Vendor Payment Buffer" = RM,
                   tabledata "Payment Export Data" = Rm,
                   tabledata "Payment Export Remittance Text" = RM,
                   tabledata "Payment Jnl. Export Error Text" = RM,

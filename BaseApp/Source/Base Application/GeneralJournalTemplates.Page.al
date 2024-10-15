@@ -1,4 +1,4 @@
-page 101 "General Journal Templates"
+﻿page 101 "General Journal Templates"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'General Journal Templates';
@@ -109,11 +109,13 @@ page 101 "General Journal Templates"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest date when posting to the journal template is allowed.';
+                    Visible = IsJournalTemplNameMandatoryVisible;
                 }
                 field("Allow Posting Date To"; Rec."Allow Posting Date To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date when posting to the journal template is allowed.';
+                    Visible = IsJournalTemplNameMandatoryVisible;
                 }
                 field("Page ID"; Rec."Page ID")
                 {
@@ -249,8 +251,17 @@ page 101 "General Journal Templates"
     }
 
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        IsJournalTemplNameMandatoryVisible: Boolean;
+
         Text001: Label 'Do you want to update the %1 field on all general journal batches?';
         Text002: Label 'Canceled.';
         EnableCopyToPostedQst: Label 'Do you want to enable copying of journal lines to posted general journal on journal batches that belong to selected general journal template?';
+
+    trigger OnOpenPage()
+    begin
+        GeneralLedgerSetup.Get();
+        IsJournalTemplNameMandatoryVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
+    end;
 }
 

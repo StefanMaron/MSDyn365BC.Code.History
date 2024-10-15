@@ -18,6 +18,7 @@ permissionset 4103 "General Ledger Journals - Edit"
                   tabledata "Data Exch. Field Grouping" = R,
                   tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = Rimd,
+				  tabledata "Data Exch. Table Filter" = Rimd,
                   tabledata "Default Dimension" = R,
                   tabledata "Default Dimension Priority" = R,
                   tabledata "G/L Account" = R,
