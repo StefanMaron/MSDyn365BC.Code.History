@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Document;
 
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Setup;
 
 codeunit 5855 "Release Invt. Document"
@@ -12,6 +13,7 @@ codeunit 5855 "Release Invt. Document"
 
     trigger OnRun()
     var
+        Item: Record Item;
         IsHandled: Boolean;
     begin
         if Rec.Status = Rec.Status::Released then
@@ -30,6 +32,14 @@ codeunit 5855 "Release Invt. Document"
             InvtDocLine.SetFilter(Quantity, '<>0');
             if not InvtDocLine.FindFirst() then
                 Error(NothingToReleaseErr, Rec."No.");
+
+            InvtDocLine.SetFilter("Item No.", '<>%1', '');
+            if InvtDocLine.FindSet() then
+                repeat
+                    Item.Get(InvtDocLine."Item No.");
+                    if Item.IsInventoriableType() then
+                        InvtDocLine.TestField("Unit of Measure Code");
+                until InvtDocLine.Next() = 0;
             InvtDocLine.Reset();
         end;
 
