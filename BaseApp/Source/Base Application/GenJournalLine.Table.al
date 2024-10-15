@@ -3446,7 +3446,7 @@
 
         FirstDocNo := DocNo;
         with GenJnlLine2 do begin
-            SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.");
+            SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Bal. Account No.");
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
             LastGenJnlLine.Init();
@@ -3465,7 +3465,10 @@
                     end;
                     if "Document No." = FirstDocNo then
                         exit;
-                    if not First and (("Document No." <> PrevDocNo) or ("Bal. Account No." <> '')) and not LastGenJnlLine.EmptyLine then
+                    if not First and
+                        (("Document No." <> PrevDocNo) or (("Bal. Account No." <> '') and ("Document No." = ''))) and
+                        not LastGenJnlLine.EmptyLine
+                    then
                         DocNo := IncStr(DocNo);
                     PrevDocNo := "Document No.";
                     if "Document No." <> '' then begin

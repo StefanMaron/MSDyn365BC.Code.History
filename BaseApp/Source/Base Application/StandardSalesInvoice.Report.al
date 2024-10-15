@@ -1086,6 +1086,12 @@ report 1306 "Standard Sales - Invoice"
                 column(TotalAmountExclInclVATText; TotalAmountExclInclVATTextValue)
                 {
                 }
+                column(CurrencyCode; CurrCode)
+                {
+                }
+                column(CurrencySymbol; CurrSymbol)
+                {
+                }
 
                 trigger OnPreDataItem()
                 begin
@@ -1103,6 +1109,8 @@ report 1306 "Standard Sales - Invoice"
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
                 PaymentServiceSetup: Record "Payment Service Setup";
+                Currency: Record Currency;
+                GeneralLedgerSetup: Record "General Ledger Setup";
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
                 O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                 DocumentTools: Codeunit DocumentTools;
@@ -1143,7 +1151,14 @@ report 1306 "Standard Sales - Invoice"
                     CalculatedExchRate :=
                       Round(1 / "Currency Factor" * CurrencyExchangeRate."Exchange Rate Amount", 0.000001);
                     ExchangeRateText := StrSubstNo(ExchangeRateTxt, CalculatedExchRate, CurrencyExchangeRate."Exchange Rate Amount");
-                end;
+                    CurrCode := "Currency Code";
+                    if Currency.Get("Currency Code") then
+                        CurrSymbol := Currency.GetCurrencySymbol();
+                end else
+                    if GeneralLedgerSetup.Get() then begin
+                        CurrCode := GeneralLedgerSetup."LCY Code";
+                        CurrSymbol := GeneralLedgerSetup.GetCurrencySymbol();
+                    end;
 
                 GetLineFeeNoteOnReportHist("No.");
 
@@ -1409,6 +1424,8 @@ report 1306 "Standard Sales - Invoice"
         PricePerLbl: Label 'Price per';
         KundeTxt: Text;
         KundeID: Text[25];
+        CurrCode: Text[10];
+        CurrSymbol: Text[10];
 
     local procedure InitLogInteraction()
     begin
