@@ -2814,6 +2814,62 @@ codeunit 137063 "SCM Manufacturing 7.0"
         VerifyItemLedgerEntry(CompItem."No.", false, -3.11472, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PlanningComponentWithZeroQuantityPer()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ChildItem2: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        TimeBucket: DateFormula;
+        QuantityPer: Integer;
+    begin
+        // [SCENARIO 498825] Components in Planning worksheet is considering the components in the BOM if the Quantity per is zero
+        Initialize();
+
+        // [GIVEN] Define Quantity per
+        QuantityPer := LibraryRandom.RandInt(3);
+
+        // [GIVEN] Create Child Item 1
+        CreateItem(
+          ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::"Maximum Qty.", false,
+          25 + LibraryRandom.RandInt(10), 0, 200 + LibraryRandom.RandInt(10), '');
+
+        // [GIVEN] Create Child Item 2
+        CreateItem(
+        ChildItem2, ChildItem."Replenishment System"::Purchase, ChildItem2."Reordering Policy"::"Maximum Qty.", false,
+        25 + LibraryRandom.RandInt(10), 0, 200 + LibraryRandom.RandInt(10), '');
+
+        // [GIVEN] Update Time Bucket and Safety Bucket Quantity for Child Item 1
+        Evaluate(TimeBucket, '<1W>');
+        UpdateItem(ChildItem, ChildItem.FieldNo("Time Bucket"), TimeBucket);
+        UpdateItem(ChildItem, ChildItem.FieldNo("Safety Stock Quantity"), 20 + LibraryRandom.RandInt(5));
+
+        // [GIVEN] Create Parent Item 
+        CreateItem(
+          ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::"Fixed Reorder Qty.", false,
+          20 + LibraryRandom.RandInt(10), 30 + LibraryRandom.RandInt(10), 0, '');
+
+        // [GIVEN] Create Production BOM and Certify it
+        CreateProductionBOMWithTwoCoponentAndCertify(
+        ProductionBOMHeader, ParentItem."Base Unit of Measure", ProductionBOMLine.Type::Item, ChildItem."No.", ChildItem2."No.", QuantityPer);
+
+        // [GIVEN] Update Production BOM and Safety Stock Quantity on Parent Item
+        UpdateItem(ParentItem, ParentItem.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
+        UpdateItem(ParentItem, ParentItem.FieldNo("Safety Stock Quantity"), 10 + LibraryRandom.RandInt(10));
+
+        //[THEN] Run  "Calc. Item Plan - Plan Wksh." report
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate(), WorkDate());
+
+        // [VERIFY] Verify Requisition Detail 
+        VerifyRequisitionLineDetails(ParentItem);
+
+        // [VERIFY] Verify Quantity Per on Planning Component
+        VerifyPlanningComponentWithZeroQuantityPer(ChildItem2)
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5111,6 +5167,25 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder.SetRange("Source No.", Component."No.");
         ProductionOrder.FindFirst();
         ProductionOrder.TestField("Variant Code", ItemVariant.Code);
+    end;
+
+    local procedure CreateProductionBOMWithTwoCoponentAndCertify(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; ChildItemNo: Code[20]; ChildItemNo2: Code[20]; QuantityPer: Integer)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ChildItemNo, QuantityPer);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ChildItemNo2, 0);
+        UpdateProductionBOMHeaderStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure VerifyPlanningComponentWithZeroQuantityPer(ChildItem2: Record Item)
+    var
+        PlanningComponent: Record "Planning Component";
+    begin
+        PlanningComponent.SetRange("Item No.", ChildItem2."No.");
+        PlanningComponent.FindFirst();
+        Assert.AreEqual(0, PlanningComponent."Quantity per", '');
     end;
 }
 
