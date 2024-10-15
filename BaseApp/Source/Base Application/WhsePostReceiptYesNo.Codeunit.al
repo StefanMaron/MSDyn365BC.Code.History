@@ -34,6 +34,8 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
             OnAfterConfirmPost(WhseReceiptLine);
 
             WhsePostReceipt.Run(WhseReceiptLine);
+
+            OnAfterWhsePostReceiptRun(WhseReceiptLine);
             WhsePostReceipt.GetResultMessage;
             Clear(WhsePostReceipt);
         end;
@@ -41,6 +43,11 @@ codeunit 5761 "Whse.-Post Receipt (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterConfirmPost(WhseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterWhsePostReceiptRun(var WhseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 

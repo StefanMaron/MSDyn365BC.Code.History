@@ -175,6 +175,7 @@ codeunit 149005 "BCPT Line"
             BCPTLogEntry."No. of SQL Statements" -= BCPTRoleWrapperImpl.GetAndClearNoOfLogEntriesInserted();
         end;
         BCPTLogEntry.Insert(true);
+        Commit();
         AddLogAppInsights(BCPTLogEntry);
         BCPTRoleWrapperImpl.AddToNoOfLogEntriesInserted();
     end;

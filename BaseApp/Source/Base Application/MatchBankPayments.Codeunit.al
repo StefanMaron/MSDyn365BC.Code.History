@@ -629,11 +629,23 @@
             TotalTimeRelatedPartyMatching += CurrentDateTime() - StartTime;
 
             StartTime := CurrentDateTime();
-            RemainingAmount := TempLedgerEntryMatchingBuffer.GetApplicableRemainingAmount(BankAccReconciliationLine, UsePaymentDiscounts);
+            RemainingAmount := CalcRemainingAmount(TempLedgerEntryMatchingBuffer, BankAccReconciliationLine);
             AmountInclToleranceMatching(
               BankPmtApplRule, BankAccReconciliationLine, AccountType, RemainingAmount);
             TotalTimeAmountMatching += CurrentDateTime() - StartTime;
         end;
+    end;
+
+    local procedure CalcRemainingAmount(var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line") RemainingAmount: Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcRemainingAmount(TempLedgerEntryMatchingBuffer, BankAccReconciliationLine, UsePaymentDiscounts, RemainingAmount, IsHandled);
+        if IsHandled then
+            exit(RemainingAmount);
+
+        RemainingAmount := TempLedgerEntryMatchingBuffer.GetApplicableRemainingAmount(BankAccReconciliationLine, UsePaymentDiscounts);
     end;
 
     procedure InitializeCustomerLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
@@ -1842,6 +1854,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRemainingAmount(var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; UsePaymentDiscounts: Boolean; var RemainingAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 

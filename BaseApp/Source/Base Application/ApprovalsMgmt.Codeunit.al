@@ -464,7 +464,7 @@
                 ApprovalEntryToUpdate := ApprovalEntry;
                 ApprovalEntryToUpdate.Validate(Status, ApprovalEntry.Status::Rejected);
                 ApprovalEntryToUpdate.Modify(true);
-                if OldStatus in [ApprovalEntry.Status::Open, ApprovalEntry.Status::Approved] then
+                if OldStatus in [ApprovalEntry.Status::Open] then
                     CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
             until ApprovalEntry.Next = 0;
         end;

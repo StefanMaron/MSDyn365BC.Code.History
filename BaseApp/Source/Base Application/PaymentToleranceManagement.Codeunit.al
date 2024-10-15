@@ -2178,7 +2178,11 @@
         Math: Codeunit Math;
         Sign: Integer;
     begin
-        Sign := ExpectedEntryTolAmount / Abs(ExpectedEntryTolAmount);
+        if ExpectedEntryTolAmount = 0 then
+            Sign := 1
+        else
+            Sign := ExpectedEntryTolAmount / Abs(ExpectedEntryTolAmount);
+
         AcceptedEntryTolAmount := Sign * Math.Min(Abs(ExpectedEntryTolAmount), Abs(MaxPmtTolAmount));
     end;
 

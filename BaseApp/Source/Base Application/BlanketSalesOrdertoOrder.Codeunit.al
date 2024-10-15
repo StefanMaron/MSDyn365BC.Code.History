@@ -41,6 +41,7 @@ codeunit 87 "Blanket Sales Order to Order"
         BlanketOrderSalesLine.Reset();
         BlanketOrderSalesLine.SetRange("Document Type", "Document Type");
         BlanketOrderSalesLine.SetRange("Document No.", "No.");
+        OnRunOnAfterBlanketOrderSalesLineSetFilters(BlanketOrderSalesLine);
         if BlanketOrderSalesLine.FindSet then begin
             TempSalesLine.DeleteAll();
             repeat
@@ -68,6 +69,7 @@ codeunit 87 "Blanket Sales Order to Order"
                     CheckBlanketOrderLineQuantity();
 
                     SalesOrderLine := BlanketOrderSalesLine;
+                    OnRunOnBeforeResetQuantityFields(BlanketOrderSalesLine, SalesOrderLine);
                     ResetQuantityFields(SalesOrderLine);
                     SalesOrderLine."Document Type" := SalesOrderHeader."Document Type";
                     SalesOrderLine."Document No." := SalesOrderHeader."No.";
@@ -78,6 +80,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         SalesOrderLine."Amount Including VAT" := 0;
                         SalesOrderLineValidateQuantity(SalesOrderLine, BlanketOrderSalesLine);
                         SalesOrderLine.Validate("Shipment Date", BlanketOrderSalesLine."Shipment Date");
+                        OnRunOnAfterSalesOrderLineValidateShipmentDate(BlanketOrderSalesLine, SalesOrderLine);
                         SalesOrderLine.Validate("Unit Price", BlanketOrderSalesLine."Unit Price");
                         SalesOrderLine."Allow Invoice Disc." := BlanketOrderSalesLine."Allow Invoice Disc.";
                         SalesOrderLine."Allow Line Disc." := BlanketOrderSalesLine."Allow Line Disc.";
@@ -374,7 +377,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertAllSalesOrderLines(BlanketOrderSalesHeader: Record "Sales Header"; OrderSalesHeader: Record "Sales Header")
+    local procedure OnAfterInsertAllSalesOrderLines(var BlanketOrderSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -410,6 +413,21 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReserveItemsManuallyLoop(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterBlanketOrderSalesLineSetFilters(var BlanketOrderSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSalesOrderLineValidateShipmentDate(BlanketOrderSalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeResetQuantityFields(var BlanketOrderSalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line")
     begin
     end;
 

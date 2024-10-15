@@ -828,7 +828,8 @@
         ClearErrorMessages;
         "Created Doc. Error Msg. Type" := "Created Doc. Error Msg. Type"::Error;
 
-        Modify;
+        OnRemoveReferenceToWorkingDocumentOnBeforeModify(Rec);
+        Modify();
     end;
 
     local procedure RemoveIncomingDocumentEntryNoFromUnpostedDocument()
@@ -2184,6 +2185,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePurchDocOnBeforeShowRecord(IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveReferenceToWorkingDocumentOnBeforeModify(var IncomingDocument: Record "Incoming Document")
     begin
     end;
 }

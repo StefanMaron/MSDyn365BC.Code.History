@@ -241,7 +241,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         SetAllowInvoiceDiscountOnAllLines(SalesHeader, false);
 
         asserterror SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
-        Assert.ExpectedError('There is no amount that you can apply an invoice discount to.');
+        Assert.ExpectedError('Cannot apply an invoice discount because the document does not include lines where the Allow Invoice Disc. field is selected.');
     end;
 
     [Test]

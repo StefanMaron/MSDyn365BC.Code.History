@@ -53,6 +53,8 @@ codeunit 5055 "CustVendBank-Update"
             if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
                 VATRegistrationLogMgt.LogCustomer(Cust);
         end;
+
+        OnAfterUpdateCustomerProcedure(Cust, Cont, ContBusRel);
     end;
 
     procedure UpdateVendor(var Cont: Record Contact; var ContBusRel: Record "Contact Business Relation")
@@ -76,6 +78,8 @@ codeunit 5055 "CustVendBank-Update"
             if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
                 VATRegistrationLogMgt.LogVendor(Vend);
         end;
+
+        OnAfterUpdateVendorProcedure(Vend, Cont, ContBusRel);
     end;
 
     procedure UpdateBankAccount(var Cont: Record Contact; var ContBusRel: Record "Contact Business Relation")
@@ -90,7 +94,7 @@ codeunit 5055 "CustVendBank-Update"
             "No. Series" := NoSeries;
             "Our Contact Code" := OurContactCode;
             "Last Date Modified" := Today;
-            OnAfterUpdateBankAccount(BankAcc, Cont);
+            OnAfterUpdateBankAccount(BankAcc, Cont, ContBusRel);
             Modify;
         end;
     end;
@@ -130,12 +134,22 @@ codeunit 5055 "CustVendBank-Update"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCustomerProcedure(var Customer: Record Customer; var Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateVendor(var Vendor: Record Vendor; Contact: Record Contact)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateBankAccount(var BankAccount: Record "Bank Account"; Contact: Record Contact)
+    local procedure OnAfterUpdateVendorProcedure(var Vendor: Record Vendor; var Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBankAccount(var BankAccount: Record "Bank Account"; Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
     begin
     end;
 
