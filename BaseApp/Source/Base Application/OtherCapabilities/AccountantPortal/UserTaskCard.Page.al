@@ -294,33 +294,20 @@ page 1171 "User Task Card"
     var
         ShouldOpenToViewPendingTasks: Boolean;
     begin
-        if IsShowingMyPendingTasks or Evaluate(ShouldOpenToViewPendingTasks, GetFilter(ShouldShowPendingTasks)) and ShouldOpenToViewPendingTasks then
-            SetPageToShowMyPendingUserTasks();
+        if not IsShowingMyPendingTasks then
+            if Evaluate(ShouldOpenToViewPendingTasks, Rec.GetFilter(ShouldShowPendingTasks)) and ShouldOpenToViewPendingTasks then
+                SetPageToShowMyPendingUserTasks();
         FilterUserTasks();
-        FilteredUserTask.SetAutoCalcFields("Created By User Name", "Assigned To User Name", "Completed By User Name");
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
-    var
-        Found: Boolean;
     begin
-        FilteredUserTask := Rec;
-        FilteredUserTask.SetView(Rec.GetView(false));
-        Found := FilteredUserTask.find(Which);
-        if Found then
-            Rec := FilteredUserTask;
-        exit(Found);
+        exit(UserTaskManagement.FindRec(Rec, FilteredUserTask, Which));
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
-    var
-        NewSteps: Integer;
     begin
-        FilteredUserTask := Rec;
-        NewSteps := FilteredUserTask.Next(Steps);
-        if NewSteps <> 0 then
-            Rec := FilteredUserTask;
-        exit(NewSteps);
+        exit(UserTaskManagement.NextRec(Rec, FilteredUserTask, Steps));
     end;
 
     trigger OnAfterGetRecord()
@@ -340,6 +327,7 @@ page 1171 "User Task Card"
 
     var
         FilteredUserTask: Record "User Task";
+        UserTaskManagement: Codeunit "User Task Management";
         IsShowingMyPendingTasks: Boolean;
         InvalidPageTypeErr: Label 'You must specify a list page.';
         PageTok: Label 'Page';
@@ -369,7 +357,6 @@ page 1171 "User Task Card"
 
     local procedure FilterUserTasks()
     var
-        UserTaskManagement: Codeunit "User Task Management";
         DueDateFilterOptions: Option "NONE",TODAY,THIS_WEEK;
     begin
         if IsShowingMyPendingTasks then

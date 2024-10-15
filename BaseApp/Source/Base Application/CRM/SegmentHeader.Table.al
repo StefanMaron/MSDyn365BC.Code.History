@@ -925,7 +925,7 @@ table 5076 "Segment Header"
         Attachment."Attachment File".CreateInStream(InStream);
         TempBlob.CreateOutStream(OutStream);
         CopyStream(OutStream, InStream);
-        if DocumentServiceManagement.EditInOneDrive(TempTemplateFileNameLbl, 'docx', Enum::"Doc. Sharing Conflict Behavior"::Replace, TempBlob) then begin
+        if DocumentServiceManagement.EditInOneDrive(TempTemplateFileNameLbl + TempTemplateExtensionLbl, 'docx', Enum::"Doc. Sharing Conflict Behavior"::Replace, TempBlob) then begin
             Attachment."Attachment File".CreateOutStream(OutStream);
             TempBlob.CreateInStream(InStream);
             CopyStream(OutStream, InStream);

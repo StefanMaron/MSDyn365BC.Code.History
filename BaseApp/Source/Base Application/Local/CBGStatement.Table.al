@@ -416,6 +416,7 @@ table 11400 "CBG Statement"
         TelebankInterface: Codeunit "Financial Interface Telebank";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         Status: Dialog;
         AmountLV: Decimal;
         AmountVV: Decimal;
@@ -436,6 +437,9 @@ table 11400 "CBG Statement"
 
         GenJournalTemplate.Get("Journal Template Name");
         GenJournalTemplate.TestField("Source Code");
+
+        if CBGStatementLine.IsEmpty() then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
         if CBGStatementLine.Find('-') then begin
             Counter := CBGStatementLine."Line No.";

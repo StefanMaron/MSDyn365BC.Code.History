@@ -3974,6 +3974,32 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DimensionValue.Code, DimensionValueErr);		
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyNothingToPostifThereIsNoCBGStatementLine()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO 480428] Verify that the bank/Giro Journal does not allow records to be posted without a CBG statement line.
+        Initialize();
+
+        // [GIVEN] Create a journal template and bank account.
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount());
+
+        // [GIVEN] Open the Bank/Giro journal for the newly created bank account number.
+        BankGiroJournal.OpenView();
+        BankGiroJournal.Filter.SetFilter("Account No.", BankAccountNo);
+
+        // [WHEN] Post a bank/Giro journal.
+        asserterror BankGiroJournal.Post.Invoke();
+
+        // [VERIFY] Verify that the bank/Giro Journal does not allow records to be posted without a CBG statement line.
+        Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";

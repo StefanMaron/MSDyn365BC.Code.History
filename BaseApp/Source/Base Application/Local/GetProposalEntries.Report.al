@@ -186,6 +186,8 @@ report 11000000 "Get Proposal Entries"
                 end else
                     Found := false;
 
+                OnAfterGetRecordDetailLineOnBeforeCreateProposalLine(ProposalLine, DetailLine, Found);    
+
                 if not Found then begin
                     Clear(ProposalLine);
                     ProposalLine.SetRange("Our Bank No.", DetailLine."Our Bank");
@@ -582,6 +584,11 @@ report 11000000 "Get Proposal Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnEmployeeLedgerEntryOnAfterValidateSerialNoEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry"; var DetailLine: Record "Detail Line"; ValueDate: Date; PmtDiscExpiryDate: Date; var NumberOfDetailLines: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordDetailLineOnBeforeCreateProposalLine(var ProposalLine: Record "Proposal Line"; DetailLine: Record "Detail Line"; var Found: Boolean);
     begin
     end;
 }
