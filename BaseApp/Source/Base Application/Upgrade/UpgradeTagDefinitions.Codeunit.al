@@ -40,6 +40,9 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetCortanaIntelligenceUsageUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPowerBiEmbedUrlTooShortUpgradeTag());
         PerCompanyUpgradeTags.Add(GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
+        PerCompanyUpgradeTags.Add(GetFixAPISalesInvoicesCreatedFromOrders());
+        PerCompanyUpgradeTags.Add(GetFixAPIPurchaseInvoicesCreatedFromOrders());
+        PerCompanyUpgradeTags.Add(GetIntrastatJnlLinePartnerIDUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -289,6 +292,22 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetMoveAzureADAppSetupSecretToIsolatedStorageTag(): Code[250];
     begin
         exit('MS-361172-MoveAzureADAppSetupSecretToIsolatedStorageTag-20200716');
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetIntrastatJnlLinePartnerIDUpgradeTag(): Code[250]
+    begin
+        exit('MS-373278-IntrastatJnlLinePartnerID-20201001');
+    end;
+
+    procedure GetFixAPISalesInvoicesCreatedFromOrders(): Code[250];
+    begin
+        exit('MS-377282-GetFixAPISalesInvoicesCreatedFromOrders-20201029');
+    end;
+
+    procedure GetFixAPIPurchaseInvoicesCreatedFromOrders(): Code[250];
+    begin
+        exit('MS-377282-GetFixAPIPurchaseInvoicesCreatedFromOrders-20201029');
     end;
 }
 
