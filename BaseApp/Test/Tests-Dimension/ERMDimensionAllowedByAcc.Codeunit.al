@@ -17,6 +17,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         DimValueNotAllowedForAccountErr: Label 'Dimension value %1, %2 is not allowed for %3, %4.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption, %4 - account number.';
         DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';
@@ -998,6 +999,103 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         Assert.IsFalse(
             DimValuePerAccount.Get(Database::"G/L Account", GLAccount."No.", DimensionValue[3]."Dimension Code", Dimension.Code),
             'Dim. Value per Account must be deleted');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RenameDimension()
+    var
+        DefaultDimension: Record "Default Dimension";
+        GLAccount: Record "G/L Account";
+        DimensionValue: array[2] of Record "Dimension Value";
+        DimValuePerAccount: Record "Dim. Value per Account";
+        Dimension: Record Dimension;
+        OldDimensionCode: Code[20];
+    begin
+        // [SCENARIO 434674] Rename dimension should update relevant dimension codes in "Dimension Value per Account" table
+        Initialize();
+
+        // [GIVEN] Dimension "D1" with dimension values "DV1" and "DV2"
+        CreateDimensionWithTwoValues(DimensionValue);
+
+        // [GIVEN] G/L Account "A" with mandatory allowed default dimension: "Dimension Code" = "D1", "Dimension Value Code" = "DV1"
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount."No.", DimensionValue[1]."Dimension Code");
+        DefaultDimension.Validate("Allowed Values Filter", DimensionValue[1].Code);
+
+        // [WHEN] Rename "D1"
+        Dimension.Get(DimensionValue[1]."Dimension Code");
+        OldDimensionCode := Dimension.Code;
+        Dimension.Rename(LibraryUtility.GenerateRandomCode20(Dimension.FieldNo(Code), Database::Dimension));
+
+        // [THEN] Allowed dimension codes for "A" updated
+        DimValuePerAccount.SetRange("Dimension Code", OldDimensionCode);
+        Assert.RecordIsEmpty(DimValuePerAccount);
+        DimValuePerAccount.SetRange("Dimension Code", Dimension.Code);
+        Assert.RecordCount(DimValuePerAccount, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RenameDimensionValue()
+    var
+        DefaultDimension: Record "Default Dimension";
+        GLAccount: Record "G/L Account";
+        DimensionValue: array[2] of Record "Dimension Value";
+        DimValuePerAccount: Record "Dim. Value per Account";
+        OldDimensionValueCode: Code[20];
+    begin
+        // [SCENARIO 434674] Rename dimension value should update relevant dimension value codes in "Dimension Value per Account" table
+        Initialize();
+
+        // [GIVEN] Dimension "D1" with dimension values "DV1" and "DV2"
+        CreateDimensionWithTwoValues(DimensionValue);
+
+        // [GIVEN] G/L Account "A" with mandatory allowed default dimension: "Dimension Code" = "D1", "Dimension Value Code" = "DV1"
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount."No.", DimensionValue[1]."Dimension Code");
+        DefaultDimension.Validate("Allowed Values Filter", DimensionValue[1].Code);
+
+        // [WHEN] Rename "DV1"
+        OldDimensionValueCode := DimensionValue[1].Code;
+        DimensionValue[1].Rename(DimensionValue[1]."Dimension Code", LibraryUtility.GenerateRandomCode20(DimensionValue[1].FieldNo(Code), Database::"Dimension Value"));
+
+        // [THEN] Allowed dimension value code for "A" updated
+        Assert.IsFalse(DimValuePerAccount.Get(Database::"G/L Account", GLAccount."No.", DimensionValue[1]."Dimension Code", OldDimensionValueCode), 'Dim. value per account entry should be renamed');
+        Assert.IsTrue(DimValuePerAccount.Get(Database::"G/L Account", GLAccount."No.", DimensionValue[1]."Dimension Code", DimensionValue[1].Code), 'Dim. value per account entry should be renamed');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RenameGLAccountWithAllowedDimension()
+    var
+        DefaultDimension: Record "Default Dimension";
+        GLAccount: Record "G/L Account";
+        DimensionValue: array[2] of Record "Dimension Value";
+        DimValuePerAccount: Record "Dim. Value per Account";
+        OldGLAccountNo: Code[20];
+    begin
+        // [SCENARIO 434674] Rename g/l account with allowed default dimension should update relevant "No." fields in "Dimension Value per Account" table
+        Initialize();
+
+        // [GIVEN] Dimension "D1" with dimension values "DV1" and "DV2"
+        CreateDimensionWithTwoValues(DimensionValue);
+
+        // [GIVEN] G/L Account "A" with mandatory allowed default dimension: "Dimension Code" = "D1", "Dimension Value Code" = "DV1"
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount."No.", DimensionValue[1]."Dimension Code");
+        DefaultDimension.Validate("Allowed Values Filter", DimensionValue[1].Code);
+
+        // [WHEN] Rename "A"
+        OldGLAccountNo := GLAccount."No.";
+        GLAccount.Rename(LibraryUtility.GenerateRandomCode20(GLAccount.FieldNo("No."), Database::"G/L Account"));
+
+        // [THEN] Allowed "No." fields for "A" updated
+        DimValuePerAccount.SetRange("Table ID", Database::"G/L Account");
+        DimValuePerAccount.SetRange("No.", OldGLAccountNo);
+        Assert.RecordIsEmpty(DimValuePerAccount);
+        DimValuePerAccount.SetRange("No.", GLAccount."No.");
+        Assert.RecordCount(DimValuePerAccount, 2);
     end;
 
     local procedure Initialize()

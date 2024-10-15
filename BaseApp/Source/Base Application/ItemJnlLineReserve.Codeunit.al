@@ -274,11 +274,13 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                         end else
                             TestOldReservEntryLocationCode(OldReservEntry, ItemJnlLine);
 
+                        OnTransferItemJnlToItemLedgEntryOnBeforeTransferReservEntry(ItemLedgEntry);
                         TransferQty :=
                           CreateReservEntry.TransferReservEntry(
                             DATABASE::"Item Ledger Entry", 0, '', '', 0,
                             ItemLedgEntry."Entry No.", ItemLedgEntry."Qty. per Unit of Measure",
                             OldReservEntry, TransferQty);
+                        OnTransferItemJnlToItemLedgEntryOnAfterTransferReservEntry(OldReservEntry2, ReservStatus);
                     end else
                         if ReservStatus = ReservStatus::Tracking then begin
                             OldReservEntry2.Delete();
@@ -540,6 +542,16 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferItemJnlToItemLedgEntryOnBeforeTestVariantCode(var OldReservEntry: Record "Reservation Entry"; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferItemJnlToItemLedgEntryOnBeforeTransferReservEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferItemJnlToItemLedgEntryOnAfterTransferReservEntry(OldReservationEntry2: Record "Reservation Entry"; ReservationStatus: Enum "Reservation Status")
     begin
     end;
 

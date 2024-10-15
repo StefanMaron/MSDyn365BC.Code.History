@@ -147,6 +147,7 @@
                     Commit();
             end;
 
+            OnCodeOnBeforeWindowOpen(SalesHeader, DocumentType);
             Window.Open(
               '#1#################################\\' +
               Text002 +
@@ -2006,6 +2007,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCalcAndUpdateVATAmountLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; DocumentType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeWindowOpen(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
 

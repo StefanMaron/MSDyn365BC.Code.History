@@ -1852,7 +1852,7 @@ page 256 "Payment Journal"
         UseForElecPaymentCheckedErr: Label 'The Use for Electronic Payments check box must be selected on the vendor or customer bank account card.';
         NoExportDiffCurrencyErr: Label 'You cannot export journal entries if Currency Code is different in Gen. Journal Line and Bank Account.';
         RecipientBankAccountEmptyErr: Label 'Recipient Bank Account must be filled.';
-        ElectronicPaymentTok: Label 'Electronic Payment', Locked = true;
+        ElectronicPaymentTok: Label 'NA Electronic Payments', Locked = true;
         IsAllowPaymentExport: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         RecipientBankAccountMandatory: Boolean;

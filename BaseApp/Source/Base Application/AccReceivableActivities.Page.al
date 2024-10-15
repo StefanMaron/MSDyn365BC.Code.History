@@ -77,6 +77,9 @@
                     Caption = 'Deposits to Post';
                     DrillDownPageID = "Deposit List";
                     ToolTip = 'Specifies the deposits that will be posted.';
+                    ObsoleteReason = 'Use the page "Bank Deposits List" instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
 #endif
                 actions

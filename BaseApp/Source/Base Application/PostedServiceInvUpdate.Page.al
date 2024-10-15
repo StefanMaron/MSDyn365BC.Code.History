@@ -76,12 +76,13 @@ page 1356 "Posted Service Inv. - Update"
     var
         xServiceInvoiceHeader: Record "Service Invoice Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
-          ("Payment Method Code" <> xServiceInvoiceHeader."Payment Method Code") or
-          ("Payment Reference" <> xServiceInvoiceHeader."Payment Reference") or
-          ("Company Bank Account Code" <> xServiceInvoiceHeader."Company Bank Account Code"));
+        IsChanged := (Rec."Payment Method Code" <> xServiceInvoiceHeader."Payment Method Code") or
+          (Rec."Payment Reference" <> xServiceInvoiceHeader."Payment Reference") or
+          (Rec."Company Bank Account Code" <> xServiceInvoiceHeader."Company Bank Account Code");
+
+        OnAfterRecordChanged(Rec, xServiceInvoiceHeader, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -89,6 +90,11 @@ page 1356 "Posted Service Inv. - Update"
     begin
         Rec := ServiceInvoiceHeader;
         Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var ServiceInvoiceHeader: Record "Service Invoice Header"; xServiceInvoiceHeader: Record "Service Invoice Header"; var IsChanged: Boolean)
+    begin
     end;
 }
 

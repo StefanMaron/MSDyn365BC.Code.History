@@ -491,4 +491,16 @@
     local procedure OnPrepareDeferralLineOnBeforePrepareInitialAmounts(var DeferralPostBuffer: Record "Deferral Posting Buffer"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; SalesAccount: Code[20])
     begin
     end;
+
+    // Calc Deferral Amount
+
+    procedure RunOnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(var TempDeferralHeader: Record "Deferral Header" temporary; DeferralHeader: Record "Deferral Header"; SalesLine: Record "Sales Line")
+    begin
+        OnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(TempDeferralHeader, DeferralHeader, SalesLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(var TempDeferralHeader: Record "Deferral Header" temporary; DeferralHeader: Record "Deferral Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
 }

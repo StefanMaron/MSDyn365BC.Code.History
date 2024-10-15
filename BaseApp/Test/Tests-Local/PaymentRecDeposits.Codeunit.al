@@ -1,7 +1,11 @@
+#if not CLEAN20
 codeunit 142059 "Payment Rec Deposits"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Deposits is deprecated in favor of the Bank Deposits extension. The corresponding tests are now in that extension.';
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -229,7 +233,7 @@ codeunit 142059 "Payment Rec Deposits"
     local procedure ApplyLineAndPost(var PmtReconJnl: TestPage "Payment Reconciliation Journal"; var EntryNoArray: array[3] of Integer; BankAccNo: Code[20]; BankAccRecon: Record "Bank Acc. Reconciliation")
     begin
         FillEntryNoArray(EntryNoArray, BankAccNo);
-        
+
         // Payment Reconciliation Journal is opened
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
 
@@ -649,3 +653,4 @@ codeunit 142059 "Payment Rec Deposits"
     end;
 }
 
+#endif

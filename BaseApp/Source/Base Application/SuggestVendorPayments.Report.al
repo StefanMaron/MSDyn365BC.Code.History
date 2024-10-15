@@ -609,6 +609,7 @@
         VendLedgEntry.SetFilter("Currency Code", Vendor.GetFilter("Currency Filter"));
         VendLedgEntry.SetFilter("Global Dimension 1 Code", Vendor.GetFilter("Global Dimension 1 Filter"));
         VendLedgEntry.SetFilter("Global Dimension 2 Code", Vendor.GetFilter("Global Dimension 2 Filter"));
+        OnGetVendLedgEntriesOnAfterVendLedgEntrySetFilters(VendLedgEntry, Vendor, PostingDate, LastDueDateToPayReq, Positive, Future);
 
         if VendLedgEntry.FindSet() then
             repeat
@@ -623,7 +624,7 @@
                     end;
                 end;
             until VendLedgEntry.Next() = 0;
-        OnAfterGetVendLedgEntries(VendLedgEntry, Vendor, PostingDate, LastDueDateToPayReq, UsePriority, UseDueDateAsPostingDate, DueDateOffset, Positive, Future, PayableVendLedgEntry, NextEntryNo);
+        OnAfterGetVendLedgEntries(VendLedgEntry, Vendor, PostingDate, LastDueDateToPayReq, UsePriority, UseDueDateAsPostingDate, DueDateOffset, Positive, Future, PayableVendLedgEntry, NextEntryNo, SkipExportedPayments);
     end;
 
     local procedure IncludeVendor(Vendor: Record Vendor; VendorBalance: Decimal) Result: Boolean
@@ -769,7 +770,7 @@
                                     TempPaymentBuffer.Modify();
                                 end else begin
                                     TempPaymentBuffer."Document No." := NextDocNo;
-                                    GenJnlLine.IncrementDocumentNo(GenJnlBatch, NextDocNo);
+                                    RunIncrementDocumentNo(true);
                                     TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
                                     Window2.Update(1, VendLedgEntry."Vendor No.");
                                     TempPaymentBuffer.Insert();
@@ -837,7 +838,7 @@
                         "Document Type" := "Document Type"::Refund;
 
                     "Document No." := NextDocNo;
-                    IncrementDocumentNo(GenJnlBatch, NextDocNo);
+                    RunIncrementDocumentNo(false);
                 end else
                     if (TempPaymentBuffer."Vendor No." = OldTempPaymentBuffer."Vendor No.") and
                        (TempPaymentBuffer."Currency Code" = OldTempPaymentBuffer."Currency Code")
@@ -845,7 +846,7 @@
                         "Document No." := OldTempPaymentBuffer."Document No."
                     else begin
                         "Document No." := NextDocNo;
-                        IncrementDocumentNo(GenJnlBatch, NextDocNo);
+                        RunIncrementDocumentNo(false);
                         OldTempPaymentBuffer := TempPaymentBuffer;
                         OldTempPaymentBuffer."Document No." := "Document No.";
                     end;
@@ -884,6 +885,18 @@
             Insert;
             GenJnlLineInserted := true;
         end;
+    end;
+
+    local procedure RunIncrementDocumentNo(PrepareBuffer: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunIncrementDocumentNo(GenJnlLine, GenJnlBatch, PrepareBuffer, DocNoPerLine, BalAccNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlLine.IncrementDocumentNo(GenJnlBatch, NextDocNo);
     end;
 
     local procedure UpdateDimensions(var GenJnlLine: Record "Gen. Journal Line")
@@ -1223,8 +1236,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetVendLedgEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor; PostingDate: Date; LastDueDateToPayReq: Date; UseVendorPriority: Boolean; UseDueDateAsPostingDate: Boolean; DueDateOffset: DateFormula; Positive: Boolean; Future: Boolean; var PayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary; var NextEntryNo: Integer)
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetVendLedgEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor; PostingDate: Date; LastDueDateToPayReq: Date; UseVendorPriority: Boolean; UseDueDateAsPostingDate: Boolean; DueDateOffset: DateFormula; Positive: Boolean; Future: Boolean; var PayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary; var NextEntryNo: Integer; SkipImportedPayments: Boolean)
     begin
     end;
 
@@ -1244,6 +1257,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunIncrementDocumentNo(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; PrepareBuffer: Boolean; DocNoPerLine: Boolean; BalAccNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetTempPaymentBufferDims(VendorLedgerEntry: Record "Vendor Ledger Entry"; var SummarizePerDim: Boolean)
     begin
     end;
@@ -1255,6 +1273,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetVendLedgEntriesOnBeforeLoop(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PostingDate: Date; LastDueDateToPayReq: Date; Future: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendLedgEntriesOnAfterVendLedgEntrySetFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor; PostingDate: Date; LastDueDateToPayReq: Date; Positive: Boolean; Future: Boolean)
     begin
     end;
 

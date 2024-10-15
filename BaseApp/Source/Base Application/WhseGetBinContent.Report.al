@@ -129,6 +129,8 @@ report 7391 "Whse. Get Bin Content"
         Location: Record Location;
         InternalMovementHeader: Record "Internal Movement Header";
         InternalMovementLine: Record "Internal Movement Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
         UOMMgt: Codeunit "Unit of Measure Management";
         Text001: Label 'Report must be initialized.';
         PostingDate: Date;
@@ -173,11 +175,16 @@ report 7391 "Whse. Get Bin Content"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine2."Journal Batch Name");
         if ItemJournalLine.FindLast() then;
 
+        ItemJournalTemplate.Get(ItemJournalLine."Journal Template Name");
+        ItemJournalBatch.Get(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
         PostingDate := ItemJournalLine2."Posting Date";
         DocNo := ItemJournalLine2."Document No.";
 
         DestinationType2 := DestinationType2::ItemJournalLine;
         ReportInitialized := true;
+
+        OnAfterInitializeItemJournalLine(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch);
     end;
 
     procedure InitializeTransferHeader(TransferHeader2: Record "Transfer Header")
@@ -282,9 +289,6 @@ report 7391 "Whse. Get Bin Content"
 #endif
 
     local procedure InsertItemJournalLine(BinContent: Record "Bin Content")
-    var
-        ItemJournalTempl: Record "Item Journal Template";
-        ItemJournalBatch: Record "Item Journal Batch";
     begin
         with ItemJournalLine do begin
             Init();
@@ -301,9 +305,7 @@ report 7391 "Whse. Get Bin Content"
             Validate("New Bin Code", '');
             Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
-            ItemJournalTempl.Get("Journal Template Name");
-            ItemJournalBatch.Get("Journal Template Name", "Journal Batch Name");
-            "Source Code" := ItemJournalTempl."Source Code";
+            "Source Code" := ItemJournalTemplate."Source Code";
             "Posting No. Series" := ItemJournalBatch."Posting No. Series";
             OnInsertItemJournalLineOnBeforeInsert(ItemJournalLine, BinContent);
             Insert();
@@ -516,6 +518,11 @@ report 7391 "Whse. Get Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTempTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
@@ -525,7 +532,7 @@ report 7391 "Whse. Get Bin Content"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty(var BinContent: Record "Bin Content"; var ShouldSkipReportForQty: Boolean)
     begin
     end;

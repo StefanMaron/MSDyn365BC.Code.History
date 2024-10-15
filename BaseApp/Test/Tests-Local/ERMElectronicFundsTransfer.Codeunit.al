@@ -1140,6 +1140,7 @@
         BindSubscription(ERMElectronicFundsTransfer);
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
         BindSubscription(TestClientTypeSubscriber);
+        CreateExportReportSelection(Layout::RDLC);
 
         // [GIVEN] Data Exchange Definition for CA with two headers
         // [GIVEN] Bank account "Last E-Pay File Creation No." = 1
@@ -1182,14 +1183,18 @@
         // [FEATURE] [US]
         // [SCENARIO 303720] Export EFT US (ACH) with two headers and all business data in payment journal
         // [SCENARIO 362896] Settlement Date is exported via data exchange ACH US Header "Effective Date" field
+        // [SCENARIO 430249] Vendor Name is trimmed to 22 characters.
         Initialize();
         BindSubscription(ERMElectronicFundsTransfer);
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
         BindSubscription(TestClientTypeSubscriber);
+        CreateExportReportSelection(Layout::RDLC);
 
         // [GIVEN] Data Exchange Definition for US with two headers
         // [GIVEN] Bank account "Last E-Pay File Creation No." = 1
+        // [GIVEN] Vendor Name value has length 50.
         CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        UpdateNameOnVendor(Vendor, CopyStr(LibraryUtility.GenerateRandomXMLText(50), 1, 50));
         CreateBankAccountForCountry(
             BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(CreateDataExchDefForUS()), '', '');
 
@@ -1202,8 +1207,9 @@
 
         // [THEN] Bank account "Last E-Pay File Creation No." = 2
         // [THEN] Detail contains business data from payment journal
+        // [THEN] Vendor Name was trimmed to 22 chars and copied to ACHUSDetail."Payee Name".
         VerifyBankAccountFileCreationNumberIncrement(BankAccount);
-        VerifyEFTExportUS(ERMElectronicFundsTransfer, TempEFTExportWorkset, SettleDate);
+        VerifyEFTExportUS(ERMElectronicFundsTransfer, TempEFTExportWorkset, SettleDate, CopyStr(Vendor.Name, 1, 22));
     end;
 
     [Test]
@@ -1228,6 +1234,7 @@
         BindSubscription(ERMElectronicFundsTransfer);
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
         BindSubscription(TestClientTypeSubscriber);
+        CreateExportReportSelection(Layout::RDLC);
 
         // [GIVEN] Data Exchange Definition for MX with two headers
         // [GIVEN] Bank account "Last E-Pay File Creation No." = 1
@@ -3515,6 +3522,12 @@
         GenJournalTemplate.Modify(true);
     end;
 
+    local procedure UpdateNameOnVendor(var Vendor: Record Vendor; VendorName: Text[100])
+    begin
+        Vendor.Validate(Name, VendorName);
+        Vendor.Modify(true);
+    end;
+
     local procedure VoidCheckCheckLedgerEntries(BankAccountNo: Code[20])
     var
         CheckLedgerEntries: TestPage "Check Ledger Entries";
@@ -3770,7 +3783,7 @@
         TempACHRBFooter.TestField("File Creation Number", FileCreationNo);
     end;
 
-    local procedure VerifyEFTExportUS(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset"; SettleDate: Date)
+    local procedure VerifyEFTExportUS(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset"; SettleDate: Date; PayeeName: Text[100])
     begin
         ERMElectronicFundsTransfer.GetTempACHUSHeader(TempACHUSHeader);
         TempACHUSHeader.TestField("Effective Date", SettleDate);
@@ -3780,6 +3793,7 @@
         TempACHUSDetail.TestField("External Document No.", EFTExportWorkset."External Document No.");
         TempACHUSDetail.TestField("Applies-to Doc. No.", EFTExportWorkset."Applies-to Doc. No.");
         TempACHUSDetail.TestField("Payment Reference", EFTExportWorkset."Payment Reference");
+        TempACHUSDetail.TestField("Payee Name", PayeeName);
     end;
 
     local procedure VerifyEFTExportMX(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset"; SettleDate: Date)

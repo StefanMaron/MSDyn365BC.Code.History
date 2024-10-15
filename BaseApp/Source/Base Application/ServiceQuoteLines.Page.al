@@ -738,6 +738,8 @@ page 5966 "Service Quote Lines"
                     ResolutionCodeVisible := true;
                 end;
         end;
+
+        OnAfterOnOpenPage(ServMgtSetup, FaultAreaCodeVisible, SymptomCodeVisible, FaultCodeVisible, ResolutionCodeVisible);
     end;
 
     var
@@ -824,6 +826,11 @@ page 5966 "Service Quote Lines"
     begin
         CurrPage.Update();
         SetSelectionFilter;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var ServMgtSetup: Record "Service Mgt. Setup"; var FaultAreaCodeVisible: Boolean; var SymptomCodeVisible: Boolean; var FaultCodeVisible: Boolean; var ResolutionCodeVisible: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
