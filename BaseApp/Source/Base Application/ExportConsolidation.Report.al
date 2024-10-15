@@ -48,13 +48,13 @@ report 91 "Export Consolidation"
                     end else begin
                         TempGLEntry.Reset();
                         TempGLEntry.DeleteAll();
-                        DimBufMgt.DeleteAllDimensions;
+                        DimBufMgt.DeleteAllDimensions();
                         repeat
                             TempDimBufIn.Reset();
                             TempDimBufIn.DeleteAll();
                             DimSetEntry.Reset();
                             DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
-                            if DimSetEntry.FindSet() then begin
+                            if DimSetEntry.FindSet() then
                                 repeat
                                     if TempSelectedDim.Get(UserId, 3, REPORT::"Export Consolidation", '', DimSetEntry."Dimension Code") then begin
                                         TempDimBufIn.Init();
@@ -77,12 +77,11 @@ report 91 "Export Consolidation"
                                         TempDimBufIn.Insert();
                                     end;
                                 until DimSetEntry.Next() = 0;
-                            end;
                             UpdateTempGLEntry(TempDimBufIn);
                         until Next() = 0;
 
                         TempGLEntry.Reset();
-                        if TempGLEntry.FindSet() then begin
+                        if TempGLEntry.FindSet() then
                             repeat
                                 TempDimBufOut.Reset();
                                 TempDimBufOut.DeleteAll();
@@ -101,7 +100,6 @@ report 91 "Export Consolidation"
                                         end;
                                 end;
                             until TempGLEntry.Next() = 0;
-                        end;
                     end;
 
                     SetRange("Posting Date", ConsolidStartDate, ConsolidEndDate);
@@ -136,7 +134,7 @@ report 91 "Export Consolidation"
             trigger OnPostDataItem()
             begin
                 if FileFormat = FileFormat::"Version 3.70 or Earlier (.txt)" then
-                    GLEntryFile.Close;
+                    GLEntryFile.Close();
             end;
 
             trigger OnPreDataItem()
@@ -153,25 +151,24 @@ report 91 "Export Consolidation"
                 if NormalDate(ConsolidEndDate) - NormalDate(ConsolidStartDate) + 1 > 500 then
                     Error(Text003);
 
-                if Dim.Find('-') then begin
+                if Dim.Find('-') then
                     repeat
                         TempDim.Init();
                         TempDim := Dim;
                         TempDim.Insert();
                     until Dim.Next() = 0;
-                end;
-                if DimVal.Find('-') then begin
+
+                if DimVal.Find('-') then
                     repeat
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
                     until DimVal.Next() = 0;
-                end;
 
                 SelectedDim.SetRange("User ID", UserId);
                 SelectedDim.SetRange("Object Type", 3);
                 SelectedDim.SetRange("Object ID", REPORT::"Export Consolidation");
-                if SelectedDim.Find('-') then begin
+                if SelectedDim.Find('-') then
                     repeat
                         TempSelectedDim.Init();
                         TempSelectedDim := SelectedDim;
@@ -180,7 +177,6 @@ report 91 "Export Consolidation"
                             TempSelectedDim."Dimension Code" := TempDim.Code;
                         TempSelectedDim.Insert();
                     until SelectedDim.Next() = 0;
-                end;
                 TempDim.Reset();
 
                 if FileFormat = FileFormat::"Version 3.70 or Earlier (.txt)" then begin
@@ -221,7 +217,7 @@ report 91 "Export Consolidation"
                             Consolidate.SetGlobals(
                               ProductVersion, FormatVersion, CompanyName,
                               GLSetup."LCY Code", GLSetup."Additional Reporting Currency", ParentCurrencyCode,
-                              Consolidate.CalcCheckSum, ConsolidStartDate, ConsolidEndDate);
+                              Consolidate.CalcCheckSum(), ConsolidStartDate, ConsolidEndDate);
                             Consolidate.ExportToXML(ServerFileName);
                         end;
                     FileFormat::"Version F&O":
@@ -358,7 +354,7 @@ report 91 "Export Consolidation"
     var
         FileManagement: Codeunit "File Management";
     begin
-        if IsWebClient then begin
+        if IsWebClient() then begin
             if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
                 ClientFileName := ClientFileName + '.xml'
             else
@@ -375,7 +371,7 @@ report 91 "Export Consolidation"
     begin
         DimSelectionBuf.CompareDimText(3, REPORT::"Export Consolidation", '', ColumnDim, Text007);
         ServerFileName := FileMgt.ServerTempFileName('xml');
-        IsWebClient;
+        IsWebClient();
 
         if FileFormat = FileFormat::"Version F&O" then begin
             if FOLegalEntityID = '' then
@@ -385,19 +381,6 @@ report 91 "Export Consolidation"
     end;
 
     var
-        ProductVersion: Label '4.00';
-        FormatVersion: Label '1.00';
-        Text000: Label 'Enter the file name.';
-        Text001: Label 'Enter the starting date for the consolidation period.';
-        Text002: Label 'Enter the ending date for the consolidation period.';
-        Text003: Label 'The export can include a maximum of 500 days.';
-        Text004: Label 'Processing the chart of accounts...\\';
-        Text005: Label 'No.             #1##########\';
-        Text006: Label 'Date            #2######';
-        Text007: Label 'Copy Dimensions';
-        Text009: Label 'A G/L Entry with posting date on a closing date (%1) was found while exporting nonclosing entries. G/L Account No. = %2.';
-        Text010: Label 'When using closing dates, the starting and ending dates must be the same.';
-        LegalEntityIDEmptyErr: Label 'You must provide a value in the F&O Legal Entity ID field.';
         TempGLEntry: Record "G/L Entry" temporary;
         DimSetEntry: Record "Dimension Set Entry";
         Dim: Record Dimension;
@@ -429,6 +412,20 @@ report 91 "Export Consolidation"
         FOLegalEntityID: Code[4];
         ClientFileName: Text;
 
+        ProductVersion: Label '4.00';
+        FormatVersion: Label '1.00';
+        Text000: Label 'Enter the file name.';
+        Text001: Label 'Enter the starting date for the consolidation period.';
+        Text002: Label 'Enter the ending date for the consolidation period.';
+        Text003: Label 'The export can include a maximum of 500 days.';
+        Text004: Label 'Processing the chart of accounts...\\';
+        Text005: Label 'No.             #1##########\';
+        Text006: Label 'Date            #2######';
+        Text007: Label 'Copy Dimensions';
+        Text009: Label 'A G/L Entry with posting date on a closing date (%1) was found while exporting nonclosing entries. G/L Account No. = %2.';
+        Text010: Label 'When using closing dates, the starting and ending dates must be the same.';
+        LegalEntityIDEmptyErr: Label 'You must provide a value in the F&O Legal Entity ID field.';
+
     local procedure WriteFile(var GLEntry2: Record "G/L Entry"; var DimBuf: Record "Dimension Buffer")
     var
         GLEntryNo: Integer;
@@ -447,7 +444,7 @@ report 91 "Export Consolidation"
                     GLEntry2.Amount));
         end;
 
-        if DimBuf.Find('-') then begin
+        if DimBuf.Find('-') then
             repeat
                 case FileFormat of
                     FileFormat::"Version 4.00 or Later (.xml)":
@@ -462,7 +459,6 @@ report 91 "Export Consolidation"
                             DimBuf."Dimension Value Code"));
                 end;
             until DimBuf.Next() = 0;
-        end;
     end;
 
     local procedure UpdateTempGLEntry(var TempDimBuf: Record "Dimension Buffer" temporary)
@@ -503,7 +499,7 @@ report 91 "Export Consolidation"
                 "G/L Account".TestField("Consol. Debit Acc.");
                 "G/L Account No." := "G/L Account"."Consol. Debit Acc.";
             end;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -550,7 +546,7 @@ report 91 "Export Consolidation"
 
     local procedure IsWebClient(): Boolean
     begin
-        exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop]);
+        exit(ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop]);
     end;
 
     local procedure SetControlsVisibility()

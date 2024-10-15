@@ -1,4 +1,4 @@
-﻿codeunit 60 "Sales-Calc. Discount"
+codeunit 60 "Sales-Calc. Discount"
 {
     Permissions = tabledata "Sales Header" = rm,
                   tabledata "Sales Line" = rm;
@@ -22,7 +22,6 @@
     end;
 
     var
-        Text000: Label 'Service Charge';
         TempSalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line";
@@ -36,6 +35,8 @@
         GLSetup: Record "General Ledger Setup";
         CustInvDiscFound: Boolean;
         InvAllow: Boolean;
+
+        Text000: Label 'Service Charge';
 
     local procedure CalculateInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line")
     var
@@ -51,7 +52,7 @@
     begin
         SalesSetup.Get();
         if UpdateHeader then
-            SalesHeader.Find; // To ensure we have the latest - otherwise update fails.
+            SalesHeader.Find(); // To ensure we have the latest - otherwise update fails.
 
         IsHandled := false;
         OnBeforeCalcSalesDiscount(SalesHeader, IsHandled, SalesLine2, UpdateHeader);
@@ -95,7 +96,7 @@
                 SalesHeader.Modify();
 
             if SalesHeader."Posting Date" = 0D then
-                CurrencyDate := WorkDate
+                CurrencyDate := WorkDate()
             else
                 CurrencyDate := SalesHeader."Posting Date";
 
@@ -327,7 +328,7 @@
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvDisc.SetRange(Code, InvDiscCode);
-        exit(CustInvDisc.FindFirst);
+        exit(CustInvDisc.FindFirst())
     end;
 
     procedure CalculateWithSalesHeader(var TempSalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line")

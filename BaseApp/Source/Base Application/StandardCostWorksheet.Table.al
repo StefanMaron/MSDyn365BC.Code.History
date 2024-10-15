@@ -38,7 +38,7 @@ table 5841 "Standard Cost Worksheet"
                 TempStdCostWksh: Record "Standard Cost Worksheet" temporary;
             begin
                 TempStdCostWksh := Rec;
-                Init;
+                Init();
                 Type := TempStdCostWksh.Type;
                 "No." := TempStdCostWksh."No.";
                 "Replenishment System" := "Replenishment System"::" ";
@@ -52,25 +52,25 @@ table 5841 "Standard Cost Worksheet"
                             Item.Get("No.");
                             Description := Item.Description;
                             "Replenishment System" := Item."Replenishment System";
-                            GetItemCosts;
+                            GetItemCosts();
                         end;
                     Type::"Work Center":
                         begin
                             WorkCtr.Get("No.");
                             Description := WorkCtr.Name;
-                            GetWorkCtrCosts;
+                            GetWorkCtrCosts();
                         end;
                     Type::"Machine Center":
                         begin
                             MachCtr.Get("No.");
                             Description := MachCtr.Name;
-                            GetMachCtrCosts;
+                            GetMachCtrCosts();
                         end;
                     Type::Resource:
                         begin
                             Res.Get("No.");
                             Description := Res.Name;
-                            GetResCosts;
+                            GetResCosts();
                         end;
                 end;
             end;
@@ -105,7 +105,7 @@ table 5841 "Standard Cost Worksheet"
             trigger OnValidate()
             begin
                 if Type = Type::Item then
-                    UpdateCostShares
+                    UpdateCostShares();
             end;
         }
         field(13; "Indirect Cost %"; Decimal)
@@ -299,10 +299,10 @@ table 5841 "Standard Cost Worksheet"
         "Indirect Cost %" := Item."Indirect Cost %";
         "New Indirect Cost %" := Item."Indirect Cost %";
 
-        if Item.IsMfgItem then
-            TransferManufCostsFromItem
+        if Item.IsMfgItem() then
+            TransferManufCostsFromItem()
         else
-            TransferStandardCostFromItem;
+            TransferStandardCostFromItem();
     end;
 
     local procedure GetWorkCtrCosts()

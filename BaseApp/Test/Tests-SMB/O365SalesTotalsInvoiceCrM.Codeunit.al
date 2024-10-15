@@ -66,7 +66,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
             InventorySetup.Modify();
         end;
 
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Sales Totals Invoice/Cr.M");
@@ -757,7 +757,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         ItemQuantity := ItemQuantity * 2;
         SalesCreditMemo.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
 
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
@@ -765,7 +765,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         CheckCreditMemoDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, SalesCreditMemo, true, '');
 
         SalesCreditMemo.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
         TotalAmount := 2 * TotalAmount;
@@ -773,13 +773,13 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         TotalAmount := TotalAmount / 2;
         SalesCreditMemo.SalesLines."Line Amount".SetValue(TotalAmount);
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
         CheckCreditMemoDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, SalesCreditMemo, true, '');
 
         SalesCreditMemo.SalesLines."Line Discount %".SetValue('0');
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
         TotalAmount := TotalAmount * 2;
@@ -789,7 +789,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         TotalAmount := Item2."Unit Price" * ItemQuantity;
         SalesCreditMemo.SalesLines."No.".SetValue(Item2."No.");
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
         CheckCreditMemoDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, SalesCreditMemo, true, '');
@@ -1232,13 +1232,13 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         Assert.IsTrue(SalesQuote.SalesLines."Invoice Discount Amount".Editable, FieldShouldBeEditableTxt);
 
         SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuote."No.");
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         Assert.IsFalse(SalesQuote.SalesLines."Invoice Disc. Pct.".Editable, FieldShouldNotBeEditableTxt);
         Assert.IsFalse(SalesQuote.SalesLines."Invoice Discount Amount".Editable, FieldShouldNotBeEditableTxt);
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         CreateInvoceWithOneLineThroughTestPage(Customer, Item, LibraryRandom.RandInt(10), SalesInvoice);
 
@@ -1246,7 +1246,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         Assert.IsTrue(SalesInvoice.SalesLines."Invoice Discount Amount".Editable, FieldShouldBeEditableTxt);
 
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.");
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         CreateOrderWithOneLineThroughTestPage(Customer, Item, LibraryRandom.RandInt(10), SalesOrder);
 
@@ -1254,13 +1254,13 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         Assert.IsTrue(SalesOrder.SalesLines."Invoice Discount Amount".Editable, FieldShouldBeEditableTxt);
 
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrder."No.");
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         SalesOrder.OpenView;
         SalesOrder.GotoRecord(SalesHeader);
         Assert.IsFalse(SalesOrder.SalesLines."Invoice Disc. Pct.".Editable, FieldShouldNotBeEditableTxt);
         Assert.IsFalse(SalesOrder.SalesLines."Invoice Discount Amount".Editable, FieldShouldNotBeEditableTxt);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -1295,7 +1295,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesInvoice."Bill-to Name".SetValue(Customer."No.");
 
         // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SI01"
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
     end;
 
@@ -1331,7 +1331,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesCreditMemo."Bill-to Name".SetValue(Customer."No.");
 
         // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SC01"
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
     end;
 
@@ -1402,9 +1402,9 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate);
+        CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate());
         if not CurrencyExchangeRate.FindFirst() then
-            LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+            LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
     end;
 
     local procedure CheckInvoiceDiscountTypePercentage(DiscPct: Decimal; TotalAmountWithoutDiscount: Decimal; SalesInvoice: TestPage "Sales Invoice"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1568,7 +1568,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         Currency: Record Currency;
     begin
         Currency.Init();
-        Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
+        Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode());
         Currency.FindFirst();
         CheckExistOrAddCurrencyExchageRate(Currency.Code);
 
@@ -1583,7 +1583,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesInvoice.SalesLines.First;
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.Previous();
     end;
 
@@ -1595,7 +1595,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesCreditMemo.SalesLines.First;
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
     end;
 
@@ -1607,7 +1607,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesOrder.SalesLines.First;
         SalesOrder.SalesLines."No.".SetValue(Item."No.");
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.Previous();
     end;
 
@@ -1619,7 +1619,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesQuote.SalesLines.First;
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.Previous();
     end;
 

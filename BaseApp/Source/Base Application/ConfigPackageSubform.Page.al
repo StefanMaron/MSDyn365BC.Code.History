@@ -12,7 +12,7 @@ page 8625 "Config. Package Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = NoOfErrorsStyleTxt;
@@ -23,26 +23,26 @@ page 8625 "Config. Package Subform"
                         CalcFields("Table Name");
                     end;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     StyleExpr = NoOfErrorsStyleTxt;
                     ToolTip = 'Specifies the name of the configuration table. After you select a table ID from the list of tables, the table name is automatically filled in.';
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the caption of the table that is part of the migration process. The name comes from the Caption property of the table.';
                     Visible = false;
                 }
-                field("Parent Table ID"; "Parent Table ID")
+                field("Parent Table ID"; Rec."Parent Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the table that holds the configuration data.';
                 }
-                field("Data Template"; "Data Template")
+                field("Data Template"; Rec."Data Template")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the data template that is being used as part of the migration process.';
@@ -56,36 +56,36 @@ page 8625 "Config. Package Subform"
                             "Data Template" := ConfigTemplateHeader.Code;
                     end;
                 }
-                field("Processing Order"; "Processing Order")
+                field("Processing Order"; Rec."Processing Order")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the processing order. This is used to track the migration process.';
                     Visible = false;
                 }
-                field("Dimensions as Columns"; "Dimensions as Columns")
+                field("Dimensions as Columns"; Rec."Dimensions as Columns")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether dimensions should be displayed in columns. If you select No, then the dimensions are not displayed in any format.';
                 }
-                field("Skip Table Triggers"; "Skip Table Triggers")
+                field("Skip Table Triggers"; Rec."Skip Table Triggers")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether codeunit triggers related to tables should be skipped during the configuration process.';
                 }
-                field("Delete Recs Before Processing"; "Delete Recs Before Processing")
+                field("Delete Recs Before Processing"; Rec."Delete Recs Before Processing")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Delete Table Records Before Processing';
                     ToolTip = 'Specifies whether table records should be deleted before the migration process is begun.';
                 }
-                field("Processing Report ID"; "Processing Report ID")
+                field("Processing Report ID"; Rec."Processing Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the codeunit that has been set up to process data before you apply it to a Business Central database. By default, Business Central uses codeunit 8621.';
                     Visible = false;
                 }
-                field("No. of Package Records"; "No. of Package Records")
+                field("No. of Package Records"; Rec."No. of Package Records")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
@@ -98,28 +98,28 @@ page 8625 "Config. Package Subform"
                         CurrPage.Update();
                     end;
                 }
-                field("No. of Fields Available"; "No. of Fields Available")
+                field("No. of Fields Available"; Rec."No. of Fields Available")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
                     DrillDownPageID = "Config. Package Fields";
                     ToolTip = 'Specifies the count of the number of fields that are available in the migration table.';
                 }
-                field("No. of Fields Included"; "No. of Fields Included")
+                field("No. of Fields Included"; Rec."No. of Fields Included")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
                     DrillDownPageID = "Config. Package Fields";
                     ToolTip = 'Specifies the count of the number of fields that are included in the migration table.';
                 }
-                field("No. of Fields to Validate"; "No. of Fields to Validate")
+                field("No. of Fields to Validate"; Rec."No. of Fields to Validate")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
                     DrillDownPageID = "Config. Package Fields";
                     ToolTip = 'Specifies the number of fields to validate. The count of the number of fields to validate is based on how many fields in the table have the Validate Field check box selected.';
                 }
-                field("No. of Package Errors"; "No. of Package Errors")
+                field("No. of Package Errors"; Rec."No. of Package Errors")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
@@ -142,7 +142,7 @@ page 8625 "Config. Package Subform"
 
                     trigger OnDrillDown()
                     begin
-                        ShowDatabaseRecords;
+                        ShowDatabaseRecords();
                     end;
                 }
                 field(Filtered; Filtered)
@@ -150,7 +150,7 @@ page 8625 "Config. Package Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the package is filtered. This field is set depending on filter settings you have specified.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
@@ -160,12 +160,12 @@ page 8625 "Config. Package Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a comment in which you can provide a description';
                 }
-                field("Created Date and Time"; "Created Date and Time")
+                field("Created Date and Time"; Rec."Created Date and Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date and time that the configuration package was created. The field is updated each time you save the package.';
                 }
-                field("Created by User ID"; "Created by User ID")
+                field("Created by User ID"; Rec."Created by User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who created the configuration package.';
@@ -177,13 +177,13 @@ page 8625 "Config. Package Subform"
                         UserMgt.DisplayUserInformation("Created by User ID");
                     end;
                 }
-                field("Imported Date and Time"; "Imported Date and Time")
+                field("Imported Date and Time"; Rec."Imported Date and Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date and time that migration records were imported from Excel or from an .xml file.';
                 }
-                field("Imported by User ID"; "Imported by User ID")
+                field("Imported by User ID"; Rec."Imported by User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who has imported the package.';
@@ -195,7 +195,7 @@ page 8625 "Config. Package Subform"
                         UserMgt.DisplayUserInformation("Imported by User ID");
                     end;
                 }
-                field("Delayed Insert"; "Delayed Insert")
+                field("Delayed Insert"; Rec."Delayed Insert")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that a record will only be inserted after validation that it contains key and non-key fields. If you do not select the Delayed Insert check box, then empty lines may be imported, for records with errors in non-key fields.';
@@ -232,7 +232,7 @@ page 8625 "Config. Package Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDatabaseRecords;
+                        ShowDatabaseRecords();
                     end;
                 }
                 action(PackageErrors)
@@ -256,7 +256,7 @@ page 8625 "Config. Package Subform"
 
                     trigger OnAction()
                     begin
-                        ShowPackageFields;
+                        ShowPackageFields();
                     end;
                 }
                 action(PackageFilters)
@@ -268,7 +268,7 @@ page 8625 "Config. Package Subform"
 
                     trigger OnAction()
                     begin
-                        ShowFilters;
+                        ShowFilters();
                     end;
                 }
                 action(ProcessingRules)
@@ -280,7 +280,7 @@ page 8625 "Config. Package Subform"
 
                     trigger OnAction()
                     begin
-                        ShowProcessingRules;
+                        ShowProcessingRules();
                     end;
                 }
             }
@@ -318,7 +318,7 @@ page 8625 "Config. Package Subform"
                     begin
                         CurrPage.SetSelectionFilter(ConfigPackageTable);
 
-                        if Confirm(SelectionConfirmMessage, true) then
+                        if Confirm(SelectionConfirmMessage(), true) then
                             ConfigPackageMgt.ValidatePackageRelations(ConfigPackageTable, TempConfigPackageTable, true);
                     end;
                 }
@@ -335,7 +335,7 @@ page 8625 "Config. Package Subform"
                         ConfigPackageMgt: Codeunit "Config. Package Management";
                     begin
                         CurrPage.SetSelectionFilter(ConfigPackageTable);
-                        if Confirm(SelectionConfirmMessage, true) then begin
+                        if Confirm(SelectionConfirmMessage(), true) then begin
                             ConfigPackage.Get("Package Code");
                             ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, true);
                         end;
@@ -357,7 +357,7 @@ page 8625 "Config. Package Subform"
                         ConfigExcelExchange: Codeunit "Config. Excel Exchange";
                     begin
                         CurrPage.SetSelectionFilter(ConfigPackageTable);
-                        if Confirm(SelectionConfirmMessage, true) then
+                        if Confirm(SelectionConfirmMessage(), true) then
                             ConfigExcelExchange.ExportExcelFromTables(ConfigPackageTable);
                     end;
                 }

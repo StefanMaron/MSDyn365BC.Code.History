@@ -36,12 +36,10 @@
         SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
         UpgradeTag: Codeunit "Upgrade Tag";
         Window: Dialog;
-        InitializeCompanyOnRunLogLbl: Label 'OnRun executed in Codeunit 2 "Company-Initialize". Current language is %1.', Comment = '%1 = The language lcid.';
     begin
         Window.Open(Text000);
 
         OnBeforeOnRun();
-        Session.LogMessage('0000HQL', StrSubstNo(InitializeCompanyOnRunLogLbl, GlobalLanguage()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'CompanyInitialize'); 
 
         InitSetupTables();
         AddOnIntegrMgt.InitMfgSetup();
@@ -397,8 +395,8 @@
 
         with CarteraSetup do
             if not FindFirst() then begin
-                Init;
-                Insert;
+                Init();
+                Insert();
             end;
     end;
 
@@ -407,7 +405,7 @@
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        if not (SourceCodeSetup.FindFirst or SourceCode.FindFirst()) then
+        if not (SourceCodeSetup.FindFirst() or SourceCode.FindFirst()) then
             with SourceCodeSetup do begin
                 Init();
                 InsertSourceCode(Sales, Text001, Text002);
@@ -582,7 +580,7 @@
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         with DocExchServiceSetup do
-            if not Get then begin
+            if not Get() then begin
                 Init();
                 SetURLsToDefault();
                 Insert();
@@ -662,14 +660,6 @@
           ClientAddIn.Category::"JavaScript Control Add-in",
           'Microsoft Dynamics BusinessChart control add-in',
           ApplicationPath + 'Add-ins\BusinessChart\Microsoft.Dynamics.Nav.Client.BusinessChart.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.TimelineVisualization', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"DotNet Control Add-in",
-          'Interactive visualizion for a timeline of events', '');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.PingPong', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"DotNet Control Add-in",
-          'Microsoft Dynamics PingPong control add-in', '');
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.VideoPlayer', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
@@ -778,7 +768,7 @@
             if EnvironmentInfo.IsSaaS() then begin
                 Company.Get(CompanyName);
 
-                if not (CompanyInformationMgt.IsDemoCompany or Company."Evaluation Company") then
+                if not (CompanyInformationMgt.IsDemoCompany() or Company."Evaluation Company") then
                     ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential))
                 else
                     ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Basic));
@@ -834,9 +824,7 @@
     local procedure CompanyInitializeOnAfterLogin()
     var
         ClientTypeManagement: Codeunit "Client Type Management";
-        InitializeCompanyLogLbl: Label 'CompanyInitializeOnAfterLogin executed InitializeCompany in Codeunit 2 "Company-Initialize". Current language is %1.', Comment = '%1 = The language lcid.';
     begin
-        
         if not GuiAllowed() then
             exit;
 
@@ -846,7 +834,6 @@
         if GetExecutionContext() <> ExecutionContext::Normal then
             exit;
 
-        Session.LogMessage('0000HQ2', StrSubstNo(InitializeCompanyLogLbl, GlobalLanguage()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'CompanyInitialize');        
         InitializeCompany();
     end;
 }

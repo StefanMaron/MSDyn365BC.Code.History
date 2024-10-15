@@ -16,7 +16,7 @@ report 1103 "Resource Register"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Resource_Register__TABLECAPTION__________ResRegFilter; TableCaption + ': ' + ResRegFilter)
@@ -164,7 +164,7 @@ report 1103 "Resource Register"
 
             trigger OnPreDataItem()
             begin
-                ResRegFilter := GetFilters;
+                ResRegFilter := GetFilters();
                 TotalAmount := 0;
                 TotalCost := 0;
             end;

@@ -331,8 +331,8 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         RunAndVerifyVendorDuePaymentsReport(BillDocumentNo, VendorRelatedToBill."No.");
         RunAndVerifyVendorDuePaymentsReport(InvoiceDocumentNo, VendorRelatedToInvoice."No.");
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption));
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption, PaymentOrderNo));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption(), PaymentOrderNo));
         PostPaymentOrderFromPage(PaymentOrderNo);
 
         TotalSettlementOnItemInPostedPaymentOrder(PaymentOrderNo, BillDocumentNo);
@@ -440,8 +440,8 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AdjustDueDate(DocumentNo, PaymentOrderNo);
 
         // Exercise - Post and Settle
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption));
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption, PaymentOrderNo));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption(), PaymentOrderNo));
         PostPaymentOrderFromPage(PaymentOrderNo);
         TotalSettlementOnItemInPostedPaymentOrder(PaymentOrderNo, DocumentNo);
 
@@ -483,8 +483,8 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrder.Modify(true);
         Commit();
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption));
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption, PaymentOrder."No."));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption(), PaymentOrder."No."));
 
         PostPaymentOrderFromList(PaymentOrder."No.");
         TotalSettlementOnItemInPostedPaymentOrder(PaymentOrder."No.", DocumentNo);
@@ -613,8 +613,8 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AddCarteraDocumentToPaymentOrder(PaymentOrderNo, DocumentNo);
         CarteraDoc.FindFirst();
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption));
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption, PaymentOrderNo));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption(), PaymentOrderNo));
         PostPaymentOrderFromPage(PaymentOrderNo);
         TotalSettlementOnItemInPostedPaymentOrder(PaymentOrderNo, DocumentNo);
 
@@ -1472,7 +1472,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize();
 
         // [GIVEN] Dates: D1 = WORKDATE, D2 = WORKDATE + 1, D3 = WORKDATE + 2
-        PostingDate[1] := WorkDate;
+        PostingDate[1] := WorkDate();
         PostingDate[2] := WorkDate + 1;
         PostingDate[3] := WorkDate + 2;
         // [GIVEN] Currency (CURR) with exchange rate on D1
@@ -1509,7 +1509,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize();
 
         // [GIVEN] Dates: D1 = WORKDATE, D2 = WORKDATE + 1, D3 = WORKDATE + 2
-        PostingDate[1] := WorkDate;
+        PostingDate[1] := WorkDate();
         PostingDate[2] := WorkDate + 1;
         PostingDate[3] := WorkDate + 2;
         // [GIVEN] Currency (CURR) with exchange rate on D1
@@ -1789,7 +1789,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrderNo);
-        Assert.IsFalse(CarteraDoc.IsEmpty, StrSubstNo(RecordNotFoundErr, CarteraDoc.TableCaption));
+        Assert.IsFalse(CarteraDoc.IsEmpty, StrSubstNo(RecordNotFoundErr, CarteraDoc.TableCaption()));
     end;
 
     local procedure FindGLEntryByDocNoGLAccNo(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -1806,8 +1806,8 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrder.Modify(true);
         Commit();
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption));
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption, PaymentOrder."No."));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption(), PaymentOrder."No."));
         LibraryCarteraPayables.PostCarteraPaymentOrder(PaymentOrder);
     end;
 
@@ -1921,7 +1921,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         repeat
             TotalChargedAmount := TotalChargedAmount + BankAccountLedgerEntry.Amount;
-        until BankAccountLedgerEntry.Next = 0;
+        until BankAccountLedgerEntry.Next() = 0;
 
         Assert.AreEqual(
           0, TotalChargedAmount, 'Ledger entries in bank related to the post-close-redraw operations of the bill != 0.');
@@ -2031,7 +2031,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryVariableStorage.Enqueue(PostingDate); // for SettleDocsInPostedPOModalPageHandler
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrderNo);
         PostedCarteraDoc.FindFirst();
-        PostedCarteraDoc.SetRecFilter;
+        PostedCarteraDoc.SetRecFilter();
         REPORT.RunModal(REPORT::"Settle Docs. in Posted PO", true, false, PostedCarteraDoc);
     end;
 
@@ -2259,7 +2259,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrderNo);
         CarteraDoc.FindFirst();
-        CarteraDoc.Validate("Due Date", CalcDate('<1M>', WorkDate));
+        CarteraDoc.Validate("Due Date", CalcDate('<1M>', WorkDate()));
         CarteraDoc.Modify(true);
     end;
 

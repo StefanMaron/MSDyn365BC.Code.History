@@ -62,7 +62,7 @@ codeunit 144117 "ERM Make 349 Declaration"
     begin
         // Test to verify error after run Make 349 Declaration Report for vendor with VAT Registration No. as blank.
         Initialize();
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         Make349DeclarationReportWithVendorError(PostingDate, PostingDate);
     end;
 
@@ -74,8 +74,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         // Test to verify error after run Make 349 Declaration Report for vendor with different Posting Dates.
         Initialize();
         Make349DeclarationReportWithVendorError(
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate),
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
     end;
 
     local procedure Make349DeclarationReportWithVendorError(PostingDate: Date; PostingDate2: Date)
@@ -109,8 +109,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         asserterror Make349DeclarationReportWithSalesDocument(
             true, false, LibraryERM.GenerateVATRegistrationNo(CountryRegionCode),
             TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID()), CountryRegionCode,
-            CalcDate('<' + Format(LibraryRandom.RandInt(2)) + 'M>', WorkDate),
-            CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate), Amount);  // Take random Dates. EU Service as True and EU 3 Party Trade as False.
+            CalcDate('<' + Format(LibraryRandom.RandInt(2)) + 'M>', WorkDate()),
+            CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()), Amount);  // Take random Dates. EU Service as True and EU 3 Party Trade as False.
 
         // Verify.
         Assert.ExpectedError(FileNotfoundErr);
@@ -146,7 +146,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         // Setup and Exercise.
         Initialize();
         Amount := 0;
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         asserterror Make349DeclarationReportWithSalesDocument(
             true, false, VATRegistrationNo, TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID()),
             CountryRegionCode, PostingDate, PostingDate, Amount);  // EU Service as True and EU 3 Party Trade as False.
@@ -189,7 +189,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         SetRandomCompanyName();
         CountryRegionCode := CreateCountryRegion;
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID());
         Amount := 0;
         VendorNo :=
@@ -234,18 +234,18 @@ codeunit 144117 "ERM Make 349 Declaration"
             CountryRegionCode, VATPostingSetup."VAT Bus. Posting Group",
             LibraryERM.GenerateVATRegistrationNo(CountryRegionCode));
         ItemNo := CreateItem(VATPostingSetup."VAT Prod. Posting Group");
-        CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo, ItemNo, WorkDate, true);  // EUThirdPartyTrade as True.
-        Amount := CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo, ItemNo, WorkDate, false);  // EUThirdPartyTrade as False.
+        CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo, ItemNo, WorkDate(), true);  // EUThirdPartyTrade as True.
+        Amount := CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo, ItemNo, WorkDate(), false);  // EUThirdPartyTrade as False.
 
         CustomerNo :=
           CreateCustomer(CountryRegionCode, VATPostingSetup2."VAT Bus. Posting Group",
             LibraryERM.GenerateVATRegistrationNo(CountryRegionCode));
         Customer.Get(CustomerNo);
         CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo,
-          CreateItem(VATPostingSetup2."VAT Prod. Posting Group"), WorkDate, false);  // EUThirdPartyTrade as False.
+          CreateItem(VATPostingSetup2."VAT Prod. Posting Group"), WorkDate(), false);  // EUThirdPartyTrade as False.
 
         // Exercise.
-        FileName := RunMake349DeclarationWithDate(WorkDate);  // Opens Make349DeclarationRequestPageHandler.
+        FileName := RunMake349DeclarationWithDate(WorkDate());  // Opens Make349DeclarationRequestPageHandler.
 
         // Verify.
         VerifyValuesOnGeneratedTextFile(FileName, 133, 'E');  // E is explicitly used for Operation Code in Report 10710. Starting Position is 133.
@@ -253,8 +253,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         VerifyValuesOnGeneratedTextFile(FileName, 133, 'S');  // S is explicitly used for Operation Code in Report 10710. Starting Position is 133.
 
         // Verify: that the produced file gives the expected format.
-        ValidateFormat349FileHeader(FileName, WorkDate, '', TelephoneNumberTxt, ContactNameTxt, true, ' ', '01');
-        ValidateFormat349FileRecord(FileName, WorkDate, Customer."No.", Customer.Name, 'E', Amount);
+        ValidateFormat349FileHeader(FileName, WorkDate(), '', TelephoneNumberTxt, ContactNameTxt, true, ' ', '01');
+        ValidateFormat349FileRecord(FileName, WorkDate(), Customer."No.", Customer.Name, 'E', Amount);
     end;
 
     [Test]
@@ -283,25 +283,25 @@ codeunit 144117 "ERM Make 349 Declaration"
         CountryRegionCode := CreateCountryRegion;
         CreateAndPostPurchaseDocument(
           PurchaseLine."Document Type"::Invoice, CreateVendor(CountryRegionCode, VATPostingSetup."VAT Bus. Posting Group",
-            LibraryERM.GenerateVATRegistrationNo(CountryRegionCode)), CreateItem(VATPostingSetup."VAT Prod. Posting Group"), WorkDate);
+            LibraryERM.GenerateVATRegistrationNo(CountryRegionCode)), CreateItem(VATPostingSetup."VAT Prod. Posting Group"), WorkDate());
         VendorNo :=
           CreateVendor(CountryRegionCode, VATPostingSetup2."VAT Bus. Posting Group",
             LibraryERM.GenerateVATRegistrationNo(CountryRegionCode));
         Vendor.Get(VendorNo);
         Amount :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine."Document Type"::Invoice, VendorNo, CreateItem(VATPostingSetup2."VAT Prod. Posting Group"), WorkDate);
+            PurchaseLine."Document Type"::Invoice, VendorNo, CreateItem(VATPostingSetup2."VAT Prod. Posting Group"), WorkDate());
 
         // Exercise.
-        FileName := RunMake349DeclarationWithDate(WorkDate);
+        FileName := RunMake349DeclarationWithDate(WorkDate());
 
         // Verify.
         VerifyValuesOnGeneratedTextFile(FileName, 133, 'A');  // A is explicitly used for Operation Code in Report 10710. Starting Position is 133.
         VerifyValuesOnGeneratedTextFile(FileName, 133, 'I');  // I is explicitly used for Operation Code in Report 10710. Starting Position is 133.
 
         // Verify: that the produced file gives the expected format.
-        ValidateFormat349FileHeader(FileName, WorkDate, '', TelephoneNumberTxt, ContactNameTxt, true, ' ', '01');
-        ValidateFormat349FileRecord(FileName, WorkDate, Vendor."No.", Vendor.Name, 'A', Amount);
+        ValidateFormat349FileHeader(FileName, WorkDate(), '', TelephoneNumberTxt, ContactNameTxt, true, ' ', '01');
+        ValidateFormat349FileRecord(FileName, WorkDate(), Vendor."No.", Vendor.Name, 'A', Amount);
     end;
 
     [Test]
@@ -343,7 +343,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         // Setup and Exercise.
         Initialize();
         Amount := 0;
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID());
         CountryRegionCode := CreateCountryRegion;
         CustomerNo :=
@@ -363,7 +363,7 @@ codeunit 144117 "ERM Make 349 Declaration"
     begin
         // Verify whether system throws error message when Contact Name is not filled in.
         RunMake349DeclarationReportWithoutMandatoryFilters(ESTxt, '', TelephoneNumberTxt, GenerateRandomCode(13),
-          Date2DMY(WorkDate, 3), MissingContactNameErr);
+          Date2DMY(WorkDate(), 3), MissingContactNameErr);
     end;
 
     [Test]
@@ -383,7 +383,7 @@ codeunit 144117 "ERM Make 349 Declaration"
     begin
         // Verify whether system throws error message when Telephone Number is not filled in.
         RunMake349DeclarationReportWithoutMandatoryFilters(ESTxt, ContactNameTxt, '', GenerateRandomCode(13),
-          Date2DMY(WorkDate, 3), MissingTelephoneNumberErr);
+          Date2DMY(WorkDate(), 3), MissingTelephoneNumberErr);
     end;
 
     [Test]
@@ -393,7 +393,7 @@ codeunit 144117 "ERM Make 349 Declaration"
     begin
         // Verify whether system throws error message when Declaration Number is not filled in.
         RunMake349DeclarationReportWithoutMandatoryFilters(ESTxt, ContactNameTxt, TelephoneNumberTxt, '             ',
-          Date2DMY(WorkDate, 3), MissingDeclarationNumberErr);
+          Date2DMY(WorkDate(), 3), MissingDeclarationNumberErr);
     end;
 
     [Test]
@@ -403,7 +403,7 @@ codeunit 144117 "ERM Make 349 Declaration"
     begin
         // Verify whether system throws error message when Declaration Number is not filled in.
         RunMake349DeclarationReportWithoutMandatoryFilters('', ContactNameTxt, TelephoneNumberTxt, GenerateRandomCode(13),
-          Date2DMY(WorkDate, 3), MissingCountryRegionErr);
+          Date2DMY(WorkDate(), 3), MissingCountryRegionErr);
     end;
 
     local procedure RunMake349DeclarationReportWithoutMandatoryFilters(CountryRegionCode: Code[10]; ContactName: Text[20]; TelephoneNumber: Text[9]; DeclarationNumber: Text; PostingDate: Variant; ExpectedError: Text[1024])
@@ -447,20 +447,20 @@ codeunit 144117 "ERM Make 349 Declaration"
             CountryRegionCode, VATPostingSetup."VAT Bus. Posting Group", LibraryERM.GenerateVATRegistrationNo(CountryRegionCode));
 
         ItemNo := CreateItem(VATPostingSetup."VAT Prod. Posting Group");
-        CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo, ItemNo, WorkDate, true);  // EUThirdPartyTrade as True.
-        CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo, ItemNo, WorkDate, false);  // EUThirdPartyTrade as False.
+        CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo, ItemNo, WorkDate(), true);  // EUThirdPartyTrade as True.
+        CreateAndPostSalesDocument(SalesLine."Document Type"::Invoice, CustomerNo, ItemNo, WorkDate(), false);  // EUThirdPartyTrade as False.
         CustomerNo :=
           CreateCustomer(CountryRegionCode, VATPostingSetup2."VAT Bus. Posting Group",
             LibraryERM.GenerateVATRegistrationNo(CountryRegionCode));
         CreateAndPostSalesDocument(
           SalesLine."Document Type"::Invoice, CustomerNo,
-          CreateItem(VATPostingSetup2."VAT Prod. Posting Group"), WorkDate, false);  // EUThirdPartyTrade as False.
+          CreateItem(VATPostingSetup2."VAT Prod. Posting Group"), WorkDate(), false);  // EUThirdPartyTrade as False.
 
         FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID());
 
         // Exercise.
         DeclarationNumber := GenerateRandomCode(13);
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         RunMake349DeclarationReport2(FileName, CountryRegionCode, ContactNameTxt, TelephoneNumberTxt,
           DeclarationNumber, Date2DMY(PostingDate, 3));
 
@@ -686,7 +686,7 @@ codeunit 144117 "ERM Make 349 Declaration"
     begin
         // SETUP
         Initialize();
-        AccountNo := CopyStr(Format(CreateGuid), 1, MaxStrLen(AccountNo));
+        AccountNo := CopyStr(Format(CreateGuid()), 1, MaxStrLen(AccountNo));
         AccountName := PadStr('', MaxStrLen(AccountName), 'X');
         LibraryVariableStorage.Enqueue(AccountName);
 
@@ -904,7 +904,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostSalesInvoice(Customer."No.");
 
         // [WHEN] Run Make 349 Declaration
-        ExportFileName := RunMake349DeclarationWithDate(WorkDate);
+        ExportFileName := RunMake349DeclarationWithDate(WorkDate());
 
         // [THEN] VAT Registration field part = country prefix + digital part of Customer."VAT Registration No."
         VerifyCounterpartyLineVATRegNo(
@@ -937,7 +937,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostSalesInvoice(Customer."No.");
 
         // [WHEN] Run Make 349 Declaration
-        ExportFileName := RunMake349DeclarationWithDate(WorkDate);
+        ExportFileName := RunMake349DeclarationWithDate(WorkDate());
 
         // [THEN] VAT Registration field part = country prefix + digital part of Customer."VAT Registration No."
         VerifyCounterpartyLineVATRegNo(
@@ -970,7 +970,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostPurchaseInvoice(Vendor."No.");
 
         // [WHEN] Run Make 349 Declaration
-        ExportFileName := RunMake349DeclarationWithDate(WorkDate);
+        ExportFileName := RunMake349DeclarationWithDate(WorkDate());
 
         // [THEN] VAT Registration field part = country prefix + digital part of Vendor."VAT Registration No."
         VerifyCounterpartyLineVATRegNo(
@@ -1003,7 +1003,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostPurchaseInvoice(Vendor."No.");
 
         // [WHEN] Run Make 349 Declaration
-        ExportFileName := RunMake349DeclarationWithDate(WorkDate);
+        ExportFileName := RunMake349DeclarationWithDate(WorkDate());
 
         // [THEN] VAT Registration field part = country prefix + digital part of Vendor."VAT Registration No."
         VerifyCounterpartyLineVATRegNo(
@@ -4934,7 +4934,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, WorkDate);
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, WorkDate());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo,
           LibraryRandom.RandDec(10, 2));
@@ -5034,7 +5034,7 @@ codeunit 144117 "ERM Make 349 Declaration"
           CreateVendor(CountryRegionCode, VATPostingSetup."VAT Bus. Posting Group",
             LibraryERM.GenerateVATRegistrationNo(CountryRegionCode));
 
-        PostingDate := CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandIntInRange(10, 20)), WorkDate);
+        PostingDate := CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandIntInRange(10, 20)), WorkDate());
         Amount :=
           CreateAndPostPurchaseDocument(
             PurchaseHeader."Document Type"::Invoice, VendorNo,
@@ -5072,7 +5072,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, WorkDate, false);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, WorkDate(), false);
         CreateSalesLine(SalesHeader, SalesLine);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -5195,7 +5195,7 @@ codeunit 144117 "ERM Make 349 Declaration"
           CreateCustomer(
             CountryRegionCode, VATPostingSetup."VAT Bus. Posting Group",
             LibraryERM.GenerateVATRegistrationNo(CountryRegionCode));
-        PostingDate := CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandIntInRange(10, 20)), WorkDate);
+        PostingDate := CalcDate(StrSubstNo('<%1Y>', LibraryRandom.RandIntInRange(10, 20)), WorkDate());
         Amount := CreateAndPostSalesDocument(
             SalesHeader."Document Type"::Invoice, CustomerNo,
             CreateItem(VATPostingSetup."VAT Prod. Posting Group"), PostingDate, false);
@@ -5785,7 +5785,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CustomerVendorWarnings349.FILTER.SetFilter("Customer/Vendor No.", LibraryVariableStorage.DequeueText);
         for i := 1 to 2 do begin
             SetIncludeCustVendWarning349FieldsForPageHandler(CustomerVendorWarnings349);
-            CustomerVendorWarnings349.Next;
+            CustomerVendorWarnings349.Next();
         end;
         CustomerVendorWarnings349.Process.Invoke;
     end;
@@ -5807,7 +5807,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CustomerVendorWarnings349."Include Correction".SetValue(true);
         CustomerVendorWarnings349."Original Declaration Period".SetValue(LibraryVariableStorage.DequeueText);
         CustomerVendorWarnings349."Original Declared Amount".SetValue(LibraryVariableStorage.DequeueDecimal);
-        CustomerVendorWarnings349.Next;
+        CustomerVendorWarnings349.Next();
         CustomerVendorWarnings349."Include Correction".SetValue(true);
         CustomerVendorWarnings349.Process.Invoke;
     end;
@@ -5819,7 +5819,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         repeat
             CustomerVendorWarnings349."Include Correction".SetValue(true);
             CustomerVendorWarnings349."Original Declared Amount".SetValue(LibraryRandom.RandDecInRange(10, 20, 2));
-        until CustomerVendorWarnings349.Next = false;
+        until CustomerVendorWarnings349.Next() = false;
         CustomerVendorWarnings349.Process.Invoke;
     end;
 
@@ -5949,7 +5949,7 @@ codeunit 144117 "ERM Make 349 Declaration"
                 CustVendWarning349.Validate("Include Correction", true);
                 CustVendWarning349.Validate("Original Declaration FY", OriginalDeclarationFY);
                 CustVendWarning349.Modify(true);
-            until CustVendWarning349.Next = 0;
+            until CustVendWarning349.Next() = 0;
 
         // Respond that the "user" does NOT want to specify corrections through another page - we
         // just did it programmatically above

@@ -29,7 +29,7 @@ page 5213 Unions
                     ToolTip = 'Specifies the union''s address.';
                     Visible = false;
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the postal code.';
@@ -41,12 +41,12 @@ page 5213 Unions
                     ToolTip = 'Specifies the city of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the union''s telephone number.';
                 }
-                field("No. of Members Employed"; "No. of Members Employed")
+                field("No. of Members Employed"; Rec."No. of Members Employed")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of members employed.';

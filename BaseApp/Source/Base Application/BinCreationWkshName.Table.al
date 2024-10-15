@@ -77,7 +77,7 @@ table 7337 "Bin Creation Wksh. Name"
         BinCreateWkshLine.SetRange("Worksheet Template Name", xRec."Worksheet Template Name");
         BinCreateWkshLine.SetRange(Name, xRec.Name);
         BinCreateWkshLine.SetRange("Location Code", xRec."Location Code");
-        while BinCreateWkshLine.FindFirst do
+        while BinCreateWkshLine.FindFirst() do
             BinCreateWkshLine.Rename("Worksheet Template Name", Name, "Location Code", BinCreateWkshLine."Line No.");
     end;
 

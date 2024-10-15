@@ -78,7 +78,7 @@ codeunit 144114 "ERM Transport Method"
 
         // Verify.
         TransportMethods."Port/Airport".AssertEquals(PortAirport);
-        TransportMethods.Close;
+        TransportMethods.Close();
     end;
 
     [Test]
@@ -96,7 +96,7 @@ codeunit 144114 "ERM Transport Method"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);  // True used for Ship and Invoice.
 
         // Verify: Error 'Exit Point must have a value in Sales Header'.
-        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, SalesHeader.FieldCaption("Exit Point"), SalesHeader.TableCaption));
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, SalesHeader.FieldCaption("Exit Point"), SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -145,7 +145,7 @@ codeunit 144114 "ERM Transport Method"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // True used for Receive and Invoice.
 
         // Verify: Error 'Entry Point must have a value in Purchase Header'.
-        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, PurchaseHeader.FieldCaption("Entry Point"), PurchaseHeader.TableCaption));
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, PurchaseHeader.FieldCaption("Entry Point"), PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -194,7 +194,7 @@ codeunit 144114 "ERM Transport Method"
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // Verify: Error 'Entry/Exit Point must have a value in Item Journal Line'.
-        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, ItemJournalLine.FieldCaption("Entry/Exit Point"), ItemJournalLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, ItemJournalLine.FieldCaption("Entry/Exit Point"), ItemJournalLine.TableCaption()));
     end;
 
     [Test]
@@ -230,7 +230,7 @@ codeunit 144114 "ERM Transport Method"
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);  // True used for Ship and Invoice. False used for Consume.
 
         // Verify: Error 'Exit Point must have a value in Service Header'.
-        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, ServiceHeader.FieldCaption("Exit Point"), ServiceHeader.TableCaption));
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, ServiceHeader.FieldCaption("Exit Point"), ServiceHeader.TableCaption()));
     end;
 
     [Test]

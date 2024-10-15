@@ -11,10 +11,10 @@ codeunit 5810 "Change Average Cost Setting"
         LockTable();
         AccPeriod.LockTable();
 
-        Modify;
+        Modify();
 
         if AccPeriod.IsEmpty() then
-            StartingValuationDate := CalcDate('<-CY>', WorkDate)
+            StartingValuationDate := CalcDate('<-CY>', WorkDate())
         else begin
             AccPeriod.SetRange("New Fiscal Year", true);
             AccPeriod.Find('-');
@@ -33,7 +33,7 @@ codeunit 5810 "Change Average Cost Setting"
         ProcessItemsFromDate(StartingValuationDate);
 
         if WindowIsOpen then
-            Window.Close;
+            Window.Close();
 
         Commit();
     end;
@@ -58,7 +58,7 @@ codeunit 5810 "Change Average Cost Setting"
     var
         StartingValuationDate: Date;
     begin
-        if not InvtSetup.Get then
+        if not InvtSetup.Get() then
             exit;
 
         if not (AccPeriod."New Fiscal Year" or
@@ -89,7 +89,7 @@ codeunit 5810 "Change Average Cost Setting"
         AvgCostEntryPointHandler.DeleteBuffer(Item."No.", StartingValuationDate);
 
         with ValueEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
 
             SetRange("Item No.", Item."No.");
@@ -134,9 +134,9 @@ codeunit 5810 "Change Average Cost Setting"
         WindowNo := NewWindowNo;
         WindowPostingDate := NewWindowPostingDate;
 
-        if IsTimeForUpdate then begin
+        if IsTimeForUpdate() then begin
             if not WindowIsOpen then
-                OpenWindow;
+                OpenWindow();
             Window.Update(1, WindowNo);
             Window.Update(2, WindowPostingDate);
         end;

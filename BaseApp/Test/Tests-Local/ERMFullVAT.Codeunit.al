@@ -591,7 +591,7 @@ codeunit 144051 "ERM Full VAT"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Unrealized VAT", UnrealizedVAT);
             Modify(true);
         end;

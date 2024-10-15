@@ -1,4 +1,4 @@
-report 398 "Date Compress Vendor Ledger"
+﻿report 398 "Date Compress Vendor Ledger"
 {
     ApplicationArea = Suite;
     Caption = 'Date Compress Vendor Ledger';
@@ -58,7 +58,7 @@ report 398 "Date Compress Vendor Ledger"
                       0, false, DimEntryNo);
                     ComprDimEntryNo := DimEntryNo;
                     SummarizeEntry(NewVendLedgEntry, VendLedgEntry2);
-                    while Next <> 0 do begin
+                    while Next() <> 0 do begin
                         CalcFields(Amount);
                         if ((Amount >= 0) and SummarizePositive) or
                            ((Amount < 0) and (not SummarizePositive))
@@ -74,7 +74,7 @@ report 398 "Date Compress Vendor Ledger"
 
                     InsertNewEntry(NewVendLedgEntry, ComprDimEntryNo);
 
-                    ComprCollectedEntries;
+                    ComprCollectedEntries();
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
@@ -131,7 +131,7 @@ report 398 "Date Compress Vendor Ledger"
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Vendor Ledger"));
@@ -280,15 +280,6 @@ report 398 "Date Compress Vendor Ledger"
     end;
 
     var
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing vendor ledger entries...\\';
-        Text005: Label 'Vendor No.           #1##########\';
-        Text006: Label 'Date                 #2######\\';
-        Text007: Label 'No. of new entries   #3######\';
-        Text008: Label 'No. of entries del.  #4######';
-        Text009: Label 'Date Compressed';
-        Text010: Label 'Retain Dimensions';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -297,7 +288,7 @@ report 398 "Date Compress Vendor Ledger"
         NewVendLedgEntry: Record "Vendor Ledger Entry";
         VendLedgEntry2: Record "Vendor Ledger Entry";
         NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        DtldVendLedgEntryBuffer: Record "Detailed Vendor Ledg. Entry" temporary;
+        TempDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry" temporary;
         GLentry: Record "G/L Entry";
         SelectedDim: Record "Selected Dimension";
         TempSelectedDim: Record "Selected Dimension" temporary;
@@ -322,6 +313,16 @@ report 398 "Date Compress Vendor Ledger"
         DimEntryNo: Integer;
         RetainDimText: Text[250];
         SummarizePositive: Boolean;
+
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing vendor ledger entries...\\';
+        Text005: Label 'Vendor No.           #1##########\';
+        Text006: Label 'Date                 #2######\\';
+        Text007: Label 'No. of new entries   #3######\';
+        Text008: Label 'No. of entries del.  #4######';
+        Text009: Label 'Date Compressed';
+        Text010: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -406,7 +407,7 @@ report 398 "Date Compress Vendor Ledger"
         then begin
             LastEntryNo := FoundLastEntryNo;
             NextTransactionNo := LastTransactionNo + 1;
-            InitRegisters;
+            InitRegisters();
         end;
         LastDtldEntryNo := NewDtldVendLedgEntry.GetLastEntryNo();
     end;
@@ -434,7 +435,7 @@ report 398 "Date Compress Vendor Ledger"
                 DtldVendLedgEntry.DeleteAll();
             end;
 
-            Delete;
+            Delete();
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
@@ -465,7 +466,7 @@ report 398 "Date Compress Vendor Ledger"
                 OldDimEntryNo := DimEntryNo;
             until not Found;
         end;
-        DimBufMgt.DeleteAllDimEntryNo;
+        DimBufMgt.DeleteAllDimEntryNo();
     end;
 
     procedure InitNewEntry(var NewVendLedgEntry: Record "Vendor Ledger Entry")
@@ -515,7 +516,7 @@ report 398 "Date Compress Vendor Ledger"
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewVendLedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
         NewVendLedgEntry.Insert();
-        InsertDtldEntries;
+        InsertDtldEntries();
     end;
 
     local procedure CompressDetails(VendLedgEntry: Record "Vendor Ledger Entry"): Boolean
@@ -548,88 +549,88 @@ report 398 "Date Compress Vendor Ledger"
     begin
         if UseDataArchive then
             DataArchive.SaveRecord(DtldVendLedgEntry);
-        DtldVendLedgEntryBuffer.SetFilter(
+        TempDetailedVendorLedgEntry.SetFilter(
           "Posting Date",
           DateComprMgt.GetDateFilter(DtldVendLedgEntry."Posting Date", EntrdDateComprReg, true));
-        PostingDate := DtldVendLedgEntryBuffer.GetRangeMin("Posting Date");
-        DtldVendLedgEntryBuffer.SetRange("Posting Date", PostingDate);
-        DtldVendLedgEntryBuffer.SetRange("Entry Type", DtldVendLedgEntry."Entry Type");
+        PostingDate := TempDetailedVendorLedgEntry.GetRangeMin("Posting Date");
+        TempDetailedVendorLedgEntry.SetRange("Posting Date", PostingDate);
+        TempDetailedVendorLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type");
         if DateComprRetainFields."Retain Document No." then
-            DtldVendLedgEntryBuffer.SetRange("Document No.", "Vendor Ledger Entry"."Document No.");
+            TempDetailedVendorLedgEntry.SetRange("Document No.", "Vendor Ledger Entry"."Document No.");
         if DateComprRetainFields."Retain Buy-from Vendor No." then
-            DtldVendLedgEntryBuffer.SetRange("Vendor No.", "Vendor Ledger Entry"."Buy-from Vendor No.");
+            TempDetailedVendorLedgEntry.SetRange("Vendor No.", "Vendor Ledger Entry"."Buy-from Vendor No.");
         if DateComprRetainFields."Retain Global Dimension 1" then
-            DtldVendLedgEntryBuffer.SetRange("Initial Entry Global Dim. 1", "Vendor Ledger Entry"."Global Dimension 1 Code");
+            TempDetailedVendorLedgEntry.SetRange("Initial Entry Global Dim. 1", "Vendor Ledger Entry"."Global Dimension 1 Code");
         if DateComprRetainFields."Retain Global Dimension 2" then
-            DtldVendLedgEntryBuffer.SetRange("Initial Entry Global Dim. 2", "Vendor Ledger Entry"."Global Dimension 2 Code");
+            TempDetailedVendorLedgEntry.SetRange("Initial Entry Global Dim. 2", "Vendor Ledger Entry"."Global Dimension 2 Code");
 
-        OnSummarizeDtldEntryOnAfterTempDetailedVendorLedgEntrySetFilters(DtldVendLedgEntryBuffer, DtldVendLedgEntry, NewVendLedgEntry, "Vendor Ledger Entry");
-        if not DtldVendLedgEntryBuffer.Find('-') then begin
-            DtldVendLedgEntryBuffer.Reset();
-            Clear(DtldVendLedgEntryBuffer);
+        OnSummarizeDtldEntryOnAfterTempDetailedVendorLedgEntrySetFilters(TempDetailedVendorLedgEntry, DtldVendLedgEntry, NewVendLedgEntry, "Vendor Ledger Entry");
+        if not TempDetailedVendorLedgEntry.Find('-') then begin
+            TempDetailedVendorLedgEntry.Reset();
+            Clear(TempDetailedVendorLedgEntry);
 
             LastTmpDtldEntryNo := LastTmpDtldEntryNo + 1;
-            DtldVendLedgEntryBuffer."Entry No." := LastTmpDtldEntryNo;
-            DtldVendLedgEntryBuffer."Posting Date" := PostingDate;
-            DtldVendLedgEntryBuffer."Document Type" := NewVendLedgEntry."Document Type";
-            DtldVendLedgEntryBuffer."Initial Document Type" := NewVendLedgEntry."Document Type";
-            DtldVendLedgEntryBuffer."Document No." := NewVendLedgEntry."Document No.";
-            DtldVendLedgEntryBuffer."Entry Type" := DtldVendLedgEntry."Entry Type";
-            DtldVendLedgEntryBuffer."Vendor Ledger Entry No." := NewVendLedgEntry."Entry No.";
-            DtldVendLedgEntryBuffer."Vendor No." := NewVendLedgEntry."Vendor No.";
-            DtldVendLedgEntryBuffer."Currency Code" := NewVendLedgEntry."Currency Code";
-            DtldVendLedgEntryBuffer."User ID" := NewVendLedgEntry."User ID";
-            DtldVendLedgEntryBuffer."Source Code" := NewVendLedgEntry."Source Code";
-            DtldVendLedgEntryBuffer."Transaction No." := NewVendLedgEntry."Transaction No.";
-            DtldVendLedgEntryBuffer."Journal Batch Name" := NewVendLedgEntry."Journal Batch Name";
-            DtldVendLedgEntryBuffer."Reason Code" := NewVendLedgEntry."Reason Code";
-            DtldVendLedgEntryBuffer."Initial Entry Due Date" := NewVendLedgEntry."Due Date";
-            DtldVendLedgEntryBuffer."Initial Entry Global Dim. 1" := NewVendLedgEntry."Global Dimension 1 Code";
-            DtldVendLedgEntryBuffer."Initial Entry Global Dim. 2" := NewVendLedgEntry."Global Dimension 2 Code";
-            DtldVendLedgEntryBuffer."Excluded from calculation" := DtldVendLedgEntry."Excluded from calculation";
+            TempDetailedVendorLedgEntry."Entry No." := LastTmpDtldEntryNo;
+            TempDetailedVendorLedgEntry."Posting Date" := PostingDate;
+            TempDetailedVendorLedgEntry."Document Type" := NewVendLedgEntry."Document Type";
+            TempDetailedVendorLedgEntry."Initial Document Type" := NewVendLedgEntry."Document Type";
+            TempDetailedVendorLedgEntry."Document No." := NewVendLedgEntry."Document No.";
+            TempDetailedVendorLedgEntry."Entry Type" := DtldVendLedgEntry."Entry Type";
+            TempDetailedVendorLedgEntry."Vendor Ledger Entry No." := NewVendLedgEntry."Entry No.";
+            TempDetailedVendorLedgEntry."Vendor No." := NewVendLedgEntry."Vendor No.";
+            TempDetailedVendorLedgEntry."Currency Code" := NewVendLedgEntry."Currency Code";
+            TempDetailedVendorLedgEntry."User ID" := NewVendLedgEntry."User ID";
+            TempDetailedVendorLedgEntry."Source Code" := NewVendLedgEntry."Source Code";
+            TempDetailedVendorLedgEntry."Transaction No." := NewVendLedgEntry."Transaction No.";
+            TempDetailedVendorLedgEntry."Journal Batch Name" := NewVendLedgEntry."Journal Batch Name";
+            TempDetailedVendorLedgEntry."Reason Code" := NewVendLedgEntry."Reason Code";
+            TempDetailedVendorLedgEntry."Initial Entry Due Date" := NewVendLedgEntry."Due Date";
+            TempDetailedVendorLedgEntry."Initial Entry Global Dim. 1" := NewVendLedgEntry."Global Dimension 1 Code";
+            TempDetailedVendorLedgEntry."Initial Entry Global Dim. 2" := NewVendLedgEntry."Global Dimension 2 Code";
+            TempDetailedVendorLedgEntry."Excluded from calculation" := DtldVendLedgEntry."Excluded from calculation";
 
             NewEntry := true;
         end;
 
-        DtldVendLedgEntryBuffer.Amount :=
-          DtldVendLedgEntryBuffer.Amount + DtldVendLedgEntry.Amount;
-        DtldVendLedgEntryBuffer."Amount (LCY)" :=
-          DtldVendLedgEntryBuffer."Amount (LCY)" + DtldVendLedgEntry."Amount (LCY)";
-        DtldVendLedgEntryBuffer."Debit Amount" :=
-          DtldVendLedgEntryBuffer."Debit Amount" + DtldVendLedgEntry."Debit Amount";
-        DtldVendLedgEntryBuffer."Credit Amount" :=
-          DtldVendLedgEntryBuffer."Credit Amount" + DtldVendLedgEntry."Credit Amount";
-        DtldVendLedgEntryBuffer."Debit Amount (LCY)" :=
-          DtldVendLedgEntryBuffer."Debit Amount (LCY)" + DtldVendLedgEntry."Debit Amount (LCY)";
-        DtldVendLedgEntryBuffer."Credit Amount (LCY)" :=
-          DtldVendLedgEntryBuffer."Credit Amount (LCY)" + DtldVendLedgEntry."Credit Amount (LCY)";
+        TempDetailedVendorLedgEntry.Amount :=
+          TempDetailedVendorLedgEntry.Amount + DtldVendLedgEntry.Amount;
+        TempDetailedVendorLedgEntry."Amount (LCY)" :=
+          TempDetailedVendorLedgEntry."Amount (LCY)" + DtldVendLedgEntry."Amount (LCY)";
+        TempDetailedVendorLedgEntry."Debit Amount" :=
+          TempDetailedVendorLedgEntry."Debit Amount" + DtldVendLedgEntry."Debit Amount";
+        TempDetailedVendorLedgEntry."Credit Amount" :=
+          TempDetailedVendorLedgEntry."Credit Amount" + DtldVendLedgEntry."Credit Amount";
+        TempDetailedVendorLedgEntry."Debit Amount (LCY)" :=
+          TempDetailedVendorLedgEntry."Debit Amount (LCY)" + DtldVendLedgEntry."Debit Amount (LCY)";
+        TempDetailedVendorLedgEntry."Credit Amount (LCY)" :=
+          TempDetailedVendorLedgEntry."Credit Amount (LCY)" + DtldVendLedgEntry."Credit Amount (LCY)";
 
         if NewEntry then
-            DtldVendLedgEntryBuffer.Insert
+            TempDetailedVendorLedgEntry.Insert()
         else
-            DtldVendLedgEntryBuffer.Modify();
+            TempDetailedVendorLedgEntry.Modify();
     end;
 
     local procedure InsertDtldEntries()
     begin
-        DtldVendLedgEntryBuffer.Reset();
-        if DtldVendLedgEntryBuffer.Find('-') then
+        TempDetailedVendorLedgEntry.Reset();
+        if TempDetailedVendorLedgEntry.Find('-') then
             repeat
-                if ((DtldVendLedgEntryBuffer.Amount <> 0) or
-                    (DtldVendLedgEntryBuffer."Amount (LCY)" <> 0) or
-                    (DtldVendLedgEntryBuffer."Debit Amount" <> 0) or
-                    (DtldVendLedgEntryBuffer."Credit Amount" <> 0) or
-                    (DtldVendLedgEntryBuffer."Debit Amount (LCY)" <> 0) or
-                    (DtldVendLedgEntryBuffer."Credit Amount (LCY)" <> 0))
+                if ((TempDetailedVendorLedgEntry.Amount <> 0) or
+                    (TempDetailedVendorLedgEntry."Amount (LCY)" <> 0) or
+                    (TempDetailedVendorLedgEntry."Debit Amount" <> 0) or
+                    (TempDetailedVendorLedgEntry."Credit Amount" <> 0) or
+                    (TempDetailedVendorLedgEntry."Debit Amount (LCY)" <> 0) or
+                    (TempDetailedVendorLedgEntry."Credit Amount (LCY)" <> 0))
                 then begin
                     LastDtldEntryNo := LastDtldEntryNo + 1;
 
-                    NewDtldVendLedgEntry := DtldVendLedgEntryBuffer;
+                    NewDtldVendLedgEntry := TempDetailedVendorLedgEntry;
                     NewDtldVendLedgEntry."Entry No." := LastDtldEntryNo;
                     NewDtldVendLedgEntry.Insert(true);
                 end;
-            until DtldVendLedgEntryBuffer.Next() = 0;
-        DtldVendLedgEntryBuffer.DeleteAll();
+            until TempDetailedVendorLedgEntry.Next() = 0;
+        TempDetailedVendorLedgEntry.DeleteAll();
     end;
 
     local procedure InitializeParameter()

@@ -15,7 +15,7 @@ codeunit 143030 "Library - Cartera Common"
         Rate: Decimal;
     begin
         Rate := LibraryRandom.RandDecInRange(2, 5, 2);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate), Rate, Rate);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate()), Rate, Rate);
 
         Currency.Get(CurrencyCode);
         Currency.Validate("Bill Groups - Collection", BillGroupsCollection);

@@ -1,4 +1,4 @@
-﻿codeunit 131306 "Library - Journals"
+codeunit 131306 "Library - Journals"
 {
     // Library containing functions related to various Journals.
 
@@ -25,13 +25,13 @@
         RecRef.GetTable(GenJournalLine);
         GenJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJournalLine.FieldNo("Line No.")));
         GenJournalLine.Insert(true);
-        GenJournalLine.Validate("Posting Date", WorkDate);  // Defaults to work date.
+        GenJournalLine.Validate("Posting Date", WorkDate());  // Defaults to work date.
         GenJournalLine.Validate("Document Type", DocumentType);
         GenJournalLine.Validate("Account Type", AccountType);
         GenJournalLine.Validate("Account No.", AccountNo);
         GenJournalLine.Validate(Amount, Amount);
         if NoSeries.Get(GenJournalBatch."No. Series") then
-            GenJournalLine.Validate("Document No.", NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate, false)) // Unused but required field for posting.
+            GenJournalLine.Validate("Document No.", NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false)) // Unused but required field for posting.
         else
             GenJournalLine.Validate(
               "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
@@ -182,11 +182,11 @@
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         if GenJournalBatch."No. Series" <> '' then
-            LastGenJnlLine."Document No." := NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate, false)
+            LastGenJnlLine."Document No." := NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false)
         else
             LastGenJnlLine."Document No." :=
               LibraryUtility.GenerateRandomCode(LastGenJnlLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line");
-        LastGenJnlLine."Posting Date" := WorkDate;
+        LastGenJnlLine."Posting Date" := WorkDate();
     end;
 
     local procedure SetBillToPayToNo(var GenJournalLine: Record "Gen. Journal Line")

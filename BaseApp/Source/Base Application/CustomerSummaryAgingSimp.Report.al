@@ -16,7 +16,7 @@
             column(AsonStartDate; StrSubstNo(Text001, Format(StartDate)))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CustCustFltr; Customer.TableCaption + ': ' + CustFilter)
@@ -144,7 +144,7 @@
         trigger OnOpenPage()
         begin
             if StartDate = 0D then
-                StartDate := WorkDate;
+                StartDate := WorkDate();
         end;
     }
 
@@ -164,14 +164,14 @@
     end;
 
     var
-        Text001: Label 'As of %1';
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         StartDate: Date;
-        CustFilter: Text;
         PeriodStartDate: array[6] of Date;
         CustBalanceDueLCY: array[5] of Decimal;
         PrintCust: Boolean;
         i: Integer;
+
+        Text001: Label 'As of %1';
         CustSummaryAgingSimpCaptionLbl: Label 'Customer - Summary Aging Simp.';
         PageCaptionLbl: Label 'Page';
         AllAmtsareinLCYCaptionLbl: Label 'All amounts are in LCY';
@@ -181,6 +181,9 @@
         CustBalanceDueLCY2CaptionLbl: Label '61-90 days';
         CustBalanceDueLCY1CaptionLbl: Label 'Over 90 days';
         TotalCaptionLbl: Label 'Total';
+
+    protected var
+        CustFilter: Text;
 
     procedure InitializeRequest(StartingDate: Date)
     begin

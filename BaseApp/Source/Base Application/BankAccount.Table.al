@@ -1,4 +1,4 @@
-table 270 "Bank Account"
+﻿table 270 "Bank Account"
 {
     Caption = 'Bank Account';
     DataCaptionFields = "No.", Name;
@@ -64,8 +64,13 @@ table 270 "Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; Contact; Text[100])
@@ -236,6 +241,23 @@ table 270 "Bank Account"
                     Error(StrSubstNo(UnincrementableStringErr, FieldCaption("Last Payment Statement No.")));
             end;
         }
+        field(43; "Pmt. Rec. No. Series"; Code[20])
+        {
+            Caption = 'Payment Reconciliation No. Series';
+            TableRelation = "No. Series";
+
+            trigger OnValidate()
+            var
+                BankAccReconciliation: Record "Bank Acc. Reconciliation";
+            begin
+                if "Pmt. Rec. No. Series" = '' then begin
+                    BankAccReconciliation.SetRange("Bank Account No.", "No.");
+                    BankAccReconciliation.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Payment Application");
+                    if BankAccReconciliation.FindLast() then
+                        "Last Payment Statement No." := BankAccReconciliation."Statement No.";
+                end;
+            end;
+        }
         field(54; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -358,8 +380,13 @@ table 270 "Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(92; County; Text[30])
@@ -563,14 +590,14 @@ table 270 "Bank Account"
             trigger OnValidate()
             begin
                 if "Automatic Stmt. Import Enabled" then begin
-                    if not IsAutoLogonPossible then
+                    if not IsAutoLogonPossible() then
                         Error(MFANotSupportedErr);
 
                     if not ("Transaction Import Timespan" in [0 .. 9999]) then
                         Error(TransactionImportTimespanMustBePositiveErr);
-                    ScheduleBankStatementDownload
+                    ScheduleBankStatementDownload()
                 end else
-                    UnscheduleBankStatementDownload;
+                    UnscheduleBankStatementDownload();
             end;
         }
         field(140; Image; Media)
@@ -662,7 +689,7 @@ table 270 "Bank Account"
             trigger OnValidate()
             begin
                 "CCC Bank No." := PrePadString("CCC Bank No.", MaxStrLen("CCC Bank No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10701; "CCC Bank Branch No."; Text[4])
@@ -673,7 +700,7 @@ table 270 "Bank Account"
             trigger OnValidate()
             begin
                 "CCC Bank Branch No." := PrePadString("CCC Bank Branch No.", MaxStrLen("CCC Bank Branch No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10702; "CCC Control Digits"; Text[2])
@@ -684,7 +711,7 @@ table 270 "Bank Account"
             trigger OnValidate()
             begin
                 "CCC Control Digits" := PrePadString("CCC Control Digits", MaxStrLen("CCC Control Digits"));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10703; "CCC Bank Account No."; Text[10])
@@ -695,7 +722,7 @@ table 270 "Bank Account"
             trigger OnValidate()
             begin
                 "CCC Bank Account No." := PrePadString("CCC Bank Account No.", MaxStrLen("CCC Bank Account No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10704; "CCC No."; Text[20])
@@ -761,7 +788,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amount" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amount" WHERE("Bank Account No." = FIELD("No."),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                               "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -779,7 +806,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -797,7 +824,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    Status = FIELD("Status Filter"),
@@ -842,7 +869,7 @@ table 270 "Bank Account"
         field(7000013; "Posted R.Bills Rmg. Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amt. (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amt. (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                   "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                   "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -859,7 +886,7 @@ table 270 "Bank Account"
         field(7000014; "Posted Receiv Bills Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                        "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -876,7 +903,7 @@ table 270 "Bank Account"
         field(7000015; "Closed Receiv Bills Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                        Status = FIELD("Status Filter"),
@@ -904,7 +931,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amount" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amount" WHERE("Bank Account No." = FIELD("No."),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                               "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -922,7 +949,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -940,7 +967,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    Status = FIELD("Status Filter"),
@@ -955,7 +982,7 @@ table 270 "Bank Account"
         field(7000021; "Posted P.Bills Rmg. Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amt. (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amt. (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                   "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                   "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -972,7 +999,7 @@ table 270 "Bank Account"
         field(7000022; "Posted Pay. Bills Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                        "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -989,7 +1016,7 @@ table 270 "Bank Account"
         field(7000023; "Closed Pay. Bills Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                        Status = FIELD("Status Filter"),
@@ -1005,7 +1032,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -1023,7 +1050,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    Status = FIELD("Status Filter"),
@@ -1039,7 +1066,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -1057,7 +1084,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    Status = FIELD("Status Filter"),
@@ -1073,7 +1100,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amount" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amount" WHERE("Bank Account No." = FIELD("No."),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                               "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -1091,7 +1118,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    "Dealing Type" = FIELD("Dealing Type Filter"),
@@ -1108,7 +1135,7 @@ table 270 "Bank Account"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amount for Collection" WHERE("Bank Account No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    Status = FIELD("Status Filter"),
@@ -1155,7 +1182,7 @@ table 270 "Bank Account"
     var
         DocumentMove: Codeunit "Document-Move";
     begin
-        CheckDeleteBalancingBankAccount;
+        CheckDeleteBalancingBankAccount();
 
         MoveEntries.MoveBankAccEntries(Rec);
         DocumentMove.MoveBankAccDocs(Rec);
@@ -1196,12 +1223,12 @@ table 270 "Bank Account"
     begin
         "Last Date Modified" := Today;
 
-        if IsContactUpdateNeeded then begin
-            Modify;
+        if IsContactUpdateNeeded() then begin
+            Modify();
             UpdateContFromBank.OnModify(Rec);
-            if not Find then begin
-                Reset;
-                if Find then;
+            if not Find() then begin
+                Reset();
+                if Find() then;
             end;
         end;
     end;
@@ -1214,8 +1241,6 @@ table 270 "Bank Account"
     end;
 
     var
-        Text000: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.';
-        Text003: Label 'Do you wish to create a contact for %1 %2?';
         GLSetup: Record "General Ledger Setup";
         BankAcc: Record "Bank Account";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
@@ -1232,6 +1257,8 @@ table 270 "Bank Account"
         UpdateContFromBank: Codeunit "BankCont-Update";
         DimMgt: Codeunit DimensionManagement;
         InsertFromContact: Boolean;
+        Text000: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.';
+        Text003: Label 'Do you wish to create a contact for %1 %2?';
         Text004: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         Text1100000: Label 'You cannot change %1 because there are one or more posted bill groups for this bank account.';
         Text1100001: Label 'You cannot change %1 because there are one or more posted payment orders for this bank account.';
@@ -1275,7 +1302,7 @@ table 270 "Bank Account"
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::"Bank Account", "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -1293,7 +1320,7 @@ table 270 "Bank Account"
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::"Bank Account");
         ContBusRel.SetRange("No.", "No.");
         if not ContBusRel.FindFirst() then begin
-            if not Confirm(Text003, false, TableCaption, "No.") then
+            if not Confirm(Text003, false, TableCaption(), "No.") then
                 exit;
             UpdateContFromBank.InsertNewContact(Rec, false);
             ContBusRel.FindFirst();
@@ -1399,7 +1426,7 @@ table 270 "Bank Account"
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition())
         else
             Message(Text004);
     end;
@@ -1407,12 +1434,12 @@ table 270 "Bank Account"
     [Scope('OnPrem')]
     procedure BuildCCC()
     var
-        IsHandled: Boolean; 
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeBuildCCC(Rec, IsHandled);
         if IsHandled then
-            exit;   
+            exit;
 
         "CCC No." := "CCC Bank No." + "CCC Bank Branch No." + "CCC Control Digits" + "CCC Bank Account No.";
         if "CCC No." <> '' then
@@ -1593,7 +1620,7 @@ table 270 "Bank Account"
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr, FieldCaption("Bank Account No."), FieldCaption(IBAN));
     end;
@@ -1654,7 +1681,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnLinkStatementProviderEvent(BankAccount, StatementProvider);
@@ -1664,7 +1691,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnSimpleLinkStatementProviderEvent(OnlineBankAccLink, StatementProvider);
@@ -1681,7 +1708,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnRefreshStatementProviderEvent(BankAccount, StatementProvider);
@@ -1691,7 +1718,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnRenewAccessConsentStatementProviderEvent(BankAccount, StatementProvider);
@@ -1711,7 +1738,7 @@ table 270 "Bank Account"
     var
         StatementProvider: Text;
     begin
-        StatementProvider := SelectBankLinkingService;
+        StatementProvider := SelectBankLinkingService();
 
         if StatementProvider <> '' then
             OnUpdateBankAccountLinkingEvent(Rec, StatementProvider);
@@ -1723,7 +1750,7 @@ table 270 "Bank Account"
     begin
         if BankAccount.FindSet() then
             repeat
-                if not BankAccount.IsLinkedToBankStatementServiceProvider then begin
+                if not BankAccount.IsLinkedToBankStatementServiceProvider() then begin
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
@@ -1736,7 +1763,7 @@ table 270 "Bank Account"
     begin
         if BankAccount.FindSet() then
             repeat
-                if BankAccount.IsLinkedToBankStatementServiceProvider then begin
+                if BankAccount.IsLinkedToBankStatementServiceProvider() then begin
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
@@ -1798,9 +1825,9 @@ table 270 "Bank Account"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        if not IsLinkedToBankStatementServiceProvider then
+        if not IsLinkedToBankStatementServiceProvider() then
             Error(BankAccNotLinkedErr);
-        if not IsAutoLogonPossible then
+        if not IsAutoLogonPossible() then
             Error(AutoLogonNotPossibleErr);
 
         JobQueueEntry.ScheduleRecurrentJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit,
@@ -1813,7 +1840,7 @@ table 270 "Bank Account"
         JobQueueEntry."Rerun Delay (sec.)" := 25 * 60;
         JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
-            ShowBankStatementDownloadJobQueueEntry;
+            ShowBankStatementDownloadJobQueueEntry();
     end;
 
     local procedure UnscheduleBankStatementDownload()
@@ -1831,7 +1858,7 @@ table 270 "Bank Account"
         CurrencyCode: Code[10];
     begin
         GeneralLedgerSetup.Get();
-        Init;
+        Init();
         Validate("Bank Account No.", OnlineBankAccLink."Bank Account No.");
         Validate(Name, OnlineBankAccLink.Name);
         if OnlineBankAccLink."Currency Code" <> '' then
@@ -1876,10 +1903,10 @@ table 270 "Bank Account"
     begin
         Linked := false;
         OnlineFeedStatus := OnlineFeedStatementStatus::"Not Linked";
-        if IsLinkedToBankStatementServiceProvider then begin
+        if IsLinkedToBankStatementServiceProvider() then begin
             Linked := true;
             OnlineFeedStatus := OnlineFeedStatementStatus::Linked;
-            if IsScheduledBankStatement then
+            if IsScheduledBankStatement() then
                 OnlineFeedStatus := OnlineFeedStatementStatus::"Linked and Auto. Bank Statement Enabled";
         end;
     end;
@@ -1889,7 +1916,7 @@ table 270 "Bank Account"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Record ID to Process", RecordId);
-        exit(JobQueueEntry.FindFirst);
+        exit(JobQueueEntry.FindFirst());
     end;
 
     procedure DisableStatementProviders()
@@ -2069,6 +2096,16 @@ table 270 "Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBankAccount(var Handled: Boolean; BankAccount: Record "Bank Account"; var ResultBankAccountNo: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var BankAccount: Record "Bank Account"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var BankAccount: Record "Bank Account"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 }

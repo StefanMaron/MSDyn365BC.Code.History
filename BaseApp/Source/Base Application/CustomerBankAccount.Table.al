@@ -1,4 +1,4 @@
-table 287 "Customer Bank Account"
+﻿table 287 "Customer Bank Account"
 {
     Caption = 'Customer Bank Account';
     DataCaptionFields = "Customer No.", "Code", Name;
@@ -50,8 +50,13 @@ table 287 "Customer Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Post Code"; Code[20])
@@ -70,8 +75,13 @@ table 287 "Customer Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(10; Contact; Text[100])
@@ -200,7 +210,7 @@ table 287 "Customer Bank Account"
             trigger OnValidate()
             begin
                 "CCC Bank No." := PrePadString("CCC Bank No.", MaxStrLen("CCC Bank No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10701; "CCC Bank Branch No."; Text[4])
@@ -211,7 +221,7 @@ table 287 "Customer Bank Account"
             trigger OnValidate()
             begin
                 "CCC Bank Branch No." := PrePadString("CCC Bank Branch No.", MaxStrLen("CCC Bank Branch No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10702; "CCC Control Digits"; Text[2])
@@ -222,7 +232,7 @@ table 287 "Customer Bank Account"
             trigger OnValidate()
             begin
                 "CCC Control Digits" := PrePadString("CCC Control Digits", MaxStrLen("CCC Control Digits"));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10703; "CCC Bank Account No."; Text[10])
@@ -233,7 +243,7 @@ table 287 "Customer Bank Account"
             trigger OnValidate()
             begin
                 "CCC Bank Account No." := PrePadString("CCC Bank Account No.", MaxStrLen("CCC Bank Account No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10704; "CCC No."; Text[20])
@@ -314,7 +324,7 @@ table 287 "Customer Bank Account"
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr);
     end;
@@ -347,6 +357,16 @@ table 287 "Customer Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBankAccount(var Handled: Boolean; CustomerBankAccount: Record "Customer Bank Account"; var ResultBankAccountNo: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var CustomerBankAccount: Record "Customer Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var CustomerBankAccount: Record "Customer Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

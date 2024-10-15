@@ -156,7 +156,7 @@ codeunit 144071 "UT PAG LocNum"
         PaymentJournal.OpenEdit;
         PaymentJournal.FILTER.SetFilter("Document No.", DocumentNo);
         PaymentJournal.PreviewCheck.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure VerifyCheckPreviewPage(DocumentNo: Code[20]; CheckAmount: Decimal)
@@ -176,7 +176,7 @@ codeunit 144071 "UT PAG LocNum"
         Check.InitTextVariable;
         Check.FormatNoText(AmountText, CheckAmount, '');  // Use blank for Currency.
         CheckPreview.AmountText.AssertEquals(AmountText[1]);
-        CheckPreview.Close;
+        CheckPreview.Close();
     end;
 }
 

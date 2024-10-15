@@ -4,7 +4,6 @@ page 605 "IC Chart of Accounts"
     Caption = 'Intercompany Chart of Accounts';
     CardPageID = "IC G/L Account Card";
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Import/Export';
     SourceTable = "IC G/L Account";
     UsageCategory = Administration;
 
@@ -17,7 +16,7 @@ page 605 "IC Chart of Accounts"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Intercompany;
                     Style = Strong;
@@ -31,12 +30,12 @@ page 605 "IC Chart of Accounts"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the IC general ledger account.';
                 }
-                field("Income/Balance"; "Income/Balance")
+                field("Income/Balance"; Rec."Income/Balance")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies whether a general ledger account is an income statement account or a balance sheet account.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the purpose of the account. Total: Used to total a series of balances on accounts from many different account groupings. To use Total, leave this field blank. Begin-Total: A marker for the beginning of a series of accounts to be totaled that ends with an End-Total account. End-Total: A total of a series of accounts that starts with the preceding Begin-Total account. The total is defined in the Totaling field.';
@@ -46,7 +45,7 @@ page 605 "IC Chart of Accounts"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Map-to G/L Acc. No."; "Map-to G/L Acc. No.")
+                field("Map-to G/L Acc. No."; Rec."Map-to G/L Acc. No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the G/L account in your chart of accounts that corresponds to this intercompany G/L account.';
@@ -81,9 +80,6 @@ page 605 "IC Chart of Accounts"
                     ApplicationArea = Intercompany;
                     Caption = 'Map to Acc. with Same No.';
                     Image = MapAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Map the selected intercompany G/L accounts to G/L accounts with the same number.';
 
                     trigger OnAction()
@@ -104,14 +100,11 @@ page 605 "IC Chart of Accounts"
                     ApplicationArea = Intercompany;
                     Caption = 'Copy from Chart of Accounts';
                     Image = CopyFromChartOfAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Create intercompany G/L accounts from G/L accounts.';
 
                     trigger OnAction()
                     begin
-                        CopyFromChartOfAccounts;
+                        CopyFromChartOfAccounts();
                     end;
                 }
                 action("In&dent IC Chart of Accounts")
@@ -119,16 +112,13 @@ page 605 "IC Chart of Accounts"
                     ApplicationArea = Intercompany;
                     Caption = 'In&dent IC Chart of Accounts';
                     Image = Indent;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Indent accounts between a Begin-Total and the matching End-Total one level to make the chart of accounts easier to read.';
 
                     trigger OnAction()
                     var
                         IndentCOA: Codeunit "G/L Account-Indent";
                     begin
-                        IndentCOA.RunICAccountIndent;
+                        IndentCOA.RunICAccountIndent();
                     end;
                 }
                 separator(Action21)
@@ -140,14 +130,11 @@ page 605 "IC Chart of Accounts"
                     Caption = 'Import';
                     Ellipsis = true;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Import an intercompany chart of accounts from a file.';
 
                     trigger OnAction()
                     begin
-                        ImportFromXML;
+                        ImportFromXML();
                     end;
                 }
                 action("E&xport")
@@ -156,15 +143,44 @@ page 605 "IC Chart of Accounts"
                     Caption = 'E&xport';
                     Ellipsis = true;
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Export the intercompany chart of accounts to a file.';
 
                     trigger OnAction()
                     begin
-                        ExportToXML;
+                        ExportToXML();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Map to Acc. with Same No._Promoted"; "Map to Acc. with Same No.")
+                {
+                }
+                actionref("Copy from Chart of Accounts_Promoted"; "Copy from Chart of Accounts")
+                {
+                }
+                actionref("In&dent IC Chart of Accounts_Promoted"; "In&dent IC Chart of Accounts")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Import/Export', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Import_Promoted; Import)
+                {
+                }
+                actionref("E&xport_Promoted"; "E&xport")
+                {
                 }
             }
         }
@@ -173,7 +189,7 @@ page 605 "IC Chart of Accounts"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        FormatLine;
+        FormatLine();
     end;
 
     var
@@ -250,7 +266,7 @@ page 605 "IC Chart of Accounts"
         IFile.Open(FileName);
         IFile.CreateInStream(IStr);
         ICGLAccIO.SetSource(IStr);
-        ICGLAccIO.Import;
+        ICGLAccIO.Import();
     end;
 
     local procedure ExportToXML()
@@ -278,8 +294,8 @@ page 605 "IC Chart of Accounts"
         OFile.Create(FileName);
         OFile.CreateOutStream(OStr);
         ICGLAccIO.SetDestination(OStr);
-        ICGLAccIO.Export;
-        OFile.Close;
+        ICGLAccIO.Export();
+        OFile.Close();
         Clear(OStr);
 
         Download(FileName, 'Export', TemporaryPath, '', DefaultFileName);

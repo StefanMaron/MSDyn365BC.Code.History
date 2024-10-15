@@ -288,7 +288,7 @@ codeunit 147592 "Test VAT Registration No."
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        ClearLastError;
+        ClearLastError();
 
         if IsInitialized then
             exit;

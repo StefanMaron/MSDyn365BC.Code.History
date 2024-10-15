@@ -1,4 +1,4 @@
-codeunit 137163 "SCM Orders VI"
+﻿codeunit 137163 "SCM Orders VI"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -26,6 +26,7 @@ codeunit 137163 "SCM Orders VI"
         LibrarySales: Codeunit "Library - Sales";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryService: Codeunit "Library - Service";
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -59,6 +60,7 @@ codeunit 137163 "SCM Orders VI"
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         MissingMandatoryLocationTxt: Label 'Location Code must have a value in Requisition Line';
         CannotReserveFromSpecialOrderErr: Label 'You cannot reserve from this item ledger entry because the associated special sales order %1 has not been posted yet.', Comment = '%1: Sales Order No.';
+        ExpectedVariantCodeShowMandatory: Label 'Expected \"ShowMandatory\" to be true for field \"Variant Code\", but it was false.';
 
     [Test]
     [Scope('OnPrem')]
@@ -335,7 +337,7 @@ codeunit 137163 "SCM Orders VI"
 
         // [WHEN] Update Expected Receipt Date to a later date on the Purchase Line.
         asserterror PurchaseOrder.PurchLines."Expected Receipt Date".SetValue(
-            CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+            CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // [THEN] The error message is thrown reading that the date change has lead to a date conflict with existing reservation.
         Assert.ExpectedError(ExpectedReceiptDateErr);
@@ -360,7 +362,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseOrder."Expected Receipt Date".SetValue(0D);
 
         // [THEN] Expected Receipt Date on the Purchase Line = WORKDATE.
-        PurchaseOrder.PurchLines."Expected Receipt Date".AssertEquals(WorkDate);
+        PurchaseOrder.PurchLines."Expected Receipt Date".AssertEquals(WorkDate());
     end;
 
     [Test]
@@ -729,7 +731,7 @@ codeunit 137163 "SCM Orders VI"
 
         // Exercise.
         LibraryVariableStorage.Enqueue(ValueEntriesWerePostedTxt);
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify: Item Ledger entries and Value entries.
         VerifyQuantityOnItemLedgerEntry(PostedDocumentNo, LineNo, Item."No.", Quantity);
@@ -1011,7 +1013,7 @@ codeunit 137163 "SCM Orders VI"
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
 
         // [GIVEN] Post purchase order "PO"
-        SalesLine.Find;
+        SalesLine.Find();
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, SalesLine."Special Order Purchase No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
@@ -1159,7 +1161,7 @@ codeunit 137163 "SCM Orders VI"
         asserterror PurchaseLine.Validate("Unit of Measure Code");
 
         // [THEN] Error is thrown: "Return Qty. Shipped must be equal to '0'  in Purchase Line"
-        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, PurchaseLine.FieldCaption("Return Qty. Shipped"), PurchaseLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, PurchaseLine.FieldCaption("Return Qty. Shipped"), PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -1179,7 +1181,7 @@ codeunit 137163 "SCM Orders VI"
         asserterror PurchaseLine.Validate("Unit of Measure Code");
 
         // [THEN] Error is thrown: "Return Qty. Shipped (Base) must be equal to '0'  in Purchase Line"
-        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, PurchaseLine.FieldCaption("Return Qty. Shipped (Base)"), PurchaseLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ReturnQtyErr, PurchaseLine.FieldCaption("Return Qty. Shipped (Base)"), PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -1256,7 +1258,7 @@ codeunit 137163 "SCM Orders VI"
         // [GIVEN] Purchase document with Item "I" contains line "L"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          Vendor."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          Vendor."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         // [GIVEN] "Item Reference" "R" for "I" and Vendor "V" with populated "Description 2"
         CreateItemReferenceForVendor(ItemReference, Item."No.", Vendor."No.");
@@ -1289,7 +1291,7 @@ codeunit 137163 "SCM Orders VI"
 
         // [GIVEN] Sales document with Item "I" contains line "L"
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         // [GIVEN] "Item Reference" "R" for "I" and Customer "C" with populated "Description 2"
         CreateItemReferenceForCustomer(ItemReference, Item."No.", Customer."No.");
@@ -1460,7 +1462,7 @@ codeunit 137163 "SCM Orders VI"
         DocumentNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Requisition Line [1] with Starting Date = 11-01-2020 and Starting Time = 01:00:00
-        CreateRequisitionLine(RequisitionLine[1], ReqWkshTemplate, RequisitionWkshName, WorkDate, 020000T, ItemNo, DocumentNo);
+        CreateRequisitionLine(RequisitionLine[1], ReqWkshTemplate, RequisitionWkshName, WorkDate(), 020000T, ItemNo, DocumentNo);
 
         // [GIVEN] Requisition Line [2] with Starting Date = 01-01-2020 and Starting Time = 02:00:00
         CreateRequisitionLine(
@@ -1470,9 +1472,9 @@ codeunit 137163 "SCM Orders VI"
         CreateRequisitionLine(
           RequisitionLine[3], ReqWkshTemplate, RequisitionWkshName, WorkDate + LibraryRandom.RandInt(10), 030000T, ItemNo, DocumentNo);
 
-        // [WHEN] InsertProdOrder is called for all 3 lines (2 = Firm Production Order)
+        // [WHEN] InsertProductionOrder is called for all 3 lines (2 = Firm Production Order)
         for Count := 1 to ArrayLen(RequisitionLine) do
-            CarryOutAction.InsertProdOrder(RequisitionLine[Count], 2);
+            CarryOutAction.InsertProductionOrder(RequisitionLine[Count], "Planning Create Prod. Order"::"Firm Planned");
 
         // [THEN] Production order is created
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
@@ -1517,7 +1519,7 @@ codeunit 137163 "SCM Orders VI"
         ProdOrderLine.Validate("Item No.", LibraryInventory.CreateItemNo);
 
         // [THEN] Planning Code on Production Order Component Line isn't changed
-        ProdOrderComponent.Find;
+        ProdOrderComponent.Find();
         ProdOrderComponent.TestField("Planning Level Code", 0);
     end;
 
@@ -1558,7 +1560,7 @@ codeunit 137163 "SCM Orders VI"
         ProdOrderLine[2].Validate("Item No.", LibraryInventory.CreateItemNo);
 
         // [THEN] Planning Level Code on Production Order Component Line is 0
-        ProdOrderComponent.Find;
+        ProdOrderComponent.Find();
         ProdOrderComponent.TestField("Planning Level Code", 0);
 
         // [THEN] Supplied by Line No on Production Order Component Line is 0
@@ -1604,7 +1606,7 @@ codeunit 137163 "SCM Orders VI"
           ProdItem."Flushing Method"::Backward, '', ProductionBOMHeader."No.");
 
         // [GIVEN] Purchase Order "PO" for "Component", quantity = 4 for location code "Red"
-        CreatePurchaseOrderWithItemQtyLocationExpectedDate(CompItem."No.", PurchQty, LocationRed.Code, CalcDate('<-CY>', WorkDate));
+        CreatePurchaseOrderWithItemQtyLocationExpectedDate(CompItem."No.", PurchQty, LocationRed.Code, CalcDate('<-CY>', WorkDate()));
 
         // [GIVEN] Production Order "Prod" for "ProdItem" quantity = 6 for "Red" location
         CreateProductionOrderWithItemQtyLocationWithRefreshAction(ProdItem."No.", ProdQty, LocationRed.Code);
@@ -2271,7 +2273,7 @@ codeunit 137163 "SCM Orders VI"
 
         // [GIVEN] Purchase order at location "L" for 1 "BUCKET" = 5.55555 "KG".
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 1, Location.Code, WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 1, Location.Code, WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Create warehouse receipt.
@@ -2314,7 +2316,7 @@ codeunit 137163 "SCM Orders VI"
 
         // [GIVEN] Purchase order for 1 "BUCKET" = 5.55555 "KG".
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate());
 
         // [GIVEN] Receive the purchase in three iterations - 0.3, 0.3 and 0.4 "BUCKET".
         PostReceiptForPurchaseOrder(PurchaseHeader, PurchaseLine, 0.3);
@@ -2369,7 +2371,7 @@ codeunit 137163 "SCM Orders VI"
 
         // [GIVEN] Sales order at location "L" for 1 "BUCKET" = 5.55555 "KG".
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Create warehouse shipment.
@@ -2412,7 +2414,7 @@ codeunit 137163 "SCM Orders VI"
 
         // [GIVEN] Sales order for 1 "BUCKET" = 5.55555 "KG".
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate());
 
         // [GIVEN] Ship the sales order in three iterations - 0.3, 0.3 and 0.4 "BUCKET".
         PostShipmentForSalesOrder(SalesHeader, SalesLine, 0.3);
@@ -2461,6 +2463,416 @@ codeunit 137163 "SCM Orders VI"
 
         // [THEN] Error is thrown indicating the Location Code is missing on the Requisition Line.
         Assert.ExpectedError(MissingMandatoryLocationTxt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksCertifyProdBOM()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        // [GIVEN] Production BOM with given item on line
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", 1.0);
+        Commit();
+
+        // [WHEN] User tries to change status to "Certified"
+        asserterror LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing
+        Assert.ExpectedError(ProductionBOMLine.FieldCaption(ProductionBOMLine."Variant Code"));
+
+        ProductionBOMHeader.Get(ProductionBOMHeader."No.");
+
+        // [GIVEN] Variant is specified
+        ProductionBOMLine.Validate("Variant Code", ItemVariant.Code);
+        ProductionBOMLine.Modify();
+
+        // [WHEN] User tries to change status to "Certified"
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [THEN] No error is thrown 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksReleasingSO()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        // [GIVEN] Sales Order with specified item and NO variant chosen
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, '', Item."No.", 1, '');
+        Commit();
+
+        // [WHEN] User tries to release sales document
+        asserterror LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing on the sales line.
+        Assert.ExpectedError(SalesLine.FieldCaption(SalesLine."Variant Code"));
+
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+
+        // [GIVEN] Variant is specified
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify();
+
+        // [WHEN] User tries to release document
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [THEN] No error is thrown 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksPostingSO()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        // [GIVEN] Sales Order with specified item and NO variant chosen
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, '', Item."No.", 1, '');
+
+        // [WHEN] User tries to post sales document
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing on the sales line.
+        Assert.ExpectedError(SalesLine.FieldCaption(SalesLine."Variant Code"));
+
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+
+        // [GIVEN] Variant is specified
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify();
+
+        // [WHEN] User tries to post document
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] No error is thrown 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksReleasingPO()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PurchaseHeader: Record "Purchase Header";
+        PurchhaseLine: Record "Purchase Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        // [GIVEN] Purchase Order with specified item and NO variant chosen
+        CreatePurchaseOrder(PurchaseHeader, PurchhaseLine, PurchhaseLine.Type::Item, '', Item."No.", 1);
+        Commit();
+
+        // [WHEN] User tries to release document
+        asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing on the purchase line.
+        Assert.ExpectedError(PurchhaseLine.FieldCaption(PurchhaseLine."Variant Code"));
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        // [GIVEN] Variant is specified
+        PurchhaseLine.Validate("Variant Code", ItemVariant.Code);
+        PurchhaseLine.Modify();
+
+        // [WHEN] User tries to release document
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [THEN] No error is thrown 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksPostingPO()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PurchaseHeader: Record "Purchase Header";
+        PurchhaseLine: Record "Purchase Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        // [GIVEN] Purchase Order with specified item and NO variant chosen
+        CreatePurchaseOrder(PurchaseHeader, PurchhaseLine, PurchhaseLine.Type::Item, '', Item."No.", 1);
+
+        // [WHEN] User tries to post document
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing on the purchase line.
+        Assert.ExpectedError(PurchhaseLine.FieldCaption(PurchhaseLine."Variant Code"));
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        // [GIVEN] Variant is specified
+        PurchhaseLine.Validate("Variant Code", ItemVariant.Code);
+        PurchhaseLine.Modify();
+
+        // [WHEN] User tries to post document
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] No error is thrown 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksServiceOrder()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        Customer: Record "Customer";
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        // [GIVEN] Order with specified item and NO variant chosen
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, "Service Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Modify();
+        Commit();
+
+        // [WHEN] User tries to post document
+        asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing on the line.
+        Assert.ExpectedError(ServiceLine.FieldCaption(ServiceLine."Variant Code"));
+
+        // [GIVEN] A variant is chosen before the order is posted
+        ServiceLine.Validate("Variant Code", ItemVariant.Code);
+        ServiceLine.Modify();
+
+        // [WHEN] User tries to post document
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [THEN] No error is thrown
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksAssemblyOrder()
+    var
+        ParentItem: Record Item;
+        ParentItemVariant: Record "Item Variant";
+        ChildItem: Record Item;
+        ChildItemVariant: Record "Item Variant";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Two items with available variants and Item."Variant Mandatory if Exists" = Yes
+        InitVariantMandatoryAssemblyTestVariables(ChildItem, ParentItem, ChildItemVariant, ParentItemVariant);
+
+        // [GIVEN] Line (ChildItem) has no variant chosen and header (ParentItem) has variant chosen
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, AddDays(WorkDate(), 10), ParentItem."No.", '', 1, '');
+
+        AssemblyHeader.Validate("Variant Code", ParentItemVariant.Code);
+        AssemblyHeader.Modify();
+
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", ChildItem."Base Unit of Measure", 1, 1, '');
+        AssemblyLine.Validate("Variant Code", '');
+        AssemblyLine.Modify();
+
+        // [WHEN] Assembly header is posted
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, AssemblyLine.FieldCaption(AssemblyLine."Variant Code"));
+        // [THEN] Error is thrown on post indicating that the child Variant Code is missing on the line. (PostAssemblyHeader asserts error)
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
+
+        // [GIVEN] Line (ChildItem) has variant is set, but header (ParentItem) hasn't
+        AssemblyLine.Validate("Variant Code", ChildItemVariant.Code);
+        AssemblyLine.Modify();
+
+        AssemblyHeader.Validate("Variant Code", '');
+        AssemblyHeader.Modify();
+        Commit();
+
+        // [WHEN] Header is posted
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, AssemblyHeader.FieldCaption(AssemblyHeader."Variant Code"));
+        // [THEN] Error is thrown indicating the parent Variant Code is missing on the header. (PostAssemblyHeader asserts error)
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
+
+        // [GIVEN] Child variant and parent variant are both set
+        AssemblyHeader.Validate("Variant Code", ParentItemVariant.Code);
+        AssemblyHeader.Modify();
+
+        // [WHEN] Header is posted
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [THEN] No error is thrown
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksInvtDocument()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        InvtDocHeader: Record "Invt. Document Header";
+        InvtDocLine: Record "Invt. Document Line";
+        Location: Record Location;
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Inventory Document with specified item and NO variant chosen
+        LibraryInventory.CreateInvtDocument(InvtDocHeader, InvtDocHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocHeader, InvtDocLine, Item."No.", 1, 1);
+        Commit();
+
+        // [WHEN] User tries to post inventory document
+        asserterror LibraryInventory.PostInvtDocument(InvtDocHeader);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing
+        Assert.ExpectedError(InvtDocLine.FieldCaption(InvtDocLine."Variant Code"));
+
+        // [GIVEN] Variant is specified
+        InvtDocHeader.Get(InvtDocHeader."Document Type", InvtDocHeader."No.");
+        InvtDocLine.Validate("Variant Code", ItemVariant.Code);
+        InvtDocLine.Modify();
+
+        // [WHEN] Header is posted
+        LibraryInventory.PostInvtDocument(InvtDocHeader);
+
+        // [THEN] No error is thrown 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksItemJnlLine()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        // [GIVEN] Item Jnl line with specified item and NO variant chosen
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::Sale, Item."No.", 100);
+        Commit();
+
+        // [WHEN] User tries to post item journal batch
+        asserterror LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing
+        Assert.ExpectedError(ItemJournalLine.FieldCaption(ItemJournalLine."Variant Code"));
+
+        // [GIVEN] Variant is specified
+        ItemJournalLine.Validate("Variant Code", ItemVariant.Code);
+        ItemJournalLine.Modify();
+
+        // [WHEN] Batch is posted
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // [THEN] No error is thrown 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantMandatoryBlocksOrderPromisingLine()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        OrderPromisingLine: Record "Order Promising Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+        Initialize(false);
+
+        // [GIVEN] Item with available variants and Item."Variant Mandatory if Exists" = Yes
+        CreateMandatoryVariant(Item, ItemVariant);
+
+        // [GIVEN] Sales order
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, '', Item."No.", 1, '');
+        Commit();
+
+        // [WHEN] Lines on Order promising lines page is set (triggered by SetSalesHeader)
+        asserterror AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+
+        // [THEN] Error is thrown indicating the Variant Code is missing
+        Assert.ExpectedError(OrderPromisingLine.FieldCaption(OrderPromisingLine."Variant Code"));
+
+        // [GIVEN] Variant is specified
+        SalesLine.Validate("Variant Code", ItemVariant.Code); // Variant is set on SalesLine and transferred to OrderPromisingLine 
+        SalesLine.Modify();
+
+        // [WHEN] Lines on Order promising lines page is set (triggered by SetSalesHeader)
+        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+
+        // [THEN] No error is thrown 
     end;
 
     [Test]
@@ -2531,7 +2943,6 @@ codeunit 137163 "SCM Orders VI"
         NoSeriesSetup();
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
         LocationSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -2553,6 +2964,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
     end;
 
     local procedure DisableNotifications()
@@ -2562,7 +2974,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
     end;
 
     local procedure NoSeriesSetup()
@@ -3076,7 +3488,7 @@ codeunit 137163 "SCM Orders VI"
             Validate("Starting Date", StartingDate);
             Validate("Starting Time", StartingTime);
             Validate("Ref. Order Status", "Ref. Order Status"::Planned);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3235,7 +3647,7 @@ codeunit 137163 "SCM Orders VI"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, ItemNo, LibraryRandom.RandInt(10), '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, ItemNo, LibraryRandom.RandInt(10), '', WorkDate());
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(true, false));
         SalesLine.Modify(true);
         exit(SalesHeader."No.");
@@ -3281,7 +3693,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         FilterPurchaseReceiptLine(PurchRcptLine, DocumentNo);
         LineNo := PurchRcptLine."Line No.";
-        PurchRcptLine.Next;  // To go to next line.
+        PurchRcptLine.Next();  // To go to next line.
     end;
 
     local procedure FindPurchaseReceiptLine2(VendorNo: Code[20]; ItemNo: Code[20]; var DocumentNo: Code[20])
@@ -3442,7 +3854,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplate);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::"Sales Line");
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure GetSalesOrderForSpecialOrderOnRequisitionWkshtAndCarryOutActionMsg(ItemNo: Code[20])
@@ -3453,7 +3865,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplate);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSpecialOrder(RequisitionLine, ItemNo);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure MoveNegativeLinesOnPurchOrder(PurchHeader: Record "Purchase Header")
@@ -3824,10 +4236,10 @@ codeunit 137163 "SCM Orders VI"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             "Post Invoice Discount" := IsDiscount;
             "Post Line Discount" := IsDiscount;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3847,7 +4259,7 @@ codeunit 137163 "SCM Orders VI"
 
     local procedure UpdateExpectedReceiptDateOnPurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
-        PurchaseLine.Validate("Expected Receipt Date", WorkDate);
+        PurchaseLine.Validate("Expected Receipt Date", WorkDate());
         PurchaseLine.Modify(true);
     end;
 
@@ -4039,7 +4451,7 @@ codeunit 137163 "SCM Orders VI"
         PurchRcptLine.SetRange("No.", ItemNo);
         FilterPurchaseReceiptLine(PurchRcptLine, DocumentNo);
         if Next then
-            PurchRcptLine.Next;
+            PurchRcptLine.Next();
         PurchRcptLine.TestField(Quantity, Quantity);
     end;
 
@@ -4065,7 +4477,7 @@ codeunit 137163 "SCM Orders VI"
         repeat
             Count += 1;  // Used to count No. Of Lines on the Posted Purchase Receipts Page.
             PostedPurchaseReceipts."No.".AssertEquals(PurchRcptHeader."No.");
-            PurchRcptHeader.Next;
+            PurchRcptHeader.Next();
         until not PostedPurchaseReceipts.Previous;
         Assert.AreEqual(Count, PurchRcptHeader.Count, RecordCountErr);
     end;
@@ -4088,7 +4500,7 @@ codeunit 137163 "SCM Orders VI"
         ReturnShipmentLine.SetRange("No.", ItemNo);
         ReturnShipmentLine.FindSet();
         if Next then
-            ReturnShipmentLine.Next;
+            ReturnShipmentLine.Next();
         ReturnShipmentLine.TestField(Quantity, Quantity);
     end;
 
@@ -4112,7 +4524,7 @@ codeunit 137163 "SCM Orders VI"
         ValueEntry.FindSet();
         repeat
             ActualTotalDisAmt := ActualTotalDisAmt + Abs(ValueEntry."Discount Amount");
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreEqual(ExpdTotalDisAmt, ActualTotalDisAmt, DiscountErr);
     end;
 
@@ -4136,6 +4548,49 @@ codeunit 137163 "SCM Orders VI"
     local procedure ExecuteUIHandlers()
     begin
         if Confirm('') then;
+    end;
+
+    local procedure AddDays(ToDate: Date; NumberOfDays: Integer): Date
+    var
+        DayDateFormulaTxt: Label '<%1D>', Locked = false, Comment = '%1 = no. of days';
+    begin
+        exit(CalcDate(StrSubstNo(DayDateFormulaTxt, NumberOfDays), ToDate));
+    end;
+
+    local procedure CreateMandatoryVariant(var Item: Record Item; var ItemVariant: Record "Item Variant")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Item.Modify();
+        LibraryInventory.CreateVariant(ItemVariant, Item);
+    end;
+
+    local procedure InitVariantMandatoryAssemblyTestVariables(var ChildItem: Record Item; var ParentItem: Record Item; var ChildItemVariant: Record "Item Variant"; var ParentItemVariant: Record "Item Variant")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        UOM: Record "Unit of Measure";
+    begin
+        // Create Unit of measure for assembly line (Required for RU tests, where "Unit of Measure Mandatory" is true)
+        LibraryInventory.CreateUnitOfMeasureCode(UOM);
+
+        CreateMandatoryVariant(ParentItem, ParentItemVariant);
+        ParentItem.Validate("Base Unit of Measure", UOM.Code);
+        ParentItem.Modify();
+
+        LibraryAssembly.SetupAssemblyItem(
+          ChildItem, ChildItem."Costing Method"::Standard, ChildItem."Costing Method"::Standard, ChildItem."Replenishment System"::Assembly, '', false, 5, 5, 5, 5);
+
+        ChildItem.Validate("Variant Mandatory if Exists", ChildItem."Variant Mandatory if Exists"::Yes);
+        ChildItem.Validate("Base Unit of Measure", UOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateVariant(ChildItemVariant, ChildItem);
+
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, '',
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ChildItem."No.", 100);
+        ItemJournalLine.Validate("Variant Code", ChildItemVariant.Code);
+        ItemJournalLine.Modify();
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalLine."Journal Batch Name");
     end;
 
     [MessageHandler]
@@ -4173,6 +4628,30 @@ codeunit 137163 "SCM Orders VI"
     procedure YesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure MandatoryCheck_BlanketAssemblyPages(var AssembleToOrderLines: TestPage "Assemble-to-Order Lines")
+    begin
+        AssembleToOrderLines.Type.SetValue("BOM Component Type"::Item);
+
+        // [WHEN] User specifies the item on the line
+        AssembleToOrderLines."No.".SetValue(LibraryVariableStorage.DequeueText());
+
+        // [THEN] ShowMandatory is true on the "Variant Code" field
+        Assert.IsTrue(AssembleToOrderLines."Variant Code".ShowMandatory(), ExpectedVariantCodeShowMandatory);
+
+        // [GIVEN] User then goes to "Blanket Assembly Orders" and opens the order corresponding to the sales line
+        AssembleToOrderLines."Show Document".Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure MandatoryCheck_BlanketAssemblyOrder(var BlanketAssemblyOrder: testpage "Blanket Assembly Order")
+    begin
+        // [THEN] ShowMandatory is true on the "Variant Code" field
+        Assert.IsTrue(BlanketAssemblyOrder."Variant Code".ShowMandatory(), ExpectedVariantCodeShowMandatory);
     end;
 
     [ModalPageHandler]

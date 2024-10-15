@@ -73,7 +73,7 @@ codeunit 144036 "ERM REP CNAE"
         // Verify: Verify CNAE Description with CNAE Description field on Company Information Card.
         CompanyInformation.OpenEdit;
         CompanyInformation."CNAE Description".AssertEquals(CNAEDescription);
-        CompanyInformation.Close;
+        CompanyInformation.Close();
 
         // TearDown.
         UpdateCompanyInformationCNAEDescription(OldCNAEDescription);
@@ -91,7 +91,7 @@ codeunit 144036 "ERM REP CNAE"
         AccScheduleName.Validate(Standardized, true);
         AccScheduleName.Modify(true);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
-        AccScheduleLine.Validate("Date Filter", WorkDate);
+        AccScheduleLine.Validate("Date Filter", WorkDate());
         AccScheduleLine.Modify(true);
         exit(AccScheduleLine."Schedule Name");
     end;
@@ -143,7 +143,7 @@ codeunit 144036 "ERM REP CNAE"
     [Scope('OnPrem')]
     procedure NormalizedAccountScheduleRequestPageHandler(var NormalizedAccountSchedule: TestRequestPage "Normalized Account Schedule")
     begin
-        NormalizedAccountSchedule."Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate));
+        NormalizedAccountSchedule."Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate()));
         NormalizedAccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

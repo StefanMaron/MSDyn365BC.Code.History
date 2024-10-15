@@ -436,7 +436,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
             FindLast();
             Validate("Exchange Rate Amount", NewRate);
             Validate("Relational Exch. Rate Amount", 1);
-            Modify;
+            Modify();
         end;
     end;
 

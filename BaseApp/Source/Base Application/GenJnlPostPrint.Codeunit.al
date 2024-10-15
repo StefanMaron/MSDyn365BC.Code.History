@@ -5,26 +5,27 @@ codeunit 232 "Gen. Jnl.-Post+Print"
     trigger OnRun()
     begin
         GenJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(GenJnlLine);
     end;
 
     var
-        JournalsScheduledMsg: Label 'Journal lines have been scheduled for posting.';
-        Text000: Label 'cannot be filtered when posting recurring journals';
-        Text001: Label 'Do you want to post the journal lines and print the report(s)?';
-        Text002: Label 'There is nothing to post.';
-        Text003: Label 'The journal lines were successfully posted.';
-        Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlLine: Record "Gen. Journal Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        RecRefToPrint: RecordRef;
         GenJnlPostviaJobQueue: Codeunit "Gen. Jnl.-Post via Job Queue";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BatchPostingPrintMgt: Codeunit "Batch Posting Print Mgt.";
+        RecRefToPrint: RecordRef;
         GenJnlsScheduled: Boolean;
         TempJnlBatchName: Code[10];
         GLReg2: Record "G/L Register";
+
+        JournalsScheduledMsg: Label 'Journal lines have been scheduled for posting.';
+        Text000: Label 'cannot be filtered when posting recurring journals';
+        Text001: Label 'Do you want to post the journal lines and print the report(s)?';
+        Text003: Label 'The journal lines were successfully posted.';
+        Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
 
     local procedure "Code"()
     var
@@ -96,7 +97,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                         REPORT.Run(GenJnlTemplate."Vendor Receipt Report ID", false, false, VendLedgEntry);
                     end;
                     if GenJnlTemplate."Posting Report ID" <> 0 then begin
-                        GLReg.SetRecFilter;
+                        GLReg.SetRecFilter();
                         OnBeforeGLRegPostingReportPrint(GenJnlTemplate."Posting Report ID", false, false, GLReg, IsHandled);
                         if not IsHandled then
                             REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg2);
@@ -105,7 +106,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
                 if not HideDialog then
                     if "Line No." = 0 then
-                        Message(Text002)
+                        Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
                     else
                         if TempJnlBatchName = "Journal Batch Name" then
                             Message(Text003)
@@ -114,7 +115,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
             end;
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") or GeneralLedgerSetup."Post & Print with Job Queue" then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");

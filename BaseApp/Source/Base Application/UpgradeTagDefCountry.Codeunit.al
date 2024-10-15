@@ -8,8 +8,8 @@ codeunit 9997 "Upgrade Tag Def - Country"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
-        PerCompanyUpgradeTags.Add(GetUpdateEmployeeNewNamesTag);
-        PerCompanyUpgradeTags.Add(GetUpdateNoTaxableEntriesTag);
+        PerCompanyUpgradeTags.Add(GetUpdateEmployeeNewNamesTag());
+        PerCompanyUpgradeTags.Add(GetUpdateNoTaxableEntriesTag());
         PerCompanyUpgradeTags.Add(GetUpdateSIISetupSchemasTag());
         PerCompanyUpgradeTags.Add(GetUpdateSIICertificateTag());
     end;
@@ -33,7 +33,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         exit('MS-341500-ES-GetUpdateSIISetupSchemasTag-20200207');
     end;
-    
+
     procedure GetUpdateSIICertificateTag(): Code[250]
     begin
         exit('MS-316847-ES-GetUpdateSIICertificateTag-20191206');

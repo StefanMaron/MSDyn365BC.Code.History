@@ -66,7 +66,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         CreatePaymentFromGeneralJournalLine(GenJournalLine2, GenJournalLine);
         BaseAmount :=
           LibraryERM.ConvertCurrency(
-            GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate) * 100 / (100 + VATPostingSetup."VAT+EC %");  // Blank value used for ToCurrency.
+            GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate()) * 100 / (100 + VATPostingSetup."VAT+EC %");  // Blank value used for ToCurrency.
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
@@ -119,7 +119,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
             VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", GLAccount."Gen. Posting Type"::Purchase),
           CurrencyCode, -LibraryRandom.RandDec(100, 2));  // Random value used for Amount.
         CreatePaymentFromGeneralJournalLine(GenJournalLine2, GenJournalLine);
-        BaseAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', WorkDate);  // Blank value used for ToCurrency.
+        BaseAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', WorkDate());  // Blank value used for ToCurrency.
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
@@ -255,7 +255,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         CreatePaymentFromGeneralJournalLine(GenJournalLine2, GenJournalLine);
         BaseAmount :=
           LibraryERM.ConvertCurrency(
-            GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate) * 100 / (100 + VATPostingSetup."VAT+EC %");  // Blank value used for ToCurrency.
+            GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate()) * 100 / (100 + VATPostingSetup."VAT+EC %");  // Blank value used for ToCurrency.
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
@@ -278,7 +278,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.CalculateInvoiceDiscount.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure CalculateInvAndPmtDiscountOnSalesOrder(No: Code[20])
@@ -288,7 +288,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.CalculateInvoiceDiscount.Invoke;
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure CreateAndPostInvoiceFromGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)

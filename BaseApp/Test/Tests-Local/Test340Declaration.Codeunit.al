@@ -253,7 +253,7 @@ codeunit 147315 "Test 340 Declaration"
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Unrealized VAT", true);
             Validate("VAT Cash Regime", true);
             Modify(true);
@@ -280,7 +280,7 @@ codeunit 147315 "Test 340 Declaration"
 
         // [WHEN] General Ledger Setup.VAT Cash Regime is set to TRUE
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("VAT Cash Regime", true);
             Modify(true);
 
@@ -1621,7 +1621,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice);
     end;
 
@@ -1634,7 +1634,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        DocumentNo := Library340347Declaration.CreateAndPostSalesCrMemo(VATPostingSetup, Customer."No.", WorkDate, Amount, '');
+        DocumentNo := Library340347Declaration.CreateAndPostSalesCrMemo(VATPostingSetup, Customer."No.", WorkDate(), Amount, '');
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo");
     end;
 
@@ -1647,7 +1647,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        DocumentNo := Library340347Declaration.CreateAndPostServiceInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostServiceInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice);
     end;
 
@@ -1660,7 +1660,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        DocumentNo := Library340347Declaration.CreateAndPostServiceCrMemo(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostServiceCrMemo(VATPostingSetup, Customer."No.", WorkDate(), Amount);
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo");
     end;
 
@@ -1674,7 +1674,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateVendor(Vendor, VATPostingSetup."VAT Bus. Posting Group");
-        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
+        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo);
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Invoice);
     end;
 
@@ -1689,7 +1689,7 @@ codeunit 147315 "Test 340 Declaration"
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateVendor(Vendor, VATPostingSetup."VAT Bus. Posting Group");
         DocumentNo :=
-          Library340347Declaration.CreateAndPostPurchaseCrMemo(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo, '');
+          Library340347Declaration.CreateAndPostPurchaseCrMemo(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo, '');
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::"Credit Memo");
     end;
 
@@ -1773,10 +1773,10 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
         DocumentNo :=
           Library340347Declaration.CreateAndPostPaymentForSI(
-            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Payment);
     end;
 
@@ -1790,10 +1790,10 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        DocumentNo := Library340347Declaration.CreateAndPostSalesCrMemo(VATPostingSetup, Customer."No.", WorkDate, Amount, '');
+        DocumentNo := Library340347Declaration.CreateAndPostSalesCrMemo(VATPostingSetup, Customer."No.", WorkDate(), Amount, '');
         DocumentNo :=
           Library340347Declaration.CreateAndPostPaymentForSI(
-            Customer."No.", GenJournalLine."Document Type"::"Credit Memo", DocumentNo, WorkDate, -Amount);
+            Customer."No.", GenJournalLine."Document Type"::"Credit Memo", DocumentNo, WorkDate(), -Amount);
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Refund);
     end;
 
@@ -1808,10 +1808,10 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateVendor(Vendor, VATPostingSetup."VAT Bus. Posting Group");
-        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
+        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo);
         DocumentNo :=
           Library340347Declaration.CreateAndPostPaymentForPI(
-            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Payment);
     end;
 
@@ -1827,10 +1827,10 @@ codeunit 147315 "Test 340 Declaration"
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateVendor(Vendor, VATPostingSetup."VAT Bus. Posting Group");
         DocumentNo :=
-          Library340347Declaration.CreateAndPostPurchaseCrMemo(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo, '');
+          Library340347Declaration.CreateAndPostPurchaseCrMemo(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo, '');
         DocumentNo :=
           Library340347Declaration.CreateAndPostPaymentForPI(
-            Vendor."No.", GenJournalLine."Document Type"::"Credit Memo", DocumentNo, WorkDate, -Amount);
+            Vendor."No.", GenJournalLine."Document Type"::"Credit Memo", DocumentNo, WorkDate(), -Amount);
         FindVATEntry(VATEntry, DocumentNo, VATEntry."Document Type"::Refund);
     end;
 
@@ -1870,13 +1870,13 @@ codeunit 147315 "Test 340 Declaration"
 
     local procedure CreateUnrealizedVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; UseVATCashRegime: Boolean)
     begin
-        MockVATEntry(VATEntry, WorkDate, DocumentType, UseVATCashRegime);
+        MockVATEntry(VATEntry, WorkDate(), DocumentType, UseVATCashRegime);
         with VATEntry do begin
             "Unrealized Base" := LibraryRandom.RandDecInRange(1000, 100, 2);
             "Unrealized Amount" := Round("Unrealized Base" * ("VAT %" + "EC %") / 100);
             "Remaining Unrealized Base" := "Unrealized Base";
             "Remaining Unrealized Amount" := "Unrealized Amount";
-            Modify;
+            Modify();
         end
     end;
 
@@ -1897,18 +1897,18 @@ codeunit 147315 "Test 340 Declaration"
 
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        MockVATEntry(VATEntry, WorkDate, DocumentType, false);
+        MockVATEntry(VATEntry, WorkDate(), DocumentType, false);
         with VATEntry do begin
             Base := LibraryRandom.RandDecInRange(1000, 100, 2);
             Amount := Round(Base * ("VAT %" + "EC %") / 100);
-            Modify;
+            Modify();
         end
     end;
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; UseVATCashRegime: Boolean)
     begin
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             "Posting Date" := PostingDate;
             "Document Type" := DocumentType;
@@ -1919,7 +1919,7 @@ codeunit 147315 "Test 340 Declaration"
             "EC %" := LibraryRandom.RandIntInRange(5, 10);
             "VAT Cash Regime" := UseVATCashRegime;
             "Transaction No." := "Entry No.";
-            Insert;
+            Insert();
         end
     end;
 
@@ -1963,7 +1963,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         VATEntry.SetCurrentKey("Document Type", "Posting Date", "Document No.");
         VATEntry.SetRange("Document Type", DocumentType);
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
     end;
@@ -1976,7 +1976,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         Line := LibraryTextFileValidation.ReadLine(Filename, LineNo);
         with Test340DeclarationLineBuf do begin
-            Init;
+            Init();
             Type := VATEntry.Type::Sale.AsInteger();
             Evaluate(DocumentNo,
               LibraryTextFileValidation.ReadValue(Line, GetFieldPos(FieldNo("Document No.")), GetFieldLen(FieldNo("Document No."))));
@@ -1997,7 +1997,7 @@ codeunit 147315 "Test 340 Declaration"
         OperationCode: Text[1024];
     begin
         with Test340DeclarationLineBuf do begin
-            Init;
+            Init();
             Type := VATEntry.Type.AsInteger();
             Line := LibraryTextFileValidation.FindLineWithValue(Filename,
                 GetFieldPos(FieldNo("Document No.")), StrLen(VATEntry."Document No."), VATEntry."Document No.");

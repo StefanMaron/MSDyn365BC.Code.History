@@ -322,7 +322,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry.Insert();
-        CustLedgerEntry.SetRecFilter;
+        CustLedgerEntry.SetRecFilter();
         Commit();
 
         // [GIVEN] Template Name and Batch Name are filled in on Request Page with Cartera Journal Batch values
@@ -432,7 +432,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     var
         POPostAndPrint: Codeunit "BG/PO-Post and Print";
     begin
-        LibraryVariableStorage.Enqueue(StrSubstNo(NotPrintedPaymentOrderQuestionMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(NotPrintedPaymentOrderQuestionMsg, BillGroup.TableCaption()));
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(PostJournalLinesQst);
         LibraryVariableStorage.Enqueue(StrSubstNo(JournalSuccessfullyPostedMsg));
@@ -638,7 +638,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         if RedrawAmtToReduce <> 0 then begin
             CarteraJournal.First;
             CarteraJournal."Credit Amount".SetValue(CarteraJournal."Credit Amount".AsDEcimal - RedrawAmtToReduce);
-            CarteraJournal.Next;
+            CarteraJournal.Next();
             CarteraJournal."Debit Amount".SetValue(CarteraJournal."Debit Amount".AsDEcimal - RedrawAmtToReduce);
         end;
         CarteraJournal.Post.Invoke;
@@ -745,8 +745,8 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
             Assert.AreEqual(CarteraDoc."Document Type"::Bill, CarteraDoc."Document Type", '');
             Assert.AreEqual(Round(SalesInvoiceHeader.Amount * Installment."% of Total" / 100), CarteraDoc."Remaining Amount", '');
 
-            Installment.Next;
-        until CarteraDoc.Next = 0;
+            Installment.Next();
+        until CarteraDoc.Next() = 0;
     end;
 
     local procedure VerifyRedraw(InvoiceNo: Code[20]; BillGroup: Record "Bill Group"; RedrawAmtToReduce: Decimal)
@@ -760,7 +760,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         BankAccountLedgerEntry.FindSet();
         repeat
             TotalChargedAmount += BankAccountLedgerEntry.Amount;
-        until BankAccountLedgerEntry.Next = 0;
+        until BankAccountLedgerEntry.Next() = 0;
 
         Assert.AreEqual(RedrawAmtToReduce, TotalChargedAmount, '');
     end;

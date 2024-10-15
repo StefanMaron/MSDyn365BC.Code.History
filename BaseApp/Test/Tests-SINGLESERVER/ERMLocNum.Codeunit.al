@@ -158,7 +158,7 @@ codeunit 144161 "ERM Loc Num"
         RunVoidElectronicPayments(GenJournalLine);
 
         // [THEN] The payment journal line has been voided and PmtJournalLine."Exported to Payment File" = FALSE
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         Assert.AreEqual(false, GenJournalLine."Exported to Payment File", GenJournalLine.FieldCaption("Exported to Payment File"));
     end;
 
@@ -186,7 +186,7 @@ codeunit 144161 "ERM Loc Num"
         RunVoidElectronicPayments(GenJournalLine);
 
         // [THEN] The payment journal line has been voided and PmtJournalLine."Exported to Payment File" = FALSE
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         Assert.AreEqual(false, GenJournalLine."Exported to Payment File", GenJournalLine.FieldCaption("Exported to Payment File"));
     end;
 
@@ -419,7 +419,7 @@ codeunit 144161 "ERM Loc Num"
         PaymentJournal."Bal. Account Type".SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
         PaymentJournal."Bal. Account No.".SetValue(CreateBankAccount);
         PaymentJournal."Bank Payment Type".SetValue(GenJournalLine."Bank Payment Type"::"Computer Check");
-        PaymentJournal.Close;
+        PaymentJournal.Close();
         Commit();  // COMMIT is required here.
 
         PaymentJournal.OpenEdit;
@@ -465,11 +465,11 @@ codeunit 144161 "ERM Loc Num"
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         with GenJournalLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", GenJournalBatch.Name);
             Validate("Line No.", LibraryUtility.GetNewRecNo(GenJournalLine, FieldNo("Line No.")));
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Document Type", DocumentType);
             Validate("Account Type", AccountType);
             Validate("Account No.", AccountNo);
@@ -500,7 +500,7 @@ codeunit 144161 "ERM Loc Num"
 
     local procedure RunVoidElectronicPayments(GenJournalLine: Record "Gen. Journal Line")
     begin
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
         Commit();
         REPORT.Run(REPORT::"Void Electronic Payments", true, false, GenJournalLine);

@@ -10,7 +10,7 @@ table 9055 "Purchase Cue"
         }
         field(2; "To Send or Confirm"; Integer)
         {
-            CalcFormula = Count ("Purchase Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Purchase Header" WHERE("Document Type" = FILTER(Order),
                                                          Status = FILTER(Open),
                                                          "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'To Send or Confirm';
@@ -20,7 +20,7 @@ table 9055 "Purchase Cue"
         field(3; "Upcoming Orders"; Integer)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Count ("Purchase Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Purchase Header" WHERE("Document Type" = FILTER(Order),
                                                          Status = FILTER(Released),
                                                          "Expected Receipt Date" = FIELD("Date Filter"),
                                                          "Responsibility Center" = FIELD("Responsibility Center Filter")));
@@ -31,7 +31,7 @@ table 9055 "Purchase Cue"
         field(4; "Outstanding Purchase Orders"; Integer)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Count ("Purchase Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Purchase Header" WHERE("Document Type" = FILTER(Order),
                                                          Status = FILTER(Released),
                                                          "Completely Received" = FILTER(false),
                                                          "Responsibility Center" = FIELD("Responsibility Center Filter")));
@@ -42,7 +42,7 @@ table 9055 "Purchase Cue"
         field(5; "Purchase Return Orders - All"; Integer)
         {
             AccessByPermission = TableData "Return Shipment Header" = R;
-            CalcFormula = Count ("Purchase Header" WHERE("Document Type" = FILTER("Return Order"),
+            CalcFormula = Count("Purchase Header" WHERE("Document Type" = FILTER("Return Order"),
                                                          "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Purchase Return Orders - All';
             Editable = false;
@@ -51,7 +51,7 @@ table 9055 "Purchase Cue"
         field(6; "Not Invoiced"; Integer)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Count ("Purchase Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Purchase Header" WHERE("Document Type" = FILTER(Order),
                                                          "Completely Received" = FILTER(true),
                                                          Invoice = FILTER(false),
                                                          "Responsibility Center" = FIELD("Responsibility Center Filter")));
@@ -62,7 +62,7 @@ table 9055 "Purchase Cue"
         field(7; "Partially Invoiced"; Integer)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Count ("Purchase Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Purchase Header" WHERE("Document Type" = FILTER(Order),
                                                          "Completely Received" = FILTER(true),
                                                          Invoice = FILTER(true),
                                                          "Responsibility Center" = FIELD("Responsibility Center Filter")));
@@ -114,7 +114,7 @@ table 9055 "Purchase Cue"
         UserSetupMgt: Codeunit "User Setup Management";
         RespCenterCode: Code[10];
     begin
-        RespCenterCode := UserSetupMgt.GetPurchasesFilter;
+        RespCenterCode := UserSetupMgt.GetPurchasesFilter();
         if RespCenterCode <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center Filter", RespCenterCode);
@@ -150,8 +150,8 @@ table 9055 "Purchase Cue"
         OnCountOrdersOnAfterCountPurchOrdersSetFilters(CountPurchOrders);
         FilterGroup(0);
 
-        CountPurchOrders.Open;
-        CountPurchOrders.Read;
+        CountPurchOrders.Open();
+        CountPurchOrders.Read();
         Result := CountPurchOrders.Count_Orders;
 
         exit(Result);

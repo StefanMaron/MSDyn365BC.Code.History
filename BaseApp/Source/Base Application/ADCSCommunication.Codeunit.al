@@ -144,7 +144,7 @@ codeunit 7701 "ADCS Communication"
                 end;
 
                 if MiniFormLine.Area = MiniFormLine.Area::Body then
-                    if MiniFormHdr."Form Type" <> MiniFormHdr."Form Type"::Card then begin
+                    if MiniFormHdr."Form Type" <> MiniFormHdr."Form Type"::Card then
                         while MiniFormHdr."No. of Records in List" > LineCounter do begin
                             if ((MiniFormHdr."Form Type" = MiniFormHdr."Form Type"::"Data List") or
                                 (MiniFormHdr."Form Type" = MiniFormHdr."Form Type"::"Data List Input"))
@@ -157,23 +157,23 @@ codeunit 7701 "ADCS Communication"
                                     repeat
                                         SendComposition(MiniFormLine2, DataLineNode);
                                     until MiniFormLine2.Next() = 0;
-                                    if GetNextRecord = 0 then
+                                    if GetNextRecord() = 0 then
                                         LineCounter := MiniFormHdr."No. of Records in List";
+                                end
+                                else begin
+                                    SendLineNo(MiniFormLine, AreaNode, DataLineNode, LineCounter);
+                                    SendComposition(MiniFormLine, DataLineNode);
+                                    if MiniFormLine.Next() = 0 then
+                                        LineCounter := MiniFormHdr."No. of Records in List"
+                                    else
+                                        if MiniFormLine.Area <> MiniFormLine.Area::Body then begin
+                                            MiniFormLine.Find('<');
+                                            LineCounter := MiniFormHdr."No. of Records in List";
+                                        end;
                                 end;
-                            end else begin
-                                SendLineNo(MiniFormLine, AreaNode, DataLineNode, LineCounter);
-                                SendComposition(MiniFormLine, DataLineNode);
-                                if MiniFormLine.Next() = 0 then
-                                    LineCounter := MiniFormHdr."No. of Records in List"
-                                else
-                                    if MiniFormLine.Area <> MiniFormLine.Area::Body then begin
-                                        MiniFormLine.Find('<');
-                                        LineCounter := MiniFormHdr."No. of Records in List";
-                                    end;
-                            end;
-                            LineCounter := LineCounter + 1;
-                        end
-                    end else
+                                LineCounter := LineCounter + 1;
+                            end
+                        end else
                         SendComposition(MiniFormLine, AreaNode)
                 else
                     SendComposition(MiniFormLine, AreaNode);
@@ -246,13 +246,13 @@ codeunit 7701 "ADCS Communication"
 
     procedure SetRecRef(var NewRecRef: RecordRef)
     begin
-        RecRef := NewRecRef.Duplicate;
+        RecRef := NewRecRef.Duplicate();
         RecRefRunning := true;
     end;
 
     local procedure GetNextRecord(): Integer
     begin
-        exit(RecRef.Next);
+        exit(RecRef.Next());
     end;
 
     procedure FindRecRef(SelectOption: Integer; NoOfLines: Integer): Boolean
@@ -300,7 +300,7 @@ codeunit 7701 "ADCS Communication"
         if RecRefRunning then begin
             FldRef := RecRef.Field(MiniFormLine."Field No.");
             if Field.Class = Field.Class::FlowField then
-                FldRef.CalcField;
+                FldRef.CalcField();
 
             exit(Format(FldRef));
         end;
@@ -317,13 +317,14 @@ codeunit 7701 "ADCS Communication"
         if not FieldHandleEvaluate(FldRef, Text) then
             Error(Text003, Text, FldRef.Caption);
 
-        FldRef.Validate;
+        FldRef.Validate();
         exit(true);
     end;
 
     local procedure FieldHandleEvaluate(var FldRef: FieldRef; Text: Text[250]): Boolean
     var
         "Field": Record "Field";
+        DateFormula: DateFormula;
         RecordRef: RecordRef;
         OptionNo: Option;
         OptionString: Text[1024];
@@ -333,7 +334,6 @@ codeunit 7701 "ADCS Communication"
         "Integer": Integer;
         BigInteger: BigInteger;
         Duration: Duration;
-        DateFormula: DateFormula;
         Decimal: Decimal;
         "Code": Code[250];
         Boolean: Boolean;
@@ -366,18 +366,18 @@ codeunit 7701 "ADCS Communication"
                 end;
             FieldType::Text:
                 begin
-                    RecordRef := FldRef.Record;
+                    RecordRef := FldRef.Record();
                     if StrLen(Text) > FldRef.Length then
-                        Error(Text004, FldRef.Record.Caption, FldRef.Caption, FldRef.Length, Text);
+                        Error(Text004, FldRef.Record().Caption(), FldRef.Caption, FldRef.Length, Text);
                     FldRef.Value := Text;
                     exit(true);
                 end;
             FieldType::Code:
                 begin
                     Code := Text;
-                    RecordRef := FldRef.Record;
+                    RecordRef := FldRef.Record();
                     if StrLen(Code) > FldRef.Length then
-                        Error(Text004, FldRef.Record.Caption, FldRef.Caption, FldRef.Length, Code);
+                        Error(Text004, FldRef.Record().Caption(), FldRef.Caption, FldRef.Length, Code);
                     FldRef.Value := Code;
                     exit(true);
                 end;
@@ -433,11 +433,11 @@ codeunit 7701 "ADCS Communication"
                 end;
             FieldType::BLOB:
                 begin
-                    Field.Get(FldRef.Record.Number, FldRef.Number);
+                    Field.Get(FldRef.Record().Number, FldRef.Number);
                     Field.FieldError(Type);
                 end;
             else begin
-                    Field.Get(FldRef.Record.Number, FldRef.Number);
+                    Field.Get(FldRef.Record().Number, FldRef.Number);
                     Field.FieldError(Type);
                 end;
         end;
@@ -643,7 +643,7 @@ codeunit 7701 "ADCS Communication"
 
         MiniFormLine.SetRange("Miniform Code", MiniformCode);
         MiniFormLine.SetFilter("Field Type", '%1|%2', MiniFormLine."Field Type"::Input, MiniFormLine."Field Type"::Asterisk);
-        if MiniFormLine.FindLast and (MiniFormLine."Field No." = FieldID) then
+        if MiniFormLine.FindLast() and (MiniFormLine."Field No." = FieldID) then
             exit(true);
 
         exit(false);

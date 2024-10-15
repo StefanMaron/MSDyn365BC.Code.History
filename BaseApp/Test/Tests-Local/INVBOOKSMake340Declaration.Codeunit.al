@@ -198,11 +198,11 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
         VATRegistrationNo := UpdateCompanyVATRegistrationNo('');
 
         // Exercise: Run Report Make 340 Declaration.
-        FiscalYear := Format(Date2DMY(WorkDate, 3));
+        FiscalYear := Format(Date2DMY(WorkDate(), 3));
         Clear(Make340Declaration);
         Make340Declaration.UseRequestPage(false);
         Make340Declaration.InitializeRequest(
-          FiscalYear, Date2DMY(WorkDate, 2),
+          FiscalYear, Date2DMY(WorkDate(), 2),
           ContactPerson, TelephoneNumber, DeclarationNo,
           CopyStr(CreateGuid, 1, 16),
           0, false, '',
@@ -933,7 +933,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         GLRegister.SetCurrentKey("Posting Date");
         GLRegister.FindLast();
-        exit(DMY2Date(Date2DMY(WorkDate, 1), Date2DMY(WorkDate, 2), 1 + Date2DMY(GLRegister."Posting Date", 3)));
+        exit(DMY2Date(Date2DMY(WorkDate(), 1), Date2DMY(WorkDate(), 2), 1 + Date2DMY(GLRegister."Posting Date", 3)));
     end;
 
     local procedure GetCustomerFromSalesInvHeader(DocumentNo: Code[20]) CustomerNo: Code[20]
@@ -1092,11 +1092,11 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
         Initialize();  // Setup Demo Data.
 
         // Exercise: Run Report Make 340 Declaration.
-        FiscalYear := Format(Date2DMY(WorkDate, 3));
+        FiscalYear := Format(Date2DMY(WorkDate(), 3));
         Clear(Make340Declaration);
         Make340Declaration.UseRequestPage(false);
         Make340Declaration.InitializeRequest(
-          FiscalYear, Date2DMY(WorkDate, 2), ContactPerson,
+          FiscalYear, Date2DMY(WorkDate(), 2), ContactPerson,
           TelephoneNumber, DeclarationNo, ElectronicCode,
           0, ReplacementDeclaration, '',
           TemporaryPath + 'ES340.txt', '', 0.0);

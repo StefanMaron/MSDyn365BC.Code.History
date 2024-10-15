@@ -464,7 +464,7 @@ codeunit 139156 "DataExch to Intermediate Table"
             // Get Value - Exercise/verify
             Assert.AreEqual(RandomValue, GetEntryValue(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
                 ParentRecNo, RecNo), 'Wrong value for entry in the intermediate table');
-            Delete;
+            Delete();
             Assert.AreEqual('', GetEntryValue(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
                 ParentRecNo, RecNo), 'Value for entry should have been deleted from the intermediate table');
         end;
@@ -749,8 +749,8 @@ codeunit 139156 "DataExch to Intermediate Table"
             repeat
                 TempDataExchField := DataExchField;
                 TempDataExchField.Insert();
-            until DataExchField.Next = 0;
-        until DataExchLineDef.Next = 0;
+            until DataExchField.Next() = 0;
+        until DataExchLineDef.Next() = 0;
     end;
 
     local procedure VerifyValuesTransferredToIntermediateTable(DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def")
@@ -772,7 +772,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         repeat
             TempReferenceDataExchField := TempDataExchField;
             TempReferenceDataExchField.Insert();
-        until TempDataExchField.Next = 0;
+        until TempDataExchField.Next() = 0;
 
         TempReferenceDataExchField.FindFirst();
 
@@ -780,7 +780,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         DataExchLineDef.FindSet();
         repeat
             VerifyValuesTransferredToIntermediateTable2(DataExch, TempDataExchField, TempReferenceDataExchField, DataExchLineDef);
-        until DataExchLineDef.Next = 0;
+        until DataExchLineDef.Next() = 0;
     end;
 
     local procedure VerifyValuesTransferredToIntermediateTable2(DataExch: Record "Data Exch."; var DataExchField: Record "Data Exch. Field"; var ReferenceDataExchField: Record "Data Exch. Field"; DataExchLineDef: Record "Data Exch. Line Def")
@@ -811,7 +811,7 @@ codeunit 139156 "DataExch to Intermediate Table"
             Assert.AreEqual(
               ReferenceDataExchField.Count, IntermediateDataImport.Count,
               'There should be same number of values in Intermediate Data Import table');
-        until DataExchField.Next = 0;
+        until DataExchField.Next() = 0;
     end;
 
     local procedure VerifyParentIsAssignedToAllLines(DataExch: Record "Data Exch."; ParentTableID: Integer; ChildTableID: Integer; NumberOfRecordsPerParent: Integer; NumberOfValuesPerSalesLine: Integer)
@@ -831,7 +831,7 @@ codeunit 139156 "DataExch to Intermediate Table"
             ChildIntermediateDataImport.SetRange("Parent Record No.", ParentIntermediateDataImport."Record No.");
             Assert.AreEqual(NumberOfRecordsPerParent * NumberOfValuesPerSalesLine,
               ChildIntermediateDataImport.Count, 'Wrong number of Child Records found');
-        until ParentIntermediateDataImport.Next = 0;
+        until ParentIntermediateDataImport.Next() = 0;
     end;
 }
 

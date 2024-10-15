@@ -160,7 +160,7 @@ table 9062 "User Security Status"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             User.SetFilter("License Type", '<>%1', User."License Type"::"External User");
     end;
 }

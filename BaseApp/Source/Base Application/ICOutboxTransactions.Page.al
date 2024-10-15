@@ -5,7 +5,6 @@ page 611 "IC Outbox Transactions"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Functions,Outbox Transaction,Actions';
     SourceTable = "IC Outbox Transaction";
     UsageCategory = Tasks;
 
@@ -27,15 +26,15 @@ page 611 "IC Outbox Transactions"
                         PartnerList: Page "IC Partner List";
                     begin
                         PartnerList.LookupMode(true);
-                        if not (PartnerList.RunModal = ACTION::LookupOK) then
+                        if not (PartnerList.RunModal() = ACTION::LookupOK) then
                             exit(false);
-                        Text := PartnerList.GetSelectionFilter;
+                        Text := PartnerList.GetSelectionFilter();
                         exit(true);
                     end;
 
                     trigger OnValidate()
                     begin
-                        PartnerFilterOnAfterValidate;
+                        PartnerFilterOnAfterValidate();
                     end;
                 }
                 field(ShowLines; ShowLines)
@@ -54,7 +53,7 @@ page 611 "IC Outbox Transactions"
                             ShowLines::"Created by Current Company":
                                 SetRange("Transaction Source", "Transaction Source"::"Created by Current Company");
                         end;
-                        ShowLinesOnAfterValidate;
+                        ShowLinesOnAfterValidate();
                     end;
                 }
                 field(ShowAction; ShowAction)
@@ -77,54 +76,54 @@ page 611 "IC Outbox Transactions"
                             ShowAction::Cancel:
                                 SetRange("Line Action", "Line Action"::Cancel);
                         end;
-                        ShowActionOnAfterValidate;
+                        ShowActionOnAfterValidate();
                     end;
                 }
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Transaction No."; "Transaction No.")
+                field("Transaction No."; Rec."Transaction No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the transaction''s entry number.';
                 }
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies whether the transaction was created in a journal, a sales document or a purchase document.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the type of the related document.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Transaction Source"; "Transaction Source")
+                field("Transaction Source"; Rec."Transaction Source")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies which company created the transaction.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Line Action"; "Line Action")
+                field("Line Action"; Rec."Line Action")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies what happens to the transaction when you complete line actions. If the field contains No Action, the line will remain in the Outbox. If the field contains Send to IC Partner, the transaction will be sent to your intercompany partner''s inbox.';
@@ -159,14 +158,11 @@ page 611 "IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Details';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     ToolTip = 'View transaction details.';
 
                     trigger OnAction()
                     begin
-                        ShowDetails;
+                        ShowDetails();
                     end;
                 }
                 action(Comments)
@@ -174,8 +170,6 @@ page 611 "IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "IC Comment Sheet";
                     RunPageLink = "Table Name" = CONST("IC Outbox Transaction"),
                                   "Transaction No." = FIELD("Transaction No."),
@@ -191,23 +185,28 @@ page 611 "IC Outbox Transactions"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+#if not CLEAN21
                 group("Set Line Action")
                 {
                     Caption = 'Set Line Action';
                     Image = SelectLineToApply;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Not needed, will be removed.';
+                    ObsoleteTag = '21.0';
                 }
                 separator(Action23)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Not needed, will be removed.';
+                    ObsoleteTag = '21.0';
                 }
+# endif
                 action("Complete Line Actions")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Carry out Line Actions';
                     Image = CompleteLine;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Codeunit "IC Outbox Export";
                     ToolTip = 'Carry out the actions that are specified on the lines.';
                 }
@@ -222,9 +221,6 @@ page 611 "IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'No Action';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Sets the Line Action to No action so that the selected entries stay in the outbox.';
 
@@ -243,9 +239,6 @@ page 611 "IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Send to IC Partner';
                     Image = SendMail;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Will send the selected entries to the IC Partners.';
 
@@ -267,9 +260,6 @@ page 611 "IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Return to Inbox';
                     Image = Return;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Will send the selected entries back to the Inbox for reevaluation.';
 
@@ -292,9 +282,6 @@ page 611 "IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     Caption = 'Cancel';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Will delete the selected entries from the outbox.';
 
@@ -310,6 +297,49 @@ page 611 "IC Outbox Transactions"
                             until ICOutboxTransaction.Next() = 0;
                         ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Functions', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Complete Line Actions_Promoted"; "Complete Line Actions")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Outbox Transaction', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Details_Promoted; Details)
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Actions', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("No Action_Promoted"; "No Action")
+                {
+                }
+                actionref(SendToICPartner_Promoted; SendToICPartner)
+                {
+                }
+                actionref("Return to Inbox_Promoted"; "Return to Inbox")
+                {
+                }
+                actionref(Cancel_Promoted; Cancel)
+                {
                 }
             }
         }

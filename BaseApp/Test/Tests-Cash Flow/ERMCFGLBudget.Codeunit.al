@@ -80,15 +80,15 @@ codeunit 134556 "ERM CF GL Budget"
         ToDate: Date;
     begin
         // Setup
-        FromDate := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
-        ToDate := DMY2Date(31, 12, Date2DMY(WorkDate, 3));
+        FromDate := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
+        ToDate := DMY2Date(31, 12, Date2DMY(WorkDate(), 3));
 
         LibraryCashFlow.FindCashFlowAccount(CashFlowAccount);
         FindGLAccount(GLAccount, GLAccountType);
         LinkCFAccount(CashFlowAccount, GLAccount, Integration);
 
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, GLAccount."No.", GLBudgetName.Name);
+        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), GLAccount."No.", GLBudgetName.Name);
         GLBudgetEntry.Validate("Dimension Set ID", CreateDimensionSetID);
         GLBudgetEntry.Validate(Amount, LibraryRandom.RandDec(1000, 2));
         GLBudgetEntry.Modify(true);
@@ -218,7 +218,7 @@ codeunit 134556 "ERM CF GL Budget"
             GLAccount.CalcFields(Balance);
             "Amount (LCY)" := GLAccount.Balance;
             "Dimension Set ID" := 0; // GLAccount."Dimension Set ID";
-            "Cash Flow Date" := WorkDate;
+            "Cash Flow Date" := WorkDate();
             Insert(false);
         end;
     end;

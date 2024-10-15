@@ -31,6 +31,9 @@
       "path": "./testframework/TestLibraries"
     },
     {
+      "path": "./testframework/teststabilitytools"
+    },
+    {
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
@@ -40,10 +43,16 @@
       "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
     },
     {
+      "path": "./DataSearch/test/Data Search Tests"
+    },
+    {
       "path": "./vatgroupmanagement/test/VAT Group Management Tests"
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
+    },
+    {
+      "path": "./Intrastat/Test/Intrastat Core Tests"
     },
     {
       "path": "./ReportLayouts/test/Report Layouts Tests"
@@ -197,11 +206,11 @@
     }
   ],
   "settings": {
-    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false,
     "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false
+    "al.enableCodeActions": false
   }
 }

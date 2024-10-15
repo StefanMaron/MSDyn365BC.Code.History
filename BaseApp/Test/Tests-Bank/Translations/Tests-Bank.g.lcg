@@ -311,6 +311,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Proposal UT 2 - NamedType TransactionDateIsBeforePostingDateTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2899733083 - NamedType 500532366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to open the bank account statement?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Recon. E2E Tests Perf. - NamedType OpenBankStatementPageQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4120227360 - NamedType 3073548203" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must specify either a %1 or an %2.]]></Val>

@@ -16,7 +16,7 @@
             column(DateFilter; StrSubstNo(Text000, VendDateFilter))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TableFilter; Vendor.TableCaption + ': ' + VendFilter)
@@ -487,9 +487,7 @@
     end;
 
     var
-        Text000: Label 'Period: %1';
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendFilter: Text;
         VendRemainAmount: Decimal;
         VendEntryDueDate: Date;
         StartBalanceLCY: Decimal;
@@ -513,6 +511,8 @@
         StartVendDebitAmountTotal: Decimal;
         StartVendCreditAmountTotal: Decimal;
         StartBalAdjLCYTotal: Decimal;
+
+        Text000: Label 'Period: %1';
         VendorDetailTrialBalCaptionLbl: Label 'Vendor - Detail Trial Balance';
         PageNoCaptionLbl: Label 'Page';
         AllamountsareinLCYCaptionLbl: Label 'All amounts are in LCY.';
@@ -534,6 +534,7 @@
         PrintAmountsInLCY: Boolean;
         StartBalAdjLCY: Decimal;
         VendBalanceLCY: Decimal;
+        VendFilter: Text;
         VendDateFilter: Text;
         VendCurrencyCode: Code[10];
 

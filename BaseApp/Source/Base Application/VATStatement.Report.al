@@ -21,7 +21,7 @@
                 DataItemLink = "Statement Template Name" = FIELD("Statement Template Name"), "Statement Name" = FIELD(Name);
                 DataItemTableView = SORTING("Statement Template Name", "Statement Name") WHERE(Print = CONST(true));
                 RequestFilterFields = "Date Filter";
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Header; Header)
@@ -50,7 +50,7 @@
                 }
                 column(TotalAmt; TotalAmount)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(UseAmtsInAddCurr; UseAmtsInAddCurr)
@@ -75,17 +75,17 @@
                 }
                 column(TotalBase; TotalBase)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(TotalECAmt; TotalECAmount)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(TotalVATAmt; TotalVATAmount)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(VATProdPostGr; VATProdPostGr)
@@ -213,6 +213,12 @@
                 group(Options)
                 {
                     Caption = 'Options';
+                    field(VATDate; VATDateType)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Period Date Type';
+                        ToolTip = 'Specifies the type of date used for the period for VAT statement lines in the report.';
+                    }
                     field(Selection; Selection)
                     {
                         ApplicationArea = Basic, Suite;
@@ -246,7 +252,7 @@
 
     trigger OnPreReport()
     begin
-        VATStmtLineFilter := "VAT Statement Line".GetFilters;
+        VATStmtLineFilter := "VAT Statement Line".GetFilters();
 
         if PeriodSelection = PeriodSelection::"Before and Within Period" then
             Header := Text000
@@ -254,7 +260,7 @@
             Header := StrSubstNo(Text1100101, "VAT Statement Line".GetFilter("Date Filter"));
 
         if not UseAmtsInAddCurr then
-            GLSetup.Get
+            GLSetup.Get()
         else begin
             GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
@@ -262,39 +268,24 @@
     end;
 
     var
-        Text000: Label 'VAT entries before and within the period';
-        Text002: Label 'All amounts are in %1';
-        Text003: Label 'Amounts are in %1, rounded without decimals.';
-        Text004: Label 'VAT entries within the period';
-        Text005: Label 'Period: %1..%2';
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
         VATStmtLine: Record "VAT Statement Line";
-        Selection: Enum "VAT Statement Report Selection";
-        PeriodSelection: Enum "VAT Statement Report Period Selection";
-        PrintInIntegers: Boolean;
+        VATPostSetup: Record "VAT Posting Setup";
+        VATStmtName: Record "VAT Statement Name";
+        Currency: Record Currency;
         VATStmtLineFilter: Text;
         Heading: Text[50];
+        Base: Decimal;
         Amount: Decimal;
-        TotalAmount: Decimal;
         RowNo: array[6] of Code[10];
         ErrorText: Text[80];
         i: Integer;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
-        UseAmtsInAddCurr: Boolean;
-        HeaderText: Text[50];
-        EndDate: Date;
-        StartDate: Date;
-        EndDateReq: Date;
-        Heading2: Text[50];
-        Text1100101: Label 'Period: %1';
-        Text1100102: Label 'The Statement name does not exist';
-        VATPostSetup: Record "VAT Posting Setup";
-        VATStmtName: Record "VAT Statement Name";
         Header: Text[50];
-        Base: Decimal;
+        Heading2: Text[50];
         VATAmount: Decimal;
         VATAmountAC: Decimal;
         TotalBase: Decimal;
@@ -305,7 +296,15 @@
         VATBusPostGr: Code[20];
         VATProdPostGr: Code[20];
         TypeReport: Boolean;
-        Currency: Record Currency;
+        VATDateType: Enum "VAT Date Type";
+
+        Text000: Label 'VAT entries before and within the period';
+        Text002: Label 'All amounts are in %1';
+        Text003: Label 'Amounts are in %1, rounded without decimals.';
+        Text004: Label 'VAT entries within the period';
+        Text005: Label 'Period: %1..%2';
+        Text1100101: Label 'Period: %1';
+        Text1100102: Label 'The Statement name does not exist';
         AllAmtAreInLbl: Label 'All amounts are in';
         VATDeclarationCaptionLbl: Label 'VAT Declaration';
         PageNoCaptionLbl: Label 'Page';
@@ -322,6 +321,17 @@
         TypesCaptionLbl: Label 'Types';
         VATPercentCaptionLbl: Label 'VAT %';
         ECPercentCaptionLbl: Label 'EC %';
+
+    protected var
+        EndDate: Date;
+        StartDate: Date;
+        EndDateReq: Date;
+        HeaderText: Text[50];
+        PrintInIntegers: Boolean;
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
+        Selection: Enum "VAT Statement Report Selection";
+        TotalAmount: Decimal;
+        UseAmtsInAddCurr: Boolean;
 
     [Scope('OnPrem')]
     procedure CalcLineTotal2C(VATStmtLine2: Record "VAT Statement Line"; Level: Integer): Boolean
@@ -464,23 +474,18 @@
             VATStmtLine2.Type::"EC Entry Totaling":
                 begin
                     VATEntry.Reset();
-                    if VATEntry.SetCurrentKey(
-                         Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
-                    then begin
-                        VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine2."VAT Bus. Posting Group");
-                        VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine2."VAT Prod. Posting Group");
-                    end else begin
-                        VATEntry.SetCurrentKey(
-                          Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-                        VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine2."Tax Jurisdiction Code");
-                        VATEntry.SetRange("Use Tax", VATStmtLine2."Use Tax");
+                    Amount := 0;
+                    case VATDateType of
+                        VATDateType::"Document Date":
+                            SetVATEntryKeyAndRangesForDocumentDate(VATStmtLine2);
+                        VATDateType::"Posting Date":
+                            SetVATEntryKeyAndRangesForPostingDate(VATStmtLine2);
+                        VATDateType::"VAT Reporting Date":
+                            SetVATEntryKeyAndRangesForVATDate(VATStmtLine2);
                     end;
                     VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
-                    if "VAT Statement Line".GetFilter("Date Filter") <> '' then
-                        if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                            VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
-                        else
-                            "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
+                    SetVATDate("VAT Statement Line");
+                    
                     case Selection of
                         Selection::Open:
                             VATEntry.SetRange(Closed, false);
@@ -493,14 +498,12 @@
                     if VATEntry.Find('-') then;
                     case VATStmtLine2."Amount Type" of
                         VATStmtLine2."Amount Type"::Amount:
-                            begin
-                                if VATPostSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
-                                    CalcVatLineTotal(VATEntry, VATAmount, VATAmountAC, true);
-                                    Amount := ConditionalAdd(0, VATAmount, VATAmountAC);
-                                    if VATReportSetup.Get() then;
-                                    if VATReportSetup."Report VAT Base" then
-                                        Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
-                                end;
+                            if VATPostSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
+                                CalcVatLineTotal(VATEntry, VATAmount, VATAmountAC, true);
+                                Amount := ConditionalAdd(0, VATAmount, VATAmountAC);
+                                if VATReportSetup.Get() then;
+                                if VATReportSetup."Report VAT Base" then
+                                    Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                             end;
                         VATStmtLine2."Amount Type"::Base:
                             begin
@@ -545,6 +548,66 @@
         exit(true);
     end;
 
+    local procedure SetVATEntryKeyAndRangesForDocumentDate(var VATStmtLine: Record "VAT Statement Line")
+    begin
+        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Date") then begin
+            VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine."VAT Bus. Posting Group");
+            VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine."VAT Prod. Posting Group");
+        end else begin
+            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Document Date");
+            VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine."Tax Jurisdiction Code");
+            VATEntry.SetRange("Use Tax", VATStmtLine."Use Tax");
+        end;
+    end;
+
+    local procedure SetVATEntryKeyAndRangesForPostingDate(var VATStmtLine: Record "VAT Statement Line")
+    begin
+        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") then begin
+            VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine."VAT Bus. Posting Group");
+            VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine."VAT Prod. Posting Group");
+        end else begin
+            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+            VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine."Tax Jurisdiction Code");
+            VATEntry.SetRange("Use Tax", VATStmtLine."Use Tax");
+        end;
+    end;
+
+    local procedure SetVATEntryKeyAndRangesForVATDate(var VATStmtLine: Record "VAT Statement Line")
+    begin
+        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") then begin
+            VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine."VAT Bus. Posting Group");
+            VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine."VAT Prod. Posting Group");
+        end else begin
+            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
+            VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine."Tax Jurisdiction Code");
+            VATEntry.SetRange("Use Tax", VATStmtLine."Use Tax");
+        end;
+    end;
+
+    local procedure SetVATDate(var VATStatementLine: Record "VAT Statement Line")
+    begin 
+        case VATDateType of
+            VATDateType::"Document Date":
+                if VATStatementLine.GetFilter("Date Filter") <> '' then
+                    if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                        VATEntry.SetRange("Document Date", 0D, VATStatementLine.GetRangeMax("Date Filter"))
+                    else
+                        VATStatementLine.CopyFilter("Date Filter", VATEntry."Document Date");
+            VATDateType::"Posting Date":
+                if VATStatementLine.GetFilter("Date Filter") <> '' then
+                        if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                            VATEntry.SetRange("Posting Date", 0D, VATStatementLine.GetRangeMax("Date Filter"))
+                        else
+                            VATStatementLine.CopyFilter("Date Filter", VATEntry."Posting Date");
+            VATDateType::"VAT Reporting Date":
+                    if VATStatementLine.GetFilter("Date Filter") <> '' then
+                        if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                            VATEntry.SetRange("VAT Reporting Date", 0D, VATStatementLine.GetRangeMax("Date Filter"))
+                        else
+                            VATStatementLine.CopyFilter("Date Filter", VATEntry."VAT Reporting Date");
+        end;
+    end;
+
     local procedure CalcTotalAmount(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal)
     begin
         if VATStmtLine2."Calculate with" = 1 then
@@ -559,6 +622,29 @@
         TotalBase := TotalBase + Base;
     end;
 
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
+    begin
+        "VAT Statement Name".Copy(NewVATStmtName);
+        "VAT Statement Line".Copy(NewVATStatementLine);
+        Selection := NewSelection;
+        PeriodSelection := NewPeriodSelection;
+        PrintInIntegers := NewPrintInIntegers;
+        UseAmtsInAddCurr := NewUseAmtsInAddCurr;
+        VATDateType := NewVATDateType;
+
+        if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
+            StartDate := NewVATStatementLine.GetRangeMin("Date Filter");
+            EndDateReq := NewVATStatementLine.GetRangeMax("Date Filter");
+            EndDate := EndDateReq;
+        end else begin
+            StartDate := 0D;
+            EndDateReq := 0D;
+            EndDate := DMY2Date(31, 12, 9999);
+        end;
+    end;
+
+#if not CLEAN21
+    [Obsolete('Replaced by InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")', '21.0')]
     procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
@@ -567,22 +653,24 @@
         PeriodSelection := NewPeriodSelection;
         PrintInIntegers := NewPrintInIntegers;
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
+        VATDateType := VATDateType::"Posting Date";
     end;
+#endif
 
     local procedure ConditionalAdd(Amount: Decimal; AmountToAdd: Decimal; AddCurrAmountToAdd: Decimal): Decimal
     begin
         if UseAmtsInAddCurr then
-            exit(Amount + AddCurrAmountToAdd)
-        else
-            exit(Amount + AmountToAdd);
+            exit(Amount + AddCurrAmountToAdd);
+
+        exit(Amount + AmountToAdd);
     end;
 
     protected procedure GetCurrency(): Code[10]
     begin
         if UseAmtsInAddCurr then
-            exit(GLSetup."Additional Reporting Currency")
-        else
-            exit('');
+            exit(GLSetup."Additional Reporting Currency");
+
+        exit('');
     end;
 
     [Scope('OnPrem')]
@@ -649,7 +737,7 @@
                 NoTaxableEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
             else
                 "VAT Statement Line".CopyFilter("Date Filter", NoTaxableEntry."Posting Date");
-        if NoTaxableEntry.IsEmpty then
+        if NoTaxableEntry.IsEmpty() then
             exit(0);
 
         if VATStatementLine."Amount Type" in [VATStatementLine."Amount Type"::Base, VATStatementLine."Amount Type"::"Amount+Base"]
@@ -664,23 +752,18 @@
     local procedure CalcLineFromVATEntry1C(VATStatementLine: Record "VAT Statement Line")
     begin
         VATEntry.Reset();
-        if VATEntry.SetCurrentKey(
-             Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
-        then begin
-            VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine."VAT Bus. Posting Group");
-            VATEntry.SetRange("VAT Prod. Posting Group", VATStatementLine."VAT Prod. Posting Group");
-        end else begin
-            VATEntry.SetCurrentKey(
-              Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-            VATEntry.SetRange("Tax Jurisdiction Code", VATStatementLine."Tax Jurisdiction Code");
-            VATEntry.SetRange("Use Tax", VATStatementLine."Use Tax");
+        case VATDateType of
+            VATDateType::"Document Date":
+                SetVATEntryKeyAndRangesForDocumentDate(VATStatementLine);
+            VATDateType::"Posting Date":
+                SetVATEntryKeyAndRangesForPostingDate(VATStatementLine);
+            VATDateType::"VAT Reporting Date":
+                SetVATEntryKeyAndRangesForVATDate(VATStatementLine);
         end;
+       
         VATEntry.SetRange(Type, VATStatementLine."Gen. Posting Type");
-        if "VAT Statement Line".GetFilter("Date Filter") <> '' then
-            if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
-            else
-                "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
+        SetVATDate("VAT Statement Line");
+        
         case Selection of
             Selection::Open:
                 VATEntry.SetRange(Closed, false);
@@ -727,23 +810,16 @@
 
     local procedure CalcLineFromVATEntry2C(VATStatementLine: Record "VAT Statement Line")
     begin
-        if VATEntry.SetCurrentKey(
-             Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
-        then begin
-            VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine."VAT Bus. Posting Group");
-            VATEntry.SetRange("VAT Prod. Posting Group", VATStatementLine."VAT Prod. Posting Group");
-        end else begin
-            VATEntry.SetCurrentKey(
-              Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-            VATEntry.SetRange("Tax Jurisdiction Code", VATStatementLine."Tax Jurisdiction Code");
-            VATEntry.SetRange("Use Tax", VATStatementLine."Use Tax");
+        case VATDateType of
+            VATDateType::"Document Date":
+                SetVATEntryKeyAndRangesForDocumentDate(VATStatementLine);
+            VATDateType::"Posting Date":
+                SetVATEntryKeyAndRangesForPostingDate(VATStatementLine);
+            VATDateType::"VAT Reporting Date":
+                SetVATEntryKeyAndRangesForVATDate(VATStatementLine);
         end;
         VATEntry.SetRange(Type, VATStatementLine."Gen. Posting Type");
-        if "VAT Statement Line".GetFilter("Date Filter") <> '' then
-            if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
-            else
-                "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
+        SetVATDate("VAT Statement Line");
         case Selection of
             Selection::Open:
                 VATEntry.SetRange(Closed, false);

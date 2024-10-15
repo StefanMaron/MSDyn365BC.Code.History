@@ -101,8 +101,8 @@ codeunit 134206 "Workflow Rule Tests"
         WorkflowRule.Insert(true);
 
         Evaluate(DateFormula, '<+1D>');
-        LeftDate := WorkDate;
-        RightDate := CalcDate(DateFormula, WorkDate);
+        LeftDate := WorkDate();
+        RightDate := CalcDate(DateFormula, WorkDate());
         Assert.IsTrue(WorkflowRule.CompareValues(LeftDate, RightDate), LeftLessThanRightErr);
         Assert.IsFalse(WorkflowRule.CompareValues(RightDate, LeftDate), LeftGreaterThanRightErr);
     end;
@@ -213,7 +213,7 @@ codeunit 134206 "Workflow Rule Tests"
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Increased);
         WorkflowRule.Insert(true);
 
-        LeftDateTime := CreateDateTime(WorkDate, Time);
+        LeftDateTime := CreateDateTime(WorkDate(), Time);
         RightDateTime := LeftDateTime + 10;
         Assert.IsTrue(WorkflowRule.CompareValues(LeftDateTime, RightDateTime), LeftLessThanRightErr);
         Assert.IsFalse(WorkflowRule.CompareValues(RightDateTime, LeftDateTime), LeftGreaterThanRightErr);
@@ -231,7 +231,7 @@ codeunit 134206 "Workflow Rule Tests"
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Decreased);
         WorkflowRule.Insert(true);
 
-        LeftDateTime := CreateDateTime(WorkDate, Time);
+        LeftDateTime := CreateDateTime(WorkDate(), Time);
         RightDateTime := LeftDateTime - 10;
         Assert.IsTrue(WorkflowRule.CompareValues(LeftDateTime, RightDateTime), LeftLessThanRightErr);
         Assert.IsFalse(WorkflowRule.CompareValues(RightDateTime, LeftDateTime), LeftNotLessThanRightErr);
@@ -249,7 +249,7 @@ codeunit 134206 "Workflow Rule Tests"
         WorkflowRule.Validate(Operator, WorkflowRule.Operator::Changed);
         WorkflowRule.Insert(true);
 
-        LeftDateTime := CreateDateTime(WorkDate, Time);
+        LeftDateTime := CreateDateTime(WorkDate(), Time);
         RightDateTime := LeftDateTime + 10;
         Assert.IsTrue(WorkflowRule.CompareValues(LeftDateTime, RightDateTime), LeftDifferentFromRightErr);
         Assert.IsFalse(WorkflowRule.CompareValues(LeftDateTime, LeftDateTime), LeftEqualToRightErr);
@@ -498,7 +498,7 @@ codeunit 134206 "Workflow Rule Tests"
         WorkflowRule.Insert();
         RecRef.Open(DATABASE::Customer);
         RecRef.Find('-');
-        ClearLastError;
+        ClearLastError();
 
         // Exercise
         Result := WorkflowRule.EvaluateRule(RecRef, RecRef);
@@ -524,9 +524,9 @@ codeunit 134206 "Workflow Rule Tests"
         LibraryWorkflow.CreateWorkflow(Workflow2);
 
         EntryPointEventStepId1 := LibraryWorkflow.InsertEntryPointEventStep(Workflow1,
-            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         EntryPointEventStepId2 := LibraryWorkflow.InsertEntryPointEventStep(Workflow2,
-            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
 
         LibraryWorkflow.InsertEventRule(EntryPointEventStepId1, DATABASE::Customer, Customer.FieldNo("Credit Limit (LCY)"));
         LibraryWorkflow.InsertEventRule(EntryPointEventStepId2, DATABASE::Customer, Customer.FieldNo(Name));
@@ -559,7 +559,7 @@ codeunit 134206 "Workflow Rule Tests"
     begin
         LibraryWorkflow.CreateWorkflow(Workflow);
 
-        EntryPointEventID := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+        EntryPointEventID := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertEventRule(EntryPointEventID, FieldNo, Operator);
 
         ResponseStepID := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventID);
@@ -576,7 +576,7 @@ codeunit 134206 "Workflow Rule Tests"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStepInstance.SetRange("Function Name", WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+        WorkflowStepInstance.SetRange("Function Name", WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         Assert.RecordCount(WorkflowStepInstance, 2);
         WorkflowStepInstance.FindSet();
         repeat
@@ -584,7 +584,7 @@ codeunit 134206 "Workflow Rule Tests"
             WorkflowRule.SetRange("Workflow Step ID", WorkflowStepInstance."Workflow Step ID");
             WorkflowRule.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
             Assert.RecordCount(WorkflowRule, 1);
-        until WorkflowStepInstance.Next = 0;
+        until WorkflowStepInstance.Next() = 0;
     end;
 
     local procedure VerifyArchivedWorkflowStepInstance(Workflow: Record Workflow)
@@ -593,7 +593,7 @@ codeunit 134206 "Workflow Rule Tests"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         WorkflowStepInstanceArchive.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStepInstanceArchive.SetRange("Function Name", WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+        WorkflowStepInstanceArchive.SetRange("Function Name", WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         Assert.RecordCount(WorkflowStepInstanceArchive, 2);
     end;
 }

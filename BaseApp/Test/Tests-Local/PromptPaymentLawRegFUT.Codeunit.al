@@ -61,7 +61,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Assert.ExpectedError(
           StrSubstNo(
             ExpectedMaxDueDateError, CustLedgerEntry.FieldCaption("Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -144,7 +144,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Assert.ExpectedError(
           StrSubstNo(
             ExpectedMaxDueDateError, VendorLedgerEntry.FieldCaption("Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -231,7 +231,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Assert.ExpectedError(
           StrSubstNo(
             ExpectedMaxDueDateError, GenJnlLine.FieldCaption("Due Date"), PaymentTerms.FieldCaption("Max. No. of Days till Due Date"),
-            PaymentTerms.TableCaption));
+            PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -292,7 +292,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Assert.ExpectedError(
           StrSubstNo(
             ExpectedMaxDueDateError, SalesHeader.FieldCaption("Due Date"), PaymentTerms.FieldCaption("Max. No. of Days till Due Date"),
-            PaymentTerms.TableCaption));
+            PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -349,7 +349,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Assert.ExpectedError(
           StrSubstNo(
             ExpectedMaxDueDateError, PurchaseHeader.FieldCaption("Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -410,7 +410,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Assert.ExpectedError(
           StrSubstNo(
             ExpectedMaxDueDateError, SalesHeader.FieldCaption("Prepayment Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -473,7 +473,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Assert.ExpectedError(
           StrSubstNo(
             ExpectedMaxDueDateError, PurchaseHeader.FieldCaption("Prepayment Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -532,7 +532,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Assert.ExpectedError(
           StrSubstNo(
             ExpectedMaxDueDateError, ServiceHeader.FieldCaption("Due Date"), PaymentTerms.FieldCaption("Max. No. of Days till Due Date"),
-            PaymentTerms.TableCaption));
+            PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -905,7 +905,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate), 1));
+        PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate()), 1));
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate := CreateDateWithDayAndWorkDate(PayDay, '');
         VerifySalesDueDateAdjust(CustomerNo, 0D, 99991231D, DueDate, DueDate);
@@ -921,7 +921,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate :=
           LibraryUtility.GenerateRandomDate(CreateDateWithDayAndWorkDate(PayDay + 1, ''), CreateDateWithDayAndWorkDate(PayDay - 1, '1M'));
@@ -938,7 +938,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate :=
           LibraryUtility.GenerateRandomDate(CreateDateWithDayAndWorkDate(PayDay + 1, ''), CreateDateWithDayAndWorkDate(PayDay - 1, '1M'));
@@ -996,7 +996,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Initialize();
 
         PayDay[1] := LibraryRandom.RandIntInRange(2, 15);
-        PayDay[2] := LibraryRandom.RandIntInRange(16, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay[2] := LibraryRandom.RandIntInRange(16, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay[1]);
         CreatePaymentDay(CustomerNo, PaymentTableNameOption::Customer, PayDay[2]);
         DueDate :=
@@ -1118,7 +1118,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate), 1));
+        PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate()), 1));
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate := CreateDateWithDayAndWorkDate(PayDay, '');
         VerifySalesDueDateAdjust(CustomerNo, 0D, CalcDate('<-1D>', DueDate), CreateDateWithDayAndWorkDate(PayDay, '-1M'), DueDate);
@@ -1134,7 +1134,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate), 1));
+        PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate()), 1));
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate := CreateDateWithDayAndWorkDate(PayDay, '');
         VerifySalesDueDateAdjust(CustomerNo, 0D, DueDate, DueDate, DueDate);
@@ -1150,7 +1150,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate :=
           LibraryUtility.GenerateRandomDate(CreateDateWithDayAndWorkDate(PayDay + 1, ''), CreateDateWithDayAndWorkDate(PayDay - 1, '1M'));
@@ -1167,7 +1167,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate :=
           LibraryUtility.GenerateRandomDate(CreateDateWithDayAndWorkDate(PayDay + 2, ''), CreateDateWithDayAndWorkDate(PayDay - 1, '1M'));
@@ -1185,7 +1185,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate :=
           LibraryUtility.GenerateRandomDate(CreateDateWithDayAndWorkDate(PayDay + 2, ''), CreateDateWithDayAndWorkDate(PayDay - 1, '1M'));
@@ -1204,7 +1204,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate :=
           LibraryUtility.GenerateRandomDate(CreateDateWithDayAndWorkDate(PayDay + 1, ''), CreateDateWithDayAndWorkDate(PayDay - 1, '1M'));
@@ -1222,7 +1222,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     begin
         Initialize();
 
-        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
         DueDate :=
           LibraryUtility.GenerateRandomDate(CreateDateWithDayAndWorkDate(PayDay + 1, ''), CreateDateWithDayAndWorkDate(PayDay - 1, '1M'));
@@ -1298,7 +1298,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Initialize();
 
         PayDay[1] := LibraryRandom.RandIntInRange(2, 15);
-        PayDay[2] := LibraryRandom.RandIntInRange(16, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
+        PayDay[2] := LibraryRandom.RandIntInRange(16, Date2DMY(CalcDate('<CM>', WorkDate()), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay[1]);
         CreatePaymentDay(CustomerNo, PaymentTableNameOption::Customer, PayDay[2]);
         DueDate :=
@@ -1405,7 +1405,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
 
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         Customer.Insert();
-        DueDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate));
+        DueDate := LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate()));
         VerifySalesDueDateAdjust(Customer."No.", 0D, 99991231D, DueDate, DueDate)
     end;
 
@@ -1420,7 +1420,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
 
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         Customer.Insert();
-        DueDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate));
+        DueDate := LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate()));
         VerifySalesDueDateAdjust(Customer."No.", CalcDate('<1D>', DueDate), 99991231D, 0D, DueDate)
     end;
 
@@ -1435,7 +1435,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
 
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         Customer.Insert();
-        DueDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate));
+        DueDate := LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate()));
         VerifySalesDueDateAdjust(Customer."No.", 0D, CalcDate('<-1D>', DueDate), CalcDate('<-1D>', DueDate), DueDate)
     end;
 
@@ -1519,7 +1519,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         GenJnlLine.Validate("Journal Batch Name", GenJournalBatch.Name);
         RecRef.GetTable(GenJnlLine);
         GenJnlLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJnlLine.FieldNo("Line No.")));
-        GenJnlLine."Document Date" := WorkDate;
+        GenJnlLine."Document Date" := WorkDate();
         GenJnlLine.Insert();
     end;
 
@@ -1619,7 +1619,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
 
     local procedure Create1RandomPeriod(var FromDate: Date; var ToDate: Date; RangeFormula: Code[10])
     begin
-        FromDate := LibraryUtility.GenerateRandomDate(WorkDate, CalcDate('<1Y>', WorkDate));
+        FromDate := LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate()));
         ToDate := LibraryUtility.GenerateRandomDate(FromDate, CalcDate(StrSubstNo('<%1>', RangeFormula), FromDate))
     end;
 
@@ -1656,9 +1656,9 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         BaseDate: Date;
         EndOfBaseMonth: Integer;
     begin
-        BaseDate := WorkDate;
+        BaseDate := WorkDate();
         if OffsetFormula <> '' then
-            BaseDate := CalcDate(StrSubstNo('<%1>', OffsetFormula), WorkDate);
+            BaseDate := CalcDate(StrSubstNo('<%1>', OffsetFormula), WorkDate());
         EndOfBaseMonth := Date2DMY(CalcDate('<CM>', BaseDate), 1);
         if Day > EndOfBaseMonth then
             Day := EndOfBaseMonth;
@@ -1674,7 +1674,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         CreatePaymentTerms(PaymentTerms);
         SalesHeader."Payment Terms Code" := PaymentTerms.Code;
-        SalesHeader."Document Date" := WorkDate;
+        SalesHeader."Document Date" := WorkDate();
         SalesHeader.Modify();
     end;
 
@@ -1685,7 +1685,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         CreatePaymentTerms(PaymentTerms);
         PurchaseHeader."Payment Terms Code" := PaymentTerms.Code;
-        PurchaseHeader."Document Date" := WorkDate;
+        PurchaseHeader."Document Date" := WorkDate();
         PurchaseHeader.Modify();
     end;
 
@@ -1696,7 +1696,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
         CreatePaymentTerms(PaymentTerms);
         ServiceHeader."Payment Terms Code" := PaymentTerms.Code;
-        ServiceHeader."Document Date" := WorkDate;
+        ServiceHeader."Document Date" := WorkDate();
         ServiceHeader.Modify();
     end;
 }

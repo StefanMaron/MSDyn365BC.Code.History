@@ -452,7 +452,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
 
         // [GIVEN] SalesHeader approval enabled.
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
@@ -472,7 +472,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         Assert.IsFalse(BlanketSalesOrder.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(BlanketSalesOrder.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(BlanketSalesOrder.Delegate.Visible, 'Delegate should NOT be visible');
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         BlanketSalesOrder.OpenEdit;
@@ -487,7 +487,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         Assert.IsTrue(BlanketSalesOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
@@ -536,7 +536,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        BlanketSalesOrders.Close;
+        BlanketSalesOrders.Close();
 
         // [GIVEN] SalesHeader approval enabled.
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
@@ -553,7 +553,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(BlanketSalesOrders.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(BlanketSalesOrders.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        BlanketSalesOrders.Close;
+        BlanketSalesOrders.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         BlanketSalesOrders.OpenEdit;
@@ -614,7 +614,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         Assert.AreEqual(3, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, UserId, IntermediateApproverUserSetup."User ID", ApprovalEntry.Status::Open);
 
         // Setup - Assign the approval entry to current user so that it can be approved
@@ -679,7 +679,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         Assert.AreEqual(3, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, UserId, IntermediateApproverUserSetup."User ID", ApprovalEntry.Status::Open);
 
         // Setup - Assign the approval entry to current user so that it can be approved
@@ -757,7 +757,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder.OpenView;
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder.SendApprovalRequest.Invoke;
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     local procedure ApproveBlanketSalesOrder(var SalesHeader: Record "Sales Header")
@@ -767,7 +767,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder.OpenView;
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder.Approve.Invoke;
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     local procedure RejectBlanketSalesOrder(var SalesHeader: Record "Sales Header")
@@ -777,7 +777,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder.OpenView;
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder.Reject.Invoke;
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     local procedure CancelBlanketSalesOrder(var SalesHeader: Record "Sales Header")
@@ -787,7 +787,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder.OpenView;
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder.CancelApprovalRequest.Invoke;
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     local procedure DelegateBlanketSalesOrder(var SalesHeader: Record "Sales Header")
@@ -797,12 +797,12 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder.OpenView;
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder.Delegate.Invoke;
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     local procedure VerifySalesDocumentStatus(SalesHeader: Record "Sales Header"; Status: Enum "Sales Document Status")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.FindFirst();
         SalesHeader.TestField(Status, Status);
     end;
@@ -822,9 +822,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         Assert.AreEqual(ExpectedNumberOfApprovalEntries, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID1, Status1);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID2, Status2);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID3, Status3);
     end;
 
@@ -846,15 +846,15 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -872,12 +872,12 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -895,12 +895,12 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(SalesHeader: Record "Sales Header"; CancelActionExpectedEnabled: Boolean)
@@ -912,13 +912,13 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, BlanketSalesOrder.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
 
         BlanketSalesOrders.OpenView;
         BlanketSalesOrders.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, BlanketSalesOrders.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        BlanketSalesOrders.Close;
+        BlanketSalesOrders.Close();
     end;
 }
 

@@ -60,11 +60,13 @@ codeunit 5488 "Graph Mgt - Reports"
         GeneralLedgerSetup: Record "General Ledger Setup";
         AccScheduleLine: Record "Acc. Schedule Line";
         TempColumnLayout: Record "Column Layout" temporary;
+        FinancialReport: Record "Financial Report";
         AccSchedName: Record "Acc. Schedule Name";
         AnalysisView: Record "Analysis View";
         GLSetup: Record "General Ledger Setup";
         AccSchedManagement: Codeunit AccSchedManagement;
         MatrixMgt: Codeunit "Matrix Management";
+        CurrentFinRepName: Code[10];
         CurrentSchedName: Code[10];
         CurrentColumnName: Code[10];
         ColumnNo: Integer;
@@ -76,26 +78,34 @@ codeunit 5488 "Graph Mgt - Reports"
         case ReportType of
             ReportType::"Balance Sheet":
                 begin
-                    GeneralLedgerSetup.TestField("Acc. Sched. for Balance Sheet");
-                    CurrentSchedName := GeneralLedgerSetup."Acc. Sched. for Balance Sheet";
+                    GeneralLedgerSetup.TestField("Fin. Rep. for Balance Sheet");
+                    CurrentFinRepName := GeneralLedgerSetup."Fin. Rep. for Balance Sheet";
+                    FinancialReport.Get(CurrentFinRepName);
+                    CurrentSchedName := FinancialReport."Financial Report Row Group";
                     CurrentColumnName := BalanceColumnNameTxt;
                 end;
             ReportType::"CashFlow Statement":
                 begin
-                    GeneralLedgerSetup.TestField("Acc. Sched. for Cash Flow Stmt");
-                    CurrentSchedName := GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt";
+                    GeneralLedgerSetup.TestField("Fin. Rep. for Cash Flow Stmt");
+                    CurrentFinRepName := GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt";
+                    FinancialReport.Get(CurrentFinRepName);
+                    CurrentSchedName := FinancialReport."Financial Report Row Group";
                     CurrentColumnName := NetChangeColumnNameTxt;
                 end;
             ReportType::"Income Statement":
                 begin
-                    GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.");
-                    CurrentSchedName := GeneralLedgerSetup."Acc. Sched. for Income Stmt.";
+                    GeneralLedgerSetup.TestField("Fin. Rep. for Income Stmt.");
+                    CurrentFinRepName := GeneralLedgerSetup."Fin. Rep. for Income Stmt.";
+                    FinancialReport.Get(CurrentFinRepName);
+                    CurrentSchedName := FinancialReport."Financial Report Row Group";
                     CurrentColumnName := NetChangeColumnNameTxt;
                 end;
             ReportType::"Retained Earnings":
                 begin
-                    GeneralLedgerSetup.TestField("Acc. Sched. for Retained Earn.");
-                    CurrentSchedName := GeneralLedgerSetup."Acc. Sched. for Retained Earn.";
+                    GeneralLedgerSetup.TestField("Fin. Rep. for Retained Earn.");
+                    CurrentFinRepName := GeneralLedgerSetup."Fin. Rep. for Retained Earn.";
+                    FinancialReport.Get(CurrentFinRepName);
+                    CurrentSchedName := FinancialReport."Financial Report Row Group";
                     CurrentColumnName := NetChangeColumnNameTxt;
                 end;
         end;
@@ -117,6 +127,7 @@ codeunit 5488 "Graph Mgt - Reports"
                 AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
             end;
 
+            DummyColumnOffset := 0;
             repeat
                 ColumnNo := 0;
                 if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet() then
@@ -206,7 +217,7 @@ codeunit 5488 "Graph Mgt - Reports"
     begin
         DateFilter := StrSubstNo('%1', DelChr(AccScheduleLineEntity.GetFilter("Date Filter"), '<>', ''''));
         if DateFilter = '' then
-            DateFilter := Format(Today);
+            DateFilter := Format(DMY2Date(1, 1, Date2DMY(Today, 3))) + '..' + Format(Today);
 
         SetUpAccountScheduleBaseAPIData(TempBalanceSheetBuffer,
           AccScheduleLineEntity, ReportType, DateFilter);
@@ -226,64 +237,60 @@ codeunit 5488 "Graph Mgt - Reports"
         DisplayOrder := 1;
         case ReportType of
             ReportType::"Aged Accounts Receivable":
-                begin
-                    if Customer.FindSet() then
-                        repeat
-                            CustLedgerEntry.Reset();
-                            CustLedgerEntry.SetRange("Customer No.", Customer."No.");
-                            CustLedgerEntry.SetRange(Open, true);
+                if Customer.FindSet() then
+                    repeat
+                        CustLedgerEntry.Reset();
+                        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+                        CustLedgerEntry.SetRange(Open, true);
 
-                            AgedReportEntity.Init();
-                            if CustLedgerEntry.Count > 0 then
-                                GetAgedAmounts(AgedReportEntity, Customer)
-                            else
-                                SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
+                        AgedReportEntity.Init();
+                        if CustLedgerEntry.Count > 0 then
+                            GetAgedAmounts(AgedReportEntity, Customer)
+                        else
+                            SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
 
-                            if IsNullGuid(Customer.SystemId) then
-                                AgedReportEntity.AccountId := CreateGuid()
-                            else
-                                AgedReportEntity.AccountId := Customer.SystemId;
+                        if IsNullGuid(Customer.SystemId) then
+                            AgedReportEntity.AccountId := CreateGuid()
+                        else
+                            AgedReportEntity.AccountId := Customer.SystemId;
 
-                            AgedReportEntity."No." := Customer."No.";
-                            AgedReportEntity.Name := Customer.Name;
-                            AgedReportEntity."Currency Code" := Customer."Currency Code";
-                            if PeriodLengthFilter = '' then
-                                PeriodLengthFilter := AgedReportEntity."Period Length";
-                            PeriodStartDate := AgedReportEntity."Period Start Date";
-                            AgedReportEntity."Display Order" := DisplayOrder;
-                            DisplayOrder += 1;
-                            if AgedReportEntity.Insert() then;
-                        until Customer.Next() = 0;
-                end;
+                        AgedReportEntity."No." := Customer."No.";
+                        AgedReportEntity.Name := Customer.Name;
+                        AgedReportEntity."Currency Code" := Customer."Currency Code";
+                        if PeriodLengthFilter = '' then
+                            PeriodLengthFilter := AgedReportEntity."Period Length";
+                        PeriodStartDate := AgedReportEntity."Period Start Date";
+                        AgedReportEntity."Display Order" := DisplayOrder;
+                        DisplayOrder += 1;
+                        if AgedReportEntity.Insert() then;
+                    until Customer.Next() = 0;
             ReportType::"Aged Accounts Payable":
-                begin
-                    if Vendor.FindSet() then
-                        repeat
-                            VendorLedgerEntry.Reset();
-                            VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-                            VendorLedgerEntry.SetRange(Open, true);
-                            AgedReportEntity.Init();
-                            if VendorLedgerEntry.Count > 0 then
-                                GetAgedAmounts(AgedReportEntity, Vendor)
-                            else
-                                SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
+                if Vendor.FindSet() then
+                    repeat
+                        VendorLedgerEntry.Reset();
+                        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+                        VendorLedgerEntry.SetRange(Open, true);
+                        AgedReportEntity.Init();
+                        if VendorLedgerEntry.Count > 0 then
+                            GetAgedAmounts(AgedReportEntity, Vendor)
+                        else
+                            SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
 
-                            if IsNullGuid(Vendor.SystemId) then
-                                AgedReportEntity.AccountId := CreateGuid()
-                            else
-                                AgedReportEntity.AccountId := Vendor.SystemId;
+                        if IsNullGuid(Vendor.SystemId) then
+                            AgedReportEntity.AccountId := CreateGuid()
+                        else
+                            AgedReportEntity.AccountId := Vendor.SystemId;
 
-                            AgedReportEntity."No." := Vendor."No.";
-                            AgedReportEntity.Name := Vendor.Name;
-                            AgedReportEntity."Currency Code" := Vendor."Currency Code";
-                            if PeriodLengthFilter = '' then
-                                PeriodLengthFilter := AgedReportEntity."Period Length";
-                            PeriodStartDate := AgedReportEntity."Period Start Date";
-                            AgedReportEntity."Display Order" := DisplayOrder;
-                            DisplayOrder += 1;
-                            if AgedReportEntity.Insert() then;
-                        until Vendor.Next() = 0;
-                end;
+                        AgedReportEntity."No." := Vendor."No.";
+                        AgedReportEntity.Name := Vendor.Name;
+                        AgedReportEntity."Currency Code" := Vendor."Currency Code";
+                        if PeriodLengthFilter = '' then
+                            PeriodLengthFilter := AgedReportEntity."Period Length";
+                        PeriodStartDate := AgedReportEntity."Period Start Date";
+                        AgedReportEntity."Display Order" := DisplayOrder;
+                        DisplayOrder += 1;
+                        if AgedReportEntity.Insert() then;
+                    until Vendor.Next() = 0;
         end;
 
         AgedReportEntity.Init();
@@ -310,10 +317,10 @@ codeunit 5488 "Graph Mgt - Reports"
 
     local procedure SetPeriodLengthAndStartDateOnAgedRep(var AgedReportEntity: Record "Aged Report Entity")
     var
+        PeriodLength: DateFormula;
         PeriodStartFilter: Text;
         PeriodLengthFilter: Text[10];
         FilterPeriodStart: Date;
-        PeriodLength: DateFormula;
     begin
         PeriodStartFilter := Format(AgedReportEntity.GetFilter("Period Start Date"));
         PeriodLengthFilter := Format(AgedReportEntity.GetFilter("Period Length"));

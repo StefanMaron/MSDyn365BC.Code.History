@@ -69,7 +69,7 @@ codeunit 139125 ReportCatalogTests
         HeadingType: Option "Date Interval","Number of Days";
     begin
         AgedAccountsReceivable.PeriodLength.AssertEquals('30D');
-        AgedAccountsReceivable.AgedAsOf.AssertEquals(WorkDate);
+        AgedAccountsReceivable.AgedAsOf.AssertEquals(WorkDate());
         AgedAccountsReceivable.Agingby.AssertEquals(AgingBy::"Posting Date");
         AgedAccountsReceivable.HeadingType.AssertEquals(HeadingType::"Date Interval");
 
@@ -86,7 +86,7 @@ codeunit 139125 ReportCatalogTests
         HeadingType: Option "Date Interval","Number of Days";
     begin
         AgedAccountsPayable.PeriodLength.AssertEquals('30D');
-        AgedAccountsPayable.AgedAsOf.AssertEquals(WorkDate);
+        AgedAccountsPayable.AgedAsOf.AssertEquals(WorkDate());
         AgedAccountsPayable.AgingBy.AssertEquals(AgingBy::"Posting Date");
         AgedAccountsPayable.HeadingType.AssertEquals(HeadingType::"Date Interval");
 
@@ -140,8 +140,8 @@ codeunit 139125 ReportCatalogTests
         CustomerStatement.AgingBandby.AssertEquals(DateChoice::"Due Date");
         CustomerStatement.LogInteraction.AssertEquals(true);
 
-        CustomerStatement."Start Date".AssertEquals(AccountingPeriodMgt.FindFiscalYear(WorkDate));
-        CustomerStatement."End Date".AssertEquals(WorkDate);
+        CustomerStatement."Start Date".AssertEquals(AccountingPeriodMgt.FindFiscalYear(WorkDate()));
+        CustomerStatement."End Date".AssertEquals(WorkDate());
 
         SavedPDFFile := FileManagement.ServerTempFileName('.pdf');
         CustomerStatement.SaveAsPdf(SavedPDFFile);

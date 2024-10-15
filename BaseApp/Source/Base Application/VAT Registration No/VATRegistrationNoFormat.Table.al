@@ -73,7 +73,7 @@
             exit(true);
 
         if CountryCode = '' then begin
-            if not CompanyInfo.Get then
+            if not CompanyInfo.Get() then
                 exit;
             SetRange("Country/Region Code", CompanyInfo."Country/Region Code");
         end else

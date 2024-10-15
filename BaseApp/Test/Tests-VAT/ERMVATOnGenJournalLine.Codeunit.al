@@ -407,7 +407,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT On Gen Journal Line");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         IsInitialized := true;
         Commit();
 
@@ -612,7 +612,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         GenJournalLine.SetRange("Document No.", DocumentNo);
         GenJournalLine.FindFirst();
-        VATAmount := LibraryERM.ConvertCurrency(GenJournalLine."Bal. VAT Amount", CurrencyCode, '', WorkDate);
+        VATAmount := LibraryERM.ConvertCurrency(GenJournalLine."Bal. VAT Amount", CurrencyCode, '', WorkDate());
         exit(VATAmount);
     end;
 
@@ -674,7 +674,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         with GenJournalTemplate do begin
             Get(GenJnlTemplateName);
             Validate("Force Doc. Balance", true);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -707,7 +707,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(VATAmountError, GLEntry.FieldCaption("VAT Amount"), GLEntry."VAT Amount",
-            GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     local procedure VerifyAmountOnVATEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -719,7 +719,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         Assert.AreNearlyEqual(
           Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(VATAmountError, VATEntry.FieldCaption(Amount), VATEntry.Amount,
-            VATEntry.TableCaption, VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
+            VATEntry.TableCaption(), VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
     end;
 
     local procedure VerifyVATDiffOnGenJnlLine(GenJournalLine: Record "Gen. Journal Line"; MaxVATDiffAmt: Decimal; Positive: Boolean)
@@ -729,7 +729,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         // Verify: Verify the Error Message after Modifying VAT Amount on General Journal Line.
         // Ignore the global cache
         GeneralLedgerSetup.Get();
-        SelectLatestVersion;
+        SelectLatestVersion();
         asserterror UpdateVATAmtOnGenJnlLine(GenJournalLine, LibraryRandom.RandDec(1, 2) + MaxVATDiffAmt, Positive);
         Assert.AreEqual(
           StrSubstNo(VATDiffErrorOnGenJnlLine, GenJournalLine.FieldCaption("VAT Difference"),

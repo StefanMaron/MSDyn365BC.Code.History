@@ -32,10 +32,9 @@
                         if IsHandled then
                             CurrReport.Skip();
 
-                        if Type = Type::" " then begin
+                        if Type = Type::" " then
                             if (not CopyTextLines) or ("Attached to Line No." <> 0) then
                                 CurrReport.Skip();
-                        end;
 
                         if "Authorized for Credit Card" then
                             CurrReport.Skip();
@@ -48,8 +47,8 @@
                             if not (Cust.Blocked in [Cust.Blocked::All, Cust.Blocked::Invoice]) then begin
                                 if ShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, "Sales Shipment Line") then begin
                                     if SalesHeader."No." <> '' then
-                                        FinalizeSalesInvHeader;
-                                    InsertSalesInvHeader;
+                                        FinalizeSalesInvHeader();
+                                    InsertSalesInvHeader();
                                     SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                                     SalesLine.SetRange("Document No.", SalesHeader."No.");
                                     SalesLine."Document Type" := SalesHeader."Document Type";
@@ -91,7 +90,7 @@
                 begin
                     Window.Update(3, "No.");
 
-                    if IsCompletlyInvoiced then
+                    if IsCompletlyInvoiced() then
                         CurrReport.Skip();
 
                     if OnlyStdPmtTerms then begin
@@ -133,8 +132,8 @@
 
             trigger OnPostDataItem()
             begin
-                CurrReport.Language := GlobalLanguage;
-                Window.Close;
+                CurrReport.Language := ReportLanguage;
+                Window.Close();
                 ShowResult();
             end;
 
@@ -154,6 +153,7 @@
                   Text005);
 
                 OnSalesOrderHeaderOnPreDataItem(SalesOrderHeader);
+                ReportLanguage := CurrReport.Language();
             end;
         }
     }
@@ -222,9 +222,9 @@
         trigger OnOpenPage()
         begin
             if PostingDateReq = 0D then
-                PostingDateReq := WorkDate;
+                PostingDateReq := WorkDate();
             if DocDateReq = 0D then
-                DocDateReq := WorkDate;
+                DocDateReq := WorkDate();
             SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
         end;
@@ -236,27 +236,15 @@
 
     trigger OnPostReport()
     begin
-        OnBeforePostReport;
+        OnBeforePostReport();
     end;
 
     trigger OnPreReport()
     begin
-        OnBeforePreReport;
+        OnBeforePreReport();
     end;
 
     var
-        Text000: Label 'Enter the posting date.';
-        Text001: Label 'Enter the document date.';
-        Text002: Label 'Combining shipments...\\';
-        Text003: Label 'Customer No.    #1##########\';
-        Text004: Label 'Order No.       #2##########\';
-        Text005: Label 'Shipment No.    #3##########';
-        Text007: Label 'Not all the invoices were posted. A total of %1 invoices were not posted.';
-        Text008: Label 'There is nothing to combine.';
-        Text010: Label 'The shipments are now combined and the number of invoices created is %1.';
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesShptLine: Record "Sales Shipment Line";
         SalesSetup: Record "Sales & Receivables Setup";
         Cust: Record Customer;
         GLSetup: Record "General Ledger Setup";
@@ -269,11 +257,25 @@
         HideDialog: Boolean;
         NoOfSalesInvErrors: Integer;
         NoOfSalesInv: Integer;
-        Text011: Label 'The shipments are now combined, and the number of invoices created is %1.\%2 Shipments with nonstandard payment terms have not been combined.', Comment = '%1-Number of invoices,%2-Number Of shipments';
         NoOfskippedShiment: Integer;
+        ReportLanguage: Integer;
+
+        Text000: Label 'Enter the posting date.';
+        Text001: Label 'Enter the document date.';
+        Text002: Label 'Combining shipments...\\';
+        Text003: Label 'Customer No.    #1##########\';
+        Text004: Label 'Order No.       #2##########\';
+        Text005: Label 'Shipment No.    #3##########';
+        Text007: Label 'Not all the invoices were posted. A total of %1 invoices were not posted.';
+        Text008: Label 'There is nothing to combine.';
+        Text010: Label 'The shipments are now combined and the number of invoices created is %1.';
+        Text011: Label 'The shipments are now combined, and the number of invoices created is %1.\%2 Shipments with nonstandard payment terms have not been combined.', Comment = '%1-Number of invoices,%2-Number Of shipments';
         NotAllInvoicesCreatedMsg: Label 'Not all the invoices were created. A total of %1 invoices were not created.';
 
     protected var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShptLine: Record "Sales Shipment Line";
         PostingDateReq: Date;
         DocDateReq: Date;
         CalcInvDisc: Boolean;
@@ -301,7 +303,7 @@
             OnFinalizeSalesInvHeader(SalesHeader);
             if CalcInvDisc then
                 SalesCalcDisc.Run(SalesLine);
-            Find;
+            Find();
             Commit();
             Clear(SalesCalcDisc);
             Clear(SalesPost);

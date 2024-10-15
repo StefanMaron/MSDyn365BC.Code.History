@@ -1,4 +1,4 @@
-table 251 "Gen. Product Posting Group"
+﻿table 251 "Gen. Product Posting Group"
 {
     Caption = 'Gen. Product Posting Group';
     DataCaptionFields = "Code", Description;
@@ -35,7 +35,7 @@ table 251 "Gen. Product Posting Group"
                         if ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(
                                Text000, GLAcc.FieldCaption("VAT Prod. Posting Group"),
-                               GLAcc.TableCaption, GLAcc.FieldCaption("Gen. Prod. Posting Group"),
+                               GLAcc.TableCaption(), GLAcc.FieldCaption("Gen. Prod. Posting Group"),
                                Code, xRec."Def. VAT Prod. Posting Group"), true)
                         then
                             repeat
@@ -52,7 +52,7 @@ table 251 "Gen. Product Posting Group"
                         if ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(
                                Text000, Item.FieldCaption("VAT Prod. Posting Group"),
-                               Item.TableCaption, Item.FieldCaption("Gen. Prod. Posting Group"),
+                               Item.TableCaption(), Item.FieldCaption("Gen. Prod. Posting Group"),
                                Code, xRec."Def. VAT Prod. Posting Group"), true)
                         then
                             repeat
@@ -69,7 +69,7 @@ table 251 "Gen. Product Posting Group"
                         if ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(
                                Text000, Res.FieldCaption("VAT Prod. Posting Group"),
-                               Res.TableCaption, Res.FieldCaption("Gen. Prod. Posting Group"),
+                               Res.TableCaption(), Res.FieldCaption("Gen. Prod. Posting Group"),
                                Code, xRec."Def. VAT Prod. Posting Group"), true)
                         then
                             repeat
@@ -85,7 +85,7 @@ table 251 "Gen. Product Posting Group"
                         if ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(
                                Text000, ItemCharge.FieldCaption("VAT Prod. Posting Group"),
-                               ItemCharge.TableCaption, ItemCharge.FieldCaption("Gen. Prod. Posting Group"),
+                               ItemCharge.TableCaption(), ItemCharge.FieldCaption("Gen. Prod. Posting Group"),
                                Code, xRec."Def. VAT Prod. Posting Group"), true)
                         then
                             repeat
@@ -124,7 +124,6 @@ table 251 "Gen. Product Posting Group"
     }
 
     var
-        Text000: Label 'Change all occurrences of %1 in %2\where %3 is %4\and %1 is %5.';
         GLAcc: Record "G/L Account";
         GLAcc2: Record "G/L Account";
         Item: Record Item;
@@ -133,6 +132,8 @@ table 251 "Gen. Product Posting Group"
         Res2: Record Resource;
         ItemCharge: Record "Item Charge";
         ItemCharge2: Record "Item Charge";
+
+        Text000: Label 'Change all occurrences of %1 in %2\where %3 is %4\and %1 is %5.';
 
     procedure ValidateVatProdPostingGroup(var GenProdPostingGrp: Record "Gen. Product Posting Group"; EnteredGenProdPostingGroup: Code[20]): Boolean
     begin

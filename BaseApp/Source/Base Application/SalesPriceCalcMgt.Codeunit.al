@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+﻿#if not CLEAN21
 codeunit 7000 "Sales Price Calc. Mgt."
 {
     ObsoleteState = Pending;
@@ -15,8 +15,6 @@ codeunit 7000 "Sales Price Calc. Mgt."
         ResPrice: Record "Resource Price";
         Res: Record Resource;
         Currency: Record Currency;
-        Text000: Label '%1 is less than %2 in the %3.';
-        Text010: Label 'Prices including VAT cannot be calculated when %1 is %2.';
         TempSalesPrice: Record "Sales Price" temporary;
         TempSalesLineDisc: Record "Sales Line Discount" temporary;
         LineDiscPerCent: Decimal;
@@ -31,12 +29,15 @@ codeunit 7000 "Sales Price Calc. Mgt."
         PricesInCurrency: Boolean;
         CurrencyFactor: Decimal;
         ExchRateDate: Date;
-        Text018: Label '%1 %2 is greater than %3 and was adjusted to %4.';
         FoundSalesPrice: Boolean;
-        Text001: Label 'The %1 in the %2 must be same as in the %3.';
-        TempTableErr: Label 'The table passed as a parameter must be temporary.';
         HideResUnitPriceMessage: Boolean;
         DateCaption: Text[30];
+
+        Text000: Label '%1 is less than %2 in the %3.';
+        Text010: Label 'Prices including VAT cannot be calculated when %1 is %2.';
+        Text018: Label '%1 %2 is greater than %3 and was adjusted to %4.';
+        Text001: Label 'The %1 in the %2 must be same as in the %3.';
+        TempTableErr: Label 'The table passed as a parameter must be temporary.';
 
     procedure FindSalesLinePrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer)
     var
@@ -182,7 +183,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                                 Message(
                                   StrSubstNo(
                                     Text018,
-                                    Res.TableCaption, FieldCaption("Unit Price"),
+                                    Res.TableCaption(), FieldCaption("Unit Price"),
                                     ServHeader.FieldCaption("Max. Labor Unit Price"),
                                     ServHeader."Max. Labor Unit Price"));
                             HideResUnitPriceMessage := true;
@@ -258,7 +259,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                 "Line Discount %" := 0;
                 "Line Discount Amount" :=
                   Round(
-                    Round(CalcChargeableQty * "Unit Price", Currency."Amount Rounding Precision") *
+                    Round(CalcChargeableQty() * "Unit Price", Currency."Amount Rounding Precision") *
                     "Line Discount %" / 100, Currency."Amount Rounding Precision");
                 "Inv. Discount Amount" := 0;
                 "Inv. Disc. Amount to Invoice" := 0;
@@ -285,7 +286,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
             FindSalesPrice(
               TempSalesPrice, '', '', '', '', "Item No.", "Variant Code",
-              "Unit of Measure Code", '', WorkDate, false);
+              "Unit of Measure Code", '', WorkDate(), false);
             CalcBestUnitPrice(TempSalesPrice);
             if FoundSalesPrice or
                not ((CalledByFieldNo = FieldNo(Quantity)) or
@@ -406,7 +407,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         if IsHandled then
             exit;
 
-        with SalesLineDisc do begin
+        with SalesLineDisc do
             if FindSet() then
                 repeat
                     if IsInMinQty("Unit of Measure Code", "Minimum Quantity") then
@@ -420,7 +421,6 @@ codeunit 7000 "Sales Price Calc. Mgt."
                                     BestSalesLineDisc := SalesLineDisc;
                         end;
                 until Next() = 0;
-        end;
 
         SalesLineDisc := BestSalesLineDisc;
     end;
@@ -541,7 +541,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         end;
 
                         if InclCampaigns then begin
-                            InclCampaigns := TempCampaignTargetGr.Next <> 0;
+                            InclCampaigns := TempCampaignTargetGr.Next() <> 0;
                             SetRange("Sales Code", TempCampaignTargetGr."Campaign No.");
                         end;
                     until not InclCampaigns;
@@ -572,7 +572,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             if FromSalesPrice.FindSet() then
                 repeat
                     ToSalesPrice := FromSalesPrice;
-                    Insert;
+                    Insert();
                 until FromSalesPrice.Next() = 0;
     end;
 
@@ -582,7 +582,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             if FromSalesLineDisc.FindSet() then
                 repeat
                     ToSalesLineDisc := FromSalesLineDisc;
-                    Insert;
+                    Insert();
                 until FromSalesLineDisc.Next() = 0;
     end;
 
@@ -594,7 +594,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     procedure SetResPrice(Code2: Code[20]; WorkTypeCode: Code[10]; CurrencyCode: Code[10])
     begin
         with ResPrice do begin
-            Init;
+            Init();
             Code := Code2;
             "Work Type Code" := WorkTypeCode;
             "Currency Code" := CurrencyCode;
@@ -667,13 +667,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
                 VATCalcType::"Normal VAT",
                 VATCalcType::"Full VAT",
                 VATCalcType::"Sales Tax":
-                    begin
-                        if PricesInclVAT then begin
-                            if VATBusPostingGr <> FromVATBusPostingGr then
-                                UnitPrice := UnitPrice * (100 + VATPerCent) / (100 + VATPostingSetup."VAT %");
-                        end else
-                            UnitPrice := UnitPrice / (1 + VATPostingSetup."VAT %" / 100);
-                    end;
+                    if PricesInclVAT then begin
+                        if VATBusPostingGr <> FromVATBusPostingGr then
+                            UnitPrice := UnitPrice * (100 + VATPerCent) / (100 + VATPostingSetup."VAT %");
+                    end else
+                        UnitPrice := UnitPrice / (1 + VATPostingSetup."VAT %" / 100);
                 VATCalcType::"Reverse Charge VAT":
                     UnitPrice := UnitPrice / (1 + VATPostingSetup."VAT %" / 100);
             end;
@@ -735,25 +733,25 @@ codeunit 7000 "Sales Price Calc. Mgt."
                       Text000,
                       FieldCaption(Quantity),
                       TempSalesPrice.FieldCaption("Minimum Quantity"),
-                      TempSalesPrice.TableCaption);
+                      TempSalesPrice.TableCaption());
                 if not (TempSalesPrice."Currency Code" in ["Currency Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Currency Code"),
                       TableCaption,
-                      TempSalesPrice.TableCaption);
+                      TempSalesPrice.TableCaption());
                 if not (TempSalesPrice."Unit of Measure Code" in ["Unit of Measure Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Unit of Measure Code"),
                       TableCaption,
-                      TempSalesPrice.TableCaption);
+                      TempSalesPrice.TableCaption());
                 if TempSalesPrice."Starting Date" > SalesHeaderStartDate(SalesHeader, DateCaption) then
                     Error(
                       Text000,
                       DateCaption,
                       TempSalesPrice.FieldCaption("Starting Date"),
-                      TempSalesPrice.TableCaption);
+                      TempSalesPrice.TableCaption());
 
                 ConvertPriceToVAT(
                   TempSalesPrice."Price Includes VAT", Item."VAT Prod. Posting Group",
@@ -793,25 +791,25 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     Error(
                       Text000, FieldCaption(Quantity),
                       TempSalesLineDisc.FieldCaption("Minimum Quantity"),
-                      TempSalesLineDisc.TableCaption);
+                      TempSalesLineDisc.TableCaption());
                 if not (TempSalesLineDisc."Currency Code" in ["Currency Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Currency Code"),
                       TableCaption,
-                      TempSalesLineDisc.TableCaption);
+                      TempSalesLineDisc.TableCaption());
                 if not (TempSalesLineDisc."Unit of Measure Code" in ["Unit of Measure Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Unit of Measure Code"),
                       TableCaption,
-                      TempSalesLineDisc.TableCaption);
+                      TempSalesLineDisc.TableCaption());
                 if TempSalesLineDisc."Starting Date" > SalesHeaderStartDate(SalesHeader, DateCaption) then
                     Error(
                       Text000,
                       DateCaption,
                       TempSalesLineDisc.FieldCaption("Starting Date"),
-                      TempSalesLineDisc.TableCaption);
+                      TempSalesLineDisc.TableCaption());
 
                 TestField("Allow Line Disc.");
                 Validate("Line Discount %", TempSalesLineDisc."Line Discount %");
@@ -842,7 +840,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                       SalesHeader."Currency Code", SalesHeaderStartDate(SalesHeader, DateCaption), ShowAll);
                     OnAfterSalesLinePriceExists(SalesLine, SalesHeader, TempSalesPrice, ShowAll);
                 end;
-                exit(TempSalesPrice.FindFirst);
+                exit(TempSalesPrice.FindFirst());
             end;
         Result := false;
 
@@ -866,7 +864,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                       SalesHeader."Currency Code", SalesHeaderStartDate(SalesHeader, DateCaption), ShowAll);
                     OnAfterSalesLineLineDiscExists(SalesLine, SalesHeader, TempSalesLineDisc, ShowAll);
                 end;
-                exit(TempSalesLineDisc.FindFirst);
+                exit(TempSalesLineDisc.FindFirst())
             end;
         exit(false);
     end;
@@ -895,25 +893,25 @@ codeunit 7000 "Sales Price Calc. Mgt."
                       Text000,
                       FieldCaption(Quantity),
                       TempSalesPrice.FieldCaption("Minimum Quantity"),
-                      TempSalesPrice.TableCaption);
+                      TempSalesPrice.TableCaption());
                 if not (TempSalesPrice."Currency Code" in ["Currency Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Currency Code"),
                       TableCaption,
-                      TempSalesPrice.TableCaption);
+                      TempSalesPrice.TableCaption());
                 if not (TempSalesPrice."Unit of Measure Code" in ["Unit of Measure Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Unit of Measure Code"),
                       TableCaption,
-                      TempSalesPrice.TableCaption);
+                      TempSalesPrice.TableCaption());
                 if TempSalesPrice."Starting Date" > ServHeaderStartDate(ServHeader, DateCaption) then
                     Error(
                       Text000,
                       DateCaption,
                       TempSalesPrice.FieldCaption("Starting Date"),
-                      TempSalesPrice.TableCaption);
+                      TempSalesPrice.TableCaption());
 
                 ConvertPriceToVAT(
                   TempSalesPrice."Price Includes VAT", Item."VAT Prod. Posting Group",
@@ -927,7 +925,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     "Line Discount %" := 0;
 
                 Validate("Unit Price", TempSalesPrice."Unit Price");
-                ConfirmAdjPriceLineChange;
+                ConfirmAdjPriceLineChange();
             end;
     end;
 
@@ -952,30 +950,30 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     Error(
                       Text000, FieldCaption(Quantity),
                       TempSalesLineDisc.FieldCaption("Minimum Quantity"),
-                      TempSalesLineDisc.TableCaption);
+                      TempSalesLineDisc.TableCaption());
                 if not (TempSalesLineDisc."Currency Code" in ["Currency Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Currency Code"),
                       TableCaption,
-                      TempSalesLineDisc.TableCaption);
+                      TempSalesLineDisc.TableCaption());
                 if not (TempSalesLineDisc."Unit of Measure Code" in ["Unit of Measure Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Unit of Measure Code"),
                       TableCaption,
-                      TempSalesLineDisc.TableCaption);
+                      TempSalesLineDisc.TableCaption());
                 if TempSalesLineDisc."Starting Date" > ServHeaderStartDate(ServHeader, DateCaption) then
                     Error(
                       Text000,
                       DateCaption,
                       TempSalesLineDisc.FieldCaption("Starting Date"),
-                      TempSalesLineDisc.TableCaption);
+                      TempSalesLineDisc.TableCaption());
 
                 TestField("Allow Line Disc.");
                 CheckLineDiscount(TempSalesLineDisc."Line Discount %");
                 Validate("Line Discount %", TempSalesLineDisc."Line Discount %");
-                ConfirmAdjPriceLineChange;
+                ConfirmAdjPriceLineChange();
             end;
     end;
 
@@ -1068,7 +1066,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                             until Next() = 0;
                     end;
             end;
-            exit(ToCampaignTargetGr.FindFirst);
+            exit(ToCampaignTargetGr.FindFirst())
         end;
     end;
 
@@ -1077,7 +1075,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         with SalesHeader do begin
             if "Posting Date" <> 0D then
                 exit("Posting Date");
-            exit(WorkDate);
+            exit(WorkDate());
         end;
     end;
 
@@ -1107,7 +1105,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             if ("Document Type" = "Document Type"::Quote) and
                ("Posting Date" = 0D)
             then
-                exit(WorkDate);
+                exit(WorkDate());
             exit("Posting Date");
         end;
     end;
@@ -1258,7 +1256,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                                 CopyJobItemPriceToJobPlanLine(JobPlanningLine, JobItemPrice);
                         end;
 
-                        if JobItemPrice.IsEmpty or (not JobItemPrice."Apply Job Discount") then
+                        if JobItemPrice.IsEmpty() or (not JobItemPrice."Apply Job Discount") then
                             FindJobPlanningLineLineDisc(JobPlanningLine);
                     end;
                 Type::Resource:
@@ -1497,7 +1495,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                             if JobItemPrice.FindFirst() then
                                 CopyJobItemPriceToJobJnlLine(JobJnlLine, JobItemPrice);
                         end;
-                        if JobItemPrice.IsEmpty or (not JobItemPrice."Apply Job Discount") then
+                        if JobItemPrice.IsEmpty() or (not JobItemPrice."Apply Job Discount") then
                             FindJobJnlLineLineDisc(JobJnlLine);
                         OnAfterJobJnlLineFindJTPriceItem(JobJnlLine);
                     end;
@@ -1654,7 +1652,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         if JobResPrice.FindFirst() then
             exit(true);
         JobResPrice.SetRange("Work Type Code", '');
-        exit(JobResPrice.FindFirst);
+        exit(JobResPrice.FindFirst())
     end;
 
     procedure FindResPrice(var ResJournalLine: Record "Res. Journal Line")

@@ -13,10 +13,17 @@ codeunit 3 "G/L Account-Indent"
         then
             exit;
 
-        Indent;
+        Indent();
     end;
 
     var
+        GLAcc: Record "G/L Account";
+        FindAcc: Record "G/L Account";
+        Window: Dialog;
+        AccNo: array[10] of Code[20];
+        i: Integer;
+        HidePrintDialog: Boolean;
+
         Text004: Label 'Indenting the Chart of Accounts #1##########';
         Text005: Label 'End-Total %1 is missing a matching Begin-Total.';
         Text1100000: Label 'This function checks the consistency of and completes the Chart of Accounts:\\';
@@ -25,11 +32,6 @@ codeunit 3 "G/L Account-Indent"
         Text1100003: Label '- Assigns values to the following fields: Income/Balance/Capital, Account Type, Indentation, Totaling and Debit/Credit.\';
         Text1100004: Label '- Checks that an Adjustment Account exists for every account of the Income Statement and Capital types. \\';
         Text1100005: Label 'Do you wish to check the Chart of Accounts?';
-        GLAcc: Record "G/L Account";
-        FindAcc: Record "G/L Account";
-        Window: Dialog;
-        AccNo: array[10] of Code[20];
-        i: Integer;
         Text1100006: Label 'Checking the Chart of Accounts #1########## @2@@@@@@@@@@@@@';
         Text1100007: Label 'The length of a heading account cannot be greater than 8, account %1';
         Text1100008: Label ' Missing group %1 - Account No. %2';
@@ -37,7 +39,6 @@ codeunit 3 "G/L Account-Indent"
         Text1100010: Label ' Missing group %1 - Account No. %2';
         Text1100011: Label 'The length of account %1 cannot be different than the next ones';
         Text1100012: Label 'The Chart of Accounts is correct.';
-        HidePrintDialog: Boolean;
 
     procedure Indent()
     var
@@ -53,7 +54,7 @@ codeunit 3 "G/L Account-Indent"
         Window.Open(Text1100006);
 
         with GLAcc do begin
-            Reset;
+            Reset();
             LineCounter := 0;
             NoOfRecords := Count;
             if NoOfRecords <> 0 then begin
@@ -84,7 +85,7 @@ codeunit 3 "G/L Account-Indent"
                                 Error(Text1100010, CopyStr("No.", 1, 3), "No.");
                             //a posting account must be the same length as the next
                             FindAcc := GLAcc;
-                            if FindAcc.Next <> 0 then
+                            if FindAcc.Next() <> 0 then
                                 if (FindAcc."Account Type" = FindAcc."Account Type"::Posting) and
                                    (StrLen("No.") <> StrLen(FindAcc."No.")) then
                                     Error(Text1100011, "No.");
@@ -104,18 +105,18 @@ codeunit 3 "G/L Account-Indent"
                             Indentation := 5;
                         end;
 
-                        Modify;
+                        Modify();
                         LineCounter := LineCounter + 1;
                         Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
                     until Next() = 0;
             end;
         end;
 
-        Window.Close;
+        Window.Close();
         if not HidePrintDialog then
             Message(Text1100012);
 
-        OnAfterIndent;
+        OnAfterIndent();
     end;
 
     procedure RunICAccountIndent()
@@ -131,7 +132,7 @@ codeunit 3 "G/L Account-Indent"
         then
             exit;
 
-        IndentICAccount;
+        IndentICAccount();
     end;
 
     local procedure IndentICAccount()
@@ -149,7 +150,7 @@ codeunit 3 "G/L Account-Indent"
         Window.Open(Text1100006);
 
         with ICGLAcc do begin
-            Reset;
+            Reset();
             LineCounter := 0;
             NoOfRecords := Count;
             if NoOfRecords <> 0 then begin
@@ -179,7 +180,7 @@ codeunit 3 "G/L Account-Indent"
                                 Error(Text1100010, CopyStr("No.", 1, 3), "No.");
                             //a posting account must be the same length as the next
                             FindAcc := GLAcc;
-                            if FindAcc.Next <> 0 then
+                            if FindAcc.Next() <> 0 then
                                 if (FindAcc."Account Type" = FindAcc."Account Type"::Posting) and
                                    (StrLen("No.") <> StrLen(FindAcc."No.")) then
                                     Error(Text1100011, "No.");
@@ -191,13 +192,13 @@ codeunit 3 "G/L Account-Indent"
                             Indentation := 4;
                         end;
 
-                        Modify;
+                        Modify();
                         LineCounter := LineCounter + 1;
                         Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
                     until Next() = 0;
             end;
         end;
-        Window.Close;
+        Window.Close();
         if not HidePrintDialog then
             Message(Text1100012);
     end;

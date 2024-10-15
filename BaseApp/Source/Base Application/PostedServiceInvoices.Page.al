@@ -17,18 +17,18 @@ page 5977 "Posted Service Invoices"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Order No."; "Order No.")
+                field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the related order.';
                     Visible = false;
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the items on the invoice.';
@@ -38,12 +38,12 @@ page 5977 "Posted Service Invoices"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer on the service invoice.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies when the related invoice must be paid.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency code for the amounts on the invoice.';
@@ -53,120 +53,120 @@ page 5977 "Posted Service Invoices"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total invoice amount excluding VAT.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total invoice amount including VAT.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the customer company.';
                     Visible = false;
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Post Code"; "Bill-to Post Code")
+                field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Contact"; "Bill-to Contact")
+                field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Post Code"; "Ship-to Post Code")
+                field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Contact"; "Ship-to Contact")
+                field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the invoice was posted.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the salesperson associated with the invoice.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, from which the service was shipped.';
                     Visible = true;
                 }
-                field("SII Status"; "SII Status")
+                field("SII Status"; Rec."SII Status")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleText;
@@ -184,24 +184,24 @@ page 5977 "Posted Service Invoices"
                         SIIManagement.SIIStateDrilldown(SIIDocUploadState);
                     end;
                 }
-                field("Do Not Send To SII"; "Do Not Send To SII")
+                field("Do Not Send To SII"; Rec."Do Not Send To SII")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the document must not be sent to SII.';
                 }
-                field("Sent to SII"; "Sent to SII")
+                field("Sent to SII"; Rec."Sent to SII")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the document has been sent to the Immediate Information Supply system.';
                     Visible = SIIStateVisible;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Exchange Status"; "Document Exchange Status")
+                field("Document Exchange Status"; Rec."Document Exchange Status")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -246,8 +246,6 @@ page 5977 "Posted Service Invoices"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Service Invoice Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -276,7 +274,7 @@ page 5977 "Posted Service Invoices"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -289,16 +287,13 @@ page 5977 "Posted Service Invoices"
                 Caption = 'Send';
                 Ellipsis = true;
                 Image = SendToMultiple;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Prepare to send the document according to the customer''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
 
                 trigger OnAction()
                 begin
                     ServiceInvHeader := Rec;
                     CurrPage.SetSelectionFilter(ServiceInvHeader);
-                    ServiceInvHeader.SendRecords;
+                    ServiceInvHeader.SendRecords();
                 end;
             }
             action("&Print")
@@ -307,8 +302,6 @@ page 5977 "Posted Service Invoices"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -322,14 +315,12 @@ page 5977 "Posted Service Invoices"
                 ApplicationArea = Service;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             action(ActivityLog)
@@ -341,7 +332,7 @@ page 5977 "Posted Service Invoices"
 
                 trigger OnAction()
                 begin
-                    ShowActivityLog;
+                    ShowActivityLog();
                 end;
             }
             action("Update Document")
@@ -349,10 +340,6 @@ page 5977 "Posted Service Invoices"
                 ApplicationArea = Service;
                 Caption = 'Update Document';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
@@ -365,18 +352,41 @@ page 5977 "Posted Service Invoices"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SendCustom_Promoted; SendCustom)
+                {
+                }
+                actionref("Update Document_Promoted"; "Update Document")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        DocExchStatusStyle := GetDocExchStatusStyle;
+        DocExchStatusStyle := GetDocExchStatusStyle();
     end;
 
     trigger OnAfterGetRecord()
     var
         SIIManagement: Codeunit "SII Management";
     begin
-        DocExchStatusStyle := GetDocExchStatusStyle;
+        DocExchStatusStyle := GetDocExchStatusStyle();
 
         StyleText := SIIManagement.GetSIIStyle("SII Status".AsInteger());
     end;
@@ -386,13 +396,13 @@ page 5977 "Posted Service Invoices"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         SIISetup: Record "SII Setup";
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
 
         ServiceInvoiceHeader.CopyFilters(Rec);
         ServiceInvoiceHeader.SetFilter("Document Exchange Status", '<>%1', "Document Exchange Status"::"Not Sent");
-        DocExchStatusVisible := not ServiceInvoiceHeader.IsEmpty;
+        DocExchStatusVisible := not ServiceInvoiceHeader.IsEmpty();
 
-        SIIStateVisible := SIISetup.IsEnabled;
+        SIIStateVisible := SIISetup.IsEnabled();
     end;
 
     var

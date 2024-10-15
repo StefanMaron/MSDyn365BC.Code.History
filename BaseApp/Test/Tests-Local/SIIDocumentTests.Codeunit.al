@@ -110,7 +110,7 @@ codeunit 147520 SIIDocumentTests
         Customer.Modify(true);
 
         // [GIVEN] Creation of a Sales Invoice for a local customer, cash based
-        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         CustLedgerEntry.Reset();
@@ -123,7 +123,7 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local customer, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForSI(
-            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         DetailedCustLedgEntry.Reset();
@@ -321,7 +321,7 @@ codeunit 147520 SIIDocumentTests
         Vendor.Modify(true);
 
         // [GIVEN] Creation of an Purchase Invoice for a local vendor, cash based
-        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
+        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         VendorLedgerEntry.Reset();
@@ -335,7 +335,7 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local vendor, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
-            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         DetailedVendorLedgEntry.Reset();
@@ -1129,11 +1129,11 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Purchase Receipt on 01.07.2017
         VendorNo := LibraryPurchase.CreateVendorNo();
-        RcptDate := CalcDate('<-2D>', WorkDate);
+        RcptDate := CalcDate('<-2D>', WorkDate());
         CreatePurchRcptWithPostingDate(PurchaseHeaderForRcpt1, VendorNo, RcptDate);
 
         // [GIVEN] Posted Purchase Receipt on 03.07.2017
-        CreatePurchRcptWithPostingDate(PurchaseHeaderForRcpt2, VendorNo, CalcDate('<-3D>', WorkDate));
+        CreatePurchRcptWithPostingDate(PurchaseHeaderForRcpt2, VendorNo, CalcDate('<-3D>', WorkDate()));
 
         // [GIVEN] "Get Receipt Lines" action is called for Purchase Invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
@@ -1174,11 +1174,11 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Sales Shipment on 01.07.2017
         CustomerNo := LibrarySales.CreateCustomerNo();
-        ShipmentDate := CalcDate('<-2D>', WorkDate);
+        ShipmentDate := CalcDate('<-2D>', WorkDate());
         CreateSalesShipmentWithShipDate(SalesHeaderForShip1, CustomerNo, ShipmentDate);
 
         // [GIVEN] Posted Sales Shipment on 05.07.2017
-        CreateSalesShipmentWithShipDate(SalesHeaderForShip2, CustomerNo, WorkDate);
+        CreateSalesShipmentWithShipDate(SalesHeaderForShip2, CustomerNo, WorkDate());
 
         // [GIVEN] "Get Shipment Lines" action is called for Sales Invoice
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
@@ -1217,10 +1217,10 @@ codeunit 147520 SIIDocumentTests
         LibrarySII.CreateCustWithCountryAndVATReg(Customer, 'ES', 'B80833593');
 
         // [GIVEN] Posted Sales Invoice with "Posting Date" = 05.01.2017
-        InvNo := CreateAndPostSalesDocWithDate(SalesHeader."Document Type"::Invoice, Customer."No.", WorkDate, '');
+        InvNo := CreateAndPostSalesDocWithDate(SalesHeader."Document Type"::Invoice, Customer."No.", WorkDate(), '');
 
         // [GIVEN] Posted Sales Credit Memo with "Posting Date" = 05.02.2017
-        CrMemoDate := CalcDate('<1M>', WorkDate);
+        CrMemoDate := CalcDate('<1M>', WorkDate());
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo",
           CreateAndPostSalesDocWithDate(SalesHeader."Document Type"::"Credit Memo", Customer."No.", CrMemoDate, InvNo));
@@ -1251,10 +1251,10 @@ codeunit 147520 SIIDocumentTests
         LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B80833593');
 
         // [GIVEN] Posted Purchase Invoice with "Posting Date" = 05.01.2017
-        InvNo := CreateAndPostPurchDocWithDate(PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate, '');
+        InvNo := CreateAndPostPurchDocWithDate(PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate(), '');
 
         // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = 05.02.2017
-        CrMemoDate := CalcDate('<1M>', WorkDate);
+        CrMemoDate := CalcDate('<1M>', WorkDate());
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo",
           CreateAndPostPurchDocWithDate(PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", CrMemoDate, InvNo));
@@ -1436,7 +1436,7 @@ codeunit 147520 SIIDocumentTests
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeaderInvoice, PurchaseLine,
           PurchaseHeaderInvoice."Document Type"::Invoice, LibraryPurchase.CreateVendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate());
         PurchaseHeaderInvoice.Validate("Vendor Invoice No.", '');
         PurchaseHeaderInvoice.Modify(true);
         LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
@@ -1496,7 +1496,7 @@ codeunit 147520 SIIDocumentTests
             LibrarySII.VerifyOneNodeWithValueByXPath(
               XMLDoc, XPathPurchBaseImponibleTok, '/sii:CuotaSoportada', SIIXMLCreator.FormatNumber(VATEntry.Amount));
             TotalVATAmount += Abs(VATEntry.Amount);
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
 
         // [THEN] One node "CuotaDeducible" with value "Y"
         LibrarySII.VerifyOneNodeWithValueByXPath(
@@ -1551,7 +1551,7 @@ codeunit 147520 SIIDocumentTests
         // [GIVEN] Today is January 29
         // [GIVEN] Posted Sales Invoice with "Posting Date" = January 25, "Shipment Date" = January 30
         CustomerNo := LibrarySales.CreateCustomerNo();
-        ShipmentDate := LibraryRandom.RandDateFrom(WorkDate, 10);
+        ShipmentDate := LibraryRandom.RandDateFrom(WorkDate(), 10);
         CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, ShipmentDate);
         SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeaderNo);
@@ -1583,7 +1583,7 @@ codeunit 147520 SIIDocumentTests
         // [GIVEN] Today is January 29
         // [GIVEN] Posted Purchase Invoice with "Posting Date" = January 25, "Receipt Date" = January 30
         VendorNo := LibraryPurchase.CreateVendorNo();
-        RcptDate := LibraryRandom.RandDateFrom(WorkDate, 10);
+        RcptDate := LibraryRandom.RandDateFrom(WorkDate(), 10);
         CreatePurchRcptWithPostingDate(PurchaseHeaderForRcpt, VendorNo, RcptDate);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         GetRcptLines(PurchaseHeaderForRcpt, PurchaseHeader);
@@ -2087,7 +2087,7 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Sales Invoice with "Special Scheme Code" = "14", "Posting Date" = January 20, "Shipment Date" = January 25
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, LibraryRandom.RandDateFrom(WorkDate, 10));
+        CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, LibraryRandom.RandDateFrom(WorkDate(), 10));
         SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"14 Invoice Work Certification");
         SalesHeader.Modify(true);
         SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -2123,7 +2123,7 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Sales Invoice with "Special Scheme Code" = "01", "Posting Date" = January 20, "Shipment Date" = January 25
         CustomerNo := LibrarySales.CreateCustomerNo();
-        ShipmentDate := LibraryRandom.RandDateFrom(WorkDate, 10);
+        ShipmentDate := LibraryRandom.RandDateFrom(WorkDate(), 10);
         OldWorkDate := WorkDate();
         WorkDate := ShipmentDate;
         CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, ShipmentDate);
@@ -2978,7 +2978,7 @@ codeunit 147520 SIIDocumentTests
     begin
         LibrarySales.CreateSalesDocumentWithItem(SalesHeaderInvoice, SalesLine,
           SalesHeaderInvoice."Document Type"::Invoice, SellToCustomerNo,
-          ItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          ItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
         SalesHeaderInvoice.Validate("Bill-to Customer No.", BillToCustomerNo);
         SalesHeaderInvoice.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeaderInvoice, false, false));
@@ -3002,7 +3002,7 @@ codeunit 147520 SIIDocumentTests
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        exit(CreateAndPostSalesDocWithDate(DummySalesHeader."Document Type"::Invoice, CustomerNo, WorkDate, ''));
+        exit(CreateAndPostSalesDocWithDate(DummySalesHeader."Document Type"::Invoice, CustomerNo, WorkDate(), ''));
     end;
 
     local procedure CreateSalesPrepaymentOrder(var SalesHeader: Record "Sales Header")
@@ -3057,7 +3057,7 @@ codeunit 147520 SIIDocumentTests
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, WorkDate - 1, 1);
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, WorkDate() - 1, 1);
         ShipmentDate := SalesLine."Shipment Date";
         LibrarySales.CreateSalesLineWithShipmentDate(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, WorkDate - LibraryRandom.RandIntInRange(3, 5), 1);

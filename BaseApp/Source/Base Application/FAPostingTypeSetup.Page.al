@@ -14,48 +14,48 @@ page 5608 "FA Posting Type Setup"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Depreciation Book Code"; "Depreciation Book Code")
+                field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                     Visible = false;
                 }
-                field("FA Posting Type"; "FA Posting Type")
+                field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
                 }
-                field("Part of Book Value"; "Part of Book Value")
+                field("Part of Book Value"; Rec."Part of Book Value")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that entries posted with the FA Posting Type field will be part of the book value.';
                 }
-                field("Part of Depreciable Basis"; "Part of Depreciable Basis")
+                field("Part of Depreciable Basis"; Rec."Part of Depreciable Basis")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that entries posted with the FA Posting Type field will be part of the depreciable basis.';
                 }
-                field("Include in Depr. Calculation"; "Include in Depr. Calculation")
+                field("Include in Depr. Calculation"; Rec."Include in Depr. Calculation")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that entries posted with the FA Posting Type field must be included in periodic depreciation calculations.';
                 }
-                field("Include in Gain/Loss Calc."; "Include in Gain/Loss Calc.")
+                field("Include in Gain/Loss Calc."; Rec."Include in Gain/Loss Calc.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that entries posted with the FA Posting Type field must be included in the calculation of gain or loss for a sold asset.';
                 }
-                field("Reverse before Disposal"; "Reverse before Disposal")
+                field("Reverse before Disposal"; Rec."Reverse before Disposal")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that entries posted with the FA Posting Type field must be reversed (that is, set to zero) before disposal.';
                 }
-                field("Acquisition Type"; "Acquisition Type")
+                field("Acquisition Type"; Rec."Acquisition Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that entries posted with the FA Posting Type must be part of the total acquisition for the fixed asset in the Fixed Asset - Book Value 01 report.';
                 }
-                field("Depreciation Type"; "Depreciation Type")
+                field("Depreciation Type"; Rec."Depreciation Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that entries posted with the FA Posting Type field will be regarded as part of the total depreciation for the fixed asset.';

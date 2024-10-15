@@ -12,8 +12,8 @@ codeunit 104100 "UPG SII"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        UpdateEmployeeNewNames;
+
+        UpdateEmployeeNewNames();
         UpdateSchemasInSIISetup();
     end;
 
@@ -23,18 +23,18 @@ codeunit 104100 "UPG SII"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag()) THEN
             EXIT;
 
         IF NOT Employee.FindSet() then
             EXIT;
 
         REPEAT
-            Employee.UpdateNamesFromOldFields;
+            Employee.UpdateNamesFromOldFields();
             Employee.Modify();
         UNTIL Employee.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag());
     end;
 
     local procedure UpdateSchemasInSIISetup()

@@ -141,7 +141,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Verify: Verification of Amounts is done in SalesStatisticsModalPageHandler.
 
         // Tear Down.
-        SalesInvoice.Close;
+        SalesInvoice.Close();
         UpdatePostLineDiscountOnSalesReceivablesSetup(PostLineDiscount);
     end;
 
@@ -174,7 +174,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         VerifyVATAndGLEntry(
           SalesHeader."Document Type"::"Credit Memo", DocumentNo, GeneralPostingSetup."Sales Inv. Disc. Account",
-          SalesLine."Line Discount Amount", LibraryERM.ConvertCurrency(-SalesLine."Line Discount Amount", '', CurrencyCode, WorkDate),
+          SalesLine."Line Discount Amount", LibraryERM.ConvertCurrency(-SalesLine."Line Discount Amount", '', CurrencyCode, WorkDate()),
           SalesLine."VAT %");
 
         // Tear Down.
@@ -210,7 +210,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesCreditMemoStatistics.Subform."VAT Amount".AssertEquals(SalesCrMemoHeader.Amount * SalesLine."VAT %" / 100);
 
         // Tear Down.
-        SalesCreditMemoStatistics.Close;
+        SalesCreditMemoStatistics.Close();
         UpdatePostLineDiscountOnSalesReceivablesSetup(PostLineDiscount);
     end;
 
@@ -242,7 +242,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesInvoiceStatistics.Subform."VAT Amount".AssertEquals(SalesInvoiceHeader.Amount * SalesLine."VAT %" / 100);
 
         // Tear Down.
-        SalesInvoiceStatistics.Close;
+        SalesInvoiceStatistics.Close();
         UpdatePostLineDiscountOnSalesReceivablesSetup(PostLineDiscount);
     end;
 
@@ -267,7 +267,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Verify: Verify VAT Entry - Base, Amount and G/L Entry - Amount on Posted Invoice on General Journal.
         VerifyGLEntry(
           GenJournalLine."Document No.", GetReceivableAccount(GenJournalLine."Account No."),
-          LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', WorkDate), GenJournalLine.Amount);
+          LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', WorkDate()), GenJournalLine.Amount);
 
         // Tear Down.
         UpdateAdditionalReportingCurrencyOnGeneralLedgerSetup(OldCurrencyCode);
@@ -322,12 +322,12 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Verify: Verify Amount, Additional Currency Base, VAT Amount and Additional Currency Amount on G/L Entry and VAT Entry.
         VerifyGLEntry(
           GenJournalLine."Document No.", GenJournalLine."Account No.", LibraryERM.ConvertCurrency(
-            -Amount, CurrencyCode, '', WorkDate), -AdditionalCurrencyBase);  // Blank for To Currency.
+            -Amount, CurrencyCode, '', WorkDate()), -AdditionalCurrencyBase);  // Blank for To Currency.
         VerifyGLEntry(
           GenJournalLine."Document No.", GetReceivableAccount(CustomerNo), LibraryERM.ConvertCurrency(
-            Amount, CurrencyCode, '', WorkDate), AdditionalCurrencyBase);  // Blank for To Currency.
+            Amount, CurrencyCode, '', WorkDate()), AdditionalCurrencyBase);  // Blank for To Currency.
         VerifyVATEntry(
-          GenJournalLine."Document No.", LibraryERM.ConvertCurrency(-Amount, CurrencyCode, '', WorkDate), -AdditionalCurrencyBase, 0);  // Blank for To Currency, 0 for VAT Amount.
+          GenJournalLine."Document No.", LibraryERM.ConvertCurrency(-Amount, CurrencyCode, '', WorkDate()), -AdditionalCurrencyBase, 0);  // Blank for To Currency, 0 for VAT Amount.
 
         // Tear down.
         UpdateAdditionalReportingCurrencyOnGeneralLedgerSetup(OldAdditionalReportingCurrency);
@@ -381,11 +381,11 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
 
         // Verify: Verify Amount, Additional Currency Base, VAT Amount and Additional Currency Amount on G/L Entry and VAT Entry.
         VerifyGLEntry(
-          DocumentNo, SalesLine."No.", LibraryERM.ConvertCurrency(Quantity * UnitPrice, CurrencyCode, '', WorkDate), AdditionalCurrencyBase);
+          DocumentNo, SalesLine."No.", LibraryERM.ConvertCurrency(Quantity * UnitPrice, CurrencyCode, '', WorkDate()), AdditionalCurrencyBase);
         VerifyGLEntry(
           DocumentNo, GetReceivableAccount(SalesLine."Sell-to Customer No."), LibraryERM.ConvertCurrency(
-            -Quantity * UnitPrice, CurrencyCode, '', WorkDate), -AdditionalCurrencyBase);  // Blank for To Currency.
-        VerifyVATEntry(DocumentNo, LibraryERM.ConvertCurrency(Quantity * UnitPrice, CurrencyCode, '', WorkDate), AdditionalCurrencyBase, 0);  // 0 for VAT Amount.
+            -Quantity * UnitPrice, CurrencyCode, '', WorkDate()), -AdditionalCurrencyBase);  // Blank for To Currency.
+        VerifyVATEntry(DocumentNo, LibraryERM.ConvertCurrency(Quantity * UnitPrice, CurrencyCode, '', WorkDate()), AdditionalCurrencyBase, 0);  // 0 for VAT Amount.
 
         // Tear down.
         UpdateAdditionalReportingCurrencyOnGeneralLedgerSetup(OldAdditionalReportingCurrency);
@@ -1079,7 +1079,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         PostedSalesCreditMemo.OpenView;
         PostedSalesCreditMemo.FILTER.SetFilter("No.", DocumentNo);
         PostedSalesCreditMemo.Statistics.Invoke;
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     local procedure InvokeSalesInvoiceStatistics(var SalesInvoiceStatistics: TestPage "Sales Invoice Statistics"; DocumentNo: Code[20])
@@ -1090,7 +1090,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         PostedSalesInvoice.OpenView;
         PostedSalesInvoice.FILTER.SetFilter("No.", DocumentNo);
         PostedSalesInvoice.Statistics.Invoke;
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
     
     local procedure RunSalesPrepmtDocTestReport(SalesHeaderNo: Code[20])
@@ -1136,7 +1136,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         with SalesHeader do begin
             Validate("Prepayment %", NewPrepaymentPct);
-            Modify;
+            Modify();
         end;
     end;
 

@@ -23,6 +23,7 @@
         SalesInvoiceExistErr: Label '%1 should be empty.';
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
@@ -260,7 +261,7 @@
 
         // 1. Setup: Create Initial setup for Job. Run Job Calculate WIP.
         Initialize();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryVariableStorage.Enqueue(true);
         CreateInitialSetupForJob(Job, JobJournalLine, JobTask."WIP-Total"::" ");
         LibraryVariableStorage.Enqueue(false);
@@ -286,7 +287,7 @@
 
         // 1. Setup: Create Initial setup for Job. Run Job Calculate WIP. Run Job Post WIP To G/L.
         Initialize();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryVariableStorage.Enqueue(true);
         CreateInitialSetupForJob(Job, JobJournalLine, JobTask."WIP-Total"::" ");
         LibraryVariableStorage.Enqueue(false);
@@ -316,7 +317,7 @@
 
         // 1. Setup: Create Initial setup for Job. Run Job Calculate WIP. Run Job Post WIP To G/L.
         Initialize();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryVariableStorage.Enqueue(true);
         CreateInitialSetupForJob(Job, JobJournalLine, JobTask."WIP-Total"::" ");
         LibraryVariableStorage.Enqueue(false);
@@ -354,7 +355,7 @@
 
         // 1. Setup: Create Initial setup for Job. Run Job Calculate WIP.
         Initialize();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryVariableStorage.Enqueue(true);
         TotalPrice := CreateInitialSetupForJob(Job, JobJournalLine, JobTask."WIP-Total"::" ");
         LibraryVariableStorage.Enqueue(false);
@@ -537,7 +538,7 @@
         CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
 
         // 2. Exercise: Set Posting Date and Transfer Job to Credit Memo.
-        PostingDate := WorkDate;  // Set global variable PostingDate.
+        PostingDate := WorkDate();  // Set global variable PostingDate.
         CreateNewCreditMemo := true;  // Set global variable CreateNewCreditMemo.
         TransferJobToSales(JobPlanningLine, true);  // Use True for Credit Memo.
 
@@ -563,7 +564,7 @@
         Initialize();
         CreateJobAndJobTask(JobTask);
         CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
-        PostingDate := WorkDate;  // Set global variable PostingDate.
+        PostingDate := WorkDate();  // Set global variable PostingDate.
         CreateNewCreditMemo := true;  // Set global variable CreateNewCreditMemo.
         TransferJobToSales(JobPlanningLine, true);  // Use True for Credit Memo.
         CreateJobPlanningLine(JobPlanningLine2, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
@@ -597,7 +598,7 @@
         Initialize();
         CreateJobAndJobTask(JobTask);
         CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
-        PostingDate := WorkDate;  // Set global variable PostingDate.
+        PostingDate := WorkDate();  // Set global variable PostingDate.
         CreateNewCreditMemo := true;  // Set global variable CreateNewCreditMemo.
         TransferJobToSales(JobPlanningLine, true);  // Use True for Credit Memo.
         CreateJobPlanningLine(JobPlanningLine2, LibraryJob.PlanningLineTypeBoth, LibraryJob.ResourceType, CreateResource, JobTask);
@@ -1406,8 +1407,6 @@
     end;
 
     local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Batch Jobs");
         // Clear the needed global variables.
@@ -1422,7 +1421,7 @@
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         UpdateJobPostingGroups();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
@@ -1458,10 +1457,10 @@
 
         CreateAndPostJobJournalLine(
           JobJournalLine, JobTask, LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::Item, JobPlanningLine."No.",
-          Qty, JobPlanningLine."Unit Cost", WorkDate);
+          Qty, JobPlanningLine."Unit Cost", WorkDate());
         CreateAndPostJobJournalLine(
           JobJournalLine, JobTask, LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::Item, JobPlanningLine."No.",
-          Qty, JobPlanningLine."Unit Cost", WorkDate);
+          Qty, JobPlanningLine."Unit Cost", WorkDate());
 
         exit(JobPlanningLine."No.");
     end;
@@ -1493,7 +1492,7 @@
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.SetupNewBatch;
+        ItemJournalBatch.SetupNewBatch();
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
@@ -1589,7 +1588,7 @@
         CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, CreateResource, JobTask);
         CreateAndPostJobJournalLine(
           JobJournalLine, JobTask, LibraryJob.UsageLineTypeContract, LibraryJob.ResourceType, JobPlanningLine."No.",
-          JobPlanningLine.Quantity / 2, JobPlanningLine."Unit Cost", WorkDate);
+          JobPlanningLine.Quantity / 2, JobPlanningLine."Unit Cost", WorkDate());
         CreateJobTask(JobTask, Job, JobTask."Job Task Type"::Total, JobTask."WIP-Total"::Total);
         exit(JobPlanningLine."Total Price");
     end;
@@ -1780,29 +1779,29 @@
         JobPlanningLine: Record "Job Planning Line";
         JobJournalLine: Record "Job Journal Line";
     begin
-        CreateJobPlanningLineWithPlanningDate(JobPlanningLine, JobTask, LibraryJob.PlanningLineTypeBoth, WorkDate);
+        CreateJobPlanningLineWithPlanningDate(JobPlanningLine, JobTask, LibraryJob.PlanningLineTypeBoth, WorkDate());
         Cost += JobPlanningLine."Total Cost";
         CreateAndPostJobJournalLine(
           JobJournalLine, JobTask, LibraryJob.UsageLineTypeBlank,
-          LibraryJob.ResourceType, JobPlanningLine."No.", JobPlanningLine.Quantity, JobPlanningLine."Unit Cost", WorkDate);
+          LibraryJob.ResourceType, JobPlanningLine."No.", JobPlanningLine.Quantity, JobPlanningLine."Unit Cost", WorkDate());
         RunJobCalculateWIP(Job);
         RunJobPostWIPToGL(Job);
-        VerifyWIPEntryAmountOnJobWIPGLEntry(Job."No.", -Cost, WorkDate);
-        WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
+        VerifyWIPEntryAmountOnJobWIPGLEntry(Job."No.", -Cost, WorkDate());
+        WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());
     end;
 
     local procedure PostWIPToGLAndVerifyWIPEntryAmountForSales(var Job: Record Job; JobTask: Record "Job Task"; var LineAmount: Decimal)
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        CreateJobPlanningLineWithPlanningDate(JobPlanningLine, JobTask, LibraryJob.PlanningLineTypeBoth, WorkDate);
+        CreateJobPlanningLineWithPlanningDate(JobPlanningLine, JobTask, LibraryJob.PlanningLineTypeBoth, WorkDate());
         LineAmount += JobPlanningLine."Line Amount";
         TransferJobToSales(JobPlanningLine, false); // Use False for Invoice.
         FindAndPostSalesInvoice(Job."No.");
         RunJobCalculateWIP(Job);
         RunJobPostWIPToGL(Job);
-        VerifyWIPEntryAmountOnJobWIPGLEntry(Job."No.", LineAmount, WorkDate);
-        WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
+        VerifyWIPEntryAmountOnJobWIPGLEntry(Job."No.", LineAmount, WorkDate());
+        WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());
     end;
 
     local procedure FindAndPostSalesInvoice(JobNo: Code[20]) DocumentNo: Code[20]
@@ -1872,7 +1871,7 @@
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        exit(SalesLine.FindFirst);
+        exit(SalesLine.FindFirst())
     end;
 
     local procedure FindItemLedgerEntry(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"): Decimal
@@ -2131,11 +2130,11 @@
     local procedure CreateJobPlanningLineInvoiceTable(var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; JobNo: Code[20]; JobTaskNo: Code[20]; LineNo: Integer)
     begin
         with JobPlanningLineInvoice do begin
-            Init;
+            Init();
             Validate("Job No.", JobNo);
             Validate("Job Task No.", JobTaskNo);
             Validate("Job Planning Line No.", LineNo);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2144,12 +2143,12 @@
         RecRef: RecordRef;
     begin
         with JobPlanningLine do begin
-            Init;
+            Init();
             "Job No." := LibraryUTUtility.GetNewCode;
             "Job Task No." := LibraryUTUtility.GetNewCode;
             RecRef.GetTable(JobPlanningLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2276,7 +2275,7 @@
         JobPlanningLineInvoice.SetRange("Job No.", JobTask."Job No.");
         JobPlanningLineInvoice.SetRange("Job Task No.", JobTask."Job Task No.");
         if not JobPlanningLineInvoice.IsEmpty() then
-            Error(SalesInvoiceExistErr, JobPlanningLineInvoice.TableCaption);
+            Error(SalesInvoiceExistErr, JobPlanningLineInvoice.TableCaption());
     end;
 
     local procedure VerifyWIPEntryAmountOnJobWIPGLEntry(JobNo: Code[20]; Amount: Decimal; PostingDate: Date)
@@ -2320,7 +2319,7 @@
                     Assert.AreEqual('', "WIP Method", StrSubstNo(WrongValueErr, FieldCaption("WIP Method")));
                 Assert.AreEqual(JobTaskLine1."WIP-Total", "WIP-Total", StrSubstNo(WrongValueErr, FieldCaption("WIP-Total")));
                 Assert.AreEqual(JobTaskLine1."WIP Method", "WIP Method", StrSubstNo(WrongValueErr, FieldCaption("WIP Method")));
-                JobTaskLine1.Next;
+                JobTaskLine1.Next();
             until Next = 0;
         end;
     end;
@@ -2359,14 +2358,14 @@
         ChangeJobDates.ChangeCurrencyDate.SetValue(ChangeCurrencyDate);
         ChangeJobDates.FixedDateCurrency.SetValue(Today);
         ChangeJobDates.IncludeLineTypeCurrency.SetValue(IncludeLineType);
-        ChangeJobDates.IncludeCurrDateFrom.SetValue(WorkDate);
-        ChangeJobDates.IncludeCurrDateTo.SetValue(WorkDate);
+        ChangeJobDates.IncludeCurrDateFrom.SetValue(WorkDate());
+        ChangeJobDates.IncludeCurrDateTo.SetValue(WorkDate());
 
         ChangeJobDates.ChangePlanningDate.SetValue(ChangePlanningDate);
         ChangeJobDates.FixedDatePlanning.SetValue(Today);
         ChangeJobDates.IncludeLineTypePlanning.SetValue(IncludeLineType);
-        ChangeJobDates.IncludePlanDateFrom.SetValue(WorkDate);
-        ChangeJobDates.IncludePlanDateTo.SetValue(WorkDate);
+        ChangeJobDates.IncludePlanDateFrom.SetValue(WorkDate());
+        ChangeJobDates.IncludePlanDateTo.SetValue(WorkDate());
         ChangeJobDates.OK.Invoke;
     end;
 
@@ -2374,7 +2373,7 @@
     [Scope('OnPrem')]
     procedure JobPostWIPToGLHandler(var JobPostWIPToGL: TestRequestPage "Job Post WIP to G/L")
     begin
-        JobPostWIPToGL.ReversalPostingDate.SetValue(WorkDate);
+        JobPostWIPToGL.ReversalPostingDate.SetValue(WorkDate());
         JobPostWIPToGL.ReversalDocumentNo.SetValue(Format(LibraryRandom.RandInt(10)));  // Use random Reversal Document No.
         JobPostWIPToGL.ReverseOnly.SetValue(ReverseOnly);
         JobPostWIPToGL.OK.Invoke;
@@ -2392,7 +2391,7 @@
     [Scope('OnPrem')]
     procedure JobCalcRemainingUsageHandler(var JobCalcRemainingUsage: TestRequestPage "Job Calc. Remaining Usage")
     begin
-        JobCalcRemainingUsage.PostingDate.SetValue(Format(WorkDate));
+        JobCalcRemainingUsage.PostingDate.SetValue(Format(WorkDate()));
         JobCalcRemainingUsage.OK.Invoke;
     end;
 
@@ -2495,7 +2494,7 @@
     procedure SetJobNoSeries(var JobsSetup: Record "Jobs Setup"; var NoSeries: Record "No. Series")
     begin
         with JobsSetup do begin
-            Get;
+            Get();
             if "Job Nos." = '' then
                 if not NoSeries.Get(XJOBTxt) then
                     InsertSeries("Job Nos.", XJOBTxt, XJOBTxt, XJ10Txt, XJ99990Txt, '', '', 10, true)
@@ -2506,7 +2505,7 @@
                     InsertSeries("Job WIP Nos.", XJOBWIPTxt, XJobWIPDescriptionTxt, XDefaultJobWIPNoTxt, XDefaultJobWIPEndNoTxt, '', '', 1, true)
                 else
                     "Job WIP Nos." := XJOBWIPTxt;
-            Modify;
+            Modify();
         end
     end;
 

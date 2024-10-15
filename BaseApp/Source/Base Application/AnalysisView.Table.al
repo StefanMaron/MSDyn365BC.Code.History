@@ -1,4 +1,4 @@
-table 363 "Analysis View"
+﻿table 363 "Analysis View"
 {
     Caption = 'Analysis View';
     DataCaptionFields = "Code", Name;
@@ -17,19 +17,17 @@ table 363 "Analysis View"
         {
             Caption = 'Name';
         }
-        field(3; "Account Source"; Option)
+        field(3; "Account Source"; Enum "Analysis Account Source")
         {
             Caption = 'Account Source';
-            OptionCaption = 'G/L Account,Cash Flow Account';
-            OptionMembers = "G/L Account","Cash Flow Account";
 
             trigger OnValidate()
             begin
                 TestField(Blocked, false);
                 if ("Last Entry No." <> 0) and ("Account Source" <> xRec."Account Source") then
                     ValidateDelete(FieldCaption("Account Source"));
-                VerificationForCashFlow;
-                AnalysisViewReset;
+                VerificationForCashFlow();
+                AnalysisViewReset();
                 "Account Filter" := '';
             end;
         }
@@ -52,7 +50,7 @@ table 363 "Analysis View"
 
             trigger OnValidate()
             begin
-                VerificationForCashFlow;
+                VerificationForCashFlow();
             end;
         }
         field(8; Blocked; Boolean)
@@ -70,7 +68,7 @@ table 363 "Analysis View"
 
                 if not Blocked and "Refresh When Unblocked" then begin
                     ValidateDelete(FieldCaption(Blocked));
-                    AnalysisViewReset;
+                    AnalysisViewReset();
                     "Refresh When Unblocked" := false;
                 end;
             end;
@@ -105,26 +103,26 @@ table 363 "Analysis View"
                         ValidateModify(FieldCaption("Account Filter"));
                         GLAcc.SetFilter("No.", "Account Filter");
                         if GLAcc.Find('-') then
-                            repeat
-                                GLAcc.Mark := true;
-                            until GLAcc.Next() = 0;
+                                repeat
+                                    GLAcc.Mark := true;
+                                until GLAcc.Next() = 0;
                         GLAcc.SetRange("No.");
                         if GLAcc.Find('-') then
                             repeat
-                                if not GLAcc.Mark then begin
-                                    AnalysisViewEntry.SetRange("Analysis View Code", Code);
-                                    AnalysisViewEntry.SetRange("Account No.", GLAcc."No.");
-                                    AnalysisViewEntry.DeleteAll();
-                                    AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
-                                    AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLAcc."No.");
-                                    AnalysisViewBudgetEntry.DeleteAll();
-                                end;
+                                    if not GLAcc.Mark() then begin
+                                        AnalysisViewEntry.SetRange("Analysis View Code", Code);
+                                        AnalysisViewEntry.SetRange("Account No.", GLAcc."No.");
+                                        AnalysisViewEntry.DeleteAll();
+                                        AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
+                                        AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLAcc."No.");
+                                        AnalysisViewBudgetEntry.DeleteAll();
+                                    end;
                             until GLAcc.Next() = 0;
                     end;
                     if ("Last Entry No." <> 0) and ("Account Filter" <> xRec."Account Filter") and (xRec."Account Filter" <> '')
                     then begin
                         ValidateDelete(FieldCaption("Account Filter"));
-                        AnalysisViewReset;
+                        AnalysisViewReset();
                     end;
                 end else begin
                     if ("Last Date Updated" <> 0D) and (xRec."Account Filter" = '') and ("Account Filter" <> '')
@@ -132,24 +130,24 @@ table 363 "Analysis View"
                         ValidateModify(FieldCaption("Account Filter"));
                         CFAccount.SetFilter("No.", "Account Filter");
                         if CFAccount.Find('-') then
-                            repeat
-                                CFAccount.Mark := true;
-                            until CFAccount.Next() = 0;
+                                repeat
+                                    CFAccount.Mark := true;
+                                until CFAccount.Next() = 0;
                         CFAccount.SetRange("No.");
                         if CFAccount.Find('-') then
                             repeat
-                                if not CFAccount.Mark then begin
-                                    AnalysisViewEntry.SetRange("Analysis View Code", Code);
-                                    AnalysisViewEntry.SetRange("Account No.", CFAccount."No.");
-                                    AnalysisViewEntry.DeleteAll();
-                                end;
+                                    if not CFAccount.Mark() then begin
+                                        AnalysisViewEntry.SetRange("Analysis View Code", Code);
+                                        AnalysisViewEntry.SetRange("Account No.", CFAccount."No.");
+                                        AnalysisViewEntry.DeleteAll();
+                                    end;
                             until CFAccount.Next() = 0;
                     end;
                     if ("Last Date Updated" <> 0D) and ("Account Filter" <> xRec."Account Filter") and
                        (xRec."Account Filter" <> '')
                     then begin
                         ValidateDelete(FieldCaption("Account Filter"));
-                        AnalysisViewReset;
+                        AnalysisViewReset();
                     end;
                 end;
             end;
@@ -182,7 +180,7 @@ table 363 "Analysis View"
                     ValidateModify(FieldCaption("Business Unit Filter"));
                     if BusUnit.Find('-') then
                         repeat
-                            TempBusUnit := BusUnit;
+                                TempBusUnit := BusUnit;
                             TempBusUnit.Insert();
                         until BusUnit.Next() = 0;
                     TempBusUnit.Init();
@@ -193,7 +191,7 @@ table 363 "Analysis View"
                     TempBusUnit.SetRange(Code);
                     if TempBusUnit.Find('-') then
                         repeat
-                            AnalysisViewEntry.SetRange("Analysis View Code", Code);
+                                AnalysisViewEntry.SetRange("Analysis View Code", Code);
                             AnalysisViewEntry.SetRange("Business Unit Code", TempBusUnit.Code);
                             AnalysisViewEntry.DeleteAll();
                             AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
@@ -205,7 +203,7 @@ table 363 "Analysis View"
                    ("Business Unit Filter" <> xRec."Business Unit Filter")
                 then begin
                     ValidateDelete(FieldCaption("Business Unit Filter"));
-                    AnalysisViewReset;
+                    AnalysisViewReset();
                 end;
             end;
         }
@@ -223,9 +221,9 @@ table 363 "Analysis View"
                     exit;
 
                 TestField(Blocked, false);
-                if CheckIfLastEntryOrDateIsSet and ("Starting Date" <> xRec."Starting Date") then begin
+                if CheckIfLastEntryOrDateIsSet() and ("Starting Date" <> xRec."Starting Date") then begin
                     ValidateDelete(FieldCaption("Starting Date"));
-                    AnalysisViewReset;
+                    AnalysisViewReset();
                 end;
             end;
         }
@@ -246,9 +244,9 @@ table 363 "Analysis View"
                     exit;
 
                 TestField(Blocked, false);
-                if CheckIfLastEntryOrDateIsSet and ("Date Compression" <> xRec."Date Compression") then begin
+                if CheckIfLastEntryOrDateIsSet() and ("Date Compression" <> xRec."Date Compression") then begin
                     ValidateDelete(FieldCaption("Date Compression"));
-                    AnalysisViewReset;
+                    AnalysisViewReset();
                 end;
             end;
         }
@@ -262,7 +260,7 @@ table 363 "Analysis View"
                 OnBeforeValidateDimension1Code(Rec, xRec);
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 1 Code", 13, '', Code, 0) then
-                    Error(Text000, Dim.GetCheckDimErr);
+                    Error(Text000, Dim.GetCheckDimErr());
                 if ClearDimTotalingLines("Dimension 1 Code", xRec."Dimension 1 Code", 1) then begin
                     ModifyDim(FieldCaption("Dimension 1 Code"), "Dimension 1 Code", xRec."Dimension 1 Code");
                     Modify();
@@ -280,7 +278,7 @@ table 363 "Analysis View"
                 OnBeforeValidateDimension2Code(Rec, xRec);
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 2 Code", 14, '', Code, 0) then
-                    Error(Text000, Dim.GetCheckDimErr);
+                    Error(Text000, Dim.GetCheckDimErr());
                 if ClearDimTotalingLines("Dimension 2 Code", xRec."Dimension 2 Code", 2) then begin
                     ModifyDim(FieldCaption("Dimension 2 Code"), "Dimension 2 Code", xRec."Dimension 2 Code");
                     Modify();
@@ -298,7 +296,7 @@ table 363 "Analysis View"
                 OnBeforeValidateDimension3Code(Rec, xRec);
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 3 Code", 15, '', Code, 0) then
-                    Error(Text000, Dim.GetCheckDimErr);
+                    Error(Text000, Dim.GetCheckDimErr());
                 if ClearDimTotalingLines("Dimension 3 Code", xRec."Dimension 3 Code", 3) then begin
                     ModifyDim(FieldCaption("Dimension 3 Code"), "Dimension 3 Code", xRec."Dimension 3 Code");
                     Modify();
@@ -316,7 +314,7 @@ table 363 "Analysis View"
                 OnBeforeValidateDimension4Code(Rec, xRec);
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 4 Code", 16, '', Code, 0) then
-                    Error(Text000, Dim.GetCheckDimErr);
+                    Error(Text000, Dim.GetCheckDimErr());
                 if ClearDimTotalingLines("Dimension 4 Code", xRec."Dimension 4 Code", 4) then begin
                     ModifyDim(FieldCaption("Dimension 4 Code"), "Dimension 4 Code", xRec."Dimension 4 Code");
                     Modify();
@@ -338,13 +336,13 @@ table 363 "Analysis View"
                 if IsHandled then
                     exit;
 
-                VerificationForCashFlow;
+                VerificationForCashFlow();
 
                 TestField(Blocked, false);
                 if ("Last Entry No." <> 0) and (xRec."Include Budgets" = true) and ("Include Budgets" = false)
                 then begin
                     ValidateDelete(FieldCaption("Include Budgets"));
-                    AnalysisviewBudgetReset;
+                    AnalysisviewBudgetReset();
                 end;
             end;
         }
@@ -388,12 +386,19 @@ table 363 "Analysis View"
     var
         AnalysisViewFilter: Record "Analysis View Filter";
     begin
-        AnalysisViewReset;
+        AnalysisViewReset();
         AnalysisViewFilter.SetRange("Analysis View Code", Code);
         AnalysisViewFilter.DeleteAll();
     end;
 
     var
+        AnalysisViewEntry: Record "Analysis View Entry";
+        NewAnalysisViewEntry: Record "Analysis View Entry";
+        AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
+        NewAnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
+        Dim: Record Dimension;
+        SkipConfirmationDialogue: Boolean;
+
         Text000: Label '%1\You cannot use the same dimension twice in the same analysis view.';
         Text001: Label 'The dimension %1 is used in the analysis view %2 %3.';
         Text002: Label ' You must therefore retain the dimension to keep consistency between the analysis view and the G/L entries.';
@@ -408,24 +413,18 @@ table 363 "Analysis View"
         Text013: Label 'The update has been interrupted in response to the warning.';
         Text014: Label 'If you change the contents of the %1 field, the analysis view entries will be changed as well.\\';
         Text015: Label 'Do you want to enter a new value in the %1 field?';
-        AnalysisViewEntry: Record "Analysis View Entry";
-        NewAnalysisViewEntry: Record "Analysis View Entry";
-        AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
-        NewAnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
-        Dim: Record Dimension;
         Text016: Label '%1 is not applicable for source type %2.';
         Text017Msg: Label 'Enabling the %1 feature immediately updates the analysis view with the latest entries. Do you want to start using the feature, and update the analysis view now?', Comment = '%1 = The name of the feature that is being enabled';
         Text018Msg: Label 'If you enable the %1 feature it can take significantly more time to post documents, such as sales or purchase orders and invoices. Do you want to continue?', Comment = '%1 = The name of the feature that is being enabled';
-        SkipConfirmationDialogue: Boolean;
         ClearDimTotalingConfirmTxt: Label 'Changing dimension will clear dimension totaling columns of Account Schedule Lines using current Analysis Vew. \Do you want to continue?';
         ResetNeededMsg: Label 'The data in the analysis view needs to be updated because a dimension has been changed. To update the data, choose Reset.';
 
     local procedure ModifyDim(DimFieldName: Text[100]; DimValue: Code[20]; xDimValue: Code[20])
     begin
-        if CheckIfLastEntryOrDateIsSet and (DimValue <> xDimValue) then begin
+        if CheckIfLastEntryOrDateIsSet() and (DimValue <> xDimValue) then begin
             if DimValue <> '' then begin
                 ValidateDelete(DimFieldName);
-                AnalysisViewReset;
+                AnalysisViewReset();
             end;
             if DimValue = '' then begin
                 ValidateModify(DimFieldName);
@@ -460,7 +459,7 @@ table 363 "Analysis View"
                     AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                 if AnalysisViewEntry.Find('-') then
                     repeat
-                        AnalysisViewEntry.Delete();
+                            AnalysisViewEntry.Delete();
                         NewAnalysisViewEntry := AnalysisViewEntry;
                         case DimFieldName of
                             FieldCaption("Dimension 1 Code"):
@@ -472,25 +471,25 @@ table 363 "Analysis View"
                             FieldCaption("Dimension 4 Code"):
                                 NewAnalysisViewEntry."Dimension 4 Value Code" := '';
                         end;
-                        InsertAnalysisViewEntry;
+                        InsertAnalysisViewEntry();
                     until AnalysisViewEntry.Next() = 0;
                 if "Account Source" = "Account Source"::"G/L Account" then
                     if AnalysisViewBudgetEntry.Find('-') then
-                        repeat
-                            AnalysisViewBudgetEntry.Delete();
-                            NewAnalysisViewBudgetEntry := AnalysisViewBudgetEntry;
-                            case DimFieldName of
-                                FieldCaption("Dimension 1 Code"):
-                                    NewAnalysisViewBudgetEntry."Dimension 1 Value Code" := '';
-                                FieldCaption("Dimension 2 Code"):
-                                    NewAnalysisViewBudgetEntry."Dimension 2 Value Code" := '';
-                                FieldCaption("Dimension 3 Code"):
-                                    NewAnalysisViewBudgetEntry."Dimension 3 Value Code" := '';
-                                FieldCaption("Dimension 4 Code"):
-                                    NewAnalysisViewBudgetEntry."Dimension 4 Value Code" := '';
-                            end;
-                            InsertAnalysisViewBudgetEntry;
-                        until AnalysisViewBudgetEntry.Next() = 0;
+                            repeat
+                                AnalysisViewBudgetEntry.Delete();
+                                NewAnalysisViewBudgetEntry := AnalysisViewBudgetEntry;
+                                case DimFieldName of
+                                    FieldCaption("Dimension 1 Code"):
+                                        NewAnalysisViewBudgetEntry."Dimension 1 Value Code" := '';
+                                    FieldCaption("Dimension 2 Code"):
+                                        NewAnalysisViewBudgetEntry."Dimension 2 Value Code" := '';
+                                    FieldCaption("Dimension 3 Code"):
+                                        NewAnalysisViewBudgetEntry."Dimension 3 Value Code" := '';
+                                    FieldCaption("Dimension 4 Code"):
+                                        NewAnalysisViewBudgetEntry."Dimension 4 Value Code" := '';
+                                end;
+                                InsertAnalysisViewBudgetEntry();
+                            until AnalysisViewBudgetEntry.Next() = 0;
             end;
         end;
     end;
@@ -498,7 +497,7 @@ table 363 "Analysis View"
     local procedure InsertAnalysisViewEntry()
     begin
         if not NewAnalysisViewEntry.Insert() then begin
-            NewAnalysisViewEntry.Find;
+            NewAnalysisViewEntry.Find();
             NewAnalysisViewEntry.Amount := NewAnalysisViewEntry.Amount + AnalysisViewEntry.Amount;
             if "Account Source" = "Account Source"::"G/L Account" then begin
                 NewAnalysisViewEntry."Debit Amount" :=
@@ -517,7 +516,7 @@ table 363 "Analysis View"
     local procedure InsertAnalysisViewBudgetEntry()
     begin
         if not NewAnalysisViewBudgetEntry.Insert() then begin
-            NewAnalysisViewBudgetEntry.Find;
+            NewAnalysisViewBudgetEntry.Find();
             NewAnalysisViewBudgetEntry.Amount := NewAnalysisViewBudgetEntry.Amount + AnalysisViewBudgetEntry.Amount;
             NewAnalysisViewBudgetEntry.Modify();
         end;
@@ -551,16 +550,16 @@ table 363 "Analysis View"
             ClearTotaling := true;
             AccScheduleName.SetRange("Analysis View Name", Code);
             if AccScheduleName.FindSet() then
-                repeat
-                    if not AccScheduleName.DimTotalingLinesAreEmpty(DimNumber) and ClearTotaling then begin
-                        if not AskedUser then begin
-                            ClearTotaling := ConfirmManagement.GetResponseOrDefault(ClearDimTotalingConfirmTxt, true);
-                            AskedUser := true;
+                    repeat
+                        if not AccScheduleName.DimTotalingLinesAreEmpty(DimNumber) and ClearTotaling then begin
+                            if not AskedUser then begin
+                                ClearTotaling := ConfirmManagement.GetResponseOrDefault(ClearDimTotalingConfirmTxt, true);
+                                AskedUser := true;
+                            end;
+                            if ClearTotaling then
+                                AccScheduleName.ClearDimTotalingLines(DimNumber);
                         end;
-                        if ClearTotaling then
-                            AccScheduleName.ClearDimTotalingLines(DimNumber);
-                    end;
-                until AccScheduleName.Next() = 0;
+                    until AccScheduleName.Next() = 0;
         end;
         exit(ClearTotaling);
     end;
@@ -584,12 +583,12 @@ table 363 "Analysis View"
 
     procedure CheckDimensionsAreRetained(ObjectType: Integer; ObjectID: Integer; OnlyIfIncludeBudgets: Boolean)
     begin
-        Reset;
+        Reset();
         if OnlyIfIncludeBudgets then
             SetRange("Include Budgets", true);
         if Find('-') then
             repeat
-                CheckDimIsRetained(ObjectType, ObjectID, "Dimension 1 Code", Code, Name);
+                    CheckDimIsRetained(ObjectType, ObjectID, "Dimension 1 Code", Code, Name);
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 2 Code", Code, Name);
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 3 Code", Code, Name);
                 CheckDimIsRetained(ObjectType, ObjectID, "Dimension 4 Code", Code, Name);
@@ -619,21 +618,21 @@ table 363 "Analysis View"
         RunCheck: Boolean;
     begin
         if "Account Source" = "Account Source"::"G/L Account" then
-            RunCheck := GLEntry.FindLast or GLBudgetEntry.FindLast
+            RunCheck := GLEntry.FindLast() or GLBudgetEntry.FindLast()
         else
-            RunCheck := CFForecastEntry.FindLast();
+            RunCheck := not CFForecastEntry.IsEmpty();
 
         if RunCheck then begin
             NoNotUpdated := 0;
-            Reset;
+            Reset();
             if Find('-') then
-                repeat
-                    if ("Account Source" = "Account Source"::"Cash Flow Account") or
-                       (("Last Entry No." < GLEntry."Entry No.") or
-                        "Include Budgets" and ("Last Budget Entry No." < GLBudgetEntry."Entry No."))
-                    then
-                        NoNotUpdated := NoNotUpdated + 1;
-                until Next() = 0;
+                    repeat
+                        if ("Account Source" = "Account Source"::"Cash Flow Account") or
+                           (("Last Entry No." < GLEntry."Entry No.") or
+                            "Include Budgets" and ("Last Budget Entry No." < GLBudgetEntry."Entry No."))
+                        then
+                            NoNotUpdated := NoNotUpdated + 1;
+                    until Next() = 0;
             if NoNotUpdated > 0 then
                 if ConfirmManagement.GetResponseOrDefault(
                          Text004 +
@@ -643,14 +642,14 @@ table 363 "Analysis View"
                          Text009, true)
                     then begin
                     if Find('-') then
-                        repeat
-                            if Blocked then begin
-                                "Refresh When Unblocked" := true;
-                                "Last Budget Entry No." := 0;
-                                Modify;
-                            end else
-                                UpdateAnalysisView.Update(Rec, 2, true);
-                        until Next() = 0;
+                            repeat
+                                if Blocked then begin
+                                    "Refresh When Unblocked" := true;
+                                    "Last Budget Entry No." := 0;
+                                    Modify();
+                                end else
+                                    UpdateAnalysisView.Update(Rec, 2, true);
+                            until Next() = 0;
                 end else
                     Error(Text010);
         end;
@@ -662,14 +661,14 @@ table 363 "Analysis View"
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
         if AnalysisView.FindSet() then
-            repeat
-                if AnalysisView.Blocked then begin
-                    AnalysisView."Refresh When Unblocked" := true;
-                    AnalysisView."Last Budget Entry No." := 0;
-                    AnalysisView.Modify();
-                end else
-                    UpdateAnalysisView.Update(AnalysisView, 2, ShowWindow);
-            until Next() = 0;
+                repeat
+                    if AnalysisView.Blocked then begin
+                        AnalysisView."Refresh When Unblocked" := true;
+                        AnalysisView."Last Budget Entry No." := 0;
+                        AnalysisView.Modify();
+                    end else
+                        UpdateAnalysisView.Update(AnalysisView, 2, ShowWindow);
+                until Next() = 0;
     end;
 
     procedure UpdateLastEntryNo()
@@ -679,10 +678,10 @@ table 363 "Analysis View"
         if GLEntry.FindLast() then begin
             SetRange(Blocked, false);
             if Find('-') then
-                repeat
-                    "Last Entry No." := GLEntry."Entry No.";
-                    Modify;
-                until Next() = 0;
+                    repeat
+                        "Last Entry No." := GLEntry."Entry No.";
+                        Modify();
+                    until Next() = 0;
             SetRange(Blocked);
         end;
     end;
@@ -702,10 +701,10 @@ table 363 "Analysis View"
 
     procedure AnalysisviewBudgetReset()
     var
-        AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
+        AnalysisViewBudgetEntry2: Record "Analysis View Budget Entry";
     begin
-        AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
-        AnalysisViewBudgetEntry.DeleteAll();
+        AnalysisViewBudgetEntry2.SetRange("Analysis View Code", Code);
+        AnalysisViewBudgetEntry2.DeleteAll();
         "Last Budget Entry No." := 0;
     end;
 
@@ -735,7 +734,7 @@ table 363 "Analysis View"
                 if "Account Source" = "Account Source"::"G/L Account" then
                     DimensionCode := GLAcc.TableCaption
                 else
-                    DimensionCode := CFAcc.TableCaption;
+                    DimensionCode := CFAcc.TableCaption();
 
                 if SelectedDim.Get(
                      UserId, ObjectType, ObjectID, AnalysisViewCode, DimensionCode)
@@ -757,7 +756,7 @@ table 363 "Analysis View"
             end;
             if "Business Unit Filter" <> '' then
                 if SelectedDim.Get(
-                     UserId, ObjectType, ObjectID, AnalysisViewCode, BusUnit.TableCaption)
+                     UserId, ObjectType, ObjectID, AnalysisViewCode, BusUnit.TableCaption())
                 then begin
                     if SelectedDim."Dimension Value Filter" = '' then begin
                         SelectedDim."Dimension Value Filter" := "Business Unit Filter";
@@ -769,7 +768,7 @@ table 363 "Analysis View"
                     SelectedDim."Object Type" := ObjectType;
                     SelectedDim."Object ID" := ObjectID;
                     SelectedDim."Analysis View Code" := AnalysisViewCode;
-                    SelectedDim."Dimension Code" := BusUnit.TableCaption;
+                    SelectedDim."Dimension Code" := BusUnit.TableCaption();
                     SelectedDim."Dimension Value Filter" := "Business Unit Filter";
                     SelectedDim.Insert();
                 end;
@@ -789,7 +788,7 @@ table 363 "Analysis View"
             Error(Text016, FieldCaption("Update on Posting"), "Account Source");
     end;
 
-    local procedure CheckIfLastEntryOrDateIsSet(): Boolean
+    procedure CheckIfLastEntryOrDateIsSet(): Boolean
     begin
         if "Account Source" = "Account Source"::"G/L Account" then
             exit("Last Entry No." <> 0);
@@ -811,9 +810,9 @@ table 363 "Analysis View"
 
         "Update on Posting" := NewUpdateOnPosting;
         if "Update on Posting" then begin
-            Modify;
+            Modify();
             CODEUNIT.Run(CODEUNIT::"Update Analysis View", Rec);
-            Find;
+            Find();
         end;
     end;
 

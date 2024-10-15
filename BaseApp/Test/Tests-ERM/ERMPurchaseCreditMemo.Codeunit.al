@@ -124,7 +124,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(VATAmountErr, PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine.TableCaption));
+          StrSubstNo(VATAmountErr, PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine.TableCaption()));
     end;
 
     [Test]
@@ -218,7 +218,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // Verify: Verify Posted Return Shipment Lines, GL Entries, Vendor Ledger Entries, VAT Entries and Value Entries.
         ReturnShipmentLine.SetRange("Document No.", PostedReturnShipmentNo);
         Assert.AreEqual(
-          Counter, ReturnShipmentLine.Count, StrSubstNo(LineErr, PurchaseLine.TableCaption, ReturnShipmentLine.TableCaption));
+          Counter, ReturnShipmentLine.Count, StrSubstNo(LineErr, PurchaseLine.TableCaption(), ReturnShipmentLine.TableCaption()));
         PurchCrMemoHdr.Get(PostedCreditMemoNo);
         PurchCrMemoHdr.CalcFields(Amount);
         VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
@@ -267,14 +267,14 @@ codeunit 134330 "ERM Purchase Credit Memo"
         Assert.AreEqual(
           PurchaseLine."Location Code", ReturnShipmentLine."Location Code",
           StrSubstNo(
-            CommonErr, ReturnShipmentLine.FieldCaption("Location Code"), ReturnShipmentLine.TableCaption, PurchaseLine.TableCaption));
+            CommonErr, ReturnShipmentLine.FieldCaption("Location Code"), ReturnShipmentLine.TableCaption(), PurchaseLine.TableCaption()));
 
         // Tear Down: Cleanup of Warehouse Location Setup Done.
         Location.Validate("Require Shipment", RequireShipment);  // Restore previous state of Location.
         Location.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPurchaseCreditMemo()
@@ -373,10 +373,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         ReturnShipmentHeader.Get(PostedDocumentNo);
         Assert.AreEqual(
           PurchaseHeader."Currency Code", PurchaseLine."Currency Code",
-          StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Currency Code"), PurchaseLine.TableCaption));
+          StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Currency Code"), PurchaseLine.TableCaption()));
         Assert.AreEqual(
           PurchaseHeader."Currency Code", ReturnShipmentHeader."Currency Code",
-          StrSubstNo(FieldErr, ReturnShipmentHeader.FieldCaption("Currency Code"), ReturnShipmentHeader.TableCaption));
+          StrSubstNo(FieldErr, ReturnShipmentHeader.FieldCaption("Currency Code"), ReturnShipmentHeader.TableCaption()));
     end;
 
     [Test]
@@ -409,10 +409,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLine2.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine2.FindFirst();
         Assert.AreEqual(
-          PurchaseLine."No.", PurchaseLine2."No.", StrSubstNo(FieldErr, PurchaseLine.FieldCaption("No."), PurchaseLine.TableCaption));
+          PurchaseLine."No.", PurchaseLine2."No.", StrSubstNo(FieldErr, PurchaseLine.FieldCaption("No."), PurchaseLine.TableCaption()));
         Assert.AreEqual(
           PurchaseLine.Quantity, PurchaseLine2.Quantity,
-          StrSubstNo(FieldErr, PurchaseLine.FieldCaption(Quantity), PurchaseLine.TableCaption));
+          StrSubstNo(FieldErr, PurchaseLine.FieldCaption(Quantity), PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -453,10 +453,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         ReturnShipmentHeader.Get(PostedReturnShipmentNo);
         Assert.AreEqual(
           PurchaseHeader."Document Type", ReturnShipmentHeader."Applies-to Doc. Type",
-          StrSubstNo(FieldErr, ReturnShipmentHeader.FieldCaption("Applies-to Doc. Type"), ReturnShipmentHeader.TableCaption));
+          StrSubstNo(FieldErr, ReturnShipmentHeader.FieldCaption("Applies-to Doc. Type"), ReturnShipmentHeader.TableCaption()));
         Assert.AreEqual(
           PostedPurchaseInvoiceNo, ReturnShipmentHeader."Applies-to Doc. No.",
-          StrSubstNo(FieldErr, ReturnShipmentHeader.FieldCaption("Applies-to Doc. No."), ReturnShipmentHeader.TableCaption));
+          StrSubstNo(FieldErr, ReturnShipmentHeader.FieldCaption("Applies-to Doc. No."), ReturnShipmentHeader.TableCaption()));
     end;
 
     [Test]
@@ -596,7 +596,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLine2.FindFirst();
         Assert.AreNearlyEqual(
           DirectCostInclVAT, PurchaseLine2."Direct Unit Cost", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Direct Unit Cost"), PurchaseLine.TableCaption));
+          StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Direct Unit Cost"), PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -721,7 +721,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        exit(NoSeriesManagement.GetNextNo(ReturnShipmentNoSeries, WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(ReturnShipmentNoSeries, WorkDate(), false));
     end;
 
     local procedure ErrorOnGetPostedDocumentLineToReverse(PricesIncludingVAT: Boolean; PricesIncludingVAT2: Boolean)
@@ -1132,7 +1132,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // Verification done in handler PostedPurchaseDocumentLinesWithSpecificCrMemoValidationHandler
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -1293,7 +1293,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         Assert.AreEqual('Purchase Credit Memo', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -1365,7 +1365,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
         // [GIVEN] Purchase Price for Item "I1" = X + 5 for WorkDate
         LibraryCosting.CreatePurchasePrice(
-          PurchasePrice, PurchaseHeader."Buy-from Vendor No.", PurchaseLine."No.", WorkDate, '', '', '', 0);
+          PurchasePrice, PurchaseHeader."Buy-from Vendor No.", PurchaseLine."No.", WorkDate(), '', '', '', 0);
         PurchasePrice.Validate("Direct Unit Cost", InitialUnitCost + 5);
         PurchasePrice.Modify(true);
         PurchaseLine.Reset();
@@ -1536,7 +1536,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
     local procedure CreatePurchCrMemoWithCurrency(var PurchaseHeader: Record "Purchase Header")
     begin
         with PurchaseHeader do begin
-            Init;
+            Init();
             Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo);
             Validate("Currency Code", CreateCurrency);
             Validate("Document Type", "Document Type"::"Credit Memo");
@@ -1553,7 +1553,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
             Validate(Quantity, NewQuantity);
             Validate("Direct Unit Cost", NewDirectUnitCost);
             Validate("Line Discount Amount", NewLineDiscountAmt);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1605,7 +1605,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -1670,10 +1670,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GLEntry.FindSet();
         repeat
             TotalGLAmount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
           Amount, TotalGLAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
+          StrSubstNo(FieldErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -1688,7 +1688,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         VendorLedgerEntry.CalcFields("Amount (LCY)");
         Assert.AreNearlyEqual(
           Amount, Abs(VendorLedgerEntry."Amount (LCY)"), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldErr, VendorLedgerEntry.FieldCaption("Amount (LCY)"), VendorLedgerEntry.TableCaption));
+          StrSubstNo(FieldErr, VendorLedgerEntry.FieldCaption("Amount (LCY)"), VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -1702,7 +1702,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, Abs(VATEntry.Base + VATEntry.Amount), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldErr, VATEntry.FieldCaption(Amount), VATEntry.TableCaption));
+          StrSubstNo(FieldErr, VATEntry.FieldCaption(Amount), VATEntry.TableCaption()));
     end;
 
     local procedure VerifyValueEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -1717,10 +1717,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         ValueEntry.FindSet();
         repeat
             CostAmount += ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreNearlyEqual(
           -Amount, CostAmount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), ValueEntry.TableCaption));
+          StrSubstNo(FieldErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), ValueEntry.TableCaption()));
     end;
 
     local procedure VerifyLineDiscountAmount(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; LineDiscountAmount: Decimal)
@@ -1736,10 +1736,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           LineDiscountAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
+          StrSubstNo(FieldErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           LineDiscountAmount, PurchaseLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Line Discount Amount"), PurchaseLine.TableCaption));
+          StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Line Discount Amount"), PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyInvoiceDiscountAmount(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; InvoiceDiscountAmount: Decimal)
@@ -1755,10 +1755,10 @@ codeunit 134330 "ERM Purchase Credit Memo"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           InvoiceDiscountAmount, Abs(GLEntry.Amount), GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
+          StrSubstNo(FieldErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           InvoiceDiscountAmount, PurchaseLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Inv. Discount Amount"), PurchaseLine.TableCaption));
+          StrSubstNo(FieldErr, PurchaseLine.FieldCaption("Inv. Discount Amount"), PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)

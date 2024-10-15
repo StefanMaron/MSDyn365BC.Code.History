@@ -1010,27 +1010,27 @@ codeunit 147522 "SII Document Processing"
         Assert.IsTrue(SIISetup."Show Advanced Actions".Visible, '');
         Assert.IsTrue(SIISetup."Show Advanced Actions".Enabled, '');
         SIISetup."Show Advanced Actions".AssertEquals(false);
-        SIISetup.Close;
+        SIISetup.Close();
 
         // SII History advanced actions are hidden in case of SIISetup."Show Advanced Actions" = FALSE
         SIIHistory.OpenEdit;
         Assert.IsFalse(SIIHistory."Mark As Accepted".Visible, '');
         Assert.IsFalse(SIIHistory."Mark As Accepted".Enabled, '');
-        SIIHistory.Close;
+        SIIHistory.Close();
 
         // SII History advanced actions are visible but not enabled in case of SIISetup."Enabled" = FALSE, "Show Advanced Actions" = TRUE
         LibrarySII.ShowAdvancedActions(true);
         SIIHistory.OpenEdit;
         Assert.IsTrue(SIIHistory."Mark As Accepted".Visible, '');
         Assert.IsFalse(SIIHistory."Mark As Accepted".Enabled, '');
-        SIIHistory.Close;
+        SIIHistory.Close();
 
         // SII History advanced actions are visible and enabled in case of SIISetup."Enabled" = TRUE, "Show Advanced Actions" = TRUE
         LibrarySII.InitSetup(true, false);
         SIIHistory.OpenEdit;
         Assert.IsTrue(SIIHistory."Mark As Accepted".Visible, '');
         Assert.IsTrue(SIIHistory."Mark As Accepted".Enabled, '');
-        SIIHistory.Close;
+        SIIHistory.Close();
     end;
 
     [Test]
@@ -1379,7 +1379,7 @@ codeunit 147522 "SII Document Processing"
 
         SIISetup.Get();
         SIISetup."SuministroInformacion Schema" := '';
-        SIISetup.Modify;
+        SIISetup.Modify();
 
         asserterror SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false);
 
@@ -1389,7 +1389,7 @@ codeunit 147522 "SII Document Processing"
 
         SIISetup."SuministroInformacion Schema" := SIISetup."SuministroLR Schema";
         SIISetup."SuministroLR Schema" := '';
-        SIISetup.Modify;
+        SIISetup.Modify();
 
         asserterror SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false);
 
@@ -1411,13 +1411,13 @@ codeunit 147522 "SII Document Processing"
         Initialize();
 
         // [GIVEN] Isolated certificate "A"
-        IsolatedCertificate.Init;
+        IsolatedCertificate.Init();
         IsolatedCertificate.Insert(true);
 
         // [GIVEN] SII setup with "Certificate Code" = "A"
         SIISetup.Get();
         SIISetup."Certificate Code" := IsolatedCertificate.Code;
-        SIISetup.Modify;
+        SIISetup.Modify();
         Commit;
 
         LibraryVariableStorage.Enqueue(CertificateUsedInSIISetupQst);
@@ -1430,10 +1430,10 @@ codeunit 147522 "SII Document Processing"
         Assert.ExpectedError('');
 
         // [THEN] Isolated certificate not removed
-        IsolatedCertificate.Find;
+        IsolatedCertificate.Find();
 
         // [THEN] "Certificate Code" still has value "A" in the SII Setup
-        SIISetup.Find;
+        SIISetup.Find();
         SIISetup.TestField("Certificate Code", IsolatedCertificate.Code);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1452,13 +1452,13 @@ codeunit 147522 "SII Document Processing"
         Initialize();
 
         // [GIVEN] Isolated certificate "A"
-        IsolatedCertificate.Init;
+        IsolatedCertificate.Init();
         IsolatedCertificate.Insert(true);
 
         // [GIVEN] SII setup with "Certificate Code" = "A"
         SIISetup.Get();
         SIISetup."Certificate Code" := IsolatedCertificate.Code;
-        SIISetup.Modify;
+        SIISetup.Modify();
         Commit;
 
         LibraryVariableStorage.Enqueue(CertificateUsedInSIISetupQst);
@@ -1471,7 +1471,7 @@ codeunit 147522 "SII Document Processing"
         Assert.IsFalse(IsolatedCertificate.Find, 'Isolated certificate was not removed');
 
         // [THEN] "Certificate Code" does not have in the SII Setup
-        SIISetup.Find;
+        SIISetup.Find();
         SIISetup.TestField("Certificate Code", '');
 
         LibraryVariableStorage.AssertEmpty;
@@ -1810,7 +1810,7 @@ codeunit 147522 "SII Document Processing"
     begin
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate);
+          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate());
         SalesHeader.Validate("Invoice Type", SIIDocType);
         SalesHeader.Modify(true);
     end;
@@ -1821,7 +1821,7 @@ codeunit 147522 "SII Document Processing"
     begin
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo",
-          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate);
+          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate());
         SalesHeader.Validate("Cr. Memo Type", SIIDocType);
         SalesHeader.Modify(true);
     end;
@@ -1844,7 +1844,7 @@ codeunit 147522 "SII Document Processing"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate);
+          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate());
         PurchaseHeader.Validate("Invoice Type", SIIDocType);
         PurchaseHeader.Modify(true);
     end;
@@ -1855,7 +1855,7 @@ codeunit 147522 "SII Document Processing"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo",
-          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate);
+          '', '', LibraryRandom.RandDecInRange(100, 200, 2), '', WorkDate());
         PurchaseHeader.Validate("Cr. Memo Type", SIIDocType);
         PurchaseHeader.Modify(true);
     end;
@@ -1943,7 +1943,7 @@ codeunit 147522 "SII Document Processing"
           LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CreateIntraCommunityCustomer(Customer);
         CustLedgerEntry."Sell-to Customer No." := Customer."No.";
         CustLedgerEntry."Customer No." := Customer."No.";
@@ -1959,7 +1959,7 @@ codeunit 147522 "SII Document Processing"
           LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         CreateIntraCommunityVendor(Vendor);
         VendorLedgerEntry."Buy-from Vendor No." := Vendor."No.";
         VendorLedgerEntry."Vendor No." := Vendor."No.";

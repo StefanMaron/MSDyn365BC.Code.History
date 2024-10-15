@@ -51,7 +51,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
         if CarteraDoc.FindSet() then
             repeat
                 with TempGenJnlLine do begin
-                    Init;
+                    Init();
                     "Journal Template Name" := '';
                     "Journal Batch Name" := '';
                     "Line No." := CarteraDoc."Entry No.";
@@ -70,7 +70,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
                     "External Document No." := CarteraDoc."Original Document No.";
                     "Currency Code" := CarteraDoc."Currency Code";
                     Amount := CarteraDoc."Remaining Amount";
-                    Insert;
+                    Insert();
                 end;
             until CarteraDoc.Next() = 0;
 

@@ -1277,7 +1277,7 @@ codeunit 147523 "SII Documents With EU Service"
         CustNo := CreateCustWithVATBusPostGroup(VATPostingSetup."VAT Bus. Posting Group");
         ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, DocType, CustNo, ItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          SalesHeader, SalesLine, DocType, CustNo, ItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
         SalesHeader.Validate("Correction Type", CorrType);
         SalesHeader.Modify(true);
         LibrarySII.UpdateUnitPriceSalesLine(SalesLine, LibraryRandom.RandDec(100, 2));
@@ -1303,7 +1303,7 @@ codeunit 147523 "SII Documents With EU Service"
         ECItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetupEC."VAT Prod. Posting Group");
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, NormalVATSalesLine, DocType, CustNo, NormalVATItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          SalesHeader, NormalVATSalesLine, DocType, CustNo, NormalVATItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
         LibrarySales.CreateSalesLine(ECSalesLine, SalesHeader, ECSalesLine.Type::Item, ECItemNo, LibraryRandom.RandDec(100, 2));
         SalesHeader.Validate("Correction Type", CorrType);
         SalesHeader.Modify(true);
@@ -1331,7 +1331,7 @@ codeunit 147523 "SII Documents With EU Service"
         EUItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetupEUService."VAT Prod. Posting Group");
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, NormalVATSalesLine, DocType, CustNo, NormalVATItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          SalesHeader, NormalVATSalesLine, DocType, CustNo, NormalVATItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
         LibrarySales.CreateSalesLine(EUSalesLine, SalesHeader, EUSalesLine.Type::Item, EUItemNo, LibraryRandom.RandDec(100, 2));
         LibrarySII.UpdateUnitPriceSalesLine(NormalVATSalesLine, LibraryRandom.RandDec(100, 2));
         LibrarySII.UpdateUnitPriceSalesLine(EUSalesLine, LibraryRandom.RandDec(100, 2));
@@ -1448,8 +1448,8 @@ codeunit 147523 "SII Documents With EU Service"
         ItemNo[3] := LibrarySII.CreateItemWithSpecificVATSetup(VATPostingSetup."VAT Bus. Posting Group", VATPct[2]);
         ItemNo[4] := LibrarySII.CreateItemWithSpecificVATSetup(VATPostingSetup."VAT Bus. Posting Group", VATPct[2]);
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, Customer."No.");
-        ServiceHeader.Validate("Posting Date", WorkDate);
-        ServiceHeader.Validate("Order Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
+        ServiceHeader.Validate("Order Date", WorkDate());
         ServiceHeader.Modify(true);
         for i := 1 to ArrayLen(ItemNo) do begin
             Clear(ServiceItem);
@@ -1486,7 +1486,7 @@ codeunit 147523 "SII Documents With EU Service"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::"Credit Memo", VendNo,
-          ItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          ItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
         PurchaseHeader.Validate("Correction Type", PurchaseHeader."Correction Type"::Difference);
         PurchaseHeader.Modify(true);
         LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
@@ -1505,7 +1505,7 @@ codeunit 147523 "SII Documents With EU Service"
         VendNo := LibrarySII.CreateVendWithVATSetup(VATPostingSetup."VAT Bus. Posting Group");
         ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, DocType, VendNo, ItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          PurchaseHeader, PurchaseLine, DocType, VendNo, ItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
         PurchaseHeader.Validate("Correction Type", CorrType);
         PurchaseHeader.Modify(true);
         LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
@@ -1530,7 +1530,7 @@ codeunit 147523 "SII Documents With EU Service"
         ECItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetupEC."VAT Prod. Posting Group");
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, NormalVATPurchLine, DocType, VendNo, NormalVATItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+          PurchaseHeader, NormalVATPurchLine, DocType, VendNo, NormalVATItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
         LibraryPurchase.CreatePurchaseLine(ECPurchLine, PurchaseHeader, ECPurchLine.Type::Item, ECItemNo, LibraryRandom.RandDec(100, 2));
         PurchaseHeader.Validate("Correction Type", CorrType);
         PurchaseHeader.Modify(true);
@@ -1556,8 +1556,8 @@ codeunit 147523 "SII Documents With EU Service"
     begin
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, Customer."No.");
-        ServiceHeader.Validate("Posting Date", WorkDate);
-        ServiceHeader.Validate("Order Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
+        ServiceHeader.Validate("Order Date", WorkDate());
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -1580,7 +1580,7 @@ codeunit 147523 "SII Documents With EU Service"
         FindVATEntries(VATEntry, Type, DocNo);
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, BaseNode, '[1]/' + NodeName, SIIXMLCreator.FormatNumber(Sign * VATEntry.Amount));
-        VATEntry.Next;
+        VATEntry.Next();
         ExpectedECAmount := Round(Sign * VATEntry.Base * VATEntry."EC %" / 100);
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, BaseNode, '[2]/' + NodeName, SIIXMLCreator.FormatNumber(Sign * VATEntry.Amount - ExpectedECAmount));
@@ -1606,7 +1606,7 @@ codeunit 147523 "SII Documents With EU Service"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, StrSubstNo(XPathSalesEUServiceTok, FirstVATTypeNodeName), '/sii:CuotaRepercutida',
           SIIXMLCreator.FormatNumber(-VATEntry.Amount));
-        VATEntry.Next;
+        VATEntry.Next();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, StrSubstNo(XPathSalesEUServiceTok, SecondVATTypeNodeName), '/sii:CuotaRepercutida',
           SIIXMLCreator.FormatNumber(-VATEntry.Amount));
@@ -1619,7 +1619,7 @@ codeunit 147523 "SII Documents With EU Service"
         FindVATEntries(VATEntry, VATEntry.Type::Sale, DocNo);
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesBaseImponibleTok, '[1]/sii:CuotaRepercutida', SIIXMLCreator.FormatNumber(-VATEntry.Amount));
-        VATEntry.Next;
+        VATEntry.Next();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesBaseImponibleTok, '[2]/sii:CuotaRepercutida', SIIXMLCreator.FormatNumber(-VATEntry.Amount));
     end;
@@ -1635,7 +1635,7 @@ codeunit 147523 "SII Documents With EU Service"
           XMLDoc, BaseNode, '[1]/' + NodeName, SIIXMLCreator.FormatNumber(Sign * VATEntry.Base));
         VATEntry.FindLast();
         VATEntry.SetRange("VAT %");
-        VATEntry.Next;
+        VATEntry.Next();
         VATEntry.SetRange("VAT %", VATEntry."VAT %");
         VATEntry.CalcSums(Base);
         LibrarySII.VerifyOneNodeWithValueByXPath(

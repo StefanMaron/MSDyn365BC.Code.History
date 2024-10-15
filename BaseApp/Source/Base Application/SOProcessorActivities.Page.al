@@ -162,7 +162,7 @@ page 9060 "SO Processor Activities"
             cuegroup(MissingSIIEntries)
             {
                 Caption = 'Missing SII Entries';
-                field("Missing SII Entries"; "Missing SII Entries")
+                field("Missing SII Entries"; Rec."Missing SII Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Missing SII Entries';
@@ -173,10 +173,10 @@ page 9060 "SO Processor Activities"
                     var
                         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
                     begin
-                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage;
+                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage();
                     end;
                 }
-                field("Days Since Last SII Check"; "Days Since Last SII Check")
+                field("Days Since Last SII Check"; Rec."Days Since Last SII Check")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Recreate Missing SII Entries";
@@ -263,9 +263,9 @@ page 9060 "SO Processor Activities"
         RoleCenterNotificationMgt.ShowNotifications();
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
 
-        if PageNotifier.IsAvailable then begin
-            PageNotifier := PageNotifier.Create;
-            PageNotifier.NotifyPageReady;
+        if PageNotifier.IsAvailable() then begin
+            PageNotifier := PageNotifier.Create();
+            PageNotifier.NotifyPageReady();
         end;
     end;
 

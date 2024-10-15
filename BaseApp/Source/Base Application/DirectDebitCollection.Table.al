@@ -113,7 +113,7 @@ table 1207 "Direct Debit Collection"
             Status := Status::Canceled
         else
             Status := Status::Closed;
-        Modify;
+        Modify();
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", "No.");
         DirectDebitCollectionEntry.SetRange(Status, DirectDebitCollectionEntry.Status::New);
@@ -126,7 +126,7 @@ table 1207 "Direct Debit Collection"
     begin
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", "No.");
         if DirectDebitCollectionEntry.FindFirst() then
-            DirectDebitCollectionEntry.ExportSEPA;
+            DirectDebitCollectionEntry.ExportSEPA();
     end;
 
     procedure HasPaymentFileErrors() Result: Boolean
@@ -140,15 +140,15 @@ table 1207 "Direct Debit Collection"
             exit(Result);
 
         SetGenJnlLineMapping(GenJnlLine);
-        exit(GenJnlLine.HasPaymentFileErrorsInBatch);
+        exit(GenJnlLine.HasPaymentFileErrorsInBatch());
     end;
 
     procedure SetStatus(NewStatus: Option)
     begin
         LockTable();
-        Find;
+        Find();
         Status := NewStatus;
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -170,7 +170,7 @@ table 1207 "Direct Debit Collection"
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", "No.");
         if DirectDebitCollectionEntry.FindSet() then
             repeat
-                DirectDebitCollectionEntry.DeletePaymentFileErrors;
+                DirectDebitCollectionEntry.DeletePaymentFileErrors();
             until DirectDebitCollectionEntry.Next() = 0;
     end;
 

@@ -71,7 +71,7 @@ codeunit 144053 "ERM Ignore Discount"
         // Verify: Verification is done in SalesStatisticsModalPageHandler.
 
         // Tear Down.
-        SalesInvoice.Close;
+        SalesInvoice.Close();
         UpdateCalcInvDiscountOnSalesReceivablesSetup(OldCalcInvDiscount);
     end;
 
@@ -119,7 +119,7 @@ codeunit 144053 "ERM Ignore Discount"
         // Verify: Verification is done in PurchaseStatisticsModalPageHandler.
 
         // Tear Down.
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
         UpdateCalcInvDiscountOnPurchasesPayablesSetup(OldCalcInvDiscount);
     end;
 

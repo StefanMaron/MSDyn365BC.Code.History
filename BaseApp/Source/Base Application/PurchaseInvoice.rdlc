@@ -9551,6 +9551,33 @@ End Function
         <Field Name="ShipToAddressCaption">
           <DataField>ShipToAddressCaption</DataField>
         </Field>
+        <Field Name="RemitToAddressCaption">
+          <DataField>RemitToAddressCaption</DataField>
+        </Field>
+        <Field Name="RemitToAddress_Name">
+          <DataField>RemitToAddress_Name</DataField>
+        </Field>
+        <Field Name="RemitToAddress_Name2">
+          <DataField>RemitToAddress_Name2</DataField>
+        </Field>
+        <Field Name="RemitToAddress_Contact">
+          <DataField>RemitToAddress_Contact</DataField>
+        </Field>
+        <Field Name="RemitToAddress_Address">
+          <DataField>RemitToAddress_Address</DataField>
+        </Field>
+        <Field Name="RemitToAddress_Address2">
+          <DataField>RemitToAddress_Address2</DataField>
+        </Field>
+        <Field Name="RemitToAddress_City">
+          <DataField>RemitToAddress_City</DataField>
+        </Field>
+        <Field Name="RemitToAddress_PostCode">
+          <DataField>RemitToAddress_PostCode</DataField>
+        </Field>
+        <Field Name="RemitToAddress_County">
+          <DataField>RemitToAddress_County</DataField>
+        </Field>
       </Fields>
       <Query>
         <DataSourceName>DataSource</DataSourceName>

@@ -21,6 +21,11 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account that you want to reconcile with the bank''s statement.';
                 }
+                field("Bank Account Name"; "Bank Account Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the bank account that you want to reconcile.';
+                }
                 field(StatementNo; "Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -71,9 +76,6 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Bank Acc. Recon. Post (Yes/No)";
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
@@ -83,9 +85,6 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Bank Acc. Recon. Post+Print";
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
@@ -107,6 +106,20 @@ page 388 "Bank Acc. Reconciliation List"
                     Codeunit.Run(Codeunit::"Change Bank Rec. Statement No.", BankAccReconciliation);
                     Rec := BankAccReconciliation;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref(PostAndPrint_Promoted; PostAndPrint)
+                {
+                }
             }
         }
     }

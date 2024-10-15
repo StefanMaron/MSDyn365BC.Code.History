@@ -8,16 +8,17 @@ codeunit 1011 "Job Jnl.-Check Line"
     end;
 
     var
+        Location: Record Location;
+        DimMgt: Codeunit DimensionManagement;
+        TimeSheetMgt: Codeunit "Time Sheet Management";
+        CalledFromInvtPutawayPick: Boolean;
+
         Text000: Label 'cannot be a closing date.';
         Text001: Label 'is not within your range of allowed posting dates.';
         CombinationBlockedErr: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
         DimensionCausedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
-        Location: Record Location;
-        DimMgt: Codeunit DimensionManagement;
-        TimeSheetMgt: Codeunit "Time Sheet Management";
         Text004: Label 'You must post more usage of %1 %2 in %3 %4 before you can post job journal %5 %6 = %7.', Comment = '%1=Item;%2=JobJnlline."No.";%3=Job;%4=JobJnlline."Job No.";%5=JobJnlline."Journal Batch Name";%6="Line No";%7=JobJnlline."Line No."';
         WhseRemainQtyPickedErr: Label 'You cannot post usage for job number %1 with job planning line %2 because a quantity of %3 remains to be picked.', Comment = '%1 = 12345, %2 = 1000, %3 = 5';
-        CalledFromInvtPutawayPick: Boolean;
 
     procedure RunCheck(var JobJnlLine: Record "Job Journal Line")
 #if not CLEAN20
@@ -29,7 +30,7 @@ codeunit 1011 "Job Jnl.-Check Line"
         OnBeforeRunCheck(JobJnlLine);
 
         with JobJnlLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             TestJobJnlLine(JobJnlLine);
@@ -170,7 +171,7 @@ codeunit 1011 "Job Jnl.-Check Line"
                 Error(
                   CombinationBlockedErr,
                   TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                  DimMgt.GetDimCombErr);
+                  DimMgt.GetDimCombErr());
 
             TableID[1] := DATABASE::Job;
             No[1] := "Job No.";
@@ -187,9 +188,9 @@ codeunit 1011 "Job Jnl.-Check Line"
                             StrSubstNo(
                                 DimensionCausedErr,
                                 TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                                DimMgt.GetDimValuePostingErr),
+                                DimMgt.GetDimValuePostingErr()),
                             true));
-                Error(ErrorInfo.Create(DimMgt.GetDimValuePostingErr, true));
+                Error(ErrorInfo.Create(DimMgt.GetDimValuePostingErr(), true));
             end;
         end;
     end;
@@ -205,7 +206,7 @@ codeunit 1011 "Job Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        if JobJnlline.IsNonInventoriableItem then
+        if JobJnlline.IsNonInventoriableItem() then
             exit;
 
         Job.Get(JobJnlline."Job No.");
@@ -215,7 +216,7 @@ codeunit 1011 "Job Jnl.-Check Line"
             Error(
                 ErrorInfo.Create(
                     StrSubstNo(
-                        Text004, Item.TableCaption, JobJnlline."No.", Job.TableCaption,
+                        Text004, Item.TableCaption(), JobJnlline."No.", Job.TableCaption(),
                         JobJnlline."Job No.", JobJnlline."Journal Batch Name",
                         JobJnlline.FieldCaption("Line No."), JobJnlline."Line No."),
                     true));

@@ -8,7 +8,7 @@ page 9084 "Customer Details FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Customer No.';
@@ -16,7 +16,7 @@ page 9084 "Customer Details FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             field(Name; Name)
@@ -24,29 +24,29 @@ page 9084 "Customer Details FactBox"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the customer''s name.';
             }
-            field("Phone No."; "Phone No.")
+            field("Phone No."; Rec."Phone No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the customer''s telephone number.';
             }
-            field("E-Mail"; "E-Mail")
+            field("E-Mail"; Rec."E-Mail")
             {
                 ApplicationArea = Basic, Suite;
                 ExtendedDatatype = EMail;
                 ToolTip = 'Specifies the customer''s email address.';
             }
-            field("Fax No."; "Fax No.")
+            field("Fax No."; Rec."Fax No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the customer''s fax number.';
             }
-            field("Credit Limit (LCY)"; "Credit Limit (LCY)")
+            field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 StyleExpr = StyleTxt;
                 ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
             }
-            field(AvailableCreditLCY; CalcAvailableCreditUI)
+            field(AvailableCreditLCY; CalcAvailableCreditUI())
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Available Credit (LCY)';
@@ -57,12 +57,12 @@ page 9084 "Customer Details FactBox"
                     PAGE.Run(PAGE::"Available Credit", Rec);
                 end;
             }
-            field("Payment Terms Code"; "Payment Terms Code")
+            field("Payment Terms Code"; Rec."Payment Terms Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
             }
-            field("Payment Method Code"; "Payment Method Code")
+            field("Payment Method Code"; Rec."Payment Method Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies how payment for the document must be submitted, such as bank transfer or check.';
@@ -107,7 +107,7 @@ page 9084 "Customer Details FactBox"
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := SetStyle;
+        StyleTxt := SetStyle();
     end;
 
     var

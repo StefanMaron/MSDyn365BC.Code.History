@@ -115,7 +115,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         CreateServiceDocumentAndUpdateGLAccount(
           ServiceLine, CurrencyCode, DocumentType, ServiceLine."VAT Calculation Type"::"Reverse Charge VAT",
           Quantity, UnitPrice);
-        Amount := LibraryERM.ConvertCurrency(ServiceLine.Amount, CurrencyCode, '', WorkDate);  // To Currency as blank.
+        Amount := LibraryERM.ConvertCurrency(ServiceLine.Amount, CurrencyCode, '', WorkDate());  // To Currency as blank.
 
         // Exercise.
         PostServiceDocument(ServiceLine."Document No.", ServiceLine."Document Type");
@@ -364,7 +364,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         // Verify: Verify Amount, Additional Currency Base on G/L Entry.
         VerifyGLEntry(
           FindPostedDocumentNo(DocumentType, ServiceLine."Customer No."), ServiceLine."No.",
-          FindServiceLineAmount(DocumentType, LibraryERM.ConvertCurrency(ServiceLine.Amount, CurrencyCode, '', WorkDate)),
+          FindServiceLineAmount(DocumentType, LibraryERM.ConvertCurrency(ServiceLine.Amount, CurrencyCode, '', WorkDate())),
           FindServiceLineAmount(DocumentType, ServiceLine.Amount));  // To Currency as blank.
 
         // Tear Down.

@@ -65,7 +65,7 @@
                     Error(
                       InvoiceDiscAmtIsGreaterThanBaseAmtErr,
                       FieldCaption("Invoice Discount Amount"), "Inv. Disc. Base Amount");
-                "VAT Base" := CalcLineAmount - "Pmt. Discount Amount";
+                "VAT Base" := CalcLineAmount() - "Pmt. Discount Amount";
             end;
         }
         field(9; "VAT Calculation Type"; Enum "Tax Calculation Type")
@@ -188,17 +188,18 @@
     }
 
     var
-        Text001: Label 'VAT Amount';
-        Text002: Label '%1 must not be negative.';
-        InvoiceDiscAmtIsGreaterThanBaseAmtErr: Label 'The maximum %1 that you can apply is %2.', Comment = '1 Invoice Discount Amount that should be set 2 Maximum Amount that you can assign';
-        Text004: Label '%1 for %2 must not exceed %3 = %4.';
         Currency: Record Currency;
         AllowVATDifference: Boolean;
         GlobalsInitialized: Boolean;
-        Text005: Label '%1 must not exceed %2 = %3.';
         GLSetup: Record "General Ledger Setup";
         CurrencyCode: Code[10];
         RoundingPrec: Decimal;
+
+        Text001: Label 'VAT Amount';
+        Text002: Label '%1 must not be negative.';
+        Text004: Label '%1 for %2 must not exceed %3 = %4.';
+        Text005: Label '%1 must not exceed %2 = %3.';
+        InvoiceDiscAmtIsGreaterThanBaseAmtErr: Label 'The maximum %1 that you can apply is %2.', Comment = '1 Invoice Discount Amount that should be set 2 Maximum Amount that you can assign';
         Text1100000: Label 'VAT+EC Amount';
 
     procedure CheckVATDifference(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean)
@@ -216,7 +217,7 @@
                   Text004, FieldCaption("VAT Difference"), Currency.Code,
                   Currency.FieldCaption("Max. VAT Difference Allowed"), Currency."Max. VAT Difference Allowed")
             else begin
-                if GLSetup.Get then;
+                if GLSetup.Get() then;
                 if Abs("VAT Difference") > GLSetup."Max. VAT Difference Allowed" then
                     Error(
                       Text005, FieldCaption("VAT Difference"),
@@ -228,7 +229,7 @@
                   Text004, FieldCaption("EC Difference"), Currency.Code,
                   Currency.FieldCaption("Max. VAT Difference Allowed"), Currency."Max. VAT Difference Allowed")
             else begin
-                if GLSetup.Get then;
+                if GLSetup.Get() then;
                 if Abs("EC Difference") > GLSetup."Max. VAT Difference Allowed" then
                     Error(
                       Text005, FieldCaption("EC Difference"),
@@ -273,7 +274,7 @@
         Validate(Positive, "Line Amount" >= 0);
         OnInsertLineOnAfterValidatePositive(Rec);
         VATAmountLine := Rec;
-        if Find then begin
+        if Find() then begin
             "Line Amount" += VATAmountLine."Line Amount";
             "Inv. Disc. Base Amount" += VATAmountLine."Inv. Disc. Base Amount";
             "Pmt. Discount Amount" += VATAmountLine."Pmt. Discount Amount";
@@ -296,7 +297,7 @@
             "Calculated VAT Amount" += VATAmountLine."Calculated VAT Amount";
             "Calculated EC Amount" += VATAmountLine."Calculated EC Amount";
             OnInsertLineOnBeforeModify(Rec, VATAmountLine);
-            Modify;
+            Modify();
         end else begin
             if "VAT %" + "EC %" <> 0 then begin
                 "VAT Amount" :=
@@ -308,29 +309,29 @@
                         "VAT Amount" :=
                           "VAT Difference" +
                           Round(
-                            "VAT Base" * "VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection)
+                            "VAT Base" * "VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
                     else
                         "VAT Amount" :=
                           "VAT Difference" +
                           Round(
-                            (CalcLineAmount - "Pmt. Discount Amount" - "VAT Base") / ("VAT %" + "EC %") * "VAT %",
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            (CalcLineAmount() - "Pmt. Discount Amount" - "VAT Base") / ("VAT %" + "EC %") * "VAT %",
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                 if "EC Difference" <> 0 then
                     if not VATAmountLine."Prices Including VAT" then
                         "EC Amount" :=
                           "EC Difference" +
                           Round(
                             "VAT Base" * "EC %" / 100,
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection)
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
                     else
                         "EC Amount" :=
                           "EC Difference" +
                           Round(
-                            (CalcLineAmount - "Pmt. Discount Amount" - "VAT Base") / ("VAT %" + "EC %") * "EC %",
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            (CalcLineAmount() - "Pmt. Discount Amount" - "VAT Base") / ("VAT %" + "EC %") * "EC %",
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
             end;
             OnInsertLineOnBeforeInsert(Rec, VATAmountLine);
-            Insert;
+            Insert();
         end;
 
         exit(true);
@@ -338,7 +339,7 @@
 
     procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean; ECRate: Decimal)
     begin
-        Init;
+        Init();
         "VAT Identifier" := VATIdentifier;
         "VAT Calculation Type" := VATCalcType;
         "Tax Group Code" := TaxGroupCode;
@@ -348,7 +349,7 @@
         Modified := true;
         Positive := IsPositive;
         "Includes Prepayment" := IsPrepayment;
-        Insert;
+        Insert();
     end;
 
     procedure GetLine(Number: Integer)
@@ -356,7 +357,7 @@
         if Number = 1 then
             Find('-')
         else
-            Next;
+            Next();
     end;
 
     procedure VATAmountText() Result: Text[30]
@@ -463,16 +464,16 @@
         if Find('-') then
             repeat
                 if NewPricesIncludingVAT then
-                    VATBase += CalcLineAmount * "VAT %" / (100 + "VAT %")
+                    VATBase += CalcLineAmount() * "VAT %" / (100 + "VAT %")
                 else
                     VATBase += "VAT Base" * "VAT %" / 100;
                 VATDiscount :=
                   VATDiscount +
                   Round(
                     VATBase,
-                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection) -
+                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                   "VAT Amount" + "VAT Difference";
-                VATBase := VATBase - Round(VATBase, Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                VATBase := VATBase - Round(VATBase, Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
             until Next() = 0;
         exit(VATDiscount);
     end;
@@ -509,7 +510,7 @@
                       "Invoice Discount Amount", Round(NewRemainder, Currency."Amount Rounding Precision"));
                     CalcVATFields(NewCurrencyCode, NewPricesIncludingVAT, NewVATBaseDiscPct);
                     Modified := true;
-                    Modify;
+                    Modify();
                 end;
                 NewRemainder := NewRemainder - "Invoice Discount Amount";
             end;
@@ -543,7 +544,7 @@
                         "VAT Difference" := 0;
                         "EC Difference" := 0;
                         Modified := true;
-                        Modify;
+                        Modify();
                     end;
                     if CalcInvDiscPerVATID then
                         NewRemainder := 0
@@ -560,13 +561,13 @@
         if NewPricesIncludingVAT then
             exit(
               Round(
-                CalcLineAmount * "VAT %" / (100 + "VAT %") * (1 - NewVATBaseDiscPct / 100),
-                Currency."Amount Rounding Precision", Currency.VATRoundingDirection));
+                CalcLineAmount() * "VAT %" / (100 + "VAT %") * (1 - NewVATBaseDiscPct / 100),
+                Currency."Amount Rounding Precision", Currency.VATRoundingDirection()));
 
         exit(
           Round(
-            CalcLineAmount * "VAT %" / 100 * (1 - NewVATBaseDiscPct / 100),
-            Currency."Amount Rounding Precision", Currency.VATRoundingDirection));
+            CalcLineAmount() * "VAT %" / 100 * (1 - NewVATBaseDiscPct / 100),
+            Currency."Amount Rounding Precision", Currency.VATRoundingDirection()));
     end;
 
     local procedure GetCalculatedEC(NewCurrencyCode: Code[10]; NewPricesIncludingVAT: Boolean; NewVATBaseDiscPct: Decimal): Decimal
@@ -576,13 +577,13 @@
         if NewPricesIncludingVAT then
             exit(
               Round(
-                CalcLineAmount * "EC %" / (100 + "VAT %" + "EC %") * (1 - NewVATBaseDiscPct / 100),
-                Currency."Amount Rounding Precision", Currency.VATRoundingDirection));
+                CalcLineAmount() * "EC %" / (100 + "VAT %" + "EC %") * (1 - NewVATBaseDiscPct / 100),
+                Currency."Amount Rounding Precision", Currency.VATRoundingDirection()));
 
         exit(
           Round(
-            CalcLineAmount * "EC %" / 100 * (1 - NewVATBaseDiscPct / 100),
-            Currency."Amount Rounding Precision", Currency.VATRoundingDirection));
+            CalcLineAmount() * "EC %" / 100 * (1 - NewVATBaseDiscPct / 100),
+            Currency."Amount Rounding Precision", Currency.VATRoundingDirection()));
     end;
 
     procedure CalcLineAmount() LineAmount: Decimal
@@ -601,16 +602,16 @@
 
         if NewPricesIncludingVAT then begin
             if NewVATBaseDiscPct = 0 then begin
-                "Amount Including VAT" := CalcLineAmount;
+                "Amount Including VAT" := CalcLineAmount();
                 "VAT Base" := "Amount Including VAT" - "VAT Amount" - "EC Amount";
             end else begin
                 "VAT Base" :=
                   Round(
-                    (CalcLineAmount - "Pmt. Discount Amount") / (1 + "VAT %" + "EC %" / 100), Currency."Amount Rounding Precision");
+                    (CalcLineAmount() - "Pmt. Discount Amount") / (1 + "VAT %" + "EC %" / 100), Currency."Amount Rounding Precision");
                 "Amount Including VAT" := "VAT Base" + "VAT Amount" + "EC Amount";
             end;
         end else begin
-            "VAT Base" := CalcLineAmount - "Pmt. Discount Amount";
+            "VAT Base" := CalcLineAmount() - "Pmt. Discount Amount";
             "Amount Including VAT" := "VAT Base" + "VAT Amount" + "EC Amount";
         end;
         "Calculated VAT Amount" := "VAT Amount";
@@ -667,7 +668,7 @@
         if FindSet() then
             repeat
                 VATAmountLineDeduct := Rec;
-                if VATAmountLineDeduct.Find then begin
+                if VATAmountLineDeduct.Find() then begin
                     "VAT Base" -= VATAmountLineDeduct."VAT Base";
                     "VAT Amount" -= VATAmountLineDeduct."VAT Amount";
                     "EC Amount" -= VATAmountLineDeduct."EC Amount";
@@ -677,7 +678,7 @@
                     "Invoice Discount Amount" -= VATAmountLineDeduct."Invoice Discount Amount";
                     "Calculated VAT Amount" -= VATAmountLineDeduct."Calculated VAT Amount";
                     "VAT Difference" -= VATAmountLineDeduct."VAT Difference";
-                    Modify;
+                    Modify();
                 end;
             until Next() = 0;
     end;
@@ -701,7 +702,7 @@
         "EC Difference" += ECDifference;
         if Prepayment then
             "Includes Prepayment" := true;
-        Modify;
+        Modify();
     end;
 
     procedure UpdateLines(var TotalVATAmount: Decimal; Currency: Record Currency; CurrencyFactor: Decimal; PricesIncludingVAT: Boolean; VATBaseDiscountPerc: Decimal; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date)
@@ -724,7 +725,7 @@
                             begin
                                 "VAT Base" :=
                                   Round(
-                                    (CalcLineAmount - "Pmt. Discount Amount") / (1 + ("VAT %" + "EC %") / 100),
+                                    (CalcLineAmount() - "Pmt. Discount Amount") / (1 + ("VAT %" + "EC %") / 100),
                                     Currency."Amount Rounding Precision") - "VAT Difference";
                                 OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 if ("VAT %" <> 0) or ("EC %" <> 0) then begin
@@ -732,42 +733,42 @@
                                       "VAT Difference" +
                                       Round(
                                         PrevVATAmountLine."VAT Amount" +
-                                        (CalcLineAmount - "Pmt. Discount Amount" - "VAT Base" - "VAT Difference") *
+                                        (CalcLineAmount() - "Pmt. Discount Amount" - "VAT Base" - "VAT Difference") *
                                         ("VAT %" / ("VAT %" + "EC %")) * (1 - VATBaseDiscountPerc / 100),
-                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     "EC Amount" :=
                                       "EC Difference" +
                                       Round(
                                         PrevVATAmountLine."EC Amount" +
-                                        (CalcLineAmount - "Pmt. Discount Amount" - "VAT Base" - "EC Difference") *
+                                        (CalcLineAmount() - "Pmt. Discount Amount" - "VAT Base" - "EC Difference") *
                                         ("EC %" / ("VAT %" + "EC %")) * (1 - VATBaseDiscountPerc / 100),
-                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                 end;
                                 OnUpdateLinesOnAfterCalcVATAmount(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
                                 "Amount Including VAT" := "VAT Base" + "VAT Amount" + "EC Amount";
                                 OnUpdateLinesOnAfterCalcAmountIncludingVATNormalVAT(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
                                 if Positive then
-                                    PrevVATAmountLine.Init
+                                    PrevVATAmountLine.Init()
                                 else begin
                                     PrevVATAmountLine := Rec;
                                     PrevVATAmountLine."VAT Amount" :=
-                                      (CalcLineAmount - "Pmt. Discount Amount" - "VAT Base" - "VAT Difference") *
+                                      (CalcLineAmount() - "Pmt. Discount Amount" - "VAT Base" - "VAT Difference") *
                                       ("VAT %" / ("VAT %" + "EC %")) * (1 - VATBaseDiscountPerc / 100);
                                     PrevVATAmountLine."VAT Amount" :=
                                       PrevVATAmountLine."VAT Amount" -
-                                      Round(PrevVATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                      Round(PrevVATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     PrevVATAmountLine."EC Amount" :=
-                                      (CalcLineAmount - "Pmt. Discount Amount" - "VAT Base" - "EC Difference") *
+                                      (CalcLineAmount() - "Pmt. Discount Amount" - "VAT Base" - "EC Difference") *
                                       ("EC %" / ("VAT %" + "EC %")) * (1 - VATBaseDiscountPerc / 100);
                                     PrevVATAmountLine."EC Amount" :=
                                       PrevVATAmountLine."EC Amount" -
-                                      Round(PrevVATAmountLine."EC Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                      Round(PrevVATAmountLine."EC Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                 end;
                             end;
                         "VAT Calculation Type"::"Reverse Charge VAT":
                             begin
                                 "VAT Base" :=
-                                  Round(CalcLineAmount - "Pmt. Discount Amount", Currency."Amount Rounding Precision");
+                                  Round(CalcLineAmount() - "Pmt. Discount Amount", Currency."Amount Rounding Precision");
                                 "VAT Amount" := 0;
                                 "EC Amount" := 0;
                                 "Amount Including VAT" := "VAT Base";
@@ -775,12 +776,12 @@
                         "VAT Calculation Type"::"Full VAT":
                             begin
                                 "VAT Base" := 0;
-                                "VAT Amount" := "VAT Difference" + CalcLineAmount;
+                                "VAT Amount" := "VAT Difference" + CalcLineAmount();
                                 "Amount Including VAT" := "VAT Amount";
                             end;
                         "VAT Calculation Type"::"Sales Tax":
                             begin
-                                "Amount Including VAT" := CalcLineAmount;
+                                "Amount Including VAT" := CalcLineAmount();
                                 if "Use Tax" then
                                     "VAT Base" := "Amount Including VAT"
                                 else
@@ -805,26 +806,26 @@
                         "VAT Calculation Type"::"Normal VAT",
                         "VAT Calculation Type"::"No taxable VAT":
                             begin
-                                "VAT Base" := CalcLineAmount - "Pmt. Discount Amount";
+                                "VAT Base" := CalcLineAmount() - "Pmt. Discount Amount";
                                 OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 "VAT Amount" :=
                                   "VAT Difference" +
                                   Round(
                                     PrevVATAmountLine."VAT Amount" +
                                     "VAT Base" * "VAT %" / 100 * (1 - VATBaseDiscountPerc / 100),
-                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                 "EC Amount" :=
                                   "EC Difference" +
                                   Round(
                                     PrevVATAmountLine."EC Amount" +
                                     "VAT Base" * "EC %" / 100 * (1 - VATBaseDiscountPerc / 100),
-                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                 OnUpdateLinesOnAfterCalcVATAmount(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
                                 "Amount Including VAT" :=
-                                  CalcLineAmount - "Pmt. Discount Amount" + "VAT Amount" + "EC Amount";
+                                  CalcLineAmount() - "Pmt. Discount Amount" + "VAT Amount" + "EC Amount";
                                 OnUpdateLinesOnAfterCalcAmountIncludingVATNormalVAT(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
                                 if Positive then
-                                    PrevVATAmountLine.Init
+                                    PrevVATAmountLine.Init()
                                 else
                                     if not "Includes Prepayment" then begin
                                         PrevVATAmountLine := Rec;
@@ -832,17 +833,17 @@
                                           "VAT Base" * "VAT %" / 100 * (1 - VATBaseDiscountPerc / 100);
                                         PrevVATAmountLine."VAT Amount" :=
                                           PrevVATAmountLine."VAT Amount" -
-                                          Round(PrevVATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                          Round(PrevVATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                         PrevVATAmountLine."EC Amount" :=
                                           "VAT Base" * "EC %" / 100 * (1 - VATBaseDiscountPerc / 100);
                                         PrevVATAmountLine."EC Amount" :=
                                           PrevVATAmountLine."EC Amount" -
-                                          Round(PrevVATAmountLine."EC Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                          Round(PrevVATAmountLine."EC Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     end;
                             end;
                         "VAT Calculation Type"::"Reverse Charge VAT":
                             begin
-                                "VAT Base" := CalcLineAmount - "Pmt. Discount Amount";
+                                "VAT Base" := CalcLineAmount() - "Pmt. Discount Amount";
                                 "VAT Amount" := 0;
                                 "EC Amount" := 0;
                                 "Amount Including VAT" := "VAT Base";
@@ -850,13 +851,13 @@
                         "VAT Calculation Type"::"Full VAT":
                             begin
                                 "VAT Base" := 0;
-                                "VAT Amount" := "VAT Difference" + CalcLineAmount;
+                                "VAT Amount" := "VAT Difference" + CalcLineAmount();
                                 "Amount Including VAT" := "VAT Amount";
                             end;
                         "VAT Calculation Type"::"Sales Tax":
                             begin
                                 OnUpdateLinesOnBeforeCalcSalesTaxVatBase(Rec);
-                                "VAT Base" := CalcLineAmount;
+                                "VAT Base" := CalcLineAmount();
                                 OnUpdateLinesOnAfterCalcVATBaseSalesTax(Rec, Currency, PricesIncludingVAT);
                                 if "Use Tax" then
                                     "VAT Amount" := 0
@@ -871,7 +872,7 @@
                                     "VAT %" := Round(100 * "VAT Amount" / "VAT Base", 0.00001);
                                 "VAT Amount" :=
                                   "VAT Difference" +
-                                  Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                  Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                 "Amount Including VAT" := "VAT Base" + "VAT Amount" + "EC Amount";
                             end;
                     end;
@@ -879,7 +880,7 @@
                 TotalVATAmount -= "VAT Amount";
                 "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
                 "Calculated EC Amount" := "EC Amount" - "EC Difference";
-                Modify;
+                Modify();
             until Next() = 0;
     end;
 

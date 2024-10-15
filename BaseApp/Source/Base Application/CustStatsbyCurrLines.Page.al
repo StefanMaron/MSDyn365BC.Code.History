@@ -24,7 +24,7 @@ page 486 "Cust. Stats. by Curr. Lines"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a text to describe the currency code.';
                 }
-                field("Customer Balance"; "Customer Balance")
+                field("Customer Balance"; Rec."Customer Balance")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = Code;
@@ -32,7 +32,7 @@ page 486 "Cust. Stats. by Curr. Lines"
                     Caption = 'Balance';
                     ToolTip = 'Specifies the payment amount that the customer owes for completed sales.';
                 }
-                field("Customer Outstanding Orders"; "Customer Outstanding Orders")
+                field("Customer Outstanding Orders"; Rec."Customer Outstanding Orders")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = Code;
@@ -40,7 +40,7 @@ page 486 "Cust. Stats. by Curr. Lines"
                     Caption = 'Outstanding Orders';
                     ToolTip = 'Specifies the number of orders for which payment has not been made.';
                 }
-                field("Customer Shipped Not Invoiced"; "Customer Shipped Not Invoiced")
+                field("Customer Shipped Not Invoiced"; Rec."Customer Shipped Not Invoiced")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = Code;
@@ -56,7 +56,7 @@ page 486 "Cust. Stats. by Curr. Lines"
                     Caption = 'Total';
                     ToolTip = 'Specifies the total amount less any invoice discount amount and excluding VAT for the sales document.';
                 }
-                field("Customer Balance Due"; "Customer Balance Due")
+                field("Customer Balance Due"; Rec."Customer Balance Due")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = Code;
@@ -83,11 +83,11 @@ page 486 "Cust. Stats. by Curr. Lines"
     trigger OnOpenPage()
     begin
         Code := '';
-        Insert;
+        Insert();
         if Currency.FindSet() then
             repeat
                 Rec := Currency;
-                Insert;
+                Insert();
             until Currency.Next() = 0;
 
         SetRange("Cust. Ledg. Entries in Filter", true);

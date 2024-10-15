@@ -15,7 +15,7 @@ page 9811 "User ACS Setup"
             group(General)
             {
                 Caption = 'General';
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -55,9 +55,6 @@ page 9811 "User ACS Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Generate Auth Key';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Generate an authentication key for Access Control Service authentication.';
 
                 trigger OnAction()
@@ -66,8 +63,8 @@ page 9811 "User ACS Setup"
                     UTF8Encoding: DotNet UTF8Encoding;
                     CreatedGuid: Text;
                 begin
-                    CreatedGuid := CreateGuid;
-                    UTF8Encoding := UTF8Encoding.UTF8Encoding;
+                    CreatedGuid := CreateGuid();
+                    UTF8Encoding := UTF8Encoding.UTF8Encoding();
 
                     AuthenticationID := Convert.ToBase64String(UTF8Encoding.GetBytes(CreatedGuid));
 
@@ -76,6 +73,17 @@ page 9811 "User ACS Setup"
 
                     CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Generate Auth Key_Promoted"; "Generate Auth Key")
+                {
+                }
             }
         }
     }

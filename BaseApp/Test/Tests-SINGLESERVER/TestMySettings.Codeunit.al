@@ -412,7 +412,7 @@ codeunit 139006 "Test My Settings"
         for AccountNo := 1 to ArrayLen(GLAccount) do begin
             LibraryERM.CreateGLAccount(GLAccount[AccountNo]);
             with GLEntry do begin
-                Init;
+                Init();
                 "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
                 "G/L Account No." := GLAccount[AccountNo]."No.";
                 Amount := LibraryRandom.RandDec(100, 2);
@@ -569,7 +569,7 @@ codeunit 139006 "Test My Settings"
         CustomerRecordRef.GetTable(Customer);
         if not RemoveFilterValues then
             Customer.SetRange("No.", CustomerNum);
-        CustomerRecordRef.SetView(Customer.GetView);
+        CustomerRecordRef.SetView(Customer.GetView());
         exit(true);
     end;
 

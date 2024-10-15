@@ -53,7 +53,7 @@ codeunit 147529 "SII Payments"
         CreateCustomer(Customer, VATPostingSetup, 0);
 
         // [GIVEN] Creation of a Sales Invoice for a local customer, cash based, "Entry No." = 123, "Document No." = "X"
-        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         FindCustLedgEntry(CustLedgerEntry, DocumentNo);
@@ -64,7 +64,7 @@ codeunit 147529 "SII Payments"
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local customer, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForSI(
-            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         GenerateXmlForDetailedCustomerLedgerEntry(XMLDoc, DetailedCustLedgEntry, DocumentNo);
@@ -106,7 +106,7 @@ codeunit 147529 "SII Payments"
         CreateVendor(Vendor, VATPostingSetup, 0);
 
         // [GIVEN] Creation of an Purchase Invoice for a local vendor, cash based, "Entry No." = 123, "Document No." = "X", "External Document No." = "Y"
-        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
+        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         FindVendLedgEntry(VendorLedgerEntry, DocumentNo);
@@ -118,7 +118,7 @@ codeunit 147529 "SII Payments"
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local vendor, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
-            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         GenerateXmlForDetailedVendorLedgerEntry(XMLDoc, DetailedVendorLedgEntry, DocumentNo);
@@ -158,7 +158,7 @@ codeunit 147529 "SII Payments"
         CreateCustomer(Customer, VATPostingSetup, PaymentMethod."SII Payment Method Code"::"01");
 
         // [GIVEN] Creation of a Sales Invoice for a local customer, cash based and "SII Payment Method Code" = "01"
-        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         FindCustLedgEntry(CustLedgerEntry, DocumentNo);
@@ -169,7 +169,7 @@ codeunit 147529 "SII Payments"
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local customer, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForSI(
-            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         GenerateXmlForDetailedCustomerLedgerEntry(XMLDoc, DetailedCustLedgEntry, DocumentNo);
@@ -204,7 +204,7 @@ codeunit 147529 "SII Payments"
         CreateVendor(Vendor, VATPostingSetup, PaymentMethod."SII Payment Method Code"::"01");
 
         // [GIVEN] Creation of an Purchase Invoice for a local vendor, cash based
-        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
+        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         FindVendLedgEntry(VendorLedgerEntry, DocumentNo);
@@ -216,7 +216,7 @@ codeunit 147529 "SII Payments"
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local vendor, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
-            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         GenerateXmlForDetailedVendorLedgerEntry(XMLDoc, DetailedVendorLedgEntry, DocumentNo);
@@ -390,7 +390,7 @@ codeunit 147529 "SII Payments"
         CreateCustomer(Customer, VATPostingSetup, PaymentMethod."SII Payment Method Code"::"05");
 
         // [GIVEN] Creation of a Sales Invoice for a local customer, cash based and "SII Payment Method Code" = "05"
-        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         FindCustLedgEntry(CustLedgerEntry, DocumentNo);
@@ -401,7 +401,7 @@ codeunit 147529 "SII Payments"
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local customer, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForSI(
-            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Customer."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         GenerateXmlForDetailedCustomerLedgerEntry(XMLDoc, DetailedCustLedgEntry, DocumentNo);
@@ -436,7 +436,7 @@ codeunit 147529 "SII Payments"
         CreateVendor(Vendor, VATPostingSetup, PaymentMethod."SII Payment Method Code"::"05");
 
         // [GIVEN] Creation of an Purchase Invoice for a local vendor, cash based and "SII Payment Method Code" is "05"
-        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
+        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         FindVendLedgEntry(VendorLedgerEntry, DocumentNo);
@@ -448,7 +448,7 @@ codeunit 147529 "SII Payments"
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local vendor, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
-            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            Vendor."No.", GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] We create the xml to be transmitted for that transaction
         GenerateXmlForDetailedVendorLedgerEntry(XMLDoc, DetailedVendorLedgEntry, DocumentNo);
@@ -911,7 +911,7 @@ codeunit 147529 "SII Payments"
         // [GIVEN] Post payment applied to the invoice (full amount)
         DocumentNo :=
           Library340347Declaration.CreateAndPostPaymentForSI(
-            CustomerNo, GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            CustomerNo, GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] Generate XML for the posted payment
         GenerateXmlForDetailedCustomerLedgerEntry(XMLDoc, DetailedCustLedgEntry[1], DocumentNo);
@@ -946,7 +946,7 @@ codeunit 147529 "SII Payments"
         // [GIVEN] Post payment applied to the invoice (full amount)
         DocumentNo :=
           Library340347Declaration.CreateAndPostPaymentForPI(
-            VendorNo, GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Amount);
+            VendorNo, GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Amount);
 
         // [WHEN] Generate XML for the posted payment
         GenerateXmlForDetailedVendorLedgerEntry(XMLDoc, DetailedVendorLedgEntry[1], DocumentNo);
@@ -980,7 +980,7 @@ codeunit 147529 "SII Payments"
         // [GIVEN] Post partial payment applied to the invoice
         DocumentNo :=
           Library340347Declaration.CreateAndPostPaymentForSI(
-            CustomerNo, GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Round(Amount / 3));
+            CustomerNo, GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Round(Amount / 3));
 
         // [WHEN] Generate XML for the posted payment
         GenerateXmlForDetailedCustomerLedgerEntry(XMLDoc, DetailedCustLedgEntry[1], DocumentNo);
@@ -1015,7 +1015,7 @@ codeunit 147529 "SII Payments"
         // [GIVEN] Post partial payment applied to the invoice
         DocumentNo :=
           Library340347Declaration.CreateAndPostPaymentForPI(
-            VendorNo, GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate, Round(Amount / 3));
+            VendorNo, GenJournalLine."Document Type"::Invoice, DocumentNo, WorkDate(), Round(Amount / 3));
 
         // [WHEN] Generate XML for the posted payment
         GenerateXmlForDetailedVendorLedgerEntry(XMLDoc, DetailedVendorLedgEntry[1], DocumentNo);
@@ -1051,7 +1051,7 @@ codeunit 147529 "SII Payments"
         for i := 1 to ArrayLen(PaymentNo) do
             PaymentNo[i] :=
               Library340347Declaration.CreateAndPostPaymentForSI(
-                CustomerNo, GenJournalLine."Document Type"::Invoice, InvoiceNo, WorkDate, Round(Amount / (i + 2)));
+                CustomerNo, GenJournalLine."Document Type"::Invoice, InvoiceNo, WorkDate(), Round(Amount / (i + 2)));
 
         // [WHEN] Generate XML for the posted partial payment
         for i := 1 to ArrayLen(PaymentNo) do
@@ -1090,7 +1090,7 @@ codeunit 147529 "SII Payments"
         for i := 1 to ArrayLen(PmtDocumentNo) do
             PmtDocumentNo[i] :=
               Library340347Declaration.CreateAndPostPaymentForPI(
-                VendorNo, GenJournalLine."Document Type"::Invoice, InvDocumentNo, WorkDate, Round(Amount / (i + 2)));
+                VendorNo, GenJournalLine."Document Type"::Invoice, InvDocumentNo, WorkDate(), Round(Amount / (i + 2)));
 
         // [WHEN] Generate XML for the posted partial payment
         for i := 1 to ArrayLen(PmtDocumentNo) do
@@ -1519,7 +1519,7 @@ codeunit 147529 "SII Payments"
         TempDetailedVendorLedgEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(TempDetailedVendorLedgEntry, TempDetailedVendorLedgEntry.FieldNo("Entry No."));
         TempDetailedVendorLedgEntry.Insert();
-        TempDetailedVendorLedgEntry.Find;
+        TempDetailedVendorLedgEntry.Find();
     end;
 
     [Test]
@@ -1536,7 +1536,7 @@ codeunit 147529 "SII Payments"
         TempDetailedCustLedgEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(TempDetailedCustLedgEntry, TempDetailedCustLedgEntry.FieldNo("Entry No."));
         TempDetailedCustLedgEntry.Insert();
-        TempDetailedCustLedgEntry.Find;
+        TempDetailedCustLedgEntry.Find();
     end;
 
     [Test]
@@ -1725,13 +1725,13 @@ codeunit 147529 "SII Payments"
     local procedure CreateAndPostPurchaseInvoiceUnrealizedLast(var VATPostingSetup: Record "VAT Posting Setup"; var VendorNo: Code[20]; var DocumentNo: Code[20]; var Amount: Decimal; var ExtDocumentNo: Code[20])
     begin
         VendorNo := CreateVendorWithUnrealizedTypeLast(VATPostingSetup);
-        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, VendorNo, WorkDate, Amount, ExtDocumentNo);
+        DocumentNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, VendorNo, WorkDate(), Amount, ExtDocumentNo);
     end;
 
     local procedure CreateAndPostSalesInvoiceUnrealizedLast(var VATPostingSetup: Record "VAT Posting Setup"; var CustomerNo: Code[20]; var DocumentNo: Code[20]; var Amount: Decimal)
     begin
         CustomerNo := CreateCustomerWithUnrealizedTypeLast(VATPostingSetup);
-        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, CustomerNo, WorkDate, Amount);
+        DocumentNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, CustomerNo, WorkDate(), Amount);
     end;
 
     local procedure CreateApplyPostPurchBillPayment(VendorNo: Code[20]; InvoiceNo: Code[20]; BillNo: Code[20]; Amount: Decimal): Code[20]
@@ -1891,7 +1891,7 @@ codeunit 147529 "SII Payments"
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Document No." := DocNo;
         CustLedgerEntry."Transaction No." := TransNo;
@@ -1909,7 +1909,7 @@ codeunit 147529 "SII Payments"
           LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntryNo;
         DetailedCustLedgEntry."Document Type" := DetailedCustLedgEntry."Document Type"::Payment;
-        DetailedCustLedgEntry."Posting Date" := WorkDate;
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
         DetailedCustLedgEntry."Document No." := DocNo;
         DetailedCustLedgEntry."Transaction No." := TransNo;
         DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::Application;
@@ -1939,7 +1939,7 @@ codeunit 147529 "SII Payments"
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Document Type" := DocumentType;
         VendorLedgerEntry."Document No." := DocNo;
         VendorLedgerEntry."External Document No." := DocNo;
@@ -1958,7 +1958,7 @@ codeunit 147529 "SII Payments"
           LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
         DetailedVendorLedgEntry."Document Type" := DetailedVendorLedgEntry."Document Type"::Payment;
-        DetailedVendorLedgEntry."Posting Date" := WorkDate;
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
         DetailedVendorLedgEntry."Document No." := DocNo;
         DetailedVendorLedgEntry."Transaction No." := TransNo;
         DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::Application;
@@ -1976,7 +1976,7 @@ codeunit 147529 "SII Payments"
     begin
         VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry."Document No." := DocumentNo;
         VATEntry."Transaction No." := TransactionNo;
         VATEntry."Unrealized Base" := UnrealizedBase;
@@ -2107,13 +2107,13 @@ codeunit 147529 "SII Payments"
         LedgerEntryRecRef.Open(DATABASE::"Cust. Ledger Entry");
         LedgerEntryRecRef.GetTable(CustLedgerEntry);
         Assert.IsTrue(SIIManagement.IsLedgerCashFlowBased(LedgerEntryRecRef), '');
-        LedgerEntryRecRef.Close;
+        LedgerEntryRecRef.Close();
 
         // "Detailed Cust. Ledg. Entry"
         LedgerEntryRecRef.Open(DATABASE::"Detailed Cust. Ledg. Entry");
         LedgerEntryRecRef.GetTable(DetailedCustLedgEntry);
         Assert.IsTrue(SIIManagement.IsDetailedLedgerCashFlowBased(LedgerEntryRecRef), '');
-        LedgerEntryRecRef.Close;
+        LedgerEntryRecRef.Close();
     end;
 
     local procedure VerifyLedgerCashFlowBasedSalesFalse(CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
@@ -2125,13 +2125,13 @@ codeunit 147529 "SII Payments"
         LedgerEntryRecRef.Open(DATABASE::"Cust. Ledger Entry");
         LedgerEntryRecRef.GetTable(CustLedgerEntry);
         Assert.IsFalse(SIIManagement.IsLedgerCashFlowBased(LedgerEntryRecRef), '');
-        LedgerEntryRecRef.Close;
+        LedgerEntryRecRef.Close();
 
         // "Detailed Cust. Ledg. Entry"
         LedgerEntryRecRef.Open(DATABASE::"Detailed Cust. Ledg. Entry");
         LedgerEntryRecRef.GetTable(DetailedCustLedgEntry);
         Assert.IsFalse(SIIManagement.IsDetailedLedgerCashFlowBased(LedgerEntryRecRef), '');
-        LedgerEntryRecRef.Close;
+        LedgerEntryRecRef.Close();
     end;
 
     local procedure VerifyLedgerCashFlowBasedPurchaseInvoiceTrue(DocumentNo: Code[20]; TransactionNo: Integer)
@@ -2163,13 +2163,13 @@ codeunit 147529 "SII Payments"
         LedgerEntryRecRef.Open(DATABASE::"Cust. Ledger Entry");
         LedgerEntryRecRef.GetTable(VendorLedgerEntry);
         Assert.IsTrue(SIIManagement.IsLedgerCashFlowBased(LedgerEntryRecRef), '');
-        LedgerEntryRecRef.Close;
+        LedgerEntryRecRef.Close();
 
         // "Detailed Cust. Ledg. Entry"
         LedgerEntryRecRef.Open(DATABASE::"Detailed Cust. Ledg. Entry");
         LedgerEntryRecRef.GetTable(DetailedVendorLedgEntry);
         Assert.IsTrue(SIIManagement.IsDetailedLedgerCashFlowBased(LedgerEntryRecRef), '');
-        LedgerEntryRecRef.Close;
+        LedgerEntryRecRef.Close();
     end;
 
     local procedure VerifyLedgerCashFlowBasedPurchaseFalse(VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
@@ -2181,13 +2181,13 @@ codeunit 147529 "SII Payments"
         LedgerEntryRecRef.Open(DATABASE::"Cust. Ledger Entry");
         LedgerEntryRecRef.GetTable(VendorLedgerEntry);
         Assert.IsFalse(SIIManagement.IsLedgerCashFlowBased(LedgerEntryRecRef), '');
-        LedgerEntryRecRef.Close;
+        LedgerEntryRecRef.Close();
 
         // "Detailed Cust. Ledg. Entry"
         LedgerEntryRecRef.Open(DATABASE::"Detailed Cust. Ledg. Entry");
         LedgerEntryRecRef.GetTable(DetailedVendorLedgEntry);
         Assert.IsFalse(SIIManagement.IsDetailedLedgerCashFlowBased(LedgerEntryRecRef), '');
-        LedgerEntryRecRef.Close;
+        LedgerEntryRecRef.Close();
     end;
 
     local procedure VerifyDocUploadStateCustomerPmt(PmtDtldEntryNo: Integer; DocumentType: Option)

@@ -17,28 +17,28 @@ page 744 "VAT Report List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("VAT Report Config. Code"; "VAT Report Config. Code")
+                field("VAT Report Config. Code"; Rec."VAT Report Config. Code")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the appropriate configuration code.';
                     Visible = false;
                 }
-                field("VAT Report Type"; "VAT Report Type")
+                field("VAT Report Type"; Rec."VAT Report Type")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the VAT report is a standard report, or if it is related to a previously submitted VAT report.';
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the start date of the report period for the VAT report.';
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the end date of the report period for the VAT report.';
@@ -61,10 +61,6 @@ page 744 "VAT Report List"
                 ApplicationArea = VAT;
                 Caption = 'Create From VAT Return Period';
                 Image = GetLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create a new VAT return from an existing VAT return period.';
 
                 trigger OnAction()
@@ -117,11 +113,28 @@ page 744 "VAT Report List"
                 ApplicationArea = VAT;
                 Caption = 'Report Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Page "VAT Report Setup";
                 ToolTip = 'Specifies the setup that will be used for the VAT reports submission.';
                 Visible = false;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Create From VAT Return Period_Promoted"; "Create From VAT Return Period")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Report Setup_Promoted"; "Report Setup")
+                {
+                }
             }
         }
     }

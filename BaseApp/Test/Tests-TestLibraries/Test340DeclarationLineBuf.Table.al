@@ -204,7 +204,7 @@ table 144050 "Test 340 Declaration Line Buf."
         "Tax %" := NewTaxPct;
         "Collection Amount" := NewAmount;
         "No. of Registers" := NoOfRegs;
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]

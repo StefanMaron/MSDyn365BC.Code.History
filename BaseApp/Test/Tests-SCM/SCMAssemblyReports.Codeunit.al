@@ -162,12 +162,12 @@ codeunit 137307 "SCM Assembly Reports"
         else
             ReservationEntry.Validate("Quantity (Base)", ItemJournalLine."Quantity (Base)");
         ReservationEntry.Validate("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
-        ReservationEntry."Creation Date" := WorkDate;
+        ReservationEntry."Creation Date" := WorkDate();
         ReservationEntry."Source Type" := DATABASE::"Item Journal Line";
         ReservationEntry."Source ID" := AssemblyTemplate;
         ReservationEntry."Source Batch Name" := AssemblyBatch;
         ReservationEntry."Source Ref. No." := ItemJournalLine."Line No.";
-        ReservationEntry."Expected Receipt Date" := WorkDate;
+        ReservationEntry."Expected Receipt Date" := WorkDate();
         ReservationEntry."Serial No." := SerialNo;
         ReservationEntry."Lot No." := LotNo;
         ReservationEntry."Qty. per Unit of Measure" := 1;
@@ -214,7 +214,7 @@ codeunit 137307 "SCM Assembly Reports"
             SN := IncStr(SN);
             InsertAssemblyLineTrackingInfo(AssemblyLine, SN, '');
         end;
-        AssemblyLine.Next;
+        AssemblyLine.Next();
         InsertAssemblyLineTrackingInfo(AssemblyLine, '', 'LOT001');
     end;
 
@@ -227,10 +227,10 @@ codeunit 137307 "SCM Assembly Reports"
         with ReservationEntry do begin
             if FindLast() then
                 NextEntry := "Entry No.";
-            Init;
+            Init();
             NextEntry += 1;
             "Entry No." := NextEntry;
-            "Creation Date" := WorkDate;
+            "Creation Date" := WorkDate();
             "Location Code" := BlueLocation;
             "Qty. per Unit of Measure" := 1;
             if LotNo = '' then begin
@@ -242,7 +242,7 @@ codeunit 137307 "SCM Assembly Reports"
                 "Quantity (Base)" := -1;
                 "Reservation Status" := "Reservation Status"::Surplus;
                 "Serial No." := SerialNo;
-                "Shipment Date" := WorkDate;
+                "Shipment Date" := WorkDate();
                 "Source ID" := AssemblyLine."Document No.";
                 "Source Ref. No." := AssemblyLine."Line No.";
                 "Source Subtype" := 1; // Order
@@ -256,13 +256,13 @@ codeunit 137307 "SCM Assembly Reports"
                 "Quantity (Base)" := -8;
                 "Reservation Status" := "Reservation Status"::Surplus;
                 "Lot No." := LotNo;
-                "Shipment Date" := WorkDate;
+                "Shipment Date" := WorkDate();
                 "Source ID" := AssemblyLine."Document No.";
                 "Source Ref. No." := AssemblyLine."Line No.";
                 "Source Subtype" := 1; // Order
                 "Source Type" := DATABASE::"Assembly Line";
             end;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -280,7 +280,7 @@ codeunit 137307 "SCM Assembly Reports"
         if not SetupDataInitialized then begin
             CreateTestNoSeriesBackupData;
             BlueLocation := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-            GetResource;
+            GetResource();
             SellToCustomerNo := LibrarySales.CreateCustomerNo();
             LibraryERMCountryData.CreateVATData();
             LibraryERMCountryData.UpdateSalesReceivablesSetup();
@@ -288,7 +288,7 @@ codeunit 137307 "SCM Assembly Reports"
             SetupDataInitialized := true;
         end;
         CreateAssemblyItem;
-        GetSKU;
+        GetSKU();
         ProvideAssemblyComponentSupply;
         BOMComponent.SetRange("Parent Item No.", AssemblyItemNo[1]);
         BOMComponent.DeleteAll(true);

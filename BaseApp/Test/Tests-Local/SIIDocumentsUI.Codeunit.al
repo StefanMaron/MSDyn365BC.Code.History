@@ -44,7 +44,7 @@ codeunit 147521 "SII Documents - UI"
 
         SalesOrder.OperationDescription.SetValue(
           SalesHeader."Operation Description 2" + SalesHeader."Operation Description");
-        SalesHeaderVerify.Find;
+        SalesHeaderVerify.Find();
         SalesHeaderVerify.TestField("Operation Description", SalesHeader."Operation Description 2");
         SalesHeaderVerify.TestField("Operation Description 2", SalesHeader."Operation Description");
     end;
@@ -71,7 +71,7 @@ codeunit 147521 "SII Documents - UI"
 
         SalesInvoice.OperationDescription.SetValue(
           SalesHeader."Operation Description 2" + SalesHeader."Operation Description");
-        SalesHeaderVerify.Find;
+        SalesHeaderVerify.Find();
         SalesHeaderVerify.TestField("Operation Description", SalesHeader."Operation Description 2");
         SalesHeaderVerify.TestField("Operation Description 2", SalesHeader."Operation Description");
     end;
@@ -98,7 +98,7 @@ codeunit 147521 "SII Documents - UI"
 
         SalesCreditMemo.OperationDescription.SetValue(
           SalesHeader."Operation Description 2" + SalesHeader."Operation Description");
-        SalesHeaderVerify.Find;
+        SalesHeaderVerify.Find();
         SalesHeaderVerify.TestField("Operation Description", SalesHeader."Operation Description 2");
         SalesHeaderVerify.TestField("Operation Description 2", SalesHeader."Operation Description");
     end;
@@ -125,7 +125,7 @@ codeunit 147521 "SII Documents - UI"
 
         SalesReturnOrder.OperationDescription.SetValue(
           SalesHeader."Operation Description 2" + SalesHeader."Operation Description");
-        SalesHeaderVerify.Find;
+        SalesHeaderVerify.Find();
         SalesHeaderVerify.TestField("Operation Description", SalesHeader."Operation Description 2");
         SalesHeaderVerify.TestField("Operation Description 2", SalesHeader."Operation Description");
     end;
@@ -196,7 +196,7 @@ codeunit 147521 "SII Documents - UI"
 
         PurchaseOrder.OperationDescription.SetValue(
           PurchaseHeader."Operation Description 2" + PurchaseHeader."Operation Description");
-        PurchaseHeaderVerify.Find;
+        PurchaseHeaderVerify.Find();
         PurchaseHeaderVerify.TestField("Operation Description", PurchaseHeader."Operation Description 2");
         PurchaseHeaderVerify.TestField("Operation Description 2", PurchaseHeader."Operation Description");
     end;
@@ -223,7 +223,7 @@ codeunit 147521 "SII Documents - UI"
 
         PurchaseInvoice.OperationDescription.SetValue(
           PurchaseHeader."Operation Description 2" + PurchaseHeader."Operation Description");
-        PurchaseHeaderVerify.Find;
+        PurchaseHeaderVerify.Find();
         PurchaseHeaderVerify.TestField("Operation Description", PurchaseHeader."Operation Description 2");
         PurchaseHeaderVerify.TestField("Operation Description 2", PurchaseHeader."Operation Description");
     end;
@@ -250,7 +250,7 @@ codeunit 147521 "SII Documents - UI"
 
         PurchaseCreditMemo.OperationDescription.SetValue(
           PurchaseHeader."Operation Description 2" + PurchaseHeader."Operation Description");
-        PurchaseHeaderVerify.Find;
+        PurchaseHeaderVerify.Find();
         PurchaseHeaderVerify.TestField("Operation Description", PurchaseHeader."Operation Description 2");
         PurchaseHeaderVerify.TestField("Operation Description 2", PurchaseHeader."Operation Description");
     end;
@@ -277,7 +277,7 @@ codeunit 147521 "SII Documents - UI"
 
         PurchaseReturnOrder.OperationDescription.SetValue(
           PurchaseHeader."Operation Description 2" + PurchaseHeader."Operation Description");
-        PurchaseHeaderVerify.Find;
+        PurchaseHeaderVerify.Find();
         PurchaseHeaderVerify.TestField("Operation Description", PurchaseHeader."Operation Description 2");
         PurchaseHeaderVerify.TestField("Operation Description 2", PurchaseHeader."Operation Description");
     end;
@@ -348,7 +348,7 @@ codeunit 147521 "SII Documents - UI"
 
         ServiceOrder.OperationDescription.SetValue(
           ServiceHeader."Operation Description 2" + ServiceHeader."Operation Description");
-        ServiceHeaderVerify.Find;
+        ServiceHeaderVerify.Find();
         ServiceHeaderVerify.TestField("Operation Description", ServiceHeader."Operation Description 2");
         ServiceHeaderVerify.TestField("Operation Description 2", ServiceHeader."Operation Description");
     end;
@@ -375,7 +375,7 @@ codeunit 147521 "SII Documents - UI"
 
         ServiceInvoice.OperationDescription.SetValue(
           ServiceHeader."Operation Description 2" + ServiceHeader."Operation Description");
-        ServiceHeaderVerify.Find;
+        ServiceHeaderVerify.Find();
         ServiceHeaderVerify.TestField("Operation Description", ServiceHeader."Operation Description 2");
         ServiceHeaderVerify.TestField("Operation Description 2", ServiceHeader."Operation Description");
     end;
@@ -402,7 +402,7 @@ codeunit 147521 "SII Documents - UI"
 
         ServiceCreditMemo.OperationDescription.SetValue(
           ServiceHeader."Operation Description 2" + ServiceHeader."Operation Description");
-        ServiceHeaderVerify.Find;
+        ServiceHeaderVerify.Find();
         ServiceHeaderVerify.TestField("Operation Description", ServiceHeader."Operation Description 2");
         ServiceHeaderVerify.TestField("Operation Description 2", ServiceHeader."Operation Description");
     end;
@@ -471,7 +471,7 @@ codeunit 147521 "SII Documents - UI"
 
         PurchaseInvoice."Invoice Type".SetValue(PurchaseHeader."Invoice Type"::"F5 Imports (DUA)");
         PurchaseInvoice.OK.Invoke;
-        PurchaseHeaderVerify.Find;
+        PurchaseHeaderVerify.Find();
         PurchaseHeaderVerify.TestField("Invoice Type", PurchaseHeaderVerify."Invoice Type"::"F5 Imports (DUA)");
     end;
 

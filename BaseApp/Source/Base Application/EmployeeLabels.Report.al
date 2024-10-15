@@ -112,10 +112,9 @@ report 5200 "Employee - Labels"
                     for i := ColumnNo + 1 to NoOfColumns do
                         Clear(EmployeeAddr[i]);
                     ColumnNo := 0;
-                end else begin
+                end else
                     if ColumnNo = NoOfColumns then
                         ColumnNo := 0;
-                end;
             end;
 
             trigger OnPreDataItem()

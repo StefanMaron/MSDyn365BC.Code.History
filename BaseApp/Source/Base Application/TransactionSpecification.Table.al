@@ -31,4 +31,3 @@ table 285 "Transaction Specification"
         }
     }
 }
-

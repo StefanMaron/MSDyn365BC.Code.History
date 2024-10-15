@@ -973,10 +973,10 @@ codeunit 136901 "Marketing Reports"
         CreateSalesCycleSingleStage(SalesCycleStage, SalesCycle.Code, Activity.Code);
         CurrentSalesCycleStage := SalesCycleStage.Stage; // Assign Global Variable for page handler.
         SecondSalesCycleStage := SalesCycleStage.Stage;
-        CurrentWorkDate := WorkDate;
+        CurrentWorkDate := WorkDate();
 
         // Use Random values for the days.
-        WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         UpdateOpportunity(Contact2."No.");
 
         // 2. Exercise: Run Sales Cycle Analysis Report.
@@ -1012,7 +1012,7 @@ codeunit 136901 "Marketing Reports"
         REPORT.Run(REPORT::"Contact - Cover Sheet");
 
         // Verify.
-        Assert.AreEqual(Contact.Count, GetRowCount, StrSubstNo(UnexpectedNumberOfRecordsError, Contact.TableCaption, Contact.Count));
+        Assert.AreEqual(Contact.Count, GetRowCount, StrSubstNo(UnexpectedNumberOfRecordsError, Contact.TableCaption(), Contact.Count));
     end;
 
     local procedure CreateCampaignWithStatus(var Campaign: Record Campaign)
@@ -1497,7 +1497,7 @@ codeunit 136901 "Marketing Reports"
         TempTask.Validate("Team Code", TeamCode);
         TempTask.Validate(Description, TeamCode);
         TempTask.Validate("Team To-do", true);
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
         TempTask.Modify();
         TempTask.CheckStatus;
         TempTask.FinishWizard(false);
@@ -1514,7 +1514,7 @@ codeunit 136901 "Marketing Reports"
         TempTask.Insert();
         TempTask.Validate(Description, TempTask."Contact No.");
         TempTask.Validate("Opportunity No.", OpportunityNo);
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
         TempTask.Modify();
         TempTask.CheckStatus;
         TempTask.FinishWizard(false);
@@ -1537,7 +1537,7 @@ codeunit 136901 "Marketing Reports"
         // Use Random for Estimated Value (LCY) and Chances of Success % because values are not important.
         TempOpportunityEntry.Validate("Estimated Value (LCY)", LibraryRandom.RandInt(100));
         TempOpportunityEntry.Validate("Chances of Success %", LibraryRandom.RandInt(100));
-        TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+        TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         TempOpportunityEntry.Modify();
 
         TempOpportunityEntry.CheckStatus2;
@@ -1559,7 +1559,7 @@ codeunit 136901 "Marketing Reports"
         // Use Random for Estimated Value (LCY) and Chances of Success % because values are not important.
         TempOpportunityEntry.Validate("Estimated Value (LCY)", LibraryRandom.RandDec(100, 2));
         TempOpportunityEntry.Validate("Chances of Success %", LibraryRandom.RandDec(100, 2));
-        TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+        TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         TempOpportunityEntry.Modify();
 
         TempOpportunityEntry.CheckStatus2;

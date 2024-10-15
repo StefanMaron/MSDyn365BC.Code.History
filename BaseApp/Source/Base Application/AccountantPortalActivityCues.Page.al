@@ -1,4 +1,4 @@
-page 1314 "AccountantPortal Activity Cues"
+﻿page 1314 "AccountantPortal Activity Cues"
 {
     Caption = 'AccountantPortal Activity Cues';
     PageType = List;
@@ -318,7 +318,7 @@ page 1314 "AccountantPortal Activity Cues"
             cuegroup(MissingSIIEntries)
             {
                 Caption = 'Missing SII Entries';
-                field("Missing SII Entries"; "Missing SII Entries")
+                field("Missing SII Entries"; Rec."Missing SII Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Missing SII Entries';
@@ -329,10 +329,10 @@ page 1314 "AccountantPortal Activity Cues"
                     var
                         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
                     begin
-                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage;
+                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage();
                     end;
                 }
-                field("Days Since Last SII Check"; "Days Since Last SII Check")
+                field("Days Since Last SII Check"; Rec."Days Since Last SII Check")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Recreate Missing SII Entries";
@@ -349,16 +349,16 @@ page 1314 "AccountantPortal Activity Cues"
 
     trigger OnAfterGetRecord()
     begin
-        SetAccountantPortalAmountFields;
-        GetCompanyContactName;
+        SetAccountantPortalAmountFields();
+        GetCompanyContactName();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
             Commit();
         end;
         SetFilter("Due Date Filter", '>=%1', Today);
@@ -473,13 +473,13 @@ page 1314 "AccountantPortal Activity Cues"
         SalesThisMonthAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Sales This Month"), "Sales This Month", SalesThisMonthStyle);
 
-        "Top 10 Customer Sales YTD" := ActivitiesMgt.CalcTop10CustomerSalesYTD;
+        "Top 10 Customer Sales YTD" := ActivitiesMgt.CalcTop10CustomerSalesYTD();
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString("Top 10 Customer Sales YTD");
         TempString := CopyStr(UnlimitedTempString, 1, 250);
         Top10CustomerSalesYTDAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Top 10 Customer Sales YTD"), "Top 10 Customer Sales YTD", Top10CustomerSalesYTDStyle);
 
-        "Average Collection Days" := ActivitiesMgt.CalcAverageCollectionDays;
+        "Average Collection Days" := ActivitiesMgt.CalcAverageCollectionDays();
         TempString := Format("Average Collection Days");
         AverageCollectionDaysAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Average Collection Days"), "Average Collection Days", AverageCollectionDaysStyle);
@@ -520,9 +520,9 @@ page 1314 "AccountantPortal Activity Cues"
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Inc. Doc. Awaiting Verfication"), "Inc. Doc. Awaiting Verfication", IncDocAwaitingVerifStyle);
 
         if FieldActive("Missing SII Entries") then
-            "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount;
+            "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount();
         if FieldActive("Days Since Last SII Check") then
-            "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck;
+            "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck();
     end;
 
     local procedure GetCompanyContactName()
@@ -530,7 +530,7 @@ page 1314 "AccountantPortal Activity Cues"
         CompanyInformation: Record "Company Information";
     begin
         ContactNameStyle := ContactNameStyle::None;
-        if CompanyInformation.Get then
+        if CompanyInformation.Get() then
             ContactNameAmount := CompanyInformation."Contact Person";
     end;
 }

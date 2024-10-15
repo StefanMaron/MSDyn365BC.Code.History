@@ -24,7 +24,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                 CRMIntegrationRecord."Table ID" := "Table ID";
                 if CRMIntegrationRecord.FindRecordId(RecId) then begin
                     "Record ID" := RecId;
-                    Description := CopyStr(GetRecDescription, 1, MaxStrLen(Description));
+                    Description := CopyStr(GetRecDescription(), 1, MaxStrLen(Description));
                     "Record Exists" := RecRef.Get("Record ID");
                 end;
             end;
@@ -63,7 +63,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                                 FieldRef := RecRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
                                 "Int. Modified On" := FieldRef.Value;
                             end;
-                            RecRef.Close;
+                            RecRef.Close();
                         end;
                     end;
                 end;
@@ -76,7 +76,7 @@ table 5374 "CRM Synch. Conflict Buffer"
 
             trigger OnValidate()
             begin
-                "Table Name" := GetTableCaption;
+                "Table Name" := GetTableCaption();
             end;
         }
         field(5; "Table Name"; Text[250])
@@ -100,7 +100,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                     if "Record Exists" then begin
                         "Record ID" := RecRef.RecordId;
                         "Integration ID" := RecRef.Field(RecRef.SystemIdNo()).Value();
-                        Description := CopyStr(GetRecDescription, 1, MaxStrLen(Description));
+                        Description := CopyStr(GetRecDescription(), 1, MaxStrLen(Description));
                     end;
                 end;
             end;
@@ -222,17 +222,17 @@ table 5374 "CRM Synch. Conflict Buffer"
         TempCRMSynchConflictBuffer.Copy(Rec, true);
         if TempCRMSynchConflictBuffer.FindSet() then
             repeat
-                TempCRMSynchConflictBuffer.DeleteCoupledRecord;
+                TempCRMSynchConflictBuffer.DeleteCoupledRecord();
             until TempCRMSynchConflictBuffer.Next() = 0;
     end;
 
     procedure DeleteCoupledRecord()
     begin
-        if IsOneRecordDeleted then
+        if IsOneRecordDeleted() then
             if "Record Exists" then
-                DeleteCoupledRecInNAV
+                DeleteCoupledRecInNAV()
             else
-                DeleteCoupledRecInCRM;
+                DeleteCoupledRecInCRM();
     end;
 
     local procedure DeleteCoupledRecInCRM()
@@ -245,7 +245,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                 if not TryToDeleteCRMRecord(RecRef) then
                     Error(NoPermissionToDeleteInCRMErr);
             if CRMIntegrationRecord.Delete(true) then
-                Delete;
+                Delete();
         end;
     end;
 
@@ -258,7 +258,7 @@ table 5374 "CRM Synch. Conflict Buffer"
             RecRef.Get("Record ID");
             RecRef.Delete(true);
             if CRMIntegrationRecord.Delete(true) then
-                Delete;
+                Delete();
         end;
     end;
 
@@ -398,8 +398,8 @@ table 5374 "CRM Synch. Conflict Buffer"
                 cnt += 1;
                 "Entry No." += 1;
                 InitFromCRMIntegrationRecord(CRMIntegrationRecord);
-                if DoesOneRecordExist then
-                    Insert
+                if DoesOneRecordExist() then
+                    Insert()
                 else
                     CRMIntegrationRecord.Delete();
             until ((CRMIntegrationRecord.Next() = 0) or (cnt = 100));
@@ -409,7 +409,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                     cnt += 1;
                     "Entry No." += 1;
                     InitFromCRMOptionMapping(CRMOptionMapping);
-                    if DoesOneRecordExist then
+                    if DoesOneRecordExist() then
                         Insert()
                     else
                         CRMOptionMapping.Delete();
@@ -425,8 +425,8 @@ table 5374 "CRM Synch. Conflict Buffer"
         Pos: Integer;
     begin
         if RecRef.Get("Record ID") then begin
-            RecRef.SetRecFilter;
-            PKFilter := RecRef.GetView;
+            RecRef.SetRecFilter();
+            PKFilter := RecRef.GetView();
             repeat
                 Pos := StrPos(PKFilter, '=FILTER(');
                 if Pos <> 0 then begin
@@ -597,11 +597,11 @@ table 5374 "CRM Synch. Conflict Buffer"
     [Obsolete('Use RestoreDeletedRecords', '19.0')]
     procedure RestoreDeletedRecord()
     begin
-        if IsOneRecordDeleted then
+        if IsOneRecordDeleted() then
             if "Record Exists" then
-                RestoreDeletedRecordInCRM
+                RestoreDeletedRecordInCRM()
             else
-                RestoreDeletedRecordInNAV;
+                RestoreDeletedRecordInNAV();
     end;
 
     local procedure RestoreDeletedRecordInCRM()
@@ -613,9 +613,9 @@ table 5374 "CRM Synch. Conflict Buffer"
         if CRMIntegrationRecord.FindByRecordID("Record ID") then
             CRMIntegrationRecord.Delete();
         RecRef.Get("Record ID");
-        RecRef.SetRecFilter;
+        RecRef.SetRecFilter();
         CRMIntegrationManagement.CreateNewRecordsInCRM(RecRef);
-        Delete;
+        Delete();
     end;
 
     local procedure RestoreDeletedRecordInNAV()
@@ -628,9 +628,9 @@ table 5374 "CRM Synch. Conflict Buffer"
            CRMIntegrationRecord.GetCRMRecordRef("Int. Table ID", RecRef)
         then begin
             CRMIntegrationRecord.Delete();
-            RecRef.SetRecFilter;
+            RecRef.SetRecFilter();
             CRMIntegrationManagement.CreateNewRecordsFromCRM(RecRef);
-            Delete;
+            Delete();
         end;
     end;
 #endif
@@ -679,7 +679,7 @@ table 5374 "CRM Synch. Conflict Buffer"
     begin
         CRMOptionMapping.SetRange("Record ID", "Record ID");
         if not CRMIntegrationRecord.Get("CRM ID", "Integration ID") and not CRMOptionMapping.FindFirst() then
-            Delete;
+            Delete();
         CRMOptionMapping.SetRange("Record ID");
         TempCRMSynchConflictBuffer.Copy(Rec, true);
         CRMIntegrationRecord.SetRange(Skipped, false);

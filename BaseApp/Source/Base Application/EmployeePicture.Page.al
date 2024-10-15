@@ -57,7 +57,7 @@ page 5202 "Employee Picture"
                     TestField("First Family Name");
                     TestField("Second Family Name");
 
-                    if Image.HasValue then
+                    if Image.HasValue() then
                         if not Confirm(OverrideImageQst) then
                             exit;
 
@@ -122,7 +122,7 @@ page 5202 "Employee Picture"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditableOnPictureActions;
+        SetEditableOnPictureActions();
     end;
 
     trigger OnOpenPage()

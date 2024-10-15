@@ -257,13 +257,13 @@ codeunit 147539 "Bill - Group Test Report Tests"
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists(
-          ErrorElementNameTxt, StrSubstNo('%1 %2 is blocked.', BankAccount.TableCaption, BillGroup."Bank Account No."));
+          ErrorElementNameTxt, StrSubstNo('%1 %2 is blocked.', BankAccount.TableCaption(), BillGroup."Bank Account No."));
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists(ErrorElementNameTxt,
           StrSubstNo(
             '%1 %2 has no %3.',
-            BankAccount.TableCaption,
+            BankAccount.TableCaption(),
             BillGroup."Bank Account No.",
             BankAccount.FieldCaption("Bank Acc. Posting Group")));
 

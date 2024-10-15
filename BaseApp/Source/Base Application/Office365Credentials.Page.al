@@ -28,8 +28,8 @@ page 1312 "Office 365 Credentials"
 
                     trigger OnValidate()
                     begin
-                        if (PasswordText <> '') and (not EncryptionEnabled) then
-                            if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst) then
+                        if (PasswordText <> '') and (not EncryptionEnabled()) then
+                            if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst()) then
                                 PAGE.RunModal(PAGE::"Data Encryption Management");
                     end;
                 }
@@ -67,14 +67,14 @@ page 1312 "Office 365 Credentials"
 
     trigger OnOpenPage()
     begin
-        PasswordText := GetPassword;
+        PasswordText := GetPassword();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if (CloseAction = ACTION::OK) or (CloseAction = ACTION::LookupOK) then begin
-            if not Get then
-                Insert;
+            if not Get() then
+                Insert();
             SavePassword(PasswordText);
         end;
     end;

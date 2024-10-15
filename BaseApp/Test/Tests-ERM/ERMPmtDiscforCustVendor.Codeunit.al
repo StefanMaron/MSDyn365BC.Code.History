@@ -177,7 +177,6 @@
 #endif
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyWithPmtDiscForCustomerExchRateAdjmt()
     var
@@ -327,7 +326,6 @@
 #endif
 
     [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyWithPmtDiscForVendorExchRateAdjmt()
     var
@@ -769,10 +767,10 @@
         VATEntry.SetRange("Entry No.", LastVATEntryNo + 1, LastVATEntryNo + 1 + 2 * NoOfVATEntries);
 
         VATEntry.SetFilter(Amount, '>%1', 0);
-        Assert.AreEqual(NoOfVATEntries, VATEntry.Count, StrSubstNo(WrongCountErr, VATEntry.TableCaption));
+        Assert.AreEqual(NoOfVATEntries, VATEntry.Count, StrSubstNo(WrongCountErr, VATEntry.TableCaption()));
 
         VATEntry.SetFilter(Amount, '<%1', 0);
-        Assert.AreEqual(NoOfVATEntries, VATEntry.Count, StrSubstNo(WrongCountErr, VATEntry.TableCaption));
+        Assert.AreEqual(NoOfVATEntries, VATEntry.Count, StrSubstNo(WrongCountErr, VATEntry.TableCaption()));
 
         VATEntry.SetRange(Amount);
         VATEntry.CalcSums(Amount);
@@ -828,10 +826,10 @@
         VATEntry.SetRange("Entry No.", LastVATEntryNo + 1, LastVATEntryNo + 1 + 2 * NoOfVATEntries);
 
         VATEntry.SetFilter(Amount, '>%1', 0);
-        Assert.AreEqual(NoOfVATEntries, VATEntry.Count, StrSubstNo(WrongCountErr, VATEntry.TableCaption));
+        Assert.AreEqual(NoOfVATEntries, VATEntry.Count, StrSubstNo(WrongCountErr, VATEntry.TableCaption()));
 
         VATEntry.SetFilter(Amount, '<%1', 0);
-        Assert.AreEqual(NoOfVATEntries, VATEntry.Count, StrSubstNo(WrongCountErr, VATEntry.TableCaption));
+        Assert.AreEqual(NoOfVATEntries, VATEntry.Count, StrSubstNo(WrongCountErr, VATEntry.TableCaption()));
 
         VATEntry.SetRange(Amount);
         VATEntry.CalcSums(Amount);
@@ -1267,7 +1265,7 @@
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryERMCountryData.UpdateVATPostingSetup();
 
         FindUpdateVATPostingSetupVATPct(GetW1VATPct);
@@ -1470,7 +1468,7 @@
     begin
         with PmtGenJnlLine do begin
             CreateGeneralJournalBatch(GenJournalBatch);
-            Init;
+            Init();
             "Journal Template Name" := GenJournalBatch."Journal Template Name";
             "Journal Batch Name" := GenJournalBatch.Name;
             "Document Type" := "Document Type"::Payment;
@@ -1776,7 +1774,7 @@
     begin
         // Use Random Number Generator for Exchange Rate.
         FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(100));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
@@ -1861,7 +1859,7 @@
         LibraryERM.UnapplyVendorLedgerEntry(VendLedgerEntry);
     end;
 
-    local procedure UpdateCountryRegion(CountryRegionCode: Code[10]; AddressFormat: Option): Text[50]
+    local procedure UpdateCountryRegion(CountryRegionCode: Code[10]; AddressFormat: Enum "Country/Region Address Format"): Text[50]
     var
         CountryRegion: Record "Country/Region";
     begin
@@ -1980,9 +1978,9 @@
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        Amount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
         FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
-        Amount := LibraryERM.ConvertCurrency(Amount, CurrencyExchangeRate."Relational Currency Code", '', WorkDate);
+        Amount := LibraryERM.ConvertCurrency(Amount, CurrencyExchangeRate."Relational Currency Code", '', WorkDate());
         exit(Amount);
     end;
 
@@ -2146,10 +2144,10 @@
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           DebitAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountLCYErr, GLEntry.FieldCaption("Debit Amount"), GLEntry."Debit Amount", GLEntry.TableCaption));
+          StrSubstNo(AmountLCYErr, GLEntry.FieldCaption("Debit Amount"), GLEntry."Debit Amount", GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
           CreditAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountLCYErr, GLEntry.FieldCaption("Credit Amount"), GLEntry."Credit Amount", GLEntry.TableCaption))
+          StrSubstNo(AmountLCYErr, GLEntry.FieldCaption("Credit Amount"), GLEntry."Credit Amount", GLEntry.TableCaption()))
     end;
 
     local procedure VerifyUnappliedDtldCustLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -2160,8 +2158,8 @@
         repeat
             Assert.IsTrue(
               DetailedCustLedgEntry.Unapplied,
-              StrSubstNo(UnappliedErr, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption(Unapplied)));
-        until DetailedCustLedgEntry.Next = 0;
+              StrSubstNo(UnappliedErr, DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption(Unapplied)));
+        until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyCustLedgerEntryForRemAmt(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -2172,7 +2170,7 @@
         repeat
             CustLedgerEntry.CalcFields("Remaining Amount", Amount);
             CustLedgerEntry.TestField("Remaining Amount", CustLedgerEntry.Amount);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyPaymentTerms(PaymentTermsCode: Code[10]; DueDateCalculation: DateFormula; DiscountPct: Decimal)
@@ -2191,8 +2189,8 @@
         FindDetailedVendLedgerEntry(DetailedVendLedgEntry, DocumentNo, DocumentType, DetailedVendLedgEntry."Entry Type"::Application);
         repeat
             Assert.IsTrue(
-              DetailedVendLedgEntry.Unapplied, StrSubstNo(UnappliedErr, DetailedVendLedgEntry.TableCaption, DetailedVendLedgEntry.Unapplied));
-        until DetailedVendLedgEntry.Next = 0;
+              DetailedVendLedgEntry.Unapplied, StrSubstNo(UnappliedErr, DetailedVendLedgEntry.TableCaption(), DetailedVendLedgEntry.Unapplied));
+        until DetailedVendLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyVendLedgerEntryForRemAmt(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -2203,7 +2201,7 @@
         repeat
             VendLedgerEntry.CalcFields("Remaining Amount", Amount);
             VendLedgerEntry.TestField("Remaining Amount", VendLedgerEntry.Amount);
-        until VendLedgerEntry.Next = 0;
+        until VendLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyArrayValuesWithCityPostcode(Vendor: Record Vendor; CountryRegionName: Text[50]; AddrArray: array[8] of Text[100])
@@ -2227,7 +2225,7 @@
         DummyGLEntry: Record "G/L Entry";
     begin
         with DummyGLEntry do begin
-            Init;
+            Init();
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
             if IsPositiveAmount then
@@ -2279,7 +2277,7 @@
         Vendor.Get(SourceNo);
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
         VerifyUnappliedGLEntries(
-          DocumentNo, VendorPostingGroup.GetPayablesAccount, VATGLAccountNo,
+          DocumentNo, VendorPostingGroup.GetPayablesAccount(), VATGLAccountNo,
           SourceNo, SourceCodeSetup."Unapplied Purch. Entry Appln.", GLAmount, VATAmount, Qty, VATQty);
     end;
 

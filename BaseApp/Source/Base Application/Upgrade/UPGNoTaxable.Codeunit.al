@@ -12,8 +12,8 @@ codeunit 104102 "Upg No Taxable"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        UpdateNoTaxableEntries;
+
+        UpdateNoTaxableEntries();
     end;
 
     local procedure UpdateNoTaxableEntries()
@@ -21,12 +21,12 @@ codeunit 104102 "Upg No Taxable"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateNoTaxableEntriesTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateNoTaxableEntriesTag()) THEN
             EXIT;
 
         CODEUNIT.RUN(CODEUNIT::"No Taxable - Generate Entries");
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateNoTaxableEntriesTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateNoTaxableEntriesTag());
     end;
 }
 

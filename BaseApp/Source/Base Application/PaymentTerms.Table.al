@@ -114,19 +114,19 @@
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     var
         CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
         CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
@@ -170,7 +170,7 @@
         PaymentTermTranslation: Record "Payment Term Translation";
         Language: Codeunit Language;
     begin
-        if PaymentTermTranslation.Get(Code, Language.GetUserLanguageCode) then
+        if PaymentTermTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(CopyStr(PaymentTermTranslation.Description, 1, 50));
 
         exit(CopyStr(Description, 1, 50));

@@ -32,13 +32,13 @@
                         Window.Update(3, Round(EntryCount / MaxEntry * 10000, 1));
                     end;
 
-                    if GroupSum then begin
+                    if GroupSum() then begin
                         CalcSumsInFilter("G/L Entry", RowOffset);
                         GetGLEntryDimensions("Entry No.", TempDimBuf, "Dimension Set ID");
                     end;
 
                     if (Amount <> 0) or ("Additional-Currency Amount" <> 0) then begin
-                        if not GroupSum then begin
+                        if not GroupSum() then begin
                             TotalAmount += Amount;
                             if GLSetup."Additional Reporting Currency" <> '' then
                                 TotalAmountAddCurr += "Additional-Currency Amount";
@@ -59,25 +59,25 @@
 
                         DimensionBufferID := DimBufMgt.GetDimensionId(TempDimBuf2);
 
-                        EntryNoAmountBuf.Reset();
+                        TempEntryNoAmountBuffer.Reset();
                         if ClosePerBusUnit and FieldActive("Business Unit Code") then
-                            EntryNoAmountBuf."Business Unit Code" := "Business Unit Code"
+                            TempEntryNoAmountBuffer."Business Unit Code" := "Business Unit Code"
                         else
-                            EntryNoAmountBuf."Business Unit Code" := '';
-                        EntryNoAmountBuf."Entry No." := DimensionBufferID;
-                        if EntryNoAmountBuf.Find then begin
-                            EntryNoAmountBuf.Amount := EntryNoAmountBuf.Amount + Amount;
-                            EntryNoAmountBuf.Amount2 := EntryNoAmountBuf.Amount2 + "Additional-Currency Amount";
-                            EntryNoAmountBuf.Modify();
+                            TempEntryNoAmountBuffer."Business Unit Code" := '';
+                        TempEntryNoAmountBuffer."Entry No." := DimensionBufferID;
+                        if TempEntryNoAmountBuffer.Find() then begin
+                            TempEntryNoAmountBuffer.Amount := TempEntryNoAmountBuffer.Amount + Amount;
+                            TempEntryNoAmountBuffer.Amount2 := TempEntryNoAmountBuffer.Amount2 + "Additional-Currency Amount";
+                            TempEntryNoAmountBuffer.Modify();
                         end else begin
-                            EntryNoAmountBuf.Amount := Amount;
-                            EntryNoAmountBuf.Amount2 := "Additional-Currency Amount";
-                            EntryNoAmountBuf.Insert();
+                            TempEntryNoAmountBuffer.Amount := Amount;
+                            TempEntryNoAmountBuffer.Amount2 := "Additional-Currency Amount";
+                            TempEntryNoAmountBuffer.Insert();
                         end;
-                        OnGLEntryOnAfterGetRecordOnAfterEntryNoAmountBuf(EntryNoAmountBuf, "G/L Entry");
+                        OnGLEntryOnAfterGetRecordOnAfterEntryNoAmountBuf(TempEntryNoAmountBuffer, "G/L Entry");
                     end;
 
-                    if GroupSum then
+                    if GroupSum() then
                         Next(RowOffset);
                 end;
 
@@ -93,13 +93,13 @@
                     GenJnlLine."Document No." := DocNo;
                     GenJnlLine.Description := PostingDescription;
 
-                    EntryNoAmountBuf.Reset();
-                    MaxEntry := EntryNoAmountBuf.Count();
+                    TempEntryNoAmountBuffer.Reset();
+                    MaxEntry := TempEntryNoAmountBuffer.Count();
                     EntryCount := 0;
                     Window.Update(2, Text012);
                     Window.Update(3, 0);
 
-                    if EntryNoAmountBuf.Find('-') then
+                    if TempEntryNoAmountBuffer.Find('-') then
                         repeat
                             EntryCount := EntryCount + 1;
                             if CurrentDateTime - LastWindowUpdateDateTime > 1000 then begin
@@ -107,18 +107,18 @@
                                 Window.Update(3, Round(EntryCount / MaxEntry * 10000, 1));
                             end;
 
-                            if (EntryNoAmountBuf.Amount <> 0) or (EntryNoAmountBuf.Amount2 <> 0) then begin
+                            if (TempEntryNoAmountBuffer.Amount <> 0) or (TempEntryNoAmountBuffer.Amount2 <> 0) then begin
                                 GenJnlLine."Line No." := GenJnlLine."Line No." + 10000;
                                 GenJnlLine."Account No." := "G/L Account No.";
                                 GenJnlLine."Source Code" := SourceCodeSetup."Close Income Statement";
                                 GenJnlLine."Reason Code" := GenJnlBatch."Reason Code";
-                                GenJnlLine.Validate(Amount, -EntryNoAmountBuf.Amount);
+                                GenJnlLine.Validate(Amount, -TempEntryNoAmountBuffer.Amount);
                                 GenJnlLine."System-Created Entry" := true;
-                                GenJnlLine."Source Currency Amount" := -EntryNoAmountBuf.Amount2;
-                                GenJnlLine."Business Unit Code" := EntryNoAmountBuf."Business Unit Code";
+                                GenJnlLine."Source Currency Amount" := -TempEntryNoAmountBuffer.Amount2;
+                                GenJnlLine."Business Unit Code" := TempEntryNoAmountBuffer."Business Unit Code";
 
                                 TempDimBuf2.DeleteAll();
-                                DimBufMgt.RetrieveDimensions(EntryNoAmountBuf."Entry No.", TempDimBuf2);
+                                DimBufMgt.RetrieveDimensions(TempEntryNoAmountBuffer."Entry No.", TempDimBuf2);
                                 NewDimensionID := DimMgt.CreateDimSetIDFromDimBuf(TempDimBuf2);
                                 GenJnlLine."Dimension Set ID" := NewDimensionID;
                                 DimMgt.UpdateGlobalDimFromDimSetID(NewDimensionID, GlobalDimVal1, GlobalDimVal2);
@@ -130,11 +130,11 @@
 
                                 HandleGenJnlLine();
                                 UpdateBalAcc();
-                                OnGLEntryOnPostDataItemOnAfterHandleGenJnlLine(GenJnlLine, EntryNoAmountBuf);
+                                OnGLEntryOnPostDataItemOnAfterHandleGenJnlLine(GenJnlLine, TempEntryNoAmountBuffer);
                             end;
-                        until EntryNoAmountBuf.Next() = 0;
+                        until TempEntryNoAmountBuffer.Next() = 0;
 
-                    EntryNoAmountBuf.DeleteAll();
+                    TempEntryNoAmountBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
@@ -160,7 +160,7 @@
 
                     MaxEntry := Count;
 
-                    EntryNoAmountBuf.DeleteAll();
+                    TempEntryNoAmountBuffer.DeleteAll();
                     EntryCount := 0;
 
                     LastWindowUpdateDateTime := CurrentDateTime;
@@ -178,7 +178,7 @@
 
             trigger OnPreDataItem()
             begin
-                NoOfAccounts := "G/L Account".Count();
+                NoOfAccounts := Count();
             end;
         }
     }
@@ -246,7 +246,7 @@
                                 GenJnlLine.TestField("Journal Template Name");
                                 GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
                             end;
-                            ValidateJnl;
+                            ValidateJnl();
                         end;
                     }
                     field(DocumentNo; DocNo)
@@ -267,8 +267,8 @@
                         trigger OnValidate()
                         begin
                             if RetainedEarningsGLAcc."No." <> '' then begin
-                                RetainedEarningsGLAcc.Find;
-                                RetainedEarningsGLAcc.CheckGLAcc;
+                                RetainedEarningsGLAcc.Find();
+                                RetainedEarningsGLAcc.CheckGLAcc();
                             end;
                         end;
                     }
@@ -308,7 +308,7 @@
                             end;
                         }
                     }
-                    field(InventoryPeriodClosed; IsInvtPeriodClosed)
+                    field(InventoryPeriodClosed; IsInvtPeriodClosed())
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Period Closed';
@@ -340,7 +340,7 @@
             end else
                 if EndDateReq = 0D then
                     Error(NoFiscalYearsErr);
-            ValidateJnl;
+            ValidateJnl();
             ColumnDim := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Close Income Statement", '');
             if RetainedEarningsGLAcc."No." = '' then begin
                 GLAccountCategory.SetRange("Account Category", GLAccountCategory."Account Category"::Equity);
@@ -364,12 +364,12 @@
         UpdateAnalysisView: Codeunit "Update Analysis View";
         IsHandled: Boolean;
     begin
-        InsBalLines;
+        InsBalLines();
 
         if not GenJnlLine.Find('-') then
             exit;
 
-        Window.Close;
+        Window.Close();
         Window.Open(
           Text1100100);
 
@@ -456,7 +456,7 @@
         ObjTransl: Record "Object Translation";
         SelectedDim: Record "Selected Dimension";
         TempSelectedDim: Record "Selected Dimension" temporary;
-        EntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary;
+        TempEntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
@@ -548,7 +548,7 @@
           GenJnlLine."Additional-Currency Posting"::None;
         if GLSetup."Additional Reporting Currency" <> '' then begin
             GenJnlLine."Source Currency Code" := GLSetup."Additional Reporting Currency";
-            if ZeroGenJnlAmount then begin
+            if ZeroGenJnlAmount() then begin
                 GenJnlLine."Additional-Currency Posting" :=
                   GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only";
                 GenJnlLine.Validate(Amount, GenJnlLine."Source Currency Amount");
@@ -558,7 +558,7 @@
                 if not ((GenJnlLine.Amount = 0) and (GenJnlLine."Source Currency Amount" <> 0)) then
                     GenJnlLine.Insert();
         end else
-            if not ZeroGenJnlAmount then
+            if not ZeroGenJnlAmount() then
                 GenJnlLine.Insert();
     end;
 
@@ -603,7 +603,7 @@
             until DimSetEntry.Next() = 0;
     end;
 
-    local procedure CheckDimPostingRules(var SelectedDim: Record "Selected Dimension"): Text[1024]
+    procedure CheckDimPostingRules(var SelectedDim: Record "Selected Dimension"): Text[1024]
     var
         DefaultDim: Record "Default Dimension";
         ErrorText: Text[1024];
@@ -620,6 +620,7 @@
           "Value Posting", '%1|%2',
           DefaultDim."Value Posting"::"Same Code", DefaultDim."Value Posting"::"Code Mandatory");
 
+        PrevAcc := '';
         if DefaultDim.Find('-') then
             repeat
                 SelectedDim.SetRange("Dimension Code", DefaultDim."Dimension Code");
@@ -656,7 +657,7 @@
     begin
         EndDateReq := EndDate;
         GenJnlLine := GenJournalLine;
-        ValidateJnl;
+        ValidateJnl();
         RetainedEarningsGLAcc := GLAccount;
         ClosePerBusUnit := CloseByBU;
     end;

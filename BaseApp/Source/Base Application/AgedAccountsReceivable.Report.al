@@ -1,4 +1,4 @@
-report 120 "Aged Accounts Receivable"
+﻿report 120 "Aged Accounts Receivable"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AgedAccountsReceivable.rdlc';
@@ -427,7 +427,7 @@ report 120 "Aged Accounts Receivable"
                                         DetailedCustomerLedgerEntry."Entry Type"::"Initial Entry") and
                                        (CustLedgEntryEndingDate."Posting Date" > EndingDate) and
                                        (AgingBy <> AgingBy::"Posting Date")
-                                    then begin
+                                    then
                                         if CustLedgEntryEndingDate."Document Date" <= EndingDate then
                                             DetailedCustomerLedgerEntry."Posting Date" :=
                                               CustLedgEntryEndingDate."Document Date"
@@ -436,8 +436,7 @@ report 120 "Aged Accounts Receivable"
                                                (AgingBy = AgingBy::"Due Date")
                                             then
                                                 DetailedCustomerLedgerEntry."Posting Date" :=
-                                                  CustLedgEntryEndingDate."Due Date"
-                                    end;
+                                                  CustLedgEntryEndingDate."Due Date";
 
                                     if (DetailedCustomerLedgerEntry."Posting Date" <= EndingDate) or
                                        (TempCustLedgEntry.Open and
@@ -507,17 +506,16 @@ report 120 "Aged Accounts Receivable"
                         trigger OnPostDataItem()
                         begin
                             if not PrintAmountInLCY then
-                                UpdateCurrencyTotals;
+                                UpdateCurrencyTotals();
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            if not PrintAmountInLCY then begin
+                            if not PrintAmountInLCY then
                                 if (TempCurrency.Code = '') or (TempCurrency.Code = GLSetup."LCY Code") then
                                     TempCustLedgEntry.SetFilter("Currency Code", '%1|%2', GLSetup."LCY Code", '')
                                 else
                                     TempCustLedgEntry.SetRange("Currency Code", TempCurrency.Code);
-                            end;
 
                             PageGroupNo := NextPageGroupNo;
                             if NewPagePercustomer and (NumberOfCurrencies > 0) then
@@ -700,7 +698,7 @@ report 120 "Aged Accounts Receivable"
         trigger OnOpenPage()
         begin
             if EndingDate = 0D then
-                EndingDate := WorkDate;
+                EndingDate := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -720,14 +718,14 @@ report 120 "Aged Accounts Receivable"
 
         GLSetup.Get();
 
-        CalcDates;
-        CreateHeadings;
+        CalcDates();
+        CreateHeadings();
 
         PageGroupNo := 1;
         NextPageGroupNo := 1;
         CustFilterCheck := (CustFilter <> 'No.');
 
-        CompanyDisplayName := COMPANYPROPERTY.DisplayName;
+        CompanyDisplayName := COMPANYPROPERTY.DisplayName();
     end;
 
     trigger OnPostReport()
@@ -746,12 +744,10 @@ report 120 "Aged Accounts Receivable"
         TempCurrency2: Record Currency temporary;
         TempCurrencyAmount: Record "Currency Amount" temporary;
         DetailedCustomerLedgerEntry: Record "Detailed Cust. Ledg. Entry";
-        CustFilter: Text;
+        PeriodLength: DateFormula;
         PrintAmountInLCY: Boolean;
         EndingDate: Date;
         AgingBy: Option "Due Date","Posting Date","Document Date";
-        PeriodLength: DateFormula;
-        PrintDetails: Boolean;
         HeadingType: Option "Date Interval","Number of Days";
         NewPagePercustomer: Boolean;
         PeriodStartDate: array[5] of Date;
@@ -794,11 +790,13 @@ report 120 "Aged Accounts Receivable"
         NumberOfLines: Integer;
         StartDateTime: DateTime;
         FinishDateTime: DateTime;
+        CustFilter: Text;
+        PrintDetails: Boolean;
 
     local procedure CalcDates()
     var
-        i: Integer;
         PeriodLength2: DateFormula;
+        i: Integer;
     begin
         if not Evaluate(PeriodLength2, StrSubstNo(Text032Txt, PeriodLength)) then
             Error(EnterDateFormulaErr);
@@ -851,7 +849,7 @@ report 120 "Aged Accounts Receivable"
             if Get(CustLedgEntry."Entry No.") then
                 exit;
             TempCustLedgEntry := CustLedgEntry;
-            Insert;
+            Insert();
             if PrintAmountInLCY then begin
                 Clear(TempCurrency);
                 TempCurrency."Amount Rounding Precision" := GLSetup."Amount Rounding Precision";
@@ -900,26 +898,26 @@ report 120 "Aged Accounts Receivable"
             for i := 1 to ArrayLen(TotalCustLedgEntry) do begin
                 "Currency Code" := CurrencyCode;
                 Date := PeriodStartDate[i];
-                if Find then begin
+                if Find() then begin
                     Amount := Amount + TotalCustLedgEntry[i]."Remaining Amount";
-                    Modify;
+                    Modify();
                 end else begin
                     "Currency Code" := CurrencyCode;
                     Date := PeriodStartDate[i];
                     Amount := TotalCustLedgEntry[i]."Remaining Amount";
-                    Insert;
+                    Insert();
                 end;
             end;
             "Currency Code" := CurrencyCode;
             Date := DMY2Date(31, 12, 9999);
-            if Find then begin
+            if Find() then begin
                 Amount := Amount + TotalCustLedgEntry[1].Amount;
-                Modify;
+                Modify();
             end else begin
                 "Currency Code" := CurrencyCode;
                 Date := DMY2Date(31, 12, 9999);
                 Amount := TotalCustLedgEntry[1].Amount;
-                Insert;
+                Insert();
             end;
         end;
     end;

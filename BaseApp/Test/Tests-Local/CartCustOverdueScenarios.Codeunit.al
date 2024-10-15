@@ -38,7 +38,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         CreateCustomer(Customer, '<' + Format(DueDateCalculationFormula) + 'D>', MaxNoOfDays, NumberOfInstallments);
 
         // Exercise: try to create and post Sales Invoice
-        asserterror CreateAndPostSalesInvoice(Customer, WorkDate, WorkDate);
+        asserterror CreateAndPostSalesInvoice(Customer, WorkDate(), WorkDate());
 
         // Verification: get an error message for Sales Invoice
         Assert.ExpectedError(InconsistentDataErr);
@@ -63,7 +63,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         SetupPaymentOptions(DueDateCalculationFormula, MaxNoOfDays, NumberOfInstallments);
 
         CreateCustomer(Customer, '<' + Format(DueDateCalculationFormula) + 'D>', MaxNoOfDays, NumberOfInstallments);
-        InvoiceNo := CreateAndPostSalesInvoice(Customer, WorkDate, WorkDate);
+        InvoiceNo := CreateAndPostSalesInvoice(Customer, WorkDate(), WorkDate());
 
         CreateEmptyBillGroup(BillGroup);
         AddDocToBillGroup(BillGroup."No.", InvoiceNo);
@@ -97,7 +97,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         SetupPaymentOptions(DueDateCalculationFormula, MaxNoOfDays, NumberOfInstallments);
 
         CreateCustomer(Customer, '<' + Format(DueDateCalculationFormula) + 'D>', MaxNoOfDays, NumberOfInstallments);
-        InvoiceNo := CreateAndPostSalesInvoice(Customer, WorkDate, WorkDate);
+        InvoiceNo := CreateAndPostSalesInvoice(Customer, WorkDate(), WorkDate());
 
         CreateEmptyBillGroup(BillGroup);
         AddDocToBillGroup(BillGroup."No.", InvoiceNo);
@@ -138,15 +138,15 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         CreateCustomer(Customer, '<' + Format(DueDateCalculationFormula) + 'D>', MaxNoOfDays, NumberOfInstallments);
 
         NumberOfInvoices := NumberOfInstallments;
-        DocumentDate := CalcDate('<-' + Format(DueDateCalculationFormula) + 'D>', WorkDate);
-        PostingDate := CalcDate('<-' + Format(DueDateCalculationFormula / 2) + 'D>', WorkDate);
+        DocumentDate := CalcDate('<-' + Format(DueDateCalculationFormula) + 'D>', WorkDate());
+        PostingDate := CalcDate('<-' + Format(DueDateCalculationFormula / 2) + 'D>', WorkDate());
         PostingDelta := '<+' + Format(DueDateCalculationFormula) + 'D>';
         Evaluate(PostingDeltaDateFormula, PostingDelta);
 
         CreateAndApplyInvoiceToPayment(Customer, PostingDate, DocumentDate, PostingDeltaDateFormula, NumberOfInvoices, 1);
 
-        StartingDate := CalcDate('<CY-1Y>', WorkDate);
-        EndingDate := CalcDate('<CY+1Y>', WorkDate);
+        StartingDate := CalcDate('<CY-1Y>', WorkDate());
+        EndingDate := CalcDate('<CY+1Y>', WorkDate());
 
         Customer.SetRange("No.", Customer."No.");
         SaveReportAsXML(
@@ -183,15 +183,15 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         CreateCustomer(Customer, '<' + Format(DueDateCalculationFormula) + 'D>', MaxNoOfDays, NumberOfInstallments);
 
         NumberOfInvoices := NumberOfInstallments;
-        DocumentDate := CalcDate('<-' + Format(DueDateCalculationFormula) + 'D>', WorkDate);
-        PostingDate := CalcDate('<-' + Format(DueDateCalculationFormula / 2) + 'D>', WorkDate);
+        DocumentDate := CalcDate('<-' + Format(DueDateCalculationFormula) + 'D>', WorkDate());
+        PostingDate := CalcDate('<-' + Format(DueDateCalculationFormula / 2) + 'D>', WorkDate());
         PostingDelta := '<+' + Format(MaxNoOfDays) + 'D>';
         Evaluate(PostingDeltaDateFormula, PostingDelta);
 
         CreateAndApplyInvoiceToPayment(Customer, PostingDate, DocumentDate, PostingDeltaDateFormula, NumberOfInvoices, 1);
 
-        StartingDate := CalcDate('<CY-1Y>', WorkDate);
-        EndingDate := CalcDate('<CY+1Y>', WorkDate);
+        StartingDate := CalcDate('<CY-1Y>', WorkDate());
+        EndingDate := CalcDate('<CY+1Y>', WorkDate());
 
         Customer.SetRange("No.", Customer."No.");
         SaveReportAsXML(
@@ -227,15 +227,15 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
 
         CreateCustomer(Customer, '<' + Format(DueDateCalculationFormula) + 'D>', MaxNoOfDays, NumberOfInstallments);
 
-        DocumentDate := CalcDate('<-' + Format(DueDateCalculationFormula) + 'D>', WorkDate);
-        PostingDate := CalcDate('<-' + Format(DueDateCalculationFormula / 2) + 'D>', WorkDate);
+        DocumentDate := CalcDate('<-' + Format(DueDateCalculationFormula) + 'D>', WorkDate());
+        PostingDate := CalcDate('<-' + Format(DueDateCalculationFormula / 2) + 'D>', WorkDate());
         Evaluate(PostingDeltaDateFormula, '<+' + Format(DueDateCalculationFormula) + 'D>');
 
         CreateAndApplyInvoiceToPayment(Customer, PostingDate, DocumentDate, PostingDeltaDateFormula, 2, 1);
 
         // Verification: report exists successfully
-        StartingDate := CalcDate('<CY-1Y>', WorkDate);
-        EndingDate := CalcDate('<CY+1Y>', WorkDate);
+        StartingDate := CalcDate('<CY-1Y>', WorkDate());
+        EndingDate := CalcDate('<CY+1Y>', WorkDate());
 
         Customer.SetRange("No.", Customer."No.");
         SaveReportAsXML(
@@ -245,7 +245,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
 
         // Exercise: unapply payment then try to open the report
         SelectCustomerLedgerEntry(
-          CustLedgerEntry, Customer."No.", CalcDate(PostingDeltaDateFormula, WorkDate), CustLedgerEntry."Document Type"::Payment);
+          CustLedgerEntry, Customer."No.", CalcDate(PostingDeltaDateFormula, WorkDate()), CustLedgerEntry."Document Type"::Payment);
         LibraryERMUnapply.UnapplyCustomerLedgerEntry(CustLedgerEntry);
 
         Customer.SetRange("No.", Customer."No.");
@@ -354,7 +354,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
             repeat
                 CarteraDoc."Bill Gr./Pmt. Order No." := BillGroupNo;
                 CarteraDoc.Modify();
-            until CarteraDoc.Next = 0;
+            until CarteraDoc.Next() = 0;
     end;
 
     local procedure CreateAndApplyInvoiceToPayment(Customer: Record Customer; PostingDate: Date; DocumentDate: Date; PostingDeltaDateFormula: DateFormula; NumberOfInvoices: Integer; NumberOfPayments: Integer)
@@ -406,7 +406,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
           Amount);
 
         // Set posting date and currency.
-        PostingDate := CalcDate(PostingDeltaDateFormula, WorkDate);
+        PostingDate := CalcDate(PostingDeltaDateFormula, WorkDate());
         PmtGenJnlLine.Validate("Posting Date", PostingDate);
         PmtGenJnlLine.Validate("Currency Code", Currency);
         PmtGenJnlLine.Modify(true);
@@ -429,14 +429,14 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         // Include all invoices.
         for i := 1 to NumberOfInvoices do begin
             SetupApplyEntryCustomer(InvCustLedgerEntry);
-            InvCustLedgerEntry.Next;
+            InvCustLedgerEntry.Next();
         end;
 
         // Include remaining payments.
-        PmtCustLedgerEntry.Next;
+        PmtCustLedgerEntry.Next();
         for i := 2 to NumberOfPayments do begin
             SetupApplyEntryCustomer(PmtCustLedgerEntry);
-            PmtCustLedgerEntry.Next;
+            PmtCustLedgerEntry.Next();
         end;
 
         // Call Apply codeunit.
@@ -516,7 +516,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
     begin
         Evaluate(PostingDeltaDateFormula, PostingDelta);
         SelectCustomerLedgerEntry(
-          CustLedgerEntry, Customer."No.", CalcDate(PostingDeltaDateFormula, WorkDate), CustLedgerEntry."Document Type"::Payment);
+          CustLedgerEntry, Customer."No.", CalcDate(PostingDeltaDateFormula, WorkDate()), CustLedgerEntry."Document Type"::Payment);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists(

@@ -109,9 +109,17 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetConfigFieldMapUpgradeTag());
         PerCompanyUpgradeTags.Add(GetICSetupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemCrossReferenceInPEPPOLUpgradeTag());
-        PercompanyUpgradeTags.Add(GetItemCrossReferenceUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemChargeHandleQtyUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemCrossReferenceUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUseCustomLookupUpgradeTag());
         PerCompanyUpgradeTags.Add(SanitizeCloudMigratedDataUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetAccountSchedulesToFinancialReportsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCRMUnitGroupMappingUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCRMSDK90UpgradeTag());
+        PerCompanyUpgradeTags.Add(GetVATDateFieldGLEntriesUpgrade());
+        PerCompanyUpgradeTags.Add(GetVATDateFieldVATEntriesUpgrade());
+        PerCompanyUpgradeTags.Add(GetVATDateFieldSalesPurchUpgrade());
+        PerCompanyUpgradeTags.Add(GetVATDateFieldIssuedDocsUpgrade());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -141,6 +149,9 @@ codeunit 9998 "Upgrade Tag Definitions"
 #endif
         PerDatabaseUpgradeTags.Add(GetUpgradePowerBIOptinImageUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUserGroupsSetAppIdUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetAutomateActionPermissionSetUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetEmployeeProfileUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetTeamsUsersUserGroupUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Data Upgrade", 'OnGetAPIUpgradeTags', '', false, false)]
@@ -898,6 +909,21 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-422103-GetItemCrossReferenceInPEPPOLUpgradeTag-20220114');
     end;
 
+    internal procedure GetEmployeeProfileUpgradeTag(): Code[250]
+    begin
+        exit('MS-427396-GetEmployeeProfileUpgradeTag-20220825');
+    end;
+
+    internal procedure GetTeamsUsersUserGroupUpgradeTag(): Code[250];
+    begin
+        exit('MS-427396-GetTeamsUsersUserGroupUpgradeTag-20220825');
+    end;
+
+    internal procedure GetItemChargeHandleQtyUpgradeTag(): Code[250]
+    begin
+        exit('MS-424468-GetItemChargeHandleQtyUpgradeTag-20220524');
+    end;
+
     internal procedure GetUseCustomLookupUpgradeTag(): Code[250]
     begin
         exit('MS-426799-GetUseCustomLookupUpgradeTag-20220406');
@@ -907,5 +933,47 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-433866-GetSanitizeCloudMigrationOnce-20220426');
     end;
+
+    internal procedure GetAutomateActionPermissionSetUpgradeTag(): Code[250];
+    begin
+        exit('MS-433748-AutomateActionPermissionSet-20220627');
+    end;
+
+    internal procedure GetAccountSchedulesToFinancialReportsUpgradeTag(): Code[250]
+    begin
+        exit('MS-441563-GetAccountSchedulesToFinancialReportsUpgradeTag-20220705');
+    end;
+
+    internal procedure GetCRMUnitGroupMappingUpgradeTag(): Code[250]
+    begin
+        exit('MS-433866-GetCRMUnitGroupMappingUpgradeTag-20220622');
+    end;
+
+    internal procedure GetCRMSDK90UpgradeTag(): Code[250]
+    begin
+        exit('MS-444855-GetCRMSDK90UpgradeTag-20220805');
+    end;
+
+    procedure GetVATDateFieldGLEntriesUpgrade(): Code[250]
+    begin
+        exit('MS-447067-GetVATDateFieldGLEntriesUpgrade-20220830');
+    end;
+
+    procedure GetVATDateFieldVATEntriesUpgrade(): Code[250]
+    begin
+        exit('MS-447067-GetVATDateFieldVATEntriesUpgrade-20220830');
+    end;
+
+    procedure GetVATDateFieldSalesPurchUpgrade(): Code[250]
+    begin
+        exit('MS-447067-GetVATDateFieldSalesPurchUpgrade-20220830');
+    end;
+    
+    procedure GetVATDateFieldIssuedDocsUpgrade(): Code[250]
+    begin
+        exit('MS-447067-GetVATDateFieldIssuedDocsUpgrade-20220830');
+    end;
+
+
 }
 

@@ -190,8 +190,8 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
         DeclarationMediaType: Option "Physical support",Telematic;
     begin
         CountryRegion.FindFirst();
-        Make349Declaration.FiscalYear.SetValue(Date2DMY(WorkDate, 3));
-        Make349Declaration.Period.SetValue(Date2DMY(WorkDate, 2));
+        Make349Declaration.FiscalYear.SetValue(Date2DMY(WorkDate(), 3));
+        Make349Declaration.Period.SetValue(Date2DMY(WorkDate(), 2));
         Make349Declaration.ContactName.SetValue(DeclarationMediaType::Telematic);
         Make349Declaration.TelephoneNumber.SetValue(GenerateRandomCode(9));  // Telephone Number required of length 9.
         Make349Declaration.DeclarationNumber.SetValue(GenerateRandomCode(13));  // Declaration Number required of length 13.

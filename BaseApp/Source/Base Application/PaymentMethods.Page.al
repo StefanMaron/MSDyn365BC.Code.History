@@ -23,62 +23,67 @@ page 427 "Payment Methods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a text that describes the payment method.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                 }
-                field("Invoices to Cartera"; "Invoices to Cartera")
+                field("Invoices to Cartera"; Rec."Invoices to Cartera")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a check mark in this field to send the invoices to Portfolio for this specific payment method.';
                 }
-                field("Create Bills"; "Create Bills")
+                field("Create Bills"; Rec."Create Bills")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a check mark so that this payment method creates bills.';
                 }
-                field("Bill Type"; "Bill Type")
+                field("Bill Type"; Rec."Bill Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of document that originated from this specific payment method.';
                 }
-                field("Collection Agent"; "Collection Agent")
+                field("Collection Agent"; Rec."Collection Agent")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the collection agent to which you will deliver the document that originated from this specific payment method.';
                 }
-                field("Submit for Acceptance"; "Submit for Acceptance")
+                field("Submit for Acceptance"; Rec."Submit for Acceptance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a check mark in this field if the bill must be sent to the customer for acceptance first.';
                 }
-                field("Direct Debit"; "Direct Debit")
+                field("Direct Debit"; Rec."Direct Debit")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the payment method is used for direct debit collection.';
                 }
-                field("Direct Debit Pmt. Terms Code"; "Direct Debit Pmt. Terms Code")
+                field("Direct Debit Pmt. Terms Code"; Rec."Direct Debit Pmt. Terms Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the payment terms that will be used when the payment method is used for direct debit collection.';
                 }
-                field("Pmt. Export Line Definition"; "Pmt. Export Line Definition")
+                field("Pmt. Export Line Definition"; Rec."Pmt. Export Line Definition")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the data exchange definition in the Data Exchange Framework that is used to export payments.';
                 }
-                field("Use for Invoicing"; "Use for Invoicing")
+#if not CLEAN21
+                field("Use for Invoicing"; Rec."Use for Invoicing")
                 {
                     ApplicationArea = Invoicing;
                     ToolTip = 'Specifies whether or not payment term is used for Invoicing app.';
+                    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '21.0';
                 }
-                field("SII Payment Method Code"; "SII Payment Method Code")
+#endif
+                field("SII Payment Method Code"; Rec."SII Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the sii:Medio node in the SII XML file.';
@@ -109,11 +114,20 @@ page 427 "Payment Methods"
                 ApplicationArea = Basic, Suite;
                 Caption = 'T&ranslation';
                 Image = Translation;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Payment Method Translations";
                 RunPageLink = "Payment Method Code" = FIELD(Code);
                 ToolTip = 'View or edit descriptions for each payment method in different languages.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("T&ranslation_Promoted"; "T&ranslation")
+                {
+                }
             }
         }
     }

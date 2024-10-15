@@ -470,7 +470,7 @@
         IntrastatJnlBatch.SetFilter("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
 
         OpenIntrastatJournal(IntrastatJournal, IntrastatJnlBatch.Name, Item."No.");
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
         Commit();
 
         RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlBatch);
@@ -533,7 +533,7 @@
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Order posting with Quantity = 1
         // [FEATURE] [Sales] [Order]
         Initialize();
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
 
         // [GIVEN] Item with "Unit Price" = "X"
         CreateItemWithTariffNo(Item);
@@ -560,7 +560,7 @@
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Return Order posting with Quantity = 1
         // [FEATURE] [Sales] [Return Order]
         Initialize();
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
 
         // [GIVEN] Item with "Unit Price" = "X"
         CreateItemWithTariffNo(Item);
@@ -587,7 +587,7 @@
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Order]
         Initialize();
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
         CreateItemWithTariffNo(Item);
@@ -614,7 +614,7 @@
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Return Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Return Order]
         Initialize();
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
         CreateItemWithTariffNo(Item);
@@ -1012,7 +1012,7 @@
     begin
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod));  // Statistics Period in Last Two digits of year and Month.
+        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod));  // Statistics Period in Last Two digits of year and Month.
         IntrastatJnlBatch.Modify(true);
         exit(IntrastatJnlBatch.Name);
     end;
@@ -1051,7 +1051,7 @@
         PurchaseLineDiscount: Record "Purchase Line Discount";
     begin
         LibraryERM.CreateLineDiscForVendor(
-          PurchaseLineDiscount, ItemNo, VendorNo, WorkDate, CurrencyCode, '', '', LibraryRandom.RandDec(10, 2));  // Blank Variant Code and unit Of Measure Code, Random Minimum Quantity.
+          PurchaseLineDiscount, ItemNo, VendorNo, WorkDate(), CurrencyCode, '', '', LibraryRandom.RandDec(10, 2));  // Blank Variant Code and unit Of Measure Code, Random Minimum Quantity.
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLineDiscount.Modify(true);
     end;
@@ -1074,7 +1074,7 @@
         LibraryPriceCalculation.CreatePurchDiscountLine(
             PriceListLine, '', "Price Source Type"::Vendor, VendorNo, "Price Asset Type"::Item, ItemNo);
         PriceListLine.Validate("Currency Code", CurrencyCode);
-        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Starting Date", WorkDate());
         PriceListLine.Validate("Minimum Quantity", LibraryRandom.RandDec(10, 2));
         PriceListLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PriceListLine.Status := "Price Status"::Active;
@@ -1088,7 +1088,7 @@
         LibraryPriceCalculation.CreateSalesDiscountLine(
             PriceListLine, '', "Price Source Type"::Customer, SalesCode, "Price Asset Type"::Item, "Code");
         PriceListLine.Validate("Currency Code", CurrencyCode);
-        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Starting Date", WorkDate());
         PriceListLine.Validate("Minimum Quantity", LibraryRandom.RandDec(10, 2));
         PriceListLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PriceListLine.Status := "Price Status"::Active;
@@ -1121,7 +1121,7 @@
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.Get(DocumentType, DocumentNo);
-        PurchaseHeader.CalcInvDiscForHeader;
+        PurchaseHeader.CalcInvDiscForHeader();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -1130,7 +1130,7 @@
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.Get(DocumentType, DocumentNo);
-        SalesHeader.CalcInvDiscForHeader;
+        SalesHeader.CalcInvDiscForHeader();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -1171,7 +1171,7 @@
         Commit();  // Commit required.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.GetEntries.Invoke;  // Opens GetItemLedgerEntriesRequestPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     local procedure OpenIntrastatJournal(var IntrastatJournal: TestPage "Intrastat Journal"; CurrentJnlBatchName: Code[10]; ItemNo: Code[20])
@@ -1236,11 +1236,11 @@
     begin
         RunIntrastatJournal(IntrastatJournal);
         LibraryVariableStorage.AssertEmpty;
-        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate));
-        LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
+        LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate()));
         IntrastatJournal.GetEntries.Invoke;
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     local procedure CreateCountryRegionCode(): Code[10]
@@ -1304,7 +1304,7 @@
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine."Total Weight" := TotalWeight;
         IntrastatJnlLine.Modify();
@@ -1424,7 +1424,7 @@
         InFile.Open(FileName);
         InFile.CreateInStream(InStream);
         InStream.Read(Line);
-        InFile.Close;
+        InFile.Close();
 
         LineFeed := 10;
         LineFeedText := Format(LineFeed);

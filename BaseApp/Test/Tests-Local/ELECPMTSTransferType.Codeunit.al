@@ -485,7 +485,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
               LibraryUtility.GenerateRandomCode(FieldNo("CCC Control Digits"), DATABASE::"Vendor Bank Account"));
             Validate("CCC Bank Account No.",
               LibraryUtility.GenerateRandomCode(FieldNo("CCC Bank Account No."), DATABASE::"Vendor Bank Account"));
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -522,7 +522,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
 
-        SuggestVendorPayments.InitializeRequest(CalcDate('<30D>', WorkDate), false, 0, false, WorkDate, '0', true,
+        SuggestVendorPayments.InitializeRequest(CalcDate('<30D>', WorkDate()), false, 0, false, WorkDate(), '0', true,
           GenJnlLine."Bal. Account Type"::"Bank Account", BankAccountNo, GenJnlLine."Bank Payment Type"::"Electronic Payment");
         Commit();
         SuggestVendorPayments.UseRequestPage(false);

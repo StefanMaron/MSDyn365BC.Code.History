@@ -156,7 +156,7 @@ page 6034 "Service Credit Memo Statistics"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupAdjmtValueEntries;
+                        LookupAdjmtValueEntries();
                     end;
                 }
             }
@@ -202,7 +202,7 @@ page 6034 "Service Credit Memo Statistics"
         CostCalcMgt: Codeunit "Cost Calculation Management";
         IsHandled: Boolean;
     begin
-        ClearAll;
+        ClearAll();
 
         IsHandled := false;
         OnAfterGetRecordOnAfterClearAll(
@@ -212,7 +212,7 @@ page 6034 "Service Credit Memo Statistics"
             exit;
 
         if "Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get("Currency Code");
 
@@ -261,7 +261,7 @@ page 6034 "Service Credit Memo Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", CustAmount, "Currency Factor");
+                WorkDate(), "Currency Code", CustAmount, "Currency Factor");
 
         ProfitLCY := AmountLCY - CostLCY;
         if AmountLCY <> 0 then
@@ -294,8 +294,6 @@ page 6034 "Service Credit Memo Statistics"
     end;
 
     var
-        Text000: Label 'VAT Amount';
-        Text001: Label '%1% VAT';
         CurrExchRate: Record "Currency Exchange Rate";
         ServCrMemoLine: Record "Service Cr.Memo Line";
         Cust: Record Customer;
@@ -321,6 +319,9 @@ page 6034 "Service Credit Memo Statistics"
         VATpercentage: Decimal;
         VATAmountText: Text[30];
         PmtDiscAmount: Decimal;
+
+        Text000: Label 'VAT Amount';
+        Text001: Label '%1% VAT';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterCalculateAdjProfitLCY(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var AdjProfitLCY: Decimal)

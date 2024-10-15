@@ -13,7 +13,7 @@ report 1 "Chart of Accounts"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Account Type";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(G_L_Account__TABLECAPTION__________GLFilter; TableCaption + ': ' + GLFilter)
@@ -171,11 +171,10 @@ report 1 "Chart of Accounts"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
     end;
 
     var
-        GLFilter: Text;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
         DirectPostingTxt: Text[30];
@@ -195,5 +194,8 @@ report 1 "Chart of Accounts"
         G_L_Account___Gen__Prod__Posting_Group_CaptionLbl: Label 'Gen. Prod. Posting Group';
         G_L_Account___Direct_Posting_CaptionLbl: Label 'Direct Posting';
         G_L_Account___Consol__Translation_Method_CaptionLbl: Label 'Consol. Translation Method';
+
+    protected var
+        GLFilter: Text;
 }
 

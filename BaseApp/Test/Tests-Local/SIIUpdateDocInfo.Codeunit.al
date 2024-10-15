@@ -152,7 +152,7 @@ codeunit 147552 "SII Update Doc. Info"
 
         SIIDocUploadState.UpdateDocInfoOnSIIDocUploadState(SIIDocUploadState.FieldNo("Sales Invoice Type"));
 
-        SIIDocUploadState.Find;
+        SIIDocUploadState.Find();
         SIIDocUploadState.TestField("Sales Invoice Type", SIIDocUploadState."Sales Invoice Type"::"F1 Invoice");
     end;
 
@@ -174,7 +174,7 @@ codeunit 147552 "SII Update Doc. Info"
 
         SIIDocUploadState.UpdateDocInfoOnSIIDocUploadState(SIIDocUploadState.FieldNo("Sales Invoice Type"));
 
-        SIIDocUploadState.Find;
+        SIIDocUploadState.Find();
         SIIDocUploadState.TestField("Sales Invoice Type", SIIDocUploadState."Sales Invoice Type"::"F1 Invoice");
     end;
 

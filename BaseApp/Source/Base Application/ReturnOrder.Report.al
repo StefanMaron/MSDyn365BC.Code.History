@@ -242,7 +242,7 @@ report 6641 "Return Order"
                         column(TypeInt; TypeInt)
                         {
                         }
-                        column(LineAmt_PurchLine; PurchLine."Line Amount")
+                        column(LineAmt_PurchLine; TempPurchaseLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Line"."Currency Code";
                             AutoFormatType = 1;
@@ -285,16 +285,16 @@ report 6641 "Return Order"
                         column(AllowInvoiceDisc1_PurchaseLine; Format("Purchase Line"."Allow Invoice Disc."))
                         {
                         }
-                        column(InvDiscAmt_PurchLine; -PurchLine."Inv. Discount Amount")
+                        column(InvDiscAmt_PurchLine; -TempPurchaseLine."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PmtDiscRcdAmt_PurchLine; -PurchLine."Pmt. Discount Amount")
+                        column(PmtDiscRcdAmt_PurchLine; -TempPurchaseLine."Pmt. Discount Amount")
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
+                        column(VATAmtLineVATAmtText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(VATAmt; VATAmount)
@@ -302,7 +302,7 @@ report 6641 "Return Order"
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(LineAmtInvDiscAmtPmtDiscRcdAmtVATAmt; PurchLine."Line Amount" - PurchLine."Inv. Discount Amount" - PurchLine."Pmt. Discount Amount" + VATAmount)
+                        column(LineAmtInvDiscAmtPmtDiscRcdAmtVATAmt; TempPurchaseLine."Line Amount" - TempPurchaseLine."Inv. Discount Amount" - TempPurchaseLine."Pmt. Discount Amount" + VATAmount)
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
@@ -310,7 +310,7 @@ report 6641 "Return Order"
                         column(TotalExclVATText; TotalExclVATText)
                         {
                         }
-                        column(PurchLineLineAmtInvDiscAmtPmtDiscRcdAmt; PurchLine."Line Amount" - PurchLine."Inv. Discount Amount" - PurchLine."Pmt. Discount Amount")
+                        column(PurchLineLineAmtInvDiscAmtPmtDiscRcdAmt; TempPurchaseLine."Line Amount" - TempPurchaseLine."Inv. Discount Amount" - TempPurchaseLine."Pmt. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
@@ -449,12 +449,12 @@ report 6641 "Return Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                PurchLine.Find('-')
+                                TempPurchaseLine.Find('-')
                             else
-                                PurchLine.Next;
-                            "Purchase Line" := PurchLine;
+                                TempPurchaseLine.Next();
+                            "Purchase Line" := TempPurchaseLine;
 
-                            if (PurchLine.Type = PurchLine.Type::"G/L Account") and (not ShowInternalInfo) then
+                            if (TempPurchaseLine.Type = TempPurchaseLine.Type::"G/L Account") and (not ShowInternalInfo) then
                                 "Purchase Line"."No." := '';
 
                             TypeInt := "Purchase Line".Type.AsInteger();
@@ -465,20 +465,20 @@ report 6641 "Return Order"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLine.DeleteAll();
+                            TempPurchaseLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            MoreLines := PurchLine.Find('+');
-                            while MoreLines and (PurchLine.Description = '') and (PurchLine."Description 2" = '') and
-                                  (PurchLine."No." = '') and (PurchLine.Quantity = 0) and
-                                  (PurchLine.Amount = 0) do
-                                MoreLines := PurchLine.Next(-1) <> 0;
+                            MoreLines := TempPurchaseLine.Find('+');
+                            while MoreLines and (TempPurchaseLine.Description = '') and (TempPurchaseLine."Description 2" = '') and
+                                  (TempPurchaseLine."No." = '') and (TempPurchaseLine.Quantity = 0) and
+                                  (TempPurchaseLine.Amount = 0) do
+                                MoreLines := TempPurchaseLine.Next(-1) <> 0;
                             if not MoreLines then
                                 CurrReport.Break();
-                            PurchLine.SetRange("Line No.", 0, PurchLine."Line No.");
-                            SetRange(Number, 1, PurchLine.Count);
+                            TempPurchaseLine.SetRange("Line No.", 0, TempPurchaseLine."Line No.");
+                            SetRange(Number, 1, TempPurchaseLine.Count);
                             LineAmount := 0;
                             InvDiscAmount := 0;
                             PmtDiscAmount := 0;
@@ -487,43 +487,43 @@ report 6641 "Return Order"
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmtLineVATECBase; VATAmountLine."VAT Base")
+                        column(VATAmtLineVATECBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmt; VATAmountLine."VAT Amount")
+                        column(VATAmtLineVATAmt; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineLineAmt; VATAmountLine."Line Amount")
+                        column(VATAmtLineLineAmt; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscBaseAmt; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmtLineInvDiscBaseAmt; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscAmtPmtDiscGivenAmt; VATAmountLine."Invoice Discount Amount" + VATAmountLine."Pmt. Discount Amount")
+                        column(VATAmtLineInvDiscAmtPmtDiscGivenAmt; TempVATAmountLine."Invoice Discount Amount" + TempVATAmountLine."Pmt. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineECAmt; VATAmountLine."EC Amount")
+                        column(VATAmtLineECAmt; TempVATAmountLine."EC Amount")
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier; TempVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATAmtLineEC; VATAmountLine."EC %")
+                        column(VATAmtLineEC; TempVATAmountLine."EC %")
                         {
                             AutoFormatType = 1;
                         }
@@ -563,14 +563,14 @@ report 6641 "Return Order"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            if (VATAmount = 0) and (VATAmountLine."VAT %" + VATAmountLine."EC %" = 0) then
+                            if (VATAmount = 0) and (TempVATAmountLine."VAT %" + TempVATAmountLine."EC %" = 0) then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATCounterLCY; "Integer")
@@ -590,35 +590,35 @@ report 6641 "Return Order"
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT1; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT1; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier1; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier1; TempVATAmountLine."VAT Identifier")
                         {
                         }
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
 
                             VALVATBaseLCY := Round(CurrExchRate.ExchangeAmtFCYToLCY(
                                   "Purchase Header"."Posting Date", "Purchase Header"."Currency Code",
-                                  VATAmountLine."VAT Base", "Purchase Header"."Currency Factor"));
+                                  TempVATAmountLine."VAT Base", "Purchase Header"."Currency Factor"));
                             VALVATAmountLCY := Round(CurrExchRate.ExchangeAmtFCYToLCY(
                                   "Purchase Header"."Posting Date", "Purchase Header"."Currency Code",
-                                  VATAmountLine."VAT Amount", "Purchase Header"."Currency Factor"));
+                                  TempVATAmountLine."VAT Amount", "Purchase Header"."Currency Factor"));
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Purchase Header"."Currency Code" = '') or
-                               (VATAmountLine.GetTotalVATAmount = 0)
+                               (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
                             Clear(VALVATAmountLCY);
 
@@ -688,26 +688,26 @@ report 6641 "Return Order"
 
                 trigger OnAfterGetRecord()
                 begin
-                    Clear(PurchLine);
+                    Clear(TempPurchaseLine);
                     Clear(PurchPost);
-                    PurchLine.DeleteAll();
-                    VATAmountLine.DeleteAll();
-                    PurchPost.GetPurchLines("Purchase Header", PurchLine, 0);
-                    PurchLine.CalcVATAmountLines(0, "Purchase Header", PurchLine, VATAmountLine);
-                    PurchLine.UpdateVATOnLines(0, "Purchase Header", PurchLine, VATAmountLine);
-                    VATAmount := VATAmountLine.GetTotalVATAmount;
-                    VATBaseAmount := VATAmountLine.GetTotalVATBase;
+                    TempPurchaseLine.DeleteAll();
+                    TempVATAmountLine.DeleteAll();
+                    PurchPost.GetPurchLines("Purchase Header", TempPurchaseLine, 0);
+                    TempPurchaseLine.CalcVATAmountLines(0, "Purchase Header", TempPurchaseLine, TempVATAmountLine);
+                    TempPurchaseLine.UpdateVATOnLines(0, "Purchase Header", TempPurchaseLine, TempVATAmountLine);
+                    VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                    VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                     VATDiscountAmount :=
-                      VATAmountLine.GetTotalVATDiscount("Purchase Header"."Currency Code", "Purchase Header"."Prices Including VAT");
-                    TotalAmountInclVAT := VATAmountLine.GetTotalAmountInclVAT;
-                    if (VATAmountLine."VAT Calculation Type" = VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT") and
+                      TempVATAmountLine.GetTotalVATDiscount("Purchase Header"."Currency Code", "Purchase Header"."Prices Including VAT");
+                    TotalAmountInclVAT := TempVATAmountLine.GetTotalAmountInclVAT();
+                    if (TempVATAmountLine."VAT Calculation Type" = TempVATAmountLine."VAT Calculation Type"::"Reverse Charge VAT") and
                         "Purchase Header"."Prices Including VAT" then begin
-                        VATBaseAmount := VATAmountLine.GetTotalLineAmount(false, "Purchase Header"."Currency Code");
-                        TotalAmountInclVAT := VATAmountLine.GetTotalLineAmount(false, "Purchase Header"."Currency Code");
+                        VATBaseAmount := TempVATAmountLine.GetTotalLineAmount(false, "Purchase Header"."Currency Code");
+                        TotalAmountInclVAT := TempVATAmountLine.GetTotalLineAmount(false, "Purchase Header"."Currency Code");
                     end;
 
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
 
@@ -718,7 +718,7 @@ report 6641 "Return Order"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Purch.Header-Printed", "Purchase Header");
                 end;
 
@@ -793,7 +793,7 @@ report 6641 "Return Order"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -807,12 +807,12 @@ report 6641 "Return Order"
         GLSetup.Get();
         CompanyInfo.Get();
 
-        OnAfterInitReport;
+        OnAfterInitReport();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Purchase Header".FindSet() then
                 repeat
                     if "Purchase Header"."Buy-from Contact No." <> '' then
@@ -829,17 +829,15 @@ report 6641 "Return Order"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
-        Text004: Label 'Return Order %1', Comment = '%1 = Document No.';
-        Text005: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        VATAmountLine: Record "VAT Amount Line" temporary;
-        PurchLine: Record "Purchase Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempPurchaseLine: Record "Purchase Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -853,7 +851,7 @@ report 6641 "Return Order"
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         BuyFromAddr: array[8] of Text[100];
-        PurchaserText: Text[30];
+        PurchaserText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         TotalText: Text[50];
@@ -876,9 +874,6 @@ report 6641 "Return Order"
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
-        Text007: Label 'VAT Amount Specification in ';
-        Text008: Label 'Local Currency';
-        Text009: Label 'Exchange rate: %1/%2';
         OutputNo: Integer;
         LineAmount: Decimal;
         TypeInt: Integer;
@@ -889,6 +884,17 @@ report 6641 "Return Order"
         TotalSubTotal: Decimal;
         TotalAmount: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
+
+        Text004: Label 'Return Order %1', Comment = '%1 = Document No.';
+        Text005: Label 'Page %1';
+        Text007: Label 'VAT Amount Specification in ';
+        Text008: Label 'Local Currency';
+        Text009: Label 'Exchange rate: %1/%2';
+        DirectUnitCostCaptionLbl: Label 'Direct Unit Cost';
+        AmountCaptionLbl: Label 'Amount';
+        InvDiscountAmtCaptionLbl: Label 'Invoice Discount Amount';
+        SubtotalCaptionLbl: Label 'Subtotal';
+        PmtDiscountonVATCaptionLbl: Label 'Payment Discount on VAT';
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegNoCaptionLbl: Label 'VAT Registration No.';
         GiroNoCaptionLbl: Label 'Giro No.';
@@ -896,17 +902,12 @@ report 6641 "Return Order"
         BankAccNoCaptionLbl: Label 'Account No.';
         ReturnOrderNoCaptionLbl: Label 'Return Order No.';
         DocDateCaptionLbl: Label 'Document Date';
-        HomePageCaptionLbl: Label 'Home Page';
         EMailCaptionLbl: Label 'Email';
+        HomePageCaptionLbl: Label 'Home Page';
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
-        AmountCaptionLbl: Label 'Amount';
         DiscountPctCaptionLbl: Label 'Discount %';
         ContinuedCaptionLbl: Label 'Continued';
-        InvDiscountAmtCaptionLbl: Label 'Invoice Discount Amount';
-        SubtotalCaptionLbl: Label 'Subtotal';
         PmtDiscReceivedAmtCaptionLbl: Label 'Payment Discount Received Amount';
-        PmtDiscountonVATCaptionLbl: Label 'Payment Discount on VAT';
-        DirectUnitCostCaptionLbl: Label 'Direct Unit Cost';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         VATPctCaptionLbl: Label 'VAT %';
         VATBaseCaptionLbl: Label 'VAT Base';
@@ -920,12 +921,12 @@ report 6641 "Return Order"
         ECAmountCaptionLbl: Label 'EC Amount';
         TotalCaptionLbl: Label 'Total';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
+        AllowInvDiscCaptionLbl: Label 'Allow Invoice Discount';
         VATIdentifierCaption1Lbl: Label 'VAT Identifier';
         VATPercentCaptionLbl: Label 'VAT %';
         VATBaseCaption2Lbl: Label 'VAT Base';
         VATAmountCaptionLbl: Label 'VAT Amount';
         TotalCaption1Lbl: Label 'Total';
-        AllowInvDiscCaptionLbl: Label 'Allow Invoice Discount';
 
     local procedure InitLogInteraction()
     begin
@@ -936,7 +937,7 @@ report 6641 "Return Order"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(PurchaseHeader: Record "Purchase Header")

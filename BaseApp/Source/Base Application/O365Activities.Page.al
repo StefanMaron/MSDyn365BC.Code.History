@@ -10,58 +10,6 @@
     {
         area(content)
         {
-#if not CLEAN18
-            cuegroup("Intelligent Cloud")
-            {
-                Caption = 'Intelligent Cloud';
-                Visible = false;
-                ObsoleteTag = '18.0';
-                ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                ObsoleteState = Pending;
-
-                actions
-                {
-                    action("Learn More")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Learn More';
-                        Image = TileInfo;
-                        RunPageMode = View;
-                        ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudLearnMoreUrl);
-                        end;
-                    }
-                    action("Intelligent Cloud Insights")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Intelligent Cloud Insights';
-                        Image = TileCloud;
-                        RunPageMode = View;
-                        ToolTip = 'View your Intelligent Cloud insights.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudInsightsUrl);
-                        end;
-                    }
-                }
-            }
-#endif
             cuegroup(Control54)
             {
                 CueGroupLayout = Wide;
@@ -74,7 +22,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        ActivitiesMgt.DrillDownSalesThisMonth;
+                        ActivitiesMgt.DrillDownSalesThisMonth();
                     end;
                 }
                 field("Overdue Sales Invoice Amount"; Rec."Overdue Sales Invoice Amount")
@@ -84,7 +32,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount;
+                        ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount();
                     end;
                 }
                 field("Overdue Purch. Invoice Amount"; Rec."Overdue Purch. Invoice Amount")
@@ -277,7 +225,7 @@
                     var
                         OCRServiceSetup: Record "OCR Service Setup";
                     begin
-                        if OCRServiceSetup.Get then
+                        if OCRServiceSetup.Get() then
                             if OCRServiceSetup.Enabled then
                                 HyperLink(OCRServiceSetup."Sign-in URL");
                     end;
@@ -307,7 +255,7 @@
             cuegroup(MissingSIIEntries)
             {
                 Caption = 'Missing SII Entries';
-                field("Missing SII Entries"; "Missing SII Entries")
+                field("Missing SII Entries"; Rec."Missing SII Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Missing SII Entries';
@@ -318,10 +266,10 @@
                     var
                         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
                     begin
-                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage;
+                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage();
                     end;
                 }
-                field("Days Since Last SII Check"; "Days Since Last SII Check")
+                field("Days Since Last SII Check"; Rec."Days Since Last SII Check")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Recreate Missing SII Entries";
@@ -372,8 +320,8 @@
 
                         trigger OnAction()
                         begin
-                            if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled then
-                                UserTours.StartUserTour(O365GettingStartedMgt.GetChangeCompanyTourID);
+                            if UserTours.IsAvailable() and O365GettingStartedMgt.AreUserToursEnabled() then
+                                UserTours.StartUserTour(O365GettingStartedMgt.GetChangeCompanyTourID());
                         end;
                     }
                     action(ReplayGettingStarted)
@@ -458,7 +406,7 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled then
+        if UserTours.IsAvailable() and O365GettingStartedMgt.AreUserToursEnabled() then
             O365GettingStartedMgt.UpdateGettingStartedVisible(TileGettingStartedVisible, ReplayGettingStartedVisible);
     end;
 
@@ -469,7 +417,7 @@
 
     trigger OnInit()
     begin
-        if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled then
+        if UserTours.IsAvailable() and O365GettingStartedMgt.AreUserToursEnabled() then
             O365GettingStartedMgt.UpdateGettingStartedVisible(TileGettingStartedVisible, ReplayGettingStartedVisible);
     end;
 
@@ -586,7 +534,7 @@
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         ICSetup: Record "IC Setup";
     begin
-        if DocExchServiceSetup.Get then
+        if DocExchServiceSetup.Get() then
             ShowDocumentsPendingDocExchService := DocExchServiceSetup.Enabled;
 
         if ICSetup.Get() then
@@ -627,16 +575,16 @@
     begin
         if not PageNotifier.IsAvailable() then
             exit;
-        PageNotifier := PageNotifier.Create;
-        PageNotifier.NotifyPageReady;
+        PageNotifier := PageNotifier.Create();
+        PageNotifier.NotifyPageReady();
     end;
 
     local procedure PrepareUserTours(): Boolean
     begin
-        if (not UserTours.IsAvailable) or (not O365GettingStartedMgt.AreUserToursEnabled) then
+        if (not UserTours.IsAvailable()) or (not O365GettingStartedMgt.AreUserToursEnabled()) then
             exit(false);
-        UserTours := UserTours.Create;
-        UserTours.NotifyShowTourWizard;
+        UserTours := UserTours.Create();
+        UserTours.NotifyShowTourWizard();
         if O365GettingStartedMgt.IsGettingStartedSupported() then
             if O365GettingStartedMgt.WizardHasToBeLaunched(false) then
                 HideSatisfactionSurvey := true;

@@ -1,4 +1,4 @@
-codeunit 6638 "Sales-Get Return Receipts"
+﻿codeunit 6638 "Sales-Get Return Receipts"
 {
     TableNo = "Sales Line";
 
@@ -21,13 +21,14 @@ codeunit 6638 "Sales-Get Return Receipts"
     end;
 
     var
-        Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         ReturnRcptHeader: Record "Return Receipt Header";
         ReturnRcptLine: Record "Return Receipt Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         GetReturnRcptLines: Page "Get Return Receipt Lines";
+
+        Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
 
     procedure CreateInvLines(var ReturnRcptLine2: Record "Return Receipt Line")
     var
@@ -53,7 +54,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                             Message(Text001,
                               SalesHeader.FieldCaption("Currency Code"),
                               SalesHeader.TableCaption, SalesHeader."No.",
-                              ReturnRcptHeader.TableCaption, ReturnRcptHeader."No.");
+                              ReturnRcptHeader.TableCaption(), ReturnRcptHeader."No.");
                             DifferentCurrencies := true;
                         end;
                         OnBeforeTransferLineToSalesDoc(ReturnRcptHeader, ReturnRcptLine2, SalesHeader, DifferentCurrencies);
@@ -62,6 +63,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                     OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(ReturnRcptHeader, ReturnRcptLine2, SalesHeader, ShouldInsertReturnRcptLine);
                     if ShouldInsertReturnRcptLine then begin
                         ReturnRcptLine := ReturnRcptLine2;
+                        CheckReturnReceiptLineVATBusPostingGroup(ReturnRcptLine2, SalesHeader);
                         ReturnRcptLine.InsertInvLineFromRetRcptLine(SalesLine);
                         if Type = Type::"Charge (Item)" then
                             GetItemChargeAssgnt(ReturnRcptLine2, SalesLine."Qty. to Invoice");
@@ -72,6 +74,18 @@ codeunit 6638 "Sales-Get Return Receipts"
         end;
 
         OnAfterCreateInvLines(SalesHeader);
+    end;
+
+    local procedure CheckReturnReceiptLineVATBusPostingGroup(ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestReturnReceiptLineVATBusPostingGroup(ReturnReceiptLine, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnReceiptLine.TestField("VAT Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
     end;
 
     procedure SetSalesHeader(var SalesHeader2: Record "Sales Header")
@@ -200,6 +214,11 @@ codeunit 6638 "Sales-Get Return Receipts"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterSetReturnRcptLineFilters(var ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestReturnReceiptLineVATBusPostingGroup(ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

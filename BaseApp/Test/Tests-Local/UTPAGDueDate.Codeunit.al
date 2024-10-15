@@ -67,7 +67,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Sell-to Customer No. - OnValidate Trigger of Page - 43 Sales Invoice.
 
         // Setup: Create Customer, Payment Days And Non - Payment Period.
-        DueDate := CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, '', '', 0, CalcDate('<CY>', WorkDate));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
+        DueDate := CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, '', '', 0, CalcDate('<CY>', WorkDate()));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         SalesInvoice.OpenNew();
 
         // Exercise.
@@ -75,7 +75,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Verify: Verify Due Date - Calculated on Basis the of Payment Days and Non - Payment Period on Page - Sales Invoice.
         SalesInvoice."Due Date".AssertEquals(DueDate);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -86,7 +86,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Sell-to Customer No. - OnValidate Trigger of Page - 42 Sales Order.
 
         // Setup.
-        OnValidateSellToCustomerNoForSalesOrder(0, 0, CalcDate('<CY>', WorkDate));  // Maximum Number of Days till Due Date required 0, 0 as Prepayment Percent and Last Day of the Current Year.
+        OnValidateSellToCustomerNoForSalesOrder(0, 0, CalcDate('<CY>', WorkDate()));  // Maximum Number of Days till Due Date required 0, 0 as Prepayment Percent and Last Day of the Current Year.
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Sell-to Customer No. - OnValidate Trigger of Page - 41 Sales Quote.
 
         // Setup: Create Customer, Payment Days And Non - Payment Period.
-        DueDate := CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, '', '', 0, CalcDate('<CY>', WorkDate));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
+        DueDate := CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, '', '', 0, CalcDate('<CY>', WorkDate()));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         SalesQuote.OpenNew();
 
         // Exercise.
@@ -111,7 +111,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Verify: Verify Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Sales Quote.
         SalesQuote."Due Date".AssertEquals(DueDate);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -128,7 +128,7 @@ codeunit 144041 "UT PAG Due Date"
         // Setup: Create Customer, Payment Days And Non - Payment Period.
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, CreateCountryRegion, LibraryUTUtility.GetNewCode,
-            0, CalcDate('<CY>', WorkDate));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
+            0, CalcDate('<CY>', WorkDate()));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         SalesCreditMemo.OpenNew();
 
         // Exercise.
@@ -136,7 +136,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Verify: Verify Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Sales Credit Memo.
         SalesCreditMemo."Due Date".AssertEquals(DueDate);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 144041 "UT PAG Due Date"
         // Setup: Create Customer, Payment Days And Non - Payment Period.
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
-            CalcDate('<CY>', WorkDate));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
+            CalcDate('<CY>', WorkDate()));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         BlanketSalesOrder.OpenNew();
 
         // Exercise.
@@ -161,7 +161,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Verify: Verify Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Blanket Sales Order.
         BlanketSalesOrder."Due Date".AssertEquals(DueDate);
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     [Test]
@@ -178,7 +178,7 @@ codeunit 144041 "UT PAG Due Date"
         // Setup: Create Vendor, Payment Days And Non - Payment Period.
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
-            CalcDate('<CY>', WorkDate));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
+            CalcDate('<CY>', WorkDate()));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         BlanketPurchaseOrder.OpenNew();
 
         // Exercise.
@@ -186,7 +186,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Verify: Verify Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Blanket Purchase Order.
         BlanketPurchaseOrder."Due Date".AssertEquals(DueDate);
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     [Test]
@@ -204,7 +204,7 @@ codeunit 144041 "UT PAG Due Date"
         // Setup: Create Vendor, Payment Days And Non - Payment Period.
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
-            CalcDate('<CY>', WorkDate));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
+            CalcDate('<CY>', WorkDate()));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         PurchaseCreditMemo.OpenNew();
 
         // Exercise.
@@ -213,7 +213,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Verify: Verify Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Purchase Credit Memo.
         PurchaseCreditMemo."Due Date".AssertEquals(DueDate);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -229,7 +229,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Buy-from Vendor No. - OnValidate Trigger of Page - 51 Purchase Invoice.
 
         // Setup: Create Vendor, Payment Days And Non - Payment Period.
-        DueDate := CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, '', '', 0, CalcDate('<CY>', WorkDate));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
+        DueDate := CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, '', '', 0, CalcDate('<CY>', WorkDate()));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         PurchaseInvoice.OpenNew();
 
         // Exercise
@@ -238,7 +238,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Verify: Verify Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Purchase Invoice.
         PurchaseInvoice."Due Date".AssertEquals(DueDate);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -253,7 +253,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Buy-from Vendor No. - OnValidate Trigger of Page - 49 Purchase Quote.
 
         // Setup: Create Vendor, Payment Days And Non - Payment Period.
-        DueDate := CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, '', '', 0, CalcDate('<CY>', WorkDate));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
+        DueDate := CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, '', '', 0, CalcDate('<CY>', WorkDate()));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         PurchaseQuote.OpenNew();
 
         // Exercise.
@@ -261,7 +261,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Verify: Verify Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Purchase Quote.
         PurchaseQuote."Due Date".AssertEquals(DueDate);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
     end;
 
     [Test]
@@ -272,7 +272,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Buy-from Vendor No. - OnValidate Trigger of Page - 50 Purchase Order.
 
         // Setup.
-        OnValidateBuyFromVendorNoPurchaseOrder(0, 0, CalcDate('<CY>', WorkDate));  // Maximum Number of Days till Due Date required 0, 0 as Prepayment Percent and Last Day of the Current Year.
+        OnValidateBuyFromVendorNoPurchaseOrder(0, 0, CalcDate('<CY>', WorkDate()));  // Maximum Number of Days till Due Date required 0, 0 as Prepayment Percent and Last Day of the Current Year.
     end;
 
     [Test]
@@ -283,7 +283,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Buy-from Vendor No. - OnValidate Trigger of Page - 50 Purchase Order with Non zero value - Maximum Number of Days till Due Date.
 
         // Setup.
-        OnValidateBuyFromVendorNoPurchaseOrder(LibraryRandom.RandIntInRange(20, 30), 0, CalcDate('<CM>', WorkDate));  // Random - Maximum Number of Days till Due Date, 0 as Prepayment Percent and Last Day of the Current Month.
+        OnValidateBuyFromVendorNoPurchaseOrder(LibraryRandom.RandIntInRange(20, 30), 0, CalcDate('<CM>', WorkDate()));  // Random - Maximum Number of Days till Due Date, 0 as Prepayment Percent and Last Day of the Current Month.
     end;
 
     [Test]
@@ -294,7 +294,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Buy-from Vendor No. - OnValidate Trigger of Page - 50 Purchase Order with Prepayment Percent.
 
         // Setup.
-        OnValidateBuyFromVendorNoPurchaseOrder(0, LibraryRandom.RandInt(10), CalcDate('<CY>', WorkDate));  // Maximum Number of Days till Due Date required 0, Random as Prepayment Percent and Last Day of the Current Year.
+        OnValidateBuyFromVendorNoPurchaseOrder(0, LibraryRandom.RandInt(10), CalcDate('<CY>', WorkDate()));  // Maximum Number of Days till Due Date required 0, Random as Prepayment Percent and Last Day of the Current Year.
     end;
 
     [Test]
@@ -306,7 +306,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup.
         OnValidateBuyFromVendorNoPurchaseOrder(
-          LibraryRandom.RandIntInRange(20, 30), LibraryRandom.RandInt(10), CalcDate('<CM>', WorkDate));  // Random - Maximum Number of Days till Due Date, Prepayment Percent and Last Day of the Current Month.
+          LibraryRandom.RandIntInRange(20, 30), LibraryRandom.RandInt(10), CalcDate('<CM>', WorkDate()));  // Random - Maximum Number of Days till Due Date, Prepayment Percent and Last Day of the Current Month.
     end;
 
     local procedure OnValidateBuyFromVendorNoPurchaseOrder(MaxNoOfDaysTillDueDate: Integer; PrepaymentPct: Integer; ToDate: Date)
@@ -326,7 +326,7 @@ codeunit 144041 "UT PAG Due Date"
         // Verify: Verify Due Date and Prepayment Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Purchase Order.
         PurchaseOrder."Due Date".AssertEquals(DueDate);
         PurchaseOrder."Prepayment Due Date".AssertEquals(DueDate);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -337,7 +337,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Sell-to Customer No. - OnValidate Trigger of Page - 42 Sales Order with Non zero value - Maximum Number of Days till Due Date.
 
         // Setup.
-        OnValidateSellToCustomerNoForSalesOrder(LibraryRandom.RandIntInRange(20, 30), 0, CalcDate('<CM>', WorkDate));  // Random - Maximum Number of Days till Due Date, 0 as Prepayment Percent and Last Day of the Current Month.
+        OnValidateSellToCustomerNoForSalesOrder(LibraryRandom.RandIntInRange(20, 30), 0, CalcDate('<CM>', WorkDate()));  // Random - Maximum Number of Days till Due Date, 0 as Prepayment Percent and Last Day of the Current Month.
     end;
 
     [Test]
@@ -348,7 +348,7 @@ codeunit 144041 "UT PAG Due Date"
         // Purpose of the test is to validate Sell-to Customer No. - OnValidate Trigger of Page - 42 Sales Order with Prepayment Percent.
 
         // Setup.
-        OnValidateSellToCustomerNoForSalesOrder(0, LibraryRandom.RandInt(10), CalcDate('<CY>', WorkDate));  // Maximum Number of Days till Due Date required 0, Random as Prepayment Percent and Last Day of the Current Year.
+        OnValidateSellToCustomerNoForSalesOrder(0, LibraryRandom.RandInt(10), CalcDate('<CY>', WorkDate()));  // Maximum Number of Days till Due Date required 0, Random as Prepayment Percent and Last Day of the Current Year.
     end;
 
     [Test]
@@ -360,7 +360,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup.
         OnValidateSellToCustomerNoForSalesOrder(
-          LibraryRandom.RandIntInRange(20, 30), LibraryRandom.RandInt(10), CalcDate('<CM>', WorkDate));  // Random - Maximum Number of Days till Due Date, Prepayment Percent and Last Day of the Current Month.
+          LibraryRandom.RandIntInRange(20, 30), LibraryRandom.RandInt(10), CalcDate('<CM>', WorkDate()));  // Random - Maximum Number of Days till Due Date, Prepayment Percent and Last Day of the Current Month.
     end;
 
     local procedure OnValidateSellToCustomerNoForSalesOrder(MaxNoOfDaysTillDueDate: Integer; PrepaymentPct: Integer; ToDate: Date)
@@ -381,7 +381,7 @@ codeunit 144041 "UT PAG Due Date"
         // Verify: Verify Due Date and Prepayment Due Date - Calculated on the Basis of Payment Days and Non - Payment Period on Page - Sales Order.
         SalesOrder."Due Date".AssertEquals(DueDate);
         SalesOrder."Prepayment Due Date".AssertEquals(DueDate);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure CreateCountryRegion(): Code[10]
@@ -433,7 +433,7 @@ codeunit 144041 "UT PAG Due Date"
     begin
         NonPaymentPeriod."Table Name" := TableName;
         NonPaymentPeriod.Code := Code;
-        NonPaymentPeriod."From Date" := CalcDate('<' + Format(LibraryRandom.RandIntInRange(1, 10)) + 'D>', WorkDate);
+        NonPaymentPeriod."From Date" := CalcDate('<' + Format(LibraryRandom.RandIntInRange(1, 10)) + 'D>', WorkDate());
         NonPaymentPeriod."To Date" := ToDate;
         NonPaymentPeriod.Insert();
         exit(NonPaymentPeriod."From Date");

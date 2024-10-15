@@ -271,7 +271,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
           StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption("VAT Registration No.")));
         Assert.AreEqual(SuffixValue, LibraryBillGroupExportN19.ReadBankSuffix(Line),
           StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
-        Assert.AreEqual(Format(WorkDate, 6, 5), LibraryBillGroupExportN19.ReadHeaderPostingDate(Line), IncorrectPostingDateErr);
+        Assert.AreEqual(Format(WorkDate(), 6, 5), LibraryBillGroupExportN19.ReadHeaderPostingDate(Line), IncorrectPostingDateErr);
         Assert.AreEqual(PadStr(CompanyInformation.Name, 40, ' '), LibraryBillGroupExportN19.ReadHeaderCompanyName(Line),
           StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption(Name)));
         Assert.AreEqual(CompanyBankAccount."CCC Bank No.", LibraryBillGroupExportN19.ReadHeaderBankNo(Line),
@@ -293,8 +293,8 @@ codeunit 147532 "Cartera Recv. Exported Formats"
           StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption("VAT Registration No.")));
         Assert.AreEqual(SuffixValue, LibraryBillGroupExportN19.ReadBankSuffix(Line),
           StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
-        Assert.AreEqual(Format(WorkDate, 6, 5), LibraryBillGroupExportN19.ReadBillGroupPostingDate(Line), IncorrectPostingDateErr);
-        Assert.AreEqual(Format(WorkDate, 6, 5), LibraryBillGroupExportN19.ReadBillGroupDueDate(Line), IncorrectDueDateErr);
+        Assert.AreEqual(Format(WorkDate(), 6, 5), LibraryBillGroupExportN19.ReadBillGroupPostingDate(Line), IncorrectPostingDateErr);
+        Assert.AreEqual(Format(WorkDate(), 6, 5), LibraryBillGroupExportN19.ReadBillGroupDueDate(Line), IncorrectDueDateErr);
         Assert.AreEqual(CompanyBankAccount."CCC Bank No.", LibraryBillGroupExportN19.ReadBillGroupBankNo(Line),
           StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Bank No.")));
         Assert.AreEqual(CompanyBankAccount."CCC Bank Branch No.", LibraryBillGroupExportN19.ReadBillGroupBankBranchNo(Line),
@@ -379,7 +379,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
 
         Assert.AreEqual('0265', LibraryBillGroupExportN32.ReadLineTag(Line), IncorrectLineTagErr);
 
-        Assert.AreEqual(Format(WorkDate, 6, 5), LibraryBillGroupExportN32.ReadHeaderPostingDate(Line), IncorrectPostingDateErr);
+        Assert.AreEqual(Format(WorkDate(), 6, 5), LibraryBillGroupExportN32.ReadHeaderPostingDate(Line), IncorrectPostingDateErr);
 
         Assert.AreEqual(CompanyBankAccount."CCC Bank No.", LibraryBillGroupExportN32.ReadHeaderBankNo(Line),
           StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Bank No.")));
@@ -513,7 +513,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Assert.AreEqual(ExpectedBankSuffix, LibraryBillGroupExportN58.ReadBankSuffix(Line),
           StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
 
-        Assert.AreEqual(Format(WorkDate, 6, 5), LibraryBillGroupExportN58.ReadHeaderPostingDate(Line), IncorrectPostingDateErr);
+        Assert.AreEqual(Format(WorkDate(), 6, 5), LibraryBillGroupExportN58.ReadHeaderPostingDate(Line), IncorrectPostingDateErr);
 
         Assert.AreEqual(PadStr(CompanyInformation.Name, 40, ' '), LibraryBillGroupExportN58.ReadHeaderCompanyName(Line),
           StrSubstNo('%1 is wrong.', CompanyInformation.FieldCaption(Name)));
@@ -541,7 +541,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Assert.AreEqual(SuffixValue, LibraryBillGroupExportN58.ReadBankSuffix(Line),
           StrSubstNo('%1 is wrong.', Suffix.FieldCaption(Suffix)));
 
-        Assert.AreEqual(Format(WorkDate, 6, 5), LibraryBillGroupExportN58.ReadBillGroupPostingDate(Line), IncorrectPostingDateErr);
+        Assert.AreEqual(Format(WorkDate(), 6, 5), LibraryBillGroupExportN58.ReadBillGroupPostingDate(Line), IncorrectPostingDateErr);
 
         Assert.AreEqual(CompanyBankAccount."CCC Bank No.", LibraryBillGroupExportN58.ReadBillGroupBankNo(Line),
           StrSubstNo('%1 is wrong.', CompanyBankAccount.FieldCaption("CCC Bank No.")));

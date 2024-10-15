@@ -195,7 +195,7 @@ codeunit 144108 "ERM Service Invoice ES"
 
         // Verify: Verify Customer Ledger Entry created with Remaining Amount - 0.
         VerifyCustomerLedgerEntry(Customer."No.");
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
     end;
 
     [Test]
@@ -712,7 +712,7 @@ codeunit 144108 "ERM Service Invoice ES"
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, No);
-        ServiceHeader.Validate("Due Date", CalcDate(Format(LibraryRandom.RandIntInRange(5, 10)) + 'M', WorkDate));
+        ServiceHeader.Validate("Due Date", CalcDate(Format(LibraryRandom.RandIntInRange(5, 10)) + 'M', WorkDate()));
         ServiceHeader.Modify(true);
         exit(ServiceHeader."Due Date");
     end;

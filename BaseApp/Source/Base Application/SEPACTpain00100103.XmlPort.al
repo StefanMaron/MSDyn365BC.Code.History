@@ -1,4 +1,4 @@
-xmlport 1000 "SEPA CT pain.001.001.03"
+﻿xmlport 1000 "SEPA CT pain.001.001.03"
 {
     Caption = 'SEPA CT pain.001.001.03';
     DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
@@ -322,7 +322,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if not PaymentExportData.GetPreserveNonLatinCharacters then
+                    if not PaymentExportData.GetPreserveNonLatinCharacters() then
                         PaymentExportData.CompanyInformationConvertToLatin(CompanyInformation);
                 end;
             }
@@ -343,7 +343,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
     trigger OnPreXmlPort()
     begin
-        InitData;
+        InitData();
     end;
 
     var
@@ -371,11 +371,11 @@ xmlport 1000 "SEPA CT pain.001.001.03"
         if not PaymentExportData.FindSet() then
             Error(NoDataToExportErr);
 
-        InitPmtGroup;
+        InitPmtGroup();
         repeat
-            if IsNewGroup then begin
+            if IsNewGroup() then begin
                 InsertPmtGroup(PaymentGroupNo);
-                InitPmtGroup;
+                InitPmtGroup();
             end;
             PaymentExportDataGroup."Line No." += 1;
             PaymentExportDataGroup.Amount += PaymentExportData.Amount;

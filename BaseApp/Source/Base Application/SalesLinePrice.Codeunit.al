@@ -126,6 +126,13 @@
         Resource: Record Resource;
     begin
         PriceCalculationBuffer."Price Calculation Method" := SalesLine."Price Calculation Method";
+        // Tax
+        PriceCalculationBuffer."Prices Including Tax" := SalesHeader."Prices Including VAT";
+        PriceCalculationBuffer."Tax %" := SalesLine."VAT %" + SalesLine."EC %";
+        PriceCalculationBuffer."VAT Calculation Type" := SalesLine."VAT Calculation Type".AsInteger();
+        PriceCalculationBuffer."VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
+        PriceCalculationBuffer."VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";
+
         case PriceCalculationBuffer."Asset Type" of
             PriceCalculationBuffer."Asset Type"::Item:
                 begin
@@ -133,14 +140,16 @@
                     Item.Get(PriceCalculationBuffer."Asset No.");
                     PriceCalculationBuffer."Unit Price" := Item."Unit Price";
                     PriceCalculationBuffer."Item Disc. Group" := Item."Item Disc. Group";
-
+                    if PriceCalculationBuffer."VAT Prod. Posting Group" = '' then
+                        PriceCalculationBuffer."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
                 end;
             PriceCalculationBuffer."Asset Type"::Resource:
                 begin
                     PriceCalculationBuffer."Work Type Code" := SalesLine."Work Type Code";
                     Resource.Get(PriceCalculationBuffer."Asset No.");
                     PriceCalculationBuffer."Unit Price" := Resource."Unit Price";
-
+                    if PriceCalculationBuffer."VAT Prod. Posting Group" = '' then
+                        PriceCalculationBuffer."VAT Prod. Posting Group" := Resource."VAT Prod. Posting Group";
                 end;
         end;
         PriceCalculationBuffer."Location Code" := SalesLine."Location Code";
@@ -149,13 +158,6 @@
         // Currency
         PriceCalculationBuffer.Validate("Currency Code", SalesHeader."Currency Code");
         PriceCalculationBuffer."Currency Factor" := SalesHeader."Currency Factor";
-
-        // Tax
-        PriceCalculationBuffer."Prices Including Tax" := SalesHeader."Prices Including VAT";
-        PriceCalculationBuffer."Tax %" := SalesLine."VAT %" + SalesLine."EC %";
-        PriceCalculationBuffer."VAT Calculation Type" := SalesLine."VAT Calculation Type".AsInteger();
-        PriceCalculationBuffer."VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
-        PriceCalculationBuffer."VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";
 
         // UoM
         PriceCalculationBuffer.Quantity := Abs(SalesLine.Quantity);

@@ -57,9 +57,9 @@ codeunit 137264 "SCM Package Tracking Sales"
         PackageNo[1] := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", Qty, 20);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", Qty, 20);
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, false, Qty, SerialNo, '', PackageNo);
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", Qty);
         CreateSalesLineTracking(SalesLine, ReservationEntry, false, Qty, SerialNo, '', PackageNo);
         CreatePOSOReservation(SalesHeader, PurchaseHeader, Location.Code, Item."No.", Qty, '', PackageNo);
         LibraryItemTracking.CheckPurchReservationEntry(PurchaseLine, '', '', PackageNo[1], Qty, ReservationEntry."Reservation Status"::Reservation);
@@ -107,7 +107,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.",
+          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.",
           Qty[EntryType::Purchase], LibraryRandom.RandDec(100, 2));
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, false, Qty[EntryType::Purchase], SerialNo, '', PackageNo);
 
@@ -116,7 +116,7 @@ codeunit 137264 "SCM Package Tracking Sales"
           InvtDocumentHeader, InvtDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty[EntryType::Receipt]);
         CreateItemReceiptLineTracking(InvtDocumentLine, ReservationEntry, false, Qty[EntryType::Receipt], SerialNo, '', PackageNo);
 
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", Qty[EntryType::Sales]);
         CreateSalesLineTracking(SalesLine, ReservationEntry, false, Qty[EntryType::Sales], SerialNo, '', PackageNo);
 
         CreatePOSOReservation(SalesHeader, PurchaseHeader, Location.Code, Item."No.", QtyToReserve, '', PackageNo);
@@ -130,7 +130,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryInventory.PostInvtDocument(InvtDocumentHeader);
 
-        SalesLine.Find;
+        SalesLine.Find();
         LibraryVariableStorage.Enqueue(PackageNo[1]);
         LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
         LibraryVariableStorage.Enqueue(SalesLine."Qty. to Ship (Base)");
@@ -172,9 +172,9 @@ codeunit 137264 "SCM Package Tracking Sales"
         PackageNo[1] := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", Qty, 20);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", Qty, 20);
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, false, Qty, SerialNo, LotNo, PackageNo);
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", Qty);
         CreateSalesLineTracking(SalesLine, ReservationEntry, false, Qty, SerialNo, LotNo, PackageNo);
         CreatePOSOReservation(SalesHeader, PurchaseHeader, Location.Code, Item."No.", 4, LotNo, PackageNo);
         LibraryItemTracking.CheckPurchReservationEntry(PurchaseLine, SerialNo[1], LotNo, PackageNo[1], 4,
@@ -224,7 +224,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         PackageNo[1] := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Purchase], 20);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", Qty[EntryType::Purchase], 20);
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, false, Qty[EntryType::Purchase], SerialNo, LotNo, PackageNo);
 
         LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
@@ -232,7 +232,7 @@ codeunit 137264 "SCM Package Tracking Sales"
           InvtDocumentHeader, InvtDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), Qty[EntryType::Receipt]);
         CreateItemReceiptLineTracking(InvtDocumentLine, ReservationEntry, false, Qty[EntryType::Receipt], SerialNo, LotNo, PackageNo);
 
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", Qty[EntryType::Sales]);
         CreateSalesLineTracking(SalesLine, ReservationEntry, false, Qty[EntryType::Sales], SerialNo, LotNo, PackageNo);
 
         CreatePOSOReservation(SalesHeader, PurchaseHeader, Location.Code, Item."No.", QtyToReserve, LotNo, PackageNo);
@@ -288,10 +288,10 @@ codeunit 137264 "SCM Package Tracking Sales"
         PackageNo[1] := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", PurchaseQty, 20);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", PurchaseQty, 20);
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, true, PurchaseQty, SerialNo, LotNo, PackageNo);
 
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", SalesQty);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", SalesQty);
         CreateSalesLineTracking(SalesLine, ReservationEntry, true, SalesQty, SerialNo, LotNo, PackageNo);
 
         SalesLine.AutoReserve();
@@ -346,7 +346,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         PackageNo[1] := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Purchase], 20);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", Qty[EntryType::Purchase], 20);
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, true, Qty[EntryType::Purchase], SerialNo, LotNo, PackageNo);
 
         LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
@@ -360,7 +360,7 @@ codeunit 137264 "SCM Package Tracking Sales"
             LibraryItemTracking.CreateItemReceiptItemTracking(ReservationEntry, InvtDocumentLine, ItemTrackingSetup, 1);
         end;
 
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", Qty[EntryType::Sales]);
         CreateSalesLineTracking(SalesLine, ReservationEntry, true, Qty[EntryType::Sales], SerialNo, LotNo, PackageNo);
 
         SalesLine.AutoReserve();
@@ -427,10 +427,10 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryitemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[2]);
 
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", PurchaseQty, LibraryRandom.RandDec(100, 2));
+          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", PurchaseQty, LibraryRandom.RandDec(100, 2));
         CreatePurchLineTracking2(PurchaseLine, ReservationEntry, false, PurchaseQty, SerialNo, '', PackageNo);
 
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", SalesQty);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", SalesQty);
         CreateSalesLineTracking2(SalesLine, ReservationEntry, false, SalesQty, SerialNo, '', PackageNo);
 
         SalesLine.AutoReserve();
@@ -494,7 +494,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         end;
 
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.",
+          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.",
           Qty[EntryType::Purchase], LibraryRandom.RandDec(100, 2));
         for i := 1 to 2 do
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine, '', '', PackageNo[i], Qty[EntryType::Purchase] / 2);
@@ -507,7 +507,7 @@ codeunit 137264 "SCM Package Tracking Sales"
             LibraryItemTracking.CreateItemReceiptItemTracking(ReservationEntry, InvtDocumentLine, ITemTrackingSetup, Qty[EntryType::Receipt] / 2);
         end;
 
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", Qty[EntryType::Sales]);
         SalesLine.AutoReserve();
         LibraryItemTracking.CreateSalesTrackingFromReservation(SalesHeader, false);
 
@@ -559,9 +559,9 @@ codeunit 137264 "SCM Package Tracking Sales"
         Qty[EntryType::Sales] := Qty[EntryType::Purchase];
         LotNo := LibraryUtility.GenerateGUID();
 
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Purchase], 20);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", Qty[EntryType::Purchase], 20);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine, '', LotNo, '', Qty[EntryType::Purchase]);
-        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate, Location.Code, Item."No.", Qty[EntryType::Sales]);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", WorkDate(), Location.Code, Item."No.", Qty[EntryType::Sales]);
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo, '', Qty[EntryType::Sales]);
         SalesLine.AutoReserve();
 
@@ -606,7 +606,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[3], Item[2]."No.", PackageNo[3]);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, Vendor."No.", Location.Code);
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[1], PurchaseHeader, Item[1]."No.", 20, 4);
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader, Item[2]."No.", 30, 5);
@@ -615,7 +615,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', '', PackageNo[1], 2);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', '', PackageNo[3], 3);
 
-        PostingDate := CalcDate('<+5D>', WorkDate);
+        PostingDate := CalcDate('<+5D>', WorkDate());
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
@@ -692,7 +692,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[3], Item[2]."No.", PackageNo[3]);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, Vendor."No.", Location.Code);
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[1], PurchaseHeader, Item[1]."No.", 20, 4);
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader, Item[2]."No.", 30, 5);
@@ -701,7 +701,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', LotNo, PackageNo[1], 2);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', LotNo, PackageNo[3], 3);
 
-        PostingDate := CalcDate('<+5D>', WorkDate);
+        PostingDate := CalcDate('<+5D>', WorkDate());
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
@@ -780,7 +780,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[3], Item[2]."No.", PackageNo[3]);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, Vendor."No.", Location.Code);
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[1], PurchaseHeader, Item[1]."No.", 20, 4);
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader, Item[2]."No.", 30, 5);
@@ -806,7 +806,7 @@ codeunit 137264 "SCM Package Tracking Sales"
               LotNo, PackageNo[3], 1);
         end;
 
-        PostingDate := CalcDate('<+5D>', WorkDate);
+        PostingDate := CalcDate('<+5D>', WorkDate());
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
@@ -910,7 +910,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[3], Item[2]."No.", PackageNo[3]);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, Vendor."No.", Location.Code);
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[1], PurchaseHeader, Item[1]."No.", 20, 4);
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader, Item[2]."No.", 30, 5);
@@ -919,7 +919,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', '', PackageNo[1], 2);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', '', PackageNo[3], 3);
 
-        PostingDate := CalcDate('<+5D>', WorkDate);
+        PostingDate := CalcDate('<+5D>', WorkDate());
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
@@ -1005,12 +1005,12 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[3], Item[2]."No.", PackageNo[3]);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader[1], Vendor."No.", Location.Code);
-        PurchaseHeader[1].Validate("Posting Date", WorkDate);
+        PurchaseHeader[1].Validate("Posting Date", WorkDate());
         PurchaseHeader[1].Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[1], PurchaseHeader[1], Item[1]."No.", 20, 4);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader[2], Vendor."No.", Location.Code);
-        PurchaseHeader[2].Validate("Posting Date", WorkDate);
+        PurchaseHeader[2].Validate("Posting Date", WorkDate());
         PurchaseHeader[2].Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader[2], Item[2]."No.", 30, 5);
 
@@ -1019,7 +1019,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', LotNo, PackageNo[1], 2);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', LotNo, PackageNo[3], 3);
 
-        PostingDate := CalcDate('<+5D>', WorkDate);
+        PostingDate := CalcDate('<+5D>', WorkDate());
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
@@ -1107,12 +1107,12 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[3], Item[2]."No.", PackageNo[3]);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader[1], Vendor."No.", Location.Code);
-        PurchaseHeader[1].Validate("Posting Date", WorkDate);
+        PurchaseHeader[1].Validate("Posting Date", WorkDate());
         PurchaseHeader[1].Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[1], PurchaseHeader[1], Item[1]."No.", 20, 4);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader[2], Vendor."No.", Location.Code);
-        PurchaseHeader[2].Validate("Posting Date", WorkDate);
+        PurchaseHeader[2].Validate("Posting Date", WorkDate());
         PurchaseHeader[2].Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader[2], Item[2]."No.", 30, 5);
 
@@ -1133,7 +1133,7 @@ codeunit 137264 "SCM Package Tracking Sales"
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], SerialNo[j + 6], LotNo, PackageNo[3], 1);
         end;
 
-        PostingDate := CalcDate('<+5D>', WorkDate);
+        PostingDate := CalcDate('<+5D>', WorkDate());
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
@@ -1240,7 +1240,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.",
+          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.",
           Qty[DocType::Order], LibraryRandom.RandDec(100, 2));
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, false, Qty[DocType::Order], SerialNo, '', PackageNo);
 
@@ -1297,7 +1297,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.",
+          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.",
           Qty[DocType::Order], LibraryRandom.RandDec(100, 2));
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, false, Qty[DocType::Order], SerialNo, LotNo, PackageNo);
 
@@ -1355,7 +1355,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.",
+          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.",
           Qty[DocType::Order], LibraryRandom.RandDec(100, 2));
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, true, Qty[DocType::Order], SerialNo, LotNo, PackageNo);
 
@@ -1413,7 +1413,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", Qty, LibraryRandom.RandDec(100, 2));
+          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", Qty, LibraryRandom.RandDec(100, 2));
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, false, Qty, SerialNo, '', PackageNo);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1429,7 +1429,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run();
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.Validate(Correction, true);
         PurchaseHeader.Modify();
 
@@ -1484,7 +1484,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", Qty, LibraryRandom.RandDec(100, 2));
+          PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", Qty, LibraryRandom.RandDec(100, 2));
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, false, Qty, SerialNo, LotNo, PackageNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -1498,7 +1498,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run();
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.Validate(Correction, true);
         PurchaseHeader.Modify();
         PurchaseLine.SetRange("No.", Item."No.");
@@ -1554,7 +1554,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         PackageNo[1] := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[1]);
 
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate, Location.Code, Item."No.", QtyPO, 20);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", WorkDate(), Location.Code, Item."No.", QtyPO, 20);
         CreatePurchLineTracking(PurchaseLine, ReservationEntry, true, QtyPO, SerialNo, LotNo, PackageNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -1568,7 +1568,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run();
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.Validate(Correction, true);
         PurchaseHeader.Modify();
         PurchaseLine.SetRange("No.", Item."No.");
@@ -1627,14 +1627,14 @@ codeunit 137264 "SCM Package Tracking Sales"
         PackageNo[3] := LibraryUtility.GenerateGUID();
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[3], Item."No.", PackageNo[3]);
 
-        CreatePurchaseOrder(PurchaseHeader[1], PurchaseLine[1], Vendor."No.", WorkDate, Location.Code, Item."No.", 6, 20);
+        CreatePurchaseOrder(PurchaseHeader[1], PurchaseLine[1], Vendor."No.", WorkDate(), Location.Code, Item."No.", 6, 20);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[1], '', '', PackageNo[1], 3);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[1], '', '', PackageNo[2], 3);
 
-        CreatePurchaseOrder(PurchaseHeader[2], PurchaseLine[2], Vendor."No.", WorkDate, Location.Code, Item."No.", 4, 20);
+        CreatePurchaseOrder(PurchaseHeader[2], PurchaseLine[2], Vendor."No.", WorkDate(), Location.Code, Item."No.", 4, 20);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', '', PackageNo[3], 4);
 
-        PostingDate := CalcDate('<+5D>', WorkDate);
+        PostingDate := CalcDate('<+5D>', WorkDate());
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
@@ -1652,7 +1652,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryVariableStorage.Enqueue(3);
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(0);
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.OpenItemTrackingLines();
 
         LibraryItemTracking.CheckPurchReservationEntry(PurchaseLine[1], '', '', PackageNo[1], 3,
@@ -1721,7 +1721,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo[3], Item[2]."No.", PackageNo[3]);
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, Vendor."No.", Location.Code);
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Modify();
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[1], PurchaseHeader, Item[1]."No.", 20, 4);
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader, Item[2]."No.", 30, 5);
@@ -1731,7 +1731,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], '', '', PackageNo[3], 3);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        PostingDate := CalcDate('<+5D>', WorkDate);
+        PostingDate := CalcDate('<+5D>', WorkDate());
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Order Date", PostingDate);
@@ -2083,13 +2083,13 @@ codeunit 137264 "SCM Package Tracking Sales"
         TrackingSpecification."Package No." := PackageNo[1];
         LibraryReservation.CreateReservEntryFrom(TrackingSpecification);
         LibraryReservation.CreateEntry(
-            ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
+            ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate()), CalcDate('<+5D>', WorkDate()), 0, "Reservation Status"::Reservation);
         ReservEntryFor."Lot No." := LotNo;
         ReservEntryFor."Package No." := PackageNo[1];
         LibraryReservation.CreateReservEntryFor(
             Database::"Purchase Line", "Purchase Document Type"::Order.AsInteger(), PurchaseHeader."No.", '', 0, 10000, 1, QtyRPO, QtyRPO, ReservEntryFor);
         LibraryReservation.CreateEntry(
-            ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
+            ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate()), CalcDate('<+5D>', WorkDate()), 0, "Reservation Status"::Reservation);
     end;
 
     local procedure CreateIRSOReservation(SalesHeader: Record "Sales Header"; InvtDocumentHeader: Record "Invt. Document Header"; LocationCode: Code[10]; ItemNo: Code[20]; QtyRIR: Integer; LotNo: Code[50]; PackageNo: array[3] of Code[50])
@@ -2104,13 +2104,13 @@ codeunit 137264 "SCM Package Tracking Sales"
         TrackingSpecification."Package No." := PackageNo[1];
         LibraryReservation.CreateReservEntryFrom(TrackingSpecification);
         LibraryReservation.CreateEntry(
-            ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
+            ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate()), CalcDate('<+5D>', WorkDate()), 0, "Reservation Status"::Reservation);
         ReservEntryFor."Lot No." := LotNo;
         ReservEntryFor."Package No." := PackageNo[1];
         LibraryReservation.CreateReservEntryFor(
             Database::"Invt. Document Line", 0, InvtDocumentHeader."No.", '', 0, 10000, 1, QtyRIR, QtyRIR, ReservEntryFor);
         LibraryReservation.CreateEntry(
-            ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, "Reservation Status"::Reservation);
+            ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate()), CalcDate('<+5D>', WorkDate()), 0, "Reservation Status"::Reservation);
     end;
 
     local procedure CheckILEs(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; PackageNo: Code[50]; Qty: Decimal)

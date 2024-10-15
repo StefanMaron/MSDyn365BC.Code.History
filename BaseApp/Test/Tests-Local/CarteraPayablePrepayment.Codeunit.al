@@ -47,7 +47,7 @@ codeunit 147507 "Cartera Payable Prepayment"
         CarteraDoc.SetRange(Type, CarteraDoc.Type::Payable);
         CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
         CarteraDoc.SetRange("Account No.", Vendor."No.");
-        Assert.IsTrue(CarteraDoc.IsEmpty, StrSubstNo(RecordFoundErr, CarteraDoc.TableCaption));
+        Assert.IsTrue(CarteraDoc.IsEmpty, StrSubstNo(RecordFoundErr, CarteraDoc.TableCaption()));
     end;
 
     [Test]
@@ -162,7 +162,7 @@ codeunit 147507 "Cartera Payable Prepayment"
 
         repeat
             PrepaymentAmount += PurchaseLine."Prepmt. Amt. Incl. VAT";
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure FindPurchaseLines(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")

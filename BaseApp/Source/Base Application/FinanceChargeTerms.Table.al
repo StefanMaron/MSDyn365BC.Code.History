@@ -118,13 +118,14 @@ table 5 "Finance Charge Terms"
     var
         FinChrgText: Record "Finance Charge Text";
         CurrForFinChrgTerms: Record "Currency for Fin. Charge Terms";
-        InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
         FinChrgInterestRate: Record "Finance Charge Interest Rate";
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         CurrFinChargeTerms: Record "Currency for Fin. Charge Terms";
         TotalFinChargesAmt: Decimal;
         Initialized: Boolean;
+
+        InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
 
     [Scope('OnPrem')]
     procedure CalcFinChargesAmt(PostDate: Date; Code2: Code[10]; CurrCode: Code[10]; Amount: Decimal; NoOfDays: Integer)
@@ -140,7 +141,7 @@ table 5 "Finance Charge Terms"
             exit;
 
         if CurrCode = '' then begin
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
             Initialized := true;
             CurrMinAmt := "Minimum Amount (LCY)";
             CurrAddFee := "Additional Fee (LCY)";

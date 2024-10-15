@@ -123,13 +123,13 @@
             cuegroup("Cartera Receivables")
             {
                 Caption = 'Cartera Receivables';
-                field("Receivable Documents"; "Receivable Documents")
+                field("Receivable Documents"; Rec."Receivable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Receivables Cartera Docs";
                     ToolTip = 'Specifies the receivables document associated with the bill group.';
                 }
-                field("Posted Receivable Documents"; "Posted Receivable Documents")
+                field("Posted Receivable Documents"; Rec."Posted Receivable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Posted Cartera Documents";
@@ -199,13 +199,13 @@
             cuegroup("Cartera Payables")
             {
                 Caption = 'Cartera Payables';
-                field("Payable Documents"; "Payable Documents")
+                field("Payable Documents"; Rec."Payable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Payables Cartera Docs";
                     ToolTip = 'Specifies the payables document associated with the bill group.';
                 }
-                field("Posted Payable Documents"; "Posted Payable Documents")
+                field("Posted Payable Documents"; Rec."Posted Payable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Posted Cartera Documents";

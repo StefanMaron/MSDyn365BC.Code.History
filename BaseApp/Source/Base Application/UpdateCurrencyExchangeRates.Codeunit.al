@@ -4,7 +4,7 @@ codeunit 1281 "Update Currency Exchange Rates"
 
     trigger OnRun()
     begin
-        SyncCurrencyExchangeRates;
+        SyncCurrencyExchangeRates();
     end;
 
     var
@@ -99,7 +99,7 @@ codeunit 1281 "Update Currency Exchange Rates"
         HttpWebRequestMgt.SetReturnType('application/xml,text/xml');
 
         if not GuiAllowed then
-            HttpWebRequestMgt.DisableUI;
+            HttpWebRequestMgt.DisableUI();
 
         HttpWebRequestMgt.SetTraceLogEnabled(CurrExchRateUpdateSetup."Log Web Requests");
 
@@ -142,7 +142,7 @@ codeunit 1281 "Update Currency Exchange Rates"
         if IsNull(WebException.Response) then
             Error(ErrorText);
 
-        ResponseInputStream := WebException.Response.GetResponseStream;
+        ResponseInputStream := WebException.Response.GetResponseStream();
 
         XMLDOMMgt.LoadXMLNodeFromInStream(ResponseInputStream, XmlNode);
 
@@ -183,14 +183,14 @@ codeunit 1281 "Update Currency Exchange Rates"
         MyNotifications: Record "My Notifications";
         Notification: Notification;
     begin
-        if not MyNotifications.IsEnabled(GetMissingExchangeRatesNotificationID) then
+        if not MyNotifications.IsEnabled(GetMissingExchangeRatesNotificationID()) then
             exit;
-        Notification.Id := GetMissingExchangeRatesNotificationID;
+        Notification.Id := GetMissingExchangeRatesNotificationID();
         Notification.Message := StrSubstNo(NotificationMessageMsg, CurrencyCode);
         Notification.SetData('Currency Code', CurrencyCode);
         Notification.AddAction(NotificationActionOpenPageTxt, 1281, 'OpenCurrencyExchangeRatesPageFromNotification');
         Notification.AddAction(NotificationActionDisableTxt, 1281, 'DisableMissingExchangeRatesNotification');
-        Notification.Send;
+        Notification.Send();
     end;
 
     procedure ExchangeRatesForCurrencyExist(Date: Date; CurrencyCode: Code[10]): Boolean
@@ -198,10 +198,10 @@ codeunit 1281 "Update Currency Exchange Rates"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         if Date = 0D then
-            Date := WorkDate;
+            Date := WorkDate();
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.SetRange("Starting Date", 0D, Date);
-        exit(CurrencyExchangeRate.FindLast);
+        exit(CurrencyExchangeRate.FindLast());
     end;
 
     procedure OpenExchangeRatesPage(CurrencyCode: Code[10])

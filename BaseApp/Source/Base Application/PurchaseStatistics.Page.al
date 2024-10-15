@@ -218,10 +218,10 @@ page 161 "Purchase Statistics"
         CurrExchRate: Record "Currency Exchange Rate";
         UseDate: Date;
     begin
-        TotalPurchLine."Inv. Discount Amount" := TempVATAmountLine.GetTotalInvDiscAmount;
+        TotalPurchLine."Inv. Discount Amount" := TempVATAmountLine.GetTotalInvDiscAmount();
         TotalAmount1 :=
           TotalPurchLine."Line Amount" - TotalPurchLine."Inv. Discount Amount" - TotalPurchLine."Pmt. Discount Amount";
-        VATAmount := TempVATAmountLine.GetTotalVATAmount;
+        VATAmount := TempVATAmountLine.GetTotalVATAmount();
         if Rec."Prices Including VAT" then begin
             TotalAmount1 := TempVATAmountLine.GetTotalAmountInclVAT();
             TotalAmount2 := TotalAmount1 - VATAmount;
@@ -284,7 +284,7 @@ page 161 "Purchase Statistics"
     var
         InvDiscBaseAmount: Decimal;
     begin
-        CheckAllowInvDisc;
+        CheckAllowInvDisc();
         InvDiscBaseAmount := TempVATAmountLine.GetTotalInvDiscBaseAmount(false, "Currency Code");
         if InvDiscBaseAmount = 0 then
             Error(Text003, TempVATAmountLine.FieldCaption("Inv. Disc. Base Amount"));

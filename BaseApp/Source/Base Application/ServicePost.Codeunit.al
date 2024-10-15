@@ -14,11 +14,11 @@
 
     trigger OnRun()
     var
-        DummyServLine: Record "Service Line" temporary;
+        TempServiceLine: Record "Service Line" temporary;
     begin
         OnBeforeRun(Rec);
 
-        PostWithLines(Rec, DummyServLine, Ship, Consume, Invoice);
+        PostWithLines(Rec, TempServiceLine, Ship, Consume, Invoice);
     end;
 
     var
@@ -33,6 +33,7 @@
         TempWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary;
         GLSetup: Record "General Ledger Setup";
         ServDocumentsMgt: Codeunit "Serv-Documents Mgt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
         Window: Dialog;
         PostingDate: Date;
@@ -42,7 +43,6 @@
         Ship: Boolean;
         Consume: Boolean;
         Invoice: Boolean;
-        Text001: Label 'There is nothing to post.';
         Text002: Label 'Posting lines              #2######\';
         Text003: Label 'Posting serv. and VAT      #3######\';
         Text004: Label 'Posting to customers       #4######\';
@@ -151,7 +151,7 @@
                         repeat
                             WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
                             WhsePostShpt.CreatePostedShptLine(WarehouseShipmentLine, PostedWhseShipmentHeader,
-                              PostedWhseShipmentLine, TempTrackingSpecification);
+                            PostedWhseShipmentLine, TempTrackingSpecification);
                         until TempWarehouseShipmentLine.Next() = 0;
                     if WarehouseShipmentHeaderLocal.Get(WarehouseShipmentHeader."No.") then
                         UpdateWhseDocuments();
@@ -165,7 +165,7 @@
                 Finalize(ServiceHeader);
 
                 OnAfterFinalizePostingOnBeforeCommit(
-                  PassedServHeader, PassedServLine, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice);
+                PassedServHeader, PassedServLine, ServDocumentsMgt, PassedShip, PassedConsume, PassedInvoice);
             end;
 
             if WhseShip then
@@ -219,7 +219,7 @@
         if (not HideValidationDialog or not GuiAllowed) and
            Invoice and (PassedServiceHeader."Document Type" = PassedServiceHeader."Document Type"::Order)
         then
-            ServDocumentsMgt.CheckAdjustedLines;
+            ServDocumentsMgt.CheckAdjustedLines();
 
         OnAfterInitialize(PassedServiceHeader, PassedServiceLine);
     end;
@@ -266,7 +266,7 @@
             ServDocumentsMgt.CheckAndSetPostingConstants(PassedShip, PassedConsume, PassedInvoice);
 
             if not (PassedShip or PassedInvoice or PassedConsume) then
-                Error(Text001);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             if Invoice and ("Document Type" <> "Document Type"::"Credit Memo") then begin
                 TestField("Due Date");
@@ -293,7 +293,7 @@
         end;
         if PostingDateExists and (ReplaceDocumentDate or (ServiceHeader."Document Date" = 0D)) then begin
             ServiceHeader.Validate("Document Date", PostingDate);
-            ServiceHeader.ValidatePaymentTerms;
+            ServiceHeader.ValidatePaymentTerms();
         end;
 
         OnAfterValidatePostingAndDocumentDate(ServiceHeader, PreviewMode);
@@ -548,7 +548,7 @@
                 "Document Type"::Order:
                     if Invoice then begin
                         ServiceInvHeader.Get("Last Posting No.");
-                        ServiceInvHeader.SetRecFilter;
+                        ServiceInvHeader.SetRecFilter();
                         PostedServiceDocumentVariant := ServiceInvHeader;
                     end;
                 "Document Type"::Invoice:
@@ -558,7 +558,7 @@
                         else
                             ServiceInvHeader.Get("Last Posting No.");
 
-                        ServiceInvHeader.SetRecFilter;
+                        ServiceInvHeader.SetRecFilter();
                         PostedServiceDocumentVariant := ServiceInvHeader;
                     end;
                 "Document Type"::"Credit Memo":
@@ -567,7 +567,7 @@
                             ServiceCrMemoHeader.Get("No.")
                         else
                             ServiceCrMemoHeader.Get("Last Posting No.");
-                        ServiceCrMemoHeader.SetRecFilter;
+                        ServiceCrMemoHeader.SetRecFilter();
                         PostedServiceDocumentVariant := ServiceCrMemoHeader;
                     end;
                 else
@@ -586,7 +586,7 @@
                 "Document Type"::Order:
                     if Invoice then begin
                         ServiceInvHeader.Get("Last Posting No.");
-                        ServiceInvHeader.SetRecFilter;
+                        ServiceInvHeader.SetRecFilter();
                         ServiceInvHeader.SendProfile(DocumentSendingProfile);
                     end;
                 "Document Type"::Invoice:
@@ -596,7 +596,7 @@
                         else
                             ServiceInvHeader.Get("Last Posting No.");
 
-                        ServiceInvHeader.SetRecFilter;
+                        ServiceInvHeader.SetRecFilter();
                         ServiceInvHeader.SendProfile(DocumentSendingProfile);
                     end;
                 "Document Type"::"Credit Memo":
@@ -605,7 +605,7 @@
                             ServiceCrMemoHeader.Get("No.")
                         else
                             ServiceCrMemoHeader.Get("Last Posting No.");
-                        ServiceCrMemoHeader.SetRecFilter;
+                        ServiceCrMemoHeader.SetRecFilter();
                         ServiceCrMemoHeader.SendProfile(DocumentSendingProfile);
                     end;
                 else

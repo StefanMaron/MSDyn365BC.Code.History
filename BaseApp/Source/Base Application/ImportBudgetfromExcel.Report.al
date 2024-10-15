@@ -1,4 +1,4 @@
-report 81 "Import Budget from Excel"
+﻿report 81 "Import Budget from Excel"
 {
     Caption = 'Import Budget from Excel';
     ProcessingOnly = true;
@@ -62,13 +62,13 @@ report 81 "Import Budget from Excel"
             trigger OnPostDataItem()
             begin
                 if RecNo > 0 then
-                    Message(Text004, GLBudgetEntry.TableCaption, RecNo);
+                    Message(Text004, GLBudgetEntry.TableCaption(), RecNo);
 
                 if ImportOption = ImportOption::"Replace entries" then begin
                     AnalysisView.SetRange("Include Budgets", true);
                     if AnalysisView.FindSet(true, false) then
                         repeat
-                            AnalysisView.AnalysisviewBudgetReset;
+                            AnalysisView.AnalysisviewBudgetReset();
                             AnalysisView.Modify();
                         until AnalysisView.Next() = 0;
                 end;
@@ -82,7 +82,7 @@ report 81 "Import Budget from Excel"
 
                 if not GLBudgetName.Get(ToGLBudgetName) then begin
                     if not ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(Text001, GLBudgetName.TableCaption, ToGLBudgetName), true)
+                         StrSubstNo(Text001, GLBudgetName.TableCaption(), ToGLBudgetName), true)
                     then
                         CurrReport.Break();
                     GLBudgetName.Name := ToGLBudgetName;
@@ -146,7 +146,7 @@ report 81 "Import Budget from Excel"
 
         trigger OnOpenPage()
         begin
-            Description := Text005 + Format(WorkDate);
+            Description := Text005 + Format(WorkDate());
         end;
 
         trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -186,25 +186,25 @@ report 81 "Import Budget from Excel"
         BusUnitDimCode := 'BUSINESSUNIT_TAB220';
         TempDim.Init();
         TempDim.Code := BusUnitDimCode;
-        TempDim."Code Caption" := BusUnit.TableCaption;
+        TempDim."Code Caption" := BusUnit.TableCaption();
         TempDim.Insert();
 
-        if Dim.Find('-') then begin
+        if Dim.Find('-') then
             repeat
                 TempDim.Init();
                 TempDim := Dim;
                 TempDim."Code Caption" := TempDim."Code Caption";
+                if TempDim."Code Caption" = '' then
+                    Error(DimensionsNeedsCodeCaptionErr);
                 TempDim.Insert();
             until Dim.Next() = 0;
-        end;
 
-        if GLAcc.Find('-') then begin
+        if GLAcc.Find('-') then
             repeat
                 TempGLAcc.Init();
                 TempGLAcc := GLAcc;
                 TempGLAcc.Insert();
             until GLAcc.Next() = 0;
-        end;
 
         ExcelBuf.LockTable();
         BudgetBuf.LockTable();
@@ -222,41 +222,13 @@ report 81 "Import Budget from Excel"
 
         ExcelBuf.OpenBook(ServerFileName, SheetName);
         ExcelBuf.SetReadDateTimeInUtcDate(true);
-        ExcelBuf.ReadSheet;
+        ExcelBuf.ReadSheet();
         ExcelBuf.SetReadDateTimeInUtcDate(false);
 
-        AnalyzeData;
+        AnalyzeData();
     end;
 
     var
-        Text000: Label 'You must specify a budget name to import to.';
-        Text001: Label 'Do you want to create a %1 with the name %2?';
-        Text002: Label '%1 %2 is blocked. You cannot import entries.';
-        Text003: Label 'Are you sure that you want to %1 for the budget name %2?';
-        Text004: Label '%1 table has been successfully updated with %2 entries.';
-        Text005: Label 'Imported from Excel ';
-        Text006: Label 'Import Excel File';
-        Text007: Label 'Analyzing Data...\\';
-        Text008: Label 'You cannot specify more than 8 dimensions in your Excel worksheet.';
-        Text010: Label 'G/L Account No.';
-        Text011: Label 'The text G/L Account No. can only be specified once in the Excel worksheet.';
-        DimensionValueCodeEqualToDimensionCodeTelemetryMsg: Label 'Detected dimension value code in the Excel budget that is equal to the code of a dimension.', Locked = true;
-        TelemetryCategoryTxt: Label 'AL Import Budget', Locked = true;
-        Text013: Label 'Dimension', Locked = true;
-        Text014: Label 'Date';
-        Text015: Label 'Dimension1', Locked = true;
-        Text016: Label 'Dimension2', Locked = true;
-        Text017: Label 'Dimension3', Locked = true;
-        Text018: Label 'Dimension4', Locked = true;
-        Text019: Label 'Dimension5', Locked = true;
-        Text020: Label 'Dimension6', Locked = true;
-        Text021: Label 'Dimension7', Locked = true;
-        Text022: Label 'Dimension8', Locked = true;
-        Text023: Label 'You cannot import the same information twice.\';
-        Text024: Label 'The combination G/L Account No. - Dimensions - Date must be unique.';
-        Text025: Label 'G/L Accounts have not been found in the Excel worksheet.';
-        Text026: Label 'Dates have not been recognized in the Excel worksheet.';
-        TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr: Label 'The used Dimension value %1 are also used as a caption for a Dimension.', Comment = '%1 is a dimension value';
         ExcelBuf: Record "Excel Buffer";
         Dim: Record Dimension;
         TempDim: Record Dimension temporary;
@@ -287,6 +259,36 @@ report 81 "Import Budget from Excel"
         BudgetDim3Code: Code[20];
         BudgetDim4Code: Code[20];
         ImportOption: Option "Replace entries","Add entries";
+
+        Text000: Label 'You must specify a budget name to import to.';
+        Text001: Label 'Do you want to create a %1 with the name %2?';
+        Text002: Label '%1 %2 is blocked. You cannot import entries.';
+        Text003: Label 'Are you sure that you want to %1 for the budget name %2?';
+        Text004: Label '%1 table has been successfully updated with %2 entries.';
+        Text005: Label 'Imported from Excel ';
+        Text006: Label 'Import Excel File';
+        Text007: Label 'Analyzing Data...\\';
+        Text008: Label 'You cannot specify more than 8 dimensions in your Excel worksheet.';
+        Text010: Label 'G/L Account No.';
+        Text011: Label 'The text G/L Account No. can only be specified once in the Excel worksheet.';
+        DimensionValueCodeEqualToDimensionCodeTelemetryMsg: Label 'Detected dimension value code in the Excel budget that is equal to the code of a dimension.', Locked = true;
+        DimensionsNeedsCodeCaptionErr: Label 'To be able to import Budget from Excel. Dimensions need a Code Caption Please specify Code Caption for Dimension %1.', Comment = '%1 is a dimension value';
+        TelemetryCategoryTxt: Label 'AL Import Budget', Locked = true;
+        Text013: Label 'Dimension', Locked = true;
+        Text014: Label 'Date';
+        Text015: Label 'Dimension1', Locked = true;
+        Text016: Label 'Dimension2', Locked = true;
+        Text017: Label 'Dimension3', Locked = true;
+        Text018: Label 'Dimension4', Locked = true;
+        Text019: Label 'Dimension5', Locked = true;
+        Text020: Label 'Dimension6', Locked = true;
+        Text021: Label 'Dimension7', Locked = true;
+        Text022: Label 'Dimension8', Locked = true;
+        Text023: Label 'You cannot import the same information twice.\';
+        Text024: Label 'The combination G/L Account No. - Dimensions - Date must be unique.';
+        Text025: Label 'G/L Accounts have not been found in the Excel worksheet.';
+        Text026: Label 'Dates have not been recognized in the Excel worksheet.';
+        TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr: Label 'The used Dimension value %1 are also used as a caption for a Dimension.', Comment = '%1 is a dimension value';
         Text027: Label 'Replace Entries,Add Entries';
         Text028: Label 'A filter has been used on the %1 when the budget was exported. When a filter on a dimension has been used, a column with the same dimension must be present in the worksheet imported. The column in the worksheet must specify the dimension value codes the program should use when importing the budget.';
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
@@ -312,7 +314,10 @@ report 81 "Import Budget from Excel"
         CountDim := 0;
         BudgetBuf.DeleteAll();
 
-        if ExcelBuf.Find('-') then begin
+        HeaderRowNo := 0;
+        OldRowNo := 0;
+
+        if ExcelBuf.Find('-') then
             repeat
                 RecNo := RecNo + 1;
                 Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
@@ -320,16 +325,14 @@ report 81 "Import Budget from Excel"
                   "Code Caption", CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(TempDim."Code Caption")));
                 case true of
                     ExcelBuf."Cell Value as Text" = GLBudgetEntry.FieldCaption("G/L Account No."):
-                        begin
-                            if HeaderRowNo = 0 then begin
-                                HeaderRowNo := ExcelBuf."Row No.";
-                                TempExcelBuf := ExcelBuf;
-                                TempExcelBuf.Comment := Text010;
-                                TempExcelBuf.Insert();
-                            end else
-                                Error(Text011);
-                        end;
-                    TempDim.FindFirst and (ExcelBuf."Row No." <> HeaderRowNo):
+                        if HeaderRowNo = 0 then begin
+                            HeaderRowNo := ExcelBuf."Row No.";
+                            TempExcelBuf := ExcelBuf;
+                            TempExcelBuf.Comment := Text010;
+                            TempExcelBuf.Insert();
+                        end else
+                            Error(Text011);
+                    TempDim.FindFirst() and (ExcelBuf."Row No." <> HeaderRowNo):
                         if HeaderRowNo <> 0 then begin
                             Session.LogMessage('0000G7G', DimensionValueCodeEqualToDimensionCodeTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
                             Error(TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr, Format(TempDim.Code));
@@ -364,7 +367,7 @@ report 81 "Import Budget from Excel"
                         begin
                             TempExcelBuf := ExcelBuf;
                             case true of
-                                TempDim.FindFirst:
+                                TempDim.FindFirst():
                                     begin
                                         TempDim.Mark(false);
                                         IncreaseAndCheckCountDim(CountDim);
@@ -465,7 +468,7 @@ report 81 "Import Budget from Excel"
                                             Evaluate(BudgetBuf.Date, TempExcelBuf."Cell Value as Text");
                                             Evaluate(BudgetBuf.Amount, ExcelBuf."Cell Value as Text");
                                             if not BudgetBuf.Find('=') then
-                                                BudgetBuf.Insert
+                                                BudgetBuf.Insert()
                                             else
                                                 Error(Text023 + Text024);
                                         end;
@@ -473,7 +476,6 @@ report 81 "Import Budget from Excel"
                         end;
                 end;
             until ExcelBuf.Next() = 0;
-        end;
 
         TempDim.SetRange("Code Caption");
         TempDim.MarkedOnly(true);
@@ -482,13 +484,13 @@ report 81 "Import Budget from Excel"
             Error(Text028, Dim."Code Caption");
         end;
 
-        Window.Close;
+        Window.Close();
         TempExcelBuf.Reset();
         TempExcelBuf.SetRange(Comment, Text010);
         if not TempExcelBuf.FindFirst() then
             Error(Text025);
         TempExcelBuf.SetRange(Comment, Text014);
-        if not TempExcelBuf.FindFirst() then
+        if TempExcelBuf.IsEmpty() then
             Error(Text026);
     end;
 

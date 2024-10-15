@@ -1,4 +1,4 @@
-﻿report 2 "General Journal - Test"
+report 2 "General Journal - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GeneralJournalTest.rdlc';
@@ -16,7 +16,7 @@
             column(Name_GenJnlBatch; Name)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GeneralJnlTestCaption; GeneralJnlTestCap)
@@ -331,12 +331,12 @@
                         else
                             CreditAmtLCY := "Amount (LCY)";
 
-                        UpdateLineBalance;
+                        UpdateLineBalance();
 
                         AccName := '';
                         BalAccName := '';
 
-                        if not EmptyLine then begin
+                        if not EmptyLine() then begin
                             MakeRecurringTexts("Gen. Journal Line");
 
                             AmountError := false;
@@ -348,7 +348,7 @@
                                    ("Bal. Account Type" <> "Bal. Account Type"::"Fixed Asset")
                                 then
                                     TestFixedAssetFields("Gen. Journal Line");
-                            CheckICDocument;
+                            CheckICDocument();
                             if "Account No." <> '' then
                                 case "Account Type" of
                                     "Account Type"::"G/L Account":
@@ -670,7 +670,7 @@
                             OnAfterCheckGenJnlLine("Gen. Journal Line", ErrorCounter, ErrorText);
                         end;
 
-                        CheckBalance;
+                        CheckBalance();
                         AmountLCY += "Amount (LCY)";
                         BalanceLCY += "Balance (LCY)";
 
@@ -681,7 +681,7 @@
                     trigger OnPreDataItem()
                     begin
                         CopyFilter("Journal Batch Name", "Gen. Journal Batch".Name);
-                        GenJnlLineFilter := GetFilters;
+                        GenJnlLineFilter := GetFilters();
 
                         GenJnlTemplate.Get("Gen. Journal Batch"."Journal Template Name");
                         if GenJnlTemplate.Recurring then begin
@@ -690,13 +690,13 @@
                                   StrSubstNo(
                                     Text000,
                                     FieldCaption("Posting Date")));
-                            SetRange("Posting Date", 0D, WorkDate);
+                            SetRange("Posting Date", 0D, WorkDate());
                             if GetFilter("Expiration Date") <> '' then
                                 AddError(
                                   StrSubstNo(
                                     Text000,
                                     FieldCaption("Expiration Date")));
-                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
                         end;
 
                         // If simple view is used then order gen. journal lines by doc no. and line no.
@@ -757,7 +757,7 @@
                         if Number = 1 then
                             GLAccNetChange.Find('-')
                         else
-                            GLAccNetChange.Next;
+                            GLAccNetChange.Next();
                     end;
 
                     trigger OnPostDataItem()
@@ -1069,7 +1069,7 @@
         if NextGenJnlLine.Next() = 0 then;
         MakeRecurringTexts(NextGenJnlLine);
         with GenJnlLine do
-            if not EmptyLine then begin
+            if not EmptyLine() then begin
                 DocBalance := CalculateDocBalance(GenJnlLine);
                 DateBalance := CalculateDateBalance(GenJnlLine);
                 TotalBalance := CalculateTotalBalance(GenJnlLine);
@@ -1200,7 +1200,7 @@
     begin
         with GenJournalLine do begin
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                AddError(DimMgt.GetDimCombErr);
+                AddError(DimMgt.GetDimCombErr());
 
             TableID[1] := DimMgt.TypeToTableID1("Account Type".AsInteger());
             No[1] := "Account No.";
@@ -1216,7 +1216,7 @@
             OnAfterAssignDimTableID(GenJournalLine, TableID, No, SkipCheck);
             if not SkipCheck then
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    AddError(DimMgt.GetDimValuePostingErr);
+                    AddError(DimMgt.GetDimValuePostingErr());
         end;
     end;
 
@@ -1284,7 +1284,7 @@
                 AddError(
                   StrSubstNo(
                     Text031,
-                    GLAcc.TableCaption, "Account No."))
+                    GLAcc.TableCaption(), "Account No."))
             else begin
                 AccName := GLAcc.Name;
 
@@ -1292,13 +1292,13 @@
                     AddError(
                       StrSubstNo(
                         Text032,
-                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "Account No."));
+                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "Account No."));
                 if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then begin
                     GLAcc."Account Type" := GLAcc."Account Type"::Posting;
                     AddError(
                       StrSubstNo(
                         Text032,
-                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption, "Account No."));
+                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption(), "Account No."));
                 end;
                 if not "System-Created Entry" then
                     if "Posting Date" = NormalDate("Posting Date") then
@@ -1306,7 +1306,7 @@
                             AddError(
                               StrSubstNo(
                                 Text032,
-                                GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, "Account No."));
+                                GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), "Account No."));
 
                 if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
                     case "Gen. Posting Type" of
@@ -1315,13 +1315,13 @@
                         "Gen. Posting Type"::Purchase:
                             PurchPostingType := true;
                     end;
-                    TestPostingType;
+                    TestPostingType();
 
                     if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                         AddError(
                           StrSubstNo(
                             Text036,
-                            VATPostingSetup.TableCaption, "VAT Bus. Posting Group", "VAT Prod. Posting Group"))
+                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"))
                     else
                         if "VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type" then
                             AddError(
@@ -1344,7 +1344,7 @@
                 AddError(
                   StrSubstNo(
                     Text031,
-                    Cust.TableCaption, "Account No."))
+                    Cust.TableCaption(), "Account No."))
             else begin
                 AccName := Cust.Name;
                 if Cust."Privacy Blocked" then
@@ -1372,22 +1372,22 @@
                                 '%1 %2',
                                 StrSubstNo(
                                   Text067,
-                                  Cust.TableCaption, "Account No.", ICPartner.TableCaption, "IC Partner Code"),
+                                  Cust.TableCaption(), "Account No.", ICPartner.TableCaption(), "IC Partner Code"),
                                 StrSubstNo(
                                   Text032,
-                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, Cust."IC Partner Code")));
+                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), Cust."IC Partner Code")));
                     end else
                         AddError(
                           StrSubstNo(
                             '%1 %2',
                             StrSubstNo(
                               Text067,
-                              Cust.TableCaption, "Account No.", ICPartner.TableCaption, Cust."IC Partner Code"),
+                              Cust.TableCaption(), "Account No.", ICPartner.TableCaption(), Cust."IC Partner Code"),
                             StrSubstNo(
                               Text031,
-                              ICPartner.TableCaption, Cust."IC Partner Code")));
+                              ICPartner.TableCaption(), Cust."IC Partner Code")));
                 CustPosting := true;
-                TestPostingType;
+                TestPostingType();
 
                 if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     if "Document Type" in
@@ -1436,7 +1436,7 @@
                 AddError(
                   StrSubstNo(
                     Text031,
-                    Vend.TableCaption, "Account No."))
+                    Vend.TableCaption(), "Account No."))
             else begin
                 AccName := Vend.Name;
                 if Vend."Privacy Blocked" then
@@ -1464,22 +1464,22 @@
                                 '%1 %2',
                                 StrSubstNo(
                                   Text067,
-                                  Vend.TableCaption, "Account No.", ICPartner.TableCaption, Vend."IC Partner Code"),
+                                  Vend.TableCaption(), "Account No.", ICPartner.TableCaption(), Vend."IC Partner Code"),
                                 StrSubstNo(
                                   Text032,
-                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, Vend."IC Partner Code")));
+                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), Vend."IC Partner Code")));
                     end else
                         AddError(
                           StrSubstNo(
                             '%1 %2',
                             StrSubstNo(
                               Text067,
-                              Vend.TableCaption, "Account No.", ICPartner.TableCaption, "IC Partner Code"),
+                              Vend.TableCaption(), "Account No.", ICPartner.TableCaption(), "IC Partner Code"),
                             StrSubstNo(
                               Text031,
-                              ICPartner.TableCaption, Vend."IC Partner Code")));
+                              ICPartner.TableCaption(), Vend."IC Partner Code")));
                 VendPosting := true;
-                TestPostingType;
+                TestPostingType();
 
                 if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     if "Document Type" in
@@ -1523,11 +1523,11 @@
     begin
         with GenJnlLine do
             if not Employee.Get("Account No.") then
-                AddError(StrSubstNo(Text031, Employee.TableCaption, "Account No."))
+                AddError(StrSubstNo(Text031, Employee.TableCaption(), "Account No."))
             else begin
                 AccName := Employee."No.";
                 if Employee."Privacy Blocked" then
-                    AddError(StrSubstNo(Text032, Employee.FieldCaption("Privacy Blocked"), false, Employee.TableCaption, AccName))
+                    AddError(StrSubstNo(Text032, Employee.FieldCaption("Privacy Blocked"), false, Employee.TableCaption(), AccName))
             end;
     end;
 
@@ -1538,7 +1538,7 @@
                 AddError(
                   StrSubstNo(
                     Text031,
-                    BankAcc.TableCaption, "Account No."))
+                    BankAcc.TableCaption(), "Account No."))
             else begin
                 AccName := BankAcc.Name;
 
@@ -1546,7 +1546,7 @@
                     AddError(
                       StrSubstNo(
                         Text032,
-                        BankAcc.FieldCaption(Blocked), false, BankAcc.TableCaption, "Account No."));
+                        BankAcc.FieldCaption(Blocked), false, BankAcc.TableCaption(), "Account No."));
                 if ("Currency Code" <> BankAcc."Currency Code") and (BankAcc."Currency Code" <> '') then
                     AddError(
                       StrSubstNo(
@@ -1567,7 +1567,7 @@
                               StrSubstNo(
                                 Text042,
                                 FieldCaption("Bank Payment Type"), FieldCaption("Currency Code"),
-                                TableCaption, BankAcc.TableCaption));
+                                TableCaption, BankAcc.TableCaption()));
 
                 if BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group") then
                     if BankAccPostingGr."G/L Account No." <> '' then
@@ -1584,36 +1584,36 @@
                 AddError(
                   StrSubstNo(
                     Text031,
-                    FA.TableCaption, "Account No."))
+                    FA.TableCaption(), "Account No."))
             else begin
                 AccName := FA.Description;
                 if FA.Blocked then
                     AddError(
                       StrSubstNo(
                         Text032,
-                        FA.FieldCaption(Blocked), false, FA.TableCaption, "Account No."));
+                        FA.FieldCaption(Blocked), false, FA.TableCaption(), "Account No."));
                 if FA.Inactive then
                     AddError(
                       StrSubstNo(
                         Text032,
-                        FA.FieldCaption(Inactive), false, FA.TableCaption, "Account No."));
+                        FA.FieldCaption(Inactive), false, FA.TableCaption(), "Account No."));
                 if FA."Budgeted Asset" then
                     AddError(
                       StrSubstNo(
                         Text043,
-                        FA.TableCaption, "Account No.", FA.FieldCaption("Budgeted Asset"), true));
+                        FA.TableCaption(), "Account No.", FA.FieldCaption("Budgeted Asset"), true));
                 if DeprBook.Get("Depreciation Book Code") then
                     CheckFAIntegration(GenJnlLine)
                 else
                     AddError(
                       StrSubstNo(
                         Text031,
-                        DeprBook.TableCaption, "Depreciation Book Code"));
+                        DeprBook.TableCaption(), "Depreciation Book Code"));
                 if not FADeprBook.Get(FA."No.", "Depreciation Book Code") then
                     AddError(
                       StrSubstNo(
                         Text036,
-                        FADeprBook.TableCaption, FA."No.", "Depreciation Book Code"));
+                        FADeprBook.TableCaption(), FA."No.", "Depreciation Book Code"));
             end;
     end;
 
@@ -1624,14 +1624,14 @@
                 AddError(
                   StrSubstNo(
                     Text031,
-                    ICPartner.TableCaption, "Account No."))
+                    ICPartner.TableCaption(), "Account No."))
             else begin
                 AccName := ICPartner.Name;
                 if ICPartner.Blocked then
                     AddError(
                       StrSubstNo(
                         Text032,
-                        ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, "Account No."));
+                        ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), "Account No."));
             end;
     end;
 
@@ -2071,18 +2071,18 @@
             if ("Job No." = '') or ("Account Type" <> "Account Type"::"G/L Account") then
                 exit;
             if not Job.Get("Job No.") then
-                AddError(StrSubstNo(Text071, Job.TableCaption, "Job No."))
+                AddError(StrSubstNo(Text071, Job.TableCaption(), "Job No."))
             else
                 if Job.Blocked <> Job.Blocked::" " then
                     AddError(
                       StrSubstNo(
-                        Text072, Job.FieldCaption(Blocked), Job.Blocked, Job.TableCaption, "Job No."));
+                        Text072, Job.FieldCaption(Blocked), Job.Blocked, Job.TableCaption(), "Job No."));
 
             if "Job Task No." = '' then
                 AddError(StrSubstNo(Text002, FieldCaption("Job Task No.")))
             else
                 if not JT.Get("Job No.", "Job Task No.") then
-                    AddError(StrSubstNo(Text071, JT.TableCaption, "Job Task No."))
+                    AddError(StrSubstNo(Text071, JT.TableCaption(), "Job Task No."))
         end;
 
         OnAfterTestJobFields(GenJnlLine, ErrorCounter, ErrorText);

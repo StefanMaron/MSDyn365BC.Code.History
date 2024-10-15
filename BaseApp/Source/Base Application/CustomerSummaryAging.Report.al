@@ -14,7 +14,7 @@ report 105 "Customer - Summary Aging"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Search Name", "Customer Posting Group", "Currency Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmtInLCY; PrintAmountsInLCY)
@@ -152,35 +152,35 @@ report 105 "Customer - Summary Aging"
                 DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
                 column(LineTotalCustBal1; LineTotalCustBalance)
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(CustBalanceDue6; CustBalanceDue[5])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(CustBalanceDue7; CustBalanceDue[4])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(CustBalanceDue8; CustBalanceDue[3])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(CustBalanceDue9; CustBalanceDue[2])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
                 column(CustBalanceDue10; CustBalanceDue[1])
                 {
-                    AutoFormatExpression = Currency2.Code;
+                    AutoFormatExpression = TempCurrency.Code;
                     AutoFormatType = 1;
                 }
-                column(Curr2Code; Currency2.Code)
+                column(Curr2Code; TempCurrency.Code)
                 {
                 }
 
@@ -189,12 +189,12 @@ report 105 "Customer - Summary Aging"
                     DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
                 begin
                     if Number = 1 then
-                        Currency2.Find('-')
+                        TempCurrency.Find('-')
                     else
-                        if Currency2.Next() = 0 then
+                        if TempCurrency.Next() = 0 then
                             CurrReport.Break();
-                    Currency2.CalcFields("Cust. Ledg. Entries in Filter");
-                    if not Currency2."Cust. Ledg. Entries in Filter" then
+                    TempCurrency.CalcFields("Cust. Ledg. Entries in Filter");
+                    if not TempCurrency."Cust. Ledg. Entries in Filter" then
                         CurrReport.Skip();
 
                     PrintLine := false;
@@ -207,7 +207,7 @@ report 105 "Customer - Summary Aging"
                         DtldCustLedgEntry.SetRange("Excluded from calculation", false);
                         DtldCustLedgEntry.SetRange("Customer No.", Customer."No.");
                         DtldCustLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[i], PeriodStartDate[i + 1] - 1);
-                        DtldCustLedgEntry.SetRange("Currency Code", Currency2.Code);
+                        DtldCustLedgEntry.SetRange("Currency Code", TempCurrency.Code);
                         DtldCustLedgEntry.CalcSums(Amount);
                         CustBalanceDue[i] := DtldCustLedgEntry.Amount;
                         InCustBalanceDueLCY[i] := InCustBalanceDueLCY2[i];
@@ -221,14 +221,14 @@ report 105 "Customer - Summary Aging"
                 begin
                     if PrintAmountsInLCY or not PrintLine then
                         CurrReport.Break();
-                    Currency2.Reset();
-                    Currency2.SetRange("Customer Filter", Customer."No.");
-                    Customer.CopyFilter("Currency Filter", Currency2.Code);
+                    TempCurrency.Reset();
+                    TempCurrency.SetRange("Customer Filter", Customer."No.");
+                    Customer.CopyFilter("Currency Filter", TempCurrency.Code);
                     if (Customer.GetFilter("Global Dimension 1 Filter") <> '') or
                        (Customer.GetFilter("Global Dimension 2 Filter") <> '')
                     then begin
-                        Customer.CopyFilter("Global Dimension 1 Filter", Currency2."Global Dimension 1 Filter");
-                        Customer.CopyFilter("Global Dimension 2 Filter", Currency2."Global Dimension 2 Filter");
+                        Customer.CopyFilter("Global Dimension 1 Filter", TempCurrency."Global Dimension 1 Filter");
+                        Customer.CopyFilter("Global Dimension 2 Filter", TempCurrency."Global Dimension 2 Filter");
                     end;
                 end;
             }
@@ -277,12 +277,12 @@ report 105 "Customer - Summary Aging"
                 Clear(CustBalanceDue);
                 Clear(CustBalanceDueLCY);
                 Clear(TotalCustBalanceLCY);
-                Currency2.Code := '';
-                Currency2.Insert();
+                TempCurrency.Code := '';
+                TempCurrency.Insert();
                 if Currency.Find('-') then
                     repeat
-                        Currency2 := Currency;
-                        Currency2.Insert();
+                        TempCurrency := Currency;
+                        TempCurrency.Insert();
                     until Currency.Next() = 0;
             end;
         }
@@ -329,7 +329,7 @@ report 105 "Customer - Summary Aging"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[2] = 0D then
-                PeriodStartDate[2] := WorkDate;
+                PeriodStartDate[2] := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -351,10 +351,10 @@ report 105 "Customer - Summary Aging"
 
     var
         Currency: Record Currency;
-        Currency2: Record Currency temporary;
+        TempCurrency: Record Currency temporary;
+        PeriodLength: DateFormula;
         CustFilter: Text;
         PrintAmountsInLCY: Boolean;
-        PeriodLength: DateFormula;
         PeriodStartDate: array[6] of Date;
         CustBalanceDue: array[5] of Decimal;
         CustBalanceDueLCY: array[5] of Decimal;

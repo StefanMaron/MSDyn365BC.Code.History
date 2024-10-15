@@ -133,7 +133,7 @@ page 400 "Purchase Invoice Statistics"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -152,7 +152,7 @@ page 400 "Purchase Invoice Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", VendAmount, "Currency Factor");
+                WorkDate(), "Currency Code", VendAmount, "Currency Factor");
 
         VendLedgEntry.SetCurrentKey("Document No.");
         VendLedgEntry.SetRange("Document No.", "No.");
@@ -178,11 +178,8 @@ page 400 "Purchase Invoice Statistics"
         PurchInvLine: Record "Purch. Inv. Line";
         Vend: Record Vendor;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
-        Currency: Record Currency;
         VendAmount: Decimal;
-        AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
-        AmountLCY: Decimal;
         LineQty: Decimal;
         TotalNetWeight: Decimal;
         TotalGrossWeight: Decimal;
@@ -192,6 +189,11 @@ page 400 "Purchase Invoice Statistics"
         VATPercentage: Decimal;
         VATAmountText: Text[30];
         PmtDiscAmount: Decimal;
+
+    protected var
+        Currency: Record Currency;
+        AmountInclVAT: Decimal;
+        AmountLCY: Decimal;
 
     local procedure CalculateTotals()
     var

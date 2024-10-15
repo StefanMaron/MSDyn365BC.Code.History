@@ -904,7 +904,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [SCENARIO 376662] Rounding G/L Entry is posted to Customer Bills Account for partial Payment with Currency.
 
         // [GIVEN] Currency with fractional exchange rate.
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1.2368, 1.2368); // specific values
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1.2368, 1.2368); // specific values
 
         // [GIVEN] Customer with currency, Sales Bill with Amount = "X"
         CustomerNo := CreateCustomer(true, CurrencyCode);
@@ -939,7 +939,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [SCENARIO 376662] Rounding G/L Entry is posted to Vendor Bills Account for partial Payment with Currency.
 
         // [GIVEN] Currency with fractional exchange rate.
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1.2368, 1.2368); // specific values
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1.2368, 1.2368); // specific values
 
         // [GIVEN] Vendor with currency, Purchase Bill with Amount = "X"
         VendorNo := CreateVendor(true, CurrencyCode);
@@ -992,7 +992,7 @@ codeunit 147310 "ERM Apply Unapply"
         ReverseTransaction(CustLedgEntry."Transaction No.");
 
         // [THEN] Payment Customer Ledger Entry is reversed
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         CustLedgEntry.TestField(Reversed, true);
     end;
 
@@ -1030,7 +1030,7 @@ codeunit 147310 "ERM Apply Unapply"
         ReverseTransaction(VendLedgEntry."Transaction No.");
 
         // [THEN] Payment Vendor Ledger Entry is reversed
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         VendLedgEntry.TestField(Reversed, true);
     end;
 
@@ -1255,7 +1255,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [GIVEN] Create currency "CURR" with specific exchange rate
         CurrencyCode :=
-          LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-CM>', WorkDate), 1.13306, 1.13306);
+          LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-CM>', WorkDate()), 1.13306, 1.13306);
 
         // [GIVEN] Set "CURR" as additional reporting currency
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
@@ -1538,7 +1538,7 @@ codeunit 147310 "ERM Apply Unapply"
                     Modify(true);
                 until Next = 0;
 
-            Reset;
+            Reset();
             SetFilter("Applies-to ID", '<>%1', '');
             if FindSet() then
                 repeat
@@ -1560,7 +1560,7 @@ codeunit 147310 "ERM Apply Unapply"
                     Modify(true);
                 until Next = 0;
 
-            Reset;
+            Reset();
             SetFilter("Applies-to ID", '<>%1', '');
             if FindSet() then
                 repeat
@@ -1620,7 +1620,7 @@ codeunit 147310 "ERM Apply Unapply"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           AccountType, AccountNo, Amount);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Modify(true);
     end;
 
@@ -2209,7 +2209,7 @@ codeunit 147310 "ERM Apply Unapply"
         GLEntry.TestField(Amount);
         GLAmount := GLAmount * (GLEntry.Amount / Abs(GLEntry.Amount));
 
-        GLEntry.Next;
+        GLEntry.Next();
         GLEntry.TestField(Amount, -GLAmount);
     end;
 
@@ -2266,7 +2266,7 @@ codeunit 147310 "ERM Apply Unapply"
                 GLEntry.TestField("Additional-Currency Amount", AddCurrAmount)
             else
                 GLEntry.TestField("Additional-Currency Amount", -AddCurrAmount);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure FindLastGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; LastTransactionNo: Integer)

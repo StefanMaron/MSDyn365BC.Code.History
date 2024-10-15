@@ -202,7 +202,7 @@ codeunit 144126 "ERM VATECCALC Sales Tax"
     var
         TaxDetail: Record "Tax Detail";
     begin
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales Tax", WorkDate);  // WORKDATE for Effective Date.
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales Tax", WorkDate());  // WORKDATE for Effective Date.
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandDec(10, 2));
         TaxDetail.Validate("Maximum Amount/Qty.", LibraryRandom.RandDecInRange(500, 700, 2));  // Use Higher value to take Sum of Order Lines should be less than or greater than Maximum Amount/Qty.
         TaxDetail.Modify(true);

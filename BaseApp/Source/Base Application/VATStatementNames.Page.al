@@ -1,7 +1,7 @@
 page 320 "VAT Statement Names"
 {
     Caption = 'VAT Statement Names';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     PageType = List;
     SourceTable = "VAT Statement Name";
 
@@ -17,7 +17,7 @@ page 320 "VAT Statement Names"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT statement name.';
                 }
-                field("Template Type"; "Template Type")
+                field("Template Type"; Rec."Template Type")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the type.';
@@ -53,8 +53,6 @@ page 320 "VAT Statement Names"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit VAT Statement';
                 Image = SetupList;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View or edit how to calculate your VAT settlement amount for a period.';
 
                 trigger OnAction()
@@ -68,8 +66,6 @@ page 320 "VAT Statement Names"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -87,6 +83,20 @@ page 320 "VAT Statement Names"
                 Image = "Report";
                 RunObject = Report "EC Sales List";
                 ToolTip = 'View, print, or save an overview of your sales to other EU countries/regions. You can use the information when you report to the customs and tax authorities.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Edit VAT Statement_Promoted"; "Edit VAT Statement")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
             }
         }
     }

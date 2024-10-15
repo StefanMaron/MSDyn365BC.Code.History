@@ -262,15 +262,15 @@
                     dataitem(RoundLoop; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(LineAmt_SalesLineArchTmp; SalesLineArchTmp."Line Amount")
+                        column(LineAmt_SalesLineArchTmp; TempSalesLineArchive."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(Desc_SalesLineArchTmp; SalesLineArchTmp.Description)
+                        column(Desc_SalesLineArchTmp; TempSalesLineArchive.Description)
                         {
                         }
-                        column(Body3Visibility_RoundLoop; SalesLineArchTmp.Type = SalesLineArchTmp.Type::" ")
+                        column(Body3Visibility_RoundLoop; TempSalesLineArchive.Type = TempSalesLineArchive.Type::" ")
                         {
                         }
                         column(No_SalesLineArchive; "Sales Line Archive"."No.")
@@ -314,13 +314,13 @@
                         column(SalesLineNoText; Format("Sales Line Archive"."Line No."))
                         {
                         }
-                        column(Body4Visibility_RoundLoop; SalesLineArchTmp.Type <> SalesLineArchTmp.Type::" ")
+                        column(Body4Visibility_RoundLoop; TempSalesLineArchive.Type <> TempSalesLineArchive.Type::" ")
                         {
                         }
                         column(SalesLineType; Format("Sales Line Archive".Type))
                         {
                         }
-                        column(SalesLineArchTmpInvDiscAmt; SalesLineArchTmp."Inv. Discount Amount")
+                        column(SalesLineArchTmpInvDiscAmt; TempSalesLineArchive."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -328,12 +328,12 @@
                         column(TotalText; TotalText)
                         {
                         }
-                        column(SalesLineArchTmpLineAmtDiscAmt; SalesLineArchTmp."Line Amount" - SalesLineArchTmp."Inv. Discount Amount")
+                        column(SalesLineArchTmpLineAmtDiscAmt; TempSalesLineArchive."Line Amount" - TempSalesLineArchive."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
+                        column(VATAmtLineVATAmtText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -440,66 +440,66 @@
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                SalesLineArchTmp.Find('-')
+                                TempSalesLineArchive.Find('-')
                             else
-                                SalesLineArchTmp.Next;
-                            "Sales Line Archive" := SalesLineArchTmp;
+                                TempSalesLineArchive.Next();
+                            "Sales Line Archive" := TempSalesLineArchive;
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Sales Line Archive"."Dimension Set ID");
                         end;
 
                         trigger OnPostDataItem()
                         begin
-                            SalesLineArchTmp.DeleteAll();
+                            TempSalesLineArchive.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            MoreLines := SalesLineArchTmp.Find('+');
-                            while MoreLines and (SalesLineArchTmp.Description = '') and (SalesLineArchTmp."Description 2" = '') and
-                                  (SalesLineArchTmp."No." = '') and (SalesLineArchTmp.Quantity = 0) and
-                                  (SalesLineArchTmp.Amount = 0)
+                            MoreLines := TempSalesLineArchive.Find('+');
+                            while MoreLines and (TempSalesLineArchive.Description = '') and (TempSalesLineArchive."Description 2" = '') and
+                                  (TempSalesLineArchive."No." = '') and (TempSalesLineArchive.Quantity = 0) and
+                                  (TempSalesLineArchive.Amount = 0)
                             do
-                                MoreLines := SalesLineArchTmp.Next(-1) <> 0;
+                                MoreLines := TempSalesLineArchive.Next(-1) <> 0;
                             if not MoreLines then
                                 CurrReport.Break();
-                            SalesLineArchTmp.SetRange("Line No.", 0, SalesLineArchTmp."Line No.");
-                            SetRange(Number, 1, SalesLineArchTmp.Count);
+                            TempSalesLineArchive.SetRange("Line No.", 0, TempSalesLineArchive."Line No.");
+                            SetRange(Number, 1, TempSalesLineArchive.Count);
                         end;
                     }
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmtLineVATBase; VATAmountLine."VAT Base")
+                        column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount_; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount_; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineLineAmt; VATAmountLine."Line Amount")
+                        column(VATAmtLineLineAmt; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscBaseAmt; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmtLineInvDiscBaseAmt; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvoiceDiscAmt; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmtLineInvoiceDiscAmt; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmountLine__VAT_Identifier_; VATAmountLine."VAT Identifier")
+                        column(VATAmountLine__VAT_Identifier_; TempVATAmountLine."VAT Identifier")
                         {
                         }
                         column(VATPercentCaption; VATPercentCaptionLbl)
@@ -526,14 +526,14 @@
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATCounterLCY; "Integer")
@@ -553,23 +553,23 @@
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT1; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT1; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier1; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier1; TempVATAmountLine."VAT Identifier")
                         {
                         }
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                             VALVATBaseLCY :=
-                              VATAmountLine.GetBaseLCY(
+                              TempVATAmountLine.GetBaseLCY(
                                 "Sales Header Archive"."Posting Date", "Sales Header Archive"."Currency Code",
                                 "Sales Header Archive"."Currency Factor");
                             VALVATAmountLCY :=
-                              VATAmountLine.GetAmountLCY(
+                              TempVATAmountLine.GetAmountLCY(
                                 "Sales Header Archive"."Posting Date", "Sales Header Archive"."Currency Code",
                                 "Sales Header Archive"."Currency Factor");
                         end;
@@ -578,10 +578,10 @@
                         begin
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Sales Header Archive"."Currency Code" = '') or
-                               (VATAmountLine.GetTotalVATAmount = 0) then
+                               (TempVATAmountLine.GetTotalVATAmount() = 0) then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
                             Clear(VALVATAmountLCY);
 
@@ -650,21 +650,21 @@
                 begin
                     InitTempLines(TempSalesHeader, TempSalesLine);
 
-                    VATAmount := VATAmountLine.GetTotalVATAmount;
-                    VATBaseAmount := VATAmountLine.GetTotalVATBase;
+                    VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                    VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                     VATDiscountAmount :=
-                      VATAmountLine.GetTotalVATDiscount(TempSalesHeader."Currency Code", TempSalesHeader."Prices Including VAT");
-                    TotalAmountInclVAT := VATAmountLine.GetTotalAmountInclVAT;
+                      TempVATAmountLine.GetTotalVATDiscount(TempSalesHeader."Currency Code", TempSalesHeader."Prices Including VAT");
+                    TotalAmountInclVAT := TempVATAmountLine.GetTotalAmountInclVAT();
 
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"SalesCount-PrintedArch", "Sales Header Archive");
                 end;
 
@@ -764,8 +764,6 @@
     end;
 
     var
-        Text004: Label 'Sales - Quote Archived %1', Comment = '%1 = Document No.';
-        Text005: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
@@ -776,8 +774,8 @@
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         SalesSetup: Record "Sales & Receivables Setup";
-        VATAmountLine: Record "VAT Amount Line" temporary;
-        SalesLineArchTmp: Record "Sales Line Archive" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempSalesLineArchive: Record "Sales Line Archive" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -788,7 +786,7 @@
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        SalesPersonText: Text[30];
+        SalesPersonText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         TotalText: Text[50];
@@ -803,8 +801,6 @@
         OldDimText: Text[75];
         ShowInternalInfo: Boolean;
         Continue: Boolean;
-        ArchiveDocument: Boolean;
-        LogInteraction: Boolean;
         VATAmount: Decimal;
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
@@ -813,11 +809,16 @@
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+        OutputNo: Integer;
+        ArchiveDocument: Boolean;
+        LogInteraction: Boolean;
+
+        Text004: Label 'Sales - Quote Archived %1', Comment = '%1 = Document No.';
+        Text005: Label 'Page %1';
         Text008: Label 'VAT Amount Specification in ';
         Text009: Label 'Local Currency';
         Text010: Label 'Exchange rate: %1/%2';
         Text011: Label 'Version %1 of %2';
-        OutputNo: Integer;
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegistrationNoCaptionLbl: Label 'VAT Registration No.';
         GiroNoCaptionLbl: Label 'Giro No.';
@@ -853,7 +854,7 @@
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var SalesHeaderArchive: Record "Sales Header Archive")
@@ -880,22 +881,22 @@
     var
         SalesLineArchive: Record "Sales Line Archive";
     begin
-        Clear(SalesLineArchTmp);
-        SalesLineArchTmp.DeleteAll();
+        Clear(TempSalesLineArchive);
+        TempSalesLineArchive.DeleteAll();
         SalesLineArchive.SetRange("Document Type", "Sales Header Archive"."Document Type");
         SalesLineArchive.SetRange("Document No.", "Sales Header Archive"."No.");
         SalesLineArchive.SetRange("Version No.", "Sales Header Archive"."Version No.");
         if SalesLineArchive.FindSet() then
             repeat
-                SalesLineArchTmp := SalesLineArchive;
-                SalesLineArchTmp.Insert();
+                TempSalesLineArchive := SalesLineArchive;
+                TempSalesLineArchive.Insert();
                 TempSalesLine.TransferFields(SalesLineArchive);
                 TempSalesLine.Insert();
             until SalesLineArchive.Next() = 0;
 
         TempSalesHeader.TransferFields("Sales Header Archive");
         TempSalesLine."Prepayment Line" := true;  // used as flag in CalcVATAmountLines -> not invoice rounding
-        TempSalesLine.CalcVATAmountLines(0, TempSalesHeader, TempSalesLine, VATAmountLine);
+        TempSalesLine.CalcVATAmountLines(0, TempSalesHeader, TempSalesLine, TempVATAmountLine);
     end;
 }
 

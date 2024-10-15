@@ -458,7 +458,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
 
         // [GIVEN] Payment is applied to all invoices at one time with Payment Discount and Payment Tolerance
         CreateFixedGenJnlLinePaymentWithApplToMultipleInvoices(
-          GenJournalLine, WorkDate, GenJournalLine."Account Type"::Customer, Customer."No.", PaymentAmount);
+          GenJournalLine, WorkDate(), GenJournalLine."Account Type"::Customer, Customer."No.", PaymentAmount);
         ApplyAndPostPmtToMultipleSalesInvoices(CustLedgerEntryPmt, GenJournalLine);
 
         // [GIVEN] Two VAT Entries posted per each invoice from Payment Discount and Payment Tolerance, 10 in total of Base = "VATExclBase"
@@ -522,7 +522,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
 
         // [GIVEN] Payment is applied to all invoices at one time with Payment Discount and Payment Tolerance
         CreateFixedGenJnlLinePaymentWithApplToMultipleInvoices(
-          GenJournalLine, WorkDate, GenJournalLine."Account Type"::Vendor, Vendor."No.", PaymentAmount);
+          GenJournalLine, WorkDate(), GenJournalLine."Account Type"::Vendor, Vendor."No.", PaymentAmount);
         ApplyAndPostPmtToMultiplePurchInvoices(VendorLedgerEntryPmt, GenJournalLine);
 
         // [GIVEN] Two VAT Entries posted per each invoice from Payment Discount and Payment Tolerance, 10 in total of Base = "VATExclBase"
@@ -964,7 +964,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             Get(CustomerPostingGroupCode);
             Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
             Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -976,7 +976,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             Get(VendorPostingGroupCode);
             Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
             Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1002,7 +1002,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         with VATPostingSetup do begin
             Validate("Adjust for Payment Discount", true);
             Validate("Unrealized VAT Type", "Unrealized VAT Type"::" ");
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1037,7 +1037,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         GLAccount.FindSet();
         CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
         CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
-        GLAccount.Next;
+        GLAccount.Next();
         CustomerPostingGroup.Validate("Payment Tolerance Debit Acc.", GLAccount."No.");
         CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
         CustomerPostingGroup.Modify(true);
@@ -1054,7 +1054,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         GLAccount.FindSet();
         VendorPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
         VendorPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
-        GLAccount.Next;
+        GLAccount.Next();
         VendorPostingGroup.Validate("Payment Tolerance Debit Acc.", GLAccount."No.");
         VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
         VendorPostingGroup.Modify(true);
@@ -1413,7 +1413,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     begin
         with GLEntry do begin
             SetRange("G/L Account No.", AccountNo);
-            Assert.IsTrue(IsEmpty, StrSubstNo(UnappliedLineErr, TableCaption, AccountNo));
+            Assert.IsTrue(IsEmpty, StrSubstNo(UnappliedLineErr, TableCaption(), AccountNo));
         end;
     end;
 

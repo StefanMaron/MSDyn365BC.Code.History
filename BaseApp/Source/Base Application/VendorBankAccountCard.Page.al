@@ -26,12 +26,12 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address of the bank where the vendor has the bank account.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -46,12 +46,12 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the address.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number of the bank where the vendor has the bank account.';
@@ -61,17 +61,17 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the relevant currency code for the bank account.';
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
-                field("Use For Electronic Payments"; "Use For Electronic Payments")
+                field("Use For Electronic Payments"; Rec."Use For Electronic Payments")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this vendor bank account to be used for electronic payments.';
@@ -79,26 +79,26 @@ page 425 "Vendor Bank Account Card"
                     trigger OnValidate()
                     begin
                         FeatureTelemetry.LogUptake('1000HW6', ESElecPaymentsTok, Enum::"Feature Uptake Status"::Discovered);
-                        UseForElectronicPaymentsOnPush;
+                        UseForElectronicPaymentsOnPush();
                     end;
                 }
             }
             group(Communication)
             {
                 Caption = 'Communication';
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the fax number of the bank where the vendor has the bank account.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address associated with the bank account.';
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank web site.';
@@ -107,32 +107,32 @@ page 425 "Vendor Bank Account Card"
             group(Transfer)
             {
                 Caption = 'Transfer';
-                field("CCC Bank No."; "CCC Bank No.")
+                field("CCC Bank No."; Rec."CCC Bank No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code. This code is the first part of the Codigo Cuenta Cliente (CCC) number.';
                 }
-                field("CCC Bank Branch No."; "CCC Bank Branch No.")
+                field("CCC Bank Branch No."; Rec."CCC Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the four-digit bank office number. This number is the second part of the Codigo Cuenta Cliente (CCC) number.';
                 }
-                field("CCC Control Digits"; "CCC Control Digits")
+                field("CCC Control Digits"; Rec."CCC Control Digits")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the two-digit account control code. This number is the third part of the Codigo Cuenta Cliente (CCC) number.';
                 }
-                field("CCC Bank Account No."; "CCC Bank Account No.")
+                field("CCC Bank Account No."; Rec."CCC Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s bank account code.';
                 }
-                field("CCC No."; "CCC No.")
+                field("CCC No."; Rec."CCC No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Codigo Cuenta Cliente (CCC) number.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the vendor has the account.';
@@ -142,12 +142,12 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
-                field("Bank Clearing Standard"; "Bank Clearing Standard")
+                field("Bank Clearing Standard"; Rec."Bank Clearing Standard")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format standard to be used in bank transfers if you use the Bank Clearing Code field to identify you as the sender.';
                 }
-                field("Bank Clearing Code"; "Bank Clearing Code")
+                field("Bank Clearing Code"; Rec."Bank Clearing Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
@@ -177,6 +177,7 @@ page 425 "Vendor Bank Account Card"
     begin
         CurrPage.Update();
     end;
+
 
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";

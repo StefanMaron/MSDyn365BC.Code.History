@@ -324,7 +324,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         // [GIVEN] Customer license with indirect permissions (RxMx) to "Cartera Doc."
         // TODO: Uncomment LibraryLowerPermissions.SetCustomerView; // includes "LOCAL" role with changed permissions to "Cartera Doc."
         // [GIVEN] "Cartera Doc." can not be read or modified directly due to indirect permissions
-        asserterror CarteraDoc.Find;
+        asserterror CarteraDoc.Find();
         Assert.ExpectedErrorCode('DB:ClientReadDenied');
         Assert.ExpectedError(CarteraDoc.TableName);
         asserterror CarteraDoc.Modify();
@@ -337,10 +337,10 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         CustomerLedgerEntries.OpenEdit;
         CustomerLedgerEntries.GotoRecord(CustLedgerEntry);
         CustomerLedgerEntries."Payment Method Code".SetValue(PaymentMethod.Code);
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Close();
 
         // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope();
-        CarteraDoc.Find;
+        CarteraDoc.Find();
         CarteraDoc.TestField("Payment Method Code", PaymentMethod.Code);
     end;
 
@@ -390,13 +390,13 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     local procedure MockCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CarteraDoc: Record "Cartera Doc.")
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             Open := true;
             "Document No." := CarteraDoc."Document No.";
             "Customer No." := CarteraDoc."Account No.";
             "Bill No." := CarteraDoc."No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -411,7 +411,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
             "Modify Permission" := NewModifyPermission;
             "Delete Permission" := NewDeletePermission;
             "Execute Permission" := "Execute Permission"::" ";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -436,24 +436,24 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     local procedure MockReceivableCarteraDoc(var CarteraDoc: Record "Cartera Doc.")
     begin
         with CarteraDoc do begin
-            Init;
+            Init();
             Type := Type::Receivable;
             "Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, FieldNo("Entry No."));
             "Document Type" := "Document Type"::Bill;
             "Document No." := LibraryUtility.GenerateGUID();
             "Account No." := LibraryUtility.GenerateGUID();
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockPostedBillGroup(var PostedBillGroup: Record "Posted Bill Group")
     begin
         with PostedBillGroup do begin
-            Init;
+            Init();
             "No." :=
               LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Posted Bill Group");
-            Insert;
+            Insert();
         end;
     end;
 
@@ -467,7 +467,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         LibraryVariableStorage.Enqueue(Comment);
 
         BGCommentSheet.New;
-        BGCommentSheet.Date.SetValue(WorkDate);
+        BGCommentSheet.Date.SetValue(WorkDate());
         BGCommentSheet.Comment.SetValue(Comment);
         BGCommentSheet.OK.Invoke;
     end;

@@ -102,7 +102,7 @@ codeunit 144054 "ERM ES Income Statement"
         asserterror ChartOfAccounts.IndentChartOfAccounts.Invoke;  // Opens handler - ConfirmHandler.
 
         // Verify: Verify Expected Error - Income Stmt. Bal. Acc. must have a value for G/L Account Number. It cannot be zero or empty.
-        ChartOfAccounts.Close;
+        ChartOfAccounts.Close();
         Assert.ExpectedError(StrSubstNo(IncomeStmtBalAccErr, GLAccountNo));
     end;
 
@@ -207,7 +207,7 @@ codeunit 144054 "ERM ES Income Statement"
         GLAccount.FindSet();
         repeat
             Assert.AreEqual(Format(IncomeStatementBalanceAccTxt), GLAccount."Income Stmt. Bal. Acc.", ValueMustBeSameMsg);
-        until GLAccount.Next = 0;
+        until GLAccount.Next() = 0;
     end;
 
     [RequestPageHandler]

@@ -310,7 +310,7 @@ report 5174 "Archived Blanket Purch. Order"
                         column(TotalInclVATText; TotalInclVATText)
                         {
                         }
-                        column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText)
+                        column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(VATAmount; VATAmount)
@@ -336,7 +336,7 @@ report 5174 "Archived Blanket Purch. Order"
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine_VATAmountText_Control32; TempVATAmountLine.VATAmountText)
+                        column(VATAmountLine_VATAmountText_Control32; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(TotalExclVATText_Control51; TotalExclVATText)
@@ -476,7 +476,7 @@ report 5174 "Archived Blanket Purch. Order"
                             if Number = 1 then
                                 TempPurchLineArchive.Find('-')
                             else
-                                TempPurchLineArchive.Next;
+                                TempPurchLineArchive.Next();
                             "Purchase Line Archive" := TempPurchLineArchive;
 
                             if not "Purchase Header Archive"."Prices Including VAT" and
@@ -766,7 +766,7 @@ report 5174 "Archived Blanket Purch. Order"
                         begin
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Purchase Header Archive"."Currency Code" = '') or
-                               (TempVATAmountLine.GetTotalVATAmount = 0)
+                               (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
 
@@ -913,7 +913,7 @@ report 5174 "Archived Blanket Purch. Order"
                     TempVATAmountLine.DeleteAll();
 
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
 
@@ -924,7 +924,7 @@ report 5174 "Archived Blanket Purch. Order"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Purch.HeaderArch-Printed", "Purchase Header Archive");
                 end;
 
@@ -1013,7 +1013,7 @@ report 5174 "Archived Blanket Purch. Order"
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         BuyFromAddr: array[8] of Text[100];
-        PurchaserText: Text[30];
+        PurchaserText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         TotalText: Text[50];
@@ -1093,7 +1093,7 @@ report 5174 "Archived Blanket Purch. Order"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(PurchaseHeaderArchive: Record "Purchase Header Archive")

@@ -20,7 +20,7 @@ codeunit 1306 "Company Information Mgt."
             if Get(JournalTemplateName, JournalBatchName) then
                 if ("Bal. Account Type" = "Bal. Account Type"::"Bank Account") and ("Bal. Account No." = '') then begin
                     Validate("Bal. Account No.", BankAccount."No.");
-                    Modify;
+                    Modify();
                 end;
     end;
 
@@ -96,7 +96,7 @@ codeunit 1306 "Company Information Mgt."
     var
         CompanyInformation: Record "Company Information";
     begin
-        if CompanyInformation.Get then;
+        if CompanyInformation.Get() then;
         exit(CompanyInformation."Demo Company");
     end;
 

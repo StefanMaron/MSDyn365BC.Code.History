@@ -451,7 +451,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
 
     procedure InitFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
-        Init;
+        Init();
         "Posting Date" := GenJnlLine."Posting Date";
         "Document Type" := GenJnlLine."Document Type";
         "Document No." := GenJnlLine."Document No.";
@@ -470,16 +470,6 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         "Initial Document Type" := CVLedgEntryBuf."Document Type";
         OnAfterCopyFromCVLedgEntryBuf(Rec, CVLedgEntryBuf);
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by InitDetailedCVLedgEntryBuf().', '18.0')]
-    procedure InitDtldCVLedgEntryBuf(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EntryType: Option; AmountFCY: Decimal; AmountLCY: Decimal; AmountAddCurr: Decimal; AppliedEntryNo: Integer; RemainingPmtDiscPossible: Decimal; MaxPaymentTolerance: Decimal)
-    begin
-        InitDetailedCVLedgEntryBuf(
-            GenJnlLine, CVLedgEntryBuf, DtldCVLedgEntryBuf, "Detailed CV Ledger Entry Type".FromInteger(EntryType),
-            AmountFCY, AmountLCY, AmountAddCurr, AppliedEntryNo, RemainingPmtDiscPossible, MaxPaymentTolerance);
-    end;
-#endif
 
     procedure InitDetailedCVLedgEntryBuf(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EntryType: Enum "Detailed CV Ledger Entry Type"; AmountFCY: Decimal; AmountLCY: Decimal; AmountAddCurr: Decimal; AppliedEntryNo: Integer; RemainingPmtDiscPossible: Decimal; MaxPaymentTolerance: Decimal)
     var

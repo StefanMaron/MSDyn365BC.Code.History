@@ -193,7 +193,7 @@ codeunit 132600 "Report Layout"
         REPORT.Run(REPORT::"Inventory - Availability Plan");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('RHPriceList')]
     [Scope('OnPrem')]
@@ -582,7 +582,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHTrailBalancePreviousYear(var TrailBalance: TestRequestPage "Trial Balance/Previous Year")
     begin
-        TrailBalance."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        TrailBalance."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         TrailBalance.SaveAsPdf(FormatFileName(TrailBalance.Caption));
     end;
 
@@ -590,7 +590,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHVendorOrderSummary(var VendorOrderSummary: TestRequestPage "Vendor - Order Summary")
     begin
-        VendorOrderSummary.StartingDate.SetValue(WorkDate);
+        VendorOrderSummary.StartingDate.SetValue(WorkDate());
         VendorOrderSummary.AmountsinLCY.SetValue(true);
         VendorOrderSummary.SaveAsPdf(FormatFileName(VendorOrderSummary.Caption));
     end;
@@ -599,7 +599,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHItemBudget(var ItemBudget: TestRequestPage "Item Budget")
     begin
-        ItemBudget.StartingDate.SetValue(WorkDate);
+        ItemBudget.StartingDate.SetValue(WorkDate());
         ItemBudget.PeriodLength.SetValue('1M');
         ItemBudget.SaveAsPdf(FormatFileName(ItemBudget.Caption));
     end;
@@ -608,7 +608,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHCustomerTrialBalance(var CustomerTrialBalance: TestRequestPage "Customer - Trial Balance")
     begin
-        CustomerTrialBalance.Customer.SetFilter("Date Filter", Format(WorkDate));
+        CustomerTrialBalance.Customer.SetFilter("Date Filter", Format(WorkDate()));
         CustomerTrialBalance.SaveAsPdf(FormatFileName(CustomerTrialBalance.Caption));
     end;
 
@@ -630,7 +630,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHVendorBalancetoDate(var VendorBalancetoDate: TestRequestPage "Vendor - Balance to Date")
     begin
-        VendorBalancetoDate.Vendor.SetFilter("Date Filter", StrSubstNo('%1..%2', Format(WorkDate), Format(CalcDate('<+10Y>', WorkDate))));
+        VendorBalancetoDate.Vendor.SetFilter("Date Filter", StrSubstNo('%1..%2', Format(WorkDate()), Format(CalcDate('<+10Y>', WorkDate()))));
         VendorBalancetoDate.SaveAsPdf(FormatFileName(VendorBalancetoDate.Caption));
     end;
 
@@ -638,7 +638,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHBudget(var Budget: TestRequestPage Budget)
     begin
-        Budget.StartingDate.SetValue(WorkDate);
+        Budget.StartingDate.SetValue(WorkDate());
         Budget.SaveAsPdf(FormatFileName(Budget.Caption));
     end;
 
@@ -646,8 +646,8 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHFixedAssetBookValue01(var FixedAssetBookValue01: TestRequestPage "Fixed Asset - Book Value 01")
     begin
-        FixedAssetBookValue01.StartingDate.SetValue(WorkDate);
-        FixedAssetBookValue01.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        FixedAssetBookValue01.StartingDate.SetValue(WorkDate());
+        FixedAssetBookValue01.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         FixedAssetBookValue01.SaveAsPdf(FormatFileName(FixedAssetBookValue01.Caption));
     end;
 
@@ -668,7 +668,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHSalesStatistics(var SalesStatistics: TestRequestPage "Sales Statistics")
     begin
-        SalesStatistics.StartingDate.SetValue(WorkDate);
+        SalesStatistics.StartingDate.SetValue(WorkDate());
         SalesStatistics.PeriodLength.SetValue('1M');
         SalesStatistics.SaveAsPdf(FormatFileName(SalesStatistics.Caption));
     end;
@@ -677,7 +677,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHAgedAccountsPayable(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable")
     begin
-        AgedAccountsPayable.AgedAsOf.SetValue(WorkDate);
+        AgedAccountsPayable.AgedAsOf.SetValue(WorkDate());
         AgedAccountsPayable.PeriodLength.SetValue('1M');
         AgedAccountsPayable.SaveAsPdf(FormatFileName(AgedAccountsPayable.Caption));
     end;
@@ -686,8 +686,8 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHFixedAssetAcquisitionList(var FixedAssetAcquisitionList: TestRequestPage "Fixed Asset - Acquisition List")
     begin
-        FixedAssetAcquisitionList.StartingDate.SetValue(CalcDate('<-10Y>', WorkDate));
-        FixedAssetAcquisitionList.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        FixedAssetAcquisitionList.StartingDate.SetValue(CalcDate('<-10Y>', WorkDate()));
+        FixedAssetAcquisitionList.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         FixedAssetAcquisitionList.SaveAsPdf(FormatFileName(FixedAssetAcquisitionList.Caption));
     end;
 
@@ -695,8 +695,8 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHStatement(var Statement: TestRequestPage Statement)
     begin
-        Statement."Start Date".SetValue(WorkDate);
-        Statement."End Date".SetValue(WorkDate);
+        Statement."Start Date".SetValue(WorkDate());
+        Statement."End Date".SetValue(WorkDate());
         Statement.SaveAsPdf(FormatFileName(Statement.Caption));
     end;
 
@@ -704,7 +704,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHCustomerBalancetoDate(var CustomerBalancetoDate: TestRequestPage "Customer - Balance to Date")
     begin
-        CustomerBalancetoDate."Ending Date".SetValue(CalcDate('<+10Y>', WorkDate));
+        CustomerBalancetoDate."Ending Date".SetValue(CalcDate('<+10Y>', WorkDate()));
         CustomerBalancetoDate.SaveAsPdf(FormatFileName(CustomerBalancetoDate.Caption));
     end;
 
@@ -712,8 +712,8 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHFAPostingGroupNetChange(var FAPostingGroupNetChange: TestRequestPage "FA Posting Group - Net Change")
     begin
-        FAPostingGroupNetChange.StartingDate.SetValue(CalcDate('<-10Y>', WorkDate));
-        FAPostingGroupNetChange.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        FAPostingGroupNetChange.StartingDate.SetValue(CalcDate('<-10Y>', WorkDate()));
+        FAPostingGroupNetChange.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         FAPostingGroupNetChange.SaveAsPdf(FormatFileName(FAPostingGroupNetChange.Caption));
     end;
 
@@ -721,7 +721,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHItemAgeCompositionQty(var ItemAgeCompositionQty: TestRequestPage "Item Age Composition - Qty.")
     begin
-        ItemAgeCompositionQty.EndingDate.SetValue(WorkDate);
+        ItemAgeCompositionQty.EndingDate.SetValue(WorkDate());
         ItemAgeCompositionQty.PeriodLength.SetValue('1M');
         ItemAgeCompositionQty.SaveAsPdf(FormatFileName(ItemAgeCompositionQty.Caption));
     end;
@@ -730,7 +730,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHItemAgeCompositionValue(var ItemAgeCompositionValue: TestRequestPage "Item Age Composition - Value")
     begin
-        ItemAgeCompositionValue.EndingDate.SetValue(WorkDate);
+        ItemAgeCompositionValue.EndingDate.SetValue(WorkDate());
         ItemAgeCompositionValue.PeriodLength.SetValue('1M');
         ItemAgeCompositionValue.SaveAsPdf(FormatFileName(ItemAgeCompositionValue.Caption));
     end;
@@ -739,8 +739,8 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHContractInvoicing(var ContractInvoicing: TestRequestPage "Contract Invoicing")
     begin
-        ContractInvoicing.PostingDate1.SetValue(WorkDate);
-        ContractInvoicing.InvoiceDate1.SetValue(CalcDate('<+10Y>', WorkDate));
+        ContractInvoicing.PostingDate1.SetValue(WorkDate());
+        ContractInvoicing.InvoiceDate1.SetValue(CalcDate('<+10Y>', WorkDate()));
         ContractInvoicing.SaveAsPdf(FormatFileName(ContractInvoicing.Caption));
     end;
 
@@ -748,7 +748,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHCostAcctgStmtperPeriod(var CostAcctgStmtperPeriod: TestRequestPage "Cost Acctg. Stmt. per Period")
     begin
-        CostAcctgStmtperPeriod.StartDate.SetValue(WorkDate);
+        CostAcctgStmtperPeriod.StartDate.SetValue(WorkDate());
         CostAcctgStmtperPeriod.OnlyAccWithEntries.SetValue(true);
         CostAcctgStmtperPeriod.ShowAddCurrency.SetValue(true);
         CostAcctgStmtperPeriod.SaveAsPdf(FormatFileName(CostAcctgStmtperPeriod.Caption));
@@ -758,19 +758,19 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHInventoryAvailabilityPlan(var InventoryAvailabilityPlan: TestRequestPage "Inventory - Availability Plan")
     begin
-        InventoryAvailabilityPlan.StartingDate.SetValue(WorkDate);
+        InventoryAvailabilityPlan.StartingDate.SetValue(WorkDate());
         InventoryAvailabilityPlan.PeriodLength.SetValue('1M');
         InventoryAvailabilityPlan.UseStockkeepUnit.SetValue(true);
         InventoryAvailabilityPlan.SaveAsPdf(FormatFileName(InventoryAvailabilityPlan.Caption));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHPriceList(var PriceList: TestRequestPage "Price List")
     begin
         PriceList.SalesCodeCtrl.SetValue(LibraryVariableStorage.DequeueText);
-        PriceList.Date.SetValue(WorkDate);
+        PriceList.Date.SetValue(WorkDate());
         PriceList.SaveAsPdf(FormatFileName(PriceList.Caption));
     end;
 #endif
@@ -783,8 +783,8 @@ codeunit 132600 "Report Layout"
         GenJournalBatch: Record "Gen. Journal Batch";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        GLConsolidationEliminations.StartingDate.SetValue(CalcDate('<-1Y>', WorkDate));
-        GLConsolidationEliminations.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        GLConsolidationEliminations.StartingDate.SetValue(CalcDate('<-1Y>', WorkDate()));
+        GLConsolidationEliminations.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         GLConsolidationEliminations.JournalTemplateName.SetValue(GenJournalTemplate.Name);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -796,7 +796,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHCustomerSummaryAging(var CustomerSummaryAging: TestRequestPage "Customer - Summary Aging")
     begin
-        CustomerSummaryAging.StartingDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        CustomerSummaryAging.StartingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         CustomerSummaryAging.SaveAsPdf(FormatFileName(CustomerSummaryAging.Caption));
     end;
 
@@ -811,8 +811,8 @@ codeunit 132600 "Report Layout"
         AccountSchedule.AccSchedNam.SetValue(AccScheduleName.Name);
         ColumnLayoutName.FindFirst();
         AccountSchedule.ColumnLayoutNames.SetValue(ColumnLayoutName.Name);
-        AccountSchedule.StartDate.SetValue(WorkDate);
-        AccountSchedule.EndDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        AccountSchedule.StartDate.SetValue(WorkDate());
+        AccountSchedule.EndDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         AccountSchedule.SaveAsPdf(FormatFileName(AccountSchedule.Caption));
     end;
 
@@ -820,8 +820,8 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHConsolidatedTrialBalance(var ConsolidatedTrialBalance: TestRequestPage "Consolidated Trial Balance")
     begin
-        ConsolidatedTrialBalance.StartingDt.SetValue(WorkDate);
-        ConsolidatedTrialBalance.EndingDt.SetValue(CalcDate('<+10Y>', WorkDate));
+        ConsolidatedTrialBalance.StartingDt.SetValue(WorkDate());
+        ConsolidatedTrialBalance.EndingDt.SetValue(CalcDate('<+10Y>', WorkDate()));
         ConsolidatedTrialBalance.SaveAsPdf(FormatFileName(ConsolidatedTrialBalance.Caption));
     end;
 
@@ -829,7 +829,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHVendorTrialBalance(var VendorTrialBalance: TestRequestPage "Vendor - Trial Balance")
     begin
-        VendorTrialBalance.Vendor.SetFilter("Date Filter", StrSubstNo('%1..%2', Format(WorkDate), Format(CalcDate('<+10Y>', WorkDate))));
+        VendorTrialBalance.Vendor.SetFilter("Date Filter", StrSubstNo('%1..%2', Format(WorkDate()), Format(CalcDate('<+10Y>', WorkDate()))));
         VendorTrialBalance.SaveAsPdf(FormatFileName(VendorTrialBalance.Caption));
     end;
 
@@ -845,7 +845,7 @@ codeunit 132600 "Report Layout"
         CashFlowDimensionsDetail.AnalysisViewCodes.SetValue(AnalysisView.Code);
         LibraryCashFlow.FindCashFlowCard(CashFlowForecast);
         CashFlowDimensionsDetail.ForecastFilter.SetValue(CashFlowForecast."No.");
-        CashFlowDimensionsDetail.DateFilters.SetValue(StrSubstNo('%1..%2', Format(WorkDate), CalcDate('<+1Y>', WorkDate)));
+        CashFlowDimensionsDetail.DateFilters.SetValue(StrSubstNo('%1..%2', Format(WorkDate()), CalcDate('<+1Y>', WorkDate())));
         CashFlowDimensionsDetail.PrintEmptyLine.SetValue(true);
         CashFlowDimensionsDetail.SaveAsPdf(FormatFileName(CashFlowDimensionsDetail.Caption));
     end;
@@ -855,7 +855,7 @@ codeunit 132600 "Report Layout"
     procedure RHCustomerOrderSummary(var CustomerOrdeRSummary: TestRequestPage "Customer - Order Summary")
     begin
         CustomerOrdeRSummary.ShwAmtinLCY.SetValue(true);
-        CustomerOrdeRSummary.StartingDate.SetValue(WorkDate);
+        CustomerOrdeRSummary.StartingDate.SetValue(WorkDate());
         CustomerOrdeRSummary.SaveAsPdf(FormatFileName(CustomerOrdeRSummary.Caption));
     end;
 
@@ -865,7 +865,7 @@ codeunit 132600 "Report Layout"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        ClosingTrialBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate));
+        ClosingTrialBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate()));
         ClosingTrialBalance.AmtsInAddCurr.SetValue(false);
         ClosingTrialBalance.SaveAsPdf(FormatFileName(ClosingTrialBalance.Caption));
     end;
@@ -876,7 +876,7 @@ codeunit 132600 "Report Layout"
     var
         AgingBy: Option "Due Date","Posting Date","Document Date";
     begin
-        AgedAccountsReceivable.AgedAsOf.SetValue(CalcDate('<+2Y>', WorkDate));
+        AgedAccountsReceivable.AgedAsOf.SetValue(CalcDate('<+2Y>', WorkDate()));
         AgedAccountsReceivable.Agingby.SetValue(AgingBy::"Posting Date");
         AgedAccountsReceivable.PeriodLength.SetValue('2M');
         AgedAccountsReceivable.AmountsinLCY.SetValue(true);
@@ -888,7 +888,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHCustomerSummaryAgingSimp(var CustomerSummaryAgingSimp: TestRequestPage "Customer - Summary Aging Simp.")
     begin
-        CustomerSummaryAgingSimp.StartingDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        CustomerSummaryAgingSimp.StartingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         CustomerSummaryAgingSimp.SaveAsPdf(FormatFileName(CustomerSummaryAgingSimp.Caption));
     end;
 
@@ -898,7 +898,7 @@ codeunit 132600 "Report Layout"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        FiscalYearBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate));
+        FiscalYearBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate()));
         FiscalYearBalance.SaveAsPdf(FormatFileName(FiscalYearBalance.Caption));
     end;
 
@@ -908,7 +908,7 @@ codeunit 132600 "Report Layout"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        TrialBalancebyPeriod.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate));
+        TrialBalancebyPeriod.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate()));
         TrialBalancebyPeriod.SaveAsPdf(FormatFileName(TrialBalancebyPeriod.Caption));
     end;
 
@@ -916,7 +916,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHBalanceCompPrevYear(var BalanceCompPrevYear: TestRequestPage "Balance Comp. - Prev. Year")
     begin
-        BalanceCompPrevYear.StartingDate.SetValue(WorkDate);
+        BalanceCompPrevYear.StartingDate.SetValue(WorkDate());
         BalanceCompPrevYear.SaveAsPdf(FormatFileName(BalanceCompPrevYear.Caption));
     end;
 
@@ -928,7 +928,7 @@ codeunit 132600 "Report Layout"
     begin
         AnalysisView.FindFirst();
         DimensionsDetail.AnalysisViewCode.SetValue(AnalysisView.Code);
-        DimensionsDetail.DtFilter.SetValue(WorkDate);
+        DimensionsDetail.DtFilter.SetValue(WorkDate());
         DimensionsDetail.SaveAsPdf(FormatFileName(DimensionsDetail.Caption));
     end;
 
@@ -936,7 +936,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHTrialBalance(var TrialBalance: TestRequestPage "Trial Balance")
     begin
-        TrialBalance."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', Format(WorkDate), Format(CalcDate('<+3Y>', WorkDate))));
+        TrialBalance."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', Format(WorkDate()), Format(CalcDate('<+3Y>', WorkDate()))));
         TrialBalance.SaveAsPdf(FormatFileName(TrialBalance.Caption));
     end;
 
@@ -947,8 +947,8 @@ codeunit 132600 "Report Layout"
         GLAccount: Record "G/L Account";
     begin
         FindGLAccount(GLAccount);
-        CalcandPostVATSettlement.StartingDate.SetValue(CalcDate('<-2Y>', WorkDate));
-        CalcandPostVATSettlement.PostingDt.SetValue(WorkDate);
+        CalcandPostVATSettlement.StartingDate.SetValue(CalcDate('<-2Y>', WorkDate()));
+        CalcandPostVATSettlement.PostingDt.SetValue(WorkDate());
         CalcandPostVATSettlement.SettlementAcc.SetValue(GLAccount."No.");
         CalcandPostVATSettlement.DocumentNo.SetValue(GLAccount."No.");
         CalcandPostVATSettlement.ShowVATEntries.SetValue(true);
@@ -969,8 +969,8 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHInventoryValuationWIP(var InventoryValuationWIP: TestRequestPage "Inventory Valuation - WIP")
     begin
-        InventoryValuationWIP.StartingDate.SetValue(WorkDate);
-        InventoryValuationWIP.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        InventoryValuationWIP.StartingDate.SetValue(WorkDate());
+        InventoryValuationWIP.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         InventoryValuationWIP.SaveAsPdf(FormatFileName(InventoryValuationWIP.Caption));
     end;
 
@@ -978,8 +978,8 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHVATVIESDeclarationTaxAuth(var VATVIESDeclarationTaxAuth: TestRequestPage "VAT- VIES Declaration Tax Auth")
     begin
-        VATVIESDeclarationTaxAuth.StartingDate.SetValue(WorkDate);
-        VATVIESDeclarationTaxAuth.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        VATVIESDeclarationTaxAuth.StartingDate.SetValue(WorkDate());
+        VATVIESDeclarationTaxAuth.EndingDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         VATVIESDeclarationTaxAuth.SaveAsPdf(FormatFileName(VATVIESDeclarationTaxAuth.Caption));
     end;
 
@@ -1003,7 +1003,7 @@ codeunit 132600 "Report Layout"
         AnalysisColumnTemplate.FindFirst();
         ItemDimensionsTotal.AnalysisViewCode.SetValue(ItemAnalysisView.Code);
         ItemDimensionsTotal.ColumnTemplate.SetValue(AnalysisColumnTemplate.Name);
-        ItemDimensionsTotal.DateFilter.SetValue(StrSubstNo('%1..%2', Format(WorkDate), CalcDate('<+10Y>', WorkDate)));
+        ItemDimensionsTotal.DateFilter.SetValue(StrSubstNo('%1..%2', Format(WorkDate()), CalcDate('<+10Y>', WorkDate())));
         ItemDimensionsTotal.SaveAsPdf(FormatFileName(ItemDimensionsTotal.Caption));
     end;
 
@@ -1020,7 +1020,7 @@ codeunit 132600 "Report Layout"
         AnalysisReport.AnalysisArea.SetValue(AnalysisArea::Sales);
         AnalysisReport.AnalysisLineName.SetValue(AnalysisLineTemplate.Name);
         AnalysisReport.AnalysisColumnName.SetValue(AnalysisColumnTemplate.Name);
-        AnalysisReport.DateFilter.SetValue(StrSubstNo('%1..%2', CalcDate('<-2Y>', WorkDate), WorkDate));
+        AnalysisReport.DateFilter.SetValue(StrSubstNo('%1..%2', CalcDate('<-2Y>', WorkDate()), WorkDate()));
         AnalysisReport.SaveAsPdf(FormatFileName(AnalysisReport.Caption));
     end;
 
@@ -1032,8 +1032,8 @@ codeunit 132600 "Report Layout"
     begin
         DepreciationBook.FindFirst();
         MaintenanceAnalysis.DeprBookCode.SetValue(DepreciationBook.Code);
-        MaintenanceAnalysis.StartingDate.SetValue(WorkDate);
-        MaintenanceAnalysis.EndingDate.SetValue(CalcDate('<+1Y>', WorkDate));
+        MaintenanceAnalysis.StartingDate.SetValue(WorkDate());
+        MaintenanceAnalysis.EndingDate.SetValue(CalcDate('<+1Y>', WorkDate()));
         MaintenanceAnalysis.PrintPerFixedAsset.SetValue(true);
         MaintenanceAnalysis.SaveAsPdf(FormatFileName(MaintenanceAnalysis.Caption));
     end;
@@ -1047,8 +1047,8 @@ codeunit 132600 "Report Layout"
     begin
         DepreciationBook.FindFirst();
         FixedAssetBookValue02.DeprBookCode.SetValue(DepreciationBook.Code);
-        FixedAssetBookValue02.StartingDate.SetValue(WorkDate);
-        FixedAssetBookValue02.EndingDate.SetValue(CalcDate('<+1Y>', WorkDate));
+        FixedAssetBookValue02.StartingDate.SetValue(WorkDate());
+        FixedAssetBookValue02.EndingDate.SetValue(CalcDate('<+1Y>', WorkDate()));
         FixedAssetBookValue02.GroupTotals.SetValue(GrpTotal::"FA Subclass");
         FixedAssetBookValue02.PrintDetails.SetValue(true);
         FixedAssetBookValue02.SaveAsPdf(FormatFileName(FixedAssetBookValue02.Caption));
@@ -1067,7 +1067,7 @@ codeunit 132600 "Report Layout"
         GLBudgetName.FindFirst();
         DimensionsTotal.AnalysisViewCode.SetValue(AnalysisViewCode.Code);
         DimensionsTotal.ColumnLayoutName.SetValue(ColumnLayoutName.Name);
-        DimensionsTotal.DtFilter.SetValue(WorkDate);
+        DimensionsTotal.DtFilter.SetValue(WorkDate());
         DimensionsTotal.GLBudgetName.SetValue(GLBudgetName.Name);
         DimensionsTotal.SaveAsPdf(FormatFileName(DimensionsTotal.Caption));
     end;
@@ -1076,7 +1076,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHTrialBalBudget(var TrialBalBudget: TestRequestPage "Trial Balance/Budget")
     begin
-        TrialBalBudget."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        TrialBalBudget."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         TrialBalBudget.SaveAsPdf(FormatFileName(TrialBalBudget.Caption));
     end;
 
@@ -1087,8 +1087,8 @@ codeunit 132600 "Report Layout"
         GLBudgetName: Record "G/L Budget Name";
     begin
         GLBudgetName.FindFirst();
-        FixedAssetProjValue.FirstDeprDate.SetValue(WorkDate);
-        FixedAssetProjValue.LastDeprDate.SetValue(WorkDate);
+        FixedAssetProjValue.FirstDeprDate.SetValue(WorkDate());
+        FixedAssetProjValue.LastDeprDate.SetValue(WorkDate());
         FixedAssetProjValue.CopyToGLBudgetName.SetValue(GLBudgetName.Name);
         FixedAssetProjValue.InsertBalAccount.SetValue(true);
         FixedAssetProjValue.PrintPerFixedAsset.SetValue(true);
@@ -1150,10 +1150,10 @@ codeunit 132600 "Report Layout"
         CostCenter.FindFirst();
         CostObject.FindFirst();
         CostBudgetName.FindFirst();
-        CostAcctgBalanceBudget.StartDate.SetValue(Format(WorkDate));
-        CostAcctgBalanceBudget.EndDate.SetValue(CalcDate('<+10Y>', WorkDate));
-        CostAcctgBalanceBudget.YearStartDate.SetValue(Format(WorkDate));
-        CostAcctgBalanceBudget.YearEndDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        CostAcctgBalanceBudget.StartDate.SetValue(Format(WorkDate()));
+        CostAcctgBalanceBudget.EndDate.SetValue(CalcDate('<+10Y>', WorkDate()));
+        CostAcctgBalanceBudget.YearStartDate.SetValue(Format(WorkDate()));
+        CostAcctgBalanceBudget.YearEndDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         CostAcctgBalanceBudget."Cost Type".SetFilter("Cost Center Filter", CostCenter.Code);
         CostAcctgBalanceBudget."Cost Type".SetFilter("Cost Object Filter", CostObject.Code);
         CostAcctgBalanceBudget."Cost Type".SetFilter("Budget Filter", CostBudgetName.Name);
@@ -1174,7 +1174,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure RHContrServOrdersTest(var ContrServOrdersTest: TestRequestPage "Contr. Serv. Orders - Test")
     begin
-        ContrServOrdersTest.EndingDate.SetValue(Format(WorkDate));
+        ContrServOrdersTest.EndingDate.SetValue(Format(WorkDate()));
         ContrServOrdersTest.SaveAsPdf(FormatFileName(ContrServOrdersTest.Caption));
     end;
 

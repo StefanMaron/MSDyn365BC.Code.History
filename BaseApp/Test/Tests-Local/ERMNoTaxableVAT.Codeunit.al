@@ -646,7 +646,7 @@ codeunit 144075 "ERM No Taxable VAT"
         DocumentNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
-        PurchasesInvoiceBook.VATEntry.SetFilter("Posting Date", Format(WorkDate));
+        PurchasesInvoiceBook.VATEntry.SetFilter("Posting Date", Format(WorkDate()));
         PurchasesInvoiceBook.VATEntry.SetFilter("Document No.", DocumentNo);
         PurchasesInvoiceBook."No Taxable Entry".SetFilter("Document No.", DocumentNo);
         PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -659,7 +659,7 @@ codeunit 144075 "ERM No Taxable VAT"
         DocumentNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
-        SalesInvoiceBook.VATEntry.SetFilter("Posting Date", Format(WorkDate));
+        SalesInvoiceBook.VATEntry.SetFilter("Posting Date", Format(WorkDate()));
         SalesInvoiceBook.VATEntry.SetFilter("Document No.", DocumentNo);
         SalesInvoiceBook."No Taxable Entry".SetFilter("Document No.", DocumentNo);
         SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

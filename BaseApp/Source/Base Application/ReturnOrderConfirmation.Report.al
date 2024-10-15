@@ -233,7 +233,7 @@ report 6631 "Return Order Confirmation"
                     column(TotalExclVATText; TotalExclVATText)
                     {
                     }
-                    column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
+                    column(VATAmtLineVATAmtText; TempVATAmountLine.VATAmountText())
                     {
                     }
                     column(VATAmount; VATAmount)
@@ -323,7 +323,7 @@ report 6631 "Return Order Confirmation"
                         column(SalesLineLineNo; SalesLineLineNo)
                         {
                         }
-                        column(LineAmt_SalesLine; SalesLine."Line Amount")
+                        column(LineAmt_SalesLine; TempSalesLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
@@ -372,16 +372,16 @@ report 6631 "Return Order Confirmation"
                         column(AllowInvDisc1_SalesLine; Format("Sales Line"."Allow Invoice Disc."))
                         {
                         }
-                        column(InvDiscAmt_SalesLine; -SalesLine."Inv. Discount Amount")
+                        column(InvDiscAmt_SalesLine; -TempSalesLine."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PmtDiscGivenAmt_SalesLine; -SalesLine."Pmt. Discount Amount")
+                        column(PmtDiscGivenAmt_SalesLine; -TempSalesLine."Pmt. Discount Amount")
                         {
                             AutoFormatType = 1;
                         }
-                        column(SalesLineLineAmtSalesLineInvDiscAmtSalesLinePmtDiscGnAmt; SalesLine."Line Amount" - SalesLine."Inv. Discount Amount" - SalesLine."Pmt. Discount Amount")
+                        column(SalesLineLineAmtSalesLineInvDiscAmtSalesLinePmtDiscGnAmt; TempSalesLine."Line Amount" - TempSalesLine."Inv. Discount Amount" - TempSalesLine."Pmt. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
@@ -462,12 +462,12 @@ report 6631 "Return Order Confirmation"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                SalesLine.Find('-')
+                                TempSalesLine.Find('-')
                             else
-                                SalesLine.Next;
-                            "Sales Line" := SalesLine;
+                                TempSalesLine.Next();
+                            "Sales Line" := TempSalesLine;
 
-                            if (SalesLine.Type = SalesLine.Type::"G/L Account") and (not ShowInternalInfo) then begin
+                            if (TempSalesLine.Type = TempSalesLine.Type::"G/L Account") and (not ShowInternalInfo) then begin
                                 SalesLineNo := "Sales Line"."No.";
                                 "Sales Line"."No." := '';
                             end;
@@ -481,63 +481,63 @@ report 6631 "Return Order Confirmation"
 
                         trigger OnPostDataItem()
                         begin
-                            SalesLine.DeleteAll();
+                            TempSalesLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            MoreLines := SalesLine.Find('+');
-                            while MoreLines and (SalesLine.Description = '') and (SalesLine."Description 2" = '') and
-                                  (SalesLine."No." = '') and (SalesLine.Quantity = 0) and
-                                  (SalesLine.Amount = 0)
+                            MoreLines := TempSalesLine.Find('+');
+                            while MoreLines and (TempSalesLine.Description = '') and (TempSalesLine."Description 2" = '') and
+                                  (TempSalesLine."No." = '') and (TempSalesLine.Quantity = 0) and
+                                  (TempSalesLine.Amount = 0)
                             do
-                                MoreLines := SalesLine.Next(-1) <> 0;
+                                MoreLines := TempSalesLine.Next(-1) <> 0;
                             if not MoreLines then
                                 CurrReport.Break();
-                            SalesLine.SetRange("Line No.", 0, SalesLine."Line No.");
-                            SetRange(Number, 1, SalesLine.Count);
+                            TempSalesLine.SetRange("Line No.", 0, TempSalesLine."Line No.");
+                            SetRange(Number, 1, TempSalesLine.Count);
                         end;
                     }
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmtLineVATECBase; VATAmountLine."VAT Base")
+                        column(VATAmtLineVATECBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmount; VATAmountLine."VAT Amount")
+                        column(VATAmtLineVATAmount; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineLineAmount; VATAmountLine."Line Amount")
+                        column(VATAmtLineLineAmount; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscBaseAmount; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmtLineInvDiscBaseAmount; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscAmtVATAmtLinePmtDiscGivenAmt; VATAmountLine."Invoice Discount Amount" + VATAmountLine."Pmt. Discount Amount")
+                        column(VATAmtLineInvDiscAmtVATAmtLinePmtDiscGivenAmt; TempVATAmountLine."Invoice Discount Amount" + TempVATAmountLine."Pmt. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineECAmount; VATAmountLine."EC Amount")
+                        column(VATAmtLineECAmount; TempVATAmountLine."EC Amount")
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier; TempVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATAmtLineEC; VATAmountLine."EC %")
+                        column(VATAmtLineEC; TempVATAmountLine."EC %")
                         {
                             AutoFormatType = 1;
                         }
@@ -577,14 +577,14 @@ report 6631 "Return Order Confirmation"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            if (VATAmount = 0) and (VATAmountLine."VAT %" + VATAmountLine."EC %" = 0) then
+                            if (VATAmount = 0) and (TempVATAmountLine."VAT %" + TempVATAmountLine."EC %" = 0) then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATCounterLCY; "Integer")
@@ -604,35 +604,35 @@ report 6631 "Return Order Confirmation"
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT1; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT1; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier1; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier1; TempVATAmountLine."VAT Identifier")
                         {
                         }
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
 
                             VALVATBaseLCY := Round(CurrExchRate.ExchangeAmtFCYToLCY(
                                   "Sales Header"."Posting Date", "Sales Header"."Currency Code",
-                                  VATAmountLine."VAT Base", "Sales Header"."Currency Factor"));
+                                  TempVATAmountLine."VAT Base", "Sales Header"."Currency Factor"));
                             VALVATAmountLCY := Round(CurrExchRate.ExchangeAmtFCYToLCY(
                                   "Sales Header"."Posting Date", "Sales Header"."Currency Code",
-                                  VATAmountLine."VAT Amount", "Sales Header"."Currency Factor"));
+                                  TempVATAmountLine."VAT Amount", "Sales Header"."Currency Factor"));
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Sales Header"."Currency Code" = '') or
-                               (VATAmountLine.GetTotalVATAmount = 0)
+                               (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
                             Clear(VALVATAmountLCY);
 
@@ -697,26 +697,26 @@ report 6631 "Return Order Confirmation"
                 var
                     SalesPost: Codeunit "Sales-Post";
                 begin
-                    Clear(SalesLine);
+                    Clear(TempSalesLine);
                     Clear(SalesPost);
-                    SalesLine.DeleteAll();
-                    VATAmountLine.DeleteAll();
-                    SalesPost.GetSalesLines("Sales Header", SalesLine, 0);
-                    SalesLine.CalcVATAmountLines(0, "Sales Header", SalesLine, VATAmountLine);
-                    SalesLine.UpdateVATOnLines(0, "Sales Header", SalesLine, VATAmountLine);
-                    VATAmount := VATAmountLine.GetTotalVATAmount;
-                    VATBaseAmount := VATAmountLine.GetTotalVATBase;
+                    TempSalesLine.DeleteAll();
+                    TempVATAmountLine.DeleteAll();
+                    SalesPost.GetSalesLines("Sales Header", TempSalesLine, 0);
+                    TempSalesLine.CalcVATAmountLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
+                    TempSalesLine.UpdateVATOnLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
+                    VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                    VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                     VATDiscountAmount :=
-                      VATAmountLine.GetTotalVATDiscount("Sales Header"."Currency Code", "Sales Header"."Prices Including VAT");
-                    TotalAmountInclVAT := VATAmountLine.GetTotalAmountInclVAT;
-                    if (VATAmountLine."VAT Calculation Type" = VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT") and
+                      TempVATAmountLine.GetTotalVATDiscount("Sales Header"."Currency Code", "Sales Header"."Prices Including VAT");
+                    TotalAmountInclVAT := TempVATAmountLine.GetTotalAmountInclVAT();
+                    if (TempVATAmountLine."VAT Calculation Type" = TempVATAmountLine."VAT Calculation Type"::"Reverse Charge VAT") and
                         "Sales Header"."Prices Including VAT" then begin
-                        VATBaseAmount := VATAmountLine.GetTotalLineAmount(false, "Sales Header"."Currency Code");
-                        TotalAmountInclVAT := VATAmountLine.GetTotalLineAmount(false, "Sales Header"."Currency Code");
+                        VATBaseAmount := TempVATAmountLine.GetTotalLineAmount(false, "Sales Header"."Currency Code");
+                        TotalAmountInclVAT := TempVATAmountLine.GetTotalLineAmount(false, "Sales Header"."Currency Code");
                     end;
 
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
 
@@ -727,7 +727,7 @@ report 6631 "Return Order Confirmation"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Sales-Printed", "Sales Header");
                 end;
 
@@ -804,7 +804,7 @@ report 6631 "Return Order Confirmation"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -837,12 +837,12 @@ report 6631 "Return Order Confirmation"
                 end;
         end;
 
-        OnAfterInitReport;
+        OnAfterInitReport();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Sales Header".FindSet() then
                 repeat
                     if "Sales Header"."Bill-to Contact No." <> '' then
@@ -859,20 +859,19 @@ report 6631 "Return Order Confirmation"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
-        Text004: Label 'Return Order Confirmation %1', Comment = '%1 = Document No.';
-        Text005: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        CompanyInfo3: Record "Company Information";
-        CompanyInfo2: Record "Company Information";
-        CompanyInfo1: Record "Company Information";
         CompanyInfo: Record "Company Information";
-        VATAmountLine: Record "VAT Amount Line" temporary;
-        SalesLine: Record "Sales Line" temporary;
+        CompanyInfo1: Record "Company Information";
+        CompanyInfo2: Record "Company Information";
+        CompanyInfo3: Record "Company Information";
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempSalesLine: Record "Sales Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -886,7 +885,7 @@ report 6631 "Return Order Confirmation"
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        SalesPersonText: Text[30];
+        SalesPersonText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         TotalText: Text[50];
@@ -910,9 +909,6 @@ report 6631 "Return Order Confirmation"
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
-        Text007: Label 'VAT Amount Specification in ';
-        Text008: Label 'Local Currency';
-        Text009: Label 'Exchange rate: %1/%2';
         OutputNo: Integer;
         TypeInt: Integer;
         SalesLineNo: Code[20];
@@ -922,7 +918,12 @@ report 6631 "Return Order Confirmation"
         TotalSubTotal: Decimal;
         TotalAmount: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
-        SalesSetup: Record "Sales & Receivables Setup";
+
+        Text004: Label 'Return Order Confirmation %1', Comment = '%1 = Document No.';
+        Text005: Label 'Page %1';
+        Text007: Label 'VAT Amount Specification in ';
+        Text008: Label 'Local Currency';
+        Text009: Label 'Exchange rate: %1/%2';
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegNoCaptionLbl: Label 'VAT Registration No.';
         GiroNoCaptionLbl: Label 'Giro No.';
@@ -968,7 +969,7 @@ report 6631 "Return Order Confirmation"
 
     procedure InitializeRequest(ShowInternalInfoFrom: Boolean; LogInteractionFrom: Boolean)
     begin
-        InitLogInteraction;
+        InitLogInteraction();
         ShowInternalInfo := ShowInternalInfoFrom;
         LogInteraction := LogInteractionFrom;
     end;
@@ -977,7 +978,7 @@ report 6631 "Return Order Confirmation"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var SalesHeader: Record "Sales Header")

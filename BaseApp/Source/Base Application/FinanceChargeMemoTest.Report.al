@@ -35,7 +35,7 @@ report 123 "Finance Charge Memo - Test"
                 column(TODAY; Today)
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(PageCaption; StrSubstNo(Text007, ' '))
@@ -356,28 +356,26 @@ report 123 "Finance Charge Memo - Test"
                             Cust.TestField("Gen. Bus. Posting Group");
                             if VATPostingSetup.Get(Cust."VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                                 if VATPostingSetup."VAT %" <> 0 then begin
-                                    VATAmountLine.Init();
-                                    VATAmountLine."VAT Identifier" := "VAT Identifier";
-                                    VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                                    VATAmountLine."Tax Group Code" := "Tax Group Code";
-                                    VATAmountLine."VAT %" := VATPostingSetup."VAT %";
-                                    VATAmountLine."EC %" := VATPostingSetup."EC %";
-                                    VATAmountLine."VAT Base" := Amount;
-                                    VATAmountLine."VAT Amount" := "VAT Amount";
-                                    VATAmountLine."Amount Including VAT" := Amount + "VAT Amount";
-                                    VATAmountLine.SetCurrencyCode("Finance Charge Memo Header"."Currency Code");
-                                    VATAmountLine.InsertLine;
+                                    TempVATAmountLine.Init();
+                                    TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+                                    TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                                    TempVATAmountLine."Tax Group Code" := "Tax Group Code";
+                                    TempVATAmountLine."VAT %" := VATPostingSetup."VAT %";
+                                    TempVATAmountLine."EC %" := VATPostingSetup."EC %";
+                                    TempVATAmountLine."VAT Base" := Amount;
+                                    TempVATAmountLine."VAT Amount" := "VAT Amount";
+                                    TempVATAmountLine."Amount Including VAT" := Amount + "VAT Amount";
+                                    TempVATAmountLine.SetCurrencyCode("Finance Charge Memo Header"."Currency Code");
+                                    TempVATAmountLine.InsertLine();
                                 end;
 
                             case Type of
                                 Type::"Customer Ledger Entry":
-                                    begin
-                                        if Amount < 0 then
-                                            AddError(
-                                              StrSubstNo(
-                                                Text009,
-                                                FieldCaption(Amount)));
-                                    end;
+                                    if Amount < 0 then
+                                        AddError(
+                                            StrSubstNo(
+                                            Text009,
+                                            FieldCaption(Amount)));
                             end;
 
                             TotalAmount += Amount;
@@ -396,7 +394,7 @@ report 123 "Finance Charge Memo - Test"
                             until (Next(-1) = 0) or not Continue;
                         end;
                         SetRange("Line No.", StartLineNo + 1, EndLineNo - 1);
-                        VATAmountLine.DeleteAll();
+                        TempVATAmountLine.DeleteAll();
 
                         TotalAmount := 0;
                         TotalVatAmount := 0;
@@ -422,88 +420,88 @@ report 123 "Finance Charge Memo - Test"
                 dataitem(VATCounter; "Integer")
                 {
                     DataItemTableView = SORTING(Number);
-                    column(VATAmountLine__VAT_Amount_; VATAmountLine."VAT Amount")
+                    column(VATAmountLine__VAT_Amount_; TempVATAmountLine."VAT Amount")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_EC_Base_; VATAmountLine."VAT Base")
+                    column(VATAmountLine__VAT_EC_Base_; TempVATAmountLine."VAT Base")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__Amount_Including_VAT_EC_; VATAmountLine."Amount Including VAT")
+                    column(VATAmountLine__Amount_Including_VAT_EC_; TempVATAmountLine."Amount Including VAT")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__EC_Amount_; VATAmountLine."EC Amount")
+                    column(VATAmountLine__EC_Amount_; TempVATAmountLine."EC Amount")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_Amount__Control55; VATAmountLine."VAT Amount")
+                    column(VATAmountLine__VAT_Amount__Control55; TempVATAmountLine."VAT Amount")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_EC_Base__Control56; VATAmountLine."VAT Base")
+                    column(VATAmountLine__VAT_EC_Base__Control56; TempVATAmountLine."VAT Base")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT___; VATAmountLine."VAT %")
+                    column(VATAmountLine__VAT___; TempVATAmountLine."VAT %")
                     {
                     }
-                    column(VATAmountLine__Amount_Including_VAT_EC__Control73; VATAmountLine."Amount Including VAT")
-                    {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
-                        AutoFormatType = 1;
-                    }
-                    column(VATAmountLine__EC_Amount__Control1100002; VATAmountLine."EC Amount")
-                    {
-                    }
-                    column(VATAmountLine__EC___; VATAmountLine."EC %")
+                    column(VATAmountLine__Amount_Including_VAT_EC__Control73; TempVATAmountLine."Amount Including VAT")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_Amount__Control51; VATAmountLine."VAT Amount")
+                    column(VATAmountLine__EC_Amount__Control1100002; TempVATAmountLine."EC Amount")
+                    {
+                    }
+                    column(VATAmountLine__EC___; TempVATAmountLine."EC %")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_EC_Base__Control52; VATAmountLine."VAT Base")
+                    column(VATAmountLine__VAT_Amount__Control51; TempVATAmountLine."VAT Amount")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__Amount_Including_VAT_EC__Control78; VATAmountLine."Amount Including VAT")
+                    column(VATAmountLine__VAT_EC_Base__Control52; TempVATAmountLine."VAT Base")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__EC_Amount__Control1100003; VATAmountLine."EC Amount")
+                    column(VATAmountLine__Amount_Including_VAT_EC__Control78; TempVATAmountLine."Amount Including VAT")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__EC_Amount__Control1100145; VATAmountLine."EC Amount")
+                    column(VATAmountLine__EC_Amount__Control1100003; TempVATAmountLine."EC Amount")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_EC_Base__Control49; VATAmountLine."VAT Base")
+                    column(VATAmountLine__EC_Amount__Control1100145; TempVATAmountLine."EC Amount")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__Amount_Including_VAT_EC__Control80; VATAmountLine."Amount Including VAT")
+                    column(VATAmountLine__VAT_EC_Base__Control49; TempVATAmountLine."VAT Base")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT_Amount__Control1100004; VATAmountLine."VAT Amount")
+                    column(VATAmountLine__Amount_Including_VAT_EC__Control80; TempVATAmountLine."Amount Including VAT")
+                    {
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
+                        AutoFormatType = 1;
+                    }
+                    column(VATAmountLine__VAT_Amount__Control1100004; TempVATAmountLine."VAT Amount")
                     {
                         AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
@@ -538,14 +536,14 @@ report 123 "Finance Charge Memo - Test"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATAmountLine.GetLine(Number);
+                        TempVATAmountLine.GetLine(Number);
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if TotalVatAmount = 0 then
                             CurrReport.Break();
-                        SetRange(Number, 1, VATAmountLine.Count);
+                        SetRange(Number, 1, TempVATAmountLine.Count);
                     end;
                 }
                 dataitem(VATCounterLCY; "Integer")
@@ -573,7 +571,7 @@ report 123 "Finance Charge Memo - Test"
                     {
                         AutoFormatType = 1;
                     }
-                    column(VATAmountLine__VAT____Control94; VATAmountLine."VAT %")
+                    column(VATAmountLine__VAT____Control94; TempVATAmountLine."VAT %")
                     {
                         DecimalPlaces = 0 : 5;
                     }
@@ -600,25 +598,25 @@ report 123 "Finance Charge Memo - Test"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATAmountLine.GetLine(Number);
+                        TempVATAmountLine.GetLine(Number);
 
                         VALVATBaseLCY := Round(CurrExchRate.ExchangeAmtFCYToLCY(
                               "Finance Charge Memo Header"."Posting Date", "Finance Charge Memo Header"."Currency Code",
-                              VATAmountLine."VAT Base", CurrFactor));
+                              TempVATAmountLine."VAT Base", CurrFactor));
                         VALVATAmountLCY := Round(CurrExchRate.ExchangeAmtFCYToLCY(
                               "Finance Charge Memo Header"."Posting Date", "Finance Charge Memo Header"."Currency Code",
-                              VATAmountLine."VAT Amount", CurrFactor));
+                              TempVATAmountLine."VAT Amount", CurrFactor));
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if (not GLSetup."Print VAT specification in LCY") or
                            ("Finance Charge Memo Header"."Currency Code" = '') or
-                           (VATAmountLine.GetTotalVATAmount = 0)
+                           (TempVATAmountLine.GetTotalVATAmount() = 0)
                         then
                             CurrReport.Break();
 
-                        SetRange(Number, 1, VATAmountLine.Count);
+                        SetRange(Number, 1, TempVATAmountLine.Count);
                         Clear(VALVATBaseLCY);
                         Clear(VALVATAmountLCY);
 
@@ -643,7 +641,7 @@ report 123 "Finance Charge Memo - Test"
                 CalcFields("Remaining Amount");
                 if "Customer No." = '' then
                     AddError(StrSubstNo(Text000, FieldCaption("Customer No.")))
-                else begin
+                else
                     if Cust.Get("Customer No.") then begin
                         if Cust."Privacy Blocked" then
                             AddError(Cust.GetPrivacyBlockedGenericErrorText(Cust));
@@ -651,7 +649,7 @@ report 123 "Finance Charge Memo - Test"
                             AddError(
                               StrSubstNo(
                                 Text010,
-                                Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, "Customer No."));
+                                Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), "Customer No."));
                         if Cust."Currency Code" <> "Currency Code" then
                             if Cust."Currency Code" <> '' then
                                 AddError(
@@ -667,8 +665,7 @@ report 123 "Finance Charge Memo - Test"
                         AddError(
                           StrSubstNo(
                             Text003,
-                            Cust.TableCaption, "Customer No."));
-                end;
+                            Cust.TableCaption(), "Customer No."));
 
                 GLSetup.Get();
 
@@ -702,13 +699,13 @@ report 123 "Finance Charge Memo - Test"
                 else
                     VATNoText := FieldCaption("VAT Registration No.");
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                    AddError(DimMgt.GetDimCombErr);
+                    AddError(DimMgt.GetDimCombErr());
                 Cust.GetPrimaryContact("Customer No.", PrimaryContact);
 
                 TableID[1] := DATABASE::Customer;
                 No[1] := "Customer No.";
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    AddError(DimMgt.GetDimValuePostingErr);
+                    AddError(DimMgt.GetDimValuePostingErr());
             end;
         }
     }
@@ -755,22 +752,14 @@ report 123 "Finance Charge Memo - Test"
 
     trigger OnPreReport()
     begin
-        FinChrgMemoHeaderFilter := "Finance Charge Memo Header".GetFilters;
+        FinChrgMemoHeaderFilter := "Finance Charge Memo Header".GetFilters();
     end;
 
     var
-        Text000: Label '%1 must be specified.';
-        Text002: Label '%1 must be %2.';
-        Text003: Label '%1 %2 does not exist.';
-        Text005: Label 'Total %1';
-        Text006: Label 'Total %1 Incl. VAT';
-        Text007: Label 'Page %1';
-        Text008: Label 'Finance Charge Memo: %1';
-        Text009: Label '%1 must be positive or 0.';
         GLSetup: Record "General Ledger Setup";
         PrimaryContact: Record Contact;
         Cust: Record Customer;
-        VATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
         DimMgt: Codeunit DimensionManagement;
@@ -796,6 +785,15 @@ report 123 "Finance Charge Memo - Test"
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+
+        Text000: Label '%1 must be specified.';
+        Text002: Label '%1 must be %2.';
+        Text003: Label '%1 %2 does not exist.';
+        Text005: Label 'Total %1';
+        Text006: Label 'Total %1 Incl. VAT';
+        Text007: Label 'Page %1';
+        Text008: Label 'Finance Charge Memo: %1';
+        Text009: Label '%1 must be positive or 0.';
         Text011: Label 'VAT Amount Specification in ';
         Text012: Label 'Local Currency';
         Text013: Label 'Exchange rate: %1/%2';

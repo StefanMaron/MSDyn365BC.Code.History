@@ -9,7 +9,7 @@ codeunit 1407 "Return Receipt Header - Edit"
     begin
         ReturnReceiptHeader := Rec;
         ReturnReceiptHeader.LockTable();
-        ReturnReceiptHeader.Find;
+        ReturnReceiptHeader.Find();
         ReturnReceiptHeader."Bill-to Country/Region Code" := "Bill-to Country/Region Code";
         ReturnReceiptHeader."Shipping Agent Code" := "Shipping Agent Code";
         ReturnReceiptHeader."Package Tracking No." := "Package Tracking No.";

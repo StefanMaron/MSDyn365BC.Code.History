@@ -196,7 +196,7 @@
                 PaymentTerms: Record "Payment Terms";
             begin
                 TestField(Open, true);
-                CheckBillSituation;
+                CheckBillSituation();
                 if PaymentTerms.Get("Payment Terms Code") then
                     PaymentTerms.VerifyMaxNoDaysTillDueDate("Due Date", "Document Date", FieldCaption("Due Date"));
                 if "Document Situation" <> "Document Situation"::" " then
@@ -467,7 +467,7 @@
                 TestField(Open, true);
                 CalcFields("Remaining Amount");
 
-                CheckBillSituation;
+                CheckBillSituation();
 
                 if "Amount to Apply" * "Remaining Amount" < 0 then
                     FieldError("Amount to Apply", StrSubstNo(MustHaveSameSignErr, FieldCaption("Remaining Amount")));
@@ -531,7 +531,7 @@
             begin
                 TestField(Open, true);
                 if "Payment Method Code" <> xRec."Payment Method Code" then begin
-                    ValidatePaymentMethod;
+                    ValidatePaymentMethod();
                     CarteraDoc.UpdatePaymentMethodCode(
                       "Document No.", "Vendor No.", "Bill No.", "Payment Method Code")
                 end;
@@ -631,6 +631,11 @@
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
+        }
+        field(1000; "Remit-to Code"; Code[20])
+        {
+            Caption = 'Remit-to Code';
+            TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
         }
         field(10702; "Generated Autodocument"; Boolean)
         {
@@ -933,8 +938,8 @@
         DtldVendLedgEntry.CopyFilter("Initial Entry Global Dim. 1", VendLedgEntry."Global Dimension 1 Code");
         DtldVendLedgEntry.CopyFilter("Initial Entry Global Dim. 2", VendLedgEntry."Global Dimension 2 Code");
         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
-        VendLedgEntry.SetFilter("Date Filter", '..%1', WorkDate);
-        VendLedgEntry.SetFilter("Due Date", '<%1', WorkDate);
+        VendLedgEntry.SetFilter("Date Filter", '..%1', WorkDate());
+        VendLedgEntry.SetFilter("Due Date", '<%1', WorkDate());
         VendLedgEntry.SetFilter("Remaining Amount", '<>%1', 0);
         OnBeforeDrillDownOnOverdueEntries(VendLedgEntry, DtldVendLedgEntry, DrillDownPageID);
         PAGE.Run(DrillDownPageID, VendLedgEntry);
@@ -974,7 +979,7 @@
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure SetStyle() Result: Text
@@ -987,7 +992,7 @@
             exit(Result);
 
         if Open then begin
-            if WorkDate > "Due Date" then
+            if WorkDate() > "Due Date" then
                 exit('Unfavorable')
         end else
             if "Closed at Date" > "Due Date" then
@@ -1050,6 +1055,8 @@
         "Succeeded VAT Registration No." := GenJnlLine."Succeeded VAT Registration No.";
         "ID Type" := GenJnlLine."ID Type";
         "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
+        if (GenJnlLine."Remit-to Code" <> '') then
+            "Remit-to Code" := GenJnlLine."Remit-to Code";
 
         OnAfterCopyVendLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

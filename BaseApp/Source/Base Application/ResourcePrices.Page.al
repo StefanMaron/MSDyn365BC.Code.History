@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 page 204 "Resource Prices"
 {
     AccessByPermission = TableData Resource = R;
@@ -29,17 +29,17 @@ page 204 "Resource Prices"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the currency code of the alternate sales price on this line.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';

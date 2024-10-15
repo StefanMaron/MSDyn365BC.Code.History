@@ -48,7 +48,7 @@ codeunit 144038 "ERM Cost Regulation"
         // Verify Amount in Intrastat Journal when posting a purchase order with a invoice discount and payment discount shipping and invoicing in same month with Currency.
         Initialize();
         PurchaseIntrastatJournal(
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
     end;
 
     [Test]
@@ -59,7 +59,7 @@ codeunit 144038 "ERM Cost Regulation"
         // Verify Amount in Intrastat Journal when posting a purchase order with a invoice discount and payment discount shipping and invoicing in different months with Currency.
         Initialize();
         PurchaseIntrastatJournal(
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
     end;
 
     [Test]
@@ -69,7 +69,7 @@ codeunit 144038 "ERM Cost Regulation"
     begin
         // Verify Amount in Intrastat Journal when posting a purchase order with a payment and invoice discount shipping and invoicing in different months without Currency.
         Initialize();
-        PurchaseIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), '');  // Using Random value for NewPostingDate and blank Currency Code.
+        PurchaseIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), '');  // Using Random value for NewPostingDate and blank Currency Code.
     end;
 
     [Test]
@@ -79,7 +79,7 @@ codeunit 144038 "ERM Cost Regulation"
     begin
         // Verify Amount in Intrastat Journal when posting a purchase order with a payment and invoice discount shipping and invoicing in same months without Currency.
         Initialize();
-        PurchaseIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), '');  // Using Random value for NewPostingDate and blank Currency Code.
+        PurchaseIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), '');  // Using Random value for NewPostingDate and blank Currency Code.
     end;
 
     local procedure PurchaseIntrastatJournal(NewPostingDate: Date; CurrencyCode: Code[10])
@@ -95,13 +95,13 @@ codeunit 144038 "ERM Cost Regulation"
         PurchasesPayablesSetup.Get();
         UpdateCalcInvDiscountInPurchasesPayablesSetup(true);
         DiscountPct := LibraryRandom.RandDec(10, 2);
-        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate, DiscountPct, CurrencyCode);
+        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate(), DiscountPct, CurrencyCode);
         UpdateAndPostPurchaseOrder(PurchaseLine, NewPostingDate);
         CreateIntrastatJnlLine(IntrastatJnlLine);
         EnqueueValueForGetItemLedgerEntriesReportHandler(NewPostingDate);  // Enqueue value for GetItemLedgerEntriesReportHandler.
         Amount :=
           LibraryERM.ConvertCurrency(
-            PurchaseLine.Amount - (PurchaseLine.Amount * DiscountPct / 100), PurchaseLine."Currency Code", '', WorkDate);  // Using blank for ToCur.
+            PurchaseLine.Amount - (PurchaseLine.Amount * DiscountPct / 100), PurchaseLine."Currency Code", '', WorkDate());  // Using blank for ToCur.
 
         // Exercise.
         RunGetItemEntries;
@@ -120,7 +120,7 @@ codeunit 144038 "ERM Cost Regulation"
     begin
         // Verify Amount in Intrastat Journal when posting a sales order with a payment and invoice discount shipping and invoicing in same month with Currency.
         Initialize();
-        SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
+        SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
     end;
 
     [Test]
@@ -130,7 +130,7 @@ codeunit 144038 "ERM Cost Regulation"
     begin
         // Verify Amount in Intrastat Journal when posting a sales order with a invoice discount and payment discount shipping and invoicing in different months with Currency.
         Initialize();
-        SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
+        SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
     end;
 
     [Test]
@@ -140,7 +140,7 @@ codeunit 144038 "ERM Cost Regulation"
     begin
         // Verify Amount in Intrastat Journal when posting a sales order with a payment and invoice discount shipping and invoicing in different months without Currency.
         Initialize();
-        SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), '');  // Using Random value for NewPostingDate and blank Currency Code.
+        SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), '');  // Using Random value for NewPostingDate and blank Currency Code.
     end;
 
     [Test]
@@ -150,7 +150,7 @@ codeunit 144038 "ERM Cost Regulation"
     begin
         // Verify Amount in Intrastat Journal when posting a sales order with a payment and invoice discount shipping and invoicing in same months without Currency.
         Initialize();
-        SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), '');  // Using Random value for NewPostingDate and blank Currency Code.
+        SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), '');  // Using Random value for NewPostingDate and blank Currency Code.
     end;
 
     local procedure SalesIntrastatJournal(NewPostingDate: Date; CurrencyCode: Code[10])
@@ -166,13 +166,13 @@ codeunit 144038 "ERM Cost Regulation"
         SalesReceivablesSetup.Get();
         UpdateCalcInvDiscountInSalesReceivablesSetup(true);
         DiscountPct := LibraryRandom.RandDec(10, 2);
-        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate, DiscountPct, CurrencyCode);
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate(), DiscountPct, CurrencyCode);
         UpdateAndPostSalesOrder(SalesLine, NewPostingDate);
         CreateIntrastatJnlLine(IntrastatJnlLine);
         EnqueueValueForGetItemLedgerEntriesReportHandler(NewPostingDate);  // Enqueue value for GetItemLedgerEntriesReportHandler.
         Amount :=
           LibraryERM.ConvertCurrency(
-            SalesLine.Amount - (SalesLine.Amount * DiscountPct / 100), SalesLine."Currency Code", '', WorkDate);  // Using blank for ToCur.
+            SalesLine.Amount - (SalesLine.Amount * DiscountPct / 100), SalesLine."Currency Code", '', WorkDate());  // Using blank for ToCur.
 
         // Exercise.
         RunGetItemEntries;
@@ -303,7 +303,7 @@ codeunit 144038 "ERM Cost Regulation"
 
     local procedure EnqueueValueForGetItemLedgerEntriesReportHandler(NewPostingDate: Date)
     begin
-        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
         LibraryVariableStorage.Enqueue(NewPostingDate);
     end;
 
@@ -383,16 +383,16 @@ codeunit 144038 "ERM Cost Regulation"
         IntrastatJnlLine.FindFirst();
         Assert.AreEqual(
           Type, IntrastatJnlLine.Type,
-          StrSubstNo(ValidationError, IntrastatJnlLine.FieldCaption(Type), Type, IntrastatJnlLine.TableCaption));
+          StrSubstNo(ValidationError, IntrastatJnlLine.FieldCaption(Type), Type, IntrastatJnlLine.TableCaption()));
         Assert.AreEqual(
           Quantity, IntrastatJnlLine.Quantity,
-          StrSubstNo(ValidationError, IntrastatJnlLine.FieldCaption(Quantity), Quantity, IntrastatJnlLine.TableCaption));
+          StrSubstNo(ValidationError, IntrastatJnlLine.FieldCaption(Quantity), Quantity, IntrastatJnlLine.TableCaption()));
         Assert.AreEqual(
           GetCountryRegionCode, IntrastatJnlLine."Country/Region Code", StrSubstNo(ValidationError,
-            IntrastatJnlLine.FieldCaption("Country/Region Code"), GetCountryRegionCode, IntrastatJnlLine.TableCaption));
+            IntrastatJnlLine.FieldCaption("Country/Region Code"), GetCountryRegionCode, IntrastatJnlLine.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, IntrastatJnlLine.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(ValidationError,
-            IntrastatJnlLine.FieldCaption(Amount), Amount, IntrastatJnlLine.TableCaption));
+            IntrastatJnlLine.FieldCaption(Amount), Amount, IntrastatJnlLine.TableCaption()));
     end;
 
     [ModalPageHandler]

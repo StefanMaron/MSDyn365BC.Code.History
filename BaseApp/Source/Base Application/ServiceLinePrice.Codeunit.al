@@ -125,20 +125,30 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         ServCost: Record "Service Cost";
     begin
         PriceCalculationBuffer."Price Calculation Method" := ServiceLine."Price Calculation Method";
+        // Tax
+        PriceCalculationBuffer."Prices Including Tax" := ServiceHeader."Prices Including VAT";
+        PriceCalculationBuffer."Tax %" := ServiceLine."VAT %" + ServiceLine."EC %";
+        PriceCalculationBuffer."VAT Calculation Type" := ServiceLine."VAT Calculation Type".AsInteger();
+        PriceCalculationBuffer."VAT Bus. Posting Group" := ServiceLine."VAT Bus. Posting Group";
+        PriceCalculationBuffer."VAT Prod. Posting Group" := ServiceLine."VAT Prod. Posting Group";
+
         case PriceCalculationBuffer."Asset Type" of
             PriceCalculationBuffer."Asset Type"::Item:
                 begin
                     PriceCalculationBuffer."Variant Code" := ServiceLine."Variant Code";
-
                     Item.Get(PriceCalculationBuffer."Asset No.");
                     PriceCalculationBuffer."Unit Price" := Item."Unit Price";
+                    PriceCalculationBuffer."Item Disc. Group" := Item."Item Disc. Group";
+                    if PriceCalculationBuffer."VAT Prod. Posting Group" = '' then
+                        PriceCalculationBuffer."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
                 end;
             PriceCalculationBuffer."Asset Type"::Resource:
                 begin
                     PriceCalculationBuffer."Work Type Code" := ServiceLine."Work Type Code";
-
                     Resource.Get(PriceCalculationBuffer."Asset No.");
                     PriceCalculationBuffer."Unit Price" := Resource."Unit Price";
+                    if PriceCalculationBuffer."VAT Prod. Posting Group" = '' then
+                        PriceCalculationBuffer."VAT Prod. Posting Group" := Resource."VAT Prod. Posting Group";
                 end;
             PriceCalculationBuffer."Asset Type"::"Service Cost":
                 begin
@@ -152,13 +162,6 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         // Currency
         PriceCalculationBuffer.Validate("Currency Code", ServiceHeader."Currency Code");
         PriceCalculationBuffer."Currency Factor" := ServiceHeader."Currency Factor";
-
-        // Tax
-        PriceCalculationBuffer."Prices Including Tax" := ServiceHeader."Prices Including VAT";
-        PriceCalculationBuffer."Tax %" := ServiceLine."VAT %";
-        PriceCalculationBuffer."VAT Calculation Type" := ServiceLine."VAT Calculation Type".AsInteger();
-        PriceCalculationBuffer."VAT Bus. Posting Group" := ServiceLine."VAT Bus. Posting Group";
-        PriceCalculationBuffer."VAT Prod. Posting Group" := ServiceLine."VAT Prod. Posting Group";
 
         // UoM
         PriceCalculationBuffer.Quantity := Abs(ServiceLine.Quantity);

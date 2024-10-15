@@ -1440,7 +1440,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 3.Verify: Verify the Error Message Occured while posting.
         Assert.AreEqual(
-          StrSubstNo(FAPostingDateError, FAJournalLine.FieldCaption("FA Posting Date"), FAJournalLine.TableCaption,
+          StrSubstNo(FAPostingDateError, FAJournalLine.FieldCaption("FA Posting Date"), FAJournalLine.TableCaption(),
             FAJournalLine.FieldCaption("Journal Template Name"), FAJournalLine."Journal Template Name",
             FAJournalLine.FieldCaption("Journal Batch Name"), FAJournalLine."Journal Batch Name",
             FAJournalLine.FieldCaption("Line No."), FAJournalLine."Line No."), GetLastErrorText, UnknownError);
@@ -1476,7 +1476,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 3.Verify: Verify the Error Message Occured while posting.
         Assert.AreEqual(
-          StrSubstNo(FAPostingDateError, GenJournalLine.FieldCaption("FA Posting Date"), GenJournalLine.TableCaption,
+          StrSubstNo(FAPostingDateError, GenJournalLine.FieldCaption("FA Posting Date"), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."), GetLastErrorText, UnknownError);
@@ -1765,7 +1765,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 3.Verify: Verify the Error Message.
         Assert.AreEqual(
-          StrSubstNo(FAAcquisitionError, GenJournalLine.FieldCaption("FA Posting Type"), GenJournalLine.TableCaption,
+          StrSubstNo(FAAcquisitionError, GenJournalLine.FieldCaption("FA Posting Type"), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine."Line No."), GetLastErrorText, UnknownError)
@@ -1786,7 +1786,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Initialize();
         LibraryUtility.UpdateSetupNoSeriesCode(DATABASE::"FA Setup", FASetup.FieldNo("Fixed Asset Nos."));
         FASetup.Get();
-        NextFANo := NoSeriesManagement.GetNextNo(FASetup."Fixed Asset Nos.", WorkDate, false);
+        NextFANo := NoSeriesManagement.GetNextNo(FASetup."Fixed Asset Nos.", WorkDate(), false);
 
         // 2. Exercise: Create new Fixed Asset.
         LibraryLowerPermissions.SetO365FAEdit;
@@ -2995,8 +2995,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         FAJournalLine.Validate("Document Type", DocumentType);
         FAJournalLine.Validate("Document No.", GetDocumentNo(FAJournalBatch));
-        FAJournalLine.Validate("Posting Date", WorkDate);
-        FAJournalLine.Validate("FA Posting Date", WorkDate);
+        FAJournalLine.Validate("Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate("FA Posting Type", FAPostingType);
         FAJournalLine.Validate("FA No.", FANo);
         FAJournalLine.Validate(Amount, LibraryRandom.RandIntInRange(1000, 2000));
@@ -3043,10 +3043,10 @@ codeunit 134450 "ERM Fixed Assets Journal"
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroupCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Depreciation Ending Date greater than Depreciation Starting Date, Using the Random Number for the Year.
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FADepreciationBook.Modify(true);
     end;
 
@@ -3294,8 +3294,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalLine.Validate("Recurring Method", FAJournalLine."Recurring Method"::"F Fixed");
         Evaluate(RecurringFrequency, '<' + Format(LibraryRandom.RandInt(5)) + 'D>'); // Using Random Number Generator for Days.
         FAJournalLine.Validate("Recurring Frequency", RecurringFrequency);
-        FAJournalLine.Validate("Posting Date", WorkDate);
-        FAJournalLine.Validate("FA Posting Date", WorkDate);
+        FAJournalLine.Validate("Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate("FA Posting Type", FAJournalLine."FA Posting Type"::"Acquisition Cost");
         FAJournalLine.Validate("FA No.", FANo);
         FAJournalLine.Validate(Amount, LibraryRandom.RandDec(1000, 2));  // Using Random Number Generator for Amount.
@@ -3444,7 +3444,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         NoSeries.Get(FAJournalBatch."No. Series");
-        exit(NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
     end;
 
     local procedure ModifyRecurringOnTemplate(var FAJournalTemplate: Record "FA Journal Template")
@@ -3475,12 +3475,12 @@ codeunit 134450 "ERM Fixed Assets Journal"
         GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
         GenJournalLine.FindSet();
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
         repeat
             GenJournalLine.Validate("Document No.", DocumentNo);
             GenJournalLine.Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
             GenJournalLine.Modify(true);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -3493,7 +3493,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Clear(CalculateDepreciation);
         FixedAsset.SetRange("No.", No);
 
-        NewPostingDate := WorkDate;
+        NewPostingDate := WorkDate();
         CalculateDepreciation.SetTableView(FixedAsset);
         CalculateDepreciation.InitializeRequest(
           DepreciationBookCode, NewPostingDate, false, 0, NewPostingDate, No, FixedAsset.Description, BalAccount);
@@ -3523,7 +3523,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // Using the Random Number Generator for New Index Figure.
         IndexFigure := LibraryRandom.RandInt(200);
-        IndexFixedAssets.InitializeRequest(DepBookCode, IndexFigure, WorkDate, WorkDate, No, No, true);
+        IndexFixedAssets.InitializeRequest(DepBookCode, IndexFigure, WorkDate(), WorkDate, No, No, true);
         IndexFixedAssets.SetIndexAcquisitionCost(true);
         IndexFixedAssets.SetIndexDepreciation(true);
         IndexFixedAssets.UseRequestPage(false);
@@ -3541,7 +3541,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // Using the Random Number Generator for Date.
         CopyDepreciationBook.InitializeRequest(
-          DepreciationBookCode, DepreciationBookCode2, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(100)) + 'Y>', WorkDate),
+          DepreciationBookCode, DepreciationBookCode2, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(100)) + 'Y>', WorkDate()),
           No, FixedAsset.Description, false);
         CopyDepreciationBook.SetCopyAcquisitionCost(CopyAcquisitionCost);
         CopyDepreciationBook.UseRequestPage(false);
@@ -3677,8 +3677,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         repeat
             FAAllocation.Validate("Account No.", FindGLAccountWithNormalTypeVATSetup);
             FAAllocation.Validate("Allocation %", LibraryRandom.RandDec(20, 2));
-            GLAccount.Next;
-        until FAAllocation.Next = 0;
+            GLAccount.Next();
+        until FAAllocation.Next() = 0;
         FAAllocation.Modify(true);
     end;
 
@@ -3750,7 +3750,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FASetup.Get();
 
         // Using the Random function for Date.
-        FASetup.Validate("Allow FA Posting From", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FASetup.Validate("Allow FA Posting From", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FASetup.Modify(true);
     end;
 
@@ -4005,7 +4005,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         MaintenanceLedgerEntry.FindSet();
         repeat
             Amount += MaintenanceLedgerEntry.Amount;
-        until MaintenanceLedgerEntry.Next = 0;
+        until MaintenanceLedgerEntry.Next() = 0;
         Assert.AreEqual(0, Amount, ReversalError);
     end;
 
@@ -4052,7 +4052,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalTemplate.FindFirst();
         FAJournalTemplate.TestField(Name, FAJnlTemplateName);
         FAJournalTemplate.TestField(Description, FAJnlTemplateDescription);
-        Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, FAJournalTemplate.TableCaption));
+        Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, FAJournalTemplate.TableCaption()));
     end;
 
     local procedure VerifyFirstFAJournalTemplateCreation(RecurringJnl: Boolean; FAJnlTemplateName: Text[250]; FAJnlTemplateDescription: Text[250])
@@ -4257,11 +4257,11 @@ codeunit 134450 "ERM Fixed Assets Journal"
         TempGenJournalLine.Reset();
         TempGenJournalLine.SetRange("Account No.", AccountNo);
         TempGenJournalLine.Amount := LibraryRandom.RandDec(1000, 2);
-        TempGenJournalLine."Posting Date" := WorkDate;
+        TempGenJournalLine."Posting Date" := WorkDate();
         TempGenJournalLine."Bal. Account Type" := TempGenJournalLine."Bal. Account Type"::Vendor;
         TempGenJournalLine."Bal. Account No." := BalAccountNo;
         TempGenJournalLine."External Document No." := ExtDocNoTok;
-        TempGenJournalLine."Journal Template Name" := FixedAssetAcquisitionWizard.SelectFATemplate;
+        TempGenJournalLine."Journal Template Name" := FixedAssetAcquisitionWizard.SelectFATemplate();
         TempGenJournalLine."Journal Batch Name" := FixedAssetAcquisitionWizard.GetAutogenJournalBatch;
         TempGenJournalLine."Document Type" := TempGenJournalLine."Document Type"::Invoice;
         TempGenJournalLine."Account No." := AccountNo;
@@ -4319,8 +4319,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Currency.Modify();
 
         CreateCurrencyExchangeRate(
-          CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
-        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+          CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate());
     end;
 
     local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)

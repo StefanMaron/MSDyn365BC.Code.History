@@ -2,6 +2,14 @@ table 2163 "O365 Sales Event"
 {
     Caption = 'O365 Sales Event';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -34,12 +42,14 @@ table 2163 "O365 Sales Event"
     {
     }
 
+#if not CLEAN21
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure IsEventTypeEnabled(EventType: Integer): Boolean
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         O365SalesEvent: Record "O365 Sales Event";
     begin
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert();
 
         case EventType of
@@ -69,5 +79,6 @@ table 2163 "O365 Sales Event"
 
         exit(false);
     end;
+#endif
 }
 

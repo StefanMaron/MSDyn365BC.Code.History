@@ -147,7 +147,7 @@ codeunit 144040 "UT REP Debit Credit"
 
         // [GIVEN] G/L Entry
         Initialize();
-        CreateGLEntry(GLEntry, '', '', '', WorkDate);  // Using blank for GLAccountNo,GlobalDimensionOneCode and GlobalDimensionTwoCode and WORKDATE for Posting Date.
+        CreateGLEntry(GLEntry, '', '', '', WorkDate());  // Using blank for GLAccountNo,GlobalDimensionOneCode and GlobalDimensionTwoCode and WORKDATE for Posting Date.
         LibraryVariableStorage.Enqueue(GLEntry."Transaction No.");  // Enqueue for GLRegisterRequestPageHandler.
 
         // [WHEN] Running report "G/L Register"
@@ -172,10 +172,10 @@ codeunit 144040 "UT REP Debit Credit"
         // [GIVEN] Two GL Entries with different Posting Dates.
         Initialize();
         CreateGLAccount(GLAccount, LibraryUTUtility.GetNewCode, GLAccount."Account Type"::Posting, '');  // Blank used for Totaling.
-        CreateGLEntry(GLEntry, GLAccount."No.", GLAccount."Global Dimension 1 Code", GLAccount."Global Dimension 2 Code", WorkDate);  // Using WORKDATE for Posting Date.
+        CreateGLEntry(GLEntry, GLAccount."No.", GLAccount."Global Dimension 1 Code", GLAccount."Global Dimension 2 Code", WorkDate());  // Using WORKDATE for Posting Date.
         CreateGLEntry(
           GLEntry2, GLEntry."G/L Account No.", GLAccount."Global Dimension 1 Code", GLAccount."Global Dimension 2 Code",
-          CalcDate('<-1Y>', WorkDate));  // Using 1Y as required for the test case.
+          CalcDate('<-1Y>', WorkDate()));  // Using 1Y as required for the test case.
         LibraryVariableStorage.Enqueue(GLEntry."G/L Account No.");  // Enqueue for TrialBalancePreviousYearRequestPageHandler.
 
         // [WHEN] Running report "Trial Balance/Previous Year"
@@ -307,9 +307,9 @@ codeunit 144040 "UT REP Debit Credit"
     begin
         // [GIVEN] Update Additional Reporting Currency and Create Accounting Periods.
         UpdateAdditionalReportingCurrOnGeneralLedgerSetup(NewAdditionalReportingCurrency);
-        CreateAccountingPeriod(false, WorkDate);  // FALSE for New Fiscal Year.
-        CreateAccountingPeriod(false, CalcDate('<1D>', WorkDate));  // Using 1D as required for the test case and FALSE for New Fiscal Year.
-        EnqueueValuesForOfficialAccSumBookRqstPageHandler(ShowAmountsInAddCurrency, GLAccount."Account Type"::Heading, WorkDate);
+        CreateAccountingPeriod(false, WorkDate());  // FALSE for New Fiscal Year.
+        CreateAccountingPeriod(false, CalcDate('<1D>', WorkDate()));  // Using 1D as required for the test case and FALSE for New Fiscal Year.
+        EnqueueValuesForOfficialAccSumBookRqstPageHandler(ShowAmountsInAddCurrency, GLAccount."Account Type"::Heading, WorkDate());
 
         // [WHEN] Running report "Official Acc.Summarized Book"
         REPORT.Run(REPORT::"Official Acc.Summarized Book");  // Opens OfficialAccSummarizedBookRequestPageHandler.
@@ -331,10 +331,10 @@ codeunit 144040 "UT REP Debit Credit"
 
         // [GIVEN] Accounting Periods in different years.
         Initialize();
-        CreateAccountingPeriod(true, WorkDate);  // TRUE for New Fiscal Year.
-        CreateAccountingPeriod(true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Adding random years to WORKDATE for Starting Date, TRUE for New Fiscal Year.
+        CreateAccountingPeriod(true, WorkDate());  // TRUE for New Fiscal Year.
+        CreateAccountingPeriod(true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));  // Adding random years to WORKDATE for Starting Date, TRUE for New Fiscal Year.
         EnqueueValuesForOfficialAccSumBookRqstPageHandler(
-          false, GLAccount."Account Type"::Heading, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Adding random years to WORKDATE for ToDate, FALSE for Show Amounts In Add Currency.
+          false, GLAccount."Account Type"::Heading, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));  // Adding random years to WORKDATE for ToDate, FALSE for Show Amounts In Add Currency.
 
         // [WHEN] Running report "Official Acc.Summarized Book"
         asserterror REPORT.Run(REPORT::"Official Acc.Summarized Book");  // Opens OfficialAccSummarizedBookRequestPageHandler.
@@ -355,7 +355,7 @@ codeunit 144040 "UT REP Debit Credit"
 
         // [GIVEN] Enqued values for Report 10716
         Initialize();
-        EnqueueValuesForOfficialAccSumBookRqstPageHandler(false, GLAccount."Account Type"::Heading, WorkDate);  // FALSE for Show Amounts In Add Currency.
+        EnqueueValuesForOfficialAccSumBookRqstPageHandler(false, GLAccount."Account Type"::Heading, WorkDate());  // FALSE for Show Amounts In Add Currency.
 
         // [WHEN] Running report "Official Acc.Summarized Book"
         asserterror REPORT.Run(REPORT::"Official Acc.Summarized Book");  // Opens OfficialAccSummarizedBookRequestPageHandler.
@@ -376,9 +376,9 @@ codeunit 144040 "UT REP Debit Credit"
 
         // [GIVEN] Enqued values for Report 10716
         Initialize();
-        CreateAccountingPeriod(false, WorkDate);  // FALSE for New Fiscal Year.
+        CreateAccountingPeriod(false, WorkDate());  // FALSE for New Fiscal Year.
         EnqueueValuesForOfficialAccSumBookRqstPageHandler(
-          false, GLAccount."Account Type"::Heading, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Adding random years to WORKDATE for ToDate, FALSE for Show Amounts In Add Currency.
+          false, GLAccount."Account Type"::Heading, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));  // Adding random years to WORKDATE for ToDate, FALSE for Show Amounts In Add Currency.
 
         // [WHEN] Running report "Official Acc.Summarized Book"
         asserterror REPORT.Run(REPORT::"Official Acc.Summarized Book");  // Opens OfficialAccSummarizedBookRequestPageHandler.
@@ -425,7 +425,7 @@ codeunit 144040 "UT REP Debit Credit"
         CreateGLAccount(GLAccount, CopyStr(LibraryUTUtility.GetNewCode, 1, 3), GLAccount."Account Type"::Heading, GLEntry."G/L Account No.");
         EnqueueValuesForMainAccountingBookRqstPageHandler(
           GLAccount."No.", GLEntry."Global Dimension 1 Code", GLEntry."Global Dimension 2 Code", GLAccount."Account Type"::Heading,
-          Format(WorkDate), false);  // False for ShowAmtsInAddCurrency.
+          Format(WorkDate()), false);  // False for ShowAmtsInAddCurrency.
 
         // [WHEN] Running report "Main Accounting Book"
         REPORT.Run(REPORT::"Main Accounting Book");  // Opens MainAccountingBookRequestPageHandler.
@@ -523,8 +523,8 @@ codeunit 144040 "UT REP Debit Credit"
         Initialize();
 
         // [GIVEN] Reporting period from 01-01-15 to 31-12-15 (1 year)
-        PeriodStart := CalcDate('<-CY>', WorkDate);
-        PeriodEnd := CalcDate('<CY>', WorkDate);
+        PeriodStart := CalcDate('<-CY>', WorkDate());
+        PeriodEnd := CalcDate('<CY>', WorkDate());
 
         // [GIVEN] G/L Account
         GLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -533,7 +533,7 @@ codeunit 144040 "UT REP Debit Credit"
         AmountBeforePeriod := CreateGLEntryWithSpecifiedAmount(GLAccountNo, PeriodStart - 1);
 
         // [GIVEN] G/L Entry within the reporting period (Amount = 500)
-        AmountWithinPeriod := CreateGLEntryWithSpecifiedAmount(GLAccountNo, WorkDate);
+        AmountWithinPeriod := CreateGLEntryWithSpecifiedAmount(GLAccountNo, WorkDate());
 
         // [GIVEN] G/L Entry after the reporting period (Amount = 1000)
         CreateGLEntryWithSpecifiedAmount(GLAccountNo, PeriodEnd + 1);
@@ -574,8 +574,8 @@ codeunit 144040 "UT REP Debit Credit"
         Initialize();
 
         // [GIVEN] Reporting period from 01-01-18 to 31-12-18 (1 year)
-        PeriodStart := CalcDate('<-CY>', WorkDate);
-        PeriodEnd := CalcDate('<CY>', WorkDate);
+        PeriodStart := CalcDate('<-CY>', WorkDate());
+        PeriodEnd := CalcDate('<CY>', WorkDate());
 
         // [GIVEN] G/L Account
         GLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -584,7 +584,7 @@ codeunit 144040 "UT REP Debit Credit"
         CreateGLEntryWithAdditionalCurrency(GLEntryBefore, GLAccountNo, PeriodStart - 1);
 
         // [GIVEN] G/L Entry within the reporting period (Amount = 10, Debit = 20, Credit = 30)
-        CreateGLEntryWithAdditionalCurrency(GLEntryWithin, GLAccountNo, WorkDate);
+        CreateGLEntryWithAdditionalCurrency(GLEntryWithin, GLAccountNo, WorkDate());
 
         // [WHEN] Run Trial Balance report and save dataset as XML
         Commit();
@@ -628,8 +628,8 @@ codeunit 144040 "UT REP Debit Credit"
         Initialize();
 
         // [GIVEN] Reporting period from 01-01-15 to 31-12-15 (1 year)
-        PeriodStart := CalcDate('<-CY>', WorkDate);
-        PeriodEnd := CalcDate('<CY>', WorkDate);
+        PeriodStart := CalcDate('<-CY>', WorkDate());
+        PeriodEnd := CalcDate('<CY>', WorkDate());
 
         // [GIVEN] Two G/L Accounts.
         GLAccountNo[1] := LibraryERM.CreateGLAccountNo();
@@ -640,8 +640,8 @@ codeunit 144040 "UT REP Debit Credit"
         CreateGLEntryWithSpecifiedAmount(GLAccountNo[2], PeriodStart - 1);
 
         // [GIVEN] Each G/L Account has a G/L Entry within the reporting period. Amount[1] = 500, Amount[2] = 600.
-        AmountWithinPeriod[1] := CreateGLEntryWithSpecifiedAmount(GLAccountNo[1], WorkDate);
-        AmountWithinPeriod[2] := CreateGLEntryWithSpecifiedAmount(GLAccountNo[2], WorkDate);
+        AmountWithinPeriod[1] := CreateGLEntryWithSpecifiedAmount(GLAccountNo[1], WorkDate());
+        AmountWithinPeriod[2] := CreateGLEntryWithSpecifiedAmount(GLAccountNo[2], WorkDate());
 
         // [GIVEN] Each G/L Account has a G/L Entry after the reporting period.
         CreateGLEntryWithSpecifiedAmount(GLAccountNo[1], PeriodEnd + 1);
@@ -676,8 +676,8 @@ codeunit 144040 "UT REP Debit Credit"
         Initialize();
 
         // [GIVEN] Reporting period from 01-01-15 to 31-12-15 (1 year)
-        PeriodStart := CalcDate('<-CY>', WorkDate);
-        PeriodEnd := CalcDate('<CY>', WorkDate);
+        PeriodStart := CalcDate('<-CY>', WorkDate());
+        PeriodEnd := CalcDate('<CY>', WorkDate());
 
         // [GIVEN] Two G/L Accounts.
         GLAccountNo[1] := LibraryERM.CreateGLAccountNo();
@@ -689,8 +689,8 @@ codeunit 144040 "UT REP Debit Credit"
 
         // [GIVEN] Each G/L Account has a G/L Entry within the reporting period.
         // [GIVEN] Additional-Currency Amount[1] = 50, Additional-Currency Amount[2] = 60.
-        CreateGLEntryWithAdditionalCurrency(GLEntryWithin[1], GLAccountNo[1], WorkDate);
-        CreateGLEntryWithAdditionalCurrency(GLEntryWithin[2], GLAccountNo[2], WorkDate);
+        CreateGLEntryWithAdditionalCurrency(GLEntryWithin[1], GLAccountNo[1], WorkDate());
+        CreateGLEntryWithAdditionalCurrency(GLEntryWithin[2], GLAccountNo[2], WorkDate());
 
         // [GIVEN] Each G/L Account has a G/L Entry after the reporting period.
         CreateGLEntryWithAdditionalCurrency(GLEntryBeforeAfter, GLAccountNo[1], PeriodEnd + 1);
@@ -746,7 +746,7 @@ codeunit 144040 "UT REP Debit Credit"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CreateCustomer;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry.Insert();
         CreateDetailedCustomerLedgerEntry(EntryType, CustLedgerEntry."Entry No.", Amount, AmountLCY);
     end;
@@ -756,7 +756,7 @@ codeunit 144040 "UT REP Debit Credit"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
-        DetailedCustLedgEntry."Posting Date" := WorkDate;
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
         DetailedCustLedgEntry."Entry Type" := EntryType;
         DetailedCustLedgEntry."Amount (LCY)" := AmountLCY;
         DetailedCustLedgEntry."Debit Amount" := Amount;
@@ -771,7 +771,7 @@ codeunit 144040 "UT REP Debit Credit"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
-        DetailedVendorLedgEntry."Posting Date" := WorkDate;
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
         DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Correction of Remaining Amount";
         DetailedVendorLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
         DetailedVendorLedgEntry."Debit Amount" := Amount;
@@ -795,7 +795,7 @@ codeunit 144040 "UT REP Debit Credit"
         CreateGeneralJournalBatch(GenJournalBatch);
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate(Amount, Amount);
         GenJournalLine.Insert(true);
     end;
@@ -854,9 +854,9 @@ codeunit 144040 "UT REP Debit Credit"
     var
         GLAccount: Record "G/L Account";
     begin
-        CreateAccountingPeriod(true, WorkDate);  // True for New Fiscal Year.
+        CreateAccountingPeriod(true, WorkDate());  // True for New Fiscal Year.
         CreateGLAccount(GLAccount, LibraryUTUtility.GetNewCode, GLAccount."Account Type"::Posting, '');  // Blank used for Totaling.
-        CreateGLEntry(GLEntry, GLAccount."No.", GLAccount."Global Dimension 1 Code", GLAccount."Global Dimension 2 Code", WorkDate);  // Using WORKDATE for Posting Date.
+        CreateGLEntry(GLEntry, GLAccount."No.", GLAccount."Global Dimension 1 Code", GLAccount."Global Dimension 2 Code", WorkDate());  // Using WORKDATE for Posting Date.
     end;
 
     local procedure CreateGLEntryWithGLAccount(var GLEntry: Record "G/L Entry"; ShowAmtsInAddCurrency: Boolean)
@@ -867,7 +867,7 @@ codeunit 144040 "UT REP Debit Credit"
         CreateGLEntrySetup(GLEntry);
         EnqueueValuesForMainAccountingBookRqstPageHandler(
           GLEntry."G/L Account No.", GLEntry."Global Dimension 1 Code", GLEntry."Global Dimension 2 Code",
-          GLAccount."Account Type"::Posting, Format(WorkDate), ShowAmtsInAddCurrency);
+          GLAccount."Account Type"::Posting, Format(WorkDate()), ShowAmtsInAddCurrency);
     end;
 
     local procedure CreateGLEntryWithAdditionalCurrency(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; PostingDate: Date)
@@ -882,7 +882,7 @@ codeunit 144040 "UT REP Debit Credit"
             "Additional-Currency Amount" := LibraryRandom.RandDec(100, 2);
             "Add.-Currency Debit Amount" := LibraryRandom.RandDec(100, 2);
             "Add.-Currency Credit Amount" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -895,7 +895,7 @@ codeunit 144040 "UT REP Debit Credit"
         GLRegister."No." := GLRegister2."No." + 1;
         GLRegister."From Entry No." := EntryNo;
         GLRegister."To Entry No." := EntryNo;
-        GLRegister."Posting Date" := WorkDate;
+        GLRegister."Posting Date" := WorkDate();
         GLRegister.Insert();
         exit(GLRegister."No.");
     end;
@@ -912,7 +912,7 @@ codeunit 144040 "UT REP Debit Credit"
     local procedure CreateVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Amount: Decimal; AmountLCY: Decimal)
     begin
         VendorLedgerEntry."Vendor No." := CreateVendor;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry.Insert();
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Amount, AmountLCY);
     end;
@@ -1025,7 +1025,7 @@ codeunit 144040 "UT REP Debit Credit"
         LibraryVariableStorage.Dequeue(ShowAmountsInLCY);
         CustomerDetailTrialBal.ShowAmountsInLCY.SetValue(ShowAmountsInLCY);
         CustomerDetailTrialBal.Customer.SetFilter("No.", No);
-        CustomerDetailTrialBal.Customer.SetFilter("Date Filter", Format(WorkDate));
+        CustomerDetailTrialBal.Customer.SetFilter("Date Filter", Format(WorkDate()));
         CustomerDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1040,7 +1040,7 @@ codeunit 144040 "UT REP Debit Credit"
         LibraryVariableStorage.Dequeue(JournalBatchName);
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Template Name", JournalTemplateName);
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", JournalBatchName);
-        GeneralJournalTest."Gen. Journal Line".SetFilter("Posting Date", Format(WorkDate));
+        GeneralJournalTest."Gen. Journal Line".SetFilter("Posting Date", Format(WorkDate()));
         GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1052,7 +1052,7 @@ codeunit 144040 "UT REP Debit Credit"
     begin
         LibraryVariableStorage.Dequeue(No);
         GLRegister."G/L Register".SetFilter("No.", Format(No));
-        GLRegister."G/L Register".SetFilter("Posting Date", Format(WorkDate));
+        GLRegister."G/L Register".SetFilter("Posting Date", Format(WorkDate()));
         GLRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1093,7 +1093,7 @@ codeunit 144040 "UT REP Debit Credit"
         LibraryVariableStorage.Dequeue(ShowAmountsInAddCurrency);
         LibraryVariableStorage.Dequeue(ToDate);
         LibraryVariableStorage.Dequeue(AccountType);
-        OfficialAccSummarizedBook.FromDate.SetValue(WorkDate);
+        OfficialAccSummarizedBook.FromDate.SetValue(WorkDate());
         OfficialAccSummarizedBook.ToDate.SetValue(ToDate);
         OfficialAccSummarizedBook.IncludeClosingEntries.SetValue(true);
         OfficialAccSummarizedBook.AccountType.SetValue(AccountType);
@@ -1109,7 +1109,7 @@ codeunit 144040 "UT REP Debit Credit"
     begin
         LibraryVariableStorage.Dequeue(No);
         TrialBalancePreviousYear."G/L Account".SetFilter("No.", No);
-        TrialBalancePreviousYear."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        TrialBalancePreviousYear."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         TrialBalancePreviousYear.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1146,7 +1146,7 @@ codeunit 144040 "UT REP Debit Credit"
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(ShowAmountsInLCY);
         VendorDetailTrialBalance.Vendor.SetFilter("No.", No);
-        VendorDetailTrialBalance.Vendor.SetFilter("Date Filter", Format(WorkDate));
+        VendorDetailTrialBalance.Vendor.SetFilter("Date Filter", Format(WorkDate()));
         VendorDetailTrialBalance.ShowAmountsInLCY.SetValue(ShowAmountsInLCY);
         VendorDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

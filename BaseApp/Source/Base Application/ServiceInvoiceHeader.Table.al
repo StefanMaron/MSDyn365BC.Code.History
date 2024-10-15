@@ -476,6 +476,11 @@ table 5992 "Service Invoice Header"
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
         }
+        field(131; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(180; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
@@ -1040,7 +1045,7 @@ table 5992 "Service Invoice Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()

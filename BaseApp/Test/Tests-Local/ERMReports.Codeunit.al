@@ -160,7 +160,7 @@ codeunit 144097 "ERM Reports"
         LibrarySales.CreateCustomer(Customer);
         for I := 0 to ArrayLen(NonExcludedAmount) - 1 do begin
             NonExcludedAmount[I + 1] :=
-              CreatePairDtldCustLedgEntry(Customer."No.", CalcDate('<' + Format(I) + 'M>', WorkDate));
+              CreatePairDtldCustLedgEntry(Customer."No.", CalcDate('<' + Format(I) + 'M>', WorkDate()));
             NonExcludedSum += NonExcludedAmount[I + 1];
         end;
         LibraryVariableStorage.Enqueue(Customer."No.");  // Enqueue for CustomerSummaryAgingRequestPageHandler
@@ -276,13 +276,13 @@ codeunit 144097 "ERM Reports"
         // [GIVEN] Posted sales "Invoice[2]" with "Amount" = 200, "Posting Date" = 25/01/2016 and "Document Date" = 25/03/2016
         Initialize();
         CustomerNo := LibrarySales.CreateCustomerNo();
-        AmountLCY := MockCustLedgerEntryWithDifferentDate(CustLedgerEntry, CustomerNo, WorkDate, CalcDate('<+2M>', WorkDate));
-        MockCustLedgerEntryWithDifferentDate(CustLedgerEntry, CustomerNo, CalcDate('<-2M>', WorkDate), WorkDate);
+        AmountLCY := MockCustLedgerEntryWithDifferentDate(CustLedgerEntry, CustomerNo, WorkDate(), CalcDate('<+2M>', WorkDate()));
+        MockCustLedgerEntryWithDifferentDate(CustLedgerEntry, CustomerNo, CalcDate('<-2M>', WorkDate()), WorkDate());
 
         // [WHEN] Run "Customer Annual Declaration" report with "Date Filter" = "01/03/2016..31/03/2016"
         Commit();
         Customer.SetRange("No.", CustomerNo);
-        Customer.SetRange("Date Filter", CalcDate('<CM+1D-1M>', WorkDate), CalcDate('<CM>', WorkDate));
+        Customer.SetRange("Date Filter", CalcDate('<CM+1D-1M>', WorkDate()), CalcDate('<CM>', WorkDate()));
         REPORT.Run(REPORT::"Customer - Annual Declaration", true, false, Customer);
 
         // [THEN] "Amount (LCY)" = 100 in Customer Annual Declaration report
@@ -306,13 +306,13 @@ codeunit 144097 "ERM Reports"
         // [GIVEN] Posted purchase "Invoice[2]" with "Amount" = 200, "Posting Date" = 25/01/2016 and "Document Date" = 25/03/2016
         Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo();
-        AmountLCY := MockVendorLedgerEntryWithDifferentDate(VendorLedgerEntry, VendorNo, WorkDate, CalcDate('<+2M+1D>', WorkDate));
-        MockVendorLedgerEntryWithDifferentDate(VendorLedgerEntry, VendorNo, CalcDate('<-2M>', WorkDate), WorkDate);
+        AmountLCY := MockVendorLedgerEntryWithDifferentDate(VendorLedgerEntry, VendorNo, WorkDate(), CalcDate('<+2M+1D>', WorkDate()));
+        MockVendorLedgerEntryWithDifferentDate(VendorLedgerEntry, VendorNo, CalcDate('<-2M>', WorkDate()), WorkDate());
 
         // [WHEN] Run "Vendor Annual Declaration" report with "Date Filter" = "01/03/2016..31/03/2016"
         Commit();
         Vendor.SetRange("No.", VendorLedgerEntry."Vendor No.");
-        Vendor.SetRange("Date Filter", CalcDate('<CM+1D-1M>', WorkDate), CalcDate('<CM>', WorkDate));
+        Vendor.SetRange("Date Filter", CalcDate('<CM+1D-1M>', WorkDate()), CalcDate('<CM>', WorkDate()));
         REPORT.Run(REPORT::"Vendor - Annual Declaration", true, false, Vendor);
 
         // [THEN] "Amount (LCY)" = 100 in Vendor Annual Declaration report
@@ -349,7 +349,7 @@ codeunit 144097 "ERM Reports"
         CreateSalesDocumentWithPaymentMethod(
           SalesHeader, SalesHeader."Document Type"::Quote, PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
 
         // [WHEN] Run report "Standard Sales - Quote"
@@ -491,11 +491,11 @@ codeunit 144097 "ERM Reports"
     begin
         with CustLedgEntry do begin
             if FindLast() then;
-            Init;
+            Init();
             "Entry No." := "Entry No." + 1;
             "Customer No." := CustomerNo;
             "Posting Date" := PostingDate;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -506,7 +506,7 @@ codeunit 144097 "ERM Reports"
     begin
         with DtldCustLedgEntry do begin
             if FindLast() then;
-            Init;
+            Init();
             "Entry No." := "Entry No." + 1;
             "Cust. Ledger Entry No." := CustLedgEntryNo;
             "Customer No." := CustomerNo;
@@ -515,7 +515,7 @@ codeunit 144097 "ERM Reports"
             "Excluded from calculation" := ExcludedFromCalc;
             Amount := AmountLCY;
             "Amount (LCY)" := AmountLCY;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -608,14 +608,14 @@ codeunit 144097 "ERM Reports"
         GLEntry: Record "G/L Entry";
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
             "Document Type" := "Document Type"::Invoice;
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
             "Posting Date" := PostingDate;
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             MockDetailedCustLedgerEntry(CustLedgerEntry);
             CalcFields("Amount (LCY)");
             exit("Amount (LCY)" + MockGLEntryWithDifferentDate("Document No.", GLEntry."Gen. Posting Type"::Sale, PostingDate, DocumentDate));
@@ -627,14 +627,14 @@ codeunit 144097 "ERM Reports"
         GLEntry: Record "G/L Entry";
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Vendor No." := VendorNo;
             "Document Type" := "Document Type"::Invoice;
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
             "Posting Date" := PostingDate;
             "Document Date" := DocumentDate;
-            Insert;
+            Insert();
             MockDetailedVendLedgerEntry(VendorLedgerEntry);
             CalcFields("Amount (LCY)");
             exit(
@@ -648,7 +648,7 @@ codeunit 144097 "ERM Reports"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
             "Customer No." := CustLedgerEntry."Customer No.";
@@ -656,7 +656,7 @@ codeunit 144097 "ERM Reports"
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
             "Ledger Entry Amount" := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -665,15 +665,15 @@ codeunit 144097 "ERM Reports"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
             "Vendor No." := VendorLedgerEntry."Vendor No.";
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Amount (LCY)" := -LibraryRandom.RandDec(100, 2);
             "Ledger Entry Amount" := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -683,7 +683,7 @@ codeunit 144097 "ERM Reports"
         GLAccount: Record "G/L Account";
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "Document No." := DocumentNo;
             "G/L Account No." := LibraryERM.CreateGLAccountNo();
@@ -691,7 +691,7 @@ codeunit 144097 "ERM Reports"
             "Document Date" := DocumentDate;
             Amount := LibraryRandom.RandDec(100, 2);
             "Gen. Posting Type" := GenPostingType;
-            Insert;
+            Insert();
             GLAccount.Get("G/L Account No.");
             GLAccount."Ignore in 347 Report" := true;
             GLAccount.Modify();
@@ -813,7 +813,7 @@ codeunit 144097 "ERM Reports"
         HeadingType: Option "Date Interval","Number of Days";
     begin
         LibraryVariableStorage.Dequeue(No);
-        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate);
+        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate());
         AgedAccountsReceivable.Agingby.SetValue(AgingBy::"Due Date");
         AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
         AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");
@@ -827,7 +827,7 @@ codeunit 144097 "ERM Reports"
     var
         CustomerNo: Variant;
     begin
-        CustomerSummaryAging.StartingDate.SetValue(WorkDate);
+        CustomerSummaryAging.StartingDate.SetValue(WorkDate());
         CustomerSummaryAging.PeriodLength.SetValue(PeriodLengthTxt);
         CustomerSummaryAging.ShowAmountsInLCY.SetValue(false);
         LibraryVariableStorage.Dequeue(CustomerNo);
@@ -867,7 +867,7 @@ codeunit 144097 "ERM Reports"
         AgingBy: Option "Due Date","Posting Date","Document Date";
         HeadingType: Option "Date Interval","Number of Days";
     begin
-        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate);
+        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate());
         AgedAccountsReceivable.Agingby.SetValue(AgingBy::"Due Date");
         AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
         AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");

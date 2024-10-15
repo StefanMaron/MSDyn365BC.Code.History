@@ -1,7 +1,7 @@
 page 542 "Default Dimensions-Multiple"
 {
     Caption = 'Default Dimensions-Multiple';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     PageType = List;
     SourceTable = "Default Dimension";
     SourceTableTemporary = true;
@@ -13,7 +13,7 @@ page 542 "Default Dimensions-Multiple"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the default dimension.';
@@ -24,12 +24,12 @@ page 542 "Default Dimensions-Multiple"
                             Error(CannotRenameErr, TableCaption);
                     end;
                 }
-                field("Dimension Value Code"; "Dimension Value Code")
+                field("Dimension Value Code"; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value code to suggest as the default dimension.';
                 }
-                field("Value Posting"; "Value Posting")
+                field("Value Posting"; Rec."Value Posting")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies how default dimensions and their values must be used.';
@@ -78,7 +78,7 @@ page 542 "Default Dimensions-Multiple"
     trigger OnDeleteRecord(): Boolean
     begin
         "Multi Selection Action" := "Multi Selection Action"::Delete;
-        Modify;
+        Modify();
         exit(false);
     end;
 
@@ -92,7 +92,7 @@ page 542 "Default Dimensions-Multiple"
         SetRange("Dimension Code", "Dimension Code");
         if not Find('-') and ("Dimension Code" <> '') then begin
             "Multi Selection Action" := "Multi Selection Action"::Change;
-            Insert;
+            Insert();
         end;
         SetRange("Dimension Code");
         exit(false);
@@ -101,19 +101,19 @@ page 542 "Default Dimensions-Multiple"
     trigger OnModifyRecord(): Boolean
     begin
         "Multi Selection Action" := "Multi Selection Action"::Change;
-        Modify;
+        Modify();
         exit(false);
     end;
 
     trigger OnOpenPage()
     begin
-        GetDefaultDim;
+        GetDefaultDim();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            LookupOKOnPush;
+            LookupOKOnPush();
     end;
 
     var
@@ -299,11 +299,11 @@ page 542 "Default Dimensions-Multiple"
                                       "Multi Selection Action" + 11;
                                     "Value Posting" := "Value Posting"::" ";
                                 end;
-                            Modify;
+                            Modify();
                             RecNo := RecNo + 1;
                         end else begin
                             Rec := TempDefaultDim2;
-                            Insert;
+                            Insert();
                             RecNo := RecNo + 1;
                         end;
                         if "Value Posting" = "Value Posting"::"Code Mandatory" then
@@ -317,11 +317,11 @@ page 542 "Default Dimensions-Multiple"
                         "Multi Selection Action" :=
                           "Multi Selection Action" + 10;
                         "Dimension Value Code" := '';
-                        Modify;
+                        Modify();
                     end;
             until Dim.Next() = 0;
 
-        Reset;
+        Reset();
         SetCurrentKey("Dimension Code");
         SetCurrentKey("Dimension Code");
         SetFilter(
@@ -342,7 +342,7 @@ page 542 "Default Dimensions-Multiple"
 
     local procedure LookupOKOnPush()
     begin
-        SetCommonDefaultDim;
+        SetCommonDefaultDim();
     end;
 
     local procedure DimensionValueCodeOnFormat(Text: Text[1024])
@@ -375,7 +375,7 @@ page 542 "Default Dimensions-Multiple"
         No: Code[20];
     begin
         OnBeforeSetMultiRecord(MasterRecord);
-        ClearTempDefaultDim;
+        ClearTempDefaultDim();
 
         MasterRecordRef.GetTable(MasterRecord);
         NoFieldRef := MasterRecordRef.Field(NoField);
@@ -389,7 +389,7 @@ page 542 "Default Dimensions-Multiple"
     procedure SetMultiEmployee(var Employee: Record Employee)
     begin
         //DEPRECATED - TO BE REMOVED FOR FALL 19
-        ClearTempDefaultDim;
+        ClearTempDefaultDim();
         with Employee do
             if Find('-') then
                 repeat

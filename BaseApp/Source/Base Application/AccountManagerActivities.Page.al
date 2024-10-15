@@ -96,13 +96,13 @@
             cuegroup(Cartera)
             {
                 Caption = 'Cartera';
-                field("Receivable Documents"; "Receivable Documents")
+                field("Receivable Documents"; Rec."Receivable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Receivables Cartera Docs";
                     ToolTip = 'Specifies the receivables document that is associated with the bill group.';
                 }
-                field("Payable Documents"; "Payable Documents")
+                field("Payable Documents"; Rec."Payable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Payables Cartera Docs";
@@ -153,7 +153,7 @@
                         var
                             BankAccReconciliation: Record "Bank Acc. Reconciliation";
                         begin
-                            BankAccReconciliation.OpenNewWorksheet
+                            BankAccReconciliation.OpenNewWorksheet();
                         end;
                     }
                 }
@@ -196,7 +196,7 @@
             cuegroup(MissingSIIEntries)
             {
                 Caption = 'Missing SII Entries';
-                field("Missing SII Entries"; "Missing SII Entries")
+                field("Missing SII Entries"; Rec."Missing SII Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Missing SII Entries';
@@ -207,10 +207,10 @@
                     var
                         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
                     begin
-                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage;
+                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage();
                     end;
                 }
-                field("Days Since Last SII Check"; "Days Since Last SII Check")
+                field("Days Since Last SII Check"; Rec."Days Since Last SII Check")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Recreate Missing SII Entries";
@@ -240,7 +240,7 @@
 
         Rec.SetFilter("Due Date Filter", '<=%1', WorkDate());
         Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
-        ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable;
+        ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable();
     end;
 
     var
@@ -252,9 +252,9 @@
         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
     begin
         if Rec.FieldActive("Missing SII Entries") then
-            "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount;
+            "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount();
         if Rec.FieldActive("Days Since Last SII Check") then
-            "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck;
+            "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck();
     end;
 }
 

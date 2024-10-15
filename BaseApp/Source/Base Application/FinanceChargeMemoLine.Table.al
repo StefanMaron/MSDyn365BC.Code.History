@@ -30,9 +30,9 @@ table 303 "Finance Charge Memo Line"
             begin
                 if Type <> xRec.Type then begin
                     FinChrgMemoLine := Rec;
-                    Init;
+                    Init();
                     Type := FinChrgMemoLine.Type;
-                    GetFinChrgMemoHeader;
+                    GetFinChrgMemoHeader();
                 end;
             end;
         }
@@ -46,16 +46,16 @@ table 303 "Finance Charge Memo Line"
             begin
                 if Type <> Type::"Customer Ledger Entry" then
                     exit;
-                SetCustLedgEntryView;
+                SetCustLedgEntryView();
                 if CustLedgEntry.Get("Entry No.") then;
-                LookupCustLedgEntry;
+                LookupCustLedgEntry();
             end;
 
             trigger OnValidate()
             begin
                 TestField(Type, Type::"Customer Ledger Entry");
                 TestField("Attached to Line No.", 0);
-                GetFinChrgMemoHeader;
+                GetFinChrgMemoHeader();
                 CustLedgEntry.Get("Entry No.");
                 case FinChrgTerms."Interest Calculation" of
                     FinChrgTerms."Interest Calculation"::"Open Entries":
@@ -69,7 +69,7 @@ table 303 "Finance Charge Memo Line"
                     Error(
                       Text000,
                       FinChrgMemoHeader.FieldCaption("Currency Code"),
-                      FinChrgMemoHeader.TableCaption, CustLedgEntry.TableCaption);
+                      FinChrgMemoHeader.TableCaption(), CustLedgEntry.TableCaption());
                 "Posting Date" := CustLedgEntry."Posting Date";
                 "Document Date" := CustLedgEntry."Document Date";
                 "Due Date" := CustLedgEntry."Due Date";
@@ -80,7 +80,7 @@ table 303 "Finance Charge Memo Line"
                 CustLedgEntry.CalcFields(Amount, "Remaining Amount");
                 "Original Amount" := CustLedgEntry.Amount;
                 "Remaining Amount" := CustLedgEntry."Remaining Amount";
-                CalcFinChrg;
+                CalcFinChrg();
             end;
         }
         field(7; "Posting Date"; Date)
@@ -114,7 +114,7 @@ table 303 "Finance Charge Memo Line"
 
             trigger OnLookup()
             begin
-                LookupDocNo;
+                LookupDocNo();
             end;
 
             trigger OnValidate()
@@ -122,7 +122,7 @@ table 303 "Finance Charge Memo Line"
                 TestField(Type, Type::"Customer Ledger Entry");
                 "Entry No." := 0;
                 if "Document No." <> '' then begin
-                    SetCustLedgEntryView;
+                    SetCustLedgEntryView();
                     if "Document Type" <> "Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Document Type");
                     CustLedgEntry.SetRange("Document No.", "Document No.");
@@ -180,12 +180,12 @@ table 303 "Finance Charge Memo Line"
                         Type::"G/L Account":
                             begin
                                 GLAcc.Get("No.");
-                                GLAcc.CheckGLAcc;
+                                GLAcc.CheckGLAcc();
                                 if not "System-Created Entry" then
                                     GLAcc.TestField("Direct Posting", true);
                                 GLAcc.TestField("Gen. Prod. Posting Group");
                                 Description := GLAcc.Name;
-                                GetFinChrgMemoHeader;
+                                GetFinChrgMemoHeader();
                                 "Tax Group Code" := GLAcc."Tax Group Code";
                                 Validate("Gen. Prod. Posting Group", GLAcc."Gen. Prod. Posting Group");
                                 Validate("VAT Prod. Posting Group", GLAcc."VAT Prod. Posting Group");
@@ -212,14 +212,14 @@ table 303 "Finance Charge Memo Line"
                 end;
                 if Type = Type::"Customer Ledger Entry" then
                     TestField("Attached to Line No.", 0);
-                GetFinChrgMemoHeader;
+                GetFinChrgMemoHeader();
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
                     "VAT Calculation Type"::"Reverse Charge VAT",
                     "VAT Calculation Type"::"Full VAT":
                         "VAT Amount" :=
-                          Round(Amount * "VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                          Round(Amount * "VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "VAT Calculation Type"::"Sales Tax":
                         begin
                             "VAT Amount" :=
@@ -251,7 +251,7 @@ table 303 "Finance Charge Memo Line"
             begin
                 TestField(Type, Type::"Customer Ledger Entry");
                 TestField("Entry No.");
-                CalcFinChrg;
+                CalcFinChrg();
             end;
         }
         field(18; "Gen. Prod. Posting Group"; Code[20])
@@ -304,7 +304,7 @@ table 303 "Finance Charge Memo Line"
             var
                 IsHandled: Boolean;
             begin
-                GetFinChrgMemoHeader;
+                GetFinChrgMemoHeader();
 
                 IsHandled := false;
                 OnValidateVATProdPostingGroupOnBeforeVATPostingSetupGet(Rec, xRec, IsHandled);
@@ -411,9 +411,6 @@ table 303 "Finance Charge Memo Line"
     end;
 
     var
-        Text000: Label 'The %1 on the %2 and the %3 must be the same.';
-        Text001: Label '%1 must be %2 or %3.';
-        Text002: Label 'Document';
         CustLedgEntry2: Record "Cust. Ledger Entry";
         FinChrgTerms: Record "Finance Charge Terms";
         FinChrgMemoHeader: Record "Finance Charge Memo Header";
@@ -432,14 +429,18 @@ table 303 "Finance Charge Memo Line"
         InterestCalcDate: Date;
         DocTypeText: Text[30];
         CalcInterest: Boolean;
-        Text004: Label 'There is no open %1 with %2 %3.';
         ClosedatDate: Date;
-        NotEnoughSpaceToInsertErr: Label 'There is not enough space to insert lines with additional interest rates.';
-        InvalidInterestRateDateErr: Label 'Create interest rate with start date prior to %1.', Comment = '%1 - date';
         Checking: Boolean;
         NrOfDays: Integer;
         NrOfLinesToInsert: Integer;
         NrOfLines: Integer;
+
+        Text000: Label 'The %1 on the %2 and the %3 must be the same.';
+        Text001: Label '%1 must be %2 or %3.';
+        Text002: Label 'Document';
+        Text004: Label 'There is no open %1 with %2 %3.';
+        NotEnoughSpaceToInsertErr: Label 'There is not enough space to insert lines with additional interest rates.';
+        InvalidInterestRateDateErr: Label 'Create interest rate with start date prior to %1.', Comment = '%1 - date';
 
     local procedure CalcFinChrg()
     var
@@ -462,7 +463,7 @@ table 303 "Finance Charge Memo Line"
         if IsHandled then
             exit;
 
-        GetFinChrgMemoHeader;
+        GetFinChrgMemoHeader();
         Amount := 0;
         "VAT Amount" := 0;
         "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
@@ -534,7 +535,7 @@ table 303 "Finance Charge Memo Line"
 
         if Amount <> 0 then begin
             CustPostingGr.Get(FinChrgMemoHeader."Customer Posting Group");
-            GLAcc.Get(CustPostingGr.GetInterestAccount);
+            GLAcc.Get(CustPostingGr.GetInterestAccount());
             GLAcc.TestField("Gen. Prod. Posting Group");
             Validate("Gen. Prod. Posting Group", GLAcc."Gen. Prod. Posting Group");
             Validate("VAT Prod. Posting Group", GLAcc."VAT Prod. Posting Group");
@@ -566,7 +567,7 @@ table 303 "Finance Charge Memo Line"
 
     local procedure SetCustLedgEntryView()
     begin
-        GetFinChrgMemoHeader;
+        GetFinChrgMemoHeader();
         case FinChrgTerms."Interest Calculation" of
             FinChrgTerms."Interest Calculation"::"Open Entries":
                 begin
@@ -587,7 +588,7 @@ table 303 "Finance Charge Memo Line"
 
     local procedure LookupCustLedgEntry()
     begin
-        GetFinChrgMemoHeader;
+        GetFinChrgMemoHeader();
         case FinChrgTerms."Interest Calculation" of
             FinChrgTerms."Interest Calculation"::"Open Entries":
                 if PAGE.RunModal(0, CustLedgEntry) = ACTION::LookupOK then
@@ -603,14 +604,14 @@ table 303 "Finance Charge Memo Line"
     begin
         if "Finance Charge Memo No." <> FinChrgMemoHeader."No." then begin
             FinChrgMemoHeader.Get("Finance Charge Memo No.");
-            ProcessFinChrgMemoHeader;
+            ProcessFinChrgMemoHeader();
         end;
     end;
 
     procedure SetFinChrgMemoHeader(var NewFinChrgMemoHeader: Record "Finance Charge Memo Header")
     begin
         FinChrgMemoHeader := NewFinChrgMemoHeader;
-        ProcessFinChrgMemoHeader;
+        ProcessFinChrgMemoHeader();
     end;
 
     local procedure ProcessFinChrgMemoHeader()
@@ -621,7 +622,7 @@ table 303 "Finance Charge Memo Line"
         FinChrgMemoHeader.TestField("Fin. Charge Terms Code");
         FinChrgTerms.Get(FinChrgMemoHeader."Fin. Charge Terms Code");
         if FinChrgMemoHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get(FinChrgMemoHeader."Currency Code");
             Currency.TestField("Amount Rounding Precision");
@@ -745,7 +746,7 @@ table 303 "Finance Charge Memo Line"
     begin
         CalcInterest := true;
         if CustLedgEntry."Calculate Interest" then begin
-            ClosedatDate := CalcClosedatDate;
+            ClosedatDate := CalcClosedatDate();
             if ClosedatDate <= CalcDate(FinChrgTerms."Grace Period", "Due Date") then
                 CalcInterest := false;
         end;
@@ -776,7 +777,7 @@ table 303 "Finance Charge Memo Line"
             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then
                 if IssuedReminderHeader.Get(CustLedgEntry."Document No.") then begin
                     IssuedReminderHeader.CalcFields("Add. Fee per Line");
-                    LineFee := IssuedReminderHeader."Add. Fee per Line" + IssuedReminderHeader.CalculateLineFeeVATAmount;
+                    LineFee := IssuedReminderHeader."Add. Fee per Line" + IssuedReminderHeader.CalculateLineFeeVATAmount();
                     CumAmount := CumAmount - LineFee * (FinChrgMemoHeader."Document Date" - InterestStartDate);
                     if CumAmount < 0 then
                         CumAmount := 0;
@@ -793,7 +794,7 @@ table 303 "Finance Charge Memo Line"
     begin
         if Type <> Type::"Customer Ledger Entry" then
             exit;
-        SetCustLedgEntryView;
+        SetCustLedgEntryView();
         if "Document Type" <> "Document Type"::" " then
             CustLedgEntry.SetRange("Document Type", "Document Type");
         if "Document No." <> '' then
@@ -801,7 +802,7 @@ table 303 "Finance Charge Memo Line"
         if CustLedgEntry.FindFirst() then;
         CustLedgEntry.SetRange("Document Type");
         CustLedgEntry.SetRange("Document No.");
-        LookupCustLedgEntry;
+        LookupCustLedgEntry();
     end;
 
     local procedure CalcFinanceChargeInterestRate(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; var UseDueDate: Date; var UseInterestRate: Decimal; var UseCalcDate: Date)
@@ -887,7 +888,7 @@ table 303 "Finance Charge Memo Line"
                 CurrInterestRateStartDate := FinanceChargeInterestRate."Start Date";
                 UseInterestRate := FinanceChargeInterestRate."Interest Rate";
                 UseInterestPeriod := FinanceChargeInterestRate."Interest Period (Days)";
-                if FinanceChargeInterestRate.Next <> 0 then begin
+                if FinanceChargeInterestRate.Next() <> 0 then begin
                     if FinanceChargeInterestRate."Start Date" <= FinChrgMemoHeader."Document Date" then
                         UseCalcDate := CalcDate('<-1D>', FinanceChargeInterestRate."Start Date")
                     else

@@ -23,7 +23,7 @@ codeunit 7315 "Whse. Internal Pick Release"
             WhsePickLine.SetRange("No.", "No.");
             WhsePickLine.SetFilter(Quantity, '<>0');
             if not WhsePickLine.Find('-') then
-                Error(Text000, TableCaption, "No.");
+                Error(Text000, TableCaption(), "No.");
 
             if "Location Code" <> '' then begin
                 Location.Get("Location Code");
@@ -41,7 +41,7 @@ codeunit 7315 "Whse. Internal Pick Release"
             until WhsePickLine.Next() = 0;
 
             Status := Status::Released;
-            Modify;
+            Modify();
 
             CreateWhsePickRqst(WhsePickHeader);
 
@@ -85,7 +85,7 @@ codeunit 7315 "Whse. Internal Pick Release"
                 WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
 
             Status := Status::Open;
-            Modify;
+            Modify();
         end;
     end;
 

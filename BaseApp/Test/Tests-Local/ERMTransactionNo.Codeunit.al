@@ -244,7 +244,7 @@ codeunit 144012 "ERM Transaction No."
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise.
-        SetPeriodTransNos(Format(WorkDate));
+        SetPeriodTransNos(Format(WorkDate()));
 
         // Verify: Verify existance of Period Transaction No. field on GL Register.
         Assert.IsTrue(GetPeriodTransactionNo(GenJournalLine."Journal Batch Name") <> 0, ExpectedValueErr);
@@ -264,7 +264,7 @@ codeunit 144012 "ERM Transaction No."
         Initialize();
         CreateJournalLinesWithTransactionNo(GenJournalLine, GenJournalTemplate.Type::General, LibraryRandom.RandIntInRange(1, 10));  // Using Random for Transaction No.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        SetPeriodTransNos(Format(WorkDate));
+        SetPeriodTransNos(Format(WorkDate()));
         LibraryVariableStorage.Enqueue(GetPeriodTransactionNo(GenJournalLine."Journal Batch Name"));  // Enqueue value for GLRegisterRequestPageHandler.
 
         // Exercise.
@@ -371,7 +371,7 @@ codeunit 144012 "ERM Transaction No."
         // [WHEN] Run report 10700 "Set Period Trans. Nos." using Date Filter = 01-01-2018..03-01-2018
         SetPeriodTransNos(StrSubstNo('%1..%2', WorkDate + 1, WorkDate + 3));
         for i := 1 to ArrayLen(GLEntry) do
-            GLEntry[i].Find;
+            GLEntry[i].Find();
 
         // [THEN] GLEntry4  "Period Trans. No." = 1
         // [THEN] GLEntry10 "Period Trans. No." = 1
@@ -427,7 +427,7 @@ codeunit 144012 "ERM Transaction No."
         // [WHEN] Run report 10700 "Set Period Trans. Nos." using Date Filter = 01-01-2018..03-01-2018
         SetPeriodTransNos(StrSubstNo('%1..%2', PostingDate[1], PostingDate[2] + 1));
         for i := 1 to ArrayLen(GLEntry) do
-            GLEntry[i].Find;
+            GLEntry[i].Find();
 
         // [THEN] GLEntry4 "Period Trans. No." = 2
         // [THEN] GLEntry3 "Period Trans. No." = 3
@@ -461,15 +461,15 @@ codeunit 144012 "ERM Transaction No."
         Assert.IsTrue(GeneralLedgerEntries.SetPeriodTransNos.Enabled, '');
         Assert.IsTrue(GeneralLedgerEntries.SetPeriodTransNos.Visible, '');
         GeneralLedgerEntries."Period Trans. No.".AssertEquals(0);
-        GeneralLedgerEntries.Close;
+        GeneralLedgerEntries.Close();
 
         SetPeriodTransNos(Format(WorkDate + 1));
-        GLEntry.Find;
+        GLEntry.Find();
 
         GeneralLedgerEntries.OpenEdit;
         GeneralLedgerEntries.GotoRecord(GLEntry);
         GeneralLedgerEntries."Period Trans. No.".AssertEquals(GLEntry."Period Trans. No.");
-        GeneralLedgerEntries.Close;
+        GeneralLedgerEntries.Close();
     end;
 
     [Test]
@@ -588,11 +588,11 @@ codeunit 144012 "ERM Transaction No."
     local procedure MockGLEntry(var GLEntry: Record "G/L Entry"; PostingDate: Date; TransactionNo: Integer)
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "Posting Date" := PostingDate;
             "Transaction No." := TransactionNo;
-            Insert;
+            Insert();
         end;
     end;
 

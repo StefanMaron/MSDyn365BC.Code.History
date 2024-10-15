@@ -24,7 +24,7 @@ page 367 "Post Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city linked to the postal code in the Code field.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
@@ -40,7 +40,7 @@ page 367 "Post Codes"
                     Caption = 'Time Zone';
                     ToolTip = 'Specifies the time zone for the selected post code.';
                 }
-                field("County Code"; "County Code")
+                field("County Code"; Rec."County Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county code of the customer''s payment address.';

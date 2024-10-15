@@ -23,7 +23,7 @@ codeunit 7181 "Purchases Info-Pane Management"
             if PurchLine."Expected Receipt Date" <> 0D then
                 AvailabilityDate := PurchLine."Expected Receipt Date"
             else
-                AvailabilityDate := WorkDate;
+                AvailabilityDate := WorkDate();
 
             Item.Reset();
             Item.SetRange("Date Filter", 0D, AvailabilityDate);

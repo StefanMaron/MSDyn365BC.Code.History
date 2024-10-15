@@ -661,7 +661,7 @@ codeunit 147305 "Cartera Posting"
             GenJnlLine."Account Type"::Customer, Customer."No.", -SalesInvoiceHeader.Amount / 2);
 
         // Verify
-        VerifyGLEntryExists(DocumentNo, WorkDate);
+        VerifyGLEntryExists(DocumentNo, WorkDate());
     end;
 
     [Test]
@@ -689,7 +689,7 @@ codeunit 147305 "Cartera Posting"
             GenJnlLine."Account Type"::Vendor, Vendor."No.", PurchInvHeader.Amount / 2);
 
         // Verify
-        VerifyGLEntryExists(DocumentNo, WorkDate);
+        VerifyGLEntryExists(DocumentNo, WorkDate());
     end;
 
     [Test]
@@ -722,7 +722,7 @@ codeunit 147305 "Cartera Posting"
             SalesInvoiceHeader."No.", '1', -SalesInvoiceHeader.Amount); // Bill No always 1
 
         // Verify
-        VerifyGLEntryCount(DocumentNo, WorkDate, 2);
+        VerifyGLEntryCount(DocumentNo, WorkDate(), 2);
     end;
 
     [Test]
@@ -755,7 +755,7 @@ codeunit 147305 "Cartera Posting"
             PurchInvHeader."No.", '1', PurchInvHeader.Amount); // Bill No always 1
 
         // Verify
-        VerifyGLEntryCount(DocumentNo, WorkDate, 2);
+        VerifyGLEntryCount(DocumentNo, WorkDate(), 2);
     end;
 
     [Test]
@@ -1062,7 +1062,7 @@ codeunit 147305 "Cartera Posting"
 
         // [THEN] "Analysis View"."Last Entry No." = last G/L Entry No.
         GLEntry.FindLast();
-        AnalysisView.Find;
+        AnalysisView.Find();
         Assert.AreEqual(GLEntry."Entry No.", AnalysisView."Last Entry No.", AnalysisView.FieldCaption("Last Entry No."));
     end;
 
@@ -1093,7 +1093,7 @@ codeunit 147305 "Cartera Posting"
 
         // [THEN] "Analysis View"."Last Entry No." = last G/L Entry No.
         GLEntry.FindLast();
-        AnalysisView.Find;
+        AnalysisView.Find();
         Assert.AreEqual(GLEntry."Entry No.", AnalysisView."Last Entry No.", AnalysisView.FieldCaption("Last Entry No."));
     end;
 
@@ -1122,7 +1122,7 @@ codeunit 147305 "Cartera Posting"
 
         // [THEN] "Analysis View"."Last Entry No." = last G/L Entry No.
         GLEntry.FindLast();
-        AnalysisView.Find;
+        AnalysisView.Find();
         Assert.AreEqual(GLEntry."Entry No.", AnalysisView."Last Entry No.", AnalysisView.FieldCaption("Last Entry No."));
     end;
 
@@ -1442,10 +1442,10 @@ codeunit 147305 "Cartera Posting"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             if "Additional Reporting Currency" <> '' then begin
                 Validate("Additional Reporting Currency", '');
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -1535,7 +1535,7 @@ codeunit 147305 "Cartera Posting"
     local procedure CreatePaymentOrderWithSpecificBankAccount(var PaymentOrder: Record "Payment Order"; BankAccNo: Code[20])
     begin
         with PaymentOrder do begin
-            Init;
+            Init();
             Validate("Bank Account No.", BankAccNo);
             Insert(true);
         end;
@@ -1586,7 +1586,7 @@ codeunit 147305 "Cartera Posting"
             LibraryERM.CreateGLAccount(GLAccount);
             Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -1909,7 +1909,7 @@ codeunit 147305 "Cartera Posting"
           SalesLine.Type::Item, ItemNo,
           LibraryRandom.RandDec(100, 2));
         LibrarySales.ReleaseSalesDocument(SalesHeader);
-        SalesLine.Find;
+        SalesLine.Find();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -1937,7 +1937,7 @@ codeunit 147305 "Cartera Posting"
         PurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Unit Price (LCY)");
         PurchaseLine.Modify(true);
         ReleasePurchDocument.PerformManualRelease(PurchaseHeader);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
@@ -1988,7 +1988,7 @@ codeunit 147305 "Cartera Posting"
         CustLedgEntry.Init();
         CustLedgEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(CustLedgEntry, CustLedgEntry.FieldNo("Entry No."));
-        CustLedgEntry."Posting Date" := WorkDate;
+        CustLedgEntry."Posting Date" := WorkDate();
         CustLedgEntry.Insert();
     end;
 
@@ -2117,7 +2117,7 @@ codeunit 147305 "Cartera Posting"
     begin
         with GenJnlLine do begin
             CreateGenJnlBatch(GenJnlBatch);
-            Init;
+            Init();
             "Journal Template Name" := GenJnlBatch."Journal Template Name";
             "Journal Batch Name" := GenJnlBatch.Name;
         end;
@@ -2126,7 +2126,7 @@ codeunit 147305 "Cartera Posting"
     local procedure InitGenJnlLineWithGivenBatch(var GenJnlLine: Record "Gen. Journal Line"; JnlTemplateName: Code[20]; JnlBatchName: Code[20])
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             "Journal Template Name" := JnlTemplateName;
             "Journal Batch Name" := JnlBatchName;
         end;
@@ -2375,7 +2375,7 @@ codeunit 147305 "Cartera Posting"
         AlphabeticTextOption: Option Capitalized,Literal;
     begin
         with GenJnlBatch do begin
-            Init;
+            Init();
             Validate("Journal Template Name", JnlTemplateName);
             Validate(Name,
               LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), AlphabeticTextOption::Capitalized));
@@ -3085,7 +3085,7 @@ codeunit 147305 "Cartera Posting"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         FindCarteraGenJnlBatch(GenJournalBatch);
-        RedrawReceivableBills.NewDueDate.SetValue(CalcDate(StrSubstNo('<%1M>', Format(LibraryRandom.RandInt(5))), WorkDate));
+        RedrawReceivableBills.NewDueDate.SetValue(CalcDate(StrSubstNo('<%1M>', Format(LibraryRandom.RandInt(5))), WorkDate()));
         RedrawReceivableBills.AuxJnlTemplateName.SetValue(GenJournalBatch."Journal Template Name");
         RedrawReceivableBills.AuxJnlBatchName.SetValue(GenJournalBatch.Name);
         RedrawReceivableBills.OK.Invoke;
@@ -3247,7 +3247,7 @@ codeunit 147305 "Cartera Posting"
             SetRange("Posting Date", PostingDate);
             SetRange("Document No.", DocumentNo);
             FindFirst();
-            Reset;
+            Reset();
             SetFilter("Entry No.", '<>%1', "Entry No.");
             SetRange("Transaction No.", "Transaction No.");
             Assert.IsTrue(IsEmpty, VATEntryError);
@@ -3310,10 +3310,10 @@ codeunit 147305 "Cartera Posting"
         GenLedgSetup.Get();
         FindGLEntry(GLEntry, DocNo, DocType, VATPostingSetup);
         if GetNextEntry then
-            GLEntry.Next;
+            GLEntry.Next();
         Assert.AreNearlyEqual(
           VATAmount, GLEntry.Amount, GenLedgSetup."Amount Rounding Precision", StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount),
-            VATAmount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            VATAmount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     local procedure VerifyVATEntry(AccNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; Amount: Decimal; GetNextEntry: Boolean)
@@ -3322,11 +3322,11 @@ codeunit 147305 "Cartera Posting"
     begin
         FindVATEntry(VATEntry, DocNo, DocType, AccNo, VATPostingSetup);
         if GetNextEntry then
-            VATEntry.Next;
+            VATEntry.Next();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Amount, GetAmtRoundingPrecision(CurrencyCode),
           StrSubstNo(
-            AmountErr, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption, VATEntry.FieldCaption("Entry No."),
+            AmountErr, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption(), VATEntry.FieldCaption("Entry No."),
             VATEntry."Entry No."));
     end;
 
@@ -3382,7 +3382,7 @@ codeunit 147305 "Cartera Posting"
             DimSetEntry.Get(GLEntry."Dimension Set ID", DefDim."Dimension Code");
             Assert.AreEqual(
               DefDim."Dimension Value Code", DimSetEntry."Dimension Value Code", StrSubstNo(IncorrectDimValueErr, GLEntry."Entry No."));
-        until DefDim.Next = 0;
+        until DefDim.Next() = 0;
     end;
 
     local procedure VerifyAppliedVATEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AppliedDocumentType: Enum "Gen. Journal Document Type"; AppliedDocumentNo: Code[20])
@@ -3437,7 +3437,7 @@ codeunit 147305 "Cartera Posting"
     var
         VATEntry: Record "VAT Entry";
     begin
-        exit(StrSubstNo(FieldErr, FieldCaption, VATEntry.TableCaption))
+        exit(StrSubstNo(FieldErr, FieldCaption, VATEntry.TableCaption()))
     end;
 
     [ModalPageHandler]

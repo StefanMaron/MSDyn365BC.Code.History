@@ -353,7 +353,7 @@ codeunit 130618 "Library - Graph Mgt"
         Clear(TempBlob);
         TempBlob.CreateInStream(ResponseInStream);
 
-        ClearLastError;
+        ClearLastError();
         OnExecuteWebRequestAndReadResponseOnBeforeGetResponse(HttpWebRequestMgt);
         if HttpWebRequestMgt.GetResponse(ResponseInStream, HttpStatusCode, ResponseHeaders) then
             exit(true);
@@ -437,7 +437,7 @@ codeunit 130618 "Library - Graph Mgt"
         JSONManagement.GetJSONObject(JsonObject);
 
         JSONManagement.AddJPropertyToJObject(JsonObject, PropertyName, PropertyValue);
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure AddComplexTypetoJSON(JSONTxt: Text; ComplexTypeName: Text; ComplexTypeValue: Text): Text
@@ -449,7 +449,7 @@ codeunit 130618 "Library - Graph Mgt"
         JSONManagement.GetJSONObject(JsonObject);
 
         JSONManagement.AddJObjectToJObject(JsonObject, ComplexTypeName, ComplexTypeValue);
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure AddObjectToCollectionJSON(JSONTxt: Text; ObjectJSONTxt: Text): Text
@@ -461,7 +461,7 @@ codeunit 130618 "Library - Graph Mgt"
         JSONManagement.InitializeObject(ObjectJSONTxt);
         JSONManagement.GetJSONObject(JSONObject);
         JSONManagement.AddJObjectToCollection(JSONObject);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     [Scope('OnPrem')]
@@ -559,10 +559,10 @@ codeunit 130618 "Library - Graph Mgt"
         JSONManagement.InitializeCollection(ObjectCollectionTxt);
 
         Assert.IsTrue(
-          JSONManagement.GetCollectionCount >= ObjectNumber, StrSubstNo('At least %1 item(s) should be returned', ObjectNumber));
+          JSONManagement.GetCollectionCount() >= ObjectNumber, StrSubstNo('At least %1 item(s) should be returned', ObjectNumber));
         if not JSONManagement.GetJObjectFromCollectionByIndex(JObject, ObjectNumber - 1) then
             exit(false);
-        ObjectJSON := JObject.ToString;
+        ObjectJSON := JObject.ToString();
         exit(true);
     end;
 
@@ -585,11 +585,11 @@ codeunit 130618 "Library - Graph Mgt"
         Clear(JSONManagement);
         JSONManagement.InitializeCollection(ObjectCollectionTxt);
 
-        Assert.IsTrue(JSONManagement.GetCollectionCount >= 2, 'At least 2 items should be returned');
-        for I := 0 to JSONManagement.GetCollectionCount - 1 do begin
+        Assert.IsTrue(JSONManagement.GetCollectionCount() >= 2, 'At least 2 items should be returned');
+        for I := 0 to JSONManagement.GetCollectionCount() - 1 do begin
             if not JSONManagement.GetJObjectFromCollectionByIndex(JObject, I) then
                 exit(false);
-            ObjectJSON := JObject.ToString;
+            ObjectJSON := JObject.ToString();
             if GetObjectIDFromJSON(ObjectJSON, ObjectIDFieldName, CurrentObjectID) then begin
                 if CurrentObjectID = ObjectID1 then begin
                     ObjectID1Found := true;
@@ -654,7 +654,7 @@ codeunit 130618 "Library - Graph Mgt"
           'Could not find object number: ' + Format(Index));
 
         JSONManagement.InitializeObjectFromJObject(RetrievedJSONObject);
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure VerifyAddressProperties(JSON: Text; ExpectedLine1: Text; ExpectedLine2: Text; ExpectedCity: Text; ExpectedState: Text; ExpectedCountryCode: Text; ExpectedPostCode: Text)
@@ -738,7 +738,7 @@ codeunit 130618 "Library - Graph Mgt"
         JSONManagement.InitializeObject(JSONUoMValue);
         JSONManagement.GetJSONObject(JObject);
         Assert.IsTrue(
-          JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode, UnitCodeValue),
+          JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, GraphCollectionMgtItem.UOMComplexTypeUnitCode(), UnitCodeValue),
           'Could not find the Unit Code property in' + JSONTxt);
 
         Assert.AreEqual(UnitofMeasureCode, UnitCodeValue, 'Incorrect UoM in JSON');

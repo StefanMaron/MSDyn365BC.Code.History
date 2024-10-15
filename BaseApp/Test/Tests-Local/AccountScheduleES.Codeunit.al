@@ -65,7 +65,7 @@ codeunit 144003 "Account Schedule - ES"
         CreateAccountSchedulePosting(AccScheduleLine, AccScheduleName.Name, GLAccount."No.", ReverseSign, PositiveOnly);
 
         CreateAndPostJournal(Vendor."No.", GLAccount."No.", Amount);
-        AccScheduleLine.SetRange("Date Filter", WorkDate);
+        AccScheduleLine.SetRange("Date Filter", WorkDate());
         Assert.AreEqual(ExpectedAmount, LibraryAccSchedule.CalcCell(AccScheduleLine, ColumnLayout, false, false), WrongCellValueErr);
     end;
 

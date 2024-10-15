@@ -12,8 +12,8 @@ codeunit 104107 "Upg Report Selections"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        UpdateReportSelections;
+
+        UpdateReportSelections();
     end;
 
     local procedure UpdateReportSelections()
@@ -23,7 +23,7 @@ codeunit 104107 "Upg Report Selections"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateReportSelectionsTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateReportSelectionsTag()) THEN
             EXIT;
 
         TempReportSelections.DeleteAll();
@@ -52,7 +52,7 @@ codeunit 104107 "Upg Report Selections"
             ReportSelections.DeleteAll();
         end;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateReportSelectionsTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateReportSelectionsTag());
     end;
 }
 

@@ -352,7 +352,7 @@ codeunit 144047 "ERM Equivalent Charge"
         GLEntry.FindSet();
         repeat
             DebitAmount += GLEntry."Debit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
           DebitAmount, Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount",
           Currency."Invoice Rounding Precision", ValueMustBeMatchMsg);

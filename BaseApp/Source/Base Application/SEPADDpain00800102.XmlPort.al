@@ -1,4 +1,4 @@
-xmlport 1010 "SEPA DD pain.008.001.02"
+﻿xmlport 1010 "SEPA DD pain.008.001.02"
 {
     Caption = 'SEPA DD pain.008.001.02';
     DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02';
@@ -298,7 +298,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                             begin
                                 if (PaymentExportData."Message to Recipient 1" = '') and
                                    (PaymentExportData."Message to Recipient 2" = '') and
-								   (PaymentExportData."Document No." = '') then
+                                   (PaymentExportData."Document No." = '') then
                                     currXMLport.Skip();
                             end;
                         }
@@ -307,7 +307,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if not PaymentExportData.GetPreserveNonLatinCharacters then
+                    if not PaymentExportData.GetPreserveNonLatinCharacters() then
                         PaymentExportData.CompanyInformationConvertToLatin(CompanyInformation);
                     CompanyInformationName := CompanyInformation.Name;
                 end;
@@ -329,7 +329,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
 
     trigger OnPreXmlPort()
     begin
-        InitData;
+        InitData();
     end;
 
     var
@@ -364,11 +364,11 @@ xmlport 1010 "SEPA DD pain.008.001.02"
             Error(NoDataToExportErr, DirectDebitCollectionEntry.FieldCaption(Status),
               DirectDebitCollectionEntry.Status::Rejected, DirectDebitCollection.Status::Canceled);
 
-        InitPmtGroup;
+        InitPmtGroup();
         repeat
-            if IsNewGroup then begin
+            if IsNewGroup() then begin
                 InsertPmtGroup(PaymentGroupNo);
-                InitPmtGroup;
+                InitPmtGroup();
             end;
             PaymentExportDataGroup."Line No." += 1;
             PaymentExportDataGroup.Amount += PaymentExportData.Amount;

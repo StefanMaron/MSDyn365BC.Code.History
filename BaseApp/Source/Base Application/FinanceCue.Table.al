@@ -156,7 +156,7 @@ table 9054 "Finance Cue"
         }
         field(30; "Cash Accounts Balance"; Decimal)
         {
-            AutoFormatExpression = GetAmountFormat;
+            AutoFormatExpression = GetAmountFormat();
             AutoFormatType = 11;
             Caption = 'Cash Accounts Balance';
             FieldClass = Normal;
@@ -228,7 +228,7 @@ table 9054 "Finance Cue"
     var
         ActivitiesCue: Record "Activities Cue";
     begin
-        exit(ActivitiesCue.GetAmountFormat);
+        exit(ActivitiesCue.GetAmountFormat());
     end;
 }
 

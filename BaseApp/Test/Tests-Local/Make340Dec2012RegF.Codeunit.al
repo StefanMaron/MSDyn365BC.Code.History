@@ -3107,7 +3107,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
                 CustLedgerEntry.Validate("Applies-to ID", CustomerNo);
                 CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
                 CustLedgerEntry.Modify(true);
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 

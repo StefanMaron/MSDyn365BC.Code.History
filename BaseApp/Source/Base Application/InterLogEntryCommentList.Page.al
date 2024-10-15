@@ -13,7 +13,7 @@ page 5188 "Inter. Log Entry Comment List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';

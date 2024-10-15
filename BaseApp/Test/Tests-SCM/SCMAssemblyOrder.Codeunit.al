@@ -11,7 +11,7 @@ codeunit 137908 "SCM Assembly Order"
     begin
         // [FEATURE] [Assembly] [SCM]
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
     end;
 
     var
@@ -437,7 +437,7 @@ codeunit 137908 "SCM Assembly Order"
         validateCount(AssemblyHeader."No.", 2);
         AsmLineFindFirst(AssemblyHeader, AssemblyLine);
         ValidateLineResourceTypeUsage(AssemblyLine, AssemblyLine."Resource Usage Type"::Direct);
-        AssemblyLine.Next;
+        AssemblyLine.Next();
         ValidateLineResourceTypeUsage(AssemblyLine, AssemblyLine."Resource Usage Type"::Fixed);
 
         asserterror Error('') // roll back
@@ -477,7 +477,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyLine.Validate("Resource Usage Type", AssemblyLine."Resource Usage Type"::Fixed);
         ValidateQuantity(AssemblyLine, BomQty);
 
-        AssemblyLine.Next;
+        AssemblyLine.Next();
         ValidateLineResourceTypeUsage(AssemblyLine, AssemblyLine."Resource Usage Type"::Fixed);
         ValidateQuantity(AssemblyLine, BomQty);
         AssemblyLine.Validate("Resource Usage Type", AssemblyLine."Resource Usage Type"::Direct);
@@ -1696,7 +1696,7 @@ codeunit 137908 "SCM Assembly Order"
         if AsmLine.FindSet() then
             repeat
                 TempCount += AsmLine."Quantity to Consume";
-            until AsmLine.Next <= 0;
+            until AsmLine.Next() <= 0;
         exit(TempCount);
     end;
 
@@ -1737,7 +1737,7 @@ codeunit 137908 "SCM Assembly Order"
 
         // VERIFY
         Assert.IsTrue(StrPos(GetLastErrorText, TXTQtyPerNoChange) > 0, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1771,7 +1771,7 @@ codeunit 137908 "SCM Assembly Order"
         BinContent.Modify();
 
         // Simulate posting
-        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, Item."No.", Location.Code, LibraryRandom.RandInt(10), '');
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate(), Item."No.", Location.Code, LibraryRandom.RandInt(10), '');
         AsmHeader."Bin Code" := Bin.Code;
 
         WhseEntry2.FindLast();

@@ -210,7 +210,7 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(
           PurchInvHeader."Succeeded VAT Registration No.", PostedPurchaseInvoice."Succeeded VAT Registration No.".Value, '');
 
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
         PurchInvHeader.Get(PurchInvHeader."No.");
         Assert.AreNotEqual(PurchInvHeaderNew."Payment Reference", PurchInvHeader."Payment Reference", '');
         Assert.AreNotEqual(PurchInvHeaderNew."Payment Method Code", PurchInvHeader."Payment Method Code", '');
@@ -260,7 +260,7 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(
           PurchInvHeaderNew."Succeeded VAT Registration No.", PostedPurchaseInvoice."Succeeded VAT Registration No.".Value, '');
 
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
         PurchInvHeader.Get(PurchInvHeader."No.");
         PurchInvHeader.TestField("Payment Reference", PurchInvHeaderNew."Payment Reference");
         PurchInvHeader.TestField("Payment Method Code", PurchInvHeaderNew."Payment Method Code");

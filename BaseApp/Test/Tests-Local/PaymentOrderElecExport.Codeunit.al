@@ -424,7 +424,7 @@ codeunit 147508 "Payment Order Elec. Export"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"SEPA CT-Export File");
-        BankExportImportSetup.FindFirst();
+        BankExportImportSetup.FindFirst;
         exit(BankExportImportSetup.Code);
     end;
 
@@ -456,7 +456,7 @@ codeunit 147508 "Payment Order Elec. Export"
         CarteraDoc.FindSet();
         repeat
             CarteraDoc.TestField("Elect. Pmts Exported", Exported);
-        until CarteraDoc.Next = 0;
+        until CarteraDoc.Next() = 0;
     end;
 
     local procedure VerifyFirstPaymentLineExportError(PaymentOrder: Record "Payment Order"; LineNo: Integer; ExpectedErrorText: Text)
@@ -473,10 +473,10 @@ codeunit 147508 "Payment Order Elec. Export"
         Assert.ExpectedError(ExpectedErrorText);
 
         // Second line has no errors
-        PaymentOrders.Docs.Next;
+        PaymentOrders.Docs.Next();
         PaymentOrders.Control1901420307.First; // somehow FIRST returns true on the empty factbox
         PaymentOrders."Payment File Errors"."Error Text".AssertEquals('');
-        PaymentOrders.Close;
+        PaymentOrders.Close();
     end;
 
     [RequestPageHandler]

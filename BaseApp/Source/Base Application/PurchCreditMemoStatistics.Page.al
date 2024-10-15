@@ -133,7 +133,7 @@ page 401 "Purch. Credit Memo Statistics"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -152,7 +152,7 @@ page 401 "Purch. Credit Memo Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", VendAmount, "Currency Factor");
+                WorkDate(), "Currency Code", VendAmount, "Currency Factor");
 
         VendLedgEntry.SetCurrentKey("Document No.");
         VendLedgEntry.SetRange("Document No.", "No.");

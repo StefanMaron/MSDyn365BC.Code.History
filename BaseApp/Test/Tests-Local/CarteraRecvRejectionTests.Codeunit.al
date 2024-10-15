@@ -699,41 +699,41 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
           TotalAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
           'Total Credit Amount for Total Amount has a wrong value');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreNearlyEqual(
           TotalAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
           'Total Debit Amount for Total Amount has a wrong value');
 
         if IsDealingTypeDiscount then begin
-            GLEntry.Next;
+            GLEntry.Next();
             Assert.AreNearlyEqual(
               ExpectedDiscountAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
               'Total Credit Amount for Discount Amount has a wrong value');
 
-            GLEntry.Next;
+            GLEntry.Next();
             Assert.AreNearlyEqual(
               ExpectedDiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
               'Total Debit Amount for Discount Amount has a wrong value');
         end;
 
         if HasUnsettledVAT then begin
-            GLEntry.Next;
+            GLEntry.Next();
             Assert.AreNearlyEqual(
               ExpectedVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
               'Total Credit Amount for Unsettled VAT Amount has a wrong value');
 
-            GLEntry.Next;
+            GLEntry.Next();
             Assert.AreNearlyEqual(
               ExpectedVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
               'Total Debit Amount for Unsettled VAT Amount has a wrong value');
         end;
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreNearlyEqual(
           RejectionFeeAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
           'Total Debit Amount for Rejection Fee has a wrong value');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreNearlyEqual(
           RejectionFeeAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
           'Total Debit Amount for Rejection Fee has a wrong value');
@@ -877,7 +877,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
     local procedure CreateCashGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate);
-        GenJournalBatch.SetupNewBatch;
+        GenJournalBatch.SetupNewBatch();
         GenJournalBatch.Modify(true);
     end;
 
@@ -1120,7 +1120,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         RejectDocs.UseJournal.SetValue(false);
         RejectDocs.TemplateName.SetValue('');
         RejectDocs.BatchName.SetValue('');
-        RejectDocs.PostingDate.SetValue(WorkDate);
+        RejectDocs.PostingDate.SetValue(WorkDate());
         RejectDocs.OK.Invoke;
     end;
 

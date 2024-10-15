@@ -46,7 +46,7 @@ page 1626 "Office OCR Incoming Documents"
     begin
         if Count = 1 then begin
             Selected := true;
-            Modify;
+            Modify();
         end else
             if IncomingDocumentAttachment."Document No. Filter" <> '' then
                 ModifyAll(Selected, false);
@@ -92,7 +92,7 @@ page 1626 "Office OCR Incoming Documents"
             repeat
                 TempExchangeObject.CalcFields(Content);
                 TransferFields(TempExchangeObject);
-                Insert;
+                Insert();
             until TempExchangeObject.Next() = 0;
     end;
 }

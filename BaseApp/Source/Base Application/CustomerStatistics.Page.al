@@ -13,7 +13,7 @@ page 151 "Customer Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment amount that the customer owes for completed sales.';
@@ -33,17 +33,17 @@ page 151 "Customer Statistics"
                 group(Sales)
                 {
                     Caption = 'Sales';
-                    field("Outstanding Orders (LCY)"; "Outstanding Orders (LCY)")
+                    field("Outstanding Orders (LCY)"; Rec."Outstanding Orders (LCY)")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders.';
                     }
-                    field("Shipped Not Invoiced (LCY)"; "Shipped Not Invoiced (LCY)")
+                    field("Shipped Not Invoiced (LCY)"; Rec."Shipped Not Invoiced (LCY)")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies your expected sales income from the customer based on ongoing sales orders where items have been shipped.';
                     }
-                    field("Outstanding Invoices (LCY)"; "Outstanding Invoices (LCY)")
+                    field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
@@ -52,23 +52,23 @@ page 151 "Customer Statistics"
                 group(Service)
                 {
                     Caption = 'Service';
-                    field("Outstanding Serv. Orders (LCY)"; "Outstanding Serv. Orders (LCY)")
+                    field("Outstanding Serv. Orders (LCY)"; Rec."Outstanding Serv. Orders (LCY)")
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies your expected service income from the customer in LCY based on ongoing service orders.';
                     }
-                    field("Serv Shipped Not Invoiced(LCY)"; "Serv Shipped Not Invoiced(LCY)")
+                    field("Serv Shipped Not Invoiced(LCY)"; Rec."Serv Shipped Not Invoiced(LCY)")
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies your expected service income from the customer in LCY based on service orders that are shipped but not invoiced.';
                     }
-                    field("Outstanding Serv.Invoices(LCY)"; "Outstanding Serv.Invoices(LCY)")
+                    field("Outstanding Serv.Invoices(LCY)"; Rec."Outstanding Serv.Invoices(LCY)")
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies your expected service income from the customer in LCY based on unpaid service invoices.';
                     }
                 }
-                field(GetTotalAmountLCY; GetTotalAmountLCY)
+                field(GetTotalAmountLCY; GetTotalAmountLCY())
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -78,12 +78,12 @@ page 151 "Customer Statistics"
                     StyleExpr = TRUE;
                     ToolTip = 'Specifies the payment amount that the customer owes for completed sales plus sales that are still ongoing.';
                 }
-                field("Credit Limit (LCY)"; "Credit Limit (LCY)")
+                field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
                 }
-                field("Balance Due (LCY)"; CalcOverdueBalance)
+                field("Balance Due (LCY)"; CalcOverdueBalance())
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = Format(StrSubstNo(Text000, Format(CurrentDate)));
@@ -100,7 +100,7 @@ page 151 "Customer Statistics"
                         CustLedgEntry.DrillDownOnOverdueEntries(DtldCustLedgEntry);
                     end;
                 }
-                field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY)
+                field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY())
                 {
                     ApplicationArea = Prepayments;
                     Caption = 'Invoiced Prepayment Amount (LCY)';
@@ -1097,8 +1097,8 @@ page 151 "Customer Statistics"
     var
         CostCalcMgt: Codeunit "Cost Calculation Management";
     begin
-        if CurrentDate <> WorkDate then begin
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then begin
+            CurrentDate := WorkDate();
             DateFilterCalc.CreateAccountingPeriodFilter(CustDateFilter[1], CustDateName[1], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(CustDateFilter[2], CustDateName[2], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(CustDateFilter[3], CustDateName[3], CurrentDate, -1);
@@ -1141,13 +1141,14 @@ page 151 "Customer Statistics"
         end;
         SetRange("Date Filter", 0D, CurrentDate);
 
-        UpdateDocStatistics;
+        UpdateDocStatistics();
     end;
 
     var
+        DateFilterCalc: Codeunit "DateFilter-Calc";
+
         Text000: Label 'Overdue Amounts (LCY) as of %1';
         Text001: Label 'Placeholder';
-        DateFilterCalc: Codeunit "DateFilter-Calc";
 
     protected var
         CustDateFilter: array[4] of Text[30];

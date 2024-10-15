@@ -82,7 +82,7 @@ codeunit 131920 "Library - Job"
         JobPlanningLine.Validate("Line No.", GetNextLineNo(JobPlanningLine));
         JobPlanningLine.Insert(true);
 
-        JobPlanningLine.Validate("Planning Date", WorkDate);
+        JobPlanningLine.Validate("Planning Date", WorkDate());
         JobPlanningLine.Validate("Line Type", LineType);
         JobPlanningLine.Validate(Type, Type);
         if JobPlanningLine.Type <> JobPlanningLine.Type::Text then begin
@@ -126,11 +126,11 @@ codeunit 131920 "Library - Job"
                 SetRange("Journal Batch Name", "Journal Batch Name");
             end;
 
-            Init;
+            Init();
             Insert(true);
 
             Validate("Line Type", LineType);
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Job No.", JobTask."Job No.");
             Validate("Job Task No.", JobTask."Job Task No.");
             JobJournalBatch.Get(GetJobJournalTemplate(JobJournalTemplate), "Journal Batch Name");
@@ -309,7 +309,7 @@ codeunit 131920 "Library - Job"
 
         JobJournalBatch.Validate("Journal Template Name", JobJournalTemplateName);
         JobJournalBatch.Validate(Name, BatchName);
-        JobJournalBatch.SetupNewBatch;
+        JobJournalBatch.SetupNewBatch();
         JobJournalBatch.Insert(true)
     end;
 
@@ -389,10 +389,10 @@ codeunit 131920 "Library - Job"
                 SetRange("Journal Batch Name", "Journal Batch Name");
             end;
 
-            Init;
+            Init();
             Insert(true);
 
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Account Type", "Account Type"::"G/L Account");
             Validate("Account No.", GLAccount."No.");
             Validate(Description, GLAccount."No.");
@@ -424,11 +424,11 @@ codeunit 131920 "Library - Job"
             BatchName := IncStr(BatchName);
             GLEntry.SetRange("Journal Batch Name", BatchName);
             JobLedgerEntry.SetRange("Journal Batch Name", BatchName);
-        until GLEntry.IsEmpty and JobLedgerEntry.IsEmpty and not GenJournalBatch.Get(GenJournalTemplateName, BatchName);
+        until GLEntry.IsEmpty() and JobLedgerEntry.IsEmpty() and not GenJournalBatch.Get(GenJournalTemplateName, BatchName);
 
         GenJournalBatch.Validate("Journal Template Name", GenJournalTemplateName);
         GenJournalBatch.Validate(Name, BatchName);
-        GenJournalBatch.SetupNewBatch;
+        GenJournalBatch.SetupNewBatch();
         GenJournalBatch.Insert(true)
     end;
 
@@ -712,7 +712,7 @@ codeunit 131920 "Library - Job"
         repeat
             GetGLEntry(JobLedgerEntry, GLEntry);
             Assert.AreEqual(JobLedgerEntry."Job No.", GLEntry."Job No.", JobNoError)
-        until JobLedgerEntry.Next = 0
+        until JobLedgerEntry.Next() = 0
     end;
 
     procedure VerifyPurchaseDocPostingForJob(var PurchaseLine: Record "Purchase Line")
@@ -738,7 +738,7 @@ codeunit 131920 "Library - Job"
                 "Currency Code" := Job."Currency Code";
                 Insert
             end
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         VerifyJobJournalPosting(false, TempJobJournalLine)
     end;
@@ -752,7 +752,7 @@ codeunit 131920 "Library - Job"
         repeat
             VerifyJobLedger(JobJournalLine);
             VerifyPlanningLines(JobJournalLine, UsageLink)
-        until JobJournalLine.Next = 0
+        until JobJournalLine.Next() = 0
     end;
 
     procedure VerifyJobLedger(JobJournalLine: Record "Job Journal Line")
@@ -944,8 +944,8 @@ codeunit 131920 "Library - Job"
                 RecordRef.GetTable(GeneralPostingSetup);
                 // general posting => income statement
                 SetIncomeStatementGLAccounts(RecordRef)
-            until GenProductPostingGroup.Next = 0
-        until GenBusinessPostingGroup.Next = 0
+            until GenProductPostingGroup.Next() = 0
+        until GenBusinessPostingGroup.Next() = 0
     end;
 
     procedure CreateGeneralPostingSetup(GenBusinessPostingGroupCode: Code[20]; GenProductPostingGroupCode: Code[20]; var GeneralPostingSetup: Record "General Posting Setup")
@@ -953,7 +953,7 @@ codeunit 131920 "Library - Job"
         with GeneralPostingSetup do begin
             "Gen. Bus. Posting Group" := GenBusinessPostingGroupCode;
             "Gen. Prod. Posting Group" := GenProductPostingGroupCode;
-            Init;
+            Init();
             Insert(true);
         end;
     end;
@@ -981,8 +981,8 @@ codeunit 131920 "Library - Job"
                 RecordRef.GetTable(VATPostingSetup);
                 // VAT posting => income statement
                 SetIncomeStatementGLAccounts(RecordRef)
-            until VATProductPostingGroup.Next = 0
-        until VATBusinessPostingGroup.Next = 0
+            until VATProductPostingGroup.Next() = 0
+        until VATBusinessPostingGroup.Next() = 0
     end;
 
     procedure CreateVATPostingSetup(VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; var VATPostingSetup: Record "VAT Posting Setup")
@@ -990,7 +990,7 @@ codeunit 131920 "Library - Job"
         with VATPostingSetup do begin
             "VAT Bus. Posting Group" := VATBusinessPostingGroupCode;
             "VAT Prod. Posting Group" := VATProductPostingGroupCode;
-            Init;
+            Init();
             "VAT %" := LibraryRandom.RandIntInRange(10, 25); // 10 <= VAT % <= 25
             "VAT Identifier" := Format("VAT %");
             "Sales VAT Account" := LibraryERM.CreateGLAccountWithSalesSetup;
@@ -1153,7 +1153,7 @@ codeunit 131920 "Library - Job"
         repeat
             ToPurchaseLine := FromPurchaseLine;
             ToPurchaseLine.Insert();
-        until FromPurchaseLine.Next = 0
+        until FromPurchaseLine.Next() = 0
     end;
 
     procedure CopyJobJournalLines(var FromJobJournalLine: Record "Job Journal Line"; var ToJobJournalLine: Record "Job Journal Line")
@@ -1162,7 +1162,7 @@ codeunit 131920 "Library - Job"
         repeat
             ToJobJournalLine := FromJobJournalLine;
             ToJobJournalLine.Insert(true);
-        until FromJobJournalLine.Next = 0;
+        until FromJobJournalLine.Next() = 0;
         ToJobJournalLine.CopyFilters(FromJobJournalLine)
     end;
 
@@ -1322,7 +1322,7 @@ codeunit 131920 "Library - Job"
             Location.Get(InventoryPostingSetup."Location Code");
             if not Location."Use As In-Transit" and not Location."Bin Mandatory" and not Location."Require Shipment" then
                 exit(Location.Code)
-        until InventoryPostingSetup.Next = 0;
+        until InventoryPostingSetup.Next() = 0;
         exit('');
     end;
 

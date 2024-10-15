@@ -46,8 +46,13 @@ table 79 "Company Information"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(7; "Phone No."; Text[30])
@@ -115,7 +120,7 @@ table 79 "Company Information"
                     exit;
                 if "Country/Region Code" = '' then
                     exit;
-                if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+                if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
                     VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
                         ResultRecordRef, Rec, "Primary Key",
                         VATRegistrationLog."Account Type"::"Company Information".AsInteger(), "Country/Region Code");
@@ -203,8 +208,13 @@ table 79 "Company Information"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(31; County; Text[30])
@@ -228,9 +238,14 @@ table 79 "Company Information"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnbeforeValidateShipToPostCode(Rec, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(
+                        "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(33; "Ship-to County"; Text[30])
@@ -458,7 +473,7 @@ table 79 "Company Information"
 
             trigger OnValidate()
             begin
-                SetBrandColorValue;
+                SetBrandColorValue();
             end;
         }
         field(5700; "Responsibility Center"; Code[10])
@@ -529,7 +544,7 @@ table 79 "Company Information"
             trigger OnValidate()
             begin
                 "CCC Bank No." := PrePadString("CCC Bank No.", MaxStrLen("CCC Bank No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10705; "CCC Bank Branch No."; Text[4])
@@ -540,7 +555,7 @@ table 79 "Company Information"
             trigger OnValidate()
             begin
                 "CCC Bank Branch No." := PrePadString("CCC Bank Branch No.", MaxStrLen("CCC Bank Branch No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10706; "CCC Control Digits"; Text[2])
@@ -551,7 +566,7 @@ table 79 "Company Information"
             trigger OnValidate()
             begin
                 "CCC Control Digits" := PrePadString("CCC Control Digits", MaxStrLen("CCC Control Digits"));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10707; "CCC Bank Account No."; Text[10])
@@ -562,7 +577,7 @@ table 79 "Company Information"
             trigger OnValidate()
             begin
                 "CCC Bank Account No." := PrePadString("CCC Bank Account No.", MaxStrLen("CCC Bank Account No."));
-                BuildCCC;
+                BuildCCC();
             end;
         }
         field(10708; "CCC No."; Text[20])
@@ -722,8 +737,8 @@ table 79 "Company Information"
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Company Information", GetPosition)
+        if not OnlineMapSetup.IsEmpty() then
+            OnlineMapManagement.MakeSelection(DATABASE::"Company Information", GetPosition())
         else
             Message(Text002);
     end;
@@ -758,7 +773,7 @@ table 79 "Company Information"
         IsHandled: Boolean;
     begin
         if Name = '' then // Is the record loaded?
-            Get;
+            Get();
 
         IsHandled := false;
         OnBeforeGetVATRegistrationNumberLbl(Result, IsHandled);
@@ -795,17 +810,17 @@ table 79 "Company Information"
         ConfirmManagement: Codeunit "Confirm Management";
         CompanyInformationPage: Page "Company Information";
     begin
-        Get;
-        if IsPaymentInfoAvailble then
+        Get();
+        if IsPaymentInfoAvailble() then
             exit;
         if GuiAllowed then begin
             if ConfirmManagement.GetResponseOrDefault(StrSubstNo(NoPaymentInfoQst, TableCaption), true) then begin
                 CompanyInformationPage.SetRecord(Rec);
                 CompanyInformationPage.Editable(true);
-                if CompanyInformationPage.RunModal = ACTION::OK then
+                if CompanyInformationPage.RunModal() = ACTION::OK then
                     CompanyInformationPage.GetRecord(Rec);
             end;
-            if not IsPaymentInfoAvailble then
+            if not IsPaymentInfoAvailble() then
                 Message(NoPaymentInfoMsg, TableCaption);
         end else
             Error(NoPaymentInfoMsg, TableCaption);
@@ -961,6 +976,26 @@ table 79 "Company Information"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIBAN(IBANCode: Code[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToCity(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToPostCode(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
     begin
     end;
 }

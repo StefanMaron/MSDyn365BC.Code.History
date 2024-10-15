@@ -39,9 +39,9 @@ codeunit 132496 MockOnPostNotificationRequest
                         HttpWebRequest := HttpWebRequest.Create('https://www.bingsdf.com');
                         HttpWebRequest.Method := 'POST';
                         HttpWebRequest.ContentType('application/json');
-                        HttpWebResponse := HttpWebRequest.GetResponse;
-                        HttpWebResponse.Close; // close connection
-                        HttpWebResponse.Dispose; // cleanup of IDisposable
+                        HttpWebResponse := HttpWebRequest.GetResponse();
+                        HttpWebResponse.Close(); // close connection
+                        HttpWebResponse.Dispose(); // cleanup of IDisposable
                     end else
                         exit;
                 end;

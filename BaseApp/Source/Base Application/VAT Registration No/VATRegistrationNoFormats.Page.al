@@ -13,7 +13,7 @@ page 575 "VAT Registration No. Formats"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
@@ -24,7 +24,7 @@ page 575 "VAT Registration No. Formats"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a format for a country''s/region''s VAT registration number.';
                 }
-                field("Check VAT Registration No."; "Check VAT Registration No.")
+                field("Check VAT Registration No."; Rec."Check VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number.';

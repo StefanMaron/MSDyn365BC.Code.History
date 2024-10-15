@@ -80,7 +80,7 @@ codeunit 144049 "ERM ES Check PMPE"
         Initialize();
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateItem(''), CreateCustomer(''),
-          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Blank - VAT Product Posting Group, VAT Business Posting Group and Posting Date before WorkDate.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Blank - VAT Product Posting Group, VAT Business Posting Group and Posting Date before WorkDate.
         SalesHeader.CalcFields(Amount);
 
         // Exercise.
@@ -104,7 +104,7 @@ codeunit 144049 "ERM ES Check PMPE"
         Initialize();
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateItem(''), CreateVendor(''),
-          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Blank - VAT Product Posting Group, VAT Business Posting Group and Posting Date before WorkDate.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Blank - VAT Product Posting Group, VAT Business Posting Group and Posting Date before WorkDate.
         PurchaseHeader.CalcFields(Amount);
 
         // Exercise.
@@ -180,7 +180,7 @@ codeunit 144049 "ERM ES Check PMPE"
         PostedDocumentNo :=
           CreateAndPostPurchaseInvoice(
             PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group", CreateVendor(VATPostingSetup."VAT Bus. Posting Group"),
-            CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate));  // Posting Date before WorkDate.
+            CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate()));  // Posting Date before WorkDate.
         InvoiceAmount := FindVendorLedgerEntryAmount(GenJournalLine."Document Type"::Invoice, PostedDocumentNo);
 
         // [GIVEN] Payment applied to Invoice with Amount = 100 and Posting Date = 01-02-16
@@ -366,7 +366,7 @@ codeunit 144049 "ERM ES Check PMPE"
           FindLedgerEntryAmount(AccountType, DocumentType, GenJournalLine."Document No."));
 
         // Exercise: Post General Journal Line With Applies To Document Number.
-        UpdateAndPostGenJournalLineWithAppliesToDoc(GenJournalLine, DocumentType, AppliesToDocNo, WorkDate);
+        UpdateAndPostGenJournalLineWithAppliesToDoc(GenJournalLine, DocumentType, AppliesToDocNo, WorkDate());
 
         // Verify: Verify VAT Entry - Base and Amount.
         VATAmount := GenJournalLine.Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %");
@@ -585,7 +585,7 @@ codeunit 144049 "ERM ES Check PMPE"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateAndPostSalesInvoice(
           SalesHeader, VATPostingSetup."VAT Prod. Posting Group", CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"),
-          CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate));  // Posting Date before WorkDate.
+          CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate()));  // Posting Date before WorkDate.
         PostedDocumentNo :=
           CreateAndPostSalesInvoice(
             SalesHeader, VATPostingSetup."VAT Prod. Posting Group", SalesHeader."Sell-to Customer No.", SalesHeader."Posting Date");
@@ -594,7 +594,7 @@ codeunit 144049 "ERM ES Check PMPE"
           SalesHeader."Sell-to Customer No.", -FindCustomerLedgerEntryAmount(GenJournalLine."Document Type"::Invoice, PostedDocumentNo) /
           DivisionFactor);
         UpdateAndPostGenJournalLineWithAppliesToDoc(
-          GenJournalLine, GenJournalLine."Applies-to Doc. Type"::Invoice, PostedDocumentNo, WorkDate);
+          GenJournalLine, GenJournalLine."Applies-to Doc. Type"::Invoice, PostedDocumentNo, WorkDate());
     end;
 
     local procedure CreatePostApplyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var GenJournalLine: Record "Gen. Journal Line"; DivisionFactor: Integer)
@@ -605,7 +605,7 @@ codeunit 144049 "ERM ES Check PMPE"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateAndPostPurchaseInvoice(
           PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group", CreateVendor(VATPostingSetup."VAT Bus. Posting Group"),
-          CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate));  // Posting Date before WorkDate.
+          CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate()));  // Posting Date before WorkDate.
         LibraryVariableStorage.Enqueue(PurchaseHeader."Posting Date");  // Enqueue value for handler - VendorOverduePaymentsRequestPageHandler.
         PostedDocumentNo :=
           CreateAndPostPurchaseInvoice(
@@ -615,7 +615,7 @@ codeunit 144049 "ERM ES Check PMPE"
           PurchaseHeader."Buy-from Vendor No.", -FindVendorLedgerEntryAmount(GenJournalLine."Document Type"::Invoice, PostedDocumentNo) /
           DivisionFactor);
         UpdateAndPostGenJournalLineWithAppliesToDoc(
-          GenJournalLine, GenJournalLine."Applies-to Doc. Type"::Invoice, PostedDocumentNo, WorkDate);
+          GenJournalLine, GenJournalLine."Applies-to Doc. Type"::Invoice, PostedDocumentNo, WorkDate());
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -688,7 +688,7 @@ codeunit 144049 "ERM ES Check PMPE"
     begin
         Customer.SetRange("No.", No);
         CustomerOverduePayments.SetTableView(Customer);
-        CustomerOverduePayments.InitReportParameters(StartingDate, WorkDate, ShowPayments::"Legally Overdue");
+        CustomerOverduePayments.InitReportParameters(StartingDate, WorkDate(), ShowPayments::"Legally Overdue");
         CustomerOverduePayments.Run();
     end;
 
@@ -698,7 +698,7 @@ codeunit 144049 "ERM ES Check PMPE"
         VendorOverduePayments: Report "Vendor - Overdue Payments";
     begin
         Vendor.SetRange("No.", No);
-        VendorOverduePayments.InitReportParameters(StartingDate, WorkDate, ShowPayments);
+        VendorOverduePayments.InitReportParameters(StartingDate, WorkDate(), ShowPayments);
         VendorOverduePayments.SetTableView(Vendor);
         VendorOverduePayments.Run();
     end;

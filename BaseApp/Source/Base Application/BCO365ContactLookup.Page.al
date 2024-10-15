@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2379 "BC O365 Contact Lookup"
 {
     Caption = 'Select';
@@ -9,6 +10,9 @@ page 2379 "BC O365 Contact Lookup"
     RefreshOnActivate = true;
     SourceTable = Contact;
     SourceTableView = SORTING(Name);
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,34 +20,34 @@ page 2379 "BC O365 Contact Lookup"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Enabled = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name.';
                 }
                 field(Type; Type)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Visible = false;
                 }
             }
@@ -56,17 +60,25 @@ page 2379 "BC O365 Contact Lookup"
         {
             action(_NEW_TEMP_)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'New';
                 Image = NewCustomer;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "BC O365 Sales Customer Card";
                 RunPageMode = Create;
                 ToolTip = 'Create a new customer.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(_NEW_TEMP__Promoted; _NEW_TEMP_)
+                {
+                }
+            }
+        }
     }
 }
-
+#endif

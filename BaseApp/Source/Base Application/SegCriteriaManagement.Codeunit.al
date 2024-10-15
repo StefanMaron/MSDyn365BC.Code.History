@@ -147,9 +147,9 @@ codeunit 5062 SegCriteriaManagement
                     if ProfileQuestionnaireLine.Count = 1 then begin
                         ProfileQuestionnaireLine.FindFirst();
                         exit(SelectStr(1, ContProfileAnswer.GetFilters) + ', ' +
-                          ProfileQuestionnaireLine.Question + ': ' + ProfileQuestionnaireLine.Description);
+                          ProfileQuestionnaireLine.Question() + ': ' + ProfileQuestionnaireLine.Description);
                     end;
-                    exit(ContProfileAnswer.GetFilters);
+                    exit(ContProfileAnswer.GetFilters());
                 end;
             DATABASE::"Contact Mailing Group":
                 begin

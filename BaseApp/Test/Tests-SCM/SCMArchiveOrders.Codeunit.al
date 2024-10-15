@@ -93,7 +93,7 @@ codeunit 137207 "SCM Archive Orders"
         ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeader);
 
         // [WHEN] Restore the archived Sales Return Order version.
-        SalesHeader.Find;
+        SalesHeader.Find();
         GetSalesHeaderArchivedVersion(SalesHeaderArchive, SalesHeader);
         ArchiveManagement.RestoreSalesDocument(SalesHeaderArchive);
 
@@ -265,7 +265,7 @@ codeunit 137207 "SCM Archive Orders"
 
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader.InitRecord;
+        PurchaseHeader.InitRecord();
         Assert.AreEqual(1, PurchaseHeader."Doc. No. Occurrence", PurchaseHeader.FieldCaption("Doc. No. Occurrence"));
     end;
 
@@ -300,7 +300,7 @@ codeunit 137207 "SCM Archive Orders"
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.Insert(true);
         ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
-        PurchaseHeader.InitRecord;
+        PurchaseHeader.InitRecord();
         Assert.AreEqual(2, PurchaseHeader."Doc. No. Occurrence", PurchaseHeader.FieldCaption("Doc. No. Occurrence"));
     end;
 
@@ -337,7 +337,7 @@ codeunit 137207 "SCM Archive Orders"
 
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader.InitRecord;
+        SalesHeader.InitRecord();
         Assert.AreEqual(1, SalesHeader."Doc. No. Occurrence", SalesHeader.FieldCaption("Doc. No. Occurrence"));
     end;
 
@@ -373,7 +373,7 @@ codeunit 137207 "SCM Archive Orders"
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.Insert(true);
         ArchiveManagement.ArchiveSalesDocument(SalesHeader);
-        SalesHeader.InitRecord;
+        SalesHeader.InitRecord();
         Assert.AreEqual(2, SalesHeader."Doc. No. Occurrence", SalesHeader.FieldCaption("Doc. No. Occurrence"));
     end;
 
@@ -482,7 +482,7 @@ codeunit 137207 "SCM Archive Orders"
 
         // [WHEN] Run "Delete Invoiced Blanket Purchase Orders" (Report 491)
         PurchaseHeaderOrder.Delete(true);
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invd Blnkt Purch Orders", PurchaseHeader);
 
         // [THEN] Blanket Purchase Order is not archived
@@ -512,11 +512,11 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.SetArchiveBlanketOrders(false);
 
         // [GIVEN] Purchase Order deleted with Report 499 "Delete Invoiced Purch. Orders"
-        PurchaseHeaderOrder.SetRecFilter;
+        PurchaseHeaderOrder.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invoiced Purch. Orders", PurchaseHeaderOrder);
 
         // [WHEN] Run "Delete Invoiced Blanket Purchase Orders" (Report 491)
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invd Blnkt Purch Orders", PurchaseHeader);
 
         // [THEN] Blanket Purchase Order is not archived
@@ -545,7 +545,7 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.SetArchiveOrders(true);
 
         // [WHEN] Run "Delete Invoiced Purch. Orders" (Report 499)
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invoiced Purch. Orders", PurchaseHeader);
 
         // [THEN] Purchase Order is archived
@@ -574,7 +574,7 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.SetArchiveReturnOrders(true);
 
         // [WHEN] Run "Delete Invoiced Purch. Ret. Orders" (Report 6661)
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invd Purch. Ret. Orders", PurchaseHeader);
 
         // [THEN] Purchase Return Order is archived
@@ -603,7 +603,7 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.SetArchiveReturnOrders(false);
 
         // [WHEN] Run "Delete Invoiced Purch. Ret. Orders" (Report 6661)
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invd Purch. Ret. Orders", PurchaseHeader);
 
         // [THEN] Purchase Return Order is not archived
@@ -632,7 +632,7 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySales.SetArchiveOrders(true);
 
         // [WHEN] Run "Delete Invoiced Sales Orders" (Report 299)
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invoiced Sales Orders", SalesHeader);
 
         // [THEN] Sales Order is archived
@@ -661,7 +661,7 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySales.SetArchiveReturnOrders(true);
 
         // [WHEN] Run "Delete Invoiced Sales Ret. Orders" (Report 6651)
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invd Sales Ret. Orders", SalesHeader);
 
         // [THEN] Sales Return Order is archived
@@ -690,7 +690,7 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySales.SetArchiveReturnOrders(false);
 
         // [WHEN] Run "Delete Invoiced Sales Ret. Orders" (Report 6651)
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invd Sales Ret. Orders", SalesHeader);
 
         // [THEN] Sales Return Order is not archived
@@ -721,9 +721,9 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySales.SetArchiveBlanketOrders(true);
 
         // [WHEN] Run "Delete Invoiced Blanket Sales Orders" (Report 291)
-        SalesHeaderOrder.Find;
+        SalesHeaderOrder.Find();
         SalesHeaderOrder.Delete(true);
-        SalesHeaderBlanketOrder.SetRecFilter;
+        SalesHeaderBlanketOrder.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invd Blnkt Sales Orders", SalesHeaderBlanketOrder);
 
         // [THEN] Blanket Sales Order is archived
@@ -755,7 +755,7 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySales.SetArchiveBlanketOrders(false);
 
         // [WHEN] Run "Delete Invoiced Blanket Sales Orders" (Report 291)
-        SalesHeaderBlanketOrder.SetRecFilter;
+        SalesHeaderBlanketOrder.SetRecFilter();
         RunDeletionReport(REPORT::"Delete Invd Blnkt Sales Orders", SalesHeaderBlanketOrder);
 
         // [THEN] Blanket Sales Order is not archived
@@ -938,7 +938,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         Commit(); // Required to run report with request page.
         Clear(ArchivedPurchaseQuote);
-        PurchaseHeaderArchive.SetRecFilter;
+        PurchaseHeaderArchive.SetRecFilter();
         ArchivedPurchaseQuote.SetTableView(PurchaseHeaderArchive);
         ArchivedPurchaseQuote.Run();
     end;
@@ -949,7 +949,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         Commit(); // Required to run report with request page.
         Clear(ArchivedPurchaseOrder);
-        PurchaseHeaderArchive.SetRecFilter;
+        PurchaseHeaderArchive.SetRecFilter();
         ArchivedPurchaseOrder.SetTableView(PurchaseHeaderArchive);
         ArchivedPurchaseOrder.Run();
     end;
@@ -960,7 +960,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         Commit(); // Required to run report with request page.
         Clear(ArchPurchReturnOrder);
-        PurchaseHeaderArchive.SetRecFilter;
+        PurchaseHeaderArchive.SetRecFilter();
         ArchPurchReturnOrder.SetTableView(PurchaseHeaderArchive);
         ArchPurchReturnOrder.Run();
     end;
@@ -1061,7 +1061,7 @@ codeunit 137207 "SCM Archive Orders"
         // Verify archived Header.
         PurchaseHeaderArchive.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 1, VersionNo);
         PurchaseHeaderArchive.TestField("Archived By", UserId);
-        PurchaseHeaderArchive.TestField("Date Archived", WorkDate);
+        PurchaseHeaderArchive.TestField("Date Archived", WorkDate());
 
         // Get actual archived lines.
         LibraryPurchase.FilterPurchaseLineArchive(PurchaseLineArchive, PurchaseHeader."Document Type", PurchaseHeader."No.", 1, VersionNo);
@@ -1079,7 +1079,7 @@ codeunit 137207 "SCM Archive Orders"
             Assert.AreEqual(1, TempPurchaseLine.Count, 'Archive line mismatch for line ' + Format(TempPurchaseLine."Line No."));
             TempPurchaseLine.FindFirst();
             TempPurchaseLine.Delete();
-        until PurchaseLineArchive.Next = 0;
+        until PurchaseLineArchive.Next() = 0;
 
         // Verify there are no un-archived lines.
         TempPurchaseLine.Reset();

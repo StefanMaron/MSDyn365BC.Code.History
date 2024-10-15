@@ -1,4 +1,4 @@
-page 77 "Resource List"
+﻿page 77 "Resource List"
 {
     AdditionalSearchTerms = 'capacity,job,project';
     ApplicationArea = Jobs;
@@ -6,7 +6,6 @@ page 77 "Resource List"
     CardPageID = "Resource Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Resource,Navigate,Prices & Discounts';
     SourceTable = Resource;
     UsageCategory = Lists;
 
@@ -17,7 +16,7 @@ page 77 "Resource List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -27,7 +26,7 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the resource.';
                 }
-                field("Name 2"; "Name 2")
+                field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
@@ -39,78 +38,78 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether the resource is a person or a machine.';
                 }
-                field("Base Unit of Measure"; "Base Unit of Measure")
+                field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the base unit used to measure the resource, such as hour, piece, or kilometer.';
                 }
-                field("Resource Group No."; "Resource Group No.")
+                field("Resource Group No."; Rec."Resource Group No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the resource group that this resource is assigned to.';
                     Visible = false;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                     Visible = false;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Price/Profit Calculation"; "Price/Profit Calculation")
+                field("Price/Profit Calculation"; Rec."Price/Profit Calculation")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the relationship between the Unit Cost, Unit Price, and Profit Percentage fields associated with this resource.';
                 }
-                field("Profit %"; "Profit %")
+                field("Profit %"; Rec."Profit %")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the profit margin that you want to sell the resource at. You can enter a profit percentage manually or have it entered according to the Price/Profit Calculation field';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                     Visible = false;
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
-                field("Default Deferral Template Code"; "Default Deferral Template Code")
+                field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Default Deferral Template';
                     ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the resource is coupled to a product in Dynamics 365 Sales.';
@@ -164,9 +163,6 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Resource Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -177,8 +173,6 @@ page 77 "Resource List"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Resource),
                                   "No." = FIELD("No.");
@@ -193,8 +187,6 @@ page 77 "Resource List"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-Single';
                         Image = Dimensions;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         RunObject = Page "Default Dimensions";
                         RunPageLink = "Table ID" = CONST(156),
                                       "No." = FIELD("No.");
@@ -207,8 +199,6 @@ page 77 "Resource List"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Multiple';
                         Image = DimensionSets;
-                        Promoted = true;
-                        PromotedCategory = Category4;
                         ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
 
                         trigger OnAction()
@@ -236,9 +226,6 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     Caption = 'Ledger E&ntries';
                     Image = ResourceLedger;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Resource Ledger Entries";
                     RunPageLink = "Resource No." = FIELD("No.");
                     RunPageView = SORTING("Resource No.")
@@ -262,8 +249,6 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     Caption = 'Units of Measure';
                     Image = UnitOfMeasure;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Resource Units of Measure";
                     RunPageLink = "Resource No." = FIELD("No.");
                     ToolTip = 'View or edit the units of measure that are set up for the resource.';
@@ -303,7 +288,7 @@ page 77 "Resource List"
                         ResourceRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(Resource);
-                        Resource.Next;
+                        Resource.Next();
 
                         if Resource.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(Resource.RecordId)
@@ -392,14 +377,12 @@ page 77 "Resource List"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN19
+#if not CLEAN21
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Costs';
                     Image = ResourceCosts;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
@@ -414,8 +397,6 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     Caption = 'Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
@@ -431,8 +412,6 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     Caption = 'Purchase Prices';
                     Image = ResourceCosts;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or change detailed information about costs for the resource.';
 
@@ -449,8 +428,6 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     Caption = 'Sales Prices';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource.';
 
@@ -490,8 +467,6 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     Caption = 'Resource A&vailability';
                     Image = Calendar;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Resource Availability";
                     RunPageLink = "No." = FIELD("No."),
                                   "Unit of Measure Filter" = FIELD("Unit of Measure Filter"),
@@ -507,8 +482,6 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 Caption = 'New Resource Group';
                 Image = NewResourceGroup;
-                Promoted = true;
-                PromotedCategory = New;
                 RunObject = Page "Resource Groups";
                 RunPageMode = Create;
                 ToolTip = 'Create a new resource.';
@@ -521,7 +494,6 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 Caption = 'Resource - List';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Resource - List";
@@ -532,8 +504,6 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 Caption = 'Resource Statistics';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Resource Statistics";
                 ToolTip = 'View detailed, historical information for the resource.';
             }
@@ -542,8 +512,6 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 Caption = 'Resource Usage';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Resource Usage";
                 ToolTip = 'View the resource utilization that has taken place. The report includes the resource capacity, quantity of usage, and the remaining balance.';
             }
@@ -552,20 +520,16 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 Caption = 'Resource - Cost Breakdown';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Resource - Cost Breakdown";
                 ToolTip = 'View the direct unit costs and the total direct costs for each resource. Only usage postings are considered in this report. Resource usage can be posted in the resource journal or the job journal.';
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Resource - Price List")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Resource - Price List';
                 Image = "Report";
                 Visible = not ExtendedPriceEnabled;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Resource - Price List";
                 ToolTip = 'Specifies a list of unit prices for the selected resources. By default, a unit price is based on the price in the Resource Prices window. If there is no valid alternative price, then the unit price from the resource card is used. The report can be used by the company''s salespeople or sent to customers.';
                 ObsoleteState = Pending;
@@ -579,8 +543,6 @@ page 77 "Resource List"
                 Caption = 'Resource - Price List';
                 Image = "Report";
                 Visible = ExtendedPriceEnabled;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Res. Price List";
                 ToolTip = 'Specifies a list of unit prices for the selected resources. By default, a unit price is based on the price in the Resource Prices window. If there is no valid alternative price, then the unit price from the resource card is used. The report can be used by the company''s salespeople or sent to customers.';
             }
@@ -589,7 +551,6 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 Caption = 'Resource Register';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Resource Register";
@@ -608,14 +569,160 @@ page 77 "Resource List"
                     Caption = 'Create Time Sheets';
                     Ellipsis = true;
                     Image = NewTimesheet;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create new time sheets for the selected resource.';
 
                     trigger OnAction()
                     begin
-                        CreateTimeSheets;
+                        CreateTimeSheets();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                actionref("New Resource Group_Promoted"; "New Resource Group")
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Create Time Sheets_Promoted"; "Create Time Sheets")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Resource', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                group(Category_Dimensions)
+                {
+                    Caption = 'Dimensions';
+                    ShowAs = SplitButton;
+
+                    actionref("Dimensions-&Multiple_Promoted"; "Dimensions-&Multiple")
+                    {
+                    }
+                    actionref("Dimensions-Single_Promoted"; "Dimensions-Single")
+                    {
+                    }
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+                actionref(PurchPriceLists_Promoted; PurchPriceLists)
+                {
+                }
+                actionref("Units of Measure_Promoted"; "Units of Measure")
+                {
+                }
+#if not CLEAN21
+                actionref(Costs_Promoted; Costs)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+#if not CLEAN21
+                actionref(Prices_Promoted; Prices)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Resource A&vailability_Promoted"; "Resource A&vailability")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Prices';
+
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Resource Statistics_Promoted"; "Resource Statistics")
+                {
+                }
+                actionref("Resource Usage_Promoted"; "Resource Usage")
+                {
+                }
+                actionref("Resource - Cost Breakdown_Promoted"; "Resource - Cost Breakdown")
+                {
+                }
+#if not CLEAN21
+                actionref("Resource - Price List_Promoted"; "Resource - Price List")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+                actionref("Res. Price List_Promoted"; "Res. Price List")
+                {
+                }
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(CRMGoToProduct_Promoted; CRMGoToProduct)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
                 }
             }
         }
@@ -636,7 +743,7 @@ page 77 "Resource List"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
             if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');

@@ -313,7 +313,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
         // [GIVEN] Customer license with indirect permissions (RxMx) to "Cartera Doc."
         // TODO: Uncomment LibraryLowerPermissions.SetVendorView; // includes "LOCAL" role with changed permissions to "Cartera Doc."
         // [GIVEN] "Cartera Doc." can not be read or modified directly due to indirect permissions
-        asserterror CarteraDoc.Find;
+        asserterror CarteraDoc.Find();
         Assert.ExpectedErrorCode('DB:ClientReadDenied');
         Assert.ExpectedError(CarteraDoc.TableName);
         asserterror CarteraDoc.Modify();
@@ -326,10 +326,10 @@ codeunit 147506 "Cartera Payable Unit Tests"
         VendorLedgerEntries.OpenEdit;
         VendorLedgerEntries.GotoRecord(VendorLedgerEntry);
         VendorLedgerEntries."Payment Method Code".SetValue(PaymentMethod.Code);
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
 
         // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope();
-        CarteraDoc.Find;
+        CarteraDoc.Find();
         CarteraDoc.TestField("Payment Method Code", PaymentMethod.Code);
     end;
 
@@ -357,27 +357,27 @@ codeunit 147506 "Cartera Payable Unit Tests"
     local procedure MockPayableCarteraDoc(var CarteraDoc: Record "Cartera Doc.")
     begin
         with CarteraDoc do begin
-            Init;
+            Init();
             Type := Type::Payable;
             "Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, FieldNo("Entry No."));
             "Document Type" := "Document Type"::Bill;
             "Document No." := LibraryUtility.GenerateGUID();
             "Account No." := LibraryUtility.GenerateGUID();
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CarteraDoc: Record "Cartera Doc.")
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             Open := true;
             "Document No." := CarteraDoc."Document No.";
             "Vendor No." := CarteraDoc."Account No.";
             "Bill No." := CarteraDoc."No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -392,7 +392,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
             "Modify Permission" := NewModifyPermission;
             "Delete Permission" := NewDeletePermission;
             "Execute Permission" := "Execute Permission"::" ";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -424,7 +424,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
         LibraryVariableStorage.Enqueue(Comment);
 
         POCommentSheet.New;
-        POCommentSheet.Date.SetValue(WorkDate);
+        POCommentSheet.Date.SetValue(WorkDate());
         POCommentSheet.Comment.SetValue(Comment);
         POCommentSheet.OK.Invoke;
     end;

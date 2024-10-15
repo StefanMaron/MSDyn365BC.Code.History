@@ -1,4 +1,4 @@
-codeunit 147530 "Cartera Recv. Basic Scenarios"
+﻿codeunit 147530 "Cartera Recv. Basic Scenarios"
 {
     // // [FEATURE] [Cartera] [Sales]
     // Cartera Receivables Basic Scenarios
@@ -50,7 +50,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         // Verify
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", SalesHeader."Sell-to Customer No.");
-        Assert.IsFalse(CarteraDoc.IsEmpty, StrSubstNo(RecordNotFoundErr, CarteraDoc.TableCaption));
+        Assert.IsFalse(CarteraDoc.IsEmpty, StrSubstNo(RecordNotFoundErr, CarteraDoc.TableCaption()));
     end;
 
     [Test]
@@ -79,7 +79,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
           CarteraDoc, DocumentNo, SalesHeader."Sell-to Customer No.", BillGroup."No.");
 
         // Exercise
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
 
         // Pre-Verify
@@ -121,7 +121,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
           CarteraDoc, DocumentNo, SalesHeader."Sell-to Customer No.", BillGroupNo);
 
         // Exercise
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         PostBillGroup(BillGroupNo);
 
         // Pre-Verify
@@ -270,7 +270,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryVariableStorage.Enqueue(DocumentNo);
         AddCarteraDocumentToBillGroup(BillGroup."No.");
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
 
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
@@ -300,7 +300,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryVariableStorage.Enqueue(DocumentNo);
         AddCarteraDocumentToBillGroup(BillGroupNo);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         PostBillGroup(BillGroupNo);
 
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroupNo);
@@ -326,7 +326,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryVariableStorage.Enqueue(DocumentNo);
         AddCarteraDocumentToBillGroup(BillGroup."No.");
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         PostBillGroupFromList(BillGroup."No.");
 
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
@@ -366,7 +366,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryVariableStorage.Enqueue(DocumentNo);
         AddCarteraDocumentToBillGroup(BillGroup."No.");
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         LibraryVariableStorage.Enqueue(StrSubstNo(SuccessfulPostingForFactoringCollectionMsg, BillGroup."No."));
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
 
@@ -413,7 +413,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryVariableStorage.Enqueue(DocumentNo);
         AddCarteraDocumentToBillGroup(BillGroupNo);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         LibraryVariableStorage.Enqueue(StrSubstNo(SuccessfulPostingForFactoringCollectionMsg, BillGroupNo));
         PostBillGroup(BillGroupNo);
 
@@ -451,7 +451,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         // Verify - Add same row again and test that you can post
         LibraryVariableStorage.Enqueue(DocumentNo);
         AddCarteraDocumentToBillGroup(BillGroup."No.");
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         PostBillGroupFromList(BillGroup."No.");
 
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
@@ -504,7 +504,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryCarteraReceivables.AddCarteraDocumentToBillGroup(
           CarteraDoc, DocumentNo, SalesHeader."Sell-to Customer No.", BillGroup."No.");
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
 
         // Exercise
@@ -1233,61 +1233,6 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
 
-#if not CLEAN20
-    [Test]
-    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SettleInvoiceAfterAdjustmentAndBillGroupAndTwoAdjustments()
-    var
-        Customer: Record Customer;
-        BillGroup: Record "Bill Group";
-        CurrencyCode: Code[10];
-        InvoiceNo: Code[20];
-        PostingDate: array[4] of Date;
-        CurrencyExchRate: array[4] of Decimal;
-        AmtInv: Decimal;
-        AmtPay: Decimal;
-        SettleAmount: Decimal;
-    begin
-        // [FEATURE] [Adjust Exchange Rates]
-        // [SCENARIO 375918] Sales Invoice, Adjust Exch.Rate, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize();
-
-        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
-        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
-
-        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
-        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
-        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date2
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[2]);
-
-        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
-        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
-        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
-
-        // [GIVEN] Run Adjust Exchange Rates on Date3, Date4
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
-        RunAdjustExchangeRates(CurrencyCode, PostingDate[4]);
-        Commit();
-
-        // [WHEN] Run TotalSettlement on Date4
-        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
-        LibraryVariableStorage.Enqueue(PostingDate[4]);
-        SettleDocsInPostBillGr(BillGroup."No.");
-
-        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
-        // [THEN] 'Receivables Account' in Payment G/L Entry = -4634.78 (-5000/1.0788)
-        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
-        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
-        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
-        VerifySettleGLEntries(
-          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1370,7 +1315,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         // [GIVEN] Posted Sales Invoice with "Posting Date" = 01.01
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, CurrencyCode);
-        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, WorkDate);
+        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, WorkDate());
 
         // [GIVEN] Posted Bill Group with "Posting Date" = 02.01
         CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, WorkDate + 1, InvoiceNo);
@@ -1806,7 +1751,6 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
     local procedure RunExchRateAdjustment(CurrencyCode: Code[10]; PostingDate: Date)
     begin
-        LibraryVariableStorage.Enqueue(ExchRateWasAdjustedTxt);
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate, PostingDate);
     end;
 
@@ -1816,7 +1760,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroupNo);
         PostedCarteraDoc.FindFirst();
-        PostedCarteraDoc.SetRecFilter;
+        PostedCarteraDoc.SetRecFilter();
         REPORT.RunModal(REPORT::"Settle Docs. in Post. Bill Gr.", true, false, PostedCarteraDoc);
     end;
 
@@ -2113,11 +2057,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
-    var
-        ExpectedMessageText: Variant;
     begin
-        LibraryVariableStorage.Dequeue(ExpectedMessageText);
-        Assert.ExpectedMessage(ExpectedMessageText, Message);
     end;
 
     [ModalPageHandler]

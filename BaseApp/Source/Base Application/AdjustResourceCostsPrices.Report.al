@@ -54,7 +54,7 @@ report 1195 "Adjust Resource Costs/Prices"
                         Validate("Unit Price", NewFieldNo);
                 end;
 
-                Modify;
+                Modify();
             end;
 
             trigger OnPreDataItem()
@@ -120,13 +120,14 @@ report 1195 "Adjust Resource Costs/Prices"
     end;
 
     var
-        Text000: Label 'Processing resources  #1##########';
         RoundingMethod: Record "Rounding Method";
         Window: Dialog;
         NewFieldNo: Decimal;
         OldFieldNo: Decimal;
         AdjFactor: Decimal;
         Selection: Option "Direct Unit Cost","Indirect Cost %","Unit Cost","Profit %","Unit Price";
+
+        Text000: Label 'Processing resources  #1##########';
 
     procedure InitializeRequest(SelectionFrom: Option; AdjFactorFrom: Decimal; RoundingMethodCode: Code[10])
     begin

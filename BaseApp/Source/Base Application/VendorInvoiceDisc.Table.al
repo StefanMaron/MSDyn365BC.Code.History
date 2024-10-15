@@ -1,4 +1,4 @@
-table 24 "Vendor Invoice Disc."
+﻿table 24 "Vendor Invoice Disc."
 {
     Caption = 'Vendor Invoice Disc.';
     LookupPageID = "Vend. Invoice Discounts";
@@ -69,7 +69,7 @@ table 24 "Vendor Invoice Disc."
                     CurrencyDate, CurrencyCode,
                     BaseAmount, CurrencyFactor));
                 if not Find('+') then
-                    Init
+                    Init()
                 else begin
                     VendInvDiscFound := true;
                     Currency.Get(CurrencyCode);
@@ -81,7 +81,7 @@ table 24 "Vendor Invoice Disc."
                         Currency."Amount Rounding Precision");
                 end;
             end else
-                Init
+                Init()
         else
             VendInvDiscFound := true;
     end;

@@ -351,7 +351,7 @@ report 407 "Purchase - Credit Memo"
                             AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
+                        column(VATAmtLineVATAmtText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(LineAmt_PurchCrMemoLine; Amount)
@@ -483,28 +483,28 @@ report 407 "Purchase - Credit Memo"
                                 "No." := '';
 
                             if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
-                                VATAmountLine.Init();
-                                VATAmountLine."VAT Identifier" := "VAT Identifier";
-                                VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                                VATAmountLine."Tax Group Code" := "Tax Group Code";
-                                VATAmountLine."Use Tax" := "Use Tax";
-                                VATAmountLine."VAT %" := VATPostingSetup."VAT %";
-                                VATAmountLine."EC %" := VATPostingSetup."EC %";
-                                VATAmountLine."VAT Base" := Amount;
-                                VATAmountLine."Amount Including VAT" := "Amount Including VAT";
-                                VATAmountLine."Line Amount" := "Line Amount";
-                                VATAmountLine."Pmt. Discount Amount" := "Pmt. Discount Amount";
+                                TempVATAmountLine.Init();
+                                TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+                                TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                                TempVATAmountLine."Tax Group Code" := "Tax Group Code";
+                                TempVATAmountLine."Use Tax" := "Use Tax";
+                                TempVATAmountLine."VAT %" := VATPostingSetup."VAT %";
+                                TempVATAmountLine."EC %" := VATPostingSetup."EC %";
+                                TempVATAmountLine."VAT Base" := Amount;
+                                TempVATAmountLine."Amount Including VAT" := "Amount Including VAT";
+                                TempVATAmountLine."Line Amount" := "Line Amount";
+                                TempVATAmountLine."Pmt. Discount Amount" := "Pmt. Discount Amount";
                                 if "Allow Invoice Disc." then
-                                    VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
-                                VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                                VATAmountLine.SetCurrencyCode("Purch. Cr. Memo Hdr."."Currency Code");
-                                VATAmountLine."VAT Difference" := "VAT Difference";
-                                VATAmountLine."EC Difference" := "EC Difference";
+                                    TempVATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
+                                TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
+                                TempVATAmountLine.SetCurrencyCode("Purch. Cr. Memo Hdr."."Currency Code");
+                                TempVATAmountLine."VAT Difference" := "VAT Difference";
+                                TempVATAmountLine."EC Difference" := "EC Difference";
                                 if "Purch. Cr. Memo Hdr."."Prices Including VAT" then
-                                    VATAmountLine."Prices Including VAT" := true;
-                                VATAmountLine.InsertLine;
+                                    TempVATAmountLine."Prices Including VAT" := true;
+                                TempVATAmountLine.InsertLine();
 
-                                VATCalTypeNo := VATAmountLine."VAT Calculation Type".AsInteger();
+                                VATCalTypeNo := TempVATAmountLine."VAT Calculation Type".AsInteger();
                             end;
 
                             AllowInvDiscount := Format("Purch. Cr. Memo Line"."Allow Invoice Disc.");
@@ -522,7 +522,7 @@ report 407 "Purchase - Credit Memo"
                             PurchCrMemoLine: Record "Purch. Cr. Memo Line";
                             VATIdentifier: Code[20];
                         begin
-                            VATAmountLine.DeleteAll();
+                            TempVATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
@@ -547,44 +547,44 @@ report 407 "Purchase - Credit Memo"
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmountLineVATECBase; VATAmountLine."VAT Base")
+                        column(VATAmountLineVATECBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmt; VATAmountLine."VAT Amount")
+                        column(VATAmtLineVATAmt; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineLineAmt; VATAmountLine."Line Amount")
+                        column(VATAmtLineLineAmt; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscBaseAmt; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmtLineInvDiscBaseAmt; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvcDiscAmtPmtDiscAmt; VATAmountLine."Invoice Discount Amount" + VATAmountLine."Pmt. Discount Amount")
+                        column(VATAmtLineInvcDiscAmtPmtDiscAmt; TempVATAmountLine."Invoice Discount Amount" + TempVATAmountLine."Pmt. Discount Amount")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLineECAmt; VATAmountLine."EC Amount")
+                        column(VATAmountLineECAmt; TempVATAmountLine."EC Amount")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT_VATCounter; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT_VATCounter; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdent_VATCounter; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdent_VATCounter; TempVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATAmtLineEC; VATAmountLine."EC %")
+                        column(VATAmtLineEC; TempVATAmountLine."EC %")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
@@ -625,12 +625,12 @@ report 407 "Purchase - Credit Memo"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATCounterLCY; "Integer")
@@ -650,23 +650,23 @@ report 407 "Purchase - Credit Memo"
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT_VATCounterLCY; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT_VATCounterLCY; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdent_VATCounterLCY; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdent_VATCounterLCY; TempVATAmountLine."VAT Identifier")
                         {
                         }
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                             VALVATBaseLCY :=
-                              VATAmountLine.GetBaseLCY(
+                              TempVATAmountLine.GetBaseLCY(
                                 "Purch. Cr. Memo Hdr."."Posting Date", "Purch. Cr. Memo Hdr."."Currency Code",
                                 "Purch. Cr. Memo Hdr."."Currency Factor");
                             VALVATAmountLCY :=
-                              VATAmountLine.GetAmountLCY(
+                              TempVATAmountLine.GetAmountLCY(
                                 "Purch. Cr. Memo Hdr."."Posting Date", "Purch. Cr. Memo Hdr."."Currency Code",
                                 "Purch. Cr. Memo Hdr."."Currency Factor");
                         end;
@@ -678,7 +678,7 @@ report 407 "Purchase - Credit Memo"
                             then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
                             Clear(VALVATAmountLCY);
 
@@ -744,7 +744,7 @@ report 407 "Purchase - Credit Memo"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
 
@@ -758,7 +758,7 @@ report 407 "Purchase - Credit Memo"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"PurchCrMemo-Printed", "Purch. Cr. Memo Hdr.");
                 end;
 
@@ -854,12 +854,12 @@ report 407 "Purchase - Credit Memo"
         GLSetup.Get();
         CompanyInfo.Get();
 
-        OnAfterInitReport;
+        OnAfterInitReport();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Purch. Cr. Memo Hdr.".FindSet() then
                 repeat
                     SegManagement.LogDocument(
@@ -871,7 +871,7 @@ report 407 "Purchase - Credit Memo"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
@@ -879,7 +879,7 @@ report 407 "Purchase - Credit Memo"
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        VATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -894,7 +894,7 @@ report 407 "Purchase - Credit Memo"
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         ReturnOrderNoText: Text[80];
-        PurchaserText: Text[30];
+        PurchaserText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         AppliedToText: Text;
@@ -993,7 +993,7 @@ report 407 "Purchase - Credit Memo"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")

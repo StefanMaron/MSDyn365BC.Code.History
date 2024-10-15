@@ -41,7 +41,7 @@ codeunit 356 DateComprMgt
             AccountingPeriod."Starting Date" := Date;
             AccountingPeriod.Find('=<');
             AccountingPeriodDate[1] := AccountingPeriod."Starting Date";
-            AccountingPeriod.Next;
+            AccountingPeriod.Next();
             AccountingPeriodDate[2] := AccountingPeriod."Starting Date" - 1;
         end;
 

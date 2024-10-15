@@ -161,7 +161,7 @@ codeunit 147316 "Test 347 Declaration"
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = FALSE
         // [GIVEN] VATEntry.Document Type = Invoice and VATEntry.Type = PURCHASE
-        InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, false);
+        InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -184,7 +184,7 @@ codeunit 147316 "Test 347 Declaration"
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = FALSE
         // [GIVEN] VATEntry.Document Type = Invoice and VATEntry.Type = PURCHASE
-        CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, false);
+        CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -256,7 +256,7 @@ codeunit 147316 "Test 347 Declaration"
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = TRUE
         // [GIVEN] VATEntry.Document Type = Invoice and VATEntry.Type = PURCHASE
-        CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
+        CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -281,7 +281,7 @@ codeunit 147316 "Test 347 Declaration"
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = TRUE
         // [GIVEN] VATEntry.Document Type = Invoice and VATEntry.Type = PURCHASE
-        ExpectedVATCashAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
+        ExpectedVATCashAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -307,9 +307,9 @@ codeunit 147316 "Test 347 Declaration"
         // [GIVEN] VAT Entry Lines X, Y for the same peer with Unrealized = TRUE
         // [GIVEN] VAT Entry Lines X, Y have VAT Cash Regime = TRUE
         // [GIVEN] VATEntry.Type in [Sale,Purchase]
-        ExpectedVATCashAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate, true, true);
+        ExpectedVATCashAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate(), true, true);
         ExpectedVATCashAmount :=
-          ExpectedVATCashAmount + CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate, true, true);
+          ExpectedVATCashAmount + CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -337,8 +337,8 @@ codeunit 147316 "Test 347 Declaration"
         // [GIVEN] VAT Entry Lines X, Y for different peers with Unrealized = TRUE
         // [GIVEN] VAT Entry Lines X, Y have VAT Cash Regime = TRUE
         // [GIVEN] VATEntry.Type in [Sale,Purchase]
-        VATCashAmountCust1 := CreateAndPostSalesInvoiceDetailed(Customer1, VATPostingSetup, WorkDate, true, true);
-        VATCashAmountCust2 := CreateAndPostSalesInvoiceDetailed(Customer2, VATPostingSetup, WorkDate, true, true);
+        VATCashAmountCust1 := CreateAndPostSalesInvoiceDetailed(Customer1, VATPostingSetup, WorkDate(), true, true);
+        VATCashAmountCust2 := CreateAndPostSalesInvoiceDetailed(Customer2, VATPostingSetup, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -368,8 +368,8 @@ codeunit 147316 "Test 347 Declaration"
         // [GIVEN] VAT Entry Lines X, Y for the same peer with Unrealized = TRUE, the line dates are in different years
         // [GIVEN] VAT Entry Lines X, Y have VAT Cash Regime = TRUE
         // [GIVEN] VATEntry.Type in [Sale,Purchase]
-        CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, CalcDate('<-1Y>', WorkDate), true, true);
-        VATCashAmountCurrentYear := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate, true, true);
+        CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, CalcDate('<-1Y>', WorkDate()), true, true);
+        VATCashAmountCurrentYear := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report" for one of the years
         FileName := RunMake347DeclarationReport;
@@ -520,7 +520,7 @@ codeunit 147316 "Test 347 Declaration"
         Initialize();
 
         // [GIVEN] Purchase Invoice with VAT Cash Regime
-        CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
+        CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, true);
         PurchInvHeader.SetRange("Pay-to Vendor No.", VendorNo);
         PurchInvHeader.FindFirst();
 
@@ -548,16 +548,16 @@ codeunit 147316 "Test 347 Declaration"
         Initialize();
 
         // [GIVEN] Sales Invoice inside reporting period with amount = "X"
-        InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate, true, true);
+        InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate(), true, true);
 
         // [GIVEN] Applied Payment Amount = "Y" less than Invoice Amount inside reporting period
         PaidAmount := Round(InvoiceAmount / LibraryRandom.RandIntInRange(2, 4));
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate, -PaidAmount, GetSalesInvoiceNo(Customer."No."));
+          GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate(), -PaidAmount, GetSalesInvoiceNo(Customer."No."));
 
         // [GIVEN] Applied Payment Amount out of reporting period
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Customer, Customer."No.", CalcDate('<1Y>', WorkDate),
+          GenJournalLine."Account Type"::Customer, Customer."No.", CalcDate('<1Y>', WorkDate()),
           -LibraryRandom.RandDec(100, 2), GetSalesInvoiceNo(Customer."No."));
 
         // [WHEN] The user runs "Make 347 Declaration report"
@@ -586,16 +586,16 @@ codeunit 147316 "Test 347 Declaration"
         Initialize();
 
         // [GIVEN] Sales Invoice out of reporting period with amount = "X"
-        InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, CalcDate('<-1Y>', WorkDate), true, true);
+        InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, CalcDate('<-1Y>', WorkDate()), true, true);
         PaidAmount := Round(InvoiceAmount / LibraryRandom.RandIntInRange(2, 4));
 
         // [GIVEN] Applied Payment Amount = "Y" less than Invoice Amount inside reporting period
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate, -PaidAmount, GetSalesInvoiceNo(Customer."No."));
+          GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate(), -PaidAmount, GetSalesInvoiceNo(Customer."No."));
 
         // [GIVEN] Applied Payment Amount out of reporting period
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Customer, Customer."No.", CalcDate('<1Y>', WorkDate),
+          GenJournalLine."Account Type"::Customer, Customer."No.", CalcDate('<1Y>', WorkDate()),
           -LibraryRandom.RandDec(100, 2), GetSalesInvoiceNo(Customer."No."));
 
         // [WHEN] The user runs "Make 347 Declaration report"
@@ -623,16 +623,16 @@ codeunit 147316 "Test 347 Declaration"
         Initialize();
 
         // [GIVEN] Purchase Invoice inside reporting period with amount = "X"
-        InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
+        InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, true);
 
         // [GIVEN] Applied Payment Amount = "Y" less than Invoice Amount inside reporting period
         PaidAmount := Round(InvoiceAmount / LibraryRandom.RandIntInRange(2, 4));
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate, PaidAmount, GetPurchInvoiceNo(VendorNo));
+          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate(), PaidAmount, GetPurchInvoiceNo(VendorNo));
 
         // [GIVEN] Applied Payment Amount out of reporting period
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Vendor, VendorNo, CalcDate('<1Y>', WorkDate),
+          GenJournalLine."Account Type"::Vendor, VendorNo, CalcDate('<1Y>', WorkDate()),
           LibraryRandom.RandDec(100, 2), GetPurchInvoiceNo(VendorNo));
 
         // [WHEN] The user runs "Make 347 Declaration report"
@@ -660,16 +660,16 @@ codeunit 147316 "Test 347 Declaration"
         Initialize();
 
         // [GIVEN] Purchase Invoice inside reporting period with amount = "X"
-        InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
+        InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, true);
 
         // [GIVEN] Applied Payment Amount = "Y" less than Invoice Amount inside reporting period
         PaidAmount := Round(InvoiceAmount / LibraryRandom.RandIntInRange(2, 4));
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate, PaidAmount, GetPurchInvoiceNo(VendorNo));
+          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate(), PaidAmount, GetPurchInvoiceNo(VendorNo));
 
         // [GIVEN] Applied Payment Amount out of reporting period
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Vendor, VendorNo, CalcDate('<1Y>', WorkDate),
+          GenJournalLine."Account Type"::Vendor, VendorNo, CalcDate('<1Y>', WorkDate()),
           LibraryRandom.RandDec(100, 2), GetPurchInvoiceNo(VendorNo));
 
         // [WHEN] The user runs "Make 347 Declaration report"
@@ -699,16 +699,16 @@ codeunit 147316 "Test 347 Declaration"
         Initialize();
 
         // [GIVEN] Paid VAT Cash Purchase Invoice with amount = "C"
-        VATCashAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
+        VATCashAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, true);
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate, VATCashAmount, GetPurchInvoiceNo(VendorNo));
+          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate(), VATCashAmount, GetPurchInvoiceNo(VendorNo));
         Vendor.Get(VendorNo);
 
         // [GIVEN] Reverse Charge Purchase Invoice with amount = "R"
         RevChargeAmount := CreateAndPostPurchaseInvoiceReverseCharge(Vendor);
 
         // [GIVEN] Normal Purchase Invoice with amount = "N"
-        NormalAmount := CreateAndPostPurchaseInvoiceSameVendor(Vendor, WorkDate, false, false);
+        NormalAmount := CreateAndPostPurchaseInvoiceSameVendor(Vendor, WorkDate(), false, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -720,14 +720,14 @@ codeunit 147316 "Test 347 Declaration"
         ValidateFileHasExpectedVATCashRegimeFlag(FileName, VendorNo, 'X', VATCashRegimeFlagErr);
         ValidateFileHasExpectedReverseChargeFlag(FileName, VendorNo, ' ');
         // [THEN] In 1st line, Quarter Amount = "N"
-        ValidateFileQuarterAmount(FileName, VendorNo, WorkDate, NormalAmount);
+        ValidateFileQuarterAmount(FileName, VendorNo, WorkDate(), NormalAmount);
 
         // [THEN] In 2nd line, the purchase amount = "R" in positions 83-98
         // [THEN] In 2nd line, the annual amount = 0 in positions 284-299
         // [THEN] In 2nd line, flag for VAT Cash is empty, flag for Reverse Charge VAT exists
         // [THEN] In 2nd line, Quarter Amount = RevChargeAmount "R"
         ValidateFileSecondLineForVendor(
-          FileName, VendorNo, 0, RevChargeAmount, ' ', 'X', WorkDate, RevChargeAmount);
+          FileName, VendorNo, 0, RevChargeAmount, ' ', 'X', WorkDate(), RevChargeAmount);
     end;
 
     [Test]
@@ -747,20 +747,20 @@ codeunit 147316 "Test 347 Declaration"
         Initialize();
 
         // [GIVEN] Purchase Invoice without Cash Regime out of reporting period
-        InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, CalcDate('<-1Y>', WorkDate), false, false);
+        InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, CalcDate('<-1Y>', WorkDate()), false, false);
         Vendor.Get(VendorNo);
 
         // [GIVEN] Fully Applied Payment to Purchase Invoice inside Reporting Period
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate, InvoiceAmount, GetPurchInvoiceNo(VendorNo));
+          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate(), InvoiceAmount, GetPurchInvoiceNo(VendorNo));
 
         // [GIVEN] Purchase Invoice with VAT Cash Regime inside reporting period with amount = "X"
-        InvoiceAmount := CreateAndPostPurchaseInvoiceSameVendor(Vendor, WorkDate, true, true);
+        InvoiceAmount := CreateAndPostPurchaseInvoiceSameVendor(Vendor, WorkDate(), true, true);
 
         // [GIVEN] Applied Payment Amount = "Y" in reporting period
         PaidAmount := Round(InvoiceAmount / LibraryRandom.RandIntInRange(2, 4));
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate, PaidAmount, GetPurchInvoiceNo(VendorNo));
+          GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate(), PaidAmount, GetPurchInvoiceNo(VendorNo));
 
         // [WHEN] Run report "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -787,22 +787,22 @@ codeunit 147316 "Test 347 Declaration"
         Initialize();
         OldGeneralLedgerSetupVATCashRegime := SetGeneralLedgerSetupVATCashRegime(false);
         // [GIVEN] Sales Invoice without Cash Regime out of reporting period
-        InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, CalcDate('<-1Y>', WorkDate), false, false);
+        InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, CalcDate('<-1Y>', WorkDate()), false, false);
 
         // [GIVEN] Fully Applied Payment to Sales Invoice Amount inside reporting period
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate, -InvoiceAmount, GetSalesInvoiceNo(Customer."No."));
+          GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate(), -InvoiceAmount, GetSalesInvoiceNo(Customer."No."));
 
         // [GIVEN] Sales Invoice with VAT Cash Regime inside reporting period with amount = "X"
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, true, true);
         Customer."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Customer.Modify(true);
-        Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, InvoiceAmount);
+        Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), InvoiceAmount);
 
         // [GIVEN] Applied Payment Amount = "Y" in reporting period
         PaidAmount := Round(InvoiceAmount / LibraryRandom.RandIntInRange(2, 4));
         CreateAndPostPaymentJnlLine(
-          GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate, -PaidAmount, GetSalesInvoiceNo(Customer."No."));
+          GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate(), -PaidAmount, GetSalesInvoiceNo(Customer."No."));
 
         // [WHEN] Run report "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -965,7 +965,7 @@ codeunit 147316 "Test 347 Declaration"
         Library340347Declaration.CreateReverseChargeVATPostingSetup(VATPostingSetup, Customer."VAT Bus. Posting Group");
         if Customer."No." = '' then
             Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
     end;
 
     local procedure CreateAndPostSalesInvoiceWithVATCashRegime(var CustomerNo: Code[20]; UseUnrealizedVAT: Boolean; UseVATCashRegime: Boolean) Amount: Decimal
@@ -975,7 +975,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate, Amount);
+        Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", WorkDate(), Amount);
         CustomerNo := Customer."No.";
     end;
 
@@ -1011,7 +1011,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         Library340347Declaration.CreateReverseChargeVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group");
         ExtDocumentNo := LibraryUtility.GenerateGUID();
-        Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
+        Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo);
     end;
 
     local procedure CreateAndPostPaymentJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; PmtAmount: Decimal; ApplToDocNo: Code[20])

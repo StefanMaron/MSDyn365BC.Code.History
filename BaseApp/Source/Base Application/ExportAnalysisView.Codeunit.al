@@ -6,6 +6,24 @@ codeunit 424 "Export Analysis View"
     end;
 
     var
+        TempDimValue2: Record "Dimension Value" temporary;
+        TempDimValue3: Record "Dimension Value" temporary;
+        TempGLAcc2: Record "G/L Account" temporary;
+        TempGLAcc3: Record "G/L Account" temporary;
+        TempCFAccount2: Record "Cash Flow Account" temporary;
+        TempCFAccount3: Record "Cash Flow Account" temporary;
+        BusUnit: Record "Business Unit";
+        TempExcelBuffer: Record "Excel Buffer" temporary;
+        FileMgt: Codeunit "File Management";
+        NoOfColumns: Integer;
+        MaxLevel: Integer;
+        MaxLevelDim: array[4] of Integer;
+        HasBusinessUnits: Boolean;
+        GLAccountSource: Boolean;
+        ServerFileName: Text;
+        SkipDownload: Boolean;
+        LastGLAccount: Code[20];
+
         Text000: Label 'You can only export Actual amounts and Budgeted amounts.\Please change the option in the Show field.';
         Text001: Label 'This combination is not valid. You cannot export Debit and Credit amounts for Budgeted amounts.\Please enter Amount in the Show Amount field.';
         Text002: Label 'General Info._';
@@ -36,24 +54,6 @@ codeunit 424 "Export Analysis View"
         Text029: Label 'Yes';
         Text030: Label 'No';
         Text031: Label 'Data_';
-        TempDimValue2: Record "Dimension Value" temporary;
-        TempDimValue3: Record "Dimension Value" temporary;
-        TempGLAcc2: Record "G/L Account" temporary;
-        TempGLAcc3: Record "G/L Account" temporary;
-        TempCFAccount2: Record "Cash Flow Account" temporary;
-        TempCFAccount3: Record "Cash Flow Account" temporary;
-        BusUnit: Record "Business Unit";
-        TempExcelBuffer: Record "Excel Buffer" temporary;
-        FileMgt: Codeunit "File Management";
-        NoOfColumns: Integer;
-        MaxLevel: Integer;
-        MaxLevelDim: array[4] of Integer;
-        HasBusinessUnits: Boolean;
-        GLAccountSource: Boolean;
-        ServerFileName: Text;
-        SkipDownload: Boolean;
-        LastGLAccount: Code[20];
-
 
     procedure ExportData(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
@@ -69,7 +69,7 @@ codeunit 424 "Export Analysis View"
 
         SetOtherFilterToCorrectFilter(AnalysisByDimParameters."Bus. Unit Filter", BusUnitFilter, CashFlowFilter);
 
-        HasBusinessUnits := not BusUnit.IsEmpty;
+        HasBusinessUnits := not BusUnit.IsEmpty();
 
         ServerFileName := FileMgt.ServerTempFileName('xlsx');
 
@@ -83,11 +83,11 @@ codeunit 424 "Export Analysis View"
         TempExcelBuffer.SelectOrAddSheet(StrSubstNo('%1%2', Text031, AnalysisViewEntry."Analysis View Code"));
         TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer);
 
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         OnExportDataOnAfterCloseBook(TempExcelBuffer, AnalysisViewEntry, AnalysisByDimParameters);
 
         if not SkipDownload then
-            TempExcelBuffer.OpenExcel;
+            TempExcelBuffer.OpenExcel();
 
         OnAfterExportData(TempExcelBuffer, AnalysisViewEntry);
     end;
@@ -132,9 +132,9 @@ codeunit 424 "Export Analysis View"
             TempGLAcc2.SetRange("Account Type", TempGLAcc2."Account Type"::Posting);
             if TempGLAcc2.Find('-') then
                 repeat
-                    if not TempGLAcc2.Mark then begin
+                    if not TempGLAcc2.Mark() then begin
                         FillOutGLAcc(TempGLAcc2."No.", AnalysisByDimParameters."Show Column Name");
-                        StartNewRow;
+                        StartNewRow();
                     end;
                 until TempGLAcc2.Next() = 0;
         end else begin
@@ -146,9 +146,9 @@ codeunit 424 "Export Analysis View"
         if HasBusinessUnits then begin
             if BusUnit.Find('-') then
                 repeat
-                    if not BusUnit.Mark then begin
+                    if not BusUnit.Mark() then begin
                         FillOutBusUnit(BusUnit.Code, AnalysisByDimParameters."Show Column Name");
-                        StartNewRow;
+                        StartNewRow();
                     end;
                 until BusUnit.Next() = 0;
             NoOfLeadingColumns := NoOfLeadingColumns + 1;
@@ -182,7 +182,7 @@ codeunit 424 "Export Analysis View"
             FillNextCellInRow(CalculatePeriodStart(StartDate, 2));
             FillNextCellInRow(CalculatePeriodStart(StartDate, 3));
             FillNextCellInRow(CalculatePeriodStart(StartDate, 4));
-            StartNewRow;
+            StartNewRow();
 
             StartDate := CalcDate('<1W>', StartDate);
         end;
@@ -258,7 +258,7 @@ codeunit 424 "Export Analysis View"
                             FillNextCellInRow("Add.-Curr. Credit Amount" * SignValue);
                         end;
                         OnCreateAnalysisViewEntryPartOnBeforeStartNewRow(TempExcelBuffer, AnalysisViewEntry, AnalysisByDimParameters);
-                        StartNewRow;
+                        StartNewRow();
                     end;
                 until Next() = 0;
         end;
@@ -329,7 +329,7 @@ codeunit 424 "Export Analysis View"
                             FillNextCellInRow(Amount * SignValue);
                         end else begin
                             if GetFilter("Posting Date") = '' then
-                                CurrExchDate := WorkDate
+                                CurrExchDate := WorkDate()
                             else
                                 CurrExchDate := GetRangeMin("Posting Date");
                             GLSetup.Get();
@@ -360,7 +360,7 @@ codeunit 424 "Export Analysis View"
                             FillNextCellInRow('');
                             FillNextCellInRow(AddRepCurrAmount);
                         end;
-                        StartNewRow;
+                        StartNewRow();
                     end;
                 until Next() = 0;
         end;
@@ -374,6 +374,8 @@ codeunit 424 "Export Analysis View"
     begin
         if PostingDate = ClosingDate(PostingDate) then
             exit(PostingDate);
+
+        PrevPostingDate := 0D;
         case DateCompression of
             0:
                 // Week :
@@ -393,9 +395,9 @@ codeunit 424 "Export Analysis View"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast() then begin
+                        if AccountingPeriod.FindLast() then
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
-                        end else
+                        else
                             PrevCalculatedPostingDate := PostingDate;
                     end;
                     PostingDate := PrevCalculatedPostingDate;
@@ -415,7 +417,7 @@ codeunit 424 "Export Analysis View"
         TempExcelBuffer.DeleteAll();
 
         with AnalysisViewEntry do begin
-            FillCell(1, 1, AnalysisView.TableCaption);
+            FillCell(1, 1, AnalysisView.TableCaption());
             FillCell(2, 2, FieldCaption("Analysis View Code"));
             FillCell(2, 3, "Analysis View Code");
             FillCell(3, 2, Text023);
@@ -548,7 +550,7 @@ codeunit 424 "Export Analysis View"
             end;
             if HasBusinessUnits then begin
                 NoOfColumns := NoOfColumns + 1;
-                FillCell(1, NoOfColumns, BusUnit.TableCaption);
+                FillCell(1, NoOfColumns, BusUnit.TableCaption());
             end;
             if AnalysisView."Dimension 1 Code" <> '' then
                 for i := 0 to MaxLevelDim[1] do begin
@@ -584,7 +586,7 @@ codeunit 424 "Export Analysis View"
         end;
 
         OnCreateRowWithColumnsCaptionsOnBeforeStartNewRow(TempExcelBuffer, AnalysisViewEntry);
-        StartNewRow;
+        StartNewRow();
     end;
 
     local procedure FindGLAccountParent(var Account: Code[20]; Indent: Integer)
@@ -656,7 +658,7 @@ codeunit 424 "Export Analysis View"
 
     local procedure FillOutDim(DimValueCode: Code[20]; DimCode: Code[20]; DimNo: Integer; ShowName: Boolean)
     var
-        ParentTempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        TempParentNameValueBuffer: Record "Name/Value Buffer" temporary;
         DimensionValue: Record "Dimension Value";
         Indent: Integer;
         i: Integer;
@@ -673,13 +675,13 @@ codeunit 424 "Export Analysis View"
                 for i := Indent downto 1 do begin
                     FindDimParent(DimValueCode2, DimCode);
                     TempDimValue2.Get(DimCode, DimValueCode2);
-                    AddParentToBuffer(ParentTempNameValueBuffer, i, TempDimValue2.Code, TempDimValue2.Name);
+                    AddParentToBuffer(TempParentNameValueBuffer, i, TempDimValue2.Code, TempDimValue2.Name);
                 end;
 
-            if ParentTempNameValueBuffer.FindSet() then
+            if TempParentNameValueBuffer.FindSet() then
                 repeat
-                    AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
-                until ParentTempNameValueBuffer.Next() = 0;
+                    AddAcc(ShowName, TempParentNameValueBuffer.Name, TempParentNameValueBuffer.Value);
+                until TempParentNameValueBuffer.Next() = 0;
 
             if DimensionValue.Get(DimCode, DimValueCode) then;
 
@@ -696,7 +698,7 @@ codeunit 424 "Export Analysis View"
     local procedure FillOutGLAcc(GLAccNo: Code[20]; ShowName: Boolean)
     var
         GLAccount: Record "G/L Account";
-        ParentTempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        TempParentNameValueBuffer: Record "Name/Value Buffer" temporary;
         i: Integer;
         Indent: Integer;
         Account: Code[20];
@@ -714,13 +716,13 @@ codeunit 424 "Export Analysis View"
                     TempGLAcc3."No." := '';
                     TempGLAcc3.Name := '';
                 end;
-                AddParentToBuffer(ParentTempNameValueBuffer, i, TempGLAcc3."No.", TempGLAcc3.Name);
+                AddParentToBuffer(TempParentNameValueBuffer, i, TempGLAcc3."No.", TempGLAcc3.Name);
             end;
 
-        if ParentTempNameValueBuffer.FindSet() then
+        if TempParentNameValueBuffer.FindSet() then
             repeat
-                AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
-            until ParentTempNameValueBuffer.Next() = 0;
+                AddAcc(ShowName, TempParentNameValueBuffer.Name, TempParentNameValueBuffer.Value);
+            until TempParentNameValueBuffer.Next() = 0;
 
         GLAccount.Get(GLAccNo);
         if GLAccount.Indentation <> MaxLevel then
@@ -733,7 +735,7 @@ codeunit 424 "Export Analysis View"
     local procedure FillOutCFAccount(CFAccNo: Code[20]; ShowName: Boolean)
     var
         CashFlowAccount: Record "Cash Flow Account";
-        ParentTempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        TempParentNameValueBuffer: Record "Name/Value Buffer" temporary;
         i: Integer;
         Indent: Integer;
         Account: Code[20];
@@ -747,13 +749,13 @@ codeunit 424 "Export Analysis View"
             for i := Indent downto 1 do begin
                 FindCFAccountParent(Account);
                 TempCFAccount3.Get(Account);
-                AddParentToBuffer(ParentTempNameValueBuffer, i, TempCFAccount3."No.", TempCFAccount3.Name);
+                AddParentToBuffer(TempParentNameValueBuffer, i, TempCFAccount3."No.", TempCFAccount3.Name);
             end;
 
-        if ParentTempNameValueBuffer.FindSet() then
+        if TempParentNameValueBuffer.FindSet() then
             repeat
-                AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
-            until ParentTempNameValueBuffer.Next() = 0;
+                AddAcc(ShowName, TempParentNameValueBuffer.Name, TempParentNameValueBuffer.Value);
+            until TempParentNameValueBuffer.Next() = 0;
 
         CashFlowAccount.Get(CFAccNo);
         if CashFlowAccount.Indentation <> MaxLevel then
@@ -776,7 +778,7 @@ codeunit 424 "Export Analysis View"
     local procedure FillCell(RowNo: Integer; ColumnNo: Integer; Value: Variant)
     begin
         with TempExcelBuffer do begin
-            Init;
+            Init();
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
             case true of
@@ -788,7 +790,7 @@ codeunit 424 "Export Analysis View"
                     Validate("Cell Type", "Cell Type"::Text);
             end;
             "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -800,7 +802,7 @@ codeunit 424 "Export Analysis View"
         with TempExcelBuffer do begin
             RowNo := "Row No.";
             ColumnNo := "Column No." + 1;
-            Init;
+            Init();
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
             case true of
@@ -812,7 +814,7 @@ codeunit 424 "Export Analysis View"
                     Validate("Cell Type", "Cell Type"::Text);
             end;
             "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -925,9 +927,9 @@ codeunit 424 "Export Analysis View"
     local procedure ProcessMarkedTempCFAccountRec(ShowName: Boolean)
     begin
         repeat
-            if not TempCFAccount2.Mark then begin
+            if not TempCFAccount2.Mark() then begin
                 FillOutCFAccount(TempCFAccount2."No.", ShowName);
-                StartNewRow;
+                StartNewRow();
             end;
         until TempCFAccount2.Next() = 0;
     end;
@@ -940,9 +942,9 @@ codeunit 424 "Export Analysis View"
         TempDimValue2.SetRange("Dimension Value Type", TempDimValue2."Dimension Value Type"::Standard);
         if TempDimValue2.Find('-') then
             repeat
-                if not TempDimValue2.Mark then begin
+                if not TempDimValue2.Mark() then begin
                     FillOutDim(TempDimValue2.Code, DimCode, DimNo, ShowName);
-                    StartNewRow;
+                    StartNewRow();
                     SetStartColumnNo(NoOfLeadingColumns);
                 end;
             until TempDimValue2.Next() = 0;

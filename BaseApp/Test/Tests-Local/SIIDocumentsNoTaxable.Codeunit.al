@@ -127,7 +127,7 @@ codeunit 147524 "SII Documents No Taxable"
 
         // [GIVEN] Posted Sales Invoice with FCY
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount);
         PostSalesInvWithCurrency(CustLedgerEntry, CurrencyCode);
 
         // [WHEN] Create xml for Posted Sales Invoice
@@ -155,7 +155,7 @@ codeunit 147524 "SII Documents No Taxable"
 
         // [GIVEN] Posted Service Invoice with FCY
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount);
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.",
           LibrarySII.PostServDocWithCurrency(ServiceHeader."Document Type"::Invoice, CurrencyCode));
         ServiceInvoiceHeader.FindFirst();
@@ -830,7 +830,7 @@ codeunit 147524 "SII Documents No Taxable"
 
         // [THEN] Error VAT % must be equal to '0'  in VAT Posting Setup: VAT Bus. Posting Group=, VAT Prod. Posting Group=. Current value is '10.0'.
         Assert.ExpectedError(
-          StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT %"), 0, VATPostingSetup.TableCaption));
+          StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT %"), 0, VATPostingSetup.TableCaption()));
         Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
@@ -949,7 +949,7 @@ codeunit 147524 "SII Documents No Taxable"
         asserterror VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // [THEN] Error VAT+EC % must be equal to '0'  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT+EC %"), 0, VATPostingSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT+EC %"), 0, VATPostingSetup.TableCaption()));
         Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
@@ -1038,7 +1038,7 @@ codeunit 147524 "SII Documents No Taxable"
         asserterror VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
 
         // [THEN] Error VAT+EC % must be equal to '0'  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT+EC %"), 0, VATPostingSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("VAT+EC %"), 0, VATPostingSetup.TableCaption()));
         Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
@@ -1154,7 +1154,7 @@ codeunit 147524 "SII Documents No Taxable"
         asserterror VATPostingSetup.Validate("VAT+EC %", LibraryRandom.RandDecInRange(10, 20, 2));
 
         // [THEN] Error No Taxable Type must be equal to ' '  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption()));
         Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
@@ -1177,7 +1177,7 @@ codeunit 147524 "SII Documents No Taxable"
         asserterror VATPostingSetup.Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
 
         // [THEN] Error No Taxable Type must be equal to ' '  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption()));
         Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
@@ -1224,7 +1224,7 @@ codeunit 147524 "SII Documents No Taxable"
         asserterror VATPostingSetup.Validate("EC %", LibraryRandom.RandDecInRange(10, 20, 2));
 
         // [THEN] Error No Taxable Type must be equal to ' '  in VAT Posting Setup
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, VATPostingSetup.FieldCaption("No Taxable Type"), ' ', VATPostingSetup.TableCaption()));
         Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
@@ -2602,7 +2602,7 @@ codeunit 147524 "SII Documents No Taxable"
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, Customer."No.");
         ExchRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
         SalesHeader.Validate("Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchRateAmount, ExchRateAmount));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRateAmount, ExchRateAmount));
         SalesHeader.Modify(true);
 
         ItemNo :=
@@ -2626,7 +2626,7 @@ codeunit 147524 "SII Documents No Taxable"
           ServiceHeader, DocType, Customer."No.");
         ExchRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
         ServiceHeader.Validate("Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchRateAmount, ExchRateAmount));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRateAmount, ExchRateAmount));
         ServiceHeader.Modify(true);
 
         ItemNo :=
@@ -2883,8 +2883,8 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         LibrarySII.CreateCustWithVATSetup(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, Customer."No.");
-        ServiceHeader.Validate("Posting Date", WorkDate);
-        ServiceHeader.Validate("Order Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
+        ServiceHeader.Validate("Order Date", WorkDate());
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");

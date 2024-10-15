@@ -2,7 +2,6 @@ page 5700 "Stockkeeping Unit Card"
 {
     Caption = 'Stockkeeping Unit Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Item,Navigate';
     SourceTable = "Stockkeeping Unit";
 
     layout
@@ -12,7 +11,7 @@ page 5700 "Stockkeeping Unit Card"
             group(General)
             {
                 Caption = 'General';
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
@@ -23,59 +22,59 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the description from the Item Card.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
                     ToolTip = 'Specifies the location code (for example, the warehouse or distribution center) to which the SKU applies.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Assembly BOM"; "Assembly BOM")
+                field("Assembly BOM"; Rec."Assembly BOM")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the item is an assembly BOM.';
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies where to find the SKU in the warehouse.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies when the SKU card was last modified.';
                 }
-                field("Qty. on Purch. Order"; "Qty. on Purch. Order")
+                field("Qty. on Purch. Order"; Rec."Qty. on Purch. Order")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
-                field("Qty. on Prod. Order"; "Qty. on Prod. Order")
+                field("Qty. on Prod. Order"; Rec."Qty. on Prod. Order")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many item units have been planned for production, which is how many units are on outstanding production order lines.';
                 }
-                field("Qty. in Transit"; "Qty. in Transit")
+                field("Qty. in Transit"; Rec."Qty. in Transit")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantity of the SKUs in transit. These items have been shipped, but not yet received.';
                 }
-                field("Qty. on Component Lines"; "Qty. on Component Lines")
+                field("Qty. on Component Lines"; Rec."Qty. on Component Lines")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many item units are needed for production, which is how many units remain on outstanding production order component lists.';
                 }
-                field("Qty. on Sales Order"; "Qty. on Sales Order")
+                field("Qty. on Sales Order"; Rec."Qty. on Sales Order")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
-                field("Qty. on Service Order"; "Qty. on Service Order")
+                field("Qty. on Service Order"; Rec."Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how many item units are reserved for service orders, which is how many units are listed on outstanding service order lines.';
@@ -86,28 +85,28 @@ page 5700 "Stockkeeping Unit Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
-                field("Qty. on Job Order"; "Qty. on Job Order")
+                field("Qty. on Job Order"; Rec."Qty. on Job Order")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how many units of the item are allocated to jobs, meaning listed on outstanding job planning lines.';
                 }
-                field("Qty. on Assembly Order"; "Qty. on Assembly Order")
+                field("Qty. on Assembly Order"; Rec."Qty. on Assembly Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the SKU are allocated to assembly orders, which is how many are listed on outstanding assembly order headers.';
                 }
-                field("Qty. on Asm. Component"; "Qty. on Asm. Component")
+                field("Qty. on Asm. Component"; Rec."Qty. on Asm. Component")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many item units are allocated as assembly components, which is how many units are on outstanding assembly order lines.';
                 }
-                field("Trans. Ord. Receipt (Qty.)"; "Trans. Ord. Receipt (Qty.)")
+                field("Trans. Ord. Receipt (Qty.)"; Rec."Trans. Ord. Receipt (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of the item units that remains to be received but are not yet shipped as the difference between the Quantity and the Quantity Shipped fields.';
                     Visible = false;
                 }
-                field("Trans. Ord. Shipment (Qty.)"; "Trans. Ord. Shipment (Qty.)")
+                field("Trans. Ord. Shipment (Qty.)"; Rec."Trans. Ord. Shipment (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of the item units that remains to be shipped as the difference between the Quantity and the Quantity Shipped fields.';
@@ -117,7 +116,7 @@ page 5700 "Stockkeeping Unit Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("Standard Cost"; "Standard Cost")
+                field("Standard Cost"; Rec."Standard Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = StandardCostEnable;
@@ -130,7 +129,7 @@ page 5700 "Stockkeeping Unit Card"
                         ShowAvgCalcItem.DrillDownAvgCostAdjmtPoint(Item);
                     end;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Planning;
                     Enabled = UnitCostEnable;
@@ -144,7 +143,7 @@ page 5700 "Stockkeeping Unit Card"
                         ShowAvgCalcItem.DrillDownAvgCostAdjmtPoint(Item);
                     end;
                 }
-                field("Last Direct Cost"; "Last Direct Cost")
+                field("Last Direct Cost"; Rec."Last Direct Cost")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the most recent direct unit cost that was paid for the SKU.';
@@ -165,7 +164,7 @@ page 5700 "Stockkeeping Unit Card"
                         Validate("Replenishment System", SKUReplenishmentSystem);
                     end;
                 }
-                field("Lead Time Calculation"; "Lead Time Calculation")
+                field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
@@ -173,12 +172,12 @@ page 5700 "Stockkeeping Unit Card"
                 group(Purchase)
                 {
                     Caption = 'Purchase';
-                    field("Vendor No."; "Vendor No.")
+                    field("Vendor No."; Rec."Vendor No.")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                     }
-                    field("Vendor Item No."; "Vendor Item No.")
+                    field("Vendor Item No."; Rec."Vendor Item No.")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies the number that the vendor uses for this item.';
@@ -187,7 +186,7 @@ page 5700 "Stockkeeping Unit Card"
                 group(Transfer)
                 {
                     Caption = 'Transfer';
-                    field("Transfer-from Code"; "Transfer-from Code")
+                    field("Transfer-from Code"; Rec."Transfer-from Code")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies the code of the location that items are transferred from.';
@@ -196,22 +195,22 @@ page 5700 "Stockkeeping Unit Card"
                 group(Production)
                 {
                     Caption = 'Production';
-                    field("Manufacturing Policy"; "Manufacturing Policy")
+                    field("Manufacturing Policy"; Rec."Manufacturing Policy")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies if additional orders for any related components are calculated.';
                     }
-                    field("Flushing Method"; "Flushing Method")
+                    field("Flushing Method"; Rec."Flushing Method")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                     }
-                    field("Components at Location"; "Components at Location")
+                    field("Components at Location"; Rec."Components at Location")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the inventory location from where the production order components are to be taken when producing this SKU.';
                     }
-                    field("Lot Size"; "Lot Size")
+                    field("Lot Size"; Rec."Lot Size")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
@@ -230,7 +229,7 @@ page 5700 "Stockkeeping Unit Card"
                 group(Assembly)
                 {
                     Caption = 'Assembly';
-                    field("Assembly Policy"; "Assembly Policy")
+                    field("Assembly Policy"; Rec."Assembly Policy")
                     {
                         ApplicationArea = Assembly;
                         ToolTip = 'Specifies which default order flow is used to supply this SKU by assembly.';
@@ -240,7 +239,7 @@ page 5700 "Stockkeeping Unit Card"
             group(Planning)
             {
                 Caption = 'Planning';
-                field("Reordering Policy"; "Reordering Policy")
+                field("Reordering Policy"; Rec."Reordering Policy")
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
@@ -248,28 +247,28 @@ page 5700 "Stockkeeping Unit Card"
 
                     trigger OnValidate()
                     begin
-                        EnablePlanningControls;
+                        EnablePlanningControls();
                     end;
                 }
-                field("Dampener Period"; "Dampener Period")
+                field("Dampener Period"; Rec."Dampener Period")
                 {
                     ApplicationArea = Planning;
                     Enabled = DampenerPeriodEnable;
                     ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply orders forward. The dampener period limits the number of insignificant rescheduling of existing supply to a later date if that new date is within the dampener period. The dampener period function is only initiated if the supply can be rescheduled to a later date and not if the supply can be rescheduled to an earlier date. Accordingly, if the suggested new supply date is after the dampener period, then the rescheduling suggestion is not blocked. If the lot accumulation period is less than the dampener period, then the dampener period is dynamically set to equal the lot accumulation period. This is not shown in the value that you enter in the Dampener Period field. The last demand in the lot accumulation period is used to determine whether a potential supply date is in the dampener period. If this field is empty, then the value in the Default Dampener Period field in the Manufacturing Setup window applies. The value that you enter in the Dampener Period field must be a date formula, and one day (1D) is the shortest allowed period.';
                 }
-                field("Dampener Quantity"; "Dampener Quantity")
+                field("Dampener Quantity"; Rec."Dampener Quantity")
                 {
                     ApplicationArea = Planning;
                     Enabled = DampenerQtyEnable;
                     ToolTip = 'Specifies a dampener quantity to block insignificant change suggestions, if the quantity by which the supply would change is lower than the dampener quantity.';
                 }
-                field("Safety Lead Time"; "Safety Lead Time")
+                field("Safety Lead Time"; Rec."Safety Lead Time")
                 {
                     ApplicationArea = Planning;
                     Enabled = SafetyLeadTimeEnable;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
-                field("Safety Stock Quantity"; "Safety Stock Quantity")
+                field("Safety Stock Quantity"; Rec."Safety Stock Quantity")
                 {
                     ApplicationArea = Planning;
                     Enabled = SafetyStockQtyEnable;
@@ -278,7 +277,7 @@ page 5700 "Stockkeeping Unit Card"
                 group("Lot-for-Lot Parameters")
                 {
                     Caption = 'Lot-for-Lot Parameters';
-                    field("Include Inventory"; "Include Inventory")
+                    field("Include Inventory"; Rec."Include Inventory")
                     {
                         ApplicationArea = Planning;
                         Enabled = IncludeInventoryEnable;
@@ -286,16 +285,16 @@ page 5700 "Stockkeeping Unit Card"
 
                         trigger OnValidate()
                         begin
-                            EnablePlanningControls;
+                            EnablePlanningControls();
                         end;
                     }
-                    field("Lot Accumulation Period"; "Lot Accumulation Period")
+                    field("Lot Accumulation Period"; Rec."Lot Accumulation Period")
                     {
                         ApplicationArea = Planning;
                         Enabled = LotAccumulationPeriodEnable;
                         ToolTip = 'Specifies a period in which multiple demands are accumulated into one supply order when you use the Lot-for-Lot reordering policy.';
                     }
-                    field("Rescheduling Period"; "Rescheduling Period")
+                    field("Rescheduling Period"; Rec."Rescheduling Period")
                     {
                         ApplicationArea = Planning;
                         Enabled = ReschedulingPeriodEnable;
@@ -312,19 +311,19 @@ page 5700 "Stockkeeping Unit Card"
                         group(Control41)
                         {
                             ShowCaption = false;
-                            field("Reorder Point"; "Reorder Point")
+                            field("Reorder Point"; Rec."Reorder Point")
                             {
                                 ApplicationArea = Planning;
                                 Enabled = ReorderPointEnable;
                                 ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                             }
-                            field("Reorder Quantity"; "Reorder Quantity")
+                            field("Reorder Quantity"; Rec."Reorder Quantity")
                             {
                                 ApplicationArea = Planning;
                                 Enabled = ReorderQtyEnable;
                                 ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                             }
-                            field("Maximum Inventory"; "Maximum Inventory")
+                            field("Maximum Inventory"; Rec."Maximum Inventory")
                             {
                                 ApplicationArea = Planning;
                                 Enabled = MaximumInventoryEnable;
@@ -332,14 +331,14 @@ page 5700 "Stockkeeping Unit Card"
                             }
                         }
                     }
-                    field("Overflow Level"; "Overflow Level")
+                    field("Overflow Level"; Rec."Overflow Level")
                     {
                         ApplicationArea = Planning;
                         Enabled = OverflowLevelEnable;
                         Importance = Additional;
                         ToolTip = 'Specifies a quantity you allow projected inventory to exceed the reorder point before the system suggests to decrease existing supply orders.';
                     }
-                    field("Time Bucket"; "Time Bucket")
+                    field("Time Bucket"; Rec."Time Bucket")
                     {
                         ApplicationArea = Planning;
                         Enabled = TimeBucketEnable;
@@ -358,19 +357,19 @@ page 5700 "Stockkeeping Unit Card"
                         group(Control23)
                         {
                             ShowCaption = false;
-                            field("Minimum Order Quantity"; "Minimum Order Quantity")
+                            field("Minimum Order Quantity"; Rec."Minimum Order Quantity")
                             {
                                 ApplicationArea = Planning;
                                 Enabled = MinimumOrderQtyEnable;
                                 ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                             }
-                            field("Maximum Order Quantity"; "Maximum Order Quantity")
+                            field("Maximum Order Quantity"; Rec."Maximum Order Quantity")
                             {
                                 ApplicationArea = Planning;
                                 Enabled = MaximumOrderQtyEnable;
                                 ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                             }
-                            field("Order Multiple"; "Order Multiple")
+                            field("Order Multiple"; Rec."Order Multiple")
                             {
                                 ApplicationArea = Planning;
                                 Enabled = OrderMultipleEnable;
@@ -383,49 +382,49 @@ page 5700 "Stockkeeping Unit Card"
             group(Control1907509201)
             {
                 Caption = 'Warehouse';
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code of the equipment that you need to use when working with the SKU.';
                 }
-                field("Put-away Template Code"; "Put-away Template Code")
+                field("Put-away Template Code"; Rec."Put-away Template Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the put-away template that the program uses when it performs a put-away for the SKU.';
                 }
-                field("Put-away Unit of Measure Code"; "Put-away Unit of Measure Code")
+                field("Put-away Unit of Measure Code"; Rec."Put-away Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the unit of measure that the program uses when it performs a put-away for the SKU.';
                 }
-                field("Phys Invt Counting Period Code"; "Phys Invt Counting Period Code")
+                field("Phys Invt Counting Period Code"; Rec."Phys Invt Counting Period Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code of the counting period that indicates how often you want to count the SKU in a physical inventory.';
                 }
-                field("Last Phys. Invt. Date"; "Last Phys. Invt. Date")
+                field("Last Phys. Invt. Date"; Rec."Last Phys. Invt. Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date on which you last posted the results of a physical inventory for the SKU to the item ledger.';
                 }
-                field("Last Counting Period Update"; "Last Counting Period Update")
+                field("Last Counting Period Update"; Rec."Last Counting Period Update")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the last date on which you calculated the counting period.';
                 }
-                field("Next Counting Start Date"; "Next Counting Start Date")
+                field("Next Counting Start Date"; Rec."Next Counting Start Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the starting date of the next counting period.';
                 }
-                field("Next Counting End Date"; "Next Counting End Date")
+                field("Next Counting End Date"; Rec."Next Counting End Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ending date of the next counting period.';
                 }
-                field("Use Cross-Docking"; "Use Cross-Docking")
+                field("Use Cross-Docking"; Rec."Use Cross-Docking")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the SKU can be cross-docked.';
@@ -474,9 +473,6 @@ page 5700 "Stockkeeping Unit Card"
                         ApplicationArea = Planning;
                         Caption = 'Statistics';
                         Image = Statistics;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedIsBig = true;
                         ShortCutKey = 'F7';
                         ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -494,8 +490,6 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Planning;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Item),
                                   "No." = FIELD("Item No.");
@@ -506,9 +500,6 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(27),
                                   "No." = FIELD("Item No.");
@@ -520,8 +511,6 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Warehouse;
                     Caption = '&Picture';
                     Image = Picture;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Picture";
                     RunPageLink = "No." = FIELD("Item No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -638,7 +627,7 @@ page 5700 "Stockkeeping Unit Card"
                             CopyFilter("Global Dimension 1 Filter", Item."Global Dimension 1 Filter");
                             CopyFilter("Global Dimension 2 Filter", Item."Global Dimension 2 Filter");
                             CopyFilter("Drop Shipment Filter", Item."Drop Shipment Filter");
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -680,9 +669,10 @@ page 5700 "Stockkeeping Unit Card"
                             Item.Get("Item No.");
                             Item.SetRange("Location Filter", "Location Code");
                             Item.SetRange("Variant Filter", "Variant Code");
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
+#if not CLEAN21
                     action(Timeline)
                     {
                         ApplicationArea = Planning;
@@ -690,20 +680,22 @@ page 5700 "Stockkeeping Unit Card"
                         Image = Timeline;
                         ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
+                        ObsoleteTag = '21.0';
 
                         trigger OnAction()
                         begin
                             ShowTimeline(Rec);
                         end;
                     }
+#endif                
                 }
                 action(Action124)
                 {
                     ApplicationArea = All;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Stock. Unit Comment Sheet";
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code"),
@@ -724,9 +716,6 @@ page 5700 "Stockkeeping Unit Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ledger E&ntries';
                         Image = ItemLedger;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedIsBig = true;
                         RunObject = Page "Item Ledger Entries";
                         RunPageLink = "Item No." = FIELD("Item No."),
                                       "Location Code" = FIELD("Location Code"),
@@ -817,8 +806,6 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Planning;
                     Caption = 'New Item';
                     Image = NewItem;
-                    Promoted = true;
-                    PromotedCategory = New;
                     RunObject = Page "Item Card";
                     RunPageMode = Create;
                     ToolTip = 'Create an item card based on the stockkeeping unit.';
@@ -842,6 +829,49 @@ page 5700 "Stockkeeping Unit Card"
                     begin
                         PhysInvtCountMgt.UpdateSKUPhysInvtCount(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                actionref(NewItem_Promoted; NewItem)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Action89_Promoted; Action89)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Action124_Promoted; Action124)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("&Picture_Promoted"; "&Picture")
+                {
                 }
             }
         }
@@ -887,6 +917,8 @@ page 5700 "Stockkeeping Unit Card"
         Item: Record Item;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SKUReplenishmentSystem: Enum "SKU Replenishment System";
+
+    protected var
         [InDataSet]
         TimeBucketEnable: Boolean;
         [InDataSet]

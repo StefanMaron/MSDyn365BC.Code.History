@@ -16,7 +16,7 @@ report 99000757 "Where-Used (Top Level)"
             column(FormattedToday; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CalcDateFormatted; Text000 + Format(CalculateDate))
@@ -95,7 +95,7 @@ report 99000757 "Where-Used (Top Level)"
 
             trigger OnPreDataItem()
             begin
-                ItemFilter := GetFilters;
+                ItemFilter := GetFilters();
             end;
         }
     }
@@ -126,7 +126,7 @@ report 99000757 "Where-Used (Top Level)"
 
         trigger OnInit()
         begin
-            CalculateDate := WorkDate;
+            CalculateDate := WorkDate();
         end;
     }
 
@@ -135,12 +135,13 @@ report 99000757 "Where-Used (Top Level)"
     }
 
     var
-        Text000: Label 'As of ';
         WhereUsedList: Record "Where-Used Line";
         WhereUsedMgt: Codeunit "Where-Used Management";
         ItemFilter: Text;
         CalculateDate: Date;
         First: Boolean;
+
+        Text000: Label 'As of ';
         WhereUsedListTopLevelCaptLbl: Label 'Where-Used List (Top Level)';
         CurrReportPageNoCaptLbl: Label 'Page';
         LevelCodeCaptionLbl: Label 'Level';

@@ -16,11 +16,11 @@ codeunit 147564 "SII Event Tests"
     begin
         BindSubscription(SIIEventTests);
         SIIXMLCreator.GenerateXml(GLEntry, ResultXmlDocument, 0, false);
-        ResultXML := ResultXmlDocument.OuterXml;
+        ResultXML := ResultXmlDocument.OuterXml();
 
-        ExpectedXmlDocument := ExpectedXmlDocument.XmlDocument;
+        ExpectedXmlDocument := ExpectedXmlDocument.XmlDocument();
         ExpectedXmlDocument.LoadXml(GetSampleXml());
-        ExpectedXML := ExpectedXmlDocument.OuterXml;
+        ExpectedXML := ExpectedXmlDocument.OuterXml();
 
         Assert.AreEqual(ExpectedXML, ResultXML, 'Xml Document did not match.');
     end;

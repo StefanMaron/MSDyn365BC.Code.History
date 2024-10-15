@@ -438,6 +438,11 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
         }
+        field(131; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -747,7 +752,7 @@ table 5994 "Service Cr.Memo Header"
                 PostedServiceInvoices.SetTableView(ServiceInvoiceHeader);
                 PostedServiceInvoices.SetRecord(ServiceInvoiceHeader);
                 PostedServiceInvoices.LookupMode(true);
-                if PostedServiceInvoices.RunModal = ACTION::LookupOK then
+                if PostedServiceInvoices.RunModal() = ACTION::LookupOK then
                     PostedServiceInvoices.GetRecord(ServiceInvoiceHeader);
                 Clear(PostedServiceInvoices);
             end;
@@ -1022,7 +1027,7 @@ table 5994 "Service Cr.Memo Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()

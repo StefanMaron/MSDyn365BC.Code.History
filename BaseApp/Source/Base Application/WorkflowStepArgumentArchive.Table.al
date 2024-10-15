@@ -143,7 +143,7 @@ table 1531 "Workflow Step Argument Archive"
 
     trigger OnInsert()
     begin
-        ID := CreateGuid;
+        ID := CreateGuid();
     end;
 }
 

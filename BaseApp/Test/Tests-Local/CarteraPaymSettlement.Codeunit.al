@@ -1105,8 +1105,8 @@ codeunit 147501 "Cartera Paym. Settlement"
     var
         POPostAndPrint: Codeunit "BG/PO-Post and Print";
     begin
-        LibraryVariableStorage.Enqueue(StrSubstNo(NotPrintedPaymentOrderQst, PaymentOrder.TableCaption));
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption, PaymentOrder."No."));
+        LibraryVariableStorage.Enqueue(StrSubstNo(NotPrintedPaymentOrderQst, PaymentOrder.TableCaption()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption(), PaymentOrder."No."));
         POPostAndPrint.PayablePostOnly(PaymentOrder);
     end;
 
@@ -1115,8 +1115,8 @@ codeunit 147501 "Cartera Paym. Settlement"
         PaymentOrder: Record "Payment Order";
         PaymentOrders: TestPage "Payment Orders";
     begin
-        LibraryVariableStorage.Enqueue(StrSubstNo(NotPrintedPaymentOrderQst, PaymentOrder.TableCaption));
-        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption, PaymentOrderNo));
+        LibraryVariableStorage.Enqueue(StrSubstNo(NotPrintedPaymentOrderQst, PaymentOrder.TableCaption()));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption(), PaymentOrderNo));
 
         PaymentOrders.OpenEdit;
         PaymentOrders.GotoKey(PaymentOrderNo);

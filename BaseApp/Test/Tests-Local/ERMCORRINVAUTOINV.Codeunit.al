@@ -578,7 +578,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         // Generate Code for - Contact Name,Telephone Number required 9 digit, Electronic Code required 16 digit and Declaration No. required 4 digit.
         // 0 - Min. Payment Amount and Declaration Media Type - Telematic, False - Replace Declaration, Blank - Previous Declaration Number and G/L Account Number, True - Test Run.
         Make340Declaration.InitializeRequest(
-          Format(Date2DMY(WorkDate, 3)), Date2DMY(WorkDate, 2), GenerateRandomCode(LibraryRandom.RandInt(10)),
+          Format(Date2DMY(WorkDate(), 3)), Date2DMY(WorkDate(), 2), GenerateRandomCode(LibraryRandom.RandInt(10)),
           GenerateRandomCode(9), GenerateRandomCode(4), GenerateRandomCode(16), 0, false, '', ExportedFileName, '', 0.0);
         Make340Declaration.RunModal();
         Make340Declaration.GetServerFileName(ExportedFileName);

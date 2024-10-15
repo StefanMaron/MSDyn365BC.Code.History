@@ -508,7 +508,7 @@ codeunit 143305 "Library - 340 347 Declaration"
                 VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
             end;
             VATPostingSetup.Modify(true);
-        until VATPostingSetup.Next = 0;
+        until VATPostingSetup.Next() = 0;
 
         GeneralLedgerSetup.Get();
 

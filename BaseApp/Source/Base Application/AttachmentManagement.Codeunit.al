@@ -96,14 +96,14 @@ codeunit 5052 AttachmentManagement
         if (FromAttachment."Storage Type" = FromAttachment."Storage Type"::Embedded) and
            (ToAttachment."Storage Type" = ToAttachment."Storage Type"::"Disk File")
         then begin
-            FileName := ToAttachment.ConstDiskFileName;
+            FileName := ToAttachment.ConstDiskFileName();
             FromAttachment.ExportAttachmentToServerFile(FileName); // Export blob to UNC location
             with ToAttachment do begin
                 Clear("Attachment File");
                 RMSetup.Get();
                 RMSetup.TestField("Attachment Storage Location");
                 "Storage Pointer" := RMSetup."Attachment Storage Location";
-                Modify;
+                Modify();
             end;
         end;
 
@@ -115,7 +115,7 @@ codeunit 5052 AttachmentManagement
             RMSetup.TestField("Attachment Storage Location");
             ToAttachment."Storage Pointer" := RMSetup."Attachment Storage Location";
             ToAttachment.Modify();
-            FILE.Copy(FromAttachment.ConstDiskFileName, ToAttachment.ConstDiskFileName);
+            FILE.Copy(FromAttachment.ConstDiskFileName(), ToAttachment.ConstDiskFileName());
         end;
 
         if (FromAttachment."Storage Type" = FromAttachment."Storage Type"::"Disk File") and
@@ -123,10 +123,10 @@ codeunit 5052 AttachmentManagement
         then
             // Transfer External to Embedded attachment
             with ToAttachment do begin
-                ImportAttachmentFromServerFile(FromAttachment.ConstDiskFileName, true, false); // Import file from UNC location
+                ImportAttachmentFromServerFile(FromAttachment.ConstDiskFileName(), true, false); // Import file from UNC location
                 "File Extension" := FromAttachment."File Extension";
                 "Storage Pointer" := '';
-                Modify;
+                Modify();
             end;
     end;
 
@@ -177,10 +177,10 @@ codeunit 5052 AttachmentManagement
     [Scope('OnPrem')]
     procedure GenerateHTMLContent(var Attachment: Record Attachment; SegmentLine: Record "Segment Line"): Boolean
     begin
-        if not Attachment.IsHTML then
+        if not Attachment.IsHTML() then
             exit(false);
 
-        if Attachment.IsHTMLReady then
+        if Attachment.IsHTMLReady() then
             exit(true);
 
         exit(GenerateHTMLReadyAttachmentFromCustomLayout(Attachment, SegmentLine));
@@ -189,11 +189,11 @@ codeunit 5052 AttachmentManagement
     [Scope('OnPrem')]
     procedure LoadHTMLContent(var Attachment: Record Attachment; SegmentLine: Record "Segment Line"): Text
     begin
-        if not Attachment.IsHTML then
+        if not Attachment.IsHTML() then
             exit('');
 
-        if Attachment.IsHTMLReady then
-            exit(Attachment.Read);
+        if Attachment.IsHTMLReady() then
+            exit(Attachment.Read());
 
         exit(LoadHTMLContentFromCustomLayoutAttachment(Attachment, SegmentLine));
     end;
@@ -212,7 +212,7 @@ codeunit 5052 AttachmentManagement
         TempAttachment.ImportAttachmentFromServerFile(FileName, true, true);
         TempAttachment."No." := 0;
         TempAttachment.Insert();
-        Result := TempAttachment.Read;
+        Result := TempAttachment.Read();
         TempAttachment.RemoveAttachment(false);
     end;
 
@@ -260,10 +260,10 @@ codeunit 5052 AttachmentManagement
         Commit();
         User.SetRange("User Name", UserId);
 #if CLEAN19
-        if not User.FindFirst and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then            
+        if not User.FindFirst() and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then            
                 Error('');
 #else
-        if not User.FindFirst and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then
+        if not User.FindFirst() and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then
             if not InitializeExchangeWithCredentials(ExchangeWebServicesServer) then
                 Error('');
 #endif
@@ -281,14 +281,14 @@ codeunit 5052 AttachmentManagement
         TempOfficeAdminCredentials.Init();
         TempOfficeAdminCredentials.Insert();
         Commit();
-        ClearLastError;
+        ClearLastError();
         if PAGE.RunModal(PAGE::"Office 365 Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then
             Error('');
         WebCredentialsLogin := TempOfficeAdminCredentials.Email;
-        WebCredentials := WebCredentials.WebCredentials(WebCredentialsLogin, TempOfficeAdminCredentials.GetPassword);
+        WebCredentials := WebCredentials.WebCredentials(WebCredentialsLogin, TempOfficeAdminCredentials.GetPassword());
         TempOfficeAdminCredentials.Delete();
         ExchangeWebServicesServer.Initialize(
-          WebCredentialsLogin, ExchangeWebServicesServer.ProdEndpoint, WebCredentials, false);
+          WebCredentialsLogin, ExchangeWebServicesServer.ProdEndpoint(), WebCredentials, false);
     end;
 #endif
 
@@ -300,10 +300,10 @@ codeunit 5052 AttachmentManagement
         [NonDebuggable]
         AccessToken: Text;
     begin
-        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false);
+        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
 
         if AccessToken <> '' then begin
-            ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint);
+            ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint());
             exit;
         end;
 
@@ -399,7 +399,7 @@ codeunit 5052 AttachmentManagement
             if TempDeliverySorterOther."Correspondence Type" = TempDeliverySorterOther."Correspondence Type"::Email then begin
                 // Export the attachment to the client TEMP directory, giving it a GUID
                 AttachmentFileFullName := PrepareServerAttachment(TempDeliverySorterOther."Attachment No.");
-                EmailBodyFilePath := PrepareDummyEmailBody;
+                EmailBodyFilePath := PrepareDummyEmailBody();
                 OnDeliverEmailWithAttachmentOnBeforeSendEmail(
                   TempDeliverySorterOther, InteractLogEntry, AttachmentFileFullName, EmailBodyFilePath);
 
@@ -452,7 +452,7 @@ codeunit 5052 AttachmentManagement
             I := I + 1;
             Window.Update(4, Round(I / NoOfAttachments * 10000, 1));
         until TempDeliverySorterOther.Next() = 0;
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure SendHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry"; EmailBodyFilePath: Text)
@@ -491,7 +491,7 @@ codeunit 5052 AttachmentManagement
         IsSent :=
           ExchangeWebServicesServer.SendEmailMessageWithAttachment(
             TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry),
-            Attachment.Read, '', GetSenderSalesPersonEmail(InteractLogEntry));
+            Attachment.Read(), '', GetSenderSalesPersonEmail(InteractLogEntry));
 
         SetDeliveryState(InteractLogEntry, IsSent);
     end;
@@ -583,6 +583,7 @@ codeunit 5052 AttachmentManagement
         Window.Update(1, Text001);
         Window.Update(3, Text002);
 
+        I := 0;
         if DeliverySorter.Find('-') then begin
             NoOfAttachments := DeliverySorter.Count();
             repeat
@@ -617,7 +618,7 @@ codeunit 5052 AttachmentManagement
                 Window.Update(2, Round(I / NoOfAttachments * 10000, 1));
             until DeliverySorter.Next() = 0;
         end;
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure GetAttachment(var Attachment: Record Attachment; AttachmentNo: Integer; CheckExtension: Boolean)
@@ -639,7 +640,7 @@ codeunit 5052 AttachmentManagement
         EmailBodyFile.Create(EmailBodyFilePath);
         EmailBodyFile.CreateOutStream(OStream);
         OStream.WriteText('<html><body></body></html>');
-        EmailBodyFile.Close;
+        EmailBodyFile.Close();
         exit(EmailBodyFilePath);
     end;
 

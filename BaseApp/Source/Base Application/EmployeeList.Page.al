@@ -15,12 +15,12 @@ page 5201 "Employee List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(FullName; FullName)
+                field(FullName; FullName())
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Full Name';
@@ -33,13 +33,13 @@ page 5201 "Employee List"
                     NotBlank = true;
                     ToolTip = 'Specifies the employee''s first name.';
                 }
-                field("Second Family Name"; "Second Family Name")
+                field("Second Family Name"; Rec."Second Family Name")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee''s middle name.';
                     Visible = false;
                 }
-                field("First Family Name"; "First Family Name")
+                field("First Family Name"; Rec."First Family Name")
                 {
                     ApplicationArea = BasicHR;
                     NotBlank = true;
@@ -51,24 +51,24 @@ page 5201 "Employee List"
                     ToolTip = 'Specifies the employee''s initials.';
                     Visible = false;
                 }
-                field("Job Title"; "Job Title")
+                field("Job Title"; Rec."Job Title")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee''s job title.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Company Phone No.';
@@ -80,39 +80,39 @@ page 5201 "Employee List"
                     ToolTip = 'Specifies the employee''s telephone extension.';
                     Visible = false;
                 }
-                field("Mobile Phone No."; "Mobile Phone No.")
+                field("Mobile Phone No."; Rec."Mobile Phone No.")
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Private Phone No.';
                     ToolTip = 'Specifies the employee''s private telephone number.';
                     Visible = false;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Private Email';
                     ToolTip = 'Specifies the employee''s private email address.';
                     Visible = false;
                 }
-                field("Statistics Group Code"; "Statistics Group Code")
+                field("Statistics Group Code"; Rec."Statistics Group Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a statistics group code to assign to the employee for statistical purposes.';
                     Visible = false;
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a resource number for the employee.';
                     Visible = false;
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                     Visible = false;
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
@@ -288,9 +288,6 @@ page 5201 "Employee List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact';
                     Image = ContactPerson;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View or edit detailed information about the contact person at the employee.';
 
                     trigger OnAction()
@@ -332,9 +329,6 @@ page 5201 "Employee List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Absence Registration';
                 Image = Absence;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Absence Registration";
                 ToolTip = 'Register absence for the employee.';
             }
@@ -343,8 +337,6 @@ page 5201 "Employee List"
                 ApplicationArea = BasicHR;
                 Caption = 'Ledger E&ntries';
                 Image = VendorLedger;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Employee Ledger Entries";
                 RunPageLink = "Employee No." = FIELD("No.");
                 RunPageView = SORTING("Employee No.")
@@ -357,9 +349,6 @@ page 5201 "Employee List"
                 ApplicationArea = BasicHR;
                 Caption = 'Pay Employee';
                 Image = SuggestVendorPayments;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Employee Ledger Entries";
                 RunPageLink = "Employee No." = FIELD("No."),
                               "Remaining Amount" = FILTER(< 0),
@@ -389,8 +378,6 @@ page 5201 "Employee List"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this employee.';
-                Promoted = true;
-                PromotedCategory = Process;
                 Enabled = CanSendEmail;
 
                 trigger OnAction()
@@ -405,6 +392,29 @@ page 5201 "Employee List"
                         TempEmailitem."Send to" := Rec."E-Mail";
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Absence Registration_Promoted"; "Absence Registration")
+                {
+                }
+                actionref(PayEmployee_Promoted; PayEmployee)
+                {
+                }
+                actionref(Contact_Promoted; Contact)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref(Email_Promoted; Email)
+                {
+                }
             }
         }
     }

@@ -40,8 +40,8 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] TAB 10753 "SII Session".StoreRequestXml()
         // [SCENARIO 253954]
         with SIISession do begin
-            Init;
-            Insert;
+            Init();
+            Insert();
 
             ElementValueText := LibraryUtility.GenerateRandomXMLText(LibraryRandom.RandIntInRange(100, 200));
             OriginalText := '<?xml version="1.0" encoding="utf-8"?><Element>' + ElementValueText + '</Element>';
@@ -72,8 +72,8 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] TAB 10753 "SII Session".StoreResponseXml()
         // [SCENARIO 253954]
         with SIISession do begin
-            Init;
-            Insert;
+            Init();
+            Insert();
 
             ElementValueText := LibraryUtility.GenerateRandomXMLText(LibraryRandom.RandIntInRange(100, 200));
             OriginalText := '<?xml version="1.0" encoding="utf-8"?><Element>' + ElementValueText + '</Element>';
@@ -100,8 +100,8 @@ codeunit 147553 "SII Batch Submission"
         // [FEATURE] [UT]
         // [SCENARIO 232557] TAB 10752 "SII Doc. Upload State".IsCreditMemoRemoval()
         with SIIDocUploadState do begin
-            Init;
-            Insert;
+            Init();
+            Insert();
             Assert.IsFalse(IsCreditMemoRemoval, '');
 
             "Document Source" := "Document Source"::"Customer Ledger";
@@ -146,7 +146,7 @@ codeunit 147553 "SII Batch Submission"
 
             CreateNewRequest(
               LibrarySII.MockCLE(DocumentNo), "Document Source"::"Customer Ledger".AsInteger(),
-              "Document Type"::Invoice.AsInteger(), DocumentNo, ExternalDocumentNo, WorkDate);
+              "Document Type"::Invoice.AsInteger(), DocumentNo, ExternalDocumentNo, WorkDate());
 
             SetRange("Document No.", DocumentNo);
             FindFirst();
@@ -182,7 +182,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsFalse(SIIHistory.Retry.Enabled, '');
         Assert.IsFalse(SIIHistory."Retry All".Enabled, '');
         Assert.IsFalse(SIIHistory."Retry Accepted".Enabled, '');
-        SIIHistory.Close;
+        SIIHistory.Close();
 
         // "Retry", "Retry Accepted" actions are enabled, "Retry All" is disabled in case of SIISetup.Enabled = TRUE, SIISetup."Enable Batch Submissions" = FALSE
         LibrarySII.InitSetup(true, false);
@@ -190,7 +190,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsTrue(SIIHistory.Retry.Enabled, '');
         Assert.IsFalse(SIIHistory."Retry All".Enabled, '');
         Assert.IsTrue(SIIHistory."Retry Accepted".Enabled, '');
-        SIIHistory.Close;
+        SIIHistory.Close();
 
         // All "Retry" actions are enabled in case of SIISetup.Enabled = TRUE, SIISetup."Enable Batch Submissions" = TRUE
         LibrarySII.InitSetup(true, true);
@@ -198,7 +198,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsTrue(SIIHistory.Retry.Enabled, '');
         Assert.IsTrue(SIIHistory."Retry All".Enabled, '');
         Assert.IsTrue(SIIHistory."Retry Accepted".Enabled, '');
-        SIIHistory.Close;
+        SIIHistory.Close();
     end;
 
     [Test]
@@ -216,7 +216,7 @@ codeunit 147553 "SII Batch Submission"
         SIIHistory.OpenEdit;
         LibraryVariableStorage.Enqueue(false);
         SIIHistory."Retry Accepted".Invoke;
-        SIIHistory.Close;
+        SIIHistory.Close();
 
         Assert.AreEqual(RetryAcceptedQst, LibraryVariableStorage.DequeueText, '');
     end;

@@ -138,7 +138,7 @@ codeunit 147526 "SII Initial Documents"
 
         // [THEN] "FechaRegContable" node has value "01.12.2017" in XML file
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate));
+          XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate()));
 
         LibrarySII.AssertLibraryVariableStorage;
     end;
@@ -177,7 +177,7 @@ codeunit 147526 "SII Initial Documents"
 
         // [THEN] "FechaRegContable" node has value "01.12.2017" in XML file
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate));
+          XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate()));
 
         LibrarySII.AssertLibraryVariableStorage;
     end;
@@ -216,7 +216,7 @@ codeunit 147526 "SII Initial Documents"
 
         // [THEN] "FechaRegContable" node has value "01.12.2017" in XML file
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate));
+          XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate()));
 
         LibrarySII.AssertLibraryVariableStorage;
     end;

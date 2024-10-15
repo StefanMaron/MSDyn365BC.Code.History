@@ -71,8 +71,8 @@ codeunit 144046 "ERM Employee Name"
         // Verify.
         Assert.AreEqual(StrSubstNo(FirstFamilyNameCap), EmployeeRelatives."First Family Name".Caption, CaptionMustBeSameMsg);
         Assert.AreEqual(StrSubstNo(SecondFamilyNameCap), EmployeeRelatives."Second Family Name".Caption, CaptionMustBeSameMsg);
-        EmployeeRelatives.Close;
-        EmployeeCard.Close;
+        EmployeeRelatives.Close();
+        EmployeeCard.Close();
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 144046 "ERM Employee Name"
         Assert.IsTrue(StrPos(EmployeeCard.Caption, Employee.Name) > 0, NameMustExistOnCaptionMsg);
         Assert.IsTrue(StrPos(EmployeeCard.Caption, Employee."First Family Name") > 0, NameMustExistOnCaptionMsg);
         Assert.IsTrue(StrPos(EmployeeCard.Caption, Employee."Second Family Name") > 0, NameMustExistOnCaptionMsg);
-        EmployeeCard.Close;
+        EmployeeCard.Close();
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 144046 "ERM Employee Name"
 
         // Verify.
         Assert.AreEqual(
-          StrSubstNo(FullNameTxt, Employee.Name, Employee."First Family Name", Employee."Second Family Name"), Employee.FullName, '');
+          StrSubstNo(FullNameTxt, Employee.Name, Employee."First Family Name", Employee."Second Family Name"), Employee.FullName(), '');
     end;
 
     local procedure CreateEmployee(var Employee: Record Employee)

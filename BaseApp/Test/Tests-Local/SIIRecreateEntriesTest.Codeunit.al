@@ -117,7 +117,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [THEN] Job Queue Entry is created
         VerifySIIJobQueueEntryCreatedAndStarted;
 
-        SIIHistory.Close;
+        SIIHistory.Close();
     end;
 
     [Test]
@@ -144,7 +144,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [THEN] "Recreate Missing Entries" page is shown
         Assert.IsTrue(RecreateMissingSIIEntries.FromDate.Enabled, '');
 
-        RecreateMissingSIIEntries.Close;
+        RecreateMissingSIIEntries.Close();
     end;
 
     [Test]
@@ -309,7 +309,7 @@ codeunit 147558 "SII Recreate Entries Test"
         SIIMissingEntriesState.Get();
         SIIMissingEntriesState.TestField("Entries Missing", 0);
 
-        RecreateMissingSIIEntries.Close;
+        RecreateMissingSIIEntries.Close();
     end;
 
     [Test]
@@ -368,7 +368,7 @@ codeunit 147558 "SII Recreate Entries Test"
         SIIMissingEntriesState.Get();
         SIIMissingEntriesState.TestField("Entries Missing", 6);
 
-        RecreateMissingSIIEntries.Close;
+        RecreateMissingSIIEntries.Close();
     end;
 
     [Test]

@@ -122,7 +122,7 @@ codeunit 5342 "CRM Synch. Helper"
         end;
     end;
 
-    local procedure CreateCRMProductpricelevelForProductAndUom(CRMProduct: Record "CRM Product"; NewPriceLevelId: Guid; CRMUom: Record "CRM Uom")
+    procedure CreateCRMProductpricelevelForProductAndUom(CRMProduct: Record "CRM Product"; NewPriceLevelId: Guid; CRMUom: Record "CRM Uom")
     var
         CRMProductpricelevel: Record "CRM Productpricelevel";
     begin
@@ -552,30 +552,6 @@ codeunit 5342 "CRM Synch. Helper"
               (IntegrationSynchJob.Unchanged > 0));
     end;
 
-#if not CLEAN18
-    [Obsolete('Use another implementation of SynchRecordIfMappingExists', '18.0')]
-    procedure SynchRecordIfMappingExists(TableNo: Integer; PrimaryKey: Variant; var OutOfMapFilter: Boolean): Boolean
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationSynchJob: Record "Integration Synch. Job";
-        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
-        NewJobEntryId: Guid;
-    begin
-        if IntegrationTableMapping.FindMapping(TableNo, PrimaryKey) then begin
-            NewJobEntryId := CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, PrimaryKey, true, false);
-            OutOfMapFilter := CRMIntegrationTableSynch.GetOutOfMapFilter();
-        end;
-
-        if IsNullGuid(NewJobEntryId) then
-            exit(false);
-        if IntegrationSynchJob.Get(NewJobEntryId) then
-            exit(
-              (IntegrationSynchJob.Inserted > 0) or
-              (IntegrationSynchJob.Modified > 0) or
-              (IntegrationSynchJob.Unchanged > 0));
-    end;
-#endif
-
     procedure UpdateCRMCurrencyIdIfChanged(CurrencyCode: Text; var DestinationCurrencyIDFieldRef: FieldRef): Boolean
     begin
         // Given a source NAV currency code, find a currency with the same ISO code in CRM and update the target CRM currency value if needed
@@ -882,9 +858,9 @@ codeunit 5342 "CRM Synch. Helper"
                 Error(ResourceUnitGroupNotFoundErr, Resource."No.");
         end;
 
-        CRMUomschedule.SetRange(Name, UnitGroup.Code);
+        CRMUomschedule.SetRange(Name, UnitGroup.GetCode());
         if not CRMUomschedule.FindFirst() then
-            Error(CRMUnitGroupNotFoundErr, UnitGroup.Code);
+            Error(CRMUnitGroupNotFoundErr, UnitGroup.GetCode());
 
         if CRMProduct.DefaultUoMScheduleId <> CRMUomschedule.UoMScheduleId then begin
             CRMProduct.DefaultUoMScheduleId := CRMUomschedule.UoMScheduleId;
@@ -1015,7 +991,7 @@ codeunit 5342 "CRM Synch. Helper"
     begin
         // Tranfer the parent company id to the ParentCustomerId
         CompanyNoFieldRef := SourceRecordRef.Field(Vendor.FieldNo("Company No."));
-        if not Vendor.Get(CompanyNoFieldRef.Value()) then
+        if not Vendor.Get(Format(CompanyNoFieldRef.Value())) then
             exit(false);
 
         MarketingSetup.Get();
@@ -1360,8 +1336,8 @@ codeunit 5342 "CRM Synch. Helper"
     procedure FindPKByRecordID(RecID: RecordID; var PrimaryKey: Variant) Found: Boolean
     var
         RecordRef: RecordRef;
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
     begin
         if RecID.TableNo() = 0 then
             exit;
@@ -1373,9 +1349,9 @@ codeunit 5342 "CRM Synch. Helper"
 
     procedure FindRecordIDByPK(TableID: Integer; PrimaryKey: Variant; var RecID: RecordID) Found: Boolean
     var
+        RecordRef: RecordRef;
         FieldRef: FieldRef;
         KeyRef: KeyRef;
-        RecordRef: RecordRef;
     begin
         RecordRef.Open(TableID);
         KeyRef := RecordRef.KeyIndex(1);
@@ -1462,7 +1438,7 @@ codeunit 5342 "CRM Synch. Helper"
                     begin
                         SourceFieldRef.Record().SetTable(Item);
                         SourceRecordCode := Item."No.";
-                        if ItemUnitOfMeasure.Get(SourceRecordCode, SourceFieldRef.Value()) then
+                        if ItemUnitOfMeasure.Get(SourceRecordCode, Format(SourceFieldRef.Value())) then
                             if CRMIntegrationRecord.FindIDFromRecordID(ItemUnitOfMeasure.RecordId, NewValue) then
                                 exit;
                     end;
@@ -1470,7 +1446,7 @@ codeunit 5342 "CRM Synch. Helper"
                     begin
                         SourceFieldRef.Record().SetTable(Resource);
                         SourceRecordCode := Resource."No.";
-                        if ResourceUnitOfMeasure.Get(SourceRecordCode, SourceFieldRef.Value()) then
+                        if ResourceUnitOfMeasure.Get(SourceRecordCode, Format(SourceFieldRef.Value())) then
                             if CRMIntegrationRecord.FindIDFromRecordID(ResourceUnitOfMeasure.RecordId, NewValue) then
                                 exit;
                     end;
@@ -1479,11 +1455,11 @@ codeunit 5342 "CRM Synch. Helper"
                         SourceFieldRef.Record().SetTable(PriceListLine);
                         case PriceListLine."Asset Type" of
                             "Price Asset Type"::Item:
-                                if ItemUnitOfMeasure.Get(PriceListLine."Asset No.", SourceFieldRef.Value()) then
+                                if ItemUnitOfMeasure.Get(PriceListLine."Asset No.", Format(SourceFieldRef.Value())) then
                                     if CRMIntegrationRecord.FindIDFromRecordID(ItemUnitOfMeasure.RecordId, NewValue) then
                                         exit;
                             "Price Asset Type"::Resource:
-                                if ResourceUnitOfMeasure.Get(PriceListLine."Asset No.", SourceFieldRef.Value()) then
+                                if ResourceUnitOfMeasure.Get(PriceListLine."Asset No.", Format(SourceFieldRef.Value())) then
                                     if CRMIntegrationRecord.FindIDFromRecordID(ResourceUnitOfMeasure.RecordId, NewValue) then
                                         exit;
                         end;
@@ -1524,6 +1500,15 @@ codeunit 5342 "CRM Synch. Helper"
 
             Error(RecordMustBeCoupledErr, SourceFieldRef.Caption(), CRMID, CRMProductName.Short());
         end;
+    end;
+
+    procedure PrefixUnitGroupCode(SourceFieldRef: FieldRef; var NewValue: Variant)
+    var
+        UnitGroup: Record "Unit Group";
+        SourceRecordRef: RecordRef;
+    begin
+        SourceFieldRef.Record().SetTable(UnitGroup);
+        NewValue := UnitGroup.GetCode();
     end;
 
     local procedure GetFieldRelation(FldRef: FieldRef) TableID: Integer
@@ -1622,6 +1607,8 @@ codeunit 5342 "CRM Synch. Helper"
         CRMOptionMapping: Record "CRM Option Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
+        CRMAccount: Record "CRM Account";
+        CRMSalesorder: Record "CRM Salesorder";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         IsOptionMappingEnabled: Boolean;
         PrimaryKey: Variant;
@@ -1637,7 +1624,19 @@ codeunit 5342 "CRM Synch. Helper"
 
             CRMOptionMapping.SetRange("Option Value Caption", SourceFieldRef.Value());
             CRMOptionMapping.SetRange("Table ID", DestinationFieldRef.Relation());
-            CRMOptionMapping.SetRange("Integration Field ID", SourceFieldRef.Number());
+
+            if SourceFieldRef.Record().Number = Database::"CRM Salesorder" then
+                case SourceFieldRef.Number of
+                    CRMsalesorder.FieldNo(PaymentTermsCodeEnum):
+                        CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(PaymentTermsCodeEnum));
+                    CRMsalesorder.FieldNo(ShippingMethodCodeEnum):
+                        CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum));
+                    CRMsalesorder.FieldNo(FreightTermsCodeEnum):
+                        CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum));
+                end
+            else
+                CRMOptionMapping.SetRange("Integration Field ID", SourceFieldRef.Number());
+
             if CRMOptionMapping.FindFirst() then begin
                 FindPKByRecordID(CRMOptionMapping."Record ID", PrimaryKey);
                 Evaluate(TableValue, PrimaryKey);

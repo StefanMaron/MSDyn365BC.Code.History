@@ -367,7 +367,7 @@ codeunit 144080 "ERM PPL"
         MaxNoOfDaysTillDueDate := LibraryRandom.RandInt(30);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Bill,
-          CreateCustomer(CreatePaymentTerms(MaxNoOfDaysTillDueDate)), LibraryRandom.RandDec(100, 2), WorkDate);  // Using random for Amount.
+          CreateCustomer(CreatePaymentTerms(MaxNoOfDaysTillDueDate)), LibraryRandom.RandDec(100, 2), WorkDate());  // Using random for Amount.
 
         // Exercise: Validating Due Date to exceed Max. No. of Days till Due Date.
         asserterror
@@ -377,7 +377,7 @@ codeunit 144080 "ERM PPL"
         // Verify: Verify Expected error - The Due Date exceeds the Max. No. of Days till Due Date defined on the Payment Terms.
         Assert.ExpectedError(
           StrSubstNo(DueDateErr, GenJournalLine.FieldCaption("Due Date"), PaymentTerms.FieldCaption("Max. No. of Days till Due Date"),
-            PaymentTerms.TableCaption));
+            PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -403,7 +403,7 @@ codeunit 144080 "ERM PPL"
 
         // Verify: Verify Program calculates correct Due Date on Purchase Invoice.
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
-        PurchaseHeader.TestField("Due Date", CalcDate('<CM>', WorkDate) + PaymentDay."Day of the month");
+        PurchaseHeader.TestField("Due Date", CalcDate('<CM>', WorkDate()) + PaymentDay."Day of the month");
     end;
 
     [Test]
@@ -1048,7 +1048,7 @@ codeunit 144080 "ERM PPL"
         GeneralJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
         GeneralJournal.FILTER.SetFilter("Document No.", DocumentNo);
         GeneralJournal."Apply Entries".Invoke;  // Invoke ApplyCustomerEntriesWithAppliesToIDModalPageHandler and ApplyVendorEntriesWithAppliesToIDModalPageHandler.
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     local procedure RunAndVerifyCustomerOverduePaymentsReport(SalesHeader: Record "Sales Header"; Amount: Decimal; Amount2: Decimal; DueDays: Integer)
@@ -1134,7 +1134,7 @@ codeunit 144080 "ERM PPL"
                 Assert.AreEqual(CustLedgerEntry."Due Date",
                   GenJournalLine.GetAppliesToDocDueDate,
                   DueDatesAreNotEqualErr);
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyVendorPaymentDueDate(var GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header")
@@ -1152,7 +1152,7 @@ codeunit 144080 "ERM PPL"
                 Assert.AreEqual(VendorLedgerEntry."Due Date",
                   GenJournalLine.GetAppliesToDocDueDate,
                   DueDatesAreNotEqualErr);
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure RunSettleDocsAndRedrawPayablBills(BankAccountNo: Code[20]; VendorNo: Code[20])
@@ -1210,7 +1210,7 @@ codeunit 144080 "ERM PPL"
     [Scope('OnPrem')]
     procedure RedrawPayableBillsRequestPageHandler(var RedrawPayableBills: TestRequestPage "Redraw Payable Bills")
     begin
-        RedrawPayableBills.NewDueDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+        RedrawPayableBills.NewDueDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         RedrawPayableBills.OK.Invoke;
     end;
 
@@ -1225,7 +1225,7 @@ codeunit 144080 "ERM PPL"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         GenJournalBatch.SetRange("Template Type", GenJournalBatch."Template Type"::Cartera);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        RedrawReceivableBills.NewDueDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+        RedrawReceivableBills.NewDueDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         RedrawReceivableBills.AuxJnlTemplateName.SetValue(GenJournalTemplate.Name);
         RedrawReceivableBills.AuxJnlBatchName.SetValue(GenJournalBatch.Name);
         RedrawReceivableBills.OK.Invoke;

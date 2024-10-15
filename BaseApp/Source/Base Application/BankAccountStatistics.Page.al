@@ -16,7 +16,7 @@ page 375 "Bank Account Statistics"
             group("Balance Group")
             {
                 Caption = 'Balance';
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -30,14 +30,14 @@ page 375 "Bank Account Statistics"
                     AutoFormatType = 1;
                     ToolTip = 'Specifies the bank account''s current balance denominated in the applicable foreign currency.';
                 }
-                field("Min. Balance"; "Min. Balance")
+                field("Min. Balance"; Rec."Min. Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
                     ToolTip = 'Specifies a minimum balance for the bank account.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Currency';
@@ -159,14 +159,14 @@ page 375 "Bank Account Statistics"
                     group(Control1900249401)
                     {
                         Caption = 'This Period';
-                        field("Posted Receiv. Bills Amt."; "Posted Receiv. Bills Amt.")
+                        field("Posted Receiv. Bills Amt."; Rec."Posted Receiv. Bills Amt.")
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = "Currency Code";
                             AutoFormatType = 1;
                             ToolTip = 'Specifies the amount of the bills, included in the bill groups, posted and delivered to this bank.';
                         }
-                        field("Closed Receiv. Bills Amt."; "Closed Receiv. Bills Amt.")
+                        field("Closed Receiv. Bills Amt."; Rec."Closed Receiv. Bills Amt.")
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = "Currency Code";
@@ -427,14 +427,14 @@ page 375 "Bank Account Statistics"
                             Caption = 'Unrisked Factoring Exp. Amt.';
                             ToolTip = 'Specifies the amount that relates to commission and charges in connection unrisked factoring.';
                         }
-                        field("Post. Receivable Inv. Amt."; "Post. Receivable Inv. Amt.")
+                        field("Post. Receivable Inv. Amt."; Rec."Post. Receivable Inv. Amt.")
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = "Currency Code";
                             AutoFormatType = 1;
                             ToolTip = 'Specifies the amount of the invoices included in bill groups, posted and delivered to this bank.';
                         }
-                        field("Clos. Receivable Inv. Amt."; "Clos. Receivable Inv. Amt.")
+                        field("Clos. Receivable Inv. Amt."; Rec."Clos. Receivable Inv. Amt.")
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = "Currency Code";
@@ -620,7 +620,7 @@ page 375 "Bank Account Statistics"
                             Caption = 'Payment Order Expenses Amt.';
                             ToolTip = 'Specifies the amount that relates to commission and charges in connection with payment orders.';
                         }
-                        field("Posted Pay. Documents Amt."; "Posted Pay. Documents Amt.")
+                        field("Posted Pay. Documents Amt."; Rec."Posted Pay. Documents Amt.")
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = "Currency Code";
@@ -628,7 +628,7 @@ page 375 "Bank Account Statistics"
                             Caption = 'Posted Documents';
                             ToolTip = 'Specifies the value of the pending amount, for payable documents posted to this bank.';
                         }
-                        field("Closed Pay. Documents Amt."; "Closed Pay. Documents Amt.")
+                        field("Closed Pay. Documents Amt."; Rec."Closed Pay. Documents Amt.")
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = "Currency Code";
@@ -751,17 +751,17 @@ page 375 "Bank Account Statistics"
                     group(Control1905829501)
                     {
                         ShowCaption = false;
-                        field("Last Bill Gr. No."; "Last Bill Gr. No.")
+                        field("Last Bill Gr. No."; Rec."Last Bill Gr. No.")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the number of the last posted bill group sent to this bank.';
                         }
-                        field("Date of Last Post. Bill Gr."; "Date of Last Post. Bill Gr.")
+                        field("Date of Last Post. Bill Gr."; Rec."Date of Last Post. Bill Gr.")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the posting date of the last bill group sent to this bank.';
                         }
-                        field("Credit Limit for Discount"; "Credit Limit for Discount")
+                        field("Credit Limit for Discount"; Rec."Credit Limit for Discount")
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = "Currency Code";
@@ -830,8 +830,8 @@ page 375 "Bank Account Statistics"
         with BankAcc do begin
             Copy(Rec);
 
-            if CurrentDate <> WorkDate then begin
-                CurrentDate := WorkDate;
+            if CurrentDate <> WorkDate() then begin
+                CurrentDate := WorkDate();
                 DateFilterCalc.CreateAccountingPeriodFilter(BankAccDateFilter[1], BankAccDateName[1], CurrentDate, 0);
                 DateFilterCalc.CreateFiscalYearFilter(BankAccDateFilter[2], BankAccDateName[2], CurrentDate, 0);
                 DateFilterCalc.CreateFiscalYearFilter(BankAccDateFilter[3], BankAccDateName[3], CurrentDate, -1);

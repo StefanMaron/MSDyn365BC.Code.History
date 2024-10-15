@@ -190,7 +190,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [GIVEN] Posted Purchase Invoice with External Document No. = "XX" and "Document Date" = "Y"
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Validate("Vendor Invoice No.", ExternalDocNo);
-        PurchaseHeader.Validate("Document Date", LibraryRandom.RandDateFrom(WorkDate, 10));
+        PurchaseHeader.Validate("Document Date", LibraryRandom.RandDateFrom(WorkDate(), 10));
         PurchaseHeader.Modify(true);
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
 
@@ -307,7 +307,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         Amount := LibraryRandom.RandDec(100, 2);
         DocumentNo :=
           CreateAndPostGeneralJournalLine(
-            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -Amount, '', WorkDate);  // Using blank value for ShortcutDimensionOneCode.
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -Amount, '', WorkDate());  // Using blank value for ShortcutDimensionOneCode.
 
         // Exercise.
         ReverseEntry;
@@ -329,7 +329,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // Setup.
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
-        DocumentNo := CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::Vendor, CreateVendor, Amount, '', WorkDate);  // Using blank value for ShortcutDimensionOneCode.
+        DocumentNo := CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::Vendor, CreateVendor, Amount, '', WorkDate());  // Using blank value for ShortcutDimensionOneCode.
 
         // Exercise.
         ReverseEntry;
@@ -576,7 +576,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesHeader."Last Posting No.");
         PostedSalesInvoice.Statistics.Invoke;
 
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [Test]
@@ -760,9 +760,9 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
-        CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '', WorkDate);  // Using blank value for ShorcutDimensionOneCode.
+        CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '', WorkDate());  // Using blank value for ShorcutDimensionOneCode.
         EnqueueValuesForTrialBalanceRequestPageHandler('', StrSubstNo(FilterTxt, GLAccountNo, GLAccountNo2),
-          false, false, false, AccountType, WorkDate);  // Using blank value for DepartmentFilter, FALSE for IncludeClosingEntries.
+          false, false, false, AccountType, WorkDate());  // Using blank value for DepartmentFilter, FALSE for IncludeClosingEntries.
 
         // Exercise.
         REPORT.Run(REPORT::"Trial Balance");  // Open TrialBalanceRequestPageHandler.
@@ -857,7 +857,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Ship and Invoice.
         DocumentNo :=
           CreateAndPostGeneralJournalLine(
-            GenJournalLine."Account Type"::Vendor, PurchaseLine."Buy-from Vendor No.", PurchaseLine."Amount Including VAT", '', WorkDate);  // Blank for Shortcut Dimension 1 Code.
+            GenJournalLine."Account Type"::Vendor, PurchaseLine."Buy-from Vendor No.", PurchaseLine."Amount Including VAT", '', WorkDate());  // Blank for Shortcut Dimension 1 Code.
         ApplyVendorLedgerEntry(VendorLedgerEntries, DocumentNo);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, DocumentNo);
         OldOpenStatus := VendorLedgerEntry.Open;
@@ -896,7 +896,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         CreateAndPostSalesDocument(SalesLine, LibrarySales.CreateCustomerNo);
         DocumentNo :=
           CreateAndPostGeneralJournalLine(
-            GenJournalLine."Account Type"::Customer, SalesLine."Sell-to Customer No.", -SalesLine."Amount Including VAT", '', WorkDate);  // Blank for Shortcut Dimension 1 Code.
+            GenJournalLine."Account Type"::Customer, SalesLine."Sell-to Customer No.", -SalesLine."Amount Including VAT", '', WorkDate());  // Blank for Shortcut Dimension 1 Code.
         ApplyCustomerLedgerEntry(CustomerLedgerEntries, DocumentNo);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
         OldOpenStatus := CustLedgerEntry.Open;
@@ -2371,7 +2371,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Heading);
         GLAccount.FindSet();
         repeat
-            GLAccount.Next;
+            GLAccount.Next();
         until StrLen(GLAccount."No.") = 3;
         GLAccount.Validate(Totaling, Totaling);
         GLAccount.Modify(true);
@@ -2423,7 +2423,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         GLSetup.Get();
         GLSetup.TestField("Autoinvoice Nos.");
-        exit(NoSeriesMgt.GetNextNo(GLSetup."Autoinvoice Nos.", WorkDate, false));
+        exit(NoSeriesMgt.GetNextNo(GLSetup."Autoinvoice Nos.", WorkDate(), false));
     end;
 
     local procedure OpenVATAmountOnSalesStatistics(No: Code[20])
@@ -2433,7 +2433,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         SalesInvoice.OpenEdit;
         SalesInvoice.FILTER.SetFilter("No.", No);
         SalesInvoice.Statistics.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure ReverseEntry()
@@ -2513,7 +2513,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         Clear(SuggestVendorPayments);
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.InitializeRequest(
-            WorkDate, false, 0, false, WorkDate, 'TEST_000', false, "Gen. Journal Account Type"::"G/L Account", '',
+            WorkDate, false, 0, false, WorkDate(), 'TEST_000', false, "Gen. Journal Account Type"::"G/L Account", '',
             "Bank Payment Type"::" ");
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.UseRequestPage(false);
@@ -2660,7 +2660,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         GLEntry.FindSet();
         GLEntry.TestField(Amount);
         GLAmount := GLEntry.Amount;
-        GLEntry.Next;
+        GLEntry.Next();
         GLEntry.TestField(Amount, -GLAmount);
     end;
 
@@ -2729,7 +2729,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         AgingBy: Option "Due Date","Posting Date","Document Date";
         HeadingType: Option "Date Interval","Number of Days";
     begin
-        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate);
+        AgedAccountsReceivable.AgedAsOf.SetValue(WorkDate());
         AgedAccountsReceivable.Agingby.SetValue(AgingBy::"Due Date");
         AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
         AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");

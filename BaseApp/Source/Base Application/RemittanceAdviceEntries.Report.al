@@ -248,7 +248,7 @@ report 400 "Remittance Advice - Entries"
                 trigger OnPreDataItem()
                 begin
                     CreateVendLedgEntry := "Vendor Ledger Entry";
-                    FindApplnEntriesDtldtLedgEntry;
+                    FindApplnEntriesDtldtLedgEntry();
                     SetCurrentKey("Entry No.");
                     SetRange("Entry No.");
 
@@ -366,7 +366,7 @@ report 400 "Remittance Advice - Entries"
         DtldVendLedgEntry1.SetCurrentKey("Vendor Ledger Entry No.");
         DtldVendLedgEntry1.SetRange("Vendor Ledger Entry No.", CreateVendLedgEntry."Entry No.");
         DtldVendLedgEntry1.SetRange(Unapplied, false);
-        if DtldVendLedgEntry1.Find('-') then begin
+        if DtldVendLedgEntry1.Find('-') then
             repeat
                 if DtldVendLedgEntry1."Vendor Ledger Entry No." =
                    DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
@@ -377,7 +377,7 @@ report 400 "Remittance Advice - Entries"
                       "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
                     DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::Application);
                     DtldVendLedgEntry2.SetRange(Unapplied, false);
-                    if DtldVendLedgEntry2.Find('-') then begin
+                    if DtldVendLedgEntry2.Find('-') then
                         repeat
                             if DtldVendLedgEntry2."Vendor Ledger Entry No." <>
                                DtldVendLedgEntry2."Applied Vend. Ledger Entry No."
@@ -388,7 +388,6 @@ report 400 "Remittance Advice - Entries"
                                     VendLedgEntry2.Mark(true);
                             end;
                         until DtldVendLedgEntry2.Next() = 0;
-                    end;
                 end else begin
                     VendLedgEntry2.SetCurrentKey("Entry No.");
                     VendLedgEntry2.SetRange("Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
@@ -396,7 +395,6 @@ report 400 "Remittance Advice - Entries"
                         VendLedgEntry2.Mark(true);
                 end;
             until DtldVendLedgEntry1.Next() = 0;
-        end;
     end;
 }
 

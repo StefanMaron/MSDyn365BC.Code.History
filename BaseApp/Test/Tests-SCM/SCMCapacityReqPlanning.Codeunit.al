@@ -160,11 +160,11 @@ codeunit 137042 "SCM Capacity Req. Planning"
 
         // Exercise: Change Efficiency to Zero on Machine Center and Work Center,
         UpdateMachCenterEfficiency(MachineCenter, ProductionOrder, 0);
-        asserterror LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        asserterror LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
 
         // 3. Verify : Verify Error message generated on Validation Efficiency by Zero.
         Assert.IsTrue(StrPos(GetLastErrorText, ErrEfficiencyZero) > 0, ErrorGeneratedMustBeSame);
-        ClearLastError;
+        ClearLastError();
 
         // 4. Tear down: Set Sales & Receivables Setup as default for Credit Warnings and Stockout Warning.
         // Set Manufacturing Setup as Default for Normal Start Time and Normal End Time.
@@ -411,9 +411,9 @@ codeunit 137042 "SCM Capacity Req. Planning"
 
     local procedure UpdateProdOrder(var ProductionOrder: Record "Production Order"; Quantity: Decimal)
     begin
-        ProductionOrder.Validate("Starting Date", WorkDate);
-        ProductionOrder.Validate("Ending Date", WorkDate);
-        ProductionOrder.Validate("Due Date", WorkDate);
+        ProductionOrder.Validate("Starting Date", WorkDate());
+        ProductionOrder.Validate("Ending Date", WorkDate());
+        ProductionOrder.Validate("Due Date", WorkDate());
         ProductionOrder.Validate(Quantity, ProductionOrder.Quantity + Quantity);
         ProductionOrder.Modify(true);
     end;
@@ -474,7 +474,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         ProdOrderCapacityNeed.FindSet();
         repeat
             ExpectedlAllocatedTime += ProdOrderCapacityNeed."Allocated Time"
-        until ProdOrderCapacityNeed.Next = 0;
+        until ProdOrderCapacityNeed.Next() = 0;
     end;
 
     local procedure VerifyCapNeedAllocatedTime(ProductionOrder: Record "Production Order"; ExpectedlAllocatedTime: Decimal)
@@ -487,7 +487,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         ProdOrderRoutingLine.FindSet();
         repeat
             ActualAllocatedTime += ProdOrderRoutingLine."Setup Time" + ProductionOrder.Quantity * ProdOrderRoutingLine."Run Time";
-        until ProdOrderRoutingLine.Next = 0;
+        until ProdOrderRoutingLine.Next() = 0;
 
         Assert.AreEqual(ExpectedlAllocatedTime, ActualAllocatedTime, ErrAllocatedTimeMustBeSame);
     end;
@@ -502,10 +502,10 @@ codeunit 137042 "SCM Capacity Req. Planning"
           RoutingLine, ProdOrderRoutingLine."Routing No.", Type, ProdOrderRoutingLine."No.");
         Assert.AreEqual(
           ProdOrderRoutingLine."Setup Time", RoutingLine."Setup Time", StrSubstNo(ErrTimeMustBeSame,
-            RoutingLine.FieldCaption("Setup Time"), RoutingLine."Setup Time", RoutingLine.TableCaption));
+            RoutingLine.FieldCaption("Setup Time"), RoutingLine."Setup Time", RoutingLine.TableCaption()));
         Assert.AreEqual(
           ProdOrderRoutingLine."Run Time", RoutingLine."Run Time", StrSubstNo(ErrTimeMustBeSame,
-            RoutingLine.FieldCaption("Run Time"), RoutingLine."Run Time", RoutingLine.TableCaption));
+            RoutingLine.FieldCaption("Run Time"), RoutingLine."Run Time", RoutingLine.TableCaption()));
     end;
 
     local procedure VerifyProdOrderLine(ProductionOrder: Record "Production Order")

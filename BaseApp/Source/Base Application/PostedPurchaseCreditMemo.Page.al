@@ -1,9 +1,8 @@
-﻿page 140 "Posted Purchase Credit Memo"
+page 140 "Posted Purchase Credit Memo"
 {
     Caption = 'Posted Purchase Credit Memo';
     InsertAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Cancel,Navigate,Print/Send,Credit Memo';
     RefreshOnActivate = true;
     SourceTable = "Purch. Cr. Memo Hdr.";
 
@@ -14,14 +13,14 @@
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the posted credit memo number.';
                 }
-                field("Buy-from Vendor Name"; "Buy-from Vendor Name")
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Vendor';
@@ -33,7 +32,7 @@
                 group("Buy-from")
                 {
                     Caption = 'Buy-from';
-                    field("Buy-from Address"; "Buy-from Address")
+                    field("Buy-from Address"; Rec."Buy-from Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
@@ -41,7 +40,7 @@
                         Importance = Additional;
                         ToolTip = 'Specifies the address of the vendor who shipped the items.';
                     }
-                    field("Buy-from Address 2"; "Buy-from Address 2")
+                    field("Buy-from Address 2"; Rec."Buy-from Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
@@ -49,7 +48,7 @@
                         Importance = Additional;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Buy-from City"; "Buy-from City")
+                    field("Buy-from City"; Rec."Buy-from City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -61,7 +60,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsBuyFromCountyVisible;
-                        field("Buy-from County"; "Buy-from County")
+                        field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -70,7 +69,7 @@
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Buy-from Post Code"; "Buy-from Post Code")
+                    field("Buy-from Post Code"; Rec."Buy-from Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
@@ -78,7 +77,7 @@
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Buy-from Country/Region Code"; "Buy-from Country/Region Code")
+                    field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
@@ -86,7 +85,7 @@
                         Importance = Additional;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Buy-from Contact No."; "Buy-from Contact No.")
+                    field("Buy-from Contact No."; Rec."Buy-from Contact No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
@@ -122,54 +121,60 @@
                         ToolTip = 'Specifies the email address of the vendor contact person.';
                     }
                 }
-                field("Buy-from Contact"; "Buy-from Contact")
+                field("Buy-from Contact"; Rec."Buy-from Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact';
                     Editable = false;
                     ToolTip = 'Specifies the name of the person to contact at the vendor who shipped the items.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date the credit memo was posted.';
                 }
-                field("Document Date"; "Document Date")
+                field("VAT Reporting Date"; Rec."VAT Reporting Date")
+                {
+                    ApplicationArea = VAT;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the VAT date on the invoice.';
+                }
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date on which the purchase document was created.';
                 }
-                field("Pre-Assigned No."; "Pre-Assigned No.")
+                field("Pre-Assigned No."; Rec."Pre-Assigned No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the number of the credit memo that the posted credit memo was created from.';
                 }
-                field("Vendor Cr. Memo No."; "Vendor Cr. Memo No.")
+                field("Vendor Cr. Memo No."; Rec."Vendor Cr. Memo No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the vendor''s number for this credit memo.';
                 }
-                field("Order Address Code"; "Order Address Code")
+                field("Order Address Code"; Rec."Order Address Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the order address of the related vendor.';
                 }
-                field("Purchaser Code"; "Purchaser Code")
+                field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies which purchaser is assigned to the vendor.';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -186,7 +191,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        ShowCorrectiveInvoice;
+                        ShowCorrectiveInvoice();
                     end;
                 }
                 field(Corrective; Corrective)
@@ -199,17 +204,17 @@
 
                     trigger OnDrillDown()
                     begin
-                        ShowCancelledInvoice;
+                        ShowCancelledInvoice();
                     end;
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
-                field("Corrected Invoice No."; "Corrected Invoice No.")
+                field("Corrected Invoice No."; Rec."Corrected Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -224,7 +229,7 @@
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -236,45 +241,45 @@
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         ChangeExchangeRate.Editable(false);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            "Currency Factor" := ChangeExchangeRate.GetParameter;
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            "Currency Factor" := ChangeExchangeRate.GetParameter();
                             UpdateCurrencyFactor.ModifyPostedPurchaseCreditMemo(Rec);
                         end;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Autocredit Memo No."; "Autocredit Memo No.")
+                field("Autocredit Memo No."; Rec."Autocredit Memo No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that is used to generate autocredit memos for purchases.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the payment discount percentage that is granted if you pay on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code for the location used when you posted the credit memo.';
                 }
-                field("Vendor Posting Group"; "Vendor Posting Group")
+                field("Vendor Posting Group"; Rec."Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -322,25 +327,25 @@
                             end;
                         }
                     }
-                    field("Special Scheme Code"; "Special Scheme Code")
+                    field("Special Scheme Code"; Rec."Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the Special Scheme Code.';
                     }
-                    field("Cr. Memo Type"; "Cr. Memo Type")
+                    field("Cr. Memo Type"; Rec."Cr. Memo Type")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the Credit Memo Type.';
                     }
-                    field("Correction Type"; "Correction Type")
+                    field("Correction Type"; Rec."Correction Type")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the Correction Type.';
                     }
-                    field("Do Not Send To SII"; "Do Not Send To SII")
+                    field("Do Not Send To SII"; Rec."Do Not Send To SII")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies if the document must not be sent to SII.';
@@ -350,25 +355,25 @@
             group(Payment)
             {
                 Caption = 'Payment';
-                field("Pay-at Code"; "Pay-at Code")
+                field("Pay-at Code"; Rec."Pay-at Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s payment address code that was on the purchase header, Payments tab, when this credit memo was created.';
                 }
-                field("Vendor Bank Acc. Code"; "Vendor Bank Acc. Code")
+                field("Vendor Bank Acc. Code"; Rec."Vendor Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s bank code that was on the purchase header when this credit memo was created.';
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -381,28 +386,28 @@
                 group("Ship-to")
                 {
                     Caption = 'Ship-to';
-                    field("Ship-to Name"; "Ship-to Name")
+                    field("Ship-to Name"; Rec."Ship-to Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the company at the address to which the items in the purchase order were shipped.';
                     }
-                    field("Ship-to Address"; "Ship-to Address")
+                    field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
                         Editable = false;
                         ToolTip = 'Specifies the address that the items in the purchase order were shipped to.';
                     }
-                    field("Ship-to Address 2"; "Ship-to Address 2")
+                    field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
                         Editable = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Ship-to City"; "Ship-to City")
+                    field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -413,7 +418,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsShipToCountyVisible;
-                        field("Ship-to County"; "Ship-to County")
+                        field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -421,21 +426,21 @@
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Ship-to Post Code"; "Ship-to Post Code")
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
                         Editable = false;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
                         Editable = false;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Ship-to Contact"; "Ship-to Contact")
+                    field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact';
@@ -446,7 +451,7 @@
                 group("Pay-to")
                 {
                     Caption = 'Pay-to';
-                    field("Pay-to Name"; "Pay-to Name")
+                    field("Pay-to Name"; Rec."Pay-to Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Name';
@@ -454,7 +459,7 @@
                         Importance = Promoted;
                         ToolTip = 'Specifies the name of the vendor that you received the credit memo from.';
                     }
-                    field("Pay-to Address"; "Pay-to Address")
+                    field("Pay-to Address"; Rec."Pay-to Address")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address';
@@ -462,7 +467,7 @@
                         Importance = Additional;
                         ToolTip = 'Specifies the address of the vendor that you received the credit memo from.';
                     }
-                    field("Pay-to Address 2"; "Pay-to Address 2")
+                    field("Pay-to Address 2"; Rec."Pay-to Address 2")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Address 2';
@@ -470,7 +475,7 @@
                         Importance = Additional;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Pay-to City"; "Pay-to City")
+                    field("Pay-to City"; Rec."Pay-to City")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'City';
@@ -482,7 +487,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsPayToCountyVisible;
-                        field("Pay-to County"; "Pay-to County")
+                        field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'County';
@@ -491,7 +496,7 @@
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
-                    field("Pay-to Post Code"; "Pay-to Post Code")
+                    field("Pay-to Post Code"; Rec."Pay-to Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post Code';
@@ -499,7 +504,7 @@
                         Importance = Additional;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Pay-to Country/Region Code"; "Pay-to Country/Region Code")
+                    field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Country/Region';
@@ -507,7 +512,7 @@
                         Importance = Additional;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
-                    field("Pay-to Contact No."; "Pay-to Contact No.")
+                    field("Pay-to Contact No."; Rec."Pay-to Contact No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact No.';
@@ -542,7 +547,7 @@
                         ExtendedDatatype = Email;
                         ToolTip = 'Specifies the email address of the vendor contact person..';
                     }
-                    field("Pay-to Contact"; "Pay-to Contact")
+                    field("Pay-to Contact"; Rec."Pay-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact';
@@ -592,9 +597,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     RunObject = Page "Purch. Credit Memo Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -605,8 +607,6 @@
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Purch. Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Posted Credit Memo"),
                                   "No." = FIELD("No."),
@@ -619,9 +619,6 @@
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -636,8 +633,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -652,8 +647,6 @@
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -671,9 +664,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Special Scheme Codes';
                     Image = Allocations;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
 
                     trigger OnAction()
@@ -693,8 +683,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Vendor';
                 Image = Vendor;
-                Promoted = true;
-                PromotedCategory = Category5;
                 RunObject = Page "Vendor Card";
                 RunPageLink = "No." = FIELD("Buy-from Vendor No.");
                 ShortCutKey = 'Shift+F7';
@@ -706,8 +694,6 @@
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
                 Visible = NOT IsOfficeAddin;
 
@@ -723,8 +709,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Attach as PDF';
                 Image = PrintAttachment;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'Create a PDF file and attach it to the document.';
 
                 trigger OnAction()
@@ -757,15 +741,13 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category7;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             group(Cancel)
@@ -776,9 +758,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Create and post a purchase invoice that reverses this posted purchase credit memo. This posted purchase credit memo will be canceled.';
                     Visible = not Cancelled and Corrective;
 
@@ -792,16 +771,13 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Canceled/Corrective Invoice';
                     Image = Invoice;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Open the posted purchase invoice that was created when you canceled the posted purchase credit memo. If the posted purchase credit memo is the result of a canceled purchase invoice, then canceled invoice will open.';
                     Visible = Cancelled OR Corrective;
 
                     trigger OnAction()
                     begin
-                        ShowCanceledOrCorrInvoice;
+                        ShowCanceledOrCorrInvoice();
                     end;
                 }
             }
@@ -863,10 +839,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Update Document';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
 
                 trigger OnAction()
@@ -877,6 +849,77 @@
                     PostedPurchCrMemoUpdate.SetRec(Rec);
                     PostedPurchCrMemoUpdate.RunModal();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Update Document_Promoted"; "Update Document")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Cancel', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(CancelCrMemo_Promoted; CancelCrMemo)
+                {
+                }
+                actionref(ShowInvoice_Promoted; ShowInvoice)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Vendor_Promoted; Vendor)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Credit Memo', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(SpecialSchemeCodes_Promoted; SpecialSchemeCodes)
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
+                {
+                }
             }
         }
     }
@@ -905,12 +948,12 @@
         OfficeMgt: Codeunit "Office Management";
         SIIManagement: Codeunit "SII Management";
     begin
-        SetSecurityFilterOnRespCenter;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        SetSecurityFilterOnRespCenter();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
-        ActivateFields;
+        ActivateFields();
     end;
 
     var

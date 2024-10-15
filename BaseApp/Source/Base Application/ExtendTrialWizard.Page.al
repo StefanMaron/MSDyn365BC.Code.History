@@ -14,7 +14,7 @@ page 1828 "Extend Trial Wizard"
                 Visible = TopBannerVisible;
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ShowCaption = false;
                 }
@@ -27,7 +27,7 @@ page 1828 "Extend Trial Wizard"
                     Caption = 'Need more time to try things out?';
                     field(ExtendTrialTxt; ExtendTrialTxt)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         Enabled = false;
                         MultiLine = true;
@@ -41,13 +41,13 @@ page 1828 "Extend Trial Wizard"
                     Visible = not IsPreview;
                     field(SubscribeNowLbl; SubscribeNowLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         ShowCaption = false;
 
                         trigger OnDrillDown()
                         begin
-                            BuySubscription;
+                            BuySubscription();
                         end;
                     }
                 }
@@ -57,13 +57,13 @@ page 1828 "Extend Trial Wizard"
                     InstructionalText = 'If you are not sure what this is about, get more information about extending trial periods.';
                     field(LearnMoreLbl; LearnMoreLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         ShowCaption = false;
 
                         trigger OnDrillDown()
                         begin
-                            Documentation;
+                            Documentation();
                         end;
                     }
                 }
@@ -77,7 +77,7 @@ page 1828 "Extend Trial Wizard"
         {
             action(ActionExtendTrial)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Extend Trial';
                 Image = Approve;
                 InFooterBar = true;
@@ -89,7 +89,7 @@ page 1828 "Extend Trial Wizard"
                 begin
                     Answer := Confirm(ExtendTrialConfirmQst);
                     if Answer then
-                        ExtendTrialAction;
+                        ExtendTrialAction();
                 end;
             }
         }
@@ -97,7 +97,7 @@ page 1828 "Extend Trial Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
         OnIsRunningPreview(IsPreview);
     end;
 
@@ -109,8 +109,8 @@ page 1828 "Extend Trial Wizard"
         ExtendVisible := true;
         RemainingDays := 0;
 
-        if TenantLicenseState.IsTrialMode then
-            RemainingDays := RoleCenterNotifMgt.GetLicenseRemainingDays;
+        if TenantLicenseState.IsTrialMode() then
+            RemainingDays := RoleCenterNotifMgt.GetLicenseRemainingDays();
 
         ExtendTrialTxt := StrSubstNo(ExtendTrialMessageTxt, RemainingDays);
     end;
@@ -137,16 +137,16 @@ page 1828 "Extend Trial Wizard"
         TenantLicenseState: Codeunit "Tenant License State";
         EndDate: DateTime;
     begin
-        TenantLicenseState.ExtendTrialLicense;
-        EndDate := TenantLicenseState.GetEndDate;
+        TenantLicenseState.ExtendTrialLicense();
+        EndDate := TenantLicenseState.GetEndDate();
         Message(StrSubstNo(ExtendedTrialSuccessMsg, Format(DT2Date(EndDate))));
 
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetupInfo-NoText.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetupInfo-NoText.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref")
             then

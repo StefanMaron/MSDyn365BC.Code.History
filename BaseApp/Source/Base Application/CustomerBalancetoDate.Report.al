@@ -1,4 +1,4 @@
-﻿report 121 "Customer - Balance to Date"
+report 121 "Customer - Balance to Date"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CustomerBalancetoDate.rdlc';
@@ -20,7 +20,7 @@
             column(TxtCustGeTranmaxDtFilter; StrSubstNo(Text000, Format(GetRangeMax("Date Filter"))))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintOnePrPage; PrintOnePrPage)
@@ -168,7 +168,7 @@
                     TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
                     ClosedEntryIncluded: Boolean;
                 begin
-                    Reset;
+                    Reset();
                     SetRange("Date Filter", 0D, MaxDate);
                     FilterCustLedgerEntry(CustLedgEntry3);
                     if FindSet() then
@@ -196,40 +196,40 @@
                 column(CustName; Customer.Name)
                 {
                 }
-                column(TtlAmtCurrencyTtlBuff; CurrencyTotalBuffer."Total Amount")
+                column(TtlAmtCurrencyTtlBuff; TempCurrencyTotalBuffer."Total Amount")
                 {
-                    AutoFormatExpression = CurrencyTotalBuffer."Currency Code";
+                    AutoFormatExpression = TempCurrencyTotalBuffer."Currency Code";
                     AutoFormatType = 1;
                 }
-                column(CurryCode_CurrencyTtBuff; CurrencyTotalBuffer."Currency Code")
+                column(CurryCode_CurrencyTtBuff; TempCurrencyTotalBuffer."Currency Code")
                 {
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then
-                        OK := CurrencyTotalBuffer.Find('-')
+                        OK := TempCurrencyTotalBuffer.Find('-')
                     else
-                        OK := CurrencyTotalBuffer.Next <> 0;
+                        OK := TempCurrencyTotalBuffer.Next() <> 0;
                     if not OK then
                         CurrReport.Break();
 
-                    CurrencyTotalBuffer2.UpdateTotal(
-                      CurrencyTotalBuffer."Currency Code",
-                      CurrencyTotalBuffer."Total Amount",
+                    TempCurrencyTotalBuffer2.UpdateTotal(
+                      TempCurrencyTotalBuffer."Currency Code",
+                      TempCurrencyTotalBuffer."Total Amount",
                       0,
                       Counter1);
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    CurrencyTotalBuffer.DeleteAll();
+                    TempCurrencyTotalBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not ShowEntriesWithZeroBalance then
-                        CurrencyTotalBuffer.SetFilter("Total Amount", '<>0');
+                        TempCurrencyTotalBuffer.SetFilter("Total Amount", '<>0');
                 end;
             }
 
@@ -251,12 +251,12 @@
         dataitem(Integer3; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-            column(CurryCode_CurrencyTtBuff2; CurrencyTotalBuffer2."Currency Code")
+            column(CurryCode_CurrencyTtBuff2; TempCurrencyTotalBuffer2."Currency Code")
             {
             }
-            column(TtlAmtCurrencyTtlBuff2; CurrencyTotalBuffer2."Total Amount")
+            column(TtlAmtCurrencyTtlBuff2; TempCurrencyTotalBuffer2."Total Amount")
             {
-                AutoFormatExpression = CurrencyTotalBuffer2."Currency Code";
+                AutoFormatExpression = TempCurrencyTotalBuffer2."Currency Code";
                 AutoFormatType = 1;
             }
             column(TotalCaption; TotalCaptionLbl)
@@ -266,21 +266,21 @@
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then
-                    OK := CurrencyTotalBuffer2.Find('-')
+                    OK := TempCurrencyTotalBuffer2.Find('-')
                 else
-                    OK := CurrencyTotalBuffer2.Next <> 0;
+                    OK := TempCurrencyTotalBuffer2.Next() <> 0;
                 if not OK then
                     CurrReport.Break();
             end;
 
             trigger OnPostDataItem()
             begin
-                CurrencyTotalBuffer2.DeleteAll();
+                TempCurrencyTotalBuffer2.DeleteAll();
             end;
 
             trigger OnPreDataItem()
             begin
-                CurrencyTotalBuffer2.SetFilter("Total Amount", '<>0');
+                TempCurrencyTotalBuffer2.SetFilter("Total Amount", '<>0');
             end;
         }
     }
@@ -348,15 +348,12 @@
     end;
 
     var
-        Text000: Label 'Balance on %1';
-        CurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
-        CurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
+        TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
+        TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         AutoFormat: Codeunit "Auto Format";
-        PrintAmountInLCY: Boolean;
         PrintOnePrPage: Boolean;
         ShowEntriesWithZeroBalance: Boolean;
         CustFilter: Text;
-        MaxDate: Date;
         OriginalAmt: Decimal;
         Amt: Decimal;
         RemainingAmt: Decimal;
@@ -365,6 +362,8 @@
         OK: Boolean;
         CurrencyCode: Code[10];
         PrintUnappliedEntries: Boolean;
+
+        Text000: Label 'Balance on %1';
         CustBalancetoDateCaptionLbl: Label 'Customer - Balance to Date';
         CurrReportPageNoCaptionLbl: Label 'Page';
         AllamtsareinLCYCaptionLbl: Label 'All amounts are in LCY.';
@@ -372,6 +371,10 @@
         OriginalAmtCaptionLbl: Label 'Amount';
         TotalCaptionLbl: Label 'Total';
         BlankMaxDateErr: Label 'Ending Date must have a value.';
+
+    protected var
+        MaxDate: Date;
+        PrintAmountInLCY: Boolean;
 
     procedure InitializeRequest(NewPrintAmountInLCY: Boolean; NewPrintOnePrPage: Boolean; NewPrintUnappliedEntries: Boolean; NewEndingDate: Date)
     begin
@@ -412,7 +415,7 @@
                 repeat
                     CalcRemainingAmount(TempCustLedgerEntry);
                     if (RemainingAmt <> 0) or ShowEntriesWithZeroBalance then
-                        CurrencyTotalBuffer.UpdateTotal(
+                        TempCurrencyTotalBuffer.UpdateTotal(
                           CurrencyCode,
                           RemainingAmt,
                           0,

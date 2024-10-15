@@ -35,7 +35,7 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         SIIManagement: Codeunit "SII Management";
         SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
     begin
-        if not SIIManagement.IsSIISetupEnabled then
+        if not SIIManagement.IsSIISetupEnabled() then
             exit;
 
         if not SIIDocUploadState.GetSIIDocUploadStateByDocument(

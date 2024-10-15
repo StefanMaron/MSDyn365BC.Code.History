@@ -19,20 +19,20 @@ codeunit 7007 "Price Asset List"
 
     procedure GetMinMaxLevel(var Level: array[2] of Integer)
     var
-        LocalTempPriceAsset: Record "Price Asset" temporary;
+        TempPriceAssetLocal: Record "Price Asset" temporary;
     begin
-        LocalTempPriceAsset.Copy(TempPriceAsset, true);
-        LocalTempPriceAsset.Reset();
-        if LocalTempPriceAsset.IsEmpty() then begin
+        TempPriceAssetLocal.Copy(TempPriceAsset, true);
+        TempPriceAssetLocal.Reset();
+        if TempPriceAssetLocal.IsEmpty() then begin
             Level[2] := Level[1] - 1;
             exit;
         end;
 
-        LocalTempPriceAsset.SetCurrentKey(Level);
-        LocalTempPriceAsset.FindFirst();
-        Level[1] := LocalTempPriceAsset.Level;
-        LocalTempPriceAsset.FindLast();
-        Level[2] := LocalTempPriceAsset.Level;
+        TempPriceAssetLocal.SetCurrentKey(Level);
+        TempPriceAssetLocal.FindFirst();
+        Level[1] := TempPriceAssetLocal.Level;
+        TempPriceAssetLocal.FindLast();
+        Level[2] := TempPriceAssetLocal.Level;
     end;
 
     procedure IncLevel()
@@ -106,15 +106,15 @@ codeunit 7007 "Price Asset List"
 
     procedure GetValue(AssetType: Enum "Price Asset Type") Result: Code[20];
     var
-        LocalTempPriceAsset: Record "Price Asset" temporary;
+        TempPriceAssetLocal: Record "Price Asset" temporary;
         PriceAssetInterface: Interface "Price Asset";
     begin
-        LocalTempPriceAsset.Copy(TempPriceAsset, true);
-        LocalTempPriceAsset.Reset();
-        LocalTempPriceAsset.SetRange("Asset Type", AssetType);
-        If LocalTempPriceAsset.FindFirst() then begin
-            PriceAssetInterface := LocalTempPriceAsset."Asset Type";
-            Result := LocalTempPriceAsset."Asset No.";
+        TempPriceAssetLocal.Copy(TempPriceAsset, true);
+        TempPriceAssetLocal.Reset();
+        TempPriceAssetLocal.SetRange("Asset Type", AssetType);
+        If TempPriceAssetLocal.FindFirst() then begin
+            PriceAssetInterface := TempPriceAssetLocal."Asset Type";
+            Result := TempPriceAssetLocal."Asset No.";
         end;
         OnAfterGetValue(AssetType, Result);
     end;
@@ -127,19 +127,19 @@ codeunit 7007 "Price Asset List"
 
     procedure Append(var FromPriceAssetList: Codeunit "Price Asset List")
     var
-        FromTempPriceAsset: Record "Price Asset" temporary;
-        ToTempPriceAsset: Record "Price Asset" temporary;
+        TempPriceAssetFrom: Record "Price Asset" temporary;
+        TempPriceAssetTo: Record "Price Asset" temporary;
         Level: Array[2] of Integer;
         CurrLevel: Integer;
     begin
-        ToTempPriceAsset.Copy(TempPriceAsset, true);
+        TempPriceAssetTo.Copy(TempPriceAsset, true);
         FromPriceAssetList.GetMinMaxLevel(Level);
         for CurrLevel := Level[2] downto Level[1] do
-            if FromPriceAssetList.First(FromTempPriceAsset, CurrLevel) then
+            if FromPriceAssetList.First(TempPriceAssetFrom, CurrLevel) then
                 repeat
-                    ToTempPriceAsset.TransferFields(FromTempPriceAsset, false);
-                    ToTempPriceAsset.Insert(true);
-                until not FromPriceAssetList.Next(FromTempPriceAsset);
+                    TempPriceAssetTo.TransferFields(TempPriceAssetFrom, false);
+                    TempPriceAssetTo.Insert(true);
+                until not FromPriceAssetList.Next(TempPriceAssetFrom);
     end;
 
     procedure GetList(var ToTempPriceAsset: Record "Price Asset" temporary): Boolean
@@ -191,12 +191,12 @@ codeunit 7007 "Price Asset List"
 
     local procedure Remove(var PriceAsset: Record "Price Asset"): Boolean
     var
-        LocalTempPriceAsset: Record "Price Asset" temporary;
+        TempPriceAssetLocal: Record "Price Asset" temporary;
     begin
-        LocalTempPriceAsset.Copy(TempPriceAsset, true);
-        LocalTempPriceAsset.CopyFilters(PriceAsset);
-        if not LocalTempPriceAsset.IsEmpty() then begin
-            LocalTempPriceAsset.DeleteAll();
+        TempPriceAssetLocal.Copy(TempPriceAsset, true);
+        TempPriceAssetLocal.CopyFilters(PriceAsset);
+        if not TempPriceAssetLocal.IsEmpty() then begin
+            TempPriceAssetLocal.DeleteAll();
             exit(true);
         end;
     end;

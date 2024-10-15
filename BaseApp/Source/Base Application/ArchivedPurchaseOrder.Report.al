@@ -1,4 +1,4 @@
-report 416 "Archived Purchase Order"
+﻿report 416 "Archived Purchase Order"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ArchivedPurchaseOrder.rdlc';
@@ -247,7 +247,7 @@ report 416 "Archived Purchase Order"
                     dataitem(RoundLoop; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(PurchLineArchLineAmt; PurchLineArch."Line Amount")
+                        column(PurchLineArchLineAmt; TempPurchaseLineArchive."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Line Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -292,7 +292,7 @@ report 416 "Archived Purchase Order"
                         column(VATIdentifier_PurchLineArchive; "Purchase Line Archive"."VAT Identifier")
                         {
                         }
-                        column(PurchLineArchInvDiscAmt; -PurchLineArch."Inv. Discount Amount")
+                        column(PurchLineArchInvDiscAmt; -TempPurchaseLineArchive."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Line Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -300,7 +300,7 @@ report 416 "Archived Purchase Order"
                         column(TotalText; TotalText)
                         {
                         }
-                        column(PurchLineArchLineAmtPurchLineArchInvDiscAmt; PurchLineArch."Line Amount" - PurchLineArch."Inv. Discount Amount")
+                        column(PurchLineArchLineAmtPurchLineArchInvDiscAmt; TempPurchaseLineArchive."Line Amount" - TempPurchaseLineArchive."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -308,7 +308,7 @@ report 416 "Archived Purchase Order"
                         column(TotalInclVATText; TotalInclVATText)
                         {
                         }
-                        column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
+                        column(VATAmtLineVATAmtText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(VATAmt; VATAmount)
@@ -429,17 +429,17 @@ report 416 "Archived Purchase Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                PurchLineArch.Find('-')
+                                TempPurchaseLineArchive.Find('-')
                             else
-                                PurchLineArch.Next;
-                            "Purchase Line Archive" := PurchLineArch;
+                                TempPurchaseLineArchive.Next();
+                            "Purchase Line Archive" := TempPurchaseLineArchive;
 
                             if not "Purchase Header Archive"."Prices Including VAT" and
-                               (PurchLineArch."VAT Calculation Type" = PurchLineArch."VAT Calculation Type"::"Full VAT")
+                               (TempPurchaseLineArchive."VAT Calculation Type" = TempPurchaseLineArchive."VAT Calculation Type"::"Full VAT")
                             then
-                                PurchLineArch."Line Amount" := 0;
+                                TempPurchaseLineArchive."Line Amount" := 0;
 
-                            if (PurchLineArch.Type = PurchLineArch.Type::"G/L Account") and (not ShowInternalInfo) then
+                            if (TempPurchaseLineArchive.Type = TempPurchaseLineArchive.Type::"G/L Account") and (not ShowInternalInfo) then
                                 "Purchase Line Archive"."No." := '';
                             AllowInvDisctxt := Format("Purchase Line Archive"."Allow Invoice Disc.");
                             PurchaseLineArchiveType := "Purchase Line Archive".Type.AsInteger();
@@ -451,59 +451,59 @@ report 416 "Archived Purchase Order"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLineArch.DeleteAll();
+                            TempPurchaseLineArchive.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
                         begin
+                            MoreLines := TempPurchaseLineArchive.Find('+');
 
-                            MoreLines := PurchLineArch.Find('+');
-
-                            while MoreLines and (PurchLineArch.Description = '') and (PurchLineArch."Description 2" = '') and
-                                  (PurchLineArch."No." = '') and (PurchLineArch.Quantity = 0) and
-                                  (PurchLineArch.Amount = 0) do
-                                MoreLines := PurchLineArch.Next(-1) <> 0;
+                            while MoreLines and (TempPurchaseLineArchive.Description = '') and (TempPurchaseLineArchive."Description 2" = '') and
+                                  (TempPurchaseLineArchive."No." = '') and (TempPurchaseLineArchive.Quantity = 0) and
+                                  (TempPurchaseLineArchive.Amount = 0)
+                            do
+                                MoreLines := TempPurchaseLineArchive.Next(-1) <> 0;
 
                             if not MoreLines then
                                 CurrReport.Break();
 
-                            PurchLineArch.SetRange("Line No.", 0, PurchLineArch."Line No.");
-                            SetRange(Number, 1, PurchLineArch.Count);
+                            TempPurchaseLineArchive.SetRange("Line No.", 0, TempPurchaseLineArchive."Line No.");
+                            SetRange(Number, 1, TempPurchaseLineArchive.Count);
                         end;
                     }
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmtLineVATBase; VATAmountLine."VAT Base")
+                        column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmt; VATAmountLine."VAT Amount")
+                        column(VATAmtLineVATAmt; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineLineAmt; VATAmountLine."Line Amount")
+                        column(VATAmtLineLineAmt; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscBaseAmt; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmtLineInvDiscBaseAmt; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvoiceDiscountAmt; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmtLineInvoiceDiscountAmt; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier; TempVATAmountLine."VAT Identifier")
                         {
                         }
                         column(VATPercentCaption; VATPercentCaptionLbl)
@@ -536,14 +536,14 @@ report 416 "Archived Purchase Order"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATCounterLCY; "Integer")
@@ -563,23 +563,23 @@ report 416 "Archived Purchase Order"
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT1; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT1; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier1; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier1; TempVATAmountLine."VAT Identifier")
                         {
                         }
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                             VALVATBaseLCY :=
-                              VATAmountLine.GetBaseLCY(
+                              TempVATAmountLine.GetBaseLCY(
                                 "Purchase Header Archive"."Posting Date", "Purchase Header Archive"."Currency Code",
                                 "Purchase Header Archive"."Currency Factor");
                             VALVATAmountLCY :=
-                              VATAmountLine.GetAmountLCY(
+                              TempVATAmountLine.GetAmountLCY(
                                 "Purchase Header Archive"."Posting Date", "Purchase Header Archive"."Currency Code",
                                 "Purchase Header Archive"."Currency Factor");
                         end;
@@ -588,10 +588,11 @@ report 416 "Archived Purchase Order"
                         begin
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Purchase Header Archive"."Currency Code" = '') or
-                               (VATAmountLine.GetTotalVATAmount = 0) then
+                               (TempVATAmountLine.GetTotalVATAmount() = 0)
+                            then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
                             Clear(VALVATAmountLCY);
 
@@ -702,16 +703,16 @@ report 416 "Archived Purchase Order"
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtInvBufGLAccNo; PrepmtInvBuf."G/L Account No.")
+                        column(PrepmtInvBufGLAccNo; TempPrepaymentInvLineBuffer."G/L Account No.")
                         {
                         }
-                        column(PrepmtInvBufDesc1; PrepmtInvBuf.Description)
+                        column(PrepmtInvBufDesc1; TempPrepaymentInvLineBuffer.Description)
                         {
                         }
                         column(TotalExclVATText1; TotalExclVATText)
                         {
                         }
-                        column(PrepmtVATAmtLineVATAmtTxt; PrepmtVATAmountLine.VATAmountText)
+                        column(PrepmtVATAmtLineVATAmtTxt; TempPrepmtVATAmountLine.VATAmountText())
                         {
                         }
                         column(PrepmtVATAmt; PrepmtVATAmount)
@@ -722,7 +723,7 @@ report 416 "Archived Purchase Order"
                         column(TotalInclVATText1; TotalInclVATText)
                         {
                         }
-                        column(PrepmtInvBufAmtPrepmtVATAmt; PrepmtInvBuf.Amount + PrepmtVATAmount)
+                        column(PrepmtInvBufAmtPrepmtVATAmt; TempPrepaymentInvLineBuffer.Amount + PrepmtVATAmount)
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -783,44 +784,44 @@ report 416 "Archived Purchase Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not PrepmtInvBuf.Find('-') then
+                                if not TempPrepaymentInvLineBuffer.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if PrepmtInvBuf.Next() = 0 then
+                                if TempPrepaymentInvLineBuffer.Next() = 0 then
                                     CurrReport.Break();
 
                             if ShowInternalInfo then
-                                PrepmtDimSetEntry.SetRange("Dimension Set ID", PrepmtInvBuf."Dimension Set ID");
+                                PrepmtDimSetEntry.SetRange("Dimension Set ID", TempPrepaymentInvLineBuffer."Dimension Set ID");
 
                             if "Purchase Header Archive"."Prices Including VAT" then
-                                PrepmtLineAmount := PrepmtInvBuf."Amount Incl. VAT"
+                                PrepmtLineAmount := TempPrepaymentInvLineBuffer."Amount Incl. VAT"
                             else
-                                PrepmtLineAmount := PrepmtInvBuf.Amount;
+                                PrepmtLineAmount := TempPrepaymentInvLineBuffer.Amount;
                         end;
                     }
                     dataitem(PrepmtVATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(PrepmtVATAmtLineVATAmt1; PrepmtVATAmountLine."VAT Amount")
+                        column(PrepmtVATAmtLineVATAmt1; TempPrepmtVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmtLineVATBase; PrepmtVATAmountLine."VAT Base")
+                        column(PrepmtVATAmtLineVATBase; TempPrepmtVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmtLineLineAmt; PrepmtVATAmountLine."Line Amount")
+                        column(PrepmtVATAmtLineLineAmt; TempPrepmtVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmtLineVAT; PrepmtVATAmountLine."VAT %")
+                        column(PrepmtVATAmtLineVAT; TempPrepmtVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(PrepmtVATAmtLineVATIdentifier; PrepmtVATAmountLine."VAT Identifier")
+                        column(PrepmtVATAmtLineVATIdentifier; TempPrepmtVATAmountLine."VAT Identifier")
                         {
                         }
                         column(PrepymtVATAmtSpecCaption; PrepymtVATAmtSpecCaptionLbl)
@@ -829,12 +830,12 @@ report 416 "Archived Purchase Order"
 
                         trigger OnAfterGetRecord()
                         begin
-                            PrepmtVATAmountLine.GetLine(Number);
+                            TempPrepmtVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange(Number, 1, PrepmtVATAmountLine.Count);
+                            SetRange(Number, 1, TempPrepmtVATAmountLine.Count);
                         end;
                     }
                     dataitem(PrepmtTotal; "Integer")
@@ -849,7 +850,7 @@ report 416 "Archived Purchase Order"
 
                         trigger OnPreDataItem()
                         begin
-                            if not PrepmtInvBuf.Find('-') then
+                            if not TempPrepaymentInvLineBuffer.Find('-') then
                                 CurrReport.Break();
                         end;
                     }
@@ -857,37 +858,36 @@ report 416 "Archived Purchase Order"
 
                 trigger OnAfterGetRecord()
                 var
-                    PrepmtPurchLineArch: Record "Purchase Line" temporary;
                     PurchLineArchive: Record "Purchase Line Archive";
                     TempPurchHeader: Record "Purchase Header" temporary;
                     TempPurchLine: Record "Purchase Line" temporary;
                 begin
-                    Clear(PurchLineArch);
-                    PurchLineArch.DeleteAll();
+                    Clear(TempPurchaseLineArchive);
+                    TempPurchaseLineArchive.DeleteAll();
                     PurchLineArchive.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive.SetRange("Version No.", "Purchase Header Archive"."Version No.");
                     if PurchLineArchive.FindSet() then
                         repeat
-                            PurchLineArch := PurchLineArchive;
-                            PurchLineArch.Insert();
+                            TempPurchaseLineArchive := PurchLineArchive;
+                            TempPurchaseLineArchive.Insert();
                             TempPurchLine.TransferFields(PurchLineArchive);
                             TempPurchLine.Insert();
                         until PurchLineArchive.Next() = 0;
 
-                    VATAmountLine.DeleteAll();
+                    TempVATAmountLine.DeleteAll();
 
                     TempPurchHeader.TransferFields("Purchase Header Archive");
                     TempPurchLine."Prepayment Line" := true;  // used as flag in CalcVATAmountLines -> not invoice rounding
-                    TempPurchLine.CalcVATAmountLines(0, TempPurchHeader, TempPurchLine, VATAmountLine);
-                    VATAmount := VATAmountLine.GetTotalVATAmount;
-                    VATBaseAmount := VATAmountLine.GetTotalVATBase;
+                    TempPurchLine.CalcVATAmountLines(0, TempPurchHeader, TempPurchLine, TempVATAmountLine);
+                    VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                    VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                     VATDiscountAmount :=
-                      VATAmountLine.GetTotalVATDiscount(TempPurchHeader."Currency Code", TempPurchHeader."Prices Including VAT");
-                    TotalAmountInclVAT := VATAmountLine.GetTotalAmountInclVAT;
+                      TempVATAmountLine.GetTotalVATDiscount(TempPurchHeader."Currency Code", TempPurchHeader."Prices Including VAT");
+                    TotalAmountInclVAT := TempVATAmountLine.GetTotalAmountInclVAT();
 
                     if Number > 1 then
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                     OutputNo := OutputNo + 1;
                     TotalSubTotal := 0;
                     TotalInvoiceDiscountAmount := 0;
@@ -896,7 +896,7 @@ report 416 "Archived Purchase Order"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Purch.HeaderArch-Printed", "Purchase Header Archive");
                 end;
 
@@ -967,20 +967,19 @@ report 416 "Archived Purchase Order"
     end;
 
     var
-        Text004: Label 'Purchase Order Archived %1', Comment = '%1 = Document No.';
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        VATAmountLine: Record "VAT Amount Line" temporary;
-        PrepmtVATAmountLine: Record "VAT Amount Line" temporary;
-        PurchLineArch: Record "Purchase Line Archive" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempPrepmtVATAmountLine: Record "VAT Amount Line" temporary;
+        TempPurchaseLineArchive: Record "Purchase Line Archive" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         PrepmtDimSetEntry: Record "Dimension Set Entry";
-        PrepmtInvBuf: Record "Prepayment Inv. Line Buffer" temporary;
+        TempPrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary;
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
         Language: Codeunit Language;
@@ -990,7 +989,7 @@ report 416 "Archived Purchase Order"
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         BuyFromAddr: array[8] of Text[100];
-        PurchaserText: Text[30];
+        PurchaserText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         TotalText: Text[50];
@@ -1013,20 +1012,22 @@ report 416 "Archived Purchase Order"
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
-        Text007: Label 'VAT Amount Specification in ';
-        Text008: Label 'Local Currency';
-        Text009: Label 'Exchange rate: %1/%2';
         PrepmtVATAmount: Decimal;
         PrepmtVATBaseAmount: Decimal;
         PrepmtTotalAmountInclVAT: Decimal;
         PrepmtLineAmount: Decimal;
-        Text010: Label 'Version %1 of %2 ';
         PricesInclVATtxt: Text[30];
         AllowInvDisctxt: Text[30];
         PurchaseLineArchiveType: Integer;
         TotalSubTotal: Decimal;
         TotalAmount: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
+
+        Text004: Label 'Purchase Order Archived %1', Comment = '%1 = Document No.';
+        Text007: Label 'VAT Amount Specification in ';
+        Text008: Label 'Local Currency';
+        Text009: Label 'Exchange rate: %1/%2';
+        Text010: Label 'Version %1 of %2 ';
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegNoCaptionLbl: Label 'VAT Reg. No.';
         GiroNoCaptionLbl: Label 'Giro No.';
@@ -1070,7 +1071,7 @@ report 416 "Archived Purchase Order"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var PurchaseHeaderArchive: Record "Purchase Header Archive")

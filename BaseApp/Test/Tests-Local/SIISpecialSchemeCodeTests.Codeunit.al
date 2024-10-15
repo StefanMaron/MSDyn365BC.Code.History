@@ -1294,12 +1294,12 @@ codeunit 147562 "SII Special Scheme Code Tests"
         VATClauseCode :=
           LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21");
         Commit;
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
         asserterror VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
         Assert.ExpectedError(InconsitencyOfRegimeCodeAndVATClauseErr);
 
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
         asserterror VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
         Assert.ExpectedError(InconsitencyOfRegimeCodeAndVATClauseErr);
@@ -1320,12 +1320,12 @@ codeunit 147562 "SII Special Scheme Code Tests"
         VATClauseCode :=
           LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22");
         Commit;
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
         asserterror VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
         Assert.ExpectedError(InconsitencyOfRegimeCodeAndVATClauseErr);
 
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
         asserterror VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
 
@@ -1400,7 +1400,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIISalesDocumentSchemeCode.FindSet();
         SIISalesDocumentSchemeCode.TestField(
           "Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"03 Special System");
-        SIISalesDocumentSchemeCode.Next;
+        SIISalesDocumentSchemeCode.Next();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"04 Gold");
     end;
 
@@ -1444,7 +1444,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
         SIISalesDocumentSchemeCode.FindSet();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"01 General");
-        SIISalesDocumentSchemeCode.Next;
+        SIISalesDocumentSchemeCode.Next();
         SIISalesDocumentSchemeCode.TestField(
           "Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"02 Export");
 
@@ -1498,7 +1498,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
         SIISalesDocumentSchemeCode.FindSet();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"03 Special System");
-        SIISalesDocumentSchemeCode.Next;
+        SIISalesDocumentSchemeCode.Next();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"04 Gold");
     end;
 
@@ -1543,7 +1543,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
         SIISalesDocumentSchemeCode.FindSet();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"01 General");
-        SIISalesDocumentSchemeCode.Next;
+        SIISalesDocumentSchemeCode.Next();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"02 Export");
     end;
 
@@ -1591,7 +1591,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Assert.RecordCount(SIIPurchDocSchemeCode, 2);
         SIIPurchDocSchemeCode.FindSet();
         SIIPurchDocSchemeCode.TestField("Special Scheme Code", SIIPurchDocSchemeCode."Special Scheme Code"::"03 Special System");
-        SIIPurchDocSchemeCode.Next;
+        SIIPurchDocSchemeCode.Next();
         SIIPurchDocSchemeCode.TestField("Special Scheme Code", SIIPurchDocSchemeCode."Special Scheme Code"::"04 Gold");
     end;
 

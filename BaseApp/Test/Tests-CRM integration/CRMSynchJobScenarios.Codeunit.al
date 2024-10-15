@@ -92,15 +92,15 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // Create filter excluding the last row.
         UnitOfMeasure.FindLast();
         UnitOfMeasure.SetFilter(Code, '<>%1', UnitOfMeasure.Code);
-        TableFilter.AddTable(UnitOfMeasure.TableCaption, DATABASE::"Unit of Measure");
-        TableFilter.SetView(UnitOfMeasure.TableCaption, UnitOfMeasure.GetView);
+        TableFilter.AddTable(UnitOfMeasure.TableCaption(), DATABASE::"Unit of Measure");
+        TableFilter.SetView(UnitOfMeasure.TableCaption(), UnitOfMeasure.GetView());
 
         UnitOfMeasure.Reset();
-        UnitOfMeasure.SetView(TableFilter.GetView(UnitOfMeasure.TableCaption, true));
+        UnitOfMeasure.SetView(TableFilter.GetView(UnitOfMeasure.TableCaption(), true));
         Assert.AreEqual(2, UnitOfMeasure.Count, 'Expected the filter to limit the rowcount');
 
         // [GIVEN] The mapping allows not only synching coupled records, but also record creation
-        IntegrationTableMapping.SetTableFilter(TableFilter.GetView(UnitOfMeasure.TableCaption, true));
+        IntegrationTableMapping.SetTableFilter(TableFilter.GetView(UnitOfMeasure.TableCaption(), true));
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
         IntegrationTableMapping.Modify();
@@ -115,12 +115,12 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping.Modify();
 
         // [GIVEN] The last record, not included in the filter, is coupled and modified.
-        TestUid := CreateGuid;
+        TestUid := CreateGuid();
         with TestIntegrationTable do begin
-            Reset;
-            Init;
+            Reset();
+            Init();
             "Integration Uid" := TestUid;
-            Insert;
+            Insert();
         end;
         // Create coupling
         UnitOfMeasure.Reset();
@@ -166,14 +166,14 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // Create filter only including the last row.
         TestIntegrationTable.FindLast();
         TestIntegrationTable.SetFilter("Integration Uid", '=%1', TestIntegrationTable."Integration Uid");
-        TableFilter.AddTable(TestIntegrationTable.TableCaption, DATABASE::"Test Integration Table");
-        TableFilter.SetView(TestIntegrationTable.TableCaption, TestIntegrationTable.GetView);
+        TableFilter.AddTable(TestIntegrationTable.TableCaption(), DATABASE::"Test Integration Table");
+        TableFilter.SetView(TestIntegrationTable.TableCaption(), TestIntegrationTable.GetView());
 
         TestIntegrationTable.Reset();
-        TestIntegrationTable.SetView(TableFilter.GetView(TestIntegrationTable.TableCaption, true));
+        TestIntegrationTable.SetView(TableFilter.GetView(TestIntegrationTable.TableCaption(), true));
         Assert.AreEqual(1, TestIntegrationTable.Count, 'Expected the filter to limit the rowcount');
 
-        IntegrationTableMapping.SetIntegrationTableFilter(TableFilter.GetView(TestIntegrationTable.TableCaption, true));
+        IntegrationTableMapping.SetIntegrationTableFilter(TableFilter.GetView(TestIntegrationTable.TableCaption(), true));
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
         IntegrationTableMapping.Modify();
@@ -208,7 +208,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         TestIntegrationTable.FindSet();
         TestIntegrationTable.ModifiedBy := CRMSystemuser.SystemUserId;
         TestIntegrationTable.Modify();
-        TestIntegrationTable.Next;
+        TestIntegrationTable.Next();
         TestIntegrationTable.ModifiedBy := CRMSystemuser.SystemUserId;
         TestIntegrationTable.Modify();
 
@@ -562,12 +562,12 @@ codeunit 139169 "CRM Synch. Job Scenarios"
             IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", IntegrationSynchJob.ID);
             if IntegrationSynchJobErrors.FindFirst() then
                 Assert.Fail('One or more job errors was found: ' + IntegrationSynchJobErrors.Message);
-        until IntegrationSynchJob.Next = 0;
+        until IntegrationSynchJob.Next() = 0;
 
         IntegrationSynchJob.SetFilter("Integration Table Mapping Name", IntegrationTableMapping.Name);
         IntegrationSynchJob.FindSet();
         if (IntegrationSynchJob.Inserted <> ExpectedInserted) and (IntegrationSynchJob.Modified <> ExpectedModified) then
-            IntegrationSynchJob.Next;
+            IntegrationSynchJob.Next();
         Assert.AreEqual(ExpectedInserted, IntegrationSynchJob.Inserted, 'Expected the log to reflect inserted row(s)');
         Assert.AreEqual(ExpectedModified, IntegrationSynchJob.Modified, 'Expected the log to reflect modified row(s)');
 
@@ -608,7 +608,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
 
         // [THEN] Job queue entry in status Ready
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
         // [THEN] Job queue entry "No. of Attempts to Run" = 1
         JobQueueEntry.TestField("No. of Attempts to Run", 1);

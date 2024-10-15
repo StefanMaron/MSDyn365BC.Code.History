@@ -26,12 +26,12 @@ page 5714 "Responsibility Center Card"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the address associated with the responsibility center.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the postal code.';
@@ -46,7 +46,7 @@ page 5714 "Responsibility Center Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the address.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the country/region of the address.';
@@ -56,17 +56,17 @@ page 5714 "Responsibility Center Card"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the name of the person you regularly contact. ';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location of the responsibility center.';
@@ -75,24 +75,24 @@ page 5714 "Responsibility Center Card"
             group(Communication)
             {
                 Caption = 'Communication';
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the responsibility center''s phone number.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
                     ToolTip = 'Specifies the fax number of the responsibility center.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Location;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the responsibility center.';
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the responsibility center''s web site.';

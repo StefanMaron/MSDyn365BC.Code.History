@@ -1159,7 +1159,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatement.OpenEdit;
         VATStatement."P&review".Invoke;
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(0);
-        VATStatementPreview.VATStatementLineSubForm.Next;
+        VATStatementPreview.VATStatementLineSubForm.Next();
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(PurchaseHeader1.Amount + PurchaseHeader2.Amount);
 
         // [WHEN] Drill Down on Column Value of 'Base' line
@@ -1168,7 +1168,7 @@ codeunit 147590 "Test VAT Statement"
         // [THEN] No Taxable Entries opened with two lines according to posted invoices of amount = 100 and 200
         NoTaxableEntries.First;
         NoTaxableEntries.Base.AssertEquals(PurchaseHeader1.Amount);
-        NoTaxableEntries.Next;
+        NoTaxableEntries.Next();
         NoTaxableEntries.Base.AssertEquals(PurchaseHeader2.Amount);
     end;
 
@@ -1211,7 +1211,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatement.OpenEdit;
         VATStatement."P&review".Invoke;
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(0);
-        VATStatementPreview.VATStatementLineSubForm.Next;
+        VATStatementPreview.VATStatementLineSubForm.Next();
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(-SalesHeader1.Amount - SalesHeader2.Amount);
 
         // [WHEN] Drill Down on Column Value of 'Base' line
@@ -1220,7 +1220,7 @@ codeunit 147590 "Test VAT Statement"
         // [THEN] No Taxable Entries opened with two lines according to posted invoices of amount = -100 and -200
         NoTaxableEntries.First;
         NoTaxableEntries.Base.AssertEquals(-SalesHeader1.Amount);
-        NoTaxableEntries.Next;
+        NoTaxableEntries.Next();
         NoTaxableEntries.Base.AssertEquals(-SalesHeader2.Amount);
     end;
 
@@ -1444,8 +1444,8 @@ codeunit 147590 "Test VAT Statement"
             Assert.AreEqual(VATStatementLine.Box, VATStatement.Box.Value,
               'Box is not correct.');
 
-            VATStatement.Next;
-        until VATStatementLine.Next = 0;
+            VATStatement.Next();
+        until VATStatementLine.Next() = 0;
     end;
 
     local procedure VerifyTransferenceTXT(TransferenceFormat: TestPage "Transference Format"; StatementName: Code[10]; AskMode: Boolean)
@@ -1485,8 +1485,8 @@ codeunit 147590 "Test VAT Statement"
             Assert.AreEqual(Box, TransferenceFormat.Box.Value,
               'Box is not correct.');
 
-            TransferenceFormat.Next;
-        until AEATTransferenceFormat.Next = 0;
+            TransferenceFormat.Next();
+        until AEATTransferenceFormat.Next() = 0;
     end;
 
     local procedure VerifyTransferenceXML(XMLTransferenceFormat: TestPage "XML Transference Format"; StatementName: Code[10]; AskMode: Boolean)
@@ -1527,8 +1527,8 @@ codeunit 147590 "Test VAT Statement"
             Assert.AreEqual(AEATTransferenceFormatXML.Box, XMLTransferenceFormat.Box.Value,
               'Box is not correct.');
 
-            XMLTransferenceFormat.Next;
-        until AEATTransferenceFormatXML.Next = 0;
+            XMLTransferenceFormat.Next();
+        until AEATTransferenceFormatXML.Next() = 0;
     end;
 
     local procedure CreateVATStatement(var VATStatementName: Record "VAT Statement Name")
@@ -1782,7 +1782,7 @@ codeunit 147590 "Test VAT Statement"
         while not InStream.EOS do
             InStream.Read(FileChar);
         CharCode := FileChar;
-        File.Close;
+        File.Close();
     end;
 
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal; VATCalculationType: Enum "Tax Calculation Type")
@@ -1793,16 +1793,16 @@ codeunit 147590 "Test VAT Statement"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             "VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
             "VAT Prod. Posting Group" := VATProductPostingGroup.Code;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := VATAmount;
             Base := VATBase;
             "VAT Calculation Type" := VATCalculationType;
             Type := Type::Purchase;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1834,7 +1834,7 @@ codeunit 147590 "Test VAT Statement"
             "VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
             "Amount Type" := AmountType;
             Print := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1963,7 +1963,7 @@ codeunit 147590 "Test VAT Statement"
 
         TransferenceFormat.First;
         TransferenceFormat.Value.SetValue(AskFieldValue);
-        TransferenceFormat.Next;
+        TransferenceFormat.Next();
         LibraryVariableStorage.Enqueue(AskFieldValue); // pass it back to caller for validation
     end;
 
@@ -2010,7 +2010,7 @@ codeunit 147590 "Test VAT Statement"
 
         XMLTransferenceFormat.First;
         XMLTransferenceFormat.Value.SetValue(AskFieldValue);
-        XMLTransferenceFormat.Next;
+        XMLTransferenceFormat.Next();
         LibraryVariableStorage.Enqueue(AskFieldValue); // pass it back to caller for validation
     end;
 

@@ -64,7 +64,7 @@ table 7505 "Item Attribute Value Mapping"
             exit;
 
         ItemAttributeValueMapping := Rec;
-        if ItemAttributeValueMapping.Find then
+        if ItemAttributeValueMapping.Find() then
             ItemAttributeValue.Delete();
     end;
 

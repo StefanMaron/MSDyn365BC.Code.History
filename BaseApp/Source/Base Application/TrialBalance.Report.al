@@ -1,4 +1,4 @@
-report 6 "Trial Balance"
+﻿report 6 "Trial Balance"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './TrialBalance.rdlc';
@@ -15,13 +15,13 @@ report 6 "Trial Balance"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Account Type", "Date Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
-            column(WorkDateFormatted; Format(WorkDate, 0, 4))
+            column(WorkDateFormatted; Format(WorkDate(), 0, 4))
             {
             }
             column(PeriodText1; Text1100003 + PeriodText)
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PeriodText; PeriodText)
@@ -33,7 +33,7 @@ report 6 "Trial Balance"
             column(IncludeEntries; IncludeEntries)
             {
             }
-            column(GLFilter_GLAccount; "G/L Account".TableCaption + ': ' + "G/L Account".GetFilters)
+            column(GLFilter_GLAccount; TableCaption() + ': ' + GetFilters())
             {
             }
             column(GLFilter; GLFilter)
@@ -175,7 +175,7 @@ report 6 "Trial Balance"
                 CalcFields("Debit Amount", "Credit Amount", "Balance at Date", "Add.-Currency Debit Amount",
                            "Add.-Currency Credit Amount", "Add.-Currency Balance at Date", "Net Change", "Balance at Date");
                 GLAcc2 := "G/L Account";
-                SetGLAccDateFilter;
+                SetGLAccDateFilter();
                 if GlobalDim1 <> '' then
                     "G/L Account".CopyFilter("G/L Account"."Global Dimension 1 Filter", GLAcc2."Global Dimension 1 Filter");
                 if GlobalDim2 <> '' then
@@ -199,9 +199,9 @@ report 6 "Trial Balance"
                 OpenDebitAmtEnd := 0;
                 if OpenEntries then begin
                     if "Account Type" = "Account Type"::Heading then
-                        CalcOpenEntriesHeading
+                        CalcOpenEntriesHeading()
                     else
-                        CalcOpenEntries;
+                        CalcOpenEntries();
                     if not AcumBalance then
                         BalanceType := BalanceType + OpenDebitAmtEnd - OpenCreditAmtEnd
                     else begin
@@ -213,9 +213,9 @@ report 6 "Trial Balance"
                 CloseCreditAmt := 0;
                 if CloseEntries then begin
                     if "Account Type" = "Account Type"::Heading then
-                        CalcCloseEntriesHeading
+                        CalcCloseEntriesHeading()
                     else
-                        CalcCloseEntries;
+                        CalcCloseEntries();
                     if not AcumBalance then
                         BalanceType := BalanceType + CloseDebitAmt - CloseCreditAmt
                     else
@@ -452,7 +452,6 @@ report 6 "Trial Balance"
         ToFec: Date;
         PrintAllHavingBal: Boolean;
         IncludeEntries: Text[40];
-        GLFilter: Text[30];
         GLFilterOption: Option Posting,Heading;
         PreviousBalance: Decimal;
         PreviousDebit: Decimal;
@@ -499,6 +498,9 @@ report 6 "Trial Balance"
         AcumBalanceatDateCaptionLbl: Label 'Acum. Balance at Date';
         TotalCaptionLbl: Label 'Total. . . . . . . . ';
         BlankLineNo: Integer;
+
+    protected var
+        GLFilter: Text;
 
     [Scope('OnPrem')]
     procedure StartingPeriod(Date: Date): Date

@@ -14,37 +14,37 @@ page 576 "VAT Specification Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("VAT Identifier"; "VAT Identifier")
+                field("VAT Identifier"; Rec."VAT Identifier")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the contents of this field from the VAT Identifier field in the VAT Posting Setup table.';
                     Visible = false;
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT percentage that was used on the sales or purchase lines with this VAT Identifier.';
                 }
-                field("EC %"; "EC %")
+                field("EC %"; Rec."EC %")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the EC percentage used in the purchase or sales lines with this VAT identifier.';
                 }
-                field("VAT Calculation Type"; "VAT Calculation Type")
+                field("VAT Calculation Type"; Rec."VAT Calculation Type")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
                     Visible = false;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
                     AutoFormatType = 1;
                     ToolTip = 'Specifies the total amount for sales or purchase lines with a specific VAT identifier.';
                 }
-                field("Inv. Disc. Base Amount"; "Inv. Disc. Base Amount")
+                field("Inv. Disc. Base Amount"; Rec."Inv. Disc. Base Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
@@ -52,7 +52,7 @@ page 576 "VAT Specification Subform"
                     ToolTip = 'Specifies the invoice discount base amount.';
                     Visible = false;
                 }
-                field("Invoice Discount Amount"; "Invoice Discount Amount")
+                field("Invoice Discount Amount"; Rec."Invoice Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
@@ -64,17 +64,17 @@ page 576 "VAT Specification Subform"
                     trigger OnValidate()
                     begin
                         CalcVATFields(CurrencyCode, PricesIncludingVAT, VATBaseDiscPct);
-                        ModifyRec;
+                        ModifyRec();
                     end;
                 }
-                field("VAT Base"; "VAT Base")
+                field("VAT Base"; Rec."VAT Base")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
                     AutoFormatType = 1;
                     ToolTip = 'Specifies the total net amount (amount excluding VAT) for sales or purchase lines with a specific VAT Identifier.';
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
@@ -91,11 +91,11 @@ page 576 "VAT Specification Subform"
                                 Error(Text000, FieldCaption("VAT Amount"), Text003);
 
                         "Amount Including VAT" := "VAT Amount" + "EC Amount" + "VAT Base";
-                        FormCheckVATDifference;
-                        ModifyRec;
+                        FormCheckVATDifference();
+                        ModifyRec();
                     end;
                 }
-                field("EC Amount"; "EC Amount")
+                field("EC Amount"; Rec."EC Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
@@ -110,11 +110,11 @@ page 576 "VAT Specification Subform"
 
                         "Amount Including VAT" := "VAT Amount" + "EC Amount" + "VAT Base";
 
-                        FormCheckVATDifference;
-                        ModifyRec;
+                        FormCheckVATDifference();
+                        ModifyRec();
                     end;
                 }
-                field("Calculated VAT Amount"; "Calculated VAT Amount")
+                field("Calculated VAT Amount"; Rec."Calculated VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
@@ -122,7 +122,7 @@ page 576 "VAT Specification Subform"
                     ToolTip = 'Specifies the calculated VAT amount and is only used for reference when the user changes the VAT Amount manually.';
                     Visible = false;
                 }
-                field("VAT Difference"; "VAT Difference")
+                field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
@@ -130,7 +130,7 @@ page 576 "VAT Specification Subform"
                     ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
@@ -139,7 +139,7 @@ page 576 "VAT Specification Subform"
 
                     trigger OnValidate()
                     begin
-                        FormCheckVATDifference;
+                        FormCheckVATDifference();
                     end;
                 }
             }
@@ -167,13 +167,11 @@ page 576 "VAT Specification Subform"
 
     trigger OnModifyRecord(): Boolean
     begin
-        ModifyRec;
+        ModifyRec();
         exit(false);
     end;
 
     var
-        Text000: Label '%1 can only be modified on the %2 tab.';
-        Text001: Label 'The total %1 for a document must not exceed the value %2 in the %3 field.';
         Currency: Record Currency;
         ServHeader: Record "Service Header";
         CurrencyCode: Code[10];
@@ -183,8 +181,6 @@ page 576 "VAT Specification Subform"
         AllowInvDisc: Boolean;
         VATBaseDiscPct: Decimal;
         ParentControl: Integer;
-        Text002: Label 'Details';
-        Text003: Label 'Invoicing';
         CurrentTabNo: Integer;
         MainFormActiveTab: Option Other,Prepayment;
         [InDataSet]
@@ -193,6 +189,11 @@ page 576 "VAT Specification Subform"
         InvoiceDiscountAmountEditable: Boolean;
         [InDataSet]
         ECAmountEditable: Boolean;
+
+        Text000: Label '%1 can only be modified on the %2 tab.';
+        Text001: Label 'The total %1 for a document must not exceed the value %2 in the %3 field.';
+        Text002: Label 'Details';
+        Text003: Label 'Invoicing';
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
@@ -204,7 +205,7 @@ page 576 "VAT Specification Subform"
                     "VAT %" := 0;
                     "EC %" := 0;
                 end;
-                Insert;
+                Insert();
             until NewVATAmountLine.Next() = 0;
         CurrPage.Update(false);
     end;
@@ -272,13 +273,13 @@ page 576 "VAT Specification Subform"
         ServLine: Record "Service Line";
     begin
         Modified := true;
-        Modify;
+        Modify();
 
         if ((ParentControl = PAGE::"Service Order Statistics") and
             (CurrentTabNo <> 1)) or
            (ParentControl = PAGE::"Service Statistics")
         then
-            if GetAnyLineModified then begin
+            if GetAnyLineModified() then begin
                 ServLine.UpdateVATOnLines(0, ServHeader, ServLine, Rec);
                 ServLine.UpdateVATOnLines(1, ServHeader, ServLine, Rec);
             end;

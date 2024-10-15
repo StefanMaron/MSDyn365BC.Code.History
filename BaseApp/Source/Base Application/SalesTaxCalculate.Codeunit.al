@@ -6,14 +6,10 @@
     end;
 
     var
-        Text000: Label '%1 in %2 %3 must be filled in with unique values when %4 is %5.';
-        Text001: Label 'The sales tax amount for the %1 %2 and the %3 %4 is incorrect. ';
-        Text003: Label 'Lines is not initialized';
-        Text004: Label 'The calculated sales tax amount is %5, but was supposed to be %6.';
         TaxArea: Record "Tax Area";
         TaxAreaLine: Record "Tax Area Line";
         TaxDetail: Record "Tax Detail";
-        TMPTaxDetail: Record "Tax Detail" temporary;
+        TempTaxDetail: Record "Tax Detail" temporary;
         ExchangeFactor: Decimal;
         TotalTaxAmountRounding: Decimal;
         TotalForAllocation: Decimal;
@@ -25,6 +21,11 @@
         CalculationOrderViolation: Boolean;
         TotalAmountForTax: Decimal;
         TotalLineAmountForTax: Decimal;
+
+        Text000: Label '%1 in %2 %3 must be filled in with unique values when %4 is %5.';
+        Text001: Label 'The sales tax amount for the %1 %2 and the %3 %4 is incorrect. ';
+        Text003: Label 'Lines is not initialized';
+        Text004: Label 'The calculated sales tax amount is %5, but was supposed to be %6.';
 
     procedure CalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal) TaxAmount: Decimal
     var
@@ -68,7 +69,7 @@
                 else
                     TaxDetail.SetFilter("Tax Group Code", '%1|%2', '', TaxGroupCode);
                 if Date = 0D then
-                    TaxDetail.SetFilter("Effective Date", '<=%1', WorkDate)
+                    TaxDetail.SetFilter("Effective Date", '<=%1', WorkDate())
                 else
                     TaxDetail.SetFilter("Effective Date", '<=%1', Date);
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales Tax");
@@ -107,7 +108,7 @@
             if TaxOnTaxCalculated and CalculationOrderViolation then
                 Error(
                   Text000,
-                  TaxAreaLine.FieldCaption("Calculation Order"), TaxArea.TableCaption, TaxAreaLine."Tax Area",
+                  TaxAreaLine.FieldCaption("Calculation Order"), TaxArea.TableCaption(), TaxAreaLine."Tax Area",
                   TaxDetail.FieldCaption("Calculate Tax on Tax"), CalculationOrderViolation);
         end;
     end;
@@ -165,7 +166,7 @@
                 else
                     TaxDetail.SetFilter("Tax Group Code", '%1|%2', '', TaxGroupCode);
                 if Date = 0D then
-                    TaxDetail.SetFilter("Effective Date", '<=%1', WorkDate)
+                    TaxDetail.SetFilter("Effective Date", '<=%1', WorkDate())
                 else
                     TaxDetail.SetFilter("Effective Date", '<=%1', Date);
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales Tax");
@@ -174,14 +175,14 @@
                     InclinationLess := TaxDetail."Tax Below Maximum" / 100;
                     InclinationHigher := TaxDetail."Tax Above Maximum" / 100;
 
-                    if TaxDetail."Maximum Amount/Qty." = 0 then begin
+                    if TaxDetail."Maximum Amount/Qty." = 0 then
                         for i := 1 to Steps do
                             if TaxDetail."Calculate Tax on Tax" then begin
                                 Inclination[i] := Inclination[i] + (1 + Inclination[i]) * InclinationLess;
                                 Constant[i] := (1 + InclinationLess) * Constant[i];
                             end else
-                                Inclination[i] := Inclination[i] + InclinationLess;
-                    end else begin
+                                Inclination[i] := Inclination[i] + InclinationLess
+                    else begin
                         if TaxDetail."Calculate Tax on Tax" then begin
                             ConstantHigher :=
                               (TaxDetail."Tax Below Maximum" - TaxDetail."Tax Above Maximum") / 100 *
@@ -214,13 +215,11 @@
                         while i <= Steps do begin
                             case true of
                                 (MaxRangeAmount[i] < SplitAmount) and (MaxRangeAmount[i] > 0):
-                                    begin
-                                        if TaxDetail."Calculate Tax on Tax" then begin
-                                            Inclination[i] := Inclination[i] + (1 + Inclination[i]) * InclinationLess;
-                                            Constant[i] := (1 + InclinationLess) * Constant[i];
-                                        end else
-                                            Inclination[i] := Inclination[i] + InclinationLess;
-                                    end;
+                                    if TaxDetail."Calculate Tax on Tax" then begin
+                                        Inclination[i] := Inclination[i] + (1 + Inclination[i]) * InclinationLess;
+                                        Constant[i] := (1 + InclinationLess) * Constant[i];
+                                    end else
+                                        Inclination[i] := Inclination[i] + InclinationLess;
                                 MaxRangeAmount[i] = SplitAmount:
                                     begin
                                         if TaxDetail."Calculate Tax on Tax" then begin
@@ -280,7 +279,7 @@
             if TaxOnTaxCalculated and CalculationOrderViolation then
                 Error(
                   Text000,
-                  TaxAreaLine.FieldCaption("Calculation Order"), TaxArea.TableCaption, TaxAreaLine."Tax Area",
+                  TaxAreaLine.FieldCaption("Calculation Order"), TaxArea.TableCaption(), TaxAreaLine."Tax Area",
                   TaxDetail.FieldCaption("Calculate Tax on Tax"), CalculationOrderViolation);
         end;
 
@@ -323,7 +322,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitSalesTaxLines(TaxAreaCode, TaxGroupCode, TaxLiable, Amount, Quantity, Date, DesiredTaxAmount, TMPTaxDetail, IsHandled, Initialised, FirstLine, TotalForAllocation);
+        OnBeforeInitSalesTaxLines(TaxAreaCode, TaxGroupCode, TaxLiable, Amount, Quantity, Date, DesiredTaxAmount, TempTaxDetail, IsHandled, Initialised, FirstLine, TotalForAllocation);
         if IsHandled then
             exit;
 
@@ -331,7 +330,7 @@
 
         Initialised := true;
         FirstLine := true;
-        TMPTaxDetail.DeleteAll();
+        TempTaxDetail.DeleteAll();
 
         RemainingTaxDetails := 0;
 
@@ -356,11 +355,11 @@
                 else
                     TaxDetail.SetFilter("Tax Group Code", '%1|%2', '', TaxGroupCode);
                 if Date = 0D then
-                    TaxDetail.SetFilter("Effective Date", '<=%1', WorkDate)
+                    TaxDetail.SetFilter("Effective Date", '<=%1', WorkDate())
                 else
                     TaxDetail.SetFilter("Effective Date", '<=%1', Date);
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales Tax");
-                if TaxDetail.FindLast and ((TaxDetail."Tax Below Maximum" <> 0) or (TaxDetail."Tax Above Maximum" <> 0)) then begin
+                if TaxDetail.FindLast() and ((TaxDetail."Tax Below Maximum" <> 0) or (TaxDetail."Tax Above Maximum" <> 0)) then begin
                     TaxOnTaxCalculated := TaxOnTaxCalculated or TaxDetail."Calculate Tax on Tax";
                     if TaxDetail."Calculate Tax on Tax" then
                         TaxBaseAmount := Amount + TaxAmount
@@ -387,14 +386,14 @@
                     end else
                         AddedTaxAmount := 0;
                     TaxAmount := TaxAmount + AddedTaxAmount;
-                    TMPTaxDetail := TaxDetail;
-                    TMPTaxDetail."Tax Below Maximum" := AddedTaxAmount;
-                    TMPTaxDetail."Tax Above Maximum" := TaxBaseAmount;
-                    TMPTaxDetail.Insert();
+                    TempTaxDetail := TaxDetail;
+                    TempTaxDetail."Tax Below Maximum" := AddedTaxAmount;
+                    TempTaxDetail."Tax Above Maximum" := TaxBaseAmount;
+                    TempTaxDetail.Insert();
                     RemainingTaxDetails := RemainingTaxDetails + 1;
                 end;
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
-                if TaxDetail.FindLast and ((TaxDetail."Tax Below Maximum" <> 0) or (TaxDetail."Tax Above Maximum" <> 0)) then begin
+                if TaxDetail.FindLast() and ((TaxDetail."Tax Below Maximum" <> 0) or (TaxDetail."Tax Above Maximum" <> 0)) then begin
                     if TaxLiable then begin
                         if TaxDetail."Maximum Amount/Qty." = 0 then
                             AddedTaxAmount := Quantity * TaxDetail."Tax Below Maximum"
@@ -409,10 +408,10 @@
                     end else
                         AddedTaxAmount := 0;
                     TaxAmount := TaxAmount + AddedTaxAmount;
-                    TMPTaxDetail := TaxDetail;
-                    TMPTaxDetail."Tax Below Maximum" := AddedTaxAmount;
-                    TMPTaxDetail."Tax Above Maximum" := TaxBaseAmount;
-                    TMPTaxDetail.Insert();
+                    TempTaxDetail := TaxDetail;
+                    TempTaxDetail."Tax Below Maximum" := AddedTaxAmount;
+                    TempTaxDetail."Tax Above Maximum" := TaxBaseAmount;
+                    TempTaxDetail.Insert();
                     RemainingTaxDetails := RemainingTaxDetails + 1;
                 end;
             until TaxAreaLine.Next(-1) = 0;
@@ -420,17 +419,17 @@
             TaxAmount := Round(TaxAmount);
 
             if (TaxAmount <> DesiredTaxAmount) and (Abs(TaxAmount - DesiredTaxAmount) <= 0.01) then
-                if TMPTaxDetail.Find('-') then begin
-                    TMPTaxDetail."Tax Below Maximum" :=
-                      TMPTaxDetail."Tax Below Maximum" - TaxAmount + DesiredTaxAmount;
-                    TMPTaxDetail.Modify();
+                if TempTaxDetail.Find('-') then begin
+                    TempTaxDetail."Tax Below Maximum" :=
+                      TempTaxDetail."Tax Below Maximum" - TaxAmount + DesiredTaxAmount;
+                    TempTaxDetail.Modify();
                     TaxAmount := DesiredTaxAmount;
                 end;
 
             if TaxOnTaxCalculated and CalculationOrderViolation then
                 Error(
                   Text000,
-                  TaxAreaLine.FieldCaption("Calculation Order"), TaxArea.TableCaption, TaxAreaLine."Tax Area",
+                  TaxAreaLine.FieldCaption("Calculation Order"), TaxArea.TableCaption(), TaxAreaLine."Tax Area",
                   TaxDetail.FieldCaption("Calculate Tax on Tax"), CalculationOrderViolation);
         end;
 
@@ -455,21 +454,21 @@
             Error(Text003);
 
         if FirstLine then begin
-            if not TMPTaxDetail.Find('-') then begin
+            if not TempTaxDetail.Find('-') then begin
                 Initialised := false;
                 exit(false);
             end;
             TotalTaxAmountRounding := 0;
             FirstLine := false;
         end else
-            if TMPTaxDetail.Next() = 0 then begin
+            if TempTaxDetail.Next() = 0 then begin
                 Initialised := false;
                 exit(false);
             end;
 
-        ReturnTaxBaseAmount := Round(TMPTaxDetail."Tax Above Maximum");
+        ReturnTaxBaseAmount := Round(TempTaxDetail."Tax Above Maximum");
 
-        TaxAmount := TMPTaxDetail."Tax Below Maximum";
+        TaxAmount := TempTaxDetail."Tax Below Maximum";
         ReturnTaxAmount := Round(TaxAmount + TotalTaxAmountRounding);
         TotalTaxAmountRounding := TaxAmount + TotalTaxAmountRounding - ReturnTaxAmount;
 
@@ -481,7 +480,7 @@
 
         TotalForAllocation := TotalForAllocation - TaxAmount;
 
-        TaxDetail2 := TMPTaxDetail;
+        TaxDetail2 := TempTaxDetail;
 
         exit(true);
     end;

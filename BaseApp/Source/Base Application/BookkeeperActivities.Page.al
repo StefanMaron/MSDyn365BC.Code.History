@@ -94,13 +94,13 @@
             cuegroup("Cartera Receivables")
             {
                 Caption = 'Cartera Receivables';
-                field("Receivable Documents"; "Receivable Documents")
+                field("Receivable Documents"; Rec."Receivable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Receivables Cartera Docs";
                     ToolTip = 'Specifies the receivables document that is associated with the bill group.';
                 }
-                field("Posted Receivable Documents"; "Posted Receivable Documents")
+                field("Posted Receivable Documents"; Rec."Posted Receivable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Posted Cartera Documents";
@@ -136,13 +136,13 @@
             cuegroup("Cartera Payables")
             {
                 Caption = 'Cartera Payables';
-                field("Payable Documents"; "Payable Documents")
+                field("Payable Documents"; Rec."Payable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Payables Cartera Docs";
                     ToolTip = 'Specifies the payables document that is associated with the bill group.';
                 }
-                field("Posted Payable Documents"; "Posted Payable Documents")
+                field("Posted Payable Documents"; Rec."Posted Payable Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Posted Cartera Documents";
@@ -207,7 +207,7 @@
             cuegroup(MissingSIIEntries)
             {
                 Caption = 'Missing SII Entries';
-                field("Missing SII Entries"; "Missing SII Entries")
+                field("Missing SII Entries"; Rec."Missing SII Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Missing SII Entries';
@@ -218,10 +218,10 @@
                     var
                         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
                     begin
-                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage;
+                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage();
                     end;
                 }
-                field("Days Since Last SII Check"; "Days Since Last SII Check")
+                field("Days Since Last SII Check"; Rec."Days Since Last SII Check")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Recreate Missing SII Entries";
@@ -238,7 +238,7 @@
 
     trigger OnAfterGetRecord()
     begin
-        CalculateCueFieldValues;
+        CalculateCueFieldValues();
     end;
 
     trigger OnOpenPage()
@@ -258,9 +258,9 @@
         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
     begin
         if Rec.FieldActive("Missing SII Entries") then
-            "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount;
+            "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount();
         if Rec.FieldActive("Days Since Last SII Check") then
-            "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck;
+            "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck();
     end;
 }
 

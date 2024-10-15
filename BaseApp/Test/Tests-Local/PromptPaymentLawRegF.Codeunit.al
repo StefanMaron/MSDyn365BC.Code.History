@@ -72,7 +72,7 @@ codeunit 147300 "Prompt Payment Law RegF"
           StrSubstNo(UnexpectedErrorOccurred, ValueNotGreaterThanZero, PaymentTermsPage.GetValidationError(1)));
 
         // Cleanup
-        PaymentTermsPage.Close;
+        PaymentTermsPage.Close();
     end;
 
     [Test]
@@ -112,7 +112,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         PaymentTermsPage."Max. No. of Days till Due Date".SetValue(0);
 
-        PaymentTermsPage.Close;
+        PaymentTermsPage.Close();
     end;
 
     [Test]
@@ -132,10 +132,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -154,10 +154,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -177,10 +177,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
 
@@ -205,10 +205,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnStartOfNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         PurchaseHeader.TestField("Due Date", 0D);
@@ -231,10 +231,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnEndOfNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         PurchaseHeader.TestField("Due Date", 0D);
@@ -257,10 +257,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(
@@ -283,13 +283,13 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
-        ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -308,10 +308,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(
@@ -334,10 +334,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(PurchaseHeader, 0D);
@@ -360,10 +360,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate('<-1D>', NonPaymentPeriod."From Date"));
@@ -387,10 +387,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(
@@ -415,10 +415,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(PurchaseHeader, 0D);
@@ -442,10 +442,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(PurchaseHeader, 0D);
@@ -467,10 +467,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Vendor, WorkDate);
+        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(PurchaseHeader, 0D);
@@ -494,10 +494,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms.Modify();
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateDueDatesOnPurchaseOrder(PurchaseHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -516,10 +516,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Vendor, WorkDate());
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnPurchaseOrder(PurchaseHeader, 0D);
@@ -543,12 +543,12 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms.Modify();
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate());
         PurchaseHeader."Prepmt. Payment Terms Code" := PaymentTerms.Code;
         PurchaseHeader.Modify();
 
         // Verify
-        PurchaseHeader.TestField("Prepayment Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        PurchaseHeader.TestField("Prepayment Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -568,10 +568,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
 
         // Exercise:
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        PurchaseHeader.TestField("Due Date", CalcDate(StrSubstNo('<%1D>', PaymentTerms."Max. No. of Days till Due Date"), WorkDate));
+        PurchaseHeader.TestField("Due Date", CalcDate(StrSubstNo('<%1D>', PaymentTerms."Max. No. of Days till Due Date"), WorkDate()));
     end;
 
     [Test]
@@ -586,7 +586,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate());
         CreatePurchaseLine(PurchaseHeader);
 
         // Exercise: Update Max No. of Days till Due Date such that it will be greater than the Due Date Calculation days
@@ -609,7 +609,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate());
         CreatePurchaseLine(PurchaseHeader);
 
         // Update Max No. of Days till Due Date such that it will be smaller than the Due Date Calculation days
@@ -621,7 +621,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         Assert.ExpectedError(
           StrSubstNo(
             PaymentTermsValidationError, PurchaseHeader.FieldCaption("Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -659,10 +659,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -681,10 +681,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -704,13 +704,13 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
-        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(StrSubstNo('<-CM + %1D>', PaymentDay."Day of the month" - 1), WorkDate));
+        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(StrSubstNo('<-CM + %1D>', PaymentDay."Day of the month" - 1), WorkDate()));
     end;
 
     [Test]
@@ -730,10 +730,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnStartOfNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         SalesHeader.TestField("Due Date", 0D);
@@ -756,10 +756,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnEndOfNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         SalesHeader.TestField("Due Date", 0D);
@@ -782,10 +782,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(
@@ -807,13 +807,13 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
-        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -831,10 +831,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(
@@ -856,10 +856,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(SalesHeader, 0D);
@@ -881,10 +881,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate('<-1D>', NonPaymentPeriod."From Date"));
@@ -907,10 +907,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(
@@ -934,10 +934,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(SalesHeader, 0D);
@@ -960,10 +960,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(SalesHeader, 0D);
@@ -984,10 +984,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(SalesHeader, 0D);
@@ -1011,10 +1011,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms.Modify();
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateDueDatesOnSalesOrder(SalesHeader, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1033,10 +1033,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDatesOnSalesOrder(SalesHeader, 0D);
@@ -1061,12 +1061,12 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms.Modify();
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate());
         SalesHeader."Prepmt. Payment Terms Code" := PaymentTerms.Code;
         SalesHeader.Modify();
 
         // Verify
-        SalesHeader.TestField("Prepayment Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        SalesHeader.TestField("Prepayment Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1086,10 +1086,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
 
         // Exercise:
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        SalesHeader.TestField("Due Date", CalcDate(StrSubstNo('<%1D>', PaymentTerms."Max. No. of Days till Due Date"), WorkDate));
+        SalesHeader.TestField("Due Date", CalcDate(StrSubstNo('<%1D>', PaymentTerms."Max. No. of Days till Due Date"), WorkDate()));
     end;
 
     [Test]
@@ -1104,7 +1104,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate());
         CreateSalesLine(SalesHeader);
 
         // Exercise: Update Max No. of Days till Due Date such that it will be greater than the Due Date Calculation days
@@ -1127,7 +1127,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate());
         CreateSalesLine(SalesHeader);
 
         // Update Max No. of Days till Due Date such that it will be smaller than the Due Date Calculation days
@@ -1139,7 +1139,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         Assert.ExpectedError(
           StrSubstNo(
             PaymentTermsValidationError, SalesHeader.FieldCaption("Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -1219,7 +1219,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(
@@ -1247,7 +1247,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(
@@ -1273,13 +1273,13 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(GenJournalLine, PaymentTerms.Code, GenJournalLine."Document Type"::Invoice, '', NonPaymentPeriod.Code);
 
         // Verify:
-        GenJournalLine.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        GenJournalLine.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1296,7 +1296,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(GenJournalLine, PaymentTerms.Code, GenJournalLine."Document Type"::Invoice, PaymentDay.Code, '');
@@ -1320,7 +1320,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(GenJournalLine, PaymentTerms.Code, GenJournalLine."Document Type"::Invoice, PaymentDay.Code, '');
@@ -1345,7 +1345,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(GenJournalLine, PaymentTerms.Code, GenJournalLine."Document Type"::Invoice, '', NonPaymentPeriod.Code);
@@ -1370,7 +1370,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(
@@ -1397,7 +1397,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(
@@ -1423,7 +1423,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(
@@ -1447,7 +1447,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(GenJournalLine, PaymentTerms.Code, GenJournalLine."Document Type"::Invoice, '', NonPaymentPeriod.Code);
@@ -1476,7 +1476,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreateGenJournalLine(GenJournalLine, PaymentTerms.Code, GenJournalLine."Document Type"::Invoice, '', '');
 
         // Verify
-        GenJournalLine.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        GenJournalLine.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1494,7 +1494,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
         CreateGenJournalLine(
@@ -1549,7 +1549,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         Assert.ExpectedError(
           StrSubstNo(
             PaymentTermsValidationError, GenJournalLine.FieldCaption("Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -1632,10 +1632,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ServiceHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ServiceHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1655,10 +1655,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ServiceHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ServiceHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1679,13 +1679,13 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
-        ServiceHeader.TestField("Due Date", CalcDate(StrSubstNo('<-CM + %1D>', PaymentDay."Day of the month" - 1), WorkDate));
+        ServiceHeader.TestField("Due Date", CalcDate(StrSubstNo('<-CM + %1D>', PaymentDay."Day of the month" - 1), WorkDate()));
     end;
 
     [Test]
@@ -1705,10 +1705,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnStartOfNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField("Due Date", 0D);
@@ -1731,10 +1731,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnEndOfNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField("Due Date", 0D);
@@ -1757,10 +1757,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField(
@@ -1782,13 +1782,13 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
-        ServiceHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ServiceHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -1806,10 +1806,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField(
@@ -1831,10 +1831,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField("Due Date", 0D);
@@ -1856,10 +1856,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
         ServiceHeader.TestField("Due Date", CalcDate('<-1D>', NonPaymentPeriod."From Date"));
@@ -1882,10 +1882,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField(
@@ -1909,10 +1909,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField("Due Date", 0D);
@@ -1935,10 +1935,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField("Due Date", 0D);
@@ -1959,10 +1959,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify:
         ServiceHeader.TestField("Due Date", 0D);
@@ -1986,10 +1986,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms.Modify();
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
-        ServiceHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ServiceHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -2008,10 +2008,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ServiceHeader.TestField("Due Date", 0D);
@@ -2034,11 +2034,11 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
 
         // Exercise:
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
         ServiceHeader.TestField("Due Date",
-          CalcDate(StrSubstNo('<%1D>', PaymentTerms."Max. No. of Days till Due Date"), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', PaymentTerms."Max. No. of Days till Due Date"), WorkDate()));
     end;
 
     [Test]
@@ -2053,7 +2053,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate());
         CreateServiceOrderLine(ServiceHeader);
 
         // Exercise: Update Max No. of Days till Due Date such that it will be greater than the Due Date Calculation days
@@ -2076,7 +2076,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
-        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupServiceOrder(ServiceHeader, PaymentTerms.Code, '', '', WorkDate());
         CreateServiceOrderLine(ServiceHeader);
 
         // Update Max No. of Days till Due Date such that it will be smaller than the Due Date Calculation days
@@ -2088,7 +2088,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         Assert.ExpectedError(
           StrSubstNo(
             PaymentTermsValidationError, ServiceHeader.FieldCaption("Due Date"),
-            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption));
+            PaymentTerms.FieldCaption("Max. No. of Days till Due Date"), PaymentTerms.TableCaption()));
     end;
 
     [Test]
@@ -2108,11 +2108,11 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(
-          ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+          ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -2131,11 +2131,11 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(
-          ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+          ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -2155,14 +2155,14 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(
-          ServiceContractNo, CalcDate(StrSubstNo('<-CM + %1D>', PaymentDay."Day of the month" - 1), WorkDate));
+          ServiceContractNo, CalcDate(StrSubstNo('<-CM + %1D>', PaymentDay."Day of the month" - 1), WorkDate()));
     end;
 
     [Test]
@@ -2182,10 +2182,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnStartOfNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(ServiceContractNo, 0D);
@@ -2208,10 +2208,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnEndOfNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify:
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(ServiceContractNo, 0D);
@@ -2235,10 +2235,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
         GetServiceHeaderCreatedFromServiceContract(ServiceHeader, ServiceContractNo);
 
         // Verify
@@ -2262,14 +2262,14 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
-          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(
-          ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+          ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -2289,10 +2289,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', PaymentDay.Code, WorkDate());
         GetServiceHeaderCreatedFromServiceContract(ServiceHeader, ServiceContractNo);
 
         // Verify
@@ -2316,10 +2316,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', PaymentDay.Code, WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(ServiceContractNo, 0D);
@@ -2344,10 +2344,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
         GetServiceHeaderCreatedFromServiceContract(ServiceHeader, ServiceContractNo);
 
         // Verify
@@ -2373,10 +2373,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(ServiceContractNo, 0D);
@@ -2399,10 +2399,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(ServiceContractNo, 0D);
@@ -2424,10 +2424,10 @@ codeunit 147300 "Prompt Payment Law RegF"
         Initialize();
 
         // Setup:
-        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
+        CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(ServiceContractNo, 0D);
@@ -2452,11 +2452,11 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms.Modify();
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, '', WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(
-          ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+          ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -2475,10 +2475,10 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
-          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
+          PaymentTerms, NonPaymentPeriod, PaymentDay, PaymentTableNameOption::Customer, WorkDate());
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, NonPaymentPeriod.Code, PaymentDay.Code, WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(ServiceContractNo, 0D);
@@ -2501,11 +2501,11 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
 
         // Exercise:
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate());
 
         // Verify
         ValidateDueDateOnServiceInvoiceCreatedFromServiceContract(
-          ServiceContractNo, CalcDate(StrSubstNo('<%1D>', PaymentTerms."Max. No. of Days till Due Date"), WorkDate));
+          ServiceContractNo, CalcDate(StrSubstNo('<%1D>', PaymentTerms."Max. No. of Days till Due Date"), WorkDate()));
     end;
 
     [Test]
@@ -2522,18 +2522,18 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // Setup
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
-        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate);
+        ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate());
         OldCount := NumberOfServiceOrders;
 
         // Exercise
         Commit();
         InitializeContractServiceOrders(
-          CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate), SelectedAction::"Create Service Order", ServiceContractNo);
+          CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()), SelectedAction::"Create Service Order", ServiceContractNo);
         REPORT.Run(REPORT::"Create Contract Service Orders");
 
         // Verify
         Assert.AreEqual(OldCount + 1, NumberOfServiceOrders, StrSubstNo(ServiceOrderNotCreated, ServiceContractNo));
-        ValidateServiceOrderCreatedFromContract(ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        ValidateServiceOrderCreatedFromContract(ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
     [Test]
@@ -2549,7 +2549,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentDay.DeleteAll();
 
         // [GIVEN] Payment Day with Table Name = "Company Information", Code = Company Information "Payment Days Code" and "Day of the month" = 20
-        CreateCompanyPaymentDay(PaymentDay, LibraryRandom.RandIntInRange(15, 25), WorkDate);
+        CreateCompanyPaymentDay(PaymentDay, LibraryRandom.RandIntInRange(15, 25), WorkDate());
 
         // [GIVEN] Vendor "V" without Payment Day records but "Payment Days Code" is <non-blank>
         // [GIVEN] Purchase Header with "Buy-from Vendor No." = "V"
@@ -2575,7 +2575,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentDay.DeleteAll();
 
         // [GIVEN] Payment Day with Table Name = "Company Information", Code = Company Information "Payment Days Code" and "Day of the month" = 20
-        CreateCompanyPaymentDay(PaymentDay, LibraryRandom.RandIntInRange(15, 25), WorkDate);
+        CreateCompanyPaymentDay(PaymentDay, LibraryRandom.RandIntInRange(15, 25), WorkDate());
 
         // [GIVEN] Customer "C" without Payment Day records but "Payment Days Code" is <non-blank>
         // [GIVEN] Sales Header with "Sell-To Customer No." = "C"
@@ -2601,7 +2601,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentDay.DeleteAll();
 
         // [GIVEN] Payment Day with Table Name = "Company Information", Code = Company Information "Payment Days Code" and "Day of the month" = 20
-        CreateCompanyPaymentDay(PaymentDay, LibraryRandom.RandIntInRange(15, 25), WorkDate);
+        CreateCompanyPaymentDay(PaymentDay, LibraryRandom.RandIntInRange(15, 25), WorkDate());
 
         // [GIVEN] Vendor "V" with <blank> "Payment Days Code"
         // [GIVEN] Purchase Header with "Buy-from Vendor No." = "V"
@@ -2628,7 +2628,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentDay.DeleteAll();
 
         // [GIVEN] Payment Day with Table Name = "Company Information", Code = Company Information "Payment Days Code" and "Day of the month" = 20
-        CreateCompanyPaymentDay(PaymentDay, LibraryRandom.RandIntInRange(15, 25), WorkDate);
+        CreateCompanyPaymentDay(PaymentDay, LibraryRandom.RandIntInRange(15, 25), WorkDate());
 
         // [GIVEN] Customer "C" with <blank> "Payment Days Code"
         // [GIVEN] Sales Header with "Sell-To Customer No." = "C"
@@ -3177,7 +3177,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
     begin
         LibraryERM.CreatePaymentTerms(PaymentTerms);
-        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '', '', WorkDate());
         PurchaseHeader.Validate("Payment Method Code", PaymentMethodCode);
         PurchaseHeader.Modify(true);
         CreatePurchLineWithUnitCost(PurchaseHeader, LibraryRandom.RandDec(1000, 2)); // take random value for unit cost
@@ -3196,7 +3196,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
     begin
         LibraryERM.CreatePaymentTerms(PaymentTerms);
-        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate);
+        SetupSalesOrder(SalesHeader, PaymentTerms.Code, '', '', WorkDate());
         SalesHeader.Validate("Payment Method Code", PaymentMethodCode);
         SalesHeader.Modify(true);
         CreateSalesLineWithUnitPrice(SalesHeader, LibraryRandom.RandDec(1000, 2)); // take random value for unit price
@@ -3271,7 +3271,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.TestField("Payment Terms Code", PaymentTermsCode);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyPaymentTermsCodeOnCustLedgEntries(DocumentNo: Code[20]; PaymentTermsCode: Code[10])
@@ -3282,7 +3282,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.TestField("Payment Terms Code", PaymentTermsCode);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 }
 

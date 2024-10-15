@@ -1,7 +1,7 @@
 page 5056 "Contact Alt. Address Card"
 {
     Caption = 'Contact Alt. Address Card';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     PageType = Card;
     SourceTable = "Contact Alt. Address";
 
@@ -17,7 +17,7 @@ page 5056 "Contact Alt. Address Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the alternate address.';
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the company for the alternate address.';
@@ -27,12 +27,12 @@ page 5056 "Contact Alt. Address Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the alternate address of the contact.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -47,12 +47,12 @@ page 5056 "Contact Alt. Address Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the address.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number for the alternate address.';
@@ -61,23 +61,23 @@ page 5056 "Contact Alt. Address Card"
             group(Communication)
             {
                 Caption = 'Communication';
-                field("Phone No.2"; "Phone No.")
+                field("Phone No.2"; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number for the alternate address.';
                 }
-                field("Mobile Phone No."; "Mobile Phone No.")
+                field("Mobile Phone No."; Rec."Mobile Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the mobile phone number for the alternate address.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the fax number for the alternate address.';
                 }
-                field("Telex No."; "Telex No.")
+                field("Telex No."; Rec."Telex No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telex number for the alternate address.';
@@ -87,18 +87,18 @@ page 5056 "Contact Alt. Address Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the pager number for the contact at the alternate address.';
                 }
-                field("Telex Answer Back"; "Telex Answer Back")
+                field("Telex Answer Back"; Rec."Telex Answer Back")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telex answer back number for the alternate address.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the e-mail address for the contact at the alternate address.';
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the contact''s web site.';

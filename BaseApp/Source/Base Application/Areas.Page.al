@@ -1,6 +1,6 @@
 page 405 Areas
 {
-    ApplicationArea = BasicEU;
+    ApplicationArea = BasicEU, BasicNO;
     Caption = 'Areas';
     PageType = List;
     SourceTable = "Area";
@@ -15,17 +15,17 @@ page 405 Areas
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a code for the area.';
                 }
-                field("Post Code Prefix"; "Post Code Prefix")
+                field("Post Code Prefix"; Rec."Post Code Prefix")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the prefix.';
                 }
                 field(Text; Text)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a description of the area.';
                 }
             }
@@ -49,4 +49,3 @@ page 405 Areas
     {
     }
 }
-

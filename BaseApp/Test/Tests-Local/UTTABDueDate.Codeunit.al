@@ -299,8 +299,8 @@ codeunit 144042 "UT TAB Due Date"
     var
         NonPaymentPeriod: Record "Non-Payment Period";
     begin
-        Assert.IsTrue(NonPaymentPeriod.Get(TableName, Code, WorkDate), RecordMustBeExistMsg);  // WORKDATE as FromDate,
-        NonPaymentPeriod.TestField("To Date", WorkDate);
+        Assert.IsTrue(NonPaymentPeriod.Get(TableName, Code, WorkDate()), RecordMustBeExistMsg);  // WORKDATE as FromDate,
+        NonPaymentPeriod.TestField("To Date", WorkDate());
     end;
 
     local procedure VerifyPaymentDay(TableName: Option; CustomerNo: Code[20])
@@ -316,8 +316,8 @@ codeunit 144042 "UT TAB Due Date"
     [Scope('OnPrem')]
     procedure NonPaymentPeriodsModalPageHandler(var NonPaymentPeriods: TestPage "Non-Payment Periods")
     begin
-        NonPaymentPeriods."From Date".SetValue(WorkDate);
-        NonPaymentPeriods."To Date".SetValue(WorkDate);
+        NonPaymentPeriods."From Date".SetValue(WorkDate());
+        NonPaymentPeriods."To Date".SetValue(WorkDate());
         NonPaymentPeriods.OK.Invoke;
     end;
 

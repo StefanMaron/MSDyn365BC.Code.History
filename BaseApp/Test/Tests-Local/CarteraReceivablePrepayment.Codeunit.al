@@ -47,7 +47,7 @@ codeunit 147544 "Cartera Receivable Prepayment"
         CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
         CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
         CarteraDoc.SetRange("Account No.", Customer."No.");
-        Assert.IsTrue(CarteraDoc.IsEmpty, StrSubstNo(RecordFoundErr, CarteraDoc.TableCaption));
+        Assert.IsTrue(CarteraDoc.IsEmpty, StrSubstNo(RecordFoundErr, CarteraDoc.TableCaption()));
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 147544 "Cartera Receivable Prepayment"
 
         repeat
             PrepaymentAmount += SalesLine."Prepmt. Amt. Incl. VAT";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure FindSalesLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")

@@ -14,13 +14,13 @@ page 5961 "Service Email Queue"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the type of document linked to this entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -31,30 +31,30 @@ page 5961 "Service Email Queue"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the message status.';
                 }
-                field("Sending Date"; "Sending Date")
+                field("Sending Date"; Rec."Sending Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the date the message was sent.';
                 }
-                field("Sending Time"; "Sending Time")
+                field("Sending Time"; Rec."Sending Time")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the time the message was sent.';
                 }
-                field("To Address"; "To Address")
+                field("To Address"; Rec."To Address")
                 {
                     ApplicationArea = Service;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address of the recipient when an email is sent to notify customers that their service items are ready.';
                 }
-                field("Subject Line"; "Subject Line")
+                field("Subject Line"; Rec."Subject Line")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the email subject line.';
                 }
-                field("Body Line"; "Body Line")
+                field("Body Line"; Rec."Body Line")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the text of the body of the email.';
@@ -102,7 +102,7 @@ page 5961 "Service Email Queue"
 
                         Clear(ServMailMgt);
 
-                        ClearLastError;
+                        ClearLastError();
 
                         if ServMailMgt.Run(Rec) then begin
                             Status := Status::Processed;
@@ -147,8 +147,9 @@ page 5961 "Service Email Queue"
     }
 
     var
+        ServMailMgt: Codeunit ServMailManagement;
+
         Text000: Label 'This email  has already been sent.';
         Text001: Label 'There are no items to process.';
-        ServMailMgt: Codeunit ServMailManagement;
 }
 

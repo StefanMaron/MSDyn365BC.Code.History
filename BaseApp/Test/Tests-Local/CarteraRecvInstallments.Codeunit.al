@@ -356,7 +356,7 @@ codeunit 147531 "Cartera Recv. Installments"
         // No. of Installments must be 1 if Invoices to Cartera is True in Payment Method
         Assert.ExpectedError(
           StrSubstNo('%1 must be 1 if %2 is True in %3', PaymentTerms.FieldCaption("No. of Installments"),
-            PaymentMethod.FieldCaption("Invoices to Cartera"), PaymentMethod.TableCaption));
+            PaymentMethod.FieldCaption("Invoices to Cartera"), PaymentMethod.TableCaption()));
     end;
 
     [Test]
@@ -500,7 +500,7 @@ codeunit 147531 "Cartera Recv. Installments"
         ServiceLine.Modify(true);
 
         // [WHEN] Post Service Invoice
-        DocumentNo := LibraryUtility.GetNextNoFromNoSeries(ServiceHeader."Posting No. Series", WorkDate);
+        DocumentNo := LibraryUtility.GetNextNoFromNoSeries(ServiceHeader."Posting No. Series", WorkDate());
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [THEN] One Customer Ledger Entry with "Document Situation" = Cartera is created for amount = 0.01
@@ -715,7 +715,7 @@ codeunit 147531 "Cartera Recv. Installments"
     begin
         LibraryCarteraReceivables.FindCarteraDocs(CarteraDoc, AccountNo, DocumentNo);
         Assert.AreEqual(NoOfInstallments, CarteraDoc.Count,
-          StrSubstNo(CountMismatchErr, CarteraDoc.TableCaption, PaymentTerms.FieldCaption("No. of Installments")));
+          StrSubstNo(CountMismatchErr, CarteraDoc.TableCaption(), PaymentTerms.FieldCaption("No. of Installments")));
 
         CarteraDocsTotalAmount := 0;
 
@@ -725,7 +725,7 @@ codeunit 147531 "Cartera Recv. Installments"
             CarteraDoc.TestField(Description, StrSubstNo('%1 %2/%3', CarteraDoc."Document Type", DocumentNo, Index));
             Assert.IsTrue(((TotalAmount / NoOfInstallments) - CarteraDoc."Remaining Amount") < 1, '');
             CarteraDocsTotalAmount += CarteraDoc."Remaining Amount"
-        until CarteraDoc.Next = 0;
+        until CarteraDoc.Next() = 0;
 
         Assert.AreEqual(TotalAmount, CarteraDocsTotalAmount, 'There is a rounding error.');
     end;
@@ -740,7 +740,7 @@ codeunit 147531 "Cartera Recv. Installments"
         LibraryCarteraReceivables.FindOpenCarteraDocCustomerLedgerEntries(CustLedgerEntry,
           CustomerNo, DocumentNo, DocumentSituation, CustLedgerEntry."Document Type"::Bill);
         Assert.AreEqual(NoOfInstallments, CustLedgerEntry.Count,
-          StrSubstNo(CountMismatchErr, CustLedgerEntry.TableCaption, PaymentTerms.FieldCaption("No. of Installments")));
+          StrSubstNo(CountMismatchErr, CustLedgerEntry.TableCaption(), PaymentTerms.FieldCaption("No. of Installments")));
 
         CustomerLedgerTotalAmount := 0;
 
@@ -751,7 +751,7 @@ codeunit 147531 "Cartera Recv. Installments"
             CustLedgerEntry.CalcFields(Amount);
             Assert.IsTrue(((TotalAmount / NoOfInstallments) - CustLedgerEntry.Amount) < 1, '');
             CustomerLedgerTotalAmount += CustLedgerEntry.Amount;
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
 
         Assert.AreEqual(TotalAmount, CustomerLedgerTotalAmount, 'There is a rounding error.');
     end;
@@ -774,7 +774,7 @@ codeunit 147531 "Cartera Recv. Installments"
         TotalCreditAmount := GLEntry."Credit Amount";
         Assert.IsTrue(TotalCreditAmount > 0, 'Total Credit Amount has a wrong value');
 
-        GLEntry.Next;
+        GLEntry.Next();
         ExpectedVATAmount :=
           Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
 
@@ -782,7 +782,7 @@ codeunit 147531 "Cartera Recv. Installments"
         Assert.AreEqual(ExpectedVATAmount, GLEntry."Credit Amount", 'Wrong VAT Amount was set on the line');
         Assert.AreEqual(VATAccountNo, GLEntry."G/L Account No.", 'Wrong account is set on the line');
 
-        GLEntry.Next;
+        GLEntry.Next();
         TotalDebitAmount := GLEntry."Debit Amount";
         Assert.IsTrue(TotalDebitAmount > 0, 'Total Amount without VAT should be greater than zero');
         Assert.AreEqual(TotalAmount, TotalDebitAmount, 'Wrong total value was set on line');
@@ -799,16 +799,16 @@ codeunit 147531 "Cartera Recv. Installments"
         GLEntry.Find('-');
         Assert.AreEqual(InitialVATAmount, GLEntry."Credit Amount", 'Wrong amount for the Initial VAT Amount');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(CreditMemoVATAmount, GLEntry."Debit Amount", 'Wrong amount for Credit Memo Amount');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(CreditMemoVATAmount, GLEntry."Debit Amount", 'Wrong amount for Credit Memo Amount');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(CreditMemoVATAmount, GLEntry."Credit Amount", 'Wrong amount for Applied Credit Memo Amount');
 
-        Assert.IsTrue(GLEntry.Next = 0, 'Too many G/L entries were found after posting and applying a Credit Memo');
+        Assert.IsTrue(GLEntry.Next() = 0, 'Too many G/L entries were found after posting and applying a Credit Memo');
     end;
 
     local procedure ValidateUnrVATVendorEntriesAfterApplyingCreditMemo(VendorNo: Code[20]; CreditMemoVATAmount: Decimal; CreditMemoBaseAmount: Decimal)
@@ -822,22 +822,22 @@ codeunit 147531 "Cartera Recv. Installments"
         Assert.AreEqual(0, VATEntry.Base, 'Wrong value for the VAT entry for Base on Invoice');
         Assert.AreEqual(VATEntry."Document Type"::Invoice, VATEntry."Document Type", 'Wrong document type on the line');
 
-        VATEntry.Next;
+        VATEntry.Next();
         Assert.AreEqual(0, VATEntry.Amount, 'Wrong value for the VAT entry for Amount on Credit Memo');
         Assert.AreEqual(0, VATEntry.Base, 'Wrong value for the VAT entry for Base on Credit Memo');
         Assert.AreEqual(VATEntry."Document Type"::"Credit Memo", VATEntry."Document Type", 'Wrong document type on the line');
 
-        VATEntry.Next;
+        VATEntry.Next();
         Assert.AreEqual(-1 * CreditMemoVATAmount, VATEntry.Amount, 'Wrong value for the VAT entry for Amount on Credit Memo');
         Assert.AreEqual(-1 * CreditMemoBaseAmount, VATEntry.Base, 'Wrong value for the VAT entry for Base on Credit Memo');
         Assert.AreEqual(VATEntry."Document Type"::"Credit Memo", VATEntry."Document Type", 'Wrong document type on the line');
 
-        VATEntry.Next;
+        VATEntry.Next();
         Assert.AreEqual(CreditMemoVATAmount, VATEntry.Amount, 'Wrong value for the VAT entry for Amount on Credit Memo');
         Assert.AreEqual(CreditMemoBaseAmount, VATEntry.Base, 'Wrong value for the VAT entry for Base on Credit Memo');
         Assert.AreEqual(VATEntry."Document Type"::"Credit Memo", VATEntry."Document Type", 'Wrong document type on the line');
 
-        Assert.IsTrue(VATEntry.Next = 0, 'Too many VAT Entries were found after posting and applying a Credit Memo');
+        Assert.IsTrue(VATEntry.Next() = 0, 'Too many VAT Entries were found after posting and applying a Credit Memo');
     end;
 
     [ModalPageHandler]

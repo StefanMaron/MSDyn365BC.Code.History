@@ -17,7 +17,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
 
     procedure CreateEntrySummaryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; UseExpDates: Boolean)
     begin
-        InitEntrySummaryFEFO;
+        InitEntrySummaryFEFO();
         LastSummaryEntryNo := 0;
         StrictExpirationPosting := ItemTrackingMgt.StrictExpirationPosting(ItemNo);
 
@@ -42,7 +42,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
             exit;
 
         with ItemLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.");
             SetRange("Item No.", ItemNo);
             SetRange(Open, true);
@@ -131,7 +131,6 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     var
         WhseEntry: Record "Warehouse Entry";
         ItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpirationDate: Date;
         EntriesExist: Boolean;
     begin
@@ -182,7 +181,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         if IsHandled then
             exit;
 
-        if (not StrictExpirationPosting) or (ExpirationDate >= WorkDate) then begin
+        if (not StrictExpirationPosting) or (ExpirationDate >= WorkDate()) then begin
             TempGlobalEntrySummary.Init();
             TempGlobalEntrySummary."Entry No." := LastSummaryEntryNo + 1;
             TempGlobalEntrySummary.CopyTrackingFromItemTrackingSetup(ItemTrackingSetup);
@@ -216,7 +215,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         end;
 
         with TempGlobalEntrySummary do begin
-            Reset;
+            Reset();
             SetCurrentKey("Expiration Date");
 
             if not Find('-') then

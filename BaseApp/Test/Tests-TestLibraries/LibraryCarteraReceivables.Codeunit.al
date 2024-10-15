@@ -55,7 +55,7 @@ codeunit 143020 "Library - Cartera Receivables"
         BillGroup.Init();
         BillGroup.Validate("Bank Account No.", BankAccountNo);
         BillGroup.Validate("Dealing Type", DealingType);
-        BillGroup.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        BillGroup.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
         BillGroup.Insert(true);
         exit(BillGroup."No.");
     end;

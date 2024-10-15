@@ -18,7 +18,7 @@ page 5303 "Outlook Synch. Filters"
             group("Filter")
             {
                 Caption = 'Filter';
-                field(RecomposeFilterExpression; RecomposeFilterExpression)
+                field(RecomposeFilterExpression; RecomposeFilterExpression())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Filtering Expression';
@@ -29,12 +29,12 @@ page 5303 "Outlook Synch. Filters"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Field No."; "Field No.")
+                field("Field No."; Rec."Field No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the field with values that are used in the filter expression. A value in this field is appropriate if you specified the number of the table in the Table No. field.';
                 }
-                field(GetFieldCaption; GetFieldCaption)
+                field(GetFieldCaption; GetFieldCaption())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Name';
@@ -47,7 +47,7 @@ page 5303 "Outlook Synch. Filters"
 
                     trigger OnValidate()
                     begin
-                        CheckValueAvailability;
+                        CheckValueAvailability();
                     end;
                 }
                 field(Value; Value)
@@ -79,7 +79,7 @@ page 5303 "Outlook Synch. Filters"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CheckValueAvailability;
+        CheckValueAvailability();
     end;
 
     trigger OnInit()
@@ -93,7 +93,7 @@ page 5303 "Outlook Synch. Filters"
     begin
         ExistentFilterExpression := OSynchSetupMgt.ComposeFilterExpression("Record GUID", "Filter Type");
         if (StrLen(ExistentFilterExpression) +
-            StrLen(GetFieldCaption) +
+            StrLen(GetFieldCaption()) +
             StrLen(Format(Type)) +
             StrLen(Value)) > MaxStrLen(ExistentFilterExpression)
         then
@@ -104,7 +104,7 @@ page 5303 "Outlook Synch. Filters"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         SetTablesNo(TableLeftNo, TableRightNo);
-        CheckValueAvailability;
+        CheckValueAvailability();
     end;
 
     var

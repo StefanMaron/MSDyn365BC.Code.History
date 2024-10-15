@@ -329,7 +329,7 @@ codeunit 131305 "Library - ERM Country Data"
                 if GeneralPostingSetup."Invt. Accrual Acc. (Interim)" = '' then
                     GeneralPostingSetup.Validate("Invt. Accrual Acc. (Interim)", CreateGLAccount);
                 GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure UpdateForceDocBalGenJournalTemplate()
@@ -355,7 +355,7 @@ codeunit 131305 "Library - ERM Country Data"
                     CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
                     CustomerPostingGroup.Modify(true);
                 end;
-            until CustomerPostingGroup.Next = 0;
+            until CustomerPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateVendorPostingGroup()
@@ -372,7 +372,7 @@ codeunit 131305 "Library - ERM Country Data"
                     VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
                     VendorPostingGroup.Modify(true);
                 end;
-            until VendorPostingGroup.Next = 0;
+            until VendorPostingGroup.Next() = 0;
     end;
 
     local procedure CreateUnitOfMeasure("Code": Text)
@@ -396,7 +396,7 @@ codeunit 131305 "Library - ERM Country Data"
                 if InventoryPostingSetup."Inventory Account (Interim)" = '' then
                     InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount);
                 InventoryPostingSetup.Modify(true);
-            until InventoryPostingSetup.Next = 0;
+            until InventoryPostingSetup.Next() = 0;
     end;
 
     local procedure UpdateTransportMethod()
@@ -408,7 +408,7 @@ codeunit 131305 "Library - ERM Country Data"
             repeat
                 TransportMethod.Validate("Port/Airport", false);
                 TransportMethod.Modify(true);
-            until TransportMethod.Next = 0;
+            until TransportMethod.Next() = 0;
     end;
 }
 

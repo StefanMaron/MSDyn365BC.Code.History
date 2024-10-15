@@ -818,7 +818,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         CustNo :=
           Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         Library347Declaration.CreateItemWithZeroVAT(Item, CustNo);
-        Year := Date2DMY(WorkDate, 3);
+        Year := Date2DMY(WorkDate(), 3);
 
         // Setup: Post invoice for 1st quarter
         DateQuarter1 := DMY2Date(15, 2, Year);
@@ -880,7 +880,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         VendNo :=
           Library347Declaration.CreateVendorWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         Library347Declaration.CreateItemWithZeroVAT(Item, VendNo);
-        Year := Date2DMY(WorkDate, 3);
+        Year := Date2DMY(WorkDate(), 3);
 
         // Setup: Post invoice for 1st quarter
         DateQuarter1 := DMY2Date(15, 2, Year);
@@ -971,7 +971,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Check that the line has the right invoice amount
         Assert.AreEqual(PadInteger(InvoiceAmount * 100, 15), ReadTotalInvoicedAmount(Line), 'Wrong invoice amount');
         // Check that the line has the right cash amount
-        Assert.AreEqual(Format(Date2DMY(WorkDate, 3)), ReadYearForCashReceipt(Line), 'Record has wrong year for cash receipt');
+        Assert.AreEqual(Format(Date2DMY(WorkDate(), 3)), ReadYearForCashReceipt(Line), 'Record has wrong year for cash receipt');
         Assert.AreEqual(PadInteger(CashAmount * 100, 15), ReadAmountReceivedInCash(Line), 'Wrong cash amount');
     end;
 

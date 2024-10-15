@@ -14,7 +14,7 @@ report 5872 "BOM Cost Share Distribution"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTABLECAPTION_ItemFilter; TableCaption + ': ' + ItemFilters)
@@ -59,10 +59,10 @@ report 5872 "BOM Cost Share Distribution"
                 column(Indentation; TempBOMBuffer.Indentation)
                 {
                 }
-                column(DirectCost; TempBOMBuffer.CalcDirectCost)
+                column(DirectCost; TempBOMBuffer.CalcDirectCost())
                 {
                 }
-                column(IndirectCost; TempBOMBuffer.CalcIndirectCost)
+                column(IndirectCost; TempBOMBuffer.CalcIndirectCost())
                 {
                 }
                 column(MaterialCost; MaterialCost)
@@ -107,13 +107,13 @@ report 5872 "BOM Cost Share Distribution"
 
             trigger OnAfterGetRecord()
             begin
-                if not GenerateAvailTrend then
+                if not GenerateAvailTrend() then
                     CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
             begin
-                ItemFilters := GetFilters;
+                ItemFilters := GetFilters();
                 BOMBuffer.DeleteAll();
             end;
         }
@@ -215,8 +215,8 @@ report 5872 "BOM Cost Share Distribution"
         with TempBOMBuffer do begin
             if FindFirst() then
                 repeat
-                    IsKeepOnlyMfgOvhd := KeepOnlyMfgOvhdCost;
-                    IsTransferCostToMaterial := TransferCostToMaterial;
+                    IsKeepOnlyMfgOvhd := KeepOnlyMfgOvhdCost();
+                    IsTransferCostToMaterial := TransferCostToMaterial();
                     NewOvhdCost := 0;
                     NewMaterialCost := 0;
 
@@ -228,21 +228,21 @@ report 5872 "BOM Cost Share Distribution"
                     end;
 
                     if IsTransferCostToMaterial then begin
-                        NewMaterialCost := CalcDirectCost + CalcIndirectCost;
+                        NewMaterialCost := CalcDirectCost() + CalcIndirectCost();
                         RoundCosts(0);
                         AddMaterialCost(NewMaterialCost, NewMaterialCost);
                     end;
 
-                    if DeleteThisLine then
-                        Delete
+                    if DeleteThisLine() then
+                        Delete()
                     else
                         if IsKeepOnlyMfgOvhd or IsTransferCostToMaterial then begin
-                            CalcIndirectCost;
-                            CalcUnitCost;
-                            Modify;
+                            CalcIndirectCost();
+                            CalcUnitCost();
+                            Modify();
                         end;
                 until Next() = 0;
-            MergeLinesWithSameTypeAndNo;
+            MergeLinesWithSameTypeAndNo();
 
             exit(not IsEmpty);
         end;
@@ -298,20 +298,20 @@ report 5872 "BOM Cost Share Distribution"
                         CopyOfBOMBuffer.Copy(TempBOMBuffer);
                         SetRange(Type, Type);
                         SetRange("No.", "No.");
-                        while Next <> 0 do begin
+                        while Next() <> 0 do begin
                             CopyOfBOMBuffer.AddMaterialCost("Single-Level Material Cost", "Rolled-up Material Cost");
                             CopyOfBOMBuffer.AddCapacityCost("Single-Level Capacity Cost", "Rolled-up Capacity Cost");
                             CopyOfBOMBuffer.AddSubcontrdCost("Single-Level Subcontrd. Cost", "Rolled-up Subcontracted Cost");
                             CopyOfBOMBuffer.AddCapOvhdCost("Single-Level Cap. Ovhd Cost", "Rolled-up Capacity Ovhd. Cost");
                             CopyOfBOMBuffer.AddMfgOvhdCost("Single-Level Mfg. Ovhd Cost", "Rolled-up Mfg. Ovhd Cost");
                             CopyOfBOMBuffer.AddScrapCost("Single-Level Scrap Cost", "Rolled-up Scrap Cost");
-                            Delete;
+                            Delete();
                         end;
                         Copy(CopyOfBOMBuffer);
-                        CalcDirectCost;
-                        CalcIndirectCost;
-                        CalcUnitCost;
-                        Modify;
+                        CalcDirectCost();
+                        CalcIndirectCost();
+                        CalcUnitCost();
+                        Modify();
                     end;
                 until Next() = 0;
     end;
@@ -322,7 +322,7 @@ report 5872 "BOM Cost Share Distribution"
             BOMBuffer.SetCurrentKey("Total Cost");
             exit(BOMBuffer.Find('-'));
         end;
-        exit(BOMBuffer.Next <> 0);
+        exit(BOMBuffer.Next() <> 0);
     end;
 
     procedure InitializeRequest(NewShowLevelAs: Option; NewShowDetails: Boolean; NewShowCostShareAs: Option)

@@ -109,7 +109,7 @@ codeunit 143304 "Library - 347 Declaration"
         Item: Record Item;
     begin
         CreateItemWithZeroVAT(Item, CustNo);
-        exit(CreateAndPostSalesInvoiceForItem(CustNo, Item, Amount, WorkDate));
+        exit(CreateAndPostSalesInvoiceForItem(CustNo, Item, Amount, WorkDate()));
     end;
 
     [Scope('OnPrem')]
@@ -122,7 +122,7 @@ codeunit 143304 "Library - 347 Declaration"
         Item.Validate("VAT Prod. Posting Group", FindVATPostingSetupNoTaxableVAT);
         Item.Modify(true);
 
-        exit(CreateAndPostSalesInvoiceForItem(CustNo, Item, Amount, WorkDate));
+        exit(CreateAndPostSalesInvoiceForItem(CustNo, Item, Amount, WorkDate()));
     end;
 
     [Scope('OnPrem')]
@@ -131,7 +131,7 @@ codeunit 143304 "Library - 347 Declaration"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        exit(CreateAndPostSalesInvoiceForItem(CustomerNo, Item, 5000, WorkDate));
+        exit(CreateAndPostSalesInvoiceForItem(CustomerNo, Item, 5000, WorkDate()));
     end;
 
     [Scope('OnPrem')]
@@ -161,7 +161,7 @@ codeunit 143304 "Library - 347 Declaration"
         CreateItemWithZeroVAT(Item, CustNo);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
-        SalesHeader.Validate("Posting Date", WorkDate);
+        SalesHeader.Validate("Posting Date", WorkDate());
         SalesHeader.Validate("Ship-to Code", ShipToAddressCode);
         SalesHeader.Modify(true);
 
@@ -178,7 +178,7 @@ codeunit 143304 "Library - 347 Declaration"
         Item: Record Item;
     begin
         CreateItemWithZeroVAT(Item, VendorNo);
-        CreateAndPostPurchaseOrderForItem(VendorNo, Item, Amount, WorkDate);
+        CreateAndPostPurchaseOrderForItem(VendorNo, Item, Amount, WorkDate());
     end;
 
     [Scope('OnPrem')]
@@ -191,7 +191,7 @@ codeunit 143304 "Library - 347 Declaration"
         Item.Validate("VAT Prod. Posting Group", FindVATPostingSetupNoTaxableVAT);
         Item.Modify(true);
 
-        CreateAndPostPurchaseOrderForItem(VendorNo, Item, Amount, WorkDate);
+        CreateAndPostPurchaseOrderForItem(VendorNo, Item, Amount, WorkDate());
     end;
 
     [Scope('OnPrem')]
@@ -221,7 +221,7 @@ codeunit 143304 "Library - 347 Declaration"
         CreateItemWithZeroVAT(Item, VendNo);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo);
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Validate("Order Address Code", OrderAddressCode);
         PurchaseHeader.Modify(true);
 
@@ -419,7 +419,7 @@ codeunit 143304 "Library - 347 Declaration"
             VATRegistrationNo :=
               LibraryERM.GenerateVATRegistrationForFormat(CountryRegionCode, VATRegistrationNoFormat."Line No.");
             TempVATEntry.SetRange("VAT Registration No.", VATRegistrationNo);
-        until TempVATEntry.IsEmpty;
+        until TempVATEntry.IsEmpty();
         exit(VATRegistrationNo);
     end;
 
@@ -500,7 +500,7 @@ codeunit 143304 "Library - 347 Declaration"
         repeat
             VATRegistrationNo := LibraryERM.GenerateVATRegistrationNo(CountryCode);
             TempVATEntry.SetRange("VAT Registration No.", VATRegistrationNo);
-        until TempVATEntry.IsEmpty;
+        until TempVATEntry.IsEmpty();
         exit(VATRegistrationNo);
     end;
 
@@ -515,7 +515,7 @@ codeunit 143304 "Library - 347 Declaration"
                 TempVATEntry."Entry No." += 1;
                 TempVATEntry."VAT Registration No." := Customer."VAT Registration No.";
                 TempVATEntry.Insert();
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         Vendor.SetFilter("VAT Registration No.", '<>%1', '');
         if Vendor.FindSet() then
@@ -523,7 +523,7 @@ codeunit 143304 "Library - 347 Declaration"
                 TempVATEntry."Entry No." += 1;
                 TempVATEntry."VAT Registration No." := Vendor."VAT Registration No.";
                 TempVATEntry.Insert();
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -536,7 +536,7 @@ codeunit 143304 "Library - 347 Declaration"
         Test347DeclarationParameter.DeclarationNumber := DeclarationNumberTxt;
         Test347DeclarationParameter.MinAmount := 1;
         Test347DeclarationParameter.MinAmountCash := 1;
-        Test347DeclarationParameter.PostingDate := WorkDate;
+        Test347DeclarationParameter.PostingDate := WorkDate();
     end;
 
     [Scope('OnPrem')]
@@ -737,7 +737,7 @@ codeunit 143304 "Library - 347 Declaration"
         VATEntry.FindSet();
         repeat
             Amount += VATEntry.Base + VATEntry.Amount;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure FindVATRegistrationNo(CustOrVendNo: Code[20]; TruncateVATRegNoVATRegistrationNo: Boolean): Code[20]

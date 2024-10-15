@@ -17,7 +17,10 @@ codeunit 5348 "CRM Quote to Sales Quote"
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
+        LastSalesLineNo: Integer;
+
         UnableToFindOrderErr: Label 'Converting the sales quote to a sales order failed.';
         UnableToFindCrmOrderErr: Label 'Unable to find Dynamics 365 Sales order that corresponds to this quote.';
         UnableToFindOrderTelemetryErr: Label 'Converting the sales quote to a sales order failed.', Locked = true;
@@ -39,8 +42,6 @@ codeunit 5348 "CRM Quote to Sales Quote"
         AccountNotCustomerTelemetryMsg: Label '%1 The selected type of the %2 %3 account is not customer.', Locked = true;
         ResourceDoesNotExistErr: Label '%1 The resource %2 does not exist.', Comment = '%1= the text: "The sales quote cannot be created.", %2=product name';
         UnexpectedProductTypeErr: Label '%1 Unexpected value of product type code for product %2. The supported values are: sales inventory, services.', Comment = '%1= the text: "The sales quote cannot be created.", %2=product name';
-        CRMProductName: Codeunit "CRM Product Name";
-        LastSalesLineNo: Integer;
         MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - Dataverse service name,%2 - document type (order or quote), %3 - document number';
         MisingWriteInProductTelemetryMsg: Label 'The user is missing a default write-in product when creating a sales quote from a %1 quote.', Locked = true;
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
@@ -233,7 +234,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
             SalesHeader.Init();
             SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
             SalesHeader.Validate(Status, SalesHeader.Status::Open);
-            SalesHeader.InitInsert;
+            SalesHeader.InitInsert();
         end else
             if SalesHeader.Status = SalesHeader.Status::Released then
                 SalesHeader.Validate(Status, SalesHeader.Status::Open);
@@ -284,14 +285,14 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMQuotedetail.SetCurrentKey(SequenceNumber);
         CRMQuotedetail.Ascending(true);
 
-        if CRMQuotedetail.FindSet() then begin
+        if CRMQuotedetail.FindSet() then
             repeat
                 InitializeSalesQuoteLine(CRMQuotedetail, SalesHeader, SalesLine);
-                SalesLine.Insert();
+                SalesLine.Insert(true);
                 if SalesLine."Qty. to Assemble to Order" <> 0 then
                     SalesLine.Validate("Qty. to Assemble to Order");
-            until CRMQuotedetail.Next() = 0;
-        end else begin
+            until CRMQuotedetail.Next() = 0
+        else begin
             SalesLine.Validate("Document Type", SalesHeader."Document Type");
             SalesLine.Validate("Document No.", SalesHeader."No.");
         end;
@@ -348,21 +349,21 @@ codeunit 5348 "CRM Quote to Sales Quote"
         then
             SalesHeader.Validate(
               "Shipping Agent Code",
-              CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
+              CopyStr(CRMOptionMapping.GetRecordKeyValue(), 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
 
         if CRMOptionMapping.FindRecordID(
              DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMQuote.PaymentTermsCodeEnum.AsInteger())
         then
             SalesHeader.Validate(
               "Payment Terms Code",
-              CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Payment Terms Code")));
+              CopyStr(CRMOptionMapping.GetRecordKeyValue(), 1, MaxStrLen(SalesHeader."Payment Terms Code")));
 
         if CRMOptionMapping.FindRecordID(
              DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMQuote.FreightTermsCodeEnum.AsInteger())
         then
             SalesHeader.Validate(
               "Shipment Method Code",
-              CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipment Method Code")));
+              CopyStr(CRMOptionMapping.GetRecordKeyValue(), 1, MaxStrLen(SalesHeader."Shipment Method Code")));
     end;
 
     local procedure CopyBillToInformationIfNotEmpty(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header")
@@ -646,9 +647,9 @@ codeunit 5348 "CRM Quote to Sales Quote"
     var
         RecRef: RecordRef;
     begin
-        RecRef := RecordID.GetRecord;
+        RecRef := RecordID.GetRecord();
         RecRef.SetTable(SalesHeader);
-        SalesHeader.Find;
+        SalesHeader.Find();
     end;
 
     [IntegrationEvent(false, false)]

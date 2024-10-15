@@ -56,7 +56,7 @@ codeunit 139307 "Cust. App. Setup Wizard Tests"
 
         PAGE.Run(PAGE::"Cust. Approval WF Setup Wizard");
 
-        CustApprovalWFSetupWizard.Close;
+        CustApprovalWFSetupWizard.Close();
     end;
 
     [Test]

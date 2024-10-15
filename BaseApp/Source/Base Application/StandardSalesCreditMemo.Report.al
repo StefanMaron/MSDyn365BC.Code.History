@@ -1,4 +1,4 @@
-report 1307 "Standard Sales - Credit Memo"
+﻿report 1307 "Standard Sales - Credit Memo"
 {
     RDLCLayout = './StandardSalesCreditMemo.rdlc';
     WordLayout = './StandardSalesCreditMemo.docx';
@@ -87,37 +87,37 @@ report 1307 "Standard Sales - Credit Memo"
             column(CompanyLogoPosition; CompanyLogoPosition)
             {
             }
-            column(CompanyRegistrationNumber; CompanyInfo.GetRegistrationNumber)
+            column(CompanyRegistrationNumber; CompanyInfo.GetRegistrationNumber())
             {
             }
-            column(CompanyRegistrationNumber_Lbl; CompanyInfo.GetRegistrationNumberLbl)
+            column(CompanyRegistrationNumber_Lbl; CompanyInfo.GetRegistrationNumberLbl())
             {
             }
-            column(CompanyVATRegNo; CompanyInfo.GetVATRegistrationNumber)
+            column(CompanyVATRegNo; CompanyInfo.GetVATRegistrationNumber())
             {
             }
-            column(CompanyVATRegNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl)
+            column(CompanyVATRegNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl())
             {
             }
-            column(CompanyVATRegistrationNo; CompanyInfo.GetVATRegistrationNumber)
+            column(CompanyVATRegistrationNo; CompanyInfo.GetVATRegistrationNumber())
             {
             }
-            column(CompanyVATRegistrationNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl)
+            column(CompanyVATRegistrationNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl())
             {
             }
-            column(CompanyLegalOffice; CompanyInfo.GetLegalOffice)
+            column(CompanyLegalOffice; CompanyInfo.GetLegalOffice())
             {
             }
-            column(CompanyLegalOffice_Lbl; CompanyInfo.GetLegalOfficeLbl)
+            column(CompanyLegalOffice_Lbl; CompanyInfo.GetLegalOfficeLbl())
             {
             }
-            column(CompanyCustomGiro; CompanyInfo.GetCustomGiro)
+            column(CompanyCustomGiro; CompanyInfo.GetCustomGiro())
             {
             }
-            column(CompanyCustomGiro_Lbl; CompanyInfo.GetCustomGiroLbl)
+            column(CompanyCustomGiro_Lbl; CompanyInfo.GetCustomGiroLbl())
             {
             }
-            column(CompanyLegalStatement; GetLegalStatement)
+            column(CompanyLegalStatement; GetLegalStatement())
             {
             }
             column(CustomerAddress1; CustAddr[1])
@@ -252,7 +252,7 @@ report 1307 "Standard Sales - Credit Memo"
             column(PaymentMethodDescription_Lbl; PaymentMethodDescLbl)
             {
             }
-            column(DocumentCopyText; StrSubstNo(DocumentCaption, CopyText))
+            column(DocumentCopyText; StrSubstNo(DocumentCaption(), CopyText))
             {
             }
             column(BilltoCustumerNo; "Bill-to Customer No.")
@@ -309,22 +309,22 @@ report 1307 "Standard Sales - Credit Memo"
             column(SelltoCustomerNo_Lbl; FieldCaption("Sell-to Customer No."))
             {
             }
-            column(VATRegistrationNo; GetCustomerVATRegistrationNumber)
+            column(VATRegistrationNo; GetCustomerVATRegistrationNumber())
             {
             }
-            column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl)
+            column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber)
+            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber())
             {
             }
-            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl)
+            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl())
             {
             }
-            column(LegalEntityType; Cust.GetLegalEntityType)
+            column(LegalEntityType; Cust.GetLegalEntityType())
             {
             }
-            column(LegalEntityType_Lbl; Cust.GetLegalEntityTypeLbl)
+            column(LegalEntityType_Lbl; Cust.GetLegalEntityTypeLbl())
             {
             }
             column(Copy_Lbl; CopyLbl)
@@ -387,7 +387,7 @@ report 1307 "Standard Sales - Credit Memo"
             column(VATPercentage_Lbl; VATPercentageLbl)
             {
             }
-            column(VATClause_Lbl; VATClause.TableCaption)
+            column(VATClause_Lbl; VATClause.TableCaption())
             {
             }
             column(CorrectedInvoiceNo; "Corrected Invoice No.")
@@ -558,7 +558,7 @@ report 1307 "Standard Sales - Credit Memo"
 
                 trigger OnAfterGetRecord()
                 begin
-                    InitializeSalesShipmentLine;
+                    InitializeSalesShipmentLine();
                     if Type = Type::"G/L Account" then
                         "No." := '';
 
@@ -830,7 +830,7 @@ report 1307 "Standard Sales - Credit Memo"
 
                 trigger OnPreDataItem()
                 begin
-                    CreateReportTotalLines;
+                    CreateReportTotalLines();
                 end;
             }
             dataitem(LetterText; "Integer")
@@ -879,7 +879,7 @@ report 1307 "Standard Sales - Credit Memo"
                 column(TotalPaymentDiscountOnVAT; TotalPaymentDiscOnVAT)
                 {
                 }
-                column(TotalVATAmountText; VATAmountLine.VATAmountText)
+                column(TotalVATAmountText; VATAmountLine.VATAmountText())
                 {
                 }
                 column(TotalExcludingVATText; TotalExclVATText)
@@ -911,7 +911,7 @@ report 1307 "Standard Sales - Credit Memo"
                 Currency: Record Currency;
                 GeneralLedgerSetup: Record "General Ledger Setup";
             begin
-                if not IsReportInPreviewMode then
+                if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales Cr. Memo-Printed", Header);
 
                 CalcFields("Work Description");
@@ -1004,7 +1004,7 @@ report 1307 "Standard Sales - Credit Memo"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -1019,12 +1019,12 @@ report 1307 "Standard Sales - Credit Memo"
         CompanyInfo.SetAutoCalcFields(Picture);
         CompanyInfo.Get();
         SalesSetup.Get();
-        CompanyInfo.VerifyAndSetPaymentInfo;
+        CompanyInfo.VerifyAndSetPaymentInfo();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if Header.FindSet() then
                 repeat
                     if Header."Bill-to Contact No." <> '' then
@@ -1044,12 +1044,56 @@ report 1307 "Standard Sales - Credit Memo"
             Error(NoFilterSetErr);
 
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
 
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        PaymentMethod: Record "Payment Method";
+        CompanyBankAccount: Record "Bank Account";
+        DummyCompanyInfo: Record "Company Information";
+        CompanyInfo: Record "Company Information";
+        SalesSetup: Record "Sales & Receivables Setup";
+        Cust: Record Customer;
+        RespCenter: Record "Responsibility Center";
+        VATClause: Record "VAT Clause";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
+        Language: Codeunit Language;
+        FormatAddr: Codeunit "Format Address";
+        FormatDocument: Codeunit "Format Document";
+        SegManagement: Codeunit SegManagement;
+        AutoFormat: Codeunit "Auto Format";
+        WorkDescriptionInstream: InStream;
+        WorkDescriptionLine: Text;
+        CustAddr: array[8] of Text[100];
+        ShipToAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
+        MoreLines: Boolean;
+        CopyText: Text[30];
+        ShowWorkDescription: Boolean;
+        ShowShippingAddr: Boolean;
+        LogInteraction: Boolean;
+        TransHeaderAmount: Decimal;
+        [InDataSet]
+        LogInteractionEnable: Boolean;
+        CompanyLogoPosition: Integer;
+        CalculatedExchRate: Decimal;
+        ExchangeRateText: Text;
+        VATBaseLCY: Decimal;
+        VATAmountLCY: Decimal;
+        TotalVATBaseLCY: Decimal;
+        TotalVATAmountLCY: Decimal;
+        PrevLineAmount: Decimal;
+        AppliesToText: Text;
+        CurrCode: Text[10];
+        CurrSymbol: Text[10];
+        ECAmountLCY: Decimal;
+        TotalECAmountLCY: Decimal;
+        TotalECAmount: Decimal;
+
         SalesCreditMemoNoLbl: Label 'Sales - Credit Memo %1';
         SalespersonLbl: Label 'Sales person';
         CompanyInfoBankAccNoLbl: Label 'Account No.';
@@ -1076,7 +1120,6 @@ report 1307 "Standard Sales - Credit Memo"
         SubtotalLbl: Label 'Subtotal';
         TotalLbl: Label 'Total';
         VATAmtSpecificationLbl: Label 'VAT Amount Specification';
-        VATAmtLbl: Label 'VAT Amount';
         VATAmountLCYLbl: Label 'VAT Amount (LCY)';
         VATBaseLbl: Label 'VAT Base';
         VATBaseLCYLbl: Label 'VAT Base (LCY)';
@@ -1089,70 +1132,8 @@ report 1307 "Standard Sales - Credit Memo"
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
-        GLSetup: Record "General Ledger Setup";
-        ShipmentMethod: Record "Shipment Method";
-        PaymentTerms: Record "Payment Terms";
-        PaymentMethod: Record "Payment Method";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        CompanyBankAccount: Record "Bank Account";
-        DummyCompanyInfo: Record "Company Information";
-        CompanyInfo: Record "Company Information";
-        SalesSetup: Record "Sales & Receivables Setup";
-        Cust: Record Customer;
-        RespCenter: Record "Responsibility Center";
-        VATClause: Record "VAT Clause";
-        SellToContact: Record Contact;
-        BillToContact: Record Contact;
-        Language: Codeunit Language;
-        FormatAddr: Codeunit "Format Address";
-        FormatDocument: Codeunit "Format Document";
-        SegManagement: Codeunit SegManagement;
-        AutoFormat: Codeunit "Auto Format";
-        WorkDescriptionInstream: InStream;
-        WorkDescriptionLine: Text;
-        CustAddr: array[8] of Text[100];
-        ShipToAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
-        SalesPersonText: Text[30];
-        TotalText: Text[50];
-        TotalExclVATText: Text[50];
-        TotalInclVATText: Text[50];
-        LineDiscountPctText: Text;
-        FormattedVATPct: Text;
-        FormattedUnitPrice: Text;
-        FormattedQuantity: Text;
-        FormattedLineAmount: Text;
-        MoreLines: Boolean;
-        CopyText: Text[30];
-        ShowWorkDescription: Boolean;
-        ShowShippingAddr: Boolean;
-        LogInteraction: Boolean;
         SalesPrepCreditMemoNoLbl: Label 'Sales - Prepmt. Credit Memo %1';
-        TotalSubTotal: Decimal;
-        TotalAmount: Decimal;
-        TotalAmountInclVAT: Decimal;
-        TotalAmountVAT: Decimal;
-        TotalInvDiscAmount: Decimal;
-        TotalPaymentDiscOnVAT: Decimal;
-        TransHeaderAmount: Decimal;
-        [InDataSet]
-        LogInteractionEnable: Boolean;
-        DisplayAssemblyInformation: Boolean;
-        DisplayShipmentInformation: Boolean;
-        CompanyLogoPosition: Integer;
-        FirstLineHasBeenOutput: Boolean;
-        CalculatedExchRate: Decimal;
-        ExchangeRateText: Text;
         ExchangeRateTxt: Label 'Exchange rate: %1/%2', Comment = '%1 and %2 are both amounts.';
-        VATBaseLCY: Decimal;
-        VATAmountLCY: Decimal;
-        ECAmountLCY: Decimal;
-        TotalECAmountLCY: Decimal;
-        TotalVATBaseLCY: Decimal;
-        TotalVATAmountLCY: Decimal;
-        PrevLineAmount: Decimal;
-        AppliesToText: Text;
-        TotalECAmount: Decimal;
         AppliesToTextLbl: Label 'Applies to Document';
         NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
         GreetingLbl: Label 'Hello';
@@ -1160,8 +1141,31 @@ report 1307 "Standard Sales - Credit Memo"
         BodyLbl: Label 'Thank you for your business. Your credit memo is attached to this message.';
         VATClauseText: Text;
         ECAmountLCYLbl: Label 'EC Amount (LCY)';
-        CurrCode: Text[10];
-        CurrSymbol: Text[10];
+
+    protected var
+        PaymentTerms: Record "Payment Terms";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        ShipmentMethod: Record "Shipment Method";
+        FormattedLineAmount: Text;
+        FormattedQuantity: Text;
+        FormattedUnitPrice: Text;
+        FormattedVATPct: Text;
+        LineDiscountPctText: Text;
+        SalesPersonText: Text[50];
+        TotalText: Text[50];
+        TotalExclVATText: Text[50];
+        TotalInclVATText: Text[50];
+        TotalAmount: Decimal;
+        TotalAmountInclVAT: Decimal;
+        TotalAmountVAT: Decimal;
+        TotalSubTotal: Decimal;
+        TotalInvDiscAmount: Decimal;
+        TotalPaymentDiscOnVAT: Decimal;
+        DisplayAssemblyInformation: Boolean;
+        DisplayShipmentInformation: Boolean;
+        FirstLineHasBeenOutput: Boolean;
+
+        VATAmtLbl: Label 'VAT Amount';
 
     local procedure InitLogInteraction()
     begin
@@ -1207,7 +1211,7 @@ report 1307 "Standard Sales - Credit Memo"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure DocumentCaption(): Text[250]
@@ -1249,7 +1253,7 @@ report 1307 "Standard Sales - Credit Memo"
                 ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false);
         end;
         if TotalAmountVAT <> 0 then
-            ReportTotalsLine.Add(VATAmountLine.VATAmountText, TotalAmountVAT, false, true, false);
+            ReportTotalsLine.Add(VATAmountLine.VATAmountText(), TotalAmountVAT, false, true, false);
     end;
 
     local procedure FormatAddressFields(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -1287,7 +1291,7 @@ report 1307 "Standard Sales - Credit Memo"
     local procedure OnBeforeDocumentCaption(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var DocCaption: Text[250])
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatLineValues(SalesCrMemoLine: Record "Sales Cr.Memo Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
     begin

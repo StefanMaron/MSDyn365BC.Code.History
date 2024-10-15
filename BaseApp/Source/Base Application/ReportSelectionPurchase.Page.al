@@ -99,6 +99,7 @@ page 347 "Report Selection - Purchase"
 
     trigger OnOpenPage()
     begin
+        InitUsageFilter();
         SetUsageFilter(false);
     end;
 
@@ -153,8 +154,59 @@ page 347 "Report Selection - Purchase"
         CurrPage.Update();
     end;
 
+    local procedure InitUsageFilter()
+    var
+        NewReportUsage: Enum "Report Selection Usage";
+    begin
+        if Rec.GetFilter(Usage) <> '' then begin
+            if Evaluate(NewReportUsage, Rec.GetFilter(Usage)) then
+                case NewReportUsage of
+                    "Report Selection Usage"::"P.Quote":
+                        ReportUsage2 := "Report Selection Usage Purchase"::Quote;
+                    "Report Selection Usage"::"P.Blanket":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Blanket Order";
+                    "Report Selection Usage"::"P.Order":
+                        ReportUsage2 := "Report Selection Usage Purchase"::Order;
+                    "Report Selection Usage"::"P.Invoice":
+                        ReportUsage2 := "Report Selection Usage Purchase"::Invoice;
+                    "Report Selection Usage"::"P.Return":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Return Order";
+                    "Report Selection Usage"::"P.Cr.Memo":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Credit Memo";
+                    "Report Selection Usage"::"P.Receipt":
+                        ReportUsage2 := "Report Selection Usage Purchase"::Receipt;
+                    "Report Selection Usage"::"P.Ret.Shpt.":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Return Shipment";
+                    "Report Selection Usage"::"P.Test":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Purchase Document - Test";
+                    "Report Selection Usage"::"P.Test Prepmt.":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Prepayment Document - Test";
+                    "Report Selection Usage"::"P.Arch.Quote":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Archived Quote";
+                    "Report Selection Usage"::"P.Arch.Order":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Archived Order";
+                    "Report Selection Usage"::"P.Arch.Return":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Archived Return Order";
+                    "Report Selection Usage"::"S.Arch.Blanket":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Archived Blanket Order";
+                    "Report Selection Usage"::"V.Remittance":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Vendor Remittance";
+                    "Report Selection Usage"::"P.V.Remit.":
+                        ReportUsage2 := "Report Selection Usage Purchase"::"Vendor Remittance";
+                    else
+                        OnInitUsageFilterOnElseCase(NewReportUsage, ReportUsage2);
+                end;
+            Rec.SetRange(Usage);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Purchase")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Purchase")
     begin
     end;
 }

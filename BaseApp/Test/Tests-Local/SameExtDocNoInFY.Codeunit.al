@@ -71,10 +71,10 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
         VendNo := LibraryPurchase.CreateVendorNo;
-        PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
+        PostPurhInvWithExtDocNo(WorkDate(), VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.02.2018 and "External Doc. No." = "X"
-        asserterror PostPurhInvWithExtDocNo(CalcDate('<1M>', WorkDate), VendNo, ExtDocNo);
+        asserterror PostPurhInvWithExtDocNo(CalcDate('<1M>', WorkDate()), VendNo, ExtDocNo);
 
         // [THEN] Error "Purchase Invoice G001 already exists for this vendor"
         Assert.ExpectedError(StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
@@ -105,10 +105,10 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
         VendNo := LibraryPurchase.CreateVendorNo;
-        PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
+        PostPurhInvWithExtDocNo(WorkDate(), VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.01.2019 and "External Doc. No." = "X"
-        asserterror PostPurhInvWithExtDocNo(CalcDate('<1Y>', WorkDate), VendNo, ExtDocNo);
+        asserterror PostPurhInvWithExtDocNo(CalcDate('<1Y>', WorkDate()), VendNo, ExtDocNo);
 
         // [THEN] Error "Purchase Invoice G001 already exists for this vendor"
         Assert.ExpectedError(StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
@@ -139,10 +139,10 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
         VendNo := LibraryPurchase.CreateVendorNo;
-        PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
+        PostPurhInvWithExtDocNo(WorkDate(), VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.02.2018 and "External Doc. No." = "X"
-        asserterror PostPurhInvWithExtDocNo(CalcDate('<1M>', WorkDate), VendNo, ExtDocNo);
+        asserterror PostPurhInvWithExtDocNo(CalcDate('<1M>', WorkDate()), VendNo, ExtDocNo);
 
         // [THEN] Error "Purchase Invoice G001 already exists for this vendor"
         Assert.ExpectedError(StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
@@ -173,10 +173,10 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
         VendNo := LibraryPurchase.CreateVendorNo;
-        PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
+        PostPurhInvWithExtDocNo(WorkDate(), VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.01.2019 and "External Doc. No." = "X"
-        PostPurhInvWithExtDocNo(CalcDate('<1Y>', WorkDate), VendNo, ExtDocNo);
+        PostPurhInvWithExtDocNo(CalcDate('<1Y>', WorkDate()), VendNo, ExtDocNo);
 
         // [THEN] Two vendor ledger entries exists for same vendor with "External Doc. No" = "X"
         VerifyTwoVendLedgEntryWithSameExtDocNo(VendNo, UpperCase(ExtDocNo));
@@ -199,10 +199,10 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(true);
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        EntryNo := MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
-        MockVendorLedgerEntry(VendNo, CalcDate('<1Y>', WorkDate), ExtDocNo);
+        EntryNo := MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
+        MockVendorLedgerEntry(VendNo, CalcDate('<1Y>', WorkDate()), ExtDocNo);
         VendorMgt.SetFilterForExternalDocNo(
-          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CopyStr(ExtDocNo, 1, 35), VendNo, WorkDate);
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CopyStr(ExtDocNo, 1, 35), VendNo, WorkDate());
         Assert.RecordCount(VendorLedgerEntry, 1);
         VendorLedgerEntry.FindFirst();
         Assert.AreEqual(EntryNo, VendorLedgerEntry."Entry No.", 'Incorrect entry no.');
@@ -229,12 +229,12 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
+        MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextFY(GenJournalLine, VendNo, 1, ExtDocNo);
         Commit();
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "General Journal - Test" report against General Journal Line
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -267,12 +267,12 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
+        MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextFY(GenJournalLine, VendNo, 1, ExtDocNo);
         Commit();
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "General Journal - Test" report against General Journal Line
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -304,12 +304,12 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
+        MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextFY(GenJournalLine, VendNo, -1, ExtDocNo);
         Commit();
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "Vendor Pre-Payment Journal" report against General Journal Line
         RunVendorPrepaymentJnl(GenJournalLine);
@@ -341,12 +341,12 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
+        MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreateGenJnlLineInNextFY(GenJournalLine, VendNo, -1, ExtDocNo);
         Commit();
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
 
         // [WHEN] Run "Vendor Pre-Payment Journal" report against General Journal Line
         RunVendorPrepaymentJnl(GenJournalLine);
@@ -378,12 +378,12 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
+        MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Invoice with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextFY(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo, ExtDocNo, 0);
         Commit();
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Document - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Document - Test", true, false, PurchaseHeader);
@@ -418,12 +418,12 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
+        MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Invoice with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextFY(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo, ExtDocNo, 0);
         Commit();
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Document - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Document - Test", true, false, PurchaseHeader);
@@ -455,13 +455,13 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
+        MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Prepayment Order with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextFY(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, VendNo, ExtDocNo, LibraryRandom.RandDec(50, 2));
         Commit();
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Prepmt. Doc. - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test", true, false, PurchaseHeader);
@@ -496,13 +496,13 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
-        MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
+        MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo);
 
         // [GIVEN] Purchase Prepayment Order with "External Document No." = "X" and "Document Date" = 01.01.2020
         CreatePurchDocInNextFY(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, VendNo, ExtDocNo, LibraryRandom.RandDec(50, 2));
         Commit();
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
 
         // [WHEN] Run "Purchase Prepmt. Doc. - Test" report against Purchase Invoice
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test", true, false, PurchaseHeader);
@@ -588,7 +588,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, VendNo, Sign * LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Posting Date", CalcDate('<1Y>', WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
         GenJournalLine.Validate("External Document No.",
           CopyStr(ExtDocNo, 1, MaxStrLen(GenJournalLine."External Document No.")));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
@@ -601,7 +601,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendNo);
-        PurchaseHeader.Validate("Posting Date", CalcDate('<1Y>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
         PurchaseHeader.Validate("Vendor Invoice No.",
           CopyStr(ExtDocNo, 1, MaxStrLen(PurchaseHeader."Vendor Invoice No.")));
         PurchaseHeader.Validate("Prepayment %", PrepmtPct);

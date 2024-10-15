@@ -787,7 +787,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
           PurchasePrice * PurchaseLine.Quantity * (VATPostingSetup."EC %" / 100));
 
         PurchaseInvoice.Statistics.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -987,13 +987,13 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
 #if not CLEAN19
-        LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate, '', '', Item."Base Unit of Measure", 0);
+        LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", 0);
         PurchasePrice.Validate("Direct Unit Cost", UnitCost);
         PurchasePrice.Modify(true);
 #else
         LibraryPriceCalculation.CreatePurchPriceLine(
             PriceListLine, '', "Price Source Type"::Vendor, VendorNo, "Price Asset Type"::Item, Item."No.");
-        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Starting Date", WorkDate());
         PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
         PriceListLine.Validate("Direct Unit Cost", UnitCost);
         PriceListLine.Status := "Price Status"::Active;
@@ -1188,7 +1188,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.FILTER.SetFilter("No.", No);
         PurchaseInvoice.Statistics.Invoke;  // Opens PurchaseStatisticsModalPageHandler.
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure UpdatePurchaseLine(var PurchaseLine: Record "Purchase Line")
@@ -1209,7 +1209,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     begin
         with PurchaseHeader do begin
             Validate("Prepayment %", NewPrepaymentPct);
-            Modify;
+            Modify();
         end;
     end;
 

@@ -1,4 +1,4 @@
-report 5911 "Service - Invoice"
+﻿report 5911 "Service - Invoice"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceInvoice.rdlc';
@@ -33,7 +33,7 @@ report 5911 "Service - Invoice"
                     column(CompanyInfoPicture; CompanyInfo.Picture)
                     {
                     }
-                    column(ReportTitleCopyText; StrSubstNo(DocumentCaption, CopyText))
+                    column(ReportTitleCopyText; StrSubstNo(DocumentCaption(), CopyText))
                     {
                     }
                     column(CustAddr1; CustAddr[1])
@@ -218,7 +218,7 @@ report 5911 "Service - Invoice"
                         DataItemLink = "Document No." = FIELD("No.");
                         DataItemLinkReference = "Service Invoice Header";
                         DataItemTableView = SORTING("Document No.", "Service Item Line No.");
-                        column(GetCarteraInvoice; GetCarteraInvoice)
+                        column(GetCarteraInvoice; GetCarteraInvoice())
                         {
                         }
                         column(TypeInt; TypeInt)
@@ -320,7 +320,7 @@ report 5911 "Service - Invoice"
                             AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
+                        column(VATAmtLineVATAmtText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -364,10 +364,10 @@ report 5911 "Service - Invoice"
                         dataitem("Service Shipment Buffer"; "Integer")
                         {
                             DataItemTableView = SORTING(Number);
-                            column(ServShipmentBufferPostDate; Format(ServiceShipmentBuffer."Posting Date"))
+                            column(ServShipmentBufferPostDate; Format(TempServiceShipmentBuffer."Posting Date"))
                             {
                             }
-                            column(ServiceShipmentBufferQty; ServiceShipmentBuffer.Quantity)
+                            column(ServiceShipmentBufferQty; TempServiceShipmentBuffer.Quantity)
                             {
                                 DecimalPlaces = 0 : 5;
                             }
@@ -378,17 +378,17 @@ report 5911 "Service - Invoice"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then
-                                    ServiceShipmentBuffer.Find('-')
+                                    TempServiceShipmentBuffer.Find('-')
                                 else
-                                    ServiceShipmentBuffer.Next;
+                                    TempServiceShipmentBuffer.Next();
                             end;
 
                             trigger OnPreDataItem()
                             begin
-                                ServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
-                                ServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
+                                TempServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
+                                TempServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
 
-                                SetRange(Number, 1, ServiceShipmentBuffer.Count);
+                                SetRange(Number, 1, TempServiceShipmentBuffer.Count);
                             end;
                         }
                         dataitem(DimensionLoop2; "Integer")
@@ -429,7 +429,7 @@ report 5911 "Service - Invoice"
                             ServiceItemSerialNo := '';
 
                             if Quantity <> 0 then
-                                PostedShipmentDate := FindPostedShipmentDate;
+                                PostedShipmentDate := FindPostedShipmentDate();
 
                             IsServiceContractLine := (Type = Type::"G/L Account") and ("Service Item No." <> '') and ("Contract No." <> '');
                             if IsServiceContractLine then begin
@@ -440,42 +440,42 @@ report 5911 "Service - Invoice"
                                 ServiceItemSerialNo := "Service Item Serial No.";
 
                             if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
-                                VATAmountLine.Init();
-                                VATAmountLine."VAT Identifier" := "VAT Identifier";
-                                VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                                VATAmountLine."Tax Group Code" := "Tax Group Code";
-                                VATAmountLine."VAT %" := VATPostingSetup."VAT %";
-                                VATAmountLine."EC %" := VATPostingSetup."EC %";
-                                VATAmountLine."VAT Base" := Amount;
-                                VATAmountLine."Amount Including VAT" := "Amount Including VAT";
-                                VATAmountLine."Line Amount" := "Line Amount";
-                                VATAmountLine."Pmt. Discount Amount" := "Pmt. Discount Amount";
+                                TempVATAmountLine.Init();
+                                TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+                                TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                                TempVATAmountLine."Tax Group Code" := "Tax Group Code";
+                                TempVATAmountLine."VAT %" := VATPostingSetup."VAT %";
+                                TempVATAmountLine."EC %" := VATPostingSetup."EC %";
+                                TempVATAmountLine."VAT Base" := Amount;
+                                TempVATAmountLine."Amount Including VAT" := "Amount Including VAT";
+                                TempVATAmountLine."Line Amount" := "Line Amount";
+                                TempVATAmountLine."Pmt. Discount Amount" := "Pmt. Discount Amount";
                                 if "Allow Invoice Disc." then
-                                    VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
-                                VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                                VATAmountLine.SetCurrencyCode("Service Invoice Header"."Currency Code");
-                                VATAmountLine."VAT Difference" := "VAT Difference";
-                                VATAmountLine."EC Difference" := "EC Difference";
+                                    TempVATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
+                                TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
+                                TempVATAmountLine.SetCurrencyCode("Service Invoice Header"."Currency Code");
+                                TempVATAmountLine."VAT Difference" := "VAT Difference";
+                                TempVATAmountLine."EC Difference" := "EC Difference";
                                 if "Service Invoice Header"."Prices Including VAT" then
-                                    VATAmountLine."Prices Including VAT" := true;
-                                VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                                VATAmountLine.InsertLine;
+                                    TempVATAmountLine."Prices Including VAT" := true;
+                                TempVATAmountLine."VAT Clause Code" := "VAT Clause Code";
+                                TempVATAmountLine.InsertLine();
 
                                 TotalLineAmount += "Line Amount";
                                 TotalAmount += Amount;
                                 TotalAmountInclVAT += "Amount Including VAT";
                                 TotalInvDiscAmount += "Inv. Discount Amount";
                                 TotalGivenAmount += "Pmt. Discount Amount";
-                                TypeNO := VATAmountLine."VAT Calculation Type".AsInteger();
+                                TypeNO := TempVATAmountLine."VAT Calculation Type".AsInteger();
                                 TypeInt := Type.AsInteger();
                             end;
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll();
-                            ServiceShipmentBuffer.Reset();
-                            ServiceShipmentBuffer.DeleteAll();
+                            TempVATAmountLine.DeleteAll();
+                            TempServiceShipmentBuffer.Reset();
+                            TempServiceShipmentBuffer.DeleteAll();
                             FirstValueEntryNo := 0;
                             if not FindLastMeaningfulLine("Service Invoice Line") then
                                 CurrReport.Break();
@@ -491,44 +491,44 @@ report 5911 "Service - Invoice"
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmtLineVATECBase; VATAmountLine."VAT Base")
+                        column(VATAmtLineVATECBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(AmtInclVATAmount; VATAmountLine."VAT Amount")
+                        column(AmtInclVATAmount; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineLineAmt; VATAmountLine."Line Amount")
+                        column(VATAmtLineLineAmt; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscBaseAmt; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmtLineInvDiscBaseAmt; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscAmtPmtDiscAmt; VATAmountLine."Invoice Discount Amount" + VATAmountLine."Pmt. Discount Amount")
+                        column(VATAmtLineInvDiscAmtPmtDiscAmt; TempVATAmountLine."Invoice Discount Amount" + TempVATAmountLine."Pmt. Discount Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineECAmt; VATAmountLine."EC Amount")
+                        column(VATAmtLineECAmt; TempVATAmountLine."EC Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdenti; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdenti; TempVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATAmtLineEC; VATAmountLine."EC %")
+                        column(VATAmtLineEC; TempVATAmountLine."EC %")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
@@ -569,28 +569,28 @@ report 5911 "Service - Invoice"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
 
-                            if VATAmountLine."VAT Amount" = 0 then
-                                VATAmountLine."VAT %" := 0;
-                            if VATAmountLine."EC Amount" = 0 then
-                                VATAmountLine."EC %" := 0;
+                            if TempVATAmountLine."VAT Amount" = 0 then
+                                TempVATAmountLine."VAT %" := 0;
+                            if TempVATAmountLine."EC Amount" = 0 then
+                                TempVATAmountLine."EC %" := 0;
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            if VATAmountLine.GetTotalVATAmount = 0 then
+                            if TempVATAmountLine.GetTotalVATAmount() = 0 then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATClauseEntryCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATClauseVATIdentifier; VATAmountLine."VAT Identifier")
+                        column(VATClauseVATIdentifier; TempVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATClauseCode; VATAmountLine."VAT Clause Code")
+                        column(VATClauseCode; TempVATAmountLine."VAT Clause Code")
                         {
                         }
                         column(VATClauseDescription; VATClause.Description)
@@ -599,7 +599,7 @@ report 5911 "Service - Invoice"
                         column(VATClauseDescription2; VATClause."Description 2")
                         {
                         }
-                        column(VATClauseAmount; VATAmountLine."VAT Amount")
+                        column(VATClauseAmount; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
@@ -616,8 +616,8 @@ report 5911 "Service - Invoice"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
-                            if not VATClause.Get(VATAmountLine."VAT Clause Code") then
+                            TempVATAmountLine.GetLine(Number);
+                            if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
                                 CurrReport.Skip();
                             VATClause.GetDescription("Service Invoice Header");
                         end;
@@ -625,7 +625,7 @@ report 5911 "Service - Invoice"
                         trigger OnPreDataItem()
                         begin
                             Clear(VATClause);
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -700,7 +700,7 @@ report 5911 "Service - Invoice"
                                 CurrReport.Break();
                             if Number = 1 then begin
                                 if not TempLineFeeNoteOnReportHist.FindSet() then
-                                    CurrReport.Break
+                                    CurrReport.Break()
                             end else
                                 if TempLineFeeNoteOnReportHist.Next() = 0 then
                                     CurrReport.Break();
@@ -711,14 +711,14 @@ report 5911 "Service - Invoice"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Service Inv.-Printed", "Service Invoice Header");
                 end;
 
@@ -820,8 +820,6 @@ report 5911 "Service - Invoice"
     end;
 
     var
-        Text004: Label 'Service - Invoice %1', Comment = '%1 = Document No.';
-        Text005: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
@@ -832,11 +830,13 @@ report 5911 "Service - Invoice"
         ServiceSetup: Record "Service Mgt. Setup";
         Cust: Record Customer;
         DimSetEntry: Record "Dimension Set Entry";
-        VATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         VATClause: Record "VAT Clause";
         RespCenter: Record "Responsibility Center";
-        ServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
+        TempServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
         TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PaymentMethod: Record "Payment Method";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -845,7 +845,7 @@ report 5911 "Service - Invoice"
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         OrderNoText: Text[80];
-        SalesPersonText: Text[30];
+        SalesPersonText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         TotalText: Text[50];
@@ -869,16 +869,20 @@ report 5911 "Service - Invoice"
         DimTxtArr: array[500] of Text[50];
         IsServiceContractLine: Boolean;
         AccNo: Code[20];
-        VATPostingSetup: Record "VAT Posting Setup";
-        PaymentMethod: Record "Payment Method";
+        ServiceItemSerialNo: Code[50];
+        DisplayAdditionalFeeNote: Boolean;
         TotalGivenAmount: Decimal;
         TypeNO: Integer;
+
+        Text004: Label 'Service - Invoice %1', Comment = '%1 = Document No.';
+        Text005: Label 'Page %1';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
         CompanyInfoVATRegistrationNoCaptionLbl: Label 'VAT Reg. No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
         CompanyInfoBankNameCaptionLbl: Label 'Bank';
         CompanyInfoBankAccountNoCaptionLbl: Label 'Account No.';
+        AmountCaptionLbl: Label 'Amount';
         ServiceInvoiceHeaderDueDateCaptionLbl: Label 'Due Date';
         InvoiceNoCaptionLbl: Label 'Invoice No.';
         ServiceInvoiceHeaderPostingDateCaptionLbl: Label 'Posting Date';
@@ -886,12 +890,11 @@ report 5911 "Service - Invoice"
         DebitPaymentoFactoringCompanyCaptionLbl: Label 'The payment of this invoice, in order to be released from the debt, has to be paid to the Factoring Company.';
         UnitPriceCaptionLbl: Label 'Unit Price';
         ServiceInvoiceLineLineDiscountCaptionLbl: Label 'Disc. %';
-        AmountCaptionLbl: Label 'Amount';
         PostedShipmentDateCaptionLbl: Label 'Posted Shipment Date';
         InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
+        PaymentDiscountonVATCaptionLbl: Label 'Payment Discount on VAT';
         SubtotalCaptionLbl: Label 'Subtotal';
         PmtDiscGivenAmountCaptionLbl: Label 'Payment Discount Given Amount';
-        PaymentDiscountonVATCaptionLbl: Label 'Payment Discount on VAT';
         ShipmentCaptionLbl: Label 'Shipment';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         VATClausesCap: Label 'VAT Clause';
@@ -909,17 +912,15 @@ report 5911 "Service - Invoice"
         PaymentTermsDescriptionCaptionLbl: Label 'Payment Terms';
         PaymentMethodDescriptionCaptionLbl: Label 'Payment Method';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
-        ServiceItemSerialNo: Code[50];
         CACCaptionLbl: Text;
         CACTxt: Label 'Régimen especial del criterio de caja', Locked = true;
-        DisplayAdditionalFeeNote: Boolean;
         QuantityCaptionLbl: Label 'Qty';
         SerialNoCaptionLbl: Label 'Serial No.';
 
     procedure FindPostedShipmentDate(): Date
     var
         ServiceShipmentHeader: Record "Service Shipment Header";
-        ServiceShipmentBuffer2: Record "Service Shipment Buffer" temporary;
+        TempServiceShipmentBuffer2: Record "Service Shipment Buffer" temporary;
     begin
         NextEntryNo := 1;
         if "Service Invoice Line"."Shipment No." <> '' then
@@ -934,20 +935,20 @@ report 5911 "Service - Invoice"
 
         GenerateBufferFromShipment("Service Invoice Line");
 
-        ServiceShipmentBuffer.Reset();
-        ServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
-        ServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
-        if ServiceShipmentBuffer.Find('-') then begin
-            ServiceShipmentBuffer2 := ServiceShipmentBuffer;
-            if ServiceShipmentBuffer.Next() = 0 then begin
-                ServiceShipmentBuffer.Get(
-                  ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2."Entry No.");
-                ServiceShipmentBuffer.Delete();
-                exit(ServiceShipmentBuffer2."Posting Date");
+        TempServiceShipmentBuffer.Reset();
+        TempServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
+        TempServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
+        if TempServiceShipmentBuffer.Find('-') then begin
+            TempServiceShipmentBuffer2 := TempServiceShipmentBuffer;
+            if TempServiceShipmentBuffer.Next() = 0 then begin
+                TempServiceShipmentBuffer.Get(
+                  TempServiceShipmentBuffer2."Document No.", TempServiceShipmentBuffer2."Line No.", TempServiceShipmentBuffer2."Entry No.");
+                TempServiceShipmentBuffer.Delete();
+                exit(TempServiceShipmentBuffer2."Posting Date");
             end;
-            ServiceShipmentBuffer.CalcSums(Quantity);
-            if ServiceShipmentBuffer.Quantity <> "Service Invoice Line".Quantity then begin
-                ServiceShipmentBuffer.DeleteAll();
+            TempServiceShipmentBuffer.CalcSums(Quantity);
+            if TempServiceShipmentBuffer.Quantity <> "Service Invoice Line".Quantity then begin
+                TempServiceShipmentBuffer.DeleteAll();
                 exit("Service Invoice Header"."Posting Date");
             end;
         end else
@@ -1043,16 +1044,16 @@ report 5911 "Service - Invoice"
 
     procedure AddBufferEntry(ServiceInvoiceLine: Record "Service Invoice Line"; QtyOnShipment: Decimal; PostingDate: Date)
     begin
-        ServiceShipmentBuffer.SetRange("Document No.", ServiceInvoiceLine."Document No.");
-        ServiceShipmentBuffer.SetRange("Line No.", ServiceInvoiceLine."Line No.");
-        ServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
-        if ServiceShipmentBuffer.Find('-') then begin
-            ServiceShipmentBuffer.Quantity := ServiceShipmentBuffer.Quantity + QtyOnShipment;
-            ServiceShipmentBuffer.Modify();
+        TempServiceShipmentBuffer.SetRange("Document No.", ServiceInvoiceLine."Document No.");
+        TempServiceShipmentBuffer.SetRange("Line No.", ServiceInvoiceLine."Line No.");
+        TempServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
+        if TempServiceShipmentBuffer.Find('-') then begin
+            TempServiceShipmentBuffer.Quantity := TempServiceShipmentBuffer.Quantity + QtyOnShipment;
+            TempServiceShipmentBuffer.Modify();
             exit;
         end;
 
-        with ServiceShipmentBuffer do begin
+        with TempServiceShipmentBuffer do begin
             "Document No." := ServiceInvoiceLine."Document No.";
             "Line No." := ServiceInvoiceLine."Line No.";
             "Entry No." := NextEntryNo;
@@ -1060,7 +1061,7 @@ report 5911 "Service - Invoice"
             "No." := ServiceInvoiceLine."No.";
             Quantity := QtyOnShipment;
             "Posting Date" := PostingDate;
-            Insert;
+            Insert();
             NextEntryNo := NextEntryNo + 1
         end;
     end;
@@ -1160,14 +1161,14 @@ report 5911 "Service - Invoice"
 
         LineFeeNoteOnReportHist.SetRange("Cust. Ledger Entry No", CustLedgerEntry."Entry No.");
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
-        if LineFeeNoteOnReportHist.FindSet() then begin
+        if LineFeeNoteOnReportHist.FindSet() then
             repeat
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                 TempLineFeeNoteOnReportHist.Insert();
-            until LineFeeNoteOnReportHist.Next() = 0;
-        end else begin
-            LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
+            until LineFeeNoteOnReportHist.Next() = 0
+        else begin
+            LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode());
             if LineFeeNoteOnReportHist.FindSet() then
                 repeat
                     TempLineFeeNoteOnReportHist.Init();
@@ -1189,7 +1190,7 @@ report 5911 "Service - Invoice"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var ServiceInvoiceHeader: Record "Service Invoice Header")

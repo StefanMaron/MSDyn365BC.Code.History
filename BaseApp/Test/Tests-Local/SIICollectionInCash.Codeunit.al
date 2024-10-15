@@ -70,7 +70,7 @@ codeunit 147554 "SII Collection In Cash"
 
         // [THEN] SII Doc. Upload State for Collection In Cash is created with "Total Amount In Cash" = 150
         // [THEN] SII History for Collection In Cash is created
-        VerifySIIDocUploadStateAndHistory(DMY2Date(1, 1, Date2DMY(WorkDate, 3)), CustNo, EntryAmount, false);
+        VerifySIIDocUploadStateAndHistory(DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), CustNo, EntryAmount, false);
     end;
 
     [Test]
@@ -99,7 +99,7 @@ codeunit 147554 "SII Collection In Cash"
 
         // [THEN] SII Doc. Upload State for Collection In Cash is created with "Total Amount In Cash" = 150
         // [THEN] SII History for Collection In Cash is created
-        VerifySIIDocUploadStateAndHistory(DMY2Date(1, 1, Date2DMY(WorkDate, 3)), CustNo, EntryAmount, false);
+        VerifySIIDocUploadStateAndHistory(DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), CustNo, EntryAmount, false);
 
         // [THEN] SII Doc. Upload State has one record with Collection In Cash
         // [THEN] SII History has one records with Collection In Cash
@@ -137,7 +137,7 @@ codeunit 147554 "SII Collection In Cash"
 
         // [THEN] SII Doc. Upload State for Collection In Cash is created with "Total Amount In Cash" = 350 (first payment and second payment amount)
         // [THEN] SII History for Collection In Cash is created
-        VerifySIIDocUploadStateAndHistory(DMY2Date(1, 1, Date2DMY(WorkDate, 3)), CustNo, EntryAmount[1] + EntryAmount[2], false);
+        VerifySIIDocUploadStateAndHistory(DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), CustNo, EntryAmount[1] + EntryAmount[2], false);
 
         // [THEN] SII Doc. Upload State has one record with Collection In Cash
         // [THEN] SII History has two records with Collection In Cash
@@ -172,7 +172,7 @@ codeunit 147554 "SII Collection In Cash"
         PostPmtAppliedToSalesInvWithAmount(EntryAmount[2], CustNo, GLAccNo, VATPostingSetup);
 
         // [GIVEN] SII Doc. Upload State and SII History have state "Accepted"
-        PostingDate := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
+        PostingDate := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
         UpdateStateAcceptedOfSIIDocUploadStateAndHistory(PostingDate, CustNo);
         Commit();
 
@@ -214,7 +214,7 @@ codeunit 147554 "SII Collection In Cash"
         RunGenerateCollectionsInCash(GLAccNo, EntryAmount - 1);
 
         // [GIVEN] SII Doc. Upload State with Customer Data and SII History for Collection In Cash
-        GetSIIDocUploadState(SIIDocUploadState, DMY2Date(1, 1, Date2DMY(WorkDate, 3)), CustNo);
+        GetSIIDocUploadState(SIIDocUploadState, DMY2Date(1, 1, Date2DMY(WorkDate(), 3)), CustNo);
         GetSIIHistory(SIIHistory, SIIDocUploadState.Id);
 
         // [GIVEN] Changed customer's name to "PSG", "VAT Registration No." to "Z", "Country/Region Code" = "FR"
@@ -229,7 +229,7 @@ codeunit 147554 "SII Collection In Cash"
         SIIHistory.CreateNewRequest(SIIDocUploadState.Id, SIIHistory."Upload Type", 1, true, false);
 
         // [THEN] SII Doc. Upload State has "CV Name" = "PSG", "VAT Registration No." = "Z", "Country/Region Code" = "FR"
-        SIIDocUploadState.Find;
+        SIIDocUploadState.Find();
         SIIDocUploadState.TestField("CV Name", Customer.Name);
         SIIDocUploadState.TestField("VAT Registration No.", Customer."VAT Registration No.");
         SIIDocUploadState.TestField("Country/Region Code", Customer."Country/Region Code");
@@ -252,7 +252,7 @@ codeunit 147554 "SII Collection In Cash"
         Initialize(false);
 
         // [GIVEN] Collection in cash
-        PostingDate := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
+        PostingDate := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
         Library340347Declaration.CreateCustomer(Customer, '');
         TotalAmountInCash := LibraryRandom.RandDec(100, 2);
         MockCustLedgEntryWithCollectionInCash(CustLedgerEntry, PostingDate, Customer."No.", TotalAmountInCash);
@@ -264,7 +264,7 @@ codeunit 147554 "SII Collection In Cash"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathCollInCashBasicTok, 'sii:Cabecera/sii:TipoComunicacion', 'A0');
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathCollInCashTok, 'sii:PeriodoLiquidacion/sii:Ejercicio', Format(Date2DMY(WorkDate, 3)));
+          XMLDoc, XPathCollInCashTok, 'sii:PeriodoLiquidacion/sii:Ejercicio', Format(Date2DMY(WorkDate(), 3)));
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathCollInCashTok, 'sii:PeriodoLiquidacion/sii:Periodo', '0A');
         LibrarySII.VerifyOneNodeWithValueByXPath(
@@ -292,7 +292,7 @@ codeunit 147554 "SII Collection In Cash"
         Initialize(false);
 
         // [GIVEN] Collection in cash
-        PostingDate := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
+        PostingDate := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
         Library340347Declaration.CreateCustomer(Customer, '');
         TotalAmountInCash := LibraryRandom.RandDec(100, 2);
         MockCustLedgEntryWithCollectionInCash(CustLedgerEntry, PostingDate, Customer."No.", TotalAmountInCash);
@@ -307,7 +307,7 @@ codeunit 147554 "SII Collection In Cash"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathCollInCashBasicTok, 'sii:Cabecera/sii:TipoComunicacion', 'A1');
         LibrarySII.VerifyOneNodeWithValueByXPath(
-          XMLDoc, XPathCollInCashTok, 'sii:PeriodoLiquidacion/sii:Ejercicio', Format(Date2DMY(WorkDate, 3)));
+          XMLDoc, XPathCollInCashTok, 'sii:PeriodoLiquidacion/sii:Ejercicio', Format(Date2DMY(WorkDate(), 3)));
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathCollInCashTok, 'sii:PeriodoLiquidacion/sii:Periodo', '0A');
         LibrarySII.VerifyOneNodeWithValueByXPath(
@@ -385,11 +385,11 @@ codeunit 147554 "SII Collection In Cash"
     begin
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice,
-          Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, CustNo, WorkDate, EntryAmount));
+          Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, CustNo, WorkDate(), EntryAmount));
         CustLedgerEntry.CalcFields("Amount (LCY)");
         EntryAmount := CustLedgerEntry."Amount (LCY)";
         CreateAndPostPaymentJnlLineWithGLAcc(
-          GenJournalLine."Account Type"::Customer, CustNo, WorkDate, -EntryAmount, GLAccNo, GetSalesInvoiceNo(CustNo));
+          GenJournalLine."Account Type"::Customer, CustNo, WorkDate(), -EntryAmount, GLAccNo, GetSalesInvoiceNo(CustNo));
     end;
 
     local procedure MockCustLedgEntryWithCollectionInCash(var CustLedgerEntry: Record "Cust. Ledger Entry"; PostingDate: Date; CustNo: Code[20]; TotalAmount: Decimal)
@@ -415,7 +415,7 @@ codeunit 147554 "SII Collection In Cash"
     var
         Make347Declaration: Report "Make 347 Declaration";
     begin
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 3));
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 3));
         LibraryVariableStorage.Enqueue(MinAmountCash);
         LibraryVariableStorage.Enqueue(CashGLAccNo);
         Make347Declaration.SetCollectionInCashMode(true);

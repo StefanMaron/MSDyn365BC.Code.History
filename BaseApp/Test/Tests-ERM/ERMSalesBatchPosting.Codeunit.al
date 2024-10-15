@@ -25,7 +25,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
-        BatchCompletedMsg: Label 'All the documents were processed.';
+        BatchCompletedMsg: Label 'All of your selections were processed.';
         InterCompanyZipFileNamePatternTok: Label 'Sales IC Batch - %1.zip';
         GLInterCompanyZipFileNamePatternTok: Label 'General Journal IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
         NotificationMsg: Label 'An error or warning occured during operation Batch processing of Sales Header records.';
@@ -74,11 +74,11 @@ codeunit 134391 "ERM Sales Batch Posting"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, false);
 
         // Batch Post Sales Invoice.
-        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", CalcDate('<1D>', WorkDate), false);
+        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", CalcDate('<1D>', WorkDate()), false);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
         // Verify that Posted Sales Invoice Exists.
-        VerifyPostedSalesInvoice(SalesHeader."No.", CalcDate('<1D>', WorkDate), false);
+        VerifyPostedSalesInvoice(SalesHeader."No.", CalcDate('<1D>', WorkDate()), false);
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -213,11 +213,11 @@ codeunit 134391 "ERM Sales Batch Posting"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
 
         // Batch Post Sales Invoice.
-        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", CalcDate('<1D>', WorkDate), false);
+        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", CalcDate('<1D>', WorkDate()), false);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
         // Verify that Posted Sales Credit Memo Exists.
-        VerifyPostedSalesCrMemo(SalesHeader."No.", CalcDate('<1D>', WorkDate), false);
+        VerifyPostedSalesCrMemo(SalesHeader."No.", CalcDate('<1D>', WorkDate()), false);
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -298,7 +298,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, false);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Create a sales invoice.
         CreateSalesDocument(SalesHeader2, SalesHeader."Document Type"::Invoice, false);
@@ -458,7 +458,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibrarySales.SetPostWithJobQueue(true);
 
         // [GIVEN] Sales setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
-        LibraryVariableStorageCounter.Clear;
+        LibraryVariableStorageCounter.Clear();
         LibraryWorkflow.DisableAllWorkflows;
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
@@ -474,7 +474,7 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         // [THEN] Two Job Queue Entries created and their ID stored in orders
         for Index := 1 to ArrayLen(SalesHeader) do begin
-            SalesHeader[Index].Find;
+            SalesHeader[Index].Find();
             SalesHeader[Index].TestField("Job Queue Entry ID");
         end;
 
@@ -508,7 +508,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibrarySales.SetPostWithJobQueue(true);
 
         // [GIVEN] Sales setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
-        LibraryVariableStorageCounter.Clear;
+        LibraryVariableStorageCounter.Clear();
         LibraryWorkflow.DisableAllWorkflows;
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
@@ -531,14 +531,14 @@ codeunit 134391 "ERM Sales Batch Posting"
 
             // Bug: 306600
             ErrorMessages.Source.AssertEquals(Format(SalesHeader[1].RecordId));
-            ErrorMessages.Next;
+            ErrorMessages.Next();
             ErrorMessages.Source.AssertEquals(Format(SalesHeader[2].RecordId));
-            ErrorMessages.Close;
+            ErrorMessages.Close();
         end;
 
         // [THEN] Job Queue Entries are not created.
         for Index := 1 to ArrayLen(SalesHeader) do begin
-            SalesHeader[Index].Find;
+            SalesHeader[Index].Find();
             SalesHeader[Index].TestField("Job Queue Entry ID", NullGUID);
         end;
 
@@ -567,11 +567,11 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchSessionID[1] := SessionId;
         BatchSessionID[2] := SessionId - 1;
 
-        PostingDate[1] := WorkDate - 1;
-        PostingDate[2] := WorkDate;
+        PostingDate[1] := WorkDate() - 1;
+        PostingDate[2] := WorkDate();
 
-        BatchID[1] := CreateGuid;
-        BatchID[2] := CreateGuid;
+        BatchID[1] := CreateGuid();
+        BatchID[2] := CreateGuid();
 
         // [GIVEN] Sales invoice "I" to be posted via batch
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, false);
@@ -766,11 +766,11 @@ codeunit 134391 "ERM Sales Batch Posting"
         CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, true);
         PostingDate[2] := SalesHeader[2]."Posting Date";
         LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
-        SalesHeader[2].SetRecFilter;
+        SalesHeader[2].SetRecFilter();
         RunBatchPostSales(SalesHeader[2]."Document Type", SalesHeader[2]."No.", PostingDate[2] + 2, true);
 
         // [GIVEN] Job Queue Entries created for Invoice 'A'. 
-        SalesHeader[1].Find;
+        SalesHeader[1].Find();
         JobQueueEntry.Get(SalesHeader[1]."Job Queue Entry ID");
 
         // [WHEN] Run Job Queue Entries for Invoice "A"

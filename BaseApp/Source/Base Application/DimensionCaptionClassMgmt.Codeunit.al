@@ -62,7 +62,7 @@ codeunit 343 "Dimension CaptionClass Mgmt"
         // a string added after the dimension name
 
         Resolved := false;
-        if not GetGLSetup then
+        if not GetGLSetup() then
             exit('');
 
         CommaPosition := StrPos(CaptionExpr, ',');

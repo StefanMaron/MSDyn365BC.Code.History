@@ -47,10 +47,10 @@ codeunit 143010 "Library - Cartera Payables"
         PostedPaymentOrder: Record "Posted Payment Order";
     begin
         PostedPaymentOrder.SetRange("No.", PaymentOrderNo);
-        Assert.IsTrue(PostedPaymentOrder.IsEmpty, StrSubstNo('%1 was found.', PostedPaymentOrder.TableCaption));
+        Assert.IsTrue(PostedPaymentOrder.IsEmpty, StrSubstNo('%1 was found.', PostedPaymentOrder.TableCaption()));
 
         ClosedPaymentOrder.SetRange("No.", PaymentOrderNo);
-        Assert.IsFalse(ClosedPaymentOrder.IsEmpty, StrSubstNo('%1 was not found.', ClosedPaymentOrder.TableCaption));
+        Assert.IsFalse(ClosedPaymentOrder.IsEmpty, StrSubstNo('%1 was not found.', ClosedPaymentOrder.TableCaption()));
     end;
 
     procedure CreateBankAccount(var BankAccount: Record "Bank Account"; CurrencyCode: Code[10])
@@ -401,7 +401,7 @@ codeunit 143010 "Library - Cartera Payables"
         TotalDebitAmount := GLEntry."Debit Amount";
         Assert.IsTrue(TotalDebitAmount > 0, 'Total Debit Amount has a wrong value');
 
-        GLEntry.Next;
+        GLEntry.Next();
         ExpectedVATAmount :=
           Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
 
@@ -409,7 +409,7 @@ codeunit 143010 "Library - Cartera Payables"
         Assert.AreEqual(ExpectedVATAmount, GLEntry."Debit Amount", 'Wrong VAT Amount was set on the line');
         Assert.AreEqual(VATAccountNo, GLEntry."G/L Account No.", 'Wrong account is set on the line');
 
-        GLEntry.Next;
+        GLEntry.Next();
         TotalCreditAmount := GLEntry."Credit Amount";
         Assert.IsTrue(TotalDebitAmount > 0, 'Total Amount without VAT should be greater than zero');
         Assert.AreEqual(TotalAmount, TotalCreditAmount, 'Wrong total value was set on line');
@@ -431,30 +431,30 @@ codeunit 143010 "Library - Cartera Payables"
         // Check total amount
         Assert.AreNearlyEqual(
           InitialAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong value for the inital amount line');
-        GLEntry.Next;
+        GLEntry.Next();
 
         Assert.AreNearlyEqual(
           InitialAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong value for the inital amount line');
-        GLEntry.Next;
+        GLEntry.Next();
 
         // Check Unrealized VAT amount
         Assert.AreNearlyEqual(
           ExpectedVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong total value was set on line');
         Assert.AreEqual(VATAccountNo, GLEntry."G/L Account No.", 'Wrong account is set on the line');
-        GLEntry.Next;
+        GLEntry.Next();
 
         Assert.AreNearlyEqual(
           ExpectedVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong VAT Amount was set on the line');
-        GLEntry.Next;
+        GLEntry.Next();
 
         // Check settled amount
         Assert.AreNearlyEqual(
           SettledAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong value for the settled amount line');
-        GLEntry.Next;
+        GLEntry.Next();
 
         Assert.AreNearlyEqual(
           SettledAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong value for the settled amount line');
-        GLEntry.Next;
+        GLEntry.Next();
     end;
 }
 

@@ -129,7 +129,8 @@ query 8889 "Sent Emails"
             if CurrentMessageId <> Message_Id then
                 exit;
 
-            if (Table_Id <> 0) then begin
+            // Intentionally disregard relations to the Users table as every user has access to it
+            if (Table_Id <> 0) and (Table_Id <> Database::User) then begin
                 RecordRef.Open(Table_Id);
                 if RecordRef.ReadPermission() then begin
                     RecordRef.Close();
@@ -165,7 +166,8 @@ query 8889 "Sent Emails"
                 exit;
             end;
 
-            if (Table_Id <> 0) then begin
+            // Intentionally disregard relations to the Users table as every user has access to it
+            if (Table_Id <> 0) and (Table_Id <> Database::User) then begin
                 HadRelatedRecord := true;
                 RecordRef.Open(Table_Id);
                 if not RecordRef.ReadPermission() then begin

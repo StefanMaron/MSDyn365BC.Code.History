@@ -160,7 +160,7 @@ table 9053 "Sales Cue"
         UserSetupMgt: Codeunit "User Setup Management";
         RespCenterCode: Code[10];
     begin
-        RespCenterCode := UserSetupMgt.GetSalesFilter;
+        RespCenterCode := UserSetupMgt.GetSalesFilter();
         if RespCenterCode <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center Filter", RespCenterCode);
@@ -194,11 +194,11 @@ table 9053 "Sales Cue"
         SalesLine.SetCurrentKey("Document Type", "Document No.", "Shipment Date");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.SetFilter("Shipment Date", '<%1&<>%2', WorkDate, 0D);
+        SalesLine.SetFilter("Shipment Date", '<%1&<>%2', WorkDate(), 0D);
         SalesLine.SetLoadFields("Document Type", "Document No.", "Shipment Date");
         if SalesLine.FindFirst() then
-            if WorkDate - SalesLine."Shipment Date" > MaxDelay then
-                MaxDelay := WorkDate - SalesLine."Shipment Date";
+            if WorkDate() - SalesLine."Shipment Date" > MaxDelay then
+                MaxDelay := WorkDate() - SalesLine."Shipment Date";
     end;
 
     procedure CountOrders(FieldNumber: Integer) Result: Integer
@@ -237,8 +237,8 @@ table 9053 "Sales Cue"
                     CountSalesOrders.SetRange(Late_Order_Shipping, true);
                 end;
         end;
-        CountSalesOrders.Open;
-        CountSalesOrders.Read;
+        CountSalesOrders.Open();
+        CountSalesOrders.Read();
         exit(CountSalesOrders.Count_Orders);
     end;
 

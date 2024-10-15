@@ -48,6 +48,10 @@
                 CheckAllowedDeferralPostingDates(0);
             end;
         }
+        field(7; "VAT Reporting Date"; Enum "VAT Reporting Date")
+        {
+            Caption = 'Default VAT Date';
+        }
         field(28; "Pmt. Disc. Excl. VAT"; Boolean)
         {
             Caption = 'Pmt. Disc. Excl. VAT';
@@ -115,14 +119,14 @@
                       "Unrealized VAT Type", '>=%1', VATPostingSetup."Unrealized VAT Type"::Percentage);
                     if VATPostingSetup.FindFirst() then
                         Error(
-                          Text000, VATPostingSetup.TableCaption,
+                          Text000, VATPostingSetup.TableCaption(),
                           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
                           VATPostingSetup.FieldCaption("Unrealized VAT Type"), VATPostingSetup."Unrealized VAT Type");
                     TaxJurisdiction.SetFilter(
                       "Unrealized VAT Type", '>=%1', TaxJurisdiction."Unrealized VAT Type"::Percentage);
                     if TaxJurisdiction.FindFirst() then
                         Error(
-                          Text001, TaxJurisdiction.TableCaption,
+                          Text001, TaxJurisdiction.TableCaption(),
                           TaxJurisdiction.Code, TaxJurisdiction.FieldCaption("Unrealized VAT Type"),
                           TaxJurisdiction."Unrealized VAT Type");
                 end;
@@ -145,13 +149,13 @@
                     VATPostingSetup.SetRange("Adjust for Payment Discount", true);
                     if VATPostingSetup.FindFirst() then
                         Error(
-                          Text002, VATPostingSetup.TableCaption,
+                          Text002, VATPostingSetup.TableCaption(),
                           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
                           VATPostingSetup.FieldCaption("Adjust for Payment Discount"));
                     TaxJurisdiction.SetRange("Adjust for Payment Discount", true);
                     if TaxJurisdiction.FindFirst() then
                         Error(
-                          Text003, TaxJurisdiction.TableCaption,
+                          Text003, TaxJurisdiction.TableCaption(),
                           TaxJurisdiction.Code, TaxJurisdiction.FieldCaption("Adjust for Payment Discount"));
                 end;
             end;
@@ -258,7 +262,7 @@
                 EnvironmentInformation: Codeunit "Environment Information";
             begin
                 if "Report Output Type" = "Report Output Type"::Print then
-                    if EnvironmentInformation.IsSaaS then
+                    if EnvironmentInformation.IsSaaS() then
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
@@ -304,18 +308,18 @@
                 then begin
                     AdjAddReportingCurr.SetAddCurr("Additional Reporting Currency");
                     AdjAddReportingCurr.RunModal();
-                    if not AdjAddReportingCurr.IsExecuted then
+                    if not AdjAddReportingCurr.IsExecuted() then
                         "Additional Reporting Currency" := xRec."Additional Reporting Currency";
                 end;
                 if ("Additional Reporting Currency" <> xRec."Additional Reporting Currency") and
-                   AdjAddReportingCurr.IsExecuted
+                   AdjAddReportingCurr.IsExecuted()
                 then
-                    DeleteIntrastatJnl;
+                    DeleteIntrastatJnl();
                 if ("Additional Reporting Currency" <> xRec."Additional Reporting Currency") and
                    ("Additional Reporting Currency" <> '') and
-                   AdjAddReportingCurr.IsExecuted
+                   AdjAddReportingCurr.IsExecuted()
                 then
-                    DeleteAnalysisView;
+                    DeleteAnalysisView();
             end;
         }
         field(69; "VAT Tolerance %"; Decimal)
@@ -367,7 +371,7 @@
 
                 CheckRoundingError(FieldCaption("Amount Rounding Precision"));
 
-                if HideDialog then
+                if HideDialog() then
                     Message(Text021);
             end;
         }
@@ -379,7 +383,7 @@
 
             trigger OnValidate()
             begin
-                if HideDialog then
+                if HideDialog() then
                     Message(Text022);
             end;
         }
@@ -579,23 +583,91 @@
         }
         field(110; "Acc. Sched. for Balance Sheet"; Code[10])
         {
-            Caption = 'Acc. Sched. for Balance Sheet';
+            Caption = 'Account Schedule for Balance Sheet';
             TableRelation = "Acc. Schedule Name";
+            ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
+            trigger OnValidate()
+            begin
+                Error(AccSchedObsoleteErr);
+            end;
         }
         field(111; "Acc. Sched. for Income Stmt."; Code[10])
         {
-            Caption = 'Acc. Sched. for Income Stmt.';
+            Caption = 'Account Schedule for Income Stmt.';
             TableRelation = "Acc. Schedule Name";
+            ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
+            trigger OnValidate()
+            begin
+                Error(AccSchedObsoleteErr);
+            end;
         }
         field(112; "Acc. Sched. for Cash Flow Stmt"; Code[10])
         {
-            Caption = 'Acc. Sched. for Cash Flow Stmt';
+            Caption = 'Account Schedule for Cash Flow Stmt';
             TableRelation = "Acc. Schedule Name";
+            ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
+            trigger OnValidate()
+            begin
+                Error(AccSchedObsoleteErr);
+            end;
         }
         field(113; "Acc. Sched. for Retained Earn."; Code[10])
         {
-            Caption = 'Acc. Sched. for Retained Earn.';
+            Caption = 'Account Schedule for Retained Earn.';
             TableRelation = "Acc. Schedule Name";
+            ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
+            trigger OnValidate()
+            begin
+                Error(AccSchedObsoleteErr);
+            end;
+        }
+        field(114; "Fin. Rep. for Balance Sheet"; Code[10])
+        {
+            Caption = 'Financial Report for Balance Sheet';
+            TableRelation = "Financial Report";
+        }
+        field(115; "Fin. Rep. for Income Stmt."; Code[10])
+        {
+            Caption = 'Financial Report for Income Stmt.';
+            TableRelation = "Financial Report";
+        }
+        field(116; "Fin. Rep. for Cash Flow Stmt"; Code[10])
+        {
+            Caption = 'Financial Report for Cash Flow Stmt';
+            TableRelation = "Financial Report";
+        }
+        field(117; "Fin. Rep. for Retained Earn."; Code[10])
+        {
+            Caption = 'Financial Report for Retained Earn.';
+            TableRelation = "Financial Report";
         }
         field(120; "Tax Invoice Renaming Threshold"; Decimal)
         {
@@ -625,14 +697,14 @@
                       "Unrealized VAT Type", '>=%1', VATPostingSetup."Unrealized VAT Type"::Percentage);
                     if VATPostingSetup.FindFirst() then
                         Error(
-                          Text000, VATPostingSetup.TableCaption,
+                          Text000, VATPostingSetup.TableCaption(),
                           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
                           VATPostingSetup.FieldCaption("Unrealized VAT Type"), VATPostingSetup."Unrealized VAT Type");
                     TaxJurisdiction.SetFilter(
                       "Unrealized VAT Type", '>=%1', TaxJurisdiction."Unrealized VAT Type"::Percentage);
                     if TaxJurisdiction.FindFirst() then
                         Error(
-                          Text001, TaxJurisdiction.TableCaption,
+                          Text001, TaxJurisdiction.TableCaption(),
                           TaxJurisdiction.Code, TaxJurisdiction.FieldCaption("Unrealized VAT Type"),
                           TaxJurisdiction."Unrealized VAT Type");
                 end;
@@ -640,15 +712,10 @@
         }
         field(152; "Use Legacy G/L Entry Locking"; Boolean)
         {
-#if CLEAN18
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
             Caption = 'Use Legacy G/L Entry Locking';
             ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
         }
         field(160; "Payroll Trans. Import Format"; Code[20])
         {
@@ -772,13 +839,13 @@
                     "Payment Discount Type"::"Full Amount":
                         begin
                             TestField("Discount Calculation", "Discount Calculation"::" ");
-                            CheckAdjustForPaymentDisc;
+                            CheckAdjustForPaymentDisc();
                         end;
                     "Payment Discount Type"::"Pmt. Disc. Excl. VAT":
                         begin
                             TestField("VAT Tolerance %", 0);
                             TestField("Discount Calculation", "Discount Calculation"::" ");
-                            CheckAdjustForPaymentDisc;
+                            CheckAdjustForPaymentDisc();
                         end;
                     "Payment Discount Type"::"Adjust for Payment Disc.":
                         begin
@@ -788,7 +855,7 @@
                     "Payment Discount Type"::"Calc. Pmt. Disc. on Lines":
                         begin
                             TestField("VAT Tolerance %", 0);
-                            CheckAdjustForPaymentDisc;
+                            CheckAdjustForPaymentDisc();
                         end;
                 end;
             end;
@@ -840,17 +907,6 @@
     }
 
     var
-        Text000: Label '%1 %2 %3 have %4 to %5.';
-        Text001: Label '%1 %2 have %3 to %4.';
-        Text002: Label '%1 %2 %3 use %4.';
-        Text003: Label '%1 %2 use %3.';
-        Text004: Label '%1 must be rounded to the nearest %2.';
-        Text016: Label 'Enter one number or two numbers separated by a colon. ';
-        Text017: Label 'The online Help for this field describes how you can fill in the field.';
-        Text018: Label 'You cannot change the contents of the %1 field because there are posted ledger entries.';
-        Text021: Label 'You must close the program and start again in order to activate the amount-rounding feature.';
-        Text022: Label 'You must close the program and start again in order to activate the unit-amount rounding feature.';
-        Text023: Label '%1\You cannot use the same dimension twice in the same setup.';
         Dim: Record Dimension;
         GLEntry: Record "G/L Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -867,10 +923,23 @@
         AdjAddReportingCurr: Report "Adjust Add. Reporting Currency";
         UserSetupManagement: Codeunit "User Setup Management";
         ErrorMessage: Boolean;
-        DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
-        ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         RecordHasBeenRead: Boolean;
 
+        Text000: Label '%1 %2 %3 have %4 to %5.';
+        Text001: Label '%1 %2 have %3 to %4.';
+        Text002: Label '%1 %2 %3 use %4.';
+        Text003: Label '%1 %2 use %3.';
+        Text004: Label '%1 must be rounded to the nearest %2.';
+        Text016: Label 'Enter one number or two numbers separated by a colon. ';
+        Text017: Label 'The online Help for this field describes how you can fill in the field.';
+        Text018: Label 'You cannot change the contents of the %1 field because there are posted ledger entries.';
+        Text021: Label 'You must close the program and start again in order to activate the amount-rounding feature.';
+        Text022: Label 'You must close the program and start again in order to activate the unit-amount rounding feature.';
+        Text023: Label '%1\You cannot use the same dimension twice in the same setup.';
+        DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
+        ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
+        AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
+    
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])
     var
         OK: Boolean;
@@ -941,10 +1010,26 @@
     begin
         if RecordHasBeenRead then
             exit;
-        Get;
+        Get();
         RecordHasBeenRead := true;
     end;
 
+    procedure UpdateVATDate(NewDate: Date; VATDateType: Enum "VAT Reporting Date"; var VATDate : Date) 
+    begin
+        if ("VAT Reporting Date" = VATDateType) then
+            VatDate := NewDate;
+    end;
+
+    procedure GetVATDate(PostingDate: Date; DocumentDate: Date): Date
+    begin
+        Get();
+        case "VAT Reporting Date" of 
+            Enum::"VAT Reporting Date"::"Posting Date": exit(PostingDate);
+            Enum::"VAT Reporting Date"::"Document Date": exit(DocumentDate);
+        end;
+        exit(PostingDate);
+    end;
+    
     procedure CheckRoundingError(NameOfField: Text[100])
     begin
         ErrorMessage := false;
@@ -1014,23 +1099,9 @@
 
     procedure JobQueueActive(): Boolean
     begin
-        Get;
+        Get();
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
-
-#if not CLEAN18
-    [Obsolete('Legacy G/L Locking is no longer supported.', '18.0')]
-    procedure OptimGLEntLockForMultiuserEnv(): Boolean
-    var
-        InventorySetup: Record "Inventory Setup";
-    begin
-        if InventorySetup.Get then
-            if InventorySetup."Automatic Cost Posting" then
-                exit(false);
-
-        exit(true);
-    end;
-#endif
 
     procedure FirstAllowedPostingDate() AllowedPostingDate: Date
     var
@@ -1069,7 +1140,7 @@
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         if Dim.CheckIfDimUsed(DimCode, ShortcutDimNo, '', '', 0) then
-            Error(Text023, Dim.GetCheckDimErr);
+            Error(Text023, Dim.GetCheckDimErr());
         if xDimCode <> '' then begin
             DimensionValue.SetRange("Dimension Code", xDimCode);
             DimensionValue.ModifyAll("Global Dimension No.", 0);
@@ -1082,7 +1153,7 @@
 
             DimensionSetEntry.UpdateGlobalDimensionNo(DimCode, ShortcutDimNo);
         end;
-        Modify;
+        Modify();
     end;
 
     local procedure HideDialog(): Boolean

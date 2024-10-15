@@ -1,7 +1,7 @@
 table 7002 "Sales Price"
 {
     Caption = 'Sales Price';
-#if not CLEAN19
+#if not CLEAN21
     LookupPageID = "Sales Prices";
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
@@ -19,7 +19,7 @@ table 7002 "Sales Price"
             NotBlank = true;
             TableRelation = Item;
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             var
                 IsHandled: Boolean;
@@ -41,14 +41,14 @@ table 7002 "Sales Price"
                     then
                         exit;
 
-                UpdateValuesFromItem;
+                UpdateValuesFromItem();
             end;
 #endif
         }
         field(2; "Sales Code"; Code[20])
         {
             Caption = 'Sales Code';
-#if not CLEAN19
+#if not CLEAN21
             TableRelation = IF ("Sales Type" = CONST("Customer Price Group")) "Customer Price Group"
             ELSE
             IF ("Sales Type" = CONST(Customer)) Customer
@@ -135,12 +135,12 @@ table 7002 "Sales Price"
         {
             Caption = 'Sales Type';
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             begin
                 if "Sales Type" <> xRec."Sales Type" then begin
                     Validate("Sales Code", '');
-                    UpdateValuesFromItem;
+                    UpdateValuesFromItem();
                 end;
             end;
 #endif
@@ -230,17 +230,22 @@ table 7002 "Sales Price"
     end;
 
     var
-#if not CLEAN19
-        Text001: Label '%1 must be blank.';
+#if not CLEAN21
         CustPriceGr: Record "Customer Price Group";
         Cust: Record Customer;
         Campaign: Record Campaign;
-        Item: Record Item;
+
+        Text001: Label '%1 must be blank.';
 #endif
         Text000: Label '%1 cannot be after %2';
         Text002: Label 'If Sales Type = %1, then you can only change Starting Date and Ending Date from the Campaign Card.';
 
-#if not CLEAN19
+#if not CLEAN21
+    protected var
+        Item: Record Item;
+#endif
+
+#if not CLEAN21
     local procedure UpdateValuesFromItem()
     begin
         if Item.Get("Item No.") then begin

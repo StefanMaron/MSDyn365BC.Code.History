@@ -26,7 +26,7 @@ page 7372 "Bin Creation Worksheet"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     BinCreateLine.LookupBinCreationName(CurrentJnlBatchName, CurrentLocationCode, Rec);
                     CurrPage.Update(false);
                 end;
@@ -34,7 +34,7 @@ page 7372 "Bin Creation Worksheet"
                 trigger OnValidate()
                 begin
                     BinCreateLine.CheckName(CurrentJnlBatchName, CurrentLocationCode, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             field(CurrentLocationCode; CurrentLocationCode)
@@ -49,13 +49,13 @@ page 7372 "Bin Creation Worksheet"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone where the bin on the worksheet will be located.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
@@ -65,49 +65,49 @@ page 7372 "Bin Creation Worksheet"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description for the bin that should be created.';
                 }
-                field("Bin Type Code"; "Bin Type Code")
+                field("Bin Type Code"; Rec."Bin Type Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin type or bin content that should be created.';
                     Visible = false;
                 }
-                field("Warehouse Class Code"; "Warehouse Class Code")
+                field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the warehouse class of the bin or bin content that should be created.';
                     Visible = false;
                 }
-                field("Block Movement"; "Block Movement")
+                field("Block Movement"; Rec."Block Movement")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how the movement of a particular item, or bin content, into or out of this bin, is blocked.';
                     Visible = false;
                 }
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the special equipment code of the bin or bin content that should be created.';
                     Visible = false;
                 }
-                field("Bin Ranking"; "Bin Ranking")
+                field("Bin Ranking"; Rec."Bin Ranking")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ranking of the bin or bin content that should be created.';
                     Visible = false;
                 }
-                field("Maximum Cubage"; "Maximum Cubage")
+                field("Maximum Cubage"; Rec."Maximum Cubage")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the maximum cubage of the bin that should be created.';
                     Visible = false;
                 }
-                field("Maximum Weight"; "Maximum Weight")
+                field("Maximum Weight"; Rec."Maximum Weight")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the maximum weight of the bin that should be created.';
                     Visible = false;
                 }
-                field("Cross-Dock Bin"; "Cross-Dock Bin")
+                field("Cross-Dock Bin"; Rec."Cross-Dock Bin")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies new cross-dock bins.';
@@ -144,9 +144,6 @@ page 7372 "Bin Creation Worksheet"
                     Caption = 'Calculate &Bins';
                     Ellipsis = true;
                     Image = SuggestBin;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Generate bin replenishment lines.';
 
                     trigger OnAction()
@@ -162,9 +159,6 @@ page 7372 "Bin Creation Worksheet"
                     ApplicationArea = Warehouse;
                     Caption = '&Create Bins';
                     Image = CreateBins;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Create the bins that you have defined in the worksheet.';
 
@@ -190,9 +184,6 @@ page 7372 "Bin Creation Worksheet"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -203,6 +194,23 @@ page 7372 "Bin Creation Worksheet"
                     BinCreateLine.SetRange(Type, BinCreateLine.Type::Bin);
                     REPORT.Run(REPORT::"Bin Creation Wksh. Report", true, false, BinCreateLine);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CalculateBins_Promoted; CalculateBins)
+                {
+                }
+                actionref("&Create Bins_Promoted"; "&Create Bins")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
             }
         }
     }
@@ -238,7 +246,7 @@ page 7372 "Bin Creation Worksheet"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         BinCreateLine.SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;

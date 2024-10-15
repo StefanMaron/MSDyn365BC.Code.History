@@ -71,7 +71,7 @@ table 19 "Cust. Invoice Disc."
                     CurrencyDate, CurrencyCode,
                     BaseAmount, CurrencyFactor));
                 if not Find('+') then
-                    Init
+                    Init()
                 else begin
                     CustInvDiscFound := true;
                     Currency.Get(CurrencyCode);
@@ -83,7 +83,7 @@ table 19 "Cust. Invoice Disc."
                         Currency."Amount Rounding Precision");
                 end;
             end else begin
-                Init;
+                Init();
             end
         else
             CustInvDiscFound := true;

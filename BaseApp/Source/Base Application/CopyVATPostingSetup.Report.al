@@ -13,7 +13,7 @@ report 85 "Copy - VAT Posting Setup"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                VATPostingSetup.Find;
+                VATPostingSetup.Find();
                 if VATSetup then begin
                     "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                     "VAT %" := VATPostingSetup."VAT %";
@@ -39,7 +39,7 @@ report 85 "Copy - VAT Posting Setup"
                 OnAfterCopyVATPostingSetup("VAT Posting Setup", VATPostingSetup, Sales, Purch, VATSetup);
 
                 if ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                    Modify;
+                    Modify();
             end;
 
             trigger OnPreDataItem()
@@ -85,7 +85,7 @@ report 85 "Copy - VAT Posting Setup"
                         trigger OnValidate()
                         begin
                             if Selection = Selection::"All fields" then
-                                AllfieldsSelectionOnValidate;
+                                AllfieldsSelectionOnValidate();
                         end;
                     }
                     field(VATetc; VATSetup)
@@ -145,6 +145,8 @@ report 85 "Copy - VAT Posting Setup"
 
     var
         Text000: Label 'Copy VAT Posting Setup?';
+
+    protected var
         UseVATPostingSetup: Record "VAT Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         VATSetup: Boolean;
@@ -166,7 +168,7 @@ report 85 "Copy - VAT Posting Setup"
 
     local procedure AllfieldsSelectionOnValidate()
     begin
-        AllfieldsSelectionOnPush;
+        AllfieldsSelectionOnPush();
     end;
 
     [IntegrationEvent(false, false)]

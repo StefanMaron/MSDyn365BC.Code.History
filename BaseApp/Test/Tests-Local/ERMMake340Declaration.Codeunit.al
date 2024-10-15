@@ -108,13 +108,13 @@ codeunit 144048 "ERM Make 340 Declaration"
         Initialize();
         CustomerNo := CreateCustomer;
         LibraryMake340Declaration.CreateOperationCode(OperationCode, OperationCodeCode);
-        CreateAndPostSalesInvoice(CustomerNo, WorkDate);  // WORKDATE - Posting Date.
+        CreateAndPostSalesInvoice(CustomerNo, WorkDate());  // WORKDATE - Posting Date.
         CustomerNoStartingPosition := 36;  // Hardcoded values for Known Posted Customer No - Starting Position in text file.
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
         LibraryVariableStorage.Enqueue(OperationCodeCode);  // Enqueue for - Declaration340LinesWithOperationCodePageHandler.
 
         // Exercise: Open handler - Make340DeclarationHandler and Declaration340LinesWithOperationCodePageHandler.
-        ExportFileName := RunMake340DeclarationReport(WorkDate);  // WORKDATE - Posting Date.
+        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WORKDATE - Posting Date.
 
         // Verify: Verify Posted Customer Number and Operation Code in Text File, Using Hardcoded values for Known Starting Position.
         VerifyValuesOnGeneratedTextFile(ExportFileName, StartingPostion, CustomerNoStartingPosition, ExpectedValue, CustomerNo);
@@ -139,7 +139,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         OperationCodeStartingPosition := 100;  // Hardcoded values for Known Operation Code - Starting Position in text file.
 
         // [WHEN] Open handler - Make340DeclarationHandler and Declaration340LinesPageHandler.
-        ExportFileName := RunMake340DeclarationReport(WorkDate);  // WORKDATE - Posting Date.
+        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WORKDATE - Posting Date.
 
         // [THEN] Verify Posted Document Number and Operation Code in Text File, Using Hardcoded values for Known Starting Position.
         VerifyValuesOnGeneratedTextFile(
@@ -155,7 +155,7 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // Setup.
         Initialize();
-        RunMake340DeclarationForMultiSalesInvoice(WorkDate);  // WORKDATE - Posting Date.
+        RunMake340DeclarationForMultiSalesInvoice(WorkDate());  // WORKDATE - Posting Date.
     end;
 
     [Test]
@@ -167,7 +167,7 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // Setup.
         Initialize();
-        RunMake340DeclarationForMultiSalesInvoice(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));  // Random - Posting Date more than WORKDATE.
+        RunMake340DeclarationForMultiSalesInvoice(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));  // Random - Posting Date more than WORKDATE.
     end;
 
     local procedure RunMake340DeclarationForMultiSalesInvoice(PostingDate: Date)
@@ -219,7 +219,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");  // Enqueue value for handler - Make340DeclarationHandler.
 
         // [WHEN] Open handler - Make340DeclarationHandler and Declaration340LinesPageHandler.
-        ExportFileName := RunMake340DeclarationReport(WorkDate);  // WORKDATE - Posting Date.
+        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WORKDATE - Posting Date.
 
         // [THEN] Verify Company Name and Vendor Number in Text File.
         VerifyValuesOnGeneratedTextFile(
@@ -245,15 +245,15 @@ codeunit 144048 "ERM Make 340 Declaration"
         Initialize();
         PrevNoSeries := SetupPurchaseJournalNoSeries(CreateNoSeries);
         VendorNo := CreateVendor;
-        CreateAndPostPurchaseJournal(VendorNo, CalcDate('<-1Y>', WorkDate));
-        Amount := CreateAndPostPurchaseJournal(VendorNo, WorkDate);
+        CreateAndPostPurchaseJournal(VendorNo, CalcDate('<-1Y>', WorkDate()));
+        Amount := CreateAndPostPurchaseJournal(VendorNo, WorkDate());
         AmountStartingPosition := 159;  // Hardcoded values for Known Amount - Starting Position in text file.
         VendorNumberStartingPosition := 36;  // Hardcoded values for Known Vendor Number - Starting Position in text file.
         LibraryVariableStorage.Enqueue(VendorNo);  // Enqueue value for handler - Make340DeclarationHandler.
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
 
         // [WHEN] Open handler - Make340DeclarationHandler and Declaration340LinesPageHandler.
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Verify Amount and Vendor No in Text File, Using Hardcoded values for Known Starting Position.
         VerifyValuesOnGeneratedTextFile(
@@ -294,20 +294,20 @@ codeunit 144048 "ERM Make 340 Declaration"
         InvoiceNo :=
           CreateAndPostPurchaseDocOnDate(
             PurchaseHeader."Document Type"::Invoice, VendorNo,
-            UnrealizedVATPostingSetup, CalcDate('<-CM>', WorkDate));
+            UnrealizedVATPostingSetup, CalcDate('<-CM>', WorkDate()));
         // [GIVEN] Post Invoice "InvN" with Normal VAT on date "D"+1d
         NormalInvoiceNo :=
           CreateAndPostPurchaseDocOnDate(
             PurchaseHeader."Document Type"::Invoice, VendorNo,
-            NormalVATPostingSetup, CalcDate('<-CM+1D>', WorkDate));
+            NormalVATPostingSetup, CalcDate('<-CM+1D>', WorkDate()));
         FindVendorLedgerEntry(VendorLedgerEntry, VendorNo, VendorLedgerEntry."Document Type"::Invoice, NormalInvoiceNo);
         // [GIVEN] Post Payment at the end of the month and apply to Invoice "InvU"
-        CreatePostApplyPurchasePayment(VendorNo, CalcDate('<CM>', WorkDate), InvoiceNo);
+        CreatePostApplyPurchasePayment(VendorNo, CalcDate('<CM>', WorkDate()), InvoiceNo);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(VendorNo);
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Amount and "Document No." of Invoice "InvN" exist in 340 Declaration on hardcoded 150 and 218 positions respectively
         VerifyValuesOnGeneratedTextFile(
@@ -344,18 +344,18 @@ codeunit 144048 "ERM Make 340 Declaration"
         CreateVATPostingSetup(NormalVATPostingSetup,
           VATBusinessPostingGroup.Code, NormalVATPostingSetup."Unrealized VAT Type"::" ", false);
         // [GIVEN] Post Invoice "InvU" with Unrealized VAT on date "D"
-        InvoiceNo := CreateAndPostSalesInvoiceWithVAT(CustomerNo, UnrealizedVATPostingSetup, CalcDate('<-CM>', WorkDate));
+        InvoiceNo := CreateAndPostSalesInvoiceWithVAT(CustomerNo, UnrealizedVATPostingSetup, CalcDate('<-CM>', WorkDate()));
         // [GIVEN] Post Invoice "InvN" with Normal VAT on date "D"+1d
         NormalInvoiceNo := CreateAndPostSalesInvoiceWithVAT(
-            CustomerNo, NormalVATPostingSetup, CalcDate('<-CM+1D>', WorkDate));
+            CustomerNo, NormalVATPostingSetup, CalcDate('<-CM+1D>', WorkDate()));
         FindCustomerLedgerEntry(CustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::Invoice, NormalInvoiceNo);
         // [GIVEN] Post Payment at the end of the month and apply to Invoice "InvU"
-        CreatePostApplySalesPayment(CustomerNo, CalcDate('<CM>', WorkDate), InvoiceNo);
+        CreatePostApplySalesPayment(CustomerNo, CalcDate('<CM>', WorkDate()), InvoiceNo);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(CustomerNo);
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Amount and "Document No." of Invoice "InvN" exist in 340 Declaration on hardcoded 150 and 218 positions respectively
         VerifyValuesOnGeneratedTextFile(
@@ -381,18 +381,18 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [GIVEN] Sales Order
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-          CreateCustomer, CalcDate('<1M>', WorkDate));
+          CreateCustomer, CalcDate('<1M>', WorkDate()));
         // [GIVEN] Partial Shipment in Work date + 1 month
         SalesLine.Validate(
           "Qty. to Ship", LibraryRandom.RandIntInRange(1, SalesLine.Quantity - 1));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         // [GIVEN] Ship remaining and Invoice at work date
-        SetSalesHeaderPostingDate(SalesHeader, WorkDate);
+        SetSalesHeaderPostingDate(SalesHeader, WorkDate());
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         // [WHEN] User runs report Exported 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
-        OperationDateText := FormatDate(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
+        OperationDateText := FormatDate(WorkDate());
         // [THEN] 'Operation Date' field value in exported field equals to the Date of earliest Shipment
         Assert.AreEqual(
           OperationDateText,
@@ -416,19 +416,19 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [GIVEN] Purchase Order
         CreatePurchDocument(
           PurchHeader, PurchLine, PurchHeader."Document Type"::Order,
-          CreateVendor, CalcDate('<1M>', WorkDate));
+          CreateVendor, CalcDate('<1M>', WorkDate()));
         // [GIVEN] Partial Receipt in Work date + 1 month
         PurchLine.Validate(
           "Qty. to Receive", LibraryRandom.RandIntInRange(1, PurchLine.Quantity - 1));
         PurchLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
         // [GIVEN] Receive remaining and Invoice at work date
-        SetPurchHeaderPostingDate(PurchHeader, WorkDate);
+        SetPurchHeaderPostingDate(PurchHeader, WorkDate());
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         LibraryVariableStorage.Enqueue(PurchHeader."Buy-from Vendor No.");
         // [WHEN] User runs report Exported 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
-        OperationDateText := FormatDate(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
+        OperationDateText := FormatDate(WorkDate());
         // [THEN] 'Operation Date' field value equals to the Date of earliest Receipt
         Assert.AreEqual(
           OperationDateText,
@@ -463,18 +463,18 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] Shipment is posted for "Item2" on 16-01-2016
-        SetSalesHeaderPostingDate(SalesHeader, WorkDate);
+        SetSalesHeaderPostingDate(SalesHeader, WorkDate());
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] Sales Invoice is posted on 16-01-2016 for "Item2"
-        SalesLine1.Find;
+        SalesLine1.Find();
         SalesLine1.Validate("Qty. to Invoice", 0);
         SalesLine1.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] User runs report Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
-        OperationDateText := FormatDate(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
+        OperationDateText := FormatDate(WorkDate());
 
         // [THEN] 'Operation Date' field value is equal to 16-01-2016
         Assert.AreEqual(
@@ -513,7 +513,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] Return Receipt is posted for "Item2" on 16-01-2016
-        SetSalesHeaderPostingDate(SalesHeader, WorkDate);
+        SetSalesHeaderPostingDate(SalesHeader, WorkDate());
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] Sales Credit Memo is posted on 16-01-2016 for "Item2"
@@ -528,8 +528,8 @@ codeunit 144048 "ERM Make 340 Declaration"
         Commit();
 
         // [WHEN] User runs report Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
-        OperationDateText := FormatDate(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
+        OperationDateText := FormatDate(WorkDate());
 
         // [THEN] 'Operation Date' field value is equal to 16-01-2016
         Assert.AreEqual(
@@ -567,19 +567,19 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Receipt is posted for "Item2" on 16-01-2016
-        SetPurchHeaderPostingDate(PurchaseHeader, WorkDate);
+        SetPurchHeaderPostingDate(PurchaseHeader, WorkDate());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Purchase Invoice is posted on 16-01-2016 for "Item2"
-        PurchaseLine1.Find;
+        PurchaseLine1.Find();
         PurchaseLine1.Validate("Qty. to Invoice", 0);
         PurchaseLine1.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");
 
         // [WHEN] User runs report Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
-        OperationDateText := FormatDate(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
+        OperationDateText := FormatDate(WorkDate());
 
         // [THEN] 'Operation Date' field value is equal to 16-01-2016
         Assert.AreEqual(
@@ -620,7 +620,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Shipment is posted for "Item2" on 16-01-2016
-        SetPurchHeaderPostingDate(PurchaseHeader, WorkDate);
+        SetPurchHeaderPostingDate(PurchaseHeader, WorkDate());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Purchase Credit Memo is posted on 16-01-2016 for "Item2"
@@ -637,8 +637,8 @@ codeunit 144048 "ERM Make 340 Declaration"
         Commit();
 
         // [WHEN] User runs report Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
-        OperationDateText := FormatDate(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
+        OperationDateText := FormatDate(WorkDate());
 
         // [THEN] 'Operation Date' field value is equal to 16-01-2016
         Assert.AreEqual(
@@ -676,19 +676,19 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [GIVEN] Create and Post Purchase Invoices X and Y
         InvoiceNoX :=
           CreateAndPostPurchaseDocOnDate(
-            PurchaseHeader."Document Type"::Invoice, VendorNo, UnrealizedVATPostingSetupX, CalcDate('<-CM>', WorkDate));
+            PurchaseHeader."Document Type"::Invoice, VendorNo, UnrealizedVATPostingSetupX, CalcDate('<-CM>', WorkDate()));
         InvoiceNoY :=
           CreateAndPostPurchaseDocOnDate(
-            PurchaseHeader."Document Type"::Invoice, VendorNo, UnrealizedVATPostingSetupY, CalcDate('<-CM+1D>', WorkDate));
+            PurchaseHeader."Document Type"::Invoice, VendorNo, UnrealizedVATPostingSetupY, CalcDate('<-CM+1D>', WorkDate()));
 
         // [GIVEN] Post Payment and apply to both invoices during posting
         CreatePostApplyPurchasePaymentToMultyInv(
-          VendorNo, CalcDate('<-CM+10D>', WorkDate), InvoiceNoX, InvoiceNoY, LibraryUtility.GenerateGUID());
+          VendorNo, CalcDate('<-CM+10D>', WorkDate()), InvoiceNoX, InvoiceNoY, LibraryUtility.GenerateGUID());
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(VendorNo);
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Posting Date and "Document No." exist for both Invoices in exported Payment Lines: 2 lines per Invoice, 1 per Payment
         VerifyLineCountForUnrealizedPurchasePaymentValues(InvoiceNoX, ExportFileName, 2, 1);
@@ -721,19 +721,19 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [GIVEN] Create and Post Purchase Invoices X and Y with the same VATPostingSetup
         InvoiceNoX :=
           CreateAndPostPurchaseDocOnDate(
-            PurchaseHeader."Document Type"::Invoice, VendorNo, UnrealizedVATPostingSetup, CalcDate('<-CM>', WorkDate));
+            PurchaseHeader."Document Type"::Invoice, VendorNo, UnrealizedVATPostingSetup, CalcDate('<-CM>', WorkDate()));
         InvoiceNoY :=
           CreateAndPostPurchaseDocOnDate(
-            PurchaseHeader."Document Type"::Invoice, VendorNo, UnrealizedVATPostingSetup, CalcDate('<-CM+1D>', WorkDate));
+            PurchaseHeader."Document Type"::Invoice, VendorNo, UnrealizedVATPostingSetup, CalcDate('<-CM+1D>', WorkDate()));
 
         // [GIVEN] Post Payment and apply to both invoices during posting
         CreatePostApplyPurchasePaymentToMultyInv(
-          VendorNo, CalcDate('<-CM+10D>', WorkDate), InvoiceNoX, InvoiceNoY, LibraryUtility.GenerateGUID());
+          VendorNo, CalcDate('<-CM+10D>', WorkDate()), InvoiceNoX, InvoiceNoY, LibraryUtility.GenerateGUID());
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(VendorNo);
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Amount and Payment Posting Date exist for each Invoice in 340 Declaration on hardcoded 150 and 100 positions respectively
         // [THEN] Deductible Amount exported for each Invoice in 340 Declaration on 336 position
@@ -759,7 +759,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [WHEN] Run Make 340 report
         LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No."); // Make340DeclarationHandler
         LibraryVariableStorageVerifyValues.Enqueue(TotalAmount);
-        RunMake340DeclarationReport(WorkDate);
+        RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Report generates one declaration line with amount Base = "X"
         // Verify in VerifyDeclaration340LinesMPH
@@ -782,7 +782,7 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [WHEN] Run Make 340 report
         LibraryVariableStorageVerifyValues.Enqueue(TotalAmount); // VerifyDeclaration340LinesMPH
-        RunMake340DeclarationReport(WorkDate);
+        RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Report generates one declaration line with amount Base = "X"
         // Verify in VerifyDeclaration340LinesMPH
@@ -839,18 +839,18 @@ codeunit 144048 "ERM Make 340 Declaration"
         Initialize();
         LibraryMake340Declaration.CreateVATPostingSetup(VATPostingSetup, 21, 5.2);
         VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
-        PostedDocNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::Invoice, VendorNo, VATPostingSetup, WorkDate);
+        PostedDocNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::Invoice, VendorNo, VATPostingSetup, WorkDate());
         FindVATEntry(VATEntry, VendorNo, VATEntry."Document Type"::Invoice, PostedDocNo);
 
         LibraryVariableStorage.Enqueue(VendorNo);
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
         LibraryVariableStorage.Enqueue(VATEntry."VAT %");
         LibraryVariableStorage.Enqueue(VATEntry.Base * VATEntry."VAT %" / 100);
         LibraryVariableStorage.Enqueue(VATEntry."EC %");
         LibraryVariableStorage.Enqueue(VATEntry.Base * VATEntry."EC %" / 100);
 
         // [WHEN] Run Make 340 Declaration
-        RunMake340DeclarationReport(WorkDate);
+        RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Generated 340 Declaration Line with VAT % = 5, VAT Amount = 10, EC % = 4, EC Amount = 8.
         // Verification done in Declaration340LinesVerifyVATECAmountPctHandler
@@ -893,7 +893,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");
 
         // [WHEN] Run Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Generated text file has value 1911 ( = 19.11, e.g. Total VAT Amount - EC VAT Amount) on position 146 - Header, 1911 on position 179 (Line)
         VerifyValuesOnGeneratedTextFile(ExportFileName, 146, 179, Format(1911), Format(1911));
@@ -936,7 +936,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
 
         // [WHEN] Run Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Generated text file has value 1911 (= 19.11, e.g. Total VAT Amount - EC VAT Amount) on position 146 - Header, 1911 on position 179 (Line)
         VerifyValuesOnGeneratedTextFile(ExportFileName, 146, 179, Format(1911), Format(1911));
@@ -962,10 +962,10 @@ codeunit 144048 "ERM Make 340 Declaration"
             CreateCountryWithVATRegNoFormat(true)));
 
         // [GIVEN] Sales invoice posted
-        CreateAndPostSalesInvoice(Customer."No.", WorkDate);
+        CreateAndPostSalesInvoice(Customer."No.", WorkDate());
 
         // [WHEN] Run Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] VAT Registration field part = country prefix + digital part of Customer."VAT Registration No."
         VerifyCounterpartyLineVATRegNo(
@@ -996,10 +996,10 @@ codeunit 144048 "ERM Make 340 Declaration"
             CreateCountryWithVATRegNoFormat(false)));
 
         // [GIVEN] Sales invoice posted
-        CreateAndPostSalesInvoice(Customer."No.", WorkDate);
+        CreateAndPostSalesInvoice(Customer."No.", WorkDate());
 
         // [WHEN] Run Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] VAT Registration field part = country prefix + digital part of Customer."VAT Registration No."
         VerifyCounterpartyLineVATRegNo(
@@ -1030,10 +1030,10 @@ codeunit 144048 "ERM Make 340 Declaration"
             CreateCountryWithVATRegNoFormat(true)));
 
         // [GIVEN] Purchase invoice posted
-        CreateAndPostPurchaseInvoice(Vendor."No.", WorkDate);
+        CreateAndPostPurchaseInvoice(Vendor."No.", WorkDate());
 
         // [WHEN] Run Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] VAT Registration field part = country prefix + digital part of Vendor."VAT Registration No."
         VerifyCounterpartyLineVATRegNo(
@@ -1064,10 +1064,10 @@ codeunit 144048 "ERM Make 340 Declaration"
             CreateCountryWithVATRegNoFormat(false)));
 
         // [GIVEN] Purchase invoice posted
-        CreateAndPostPurchaseInvoice(Vendor."No.", WorkDate);
+        CreateAndPostPurchaseInvoice(Vendor."No.", WorkDate());
 
         // [WHEN] Run Make 340 Declaration
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] VAT Registration field part = country prefix + digital part of Vendor."VAT Registration No."
         VerifyCounterpartyLineVATRegNo(
@@ -1099,7 +1099,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [GIVEN] Vendor with Unrealized VAT Setup, "Bill-to-Cartera" Payment Method.
         VendorNo := CreateVendorWithBillToCarteraPaymentMethod(VATPostingSetup);
         // [GIVEN] Post Purchase Invoice. Bill has been automatically created from the Invoice.
-        InvoiceNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::Invoice, VendorNo, VATPostingSetup, WorkDate);
+        InvoiceNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::Invoice, VendorNo, VATPostingSetup, WorkDate());
         // [GIVEN] Create Cartera Payment Order.
         CreateCarteraPaymentOrder(PaymentOrder);
         // [GIVEN] Insert posted Bill(Invoice) into Payment Order.
@@ -1112,13 +1112,13 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [GIVEN] Total Settle Posted Payment Order.
         RunTotalSettlePayable(PaymentOrder."No.");
         VATEntry[1] := VATEntry[2];
-        VATEntry[2].Next;
+        VATEntry[2].Next();
 
         // [WHEN] Run "Make 340 Declaration" report
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorageVerifyValues.Enqueue(VATEntry[1].Base + VATEntry[2].Base);
         LibraryVariableStorageVerifyValues.Enqueue(VATEntry[1].Amount + VATEntry[2].Amount);
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] There is one Declaration Line with partial and total settlement amount
         // VerifyPartialSettlementDeclaration340LinesMPH
@@ -1151,13 +1151,13 @@ codeunit 144048 "ERM Make 340 Declaration"
         CreateVendorWithCountryCodeAndVATBusPostingGroup(Vendor, VATPostingSetup."VAT Bus. Posting Group");
 
         // [GIVEN] Posted Purchase Invoice with "No Taxable VAT" with Amount = 100 and "Vendor Invoice No." = "INV1"
-        InvNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::Invoice, Vendor."No.", VATPostingSetup, WorkDate);
+        InvNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::Invoice, Vendor."No.", VATPostingSetup, WorkDate());
         FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", VendorLedgerEntry."Document Type"::Invoice, InvNo);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(Vendor."No.");
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Verify Amount = 100, "Document No." = "INV1" and "Country Code" = "GB" in exported file
         VerifyValuesOnGeneratedTextFile(
@@ -1186,13 +1186,13 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", 0);
         CreateVendorWithCountryCodeAndVATBusPostingGroup(Vendor, VATPostingSetup."VAT Bus. Posting Group");
-        CrMemoNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", VATPostingSetup, WorkDate);
+        CrMemoNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", VATPostingSetup, WorkDate());
         FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", VendorLedgerEntry."Document Type"::"Credit Memo", CrMemoNo);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(Vendor."No.");
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Verify Amount = -100 and "Document No." = "CR1" in exported file
         VerifyValuesOnGeneratedTextFile(
@@ -1222,13 +1222,13 @@ codeunit 144048 "ERM Make 340 Declaration"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", 0);
         CreateCustomerWithCountryCodeAndVATBusPostingGroup(Customer, VATPostingSetup."VAT Bus. Posting Group");
         InvNo :=
-          CreateAndPostSalesDocWithVATPostingSetup(SalesHeader."Document Type"::Invoice, Customer."No.", VATPostingSetup, WorkDate);
+          CreateAndPostSalesDocWithVATPostingSetup(SalesHeader."Document Type"::Invoice, Customer."No.", VATPostingSetup, WorkDate());
         FindCustomerLedgerEntry(CustLedgerEntry, Customer."No.", CustLedgerEntry."Document Type"::Invoice, InvNo);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(Customer."No.");
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Verify Amount = 100 and "Document No." = "INV1" in exported file
         VerifyValuesOnGeneratedTextFile(
@@ -1258,13 +1258,13 @@ codeunit 144048 "ERM Make 340 Declaration"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"No Taxable VAT", 0);
         CreateCustomerWithCountryCodeAndVATBusPostingGroup(Customer, VATPostingSetup."VAT Bus. Posting Group");
         InvNo :=
-          CreateAndPostSalesDocWithVATPostingSetup(SalesHeader."Document Type"::"Credit Memo", Customer."No.", VATPostingSetup, WorkDate);
+          CreateAndPostSalesDocWithVATPostingSetup(SalesHeader."Document Type"::"Credit Memo", Customer."No.", VATPostingSetup, WorkDate());
         FindCustomerLedgerEntry(CustLedgerEntry, Customer."No.", CustLedgerEntry."Document Type"::"Credit Memo", InvNo);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(Customer."No.");
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Verify Amount = -100 and "Document No." = "CR1" in exported file
         VerifyValuesOnGeneratedTextFile(
@@ -1305,8 +1305,8 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [WHEN] Invoke report "Make 340 Declaration" for Vendor "V"
         LibraryVariableStorage.Enqueue(VendorNo);
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Total Amount of Bill "Y" = 200 exists in 340 Declaration
         VerifyValueOnGeneratedTextFile(ExportFileName, 122, DelChr(FormatAmount(TotalAmount), '=', ',.'));
@@ -1345,8 +1345,8 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [WHEN] Invoke report "Make 340 Declaration" for Customer "C"
         LibraryVariableStorage.Enqueue(CustomerNo);
-        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate, 2));
-        ExportFileName := RunMake340DeclarationReport(WorkDate);
+        LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
+        ExportFileName := RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Total Amount of Bill "Y" = 200 exists in 340 Declaration
         VerifyValueOnGeneratedTextFile(ExportFileName, 122, DelChr(FormatAmount(TotalAmount), '=', ',.'));
@@ -1377,7 +1377,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryVariableStorageVerifyValues.Enqueue(TotalAmount);
         LibraryVariableStorageVerifyValues.Enqueue(OperationCode);
 
-        RunMake340DeclarationReport(WorkDate);
+        RunMake340DeclarationReport(WorkDate());
 
         // [THEN] Report generates one declaration line with amount Base = "X"
         // [THEN] Operation Code field has 'R' value
@@ -1433,7 +1433,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         OperationCode: Record "Operation Code";
     begin
         LibraryVariableStorage.Clear();
-        LibraryVariableStorageVerifyValues.Clear;
+        LibraryVariableStorageVerifyValues.Clear();
         OperationCode.DeleteAll();
         LibrarySetupStorage.Restore();
 
@@ -1462,7 +1462,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         with GenJournalBatch do begin
             Result := "No. Series";
             Validate("No. Series", NewNoSeries);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1481,8 +1481,8 @@ codeunit 144048 "ERM Make 340 Declaration"
         NoSeries: Record "No. Series";
     begin
         LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
-        AddNoSeriesLine(NoSeries.Code, CalcDate('<-1Y-1D>', WorkDate));
-        AddNoSeriesLine(NoSeries.Code, CalcDate('<-1D>', WorkDate));
+        AddNoSeriesLine(NoSeries.Code, CalcDate('<-1Y-1D>', WorkDate()));
+        AddNoSeriesLine(NoSeries.Code, CalcDate('<-1D>', WorkDate()));
 
         exit(NoSeries.Code);
     end;
@@ -1504,7 +1504,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         VATEntry.Init();
         VATEntry."Document Type" := DocumentType;
         with Rec340DeclarationLine do begin
-            Init;
+            Init();
             RecRef.GetTable(Rec340DeclarationLine);
             Validate(Key, LibraryUtility.GetNewLineNo(RecRef, FieldNo(Key)));
             "Document Type" := Format(VATEntry."Document Type");
@@ -1516,7 +1516,7 @@ codeunit 144048 "ERM Make 340 Declaration"
             Base := LibraryRandom.RandInt(10);
             "EC %" := LibraryRandom.RandInt(10);
             "EC Amount" := LibraryRandom.RandInt(10);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1751,7 +1751,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateGenJnlLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, WorkDate,
+          GenJournalLine, GenJournalLine."Document Type"::Payment, WorkDate(),
           AccountType, AccountNo,
           GenJournalLine."Bal. Account Type", LibraryERM.CreateGLAccountNo, Amount);
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Bill);
@@ -1836,7 +1836,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer, WorkDate);  // WORKDATE - Posting Date.
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer, WorkDate());  // WORKDATE - Posting Date.
         CreateSalesLine(SalesHeader, SalesLine);
         CreateSalesLine(SalesHeader, SalesLine);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));

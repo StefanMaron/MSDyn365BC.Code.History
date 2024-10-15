@@ -852,7 +852,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseLineDiscount: Record "Purchase Line Discount";
     begin
         LibraryERM.CreateLineDiscForVendor(
-          PurchaseLineDiscount, Item."No.", VendorNo, WorkDate, '', '', Item."Base Unit of Measure", 0);  // Blank for Currency and Variant, 0 for Minimum Quantity.
+          PurchaseLineDiscount, Item."No.", VendorNo, WorkDate(), '', '', Item."Base Unit of Measure", 0);  // Blank for Currency and Variant, 0 for Minimum Quantity.
         PurchaseLineDiscount.Validate("Line Discount %", LineDiscountPct);
         PurchaseLineDiscount.Modify(true);
     end;
@@ -863,7 +863,7 @@ codeunit 144076 "ERM Payment Discount"
     begin
         LibraryPriceCalculation.CreatePurchDiscountLine(
             PriceListLine, '', "Price Source Type"::Vendor, VendorNo, "Price Asset Type"::Item, Item."No.");
-        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Starting Date", WorkDate());
         PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
         PriceListLine.Validate("Line Discount %", LineDiscountPct);
         PriceListLine.Status := "Price Status"::Active;
@@ -997,7 +997,7 @@ codeunit 144076 "ERM Payment Discount"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
     end;
 
     local procedure FindSalesLineCreatedFromQuote(var SalesLine: Record "Sales Line"; QuoteNo: Code[20])
@@ -1029,7 +1029,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseCreditMemo.OpenEdit;
         PurchaseCreditMemo.FILTER.SetFilter("No.", No);
         PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure OpenPurchaseInvoiceToCalculatePaymentDiscount(No: Code[20])
@@ -1039,7 +1039,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.FILTER.SetFilter("No.", No);
         PurchaseInvoice.CalculateInvoiceDiscount.Invoke;
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure OpenPurchaseOrderToCalculatePaymentDiscount(No: Code[20])
@@ -1049,7 +1049,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.CalculateInvoiceDiscount.Invoke;
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure OpenPurchaseReturnOrderToCalculatePaymentDiscount(No: Code[20])
@@ -1059,7 +1059,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.FILTER.SetFilter("No.", No);
         PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke;
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     local procedure OpenSalesCreditMemoToCalculatePaymentDiscount(No: Code[20])
@@ -1069,7 +1069,7 @@ codeunit 144076 "ERM Payment Discount"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.FILTER.SetFilter("No.", No);
         SalesCreditMemo.CalculateInvoiceDiscount.Invoke;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure OpenSalesInvoiceStatistics(No: Code[20])
@@ -1080,7 +1080,7 @@ codeunit 144076 "ERM Payment Discount"
         SalesInvoice.FILTER.SetFilter("No.", No);
         SalesInvoice.CalculateInvoiceDiscount.Invoke;
         SalesInvoice.Statistics.Invoke;  // Opens SalesStatisticsModalPageHandler.
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure OpenSalesInvoiceToCalculatePaymentDiscount(No: Code[20])
@@ -1090,7 +1090,7 @@ codeunit 144076 "ERM Payment Discount"
         SalesInvoice.OpenEdit;
         SalesInvoice.FILTER.SetFilter("No.", No);
         SalesInvoice.CalculateInvoiceDiscount.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure OpenSalesOrderToCalculatePaymentDiscount(No: Code[20])
@@ -1100,7 +1100,7 @@ codeunit 144076 "ERM Payment Discount"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.CalculateInvoiceDiscount.Invoke;
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure OpenServiceCreditMemoStatistics(No: Code[20])
@@ -1111,7 +1111,7 @@ codeunit 144076 "ERM Payment Discount"
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
         ServiceCreditMemo."Calculate Inv. and Pmt. Disc.".Invoke;
         ServiceCreditMemo.Statistics.Invoke;  // Opens ServiceStatisticsModalPageHandler.
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
     end;
 
     local procedure OpenServiceInvoiceStatistics(No: Code[20])
@@ -1122,7 +1122,7 @@ codeunit 144076 "ERM Payment Discount"
         ServiceInvoice.FILTER.SetFilter("No.", No);
         ServiceInvoice."Calculate Invoice Discount".Invoke;
         ServiceInvoice.Statistics.Invoke;  // Opens ServiceStatisticsModalPageHandler.
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
     end;
 
     local procedure UpdateSalesReceivablesSetup(NewStockOutWarning: Boolean; CreditWarning: Option)

@@ -31,7 +31,7 @@ codeunit 143006 "Library - SII"
         SIISetup: Record "SII Setup";
         CompanyInformation: Record "Company Information";
     begin
-        if not SIISetup.Get then begin
+        if not SIISetup.Get() then begin
             SIISetup.Init();
             SIISetup.Insert(true);
         end;
@@ -49,7 +49,7 @@ codeunit 143006 "Library - SII"
     var
         SIISetup: Record "SII Setup";
     begin
-        if not SIISetup.Get then begin
+        if not SIISetup.Get() then begin
             SIISetup.Init();
             SIISetup.Insert(true);
         end;
@@ -84,18 +84,18 @@ codeunit 143006 "Library - SII"
         DocumentNo := MockSalesInvoice('');
         with SIIDocUploadState do begin
             CreateNewRequest(
-              MockCLE(DocumentNo), "Document Source"::"Customer Ledger".AsInteger(), "Document Type"::Invoice.AsInteger(), DocumentNo, '', WorkDate);
+              MockCLE(DocumentNo), "Document Source"::"Customer Ledger".AsInteger(), "Document Type"::Invoice.AsInteger(), DocumentNo, '', WorkDate());
             SetRange("Document No.", DocumentNo);
             FindFirst();
             Status := NewStatus;
-            Modify;
+            Modify();
         end;
 
         with SIIHistory do begin
             SetRange("Document State Id", SIIDocUploadState.Id);
             FindFirst();
             Status := NewStatus;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -105,12 +105,12 @@ codeunit 143006 "Library - SII"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := LibrarySales.CreateCustomerNo();
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document No." := DocumentNo;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -121,12 +121,12 @@ codeunit 143006 "Library - SII"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Vendor No." := LibraryPurchase.CreateVendorNo();
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document No." := DocumentNo;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -137,11 +137,11 @@ codeunit 143006 "Library - SII"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         with SalesInvoiceHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Bill-to Customer No." := LibrarySales.CreateCustomerNo();
             "External Document No." := ExternalDocumentNo;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -152,10 +152,10 @@ codeunit 143006 "Library - SII"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         with SalesCrMemoHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Correction Type" := CorrectionType;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -166,10 +166,10 @@ codeunit 143006 "Library - SII"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         with ServiceCrMemoHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Correction Type" := CorrectionType;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -180,10 +180,10 @@ codeunit 143006 "Library - SII"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         with PurchCrMemoHdr do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Correction Type" := CorrectionType;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -460,8 +460,8 @@ codeunit 143006 "Library - SII"
     procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustNo: Code[20]; CurrencyCode: Code[10])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustNo);
-        ServiceHeader.Validate("Posting Date", WorkDate);
-        ServiceHeader.Validate("Order Date", WorkDate);
+        ServiceHeader.Validate("Posting Date", WorkDate());
+        ServiceHeader.Validate("Order Date", WorkDate());
         ServiceHeader.Validate("Currency Code", CurrencyCode);
         ServiceHeader.Validate("Operation Description", LibraryUtility.GenerateGUID());
         ServiceHeader.Validate("Operation Description 2", LibraryUtility.GenerateGUID());
@@ -491,7 +491,7 @@ codeunit 143006 "Library - SII"
     [Scope('OnPrem')]
     procedure CreateSalesDocWithVATClause(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     begin
-        CreateSalesWithVATClause(SalesHeader, DocType, WorkDate, CorrectionType);
+        CreateSalesWithVATClause(SalesHeader, DocType, WorkDate(), CorrectionType);
     end;
 
     local procedure CreateSalesWithVATClause(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PostingDate: Date; CorrectionType: Option)
@@ -548,13 +548,13 @@ codeunit 143006 "Library - SII"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeaderInvoice, SalesLine,
           SalesHeaderInvoice."Document Type"::Invoice, CustomerNo,
-          ItemNo, QuantityInvoice, '', WorkDate);
+          ItemNo, QuantityInvoice, '', WorkDate());
         UpdateUnitPriceSalesLine(SalesLine, PriceInvoice);
 
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeaderCrMemo, SalesLine,
           SalesHeaderCrMemo."Document Type"::"Credit Memo", CustomerNo,
-          ItemNo, LibraryRandom.RandDec(QuantityInvoice div 1, 2), '', WorkDate);
+          ItemNo, LibraryRandom.RandDec(QuantityInvoice div 1, 2), '', WorkDate());
         SalesHeaderCrMemo.Validate("Operation Description", LibraryUtility.GenerateGUID());
         SalesHeaderCrMemo.Validate("Operation Description 2", LibraryUtility.GenerateGUID());
         SalesHeaderCrMemo.Modify(true);
@@ -626,7 +626,7 @@ codeunit 143006 "Library - SII"
             LibraryPurchase.CreatePurchaseDocumentWithItem(
               PurchaseHeaderInvoice, PurchaseLine,
               PurchaseHeaderInvoice."Document Type"::Invoice, VendorNo,
-              LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
+              LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
             PurchaseHeaderInvoice.Validate("Pay-to Vendor No.", PayToVendorNo);
             PurchaseHeaderInvoice.Modify(true);
             exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, false, false));
@@ -639,7 +639,7 @@ codeunit 143006 "Library - SII"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeaderInvoice, PurchaseLine,
           PurchaseHeaderInvoice."Document Type"::Invoice, VendorNo,
-          Item."No.", QuantityInvoice, '', WorkDate);
+          Item."No.", QuantityInvoice, '', WorkDate());
         PurchaseHeaderInvoice.Validate("Pay-to Vendor No.", PayToVendorNo);
         PurchaseHeaderInvoice.Modify(true);
         UpdateDirectUnitCostPurchaseLine(PurchaseLine, PriceInvoice);
@@ -647,7 +647,7 @@ codeunit 143006 "Library - SII"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeaderCrMemo, PurchaseLine,
           PurchaseHeaderCrMemo."Document Type"::"Credit Memo", VendorNo,
-          Item."No.", LibraryRandom.RandDec(100, 2), '', WorkDate);
+          Item."No.", LibraryRandom.RandDec(100, 2), '', WorkDate());
         PurchaseHeaderCrMemo.Validate("Pay-to Vendor No.", PayToVendorNo);
         PurchaseHeaderCrMemo.Validate("Operation Description", LibraryUtility.GenerateGUID());
         PurchaseHeaderCrMemo.Validate("Operation Description 2", LibraryUtility.GenerateGUID());
@@ -719,7 +719,7 @@ codeunit 143006 "Library - SII"
     [Scope('OnPrem')]
     procedure PostSalesDocWithNoTaxableVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; EUService: Boolean; NonTaxableType: Option)
     begin
-        PostSalesWithNoTaxableVAT(CustLedgerEntry, DocType, WorkDate, EUService, NonTaxableType);
+        PostSalesWithNoTaxableVAT(CustLedgerEntry, DocType, WorkDate(), EUService, NonTaxableType);
     end;
 
     [Scope('OnPrem')]
@@ -731,7 +731,7 @@ codeunit 143006 "Library - SII"
     [Scope('OnPrem')]
     procedure PostSalesDocWithVATClause(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     begin
-        PostSalesWithVATClause(CustLedgerEntry, DocType, WorkDate, CorrectionType);
+        PostSalesWithVATClause(CustLedgerEntry, DocType, WorkDate(), CorrectionType);
     end;
 
     local procedure PostSalesWithVATClause(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; PostingDate: Date; CorrectionType: Option)
@@ -941,7 +941,7 @@ codeunit 143006 "Library - SII"
                     TempReturnVATEntry.Base := Abs(TempReturnVATEntry.Base + TempReturnVATEntry."Unrealized Base");
                     TempReturnVATEntry.Insert();
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
 
         if VATEntry."Document Type" = VATEntry."Document Type"::Invoice then begin
             TempReturnVATEntry.Reset();
@@ -951,7 +951,7 @@ codeunit 143006 "Library - SII"
                     LibraryVariableStorage.Enqueue(TempReturnVATEntry."VAT %");
                     LibraryVariableStorage.Enqueue(TempReturnVATEntry.Base);
                     LibraryVariableStorage.Enqueue(TempReturnVATEntry.Amount);
-                until TempReturnVATEntry.Next = 0;
+                until TempReturnVATEntry.Next() = 0;
         end;
     end;
 
@@ -1081,7 +1081,7 @@ codeunit 143006 "Library - SII"
         XmlFile.Create(XmlPath);
         XmlFile.CreateOutStream(XmlStream);
         XMLDoc.Save(XmlStream);
-        XmlFile.Close;
+        XmlFile.Close();
 
         XsdPath := GetInetRoot + '\GDL\ES\App\Test\SIIxmlschema\SuministroLR.xsd';
         Assert.IsTrue(LibraryVerifyXMLSchema.VerifyXMLAgainstSchema(XmlPath, XsdPath, Message), Message);
@@ -1460,7 +1460,7 @@ codeunit 143006 "Library - SII"
                 LibraryVariableStorage.Dequeue(AmountVariant);
                 ValidateElementByNameAt(XMLDoc, 'sii:CuotaRepercutida', SIIXMLCreator.FormatNumber(AmountVariant), Index);
                 Index += 1;
-            until TempVATEntry.Next = 0;
+            until TempVATEntry.Next() = 0;
     end;
 
     local procedure VerifyXMLPurchVATEntries(XMLDoc: DotNet XmlDocument; var TempVATEntry: Record "VAT Entry" temporary)
@@ -1485,7 +1485,7 @@ codeunit 143006 "Library - SII"
                 ValidateElementByNameAt(XMLDoc, 'sii:CuotaSoportada', SIIXMLCreator.FormatNumber(EntryAmount), Index);
                 TotalAmount += EntryAmount;
                 Index += 1;
-            until TempVATEntry.Next = 0;
+            until TempVATEntry.Next() = 0;
         ValidateElementByName(XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(TotalAmount))
     end;
 

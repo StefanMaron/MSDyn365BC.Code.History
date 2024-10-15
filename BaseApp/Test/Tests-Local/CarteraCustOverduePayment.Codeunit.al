@@ -31,7 +31,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         Customer: Record Customer;
     begin
         Customer.Init();
-        SaveReportToXml(Customer."No.", WorkDate, WorkDate + 1, ShowPayments::All);
+        SaveReportToXml(Customer."No.", WorkDate(), WorkDate + 1, ShowPayments::All);
     end;
 
     [Test]
@@ -39,7 +39,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     [Scope('OnPrem')]
     procedure RequestPage_NoStartDate_ErrorOccurs()
     begin
-        RunRequestPageTest(NoStartDateErr, 0D, WorkDate);
+        RunRequestPageTest(NoStartDateErr, 0D, WorkDate());
     end;
 
     [Test]
@@ -47,7 +47,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     [Scope('OnPrem')]
     procedure RequestPage_NoEndDate_ErrorOccurs()
     begin
-        RunRequestPageTest(NoEndDateErr, WorkDate, 0D);
+        RunRequestPageTest(NoEndDateErr, WorkDate(), 0D);
     end;
 
     [Test]
@@ -55,7 +55,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     [Scope('OnPrem')]
     procedure RequestPage_StartDateAboveEndDate_ErrorOccurs()
     begin
-        RunRequestPageTest(StartDateAboveEndDateErr, WorkDate + 1, WorkDate);
+        RunRequestPageTest(StartDateAboveEndDateErr, WorkDate + 1, WorkDate());
     end;
 
     [Test]
@@ -65,7 +65,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     var
         Amount: Decimal;
     begin
-        GenerateReportWithSingleApplication(Amount, false, CalcDate('<2M>', WorkDate), CalcDate('<2M>', WorkDate) + 1);
+        GenerateReportWithSingleApplication(Amount, false, CalcDate('<2M>', WorkDate()), CalcDate('<2M>', WorkDate()) + 1);
 
         Assert.IsFalse(Exists(LibraryReportDataset.GetFileName), ValueExistsErr);
     end;
@@ -110,7 +110,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         InvAmount: Decimal;
         PmtAmount: Decimal;
     begin
-        GenerateReportWithPartialAppl(InvAmount, PmtAmount, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        GenerateReportWithPartialAppl(InvAmount, PmtAmount, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(ABSAmountElementNameTxt, InvAmount - PmtAmount);
     end;
@@ -131,7 +131,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         Amount: Decimal;
     begin
         GenerateReportWithSingleApplication(
-          Amount, ApplyToPayment, CalcDate('<CY-1Y>', WorkDate), CalcDate('<CY+1Y>', WorkDate));
+          Amount, ApplyToPayment, CalcDate('<CY-1Y>', WorkDate()), CalcDate('<CY+1Y>', WorkDate()));
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(TotalPaymentWithinDueDateElementNameTxt, Amount);
@@ -170,7 +170,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         GenerateAmountsForMultipleApplication(InvoicesCount, InvoiceAmounts, PaymentsCount, PaymentAmounts);
         MakeInvoicePaymentAndApplication(InvoicesCount, InvoiceAmounts, PaymentsCount, PaymentAmounts, Customer, ApplyToPayment);
         SaveReportToXml(
-          Customer."No.", CalcDate('<CY-1Y>', WorkDate), CalcDate('<CY+1Y>', WorkDate), ShowPayments::All);
+          Customer."No.", CalcDate('<CY-1Y>', WorkDate()), CalcDate('<CY+1Y>', WorkDate()), ShowPayments::All);
         LibraryReportDataset.LoadDataSetFile;
 
         if not ApplyToPayment then
@@ -385,12 +385,12 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         if Customer."No." = '' then
             LibrarySales.CreateCustomer(Customer);
 
-        ApplDate := WorkDate;
+        ApplDate := WorkDate();
         CreateGenJnlLineForCustomerWithPostingDate(
           GenJnlLine, Customer."No.", InvAmount, GenJnlLine."Document Type"::Invoice, ApplDate);
         FindCustomerLedgerEntry(InvCustLedgerEntry[1], GenJnlLine."Document Type", GenJnlLine."Document No.");
 
-        ApplDate := CalcDate('<CY>', WorkDate);
+        ApplDate := CalcDate('<CY>', WorkDate());
         CreateGenJnlLineForCustomerWithPostingDate(
           GenJnlLine, Customer."No.", -PmtAmount, GenJnlLine."Document Type"::Payment, ApplDate);
         FindCustomerLedgerEntry(PmtCustLedgerEntry[1], GenJnlLine."Document Type", GenJnlLine."Document No.");

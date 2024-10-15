@@ -472,7 +472,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
     local procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccNo: Code[20]; PartnerType: Option)
     begin
         BillGroup."No." := LibraryUtility.GenerateRandomCode(BillGroup.FieldNo("No."), DATABASE::"Bill Group");
-        BillGroup."Posting Date" := WorkDate;
+        BillGroup."Posting Date" := WorkDate();
         BillGroup."Bank Account No." := BankAccNo;
         BillGroup."Partner Type" := PartnerType;
         BillGroup.Insert();
@@ -496,7 +496,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
             with Installment do begin
                 Validate("% of Total", CurrentPercent);
                 Validate("Gap between Installments", '<10D>');
-                Modify;
+                Modify();
             end;
             NoOfInstallments -= 1;
         end;
@@ -520,7 +520,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
             FindSet();
             repeat
                 "Bill Gr./Pmt. Order No." := NewBillGroupNo;
-                Modify;
+                Modify();
             until Next = 0;
         end;
     end;
@@ -531,7 +531,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
             IBAN := LibraryUtility.GenerateGUID();
             "SWIFT Code" := LibraryUtility.GenerateGUID();
             "Creditor No." := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -592,7 +592,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         ExportFile.Create(ServerFileName);
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPORT::"SEPA DD pain.008.001.02", OutStream, DirectDebitCollectionEntry);
-        ExportFile.Close;
+        ExportFile.Close();
     end;
 
     local procedure RunSettlePostedCarteraDocs(var PostedCarteraDoc: Record "Posted Cartera Doc.")
@@ -643,7 +643,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         with SEPADirectDebitMandate do begin
             Validate("Type of Payment", "Type of Payment"::Recurrent);
             Validate("Expected Number of Debits", ExpectedNumberOfDebits);
-            Modify;
+            Modify();
         end;
         exit(CreatePostSalesInvoice(Customer."No.", SEPADirectDebitMandate.ID, RoundToInt));
     end;
@@ -679,7 +679,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
         CustomerBankAccount.Modify();
         LibrarySales.CreateCustomerMandate(
-          SEPADirectDebitMandate, Customer."No.", CustomerBankAccount.Code, WorkDate, CalcDate('<1Y>', WorkDate));
+          SEPADirectDebitMandate, Customer."No.", CustomerBankAccount.Code, WorkDate(), CalcDate('<1Y>', WorkDate()));
     end;
 
     local procedure CreatePostSalesInvoice(CustomerNo: Code[20]; SEPADirectDebitMandateID: Code[35]; RoundToInt: Boolean): Code[20]

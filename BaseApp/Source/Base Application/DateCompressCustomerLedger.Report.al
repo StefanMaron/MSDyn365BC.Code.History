@@ -1,4 +1,4 @@
-report 198 "Date Compress Customer Ledger"
+﻿report 198 "Date Compress Customer Ledger"
 {
     Caption = 'Date Compress Customer Ledger';
     Permissions = TableData "G/L Entry" = rimd,
@@ -59,7 +59,7 @@ report 198 "Date Compress Customer Ledger"
                     ComprDimEntryNo := DimEntryNo;
                     SummarizeEntry(NewCustLedgEntry, CustLedgEntry2);
 
-                    while Next <> 0 do begin
+                    while Next() <> 0 do begin
                         CalcFields(Amount);
                         if ((Amount >= 0) and SummarizePositive) or
                            ((Amount < 0) and (not SummarizePositive))
@@ -75,7 +75,7 @@ report 198 "Date Compress Customer Ledger"
 
                     InsertNewEntry(NewCustLedgEntry, ComprDimEntryNo);
 
-                    ComprCollectedEntries;
+                    ComprCollectedEntries();
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
@@ -133,7 +133,7 @@ report 198 "Date Compress Customer Ledger"
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Customer Ledger"));
@@ -282,15 +282,6 @@ report 198 "Date Compress Customer Ledger"
     end;
 
     var
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing customer ledger entries...\\';
-        Text005: Label 'Customer No.         #1##########\';
-        Text006: Label 'Date                 #2######\\';
-        Text007: Label 'No. of new entries   #3######\';
-        Text008: Label 'No. of entries del.  #4######';
-        Text009: Label 'Date Compressed';
-        Text010: Label 'Retain Dimensions';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -299,7 +290,7 @@ report 198 "Date Compress Customer Ledger"
         NewCustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntry2: Record "Cust. Ledger Entry";
         NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        DtldCustLedgEntryBuffer: Record "Detailed Cust. Ledg. Entry" temporary;
+        TempDetailedCustLedgEntryBuffer: Record "Detailed Cust. Ledg. Entry" temporary;
         GLEntry: Record "G/L Entry";
         ReminderEntry: Record "Reminder/Fin. Charge Entry";
         SelectedDim: Record "Selected Dimension";
@@ -325,6 +316,16 @@ report 198 "Date Compress Customer Ledger"
         [InDataSet]
         DataArchiveProviderExists: Boolean;
         SummarizePositive: Boolean;
+
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing customer ledger entries...\\';
+        Text005: Label 'Customer No.         #1##########\';
+        Text006: Label 'Date                 #2######\\';
+        Text007: Label 'No. of new entries   #3######\';
+        Text008: Label 'No. of entries del.  #4######';
+        Text009: Label 'Date Compressed';
+        Text010: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -440,7 +441,7 @@ report 198 "Date Compress Customer Ledger"
 
             ReminderEntry.SetRange("Customer Entry No.", "Entry No.");
             ReminderEntry.DeleteAll();
-            Delete;
+            Delete();
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
@@ -471,7 +472,7 @@ report 198 "Date Compress Customer Ledger"
                 OldDimEntryNo := DimEntryNo;
             until not Found;
         end;
-        DimBufMgt.DeleteAllDimEntryNo;
+        DimBufMgt.DeleteAllDimEntryNo();
     end;
 
     procedure InitNewEntry(var NewCustLedgEntry: Record "Cust. Ledger Entry")
@@ -521,7 +522,7 @@ report 198 "Date Compress Customer Ledger"
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewCustLedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
         NewCustLedgEntry.Insert();
-        InsertDtldEntries;
+        InsertDtldEntries();
     end;
 
     local procedure CompressDetails(CustLedgEntry: Record "Cust. Ledger Entry"): Boolean
@@ -530,14 +531,14 @@ report 198 "Date Compress Customer Ledger"
     begin
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
-        if EntrdDateComprReg."Starting Date" <> 0D then begin
+        if EntrdDateComprReg."Starting Date" <> 0D then
             DtldCustLedgEntry.SetFilter(
               "Posting Date",
               StrSubstNo(
                 '..%1|%2..',
                 CalcDate('<-1D>', EntrdDateComprReg."Starting Date"),
-                CalcDate('<+1D>', EntrdDateComprReg."Ending Date")));
-        end else
+                CalcDate('<+1D>', EntrdDateComprReg."Ending Date")))
+        else
             DtldCustLedgEntry.SetFilter(
               "Posting Date",
               StrSubstNo(
@@ -554,89 +555,89 @@ report 198 "Date Compress Customer Ledger"
     begin
         if UseDataArchive then
             DataArchive.SaveRecord(DtldCustLedgEntry);
-        DtldCustLedgEntryBuffer.SetFilter(
+        TempDetailedCustLedgEntryBuffer.SetFilter(
           "Posting Date",
           DateComprMgt.GetDateFilter(DtldCustLedgEntry."Posting Date", EntrdDateComprReg, true));
-        PostingDate := DtldCustLedgEntryBuffer.GetRangeMin("Posting Date");
-        DtldCustLedgEntryBuffer.SetRange("Posting Date", PostingDate);
-        DtldCustLedgEntryBuffer.SetRange("Entry Type", DtldCustLedgEntry."Entry Type");
+        PostingDate := TempDetailedCustLedgEntryBuffer.GetRangeMin("Posting Date");
+        TempDetailedCustLedgEntryBuffer.SetRange("Posting Date", PostingDate);
+        TempDetailedCustLedgEntryBuffer.SetRange("Entry Type", DtldCustLedgEntry."Entry Type");
         if DateComprRetainFields."Retain Document No." then
-            DtldCustLedgEntryBuffer.SetRange("Document No.", "Cust. Ledger Entry"."Document No.");
+            TempDetailedCustLedgEntryBuffer.SetRange("Document No.", "Cust. Ledger Entry"."Document No.");
         if DateComprRetainFields."Retain Sell-to Customer No." then
-            DtldCustLedgEntryBuffer.SetRange("Customer No.", "Cust. Ledger Entry"."Sell-to Customer No.");
+            TempDetailedCustLedgEntryBuffer.SetRange("Customer No.", "Cust. Ledger Entry"."Sell-to Customer No.");
         if DateComprRetainFields."Retain Global Dimension 1" then
-            DtldCustLedgEntryBuffer.SetRange("Initial Entry Global Dim. 1", "Cust. Ledger Entry"."Global Dimension 1 Code");
+            TempDetailedCustLedgEntryBuffer.SetRange("Initial Entry Global Dim. 1", "Cust. Ledger Entry"."Global Dimension 1 Code");
         if DateComprRetainFields."Retain Global Dimension 2" then
-            DtldCustLedgEntryBuffer.SetRange("Initial Entry Global Dim. 2", "Cust. Ledger Entry"."Global Dimension 2 Code");
-        OnSummarizeDtldEntryOnAfterDtldCustLedgEntryBufferSetFilters(DtldCustLedgEntryBuffer, DtldCustLedgEntry, "Cust. Ledger Entry", NewCustLedgEntry);
+            TempDetailedCustLedgEntryBuffer.SetRange("Initial Entry Global Dim. 2", "Cust. Ledger Entry"."Global Dimension 2 Code");
+        OnSummarizeDtldEntryOnAfterDtldCustLedgEntryBufferSetFilters(TempDetailedCustLedgEntryBuffer, DtldCustLedgEntry, "Cust. Ledger Entry", NewCustLedgEntry);
 
-        if not DtldCustLedgEntryBuffer.Find('-') then begin
-            DtldCustLedgEntryBuffer.Reset();
-            Clear(DtldCustLedgEntryBuffer);
+        if not TempDetailedCustLedgEntryBuffer.Find('-') then begin
+            TempDetailedCustLedgEntryBuffer.Reset();
+            Clear(TempDetailedCustLedgEntryBuffer);
 
             LastTmpDtldEntryNo := LastTmpDtldEntryNo + 1;
-            DtldCustLedgEntryBuffer."Entry No." := LastTmpDtldEntryNo;
-            DtldCustLedgEntryBuffer."Posting Date" := PostingDate;
-            DtldCustLedgEntryBuffer."Document Type" := NewCustLedgEntry."Document Type";
-            DtldCustLedgEntryBuffer."Initial Document Type" := NewCustLedgEntry."Document Type";
-            DtldCustLedgEntryBuffer."Document No." := NewCustLedgEntry."Document No.";
-            DtldCustLedgEntryBuffer."Entry Type" := DtldCustLedgEntry."Entry Type";
-            DtldCustLedgEntryBuffer."Cust. Ledger Entry No." := NewCustLedgEntry."Entry No.";
-            DtldCustLedgEntryBuffer."Customer No." := NewCustLedgEntry."Customer No.";
-            DtldCustLedgEntryBuffer."Currency Code" := NewCustLedgEntry."Currency Code";
-            DtldCustLedgEntryBuffer."User ID" := NewCustLedgEntry."User ID";
-            DtldCustLedgEntryBuffer."Source Code" := NewCustLedgEntry."Source Code";
-            DtldCustLedgEntryBuffer."Transaction No." := NewCustLedgEntry."Transaction No.";
-            DtldCustLedgEntryBuffer."Journal Batch Name" := NewCustLedgEntry."Journal Batch Name";
-            DtldCustLedgEntryBuffer."Reason Code" := NewCustLedgEntry."Reason Code";
-            DtldCustLedgEntryBuffer."Initial Entry Due Date" := NewCustLedgEntry."Due Date";
-            DtldCustLedgEntryBuffer."Initial Entry Global Dim. 1" := NewCustLedgEntry."Global Dimension 1 Code";
-            DtldCustLedgEntryBuffer."Initial Entry Global Dim. 2" := NewCustLedgEntry."Global Dimension 2 Code";
-            DtldCustLedgEntryBuffer."Excluded from calculation" := DtldCustLedgEntry."Excluded from calculation";
-            OnSummarizeDtldEntryOnAfterInitDtldCustLedgEntryBuffer(DtldCustLedgEntryBuffer, DtldCustLedgEntryBuffer, "Cust. Ledger Entry", NewCustLedgEntry);
+            TempDetailedCustLedgEntryBuffer."Entry No." := LastTmpDtldEntryNo;
+            TempDetailedCustLedgEntryBuffer."Posting Date" := PostingDate;
+            TempDetailedCustLedgEntryBuffer."Document Type" := NewCustLedgEntry."Document Type";
+            TempDetailedCustLedgEntryBuffer."Initial Document Type" := NewCustLedgEntry."Document Type";
+            TempDetailedCustLedgEntryBuffer."Document No." := NewCustLedgEntry."Document No.";
+            TempDetailedCustLedgEntryBuffer."Entry Type" := DtldCustLedgEntry."Entry Type";
+            TempDetailedCustLedgEntryBuffer."Cust. Ledger Entry No." := NewCustLedgEntry."Entry No.";
+            TempDetailedCustLedgEntryBuffer."Customer No." := NewCustLedgEntry."Customer No.";
+            TempDetailedCustLedgEntryBuffer."Currency Code" := NewCustLedgEntry."Currency Code";
+            TempDetailedCustLedgEntryBuffer."User ID" := NewCustLedgEntry."User ID";
+            TempDetailedCustLedgEntryBuffer."Source Code" := NewCustLedgEntry."Source Code";
+            TempDetailedCustLedgEntryBuffer."Transaction No." := NewCustLedgEntry."Transaction No.";
+            TempDetailedCustLedgEntryBuffer."Journal Batch Name" := NewCustLedgEntry."Journal Batch Name";
+            TempDetailedCustLedgEntryBuffer."Reason Code" := NewCustLedgEntry."Reason Code";
+            TempDetailedCustLedgEntryBuffer."Initial Entry Due Date" := NewCustLedgEntry."Due Date";
+            TempDetailedCustLedgEntryBuffer."Initial Entry Global Dim. 1" := NewCustLedgEntry."Global Dimension 1 Code";
+            TempDetailedCustLedgEntryBuffer."Initial Entry Global Dim. 2" := NewCustLedgEntry."Global Dimension 2 Code";
+            TempDetailedCustLedgEntryBuffer."Excluded from calculation" := DtldCustLedgEntry."Excluded from calculation";
+            OnSummarizeDtldEntryOnAfterInitDtldCustLedgEntryBuffer(TempDetailedCustLedgEntryBuffer, TempDetailedCustLedgEntryBuffer, "Cust. Ledger Entry", NewCustLedgEntry);
 
             NewEntry := true;
         end;
 
-        DtldCustLedgEntryBuffer.Amount :=
-          DtldCustLedgEntryBuffer.Amount + DtldCustLedgEntry.Amount;
-        DtldCustLedgEntryBuffer."Amount (LCY)" :=
-          DtldCustLedgEntryBuffer."Amount (LCY)" + DtldCustLedgEntry."Amount (LCY)";
-        DtldCustLedgEntryBuffer."Debit Amount" :=
-          DtldCustLedgEntryBuffer."Debit Amount" + DtldCustLedgEntry."Debit Amount";
-        DtldCustLedgEntryBuffer."Credit Amount" :=
-          DtldCustLedgEntryBuffer."Credit Amount" + DtldCustLedgEntry."Credit Amount";
-        DtldCustLedgEntryBuffer."Debit Amount (LCY)" :=
-          DtldCustLedgEntryBuffer."Debit Amount (LCY)" + DtldCustLedgEntry."Debit Amount (LCY)";
-        DtldCustLedgEntryBuffer."Credit Amount (LCY)" :=
-          DtldCustLedgEntryBuffer."Credit Amount (LCY)" + DtldCustLedgEntry."Credit Amount (LCY)";
+        TempDetailedCustLedgEntryBuffer.Amount :=
+          TempDetailedCustLedgEntryBuffer.Amount + DtldCustLedgEntry.Amount;
+        TempDetailedCustLedgEntryBuffer."Amount (LCY)" :=
+          TempDetailedCustLedgEntryBuffer."Amount (LCY)" + DtldCustLedgEntry."Amount (LCY)";
+        TempDetailedCustLedgEntryBuffer."Debit Amount" :=
+          TempDetailedCustLedgEntryBuffer."Debit Amount" + DtldCustLedgEntry."Debit Amount";
+        TempDetailedCustLedgEntryBuffer."Credit Amount" :=
+          TempDetailedCustLedgEntryBuffer."Credit Amount" + DtldCustLedgEntry."Credit Amount";
+        TempDetailedCustLedgEntryBuffer."Debit Amount (LCY)" :=
+          TempDetailedCustLedgEntryBuffer."Debit Amount (LCY)" + DtldCustLedgEntry."Debit Amount (LCY)";
+        TempDetailedCustLedgEntryBuffer."Credit Amount (LCY)" :=
+          TempDetailedCustLedgEntryBuffer."Credit Amount (LCY)" + DtldCustLedgEntry."Credit Amount (LCY)";
 
         if NewEntry then
-            DtldCustLedgEntryBuffer.Insert
+            TempDetailedCustLedgEntryBuffer.Insert()
         else
-            DtldCustLedgEntryBuffer.Modify();
+            TempDetailedCustLedgEntryBuffer.Modify();
     end;
 
     local procedure InsertDtldEntries()
     begin
-        DtldCustLedgEntryBuffer.Reset();
-        if DtldCustLedgEntryBuffer.Find('-') then
+        TempDetailedCustLedgEntryBuffer.Reset();
+        if TempDetailedCustLedgEntryBuffer.Find('-') then
             repeat
-                if ((DtldCustLedgEntryBuffer.Amount <> 0) or
-                    (DtldCustLedgEntryBuffer."Amount (LCY)" <> 0) or
-                    (DtldCustLedgEntryBuffer."Debit Amount" <> 0) or
-                    (DtldCustLedgEntryBuffer."Credit Amount" <> 0) or
-                    (DtldCustLedgEntryBuffer."Debit Amount (LCY)" <> 0) or
-                    (DtldCustLedgEntryBuffer."Credit Amount (LCY)" <> 0))
+                if ((TempDetailedCustLedgEntryBuffer.Amount <> 0) or
+                    (TempDetailedCustLedgEntryBuffer."Amount (LCY)" <> 0) or
+                    (TempDetailedCustLedgEntryBuffer."Debit Amount" <> 0) or
+                    (TempDetailedCustLedgEntryBuffer."Credit Amount" <> 0) or
+                    (TempDetailedCustLedgEntryBuffer."Debit Amount (LCY)" <> 0) or
+                    (TempDetailedCustLedgEntryBuffer."Credit Amount (LCY)" <> 0))
                 then begin
                     LastDtldEntryNo := LastDtldEntryNo + 1;
 
-                    NewDtldCustLedgEntry := DtldCustLedgEntryBuffer;
+                    NewDtldCustLedgEntry := TempDetailedCustLedgEntryBuffer;
                     NewDtldCustLedgEntry."Entry No." := LastDtldEntryNo;
                     NewDtldCustLedgEntry.Insert(true);
                 end;
-            until DtldCustLedgEntryBuffer.Next() = 0;
-        DtldCustLedgEntryBuffer.DeleteAll();
+            until TempDetailedCustLedgEntryBuffer.Next() = 0;
+        TempDetailedCustLedgEntryBuffer.DeleteAll();
     end;
 
     local procedure InitializeParameter()

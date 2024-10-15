@@ -1,4 +1,4 @@
-codeunit 226 "CustEntry-Apply Posted Entries"
+﻿codeunit 226 "CustEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd;
@@ -32,6 +32,14 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        DetailedCustLedgEntryPreviewContext: Record "Detailed Cust. Ledg. Entry";
+        ApplyUnapplyParametersContext: Record "Apply Unapply Parameters";
+        RunOptionPreview: Option Apply,Unapply;
+        RunOptionPreviewContext: Option Apply,Unapply;
+        PreviewMode: Boolean;
+
         PostingApplicationMsg: Label 'Posting application...';
         MustNotBeBeforeErr: Label 'The posting date entered must not be before the posting date on the Cust. Ledger Entry.';
         NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the %1 field for one or more open entries.', Comment = '%1 - Caption of "Applies to ID" field of Gen. Journal Line';
@@ -48,13 +56,6 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         Text1100001: Label 'Application of %1 %2/%3';
         Text1100002: Label 'To apply a set of entries containing bills, rejected invoices or invoices to cartera, the cursor should be positioned on an entry different than bill type, rejected invoice or invoices to cartera.';
         UnapplyBlankedDocTypeErr: Label 'You cannot unapply the entries because one entry has a blank document type.';
-        GLSetup: Record "General Ledger Setup";
-        GenJnlBatch: Record "Gen. Journal Batch";
-        DetailedCustLedgEntryPreviewContext: Record "Detailed Cust. Ledg. Entry";
-        ApplyUnapplyParametersContext: Record "Apply Unapply Parameters";
-        RunOptionPreview: Option Apply,Unapply;
-        RunOptionPreviewContext: Option Apply,Unapply;
-        PreviewMode: Boolean;
 
 #if not CLEAN20
     [Obsolete('Replaced by W1 implementation of Apply()', '20.0')]
@@ -172,7 +173,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         GenJnlLine."Journal Template Name" := ApplyUnapplyParameters."Journal Template Name";
         GenJnlLine."Journal Batch Name" := ApplyUnapplyParameters."Journal Batch Name";
 
-        EntryNoBeforeApplication := FindLastApplDtldCustLedgEntry;
+        EntryNoBeforeApplication := FindLastApplDtldCustLedgEntry();
 
         GenJnlPostLine.SetIDBillSettlement(IsToSetIDBillSettlement(CustLedgEntry));
 
@@ -180,7 +181,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         GenJnlPostLine.CustPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry);
         OnAfterPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
 
-        EntryNoAfterApplication := FindLastApplDtldCustLedgEntry;
+        EntryNoAfterApplication := FindLastApplDtldCustLedgEntry();
         if EntryNoAfterApplication = EntryNoBeforeApplication then
             Error(NoEntriesAppliedErr, GenJnlLine.FieldCaption("Applies-to ID"));
 

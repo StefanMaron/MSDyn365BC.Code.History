@@ -156,7 +156,7 @@ page 6033 "Service Invoice Statistics"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupAdjmtValueEntries;
+                        LookupAdjmtValueEntries();
                     end;
                 }
             }
@@ -202,7 +202,7 @@ page 6033 "Service Invoice Statistics"
         CostCalcMgt: Codeunit "Cost Calculation Management";
         IsHandled: Boolean;
     begin
-        ClearAll;
+        ClearAll();
 
         IsHandled := false;
         OnAfterGetRecordOnAfterClearAll(
@@ -212,7 +212,7 @@ page 6033 "Service Invoice Statistics"
             exit;
 
         if "Currency Code" = '' then
-            currency.InitRoundingPrecision
+            currency.InitRoundingPrecision()
         else
             currency.Get("Currency Code");
 
@@ -261,7 +261,7 @@ page 6033 "Service Invoice Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", CustAmount, "Currency Factor");
+                WorkDate(), "Currency Code", CustAmount, "Currency Factor");
 
         ProfitLCY := AmountLCY - CostLCY;
         if AmountLCY <> 0 then
@@ -294,8 +294,6 @@ page 6033 "Service Invoice Statistics"
     end;
 
     var
-        Text000: Label 'VAT Amount';
-        Text001: Label '%1% VAT';
         CurrExchRate: Record "Currency Exchange Rate";
         ServInvLine: Record "Service Invoice Line";
         Cust: Record Customer;
@@ -319,6 +317,9 @@ page 6033 "Service Invoice Statistics"
         VATPercentage: Decimal;
         VATAmountText: Text[30];
         PmtDiscAmount: Decimal;
+
+        Text000: Label 'VAT Amount';
+        Text001: Label '%1% VAT';
 
     protected var
         AmountLCY: Decimal;

@@ -15,7 +15,7 @@ page 1527 "Workflow Change List FactBox"
         {
             repeater(Group)
             {
-                field("Field"; "Field Caption")
+                field("Field"; Rec."Field Caption")
                 {
                     ApplicationArea = Suite;
                     Style = Strong;

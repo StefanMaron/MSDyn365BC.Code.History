@@ -29,7 +29,7 @@ page 5102 "Activity Step Subform"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the priority of the step.';
                 }
-                field("Date Formula"; "Date Formula")
+                field("Date Formula"; Rec."Date Formula")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date formula that determines how to calculate when the step should be completed.';

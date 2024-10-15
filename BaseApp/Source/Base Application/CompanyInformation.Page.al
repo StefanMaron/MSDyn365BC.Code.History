@@ -6,7 +6,6 @@ Page 1 "Company Information"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Application Settings,System Settings,Currencies,Codes,Regional Settings';
     SourceTable = "Company Information";
     UsageCategory = Administration;
 
@@ -29,7 +28,7 @@ Page 1 "Company Information"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the company''s address.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
@@ -50,13 +49,13 @@ Page 1 "Company Information"
                         ToolTip = 'Specifies the state, province or county of the company''s address.';
                     }
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -67,18 +66,18 @@ Page 1 "Company Information"
                         CountyVisible := FormatAddress.UseCounty("Country/Region Code");
                     end;
                 }
-                field("Contact Person"; "Contact Person")
+                field("Contact Person"; Rec."Contact Person")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact Name';
                     ToolTip = 'Specifies the name of the contact person in your company.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s telephone number.';
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the company''s VAT registration number.';
@@ -95,23 +94,23 @@ Page 1 "Company Information"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies your company in connection with electronic document exchange.';
                 }
-                field("Use GLN in Electronic Document"; "Use GLN in Electronic Document")
+                field("Use GLN in Electronic Document"; Rec."Use GLN in Electronic Document")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
                 }
-                field("EORI Number"; "EORI Number")
+                field("EORI Number"; Rec."EORI Number")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
                 }
-                field("Industrial Classification"; "Industrial Classification")
+                field("Industrial Classification"; Rec."Industrial Classification")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s industrial classification code.';
                 }
-                field("CNAE Description"; "CNAE Description")
+                field("CNAE Description"; Rec."CNAE Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of your company''s CNAE code.';
@@ -123,37 +122,37 @@ Page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
             group(Communication)
             {
                 Caption = 'Communication';
-                field("Phone No.2"; "Phone No.")
+                field("Phone No.2"; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s telephone number.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s fax number.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s email address.';
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
                 }
 #if not CLEAN20
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
@@ -162,7 +161,7 @@ Page 1 "Company Information"
                     ObsoleteState = Pending;
                     ObsoleteTag = '20.0';
                 }
-                field("IC Inbox Type"; "IC Inbox Type")
+                field("IC Inbox Type"; Rec."IC Inbox Type")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
@@ -171,7 +170,7 @@ Page 1 "Company Information"
                     ObsoleteState = Pending;
                     ObsoleteTag = '20.0';
                 }
-                field("IC Inbox Details"; "IC Inbox Details")
+                field("IC Inbox Details"; Rec."IC Inbox Details")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
@@ -180,7 +179,7 @@ Page 1 "Company Information"
                     ObsoleteState = Pending;
                     ObsoleteTag = '20.0';
                 }
-                field("Auto. Send Transactions"; "Auto. Send Transactions")
+                field("Auto. Send Transactions"; Rec."Auto. Send Transactions")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
@@ -212,45 +211,45 @@ Page 1 "Company Information"
             group(Payments)
             {
                 Caption = 'Payments';
-                field("Allow Blank Payment Info."; "Allow Blank Payment Info.")
+                field("Allow Blank Payment Info."; Rec."Allow Blank Payment Info.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you are allowed to create a sales invoice without filling the setup fields on this FastTab.';
                 }
-                field("Bank Name"; "Bank Name")
+                field("Bank Name"; Rec."Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the bank the company uses.';
                 }
-                field("CCC Bank No."; "CCC Bank No.")
+                field("CCC Bank No."; Rec."CCC Bank No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code. This code is the first part of the Código Cuenta Cliente (CCC) number.';
                 }
-                field("CCC Bank Branch No."; "CCC Bank Branch No.")
+                field("CCC Bank Branch No."; Rec."CCC Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the four-digit bank office number. This number is the second part of the Código Cuenta Cliente (CCC) number.';
                 }
-                field("CCC Control Digits"; "CCC Control Digits")
+                field("CCC Control Digits"; Rec."CCC Control Digits")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the two-digit account control code. This number is the third part of the Código Cuenta Cliente (CCC) number.';
                 }
-                field("CCC Bank Account No."; "CCC Bank Account No.")
+                field("CCC Bank Account No."; Rec."CCC Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the 10-digit bank account code of the Código Cuenta Cliente (CCC) number.';
                 }
-                field("CCC No."; "CCC No.")
+                field("CCC No."; Rec."CCC No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Código Cuenta Cliente (CCC) number.';
                 }
-                field("Bank Branch No."; "Bank Branch No.")
+                field("Bank Branch No."; Rec."Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = IBANMissing;
@@ -258,10 +257,10 @@ Page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
-                        SetShowMandatoryConditions
+                        SetShowMandatoryConditions();
                     end;
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = IBANMissing;
@@ -269,37 +268,37 @@ Page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
-                        SetShowMandatoryConditions
+                        SetShowMandatoryConditions();
                     end;
                 }
-                field("Payment Routing No."; "Payment Routing No.")
+                field("Payment Routing No."; Rec."Payment Routing No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s payment routing number.';
                 }
-                field("Giro No."; "Giro No.")
+                field("Giro No."; Rec."Giro No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s giro number.';
                 }
-                field("Payment Days Code"; "Payment Days Code")
+                field("Payment Days Code"; Rec."Payment Days Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment day code that is used by the customer or vendor.';
                 }
-                field("Non-Paymt. Periods Code"; "Non-Paymt. Periods Code")
+                field("Non-Paymt. Periods Code"; Rec."Non-Paymt. Periods Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the non-payment period code that is used by the customer or vendor.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of your primary bank.';
 
                     trigger OnValidate()
                     begin
-                        SetShowMandatoryConditions
+                        SetShowMandatoryConditions();
                     end;
                 }
                 field(IBAN; IBAN)
@@ -310,7 +309,7 @@ Page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
-                        SetShowMandatoryConditions
+                        SetShowMandatoryConditions();
                     end;
                 }
                 field(BankAccountPostingGroup; BankAcctPostingGroup)
@@ -332,69 +331,69 @@ Page 1 "Company Information"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the location to which items for the company should be shipped.';
                 }
-                field("Ship-to Address"; "Ship-to Address")
+                field("Ship-to Address"; Rec."Ship-to Address")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address of the location to which items for the company should be shipped.';
                 }
-                field("Ship-to Address 2"; "Ship-to Address 2")
+                field("Ship-to Address 2"; Rec."Ship-to Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
                 }
-                field("Ship-to City"; "Ship-to City")
+                field("Ship-to City"; Rec."Ship-to City")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the company''s ship-to address.';
                 }
-                field("Ship-to County"; "Ship-to County")
+                field("Ship-to County"; Rec."Ship-to County")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ship-to County';
                     ToolTip = 'Specifies the county of the company''s shipping address.';
                     Visible = CountyVisible;
                 }
-                field("Ship-to Post Code"; "Ship-to Post Code")
+                field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                 }
-                field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                 }
-                field("Ship-to Contact"; "Ship-to Contact")
+                field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code that corresponds to the company''s ship-to address.';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the default responsibility center.';
                 }
-                field("Check-Avail. Period Calc."; "Check-Avail. Period Calc.")
+                field("Check-Avail. Period Calc."; Rec."Check-Avail. Period Calc.")
                 {
                     ApplicationArea = OrderPromising;
                     ToolTip = 'Specifies a date formula that defines the length of the period after the planned shipment date on demand lines in which the system checks availability for the demand line in question.';
                 }
-                field("Check-Avail. Time Bucket"; "Check-Avail. Time Bucket")
+                field("Check-Avail. Time Bucket"; Rec."Check-Avail. Time Bucket")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies how frequently the system checks supply-demand events to discover if the item on the demand line is available on its shipment date.';
                 }
-                field("Base Calendar Code"; "Base Calendar Code")
+                field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
@@ -410,12 +409,12 @@ Page 1 "Company Information"
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         TestField("Base Calendar Code");
                         CalendarMgmt.ShowCustomizedCalendar(Rec);
                     end;
                 }
-                field("Cal. Convergence Time Frame"; "Cal. Convergence Time Frame")
+                field("Cal. Convergence Time Frame"; Rec."Cal. Convergence Time Frame")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how dates based on calendar and calendar-related documents are calculated.';
@@ -424,7 +423,7 @@ Page 1 "Company Information"
             group("System Indicator")
             {
                 Caption = 'Company Badge';
-                field("Company Badge"; "System Indicator")
+                field("Company Badge"; Rec."System Indicator")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Company Badge';
@@ -432,10 +431,10 @@ Page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
-                        SystemIndicatorOnAfterValidate;
+                        SystemIndicatorOnAfterValidate();
                     end;
                 }
-                field("System Indicator Style"; "System Indicator Style")
+                field("System Indicator Style"; Rec."System Indicator Style")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Company Badge Style';
@@ -444,7 +443,7 @@ Page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
-                        SystemIndicatorOnAfterValidate;
+                        SystemIndicatorOnAfterValidate();
                     end;
                 }
                 field("System Indicator Text"; SystemIndicatorText)
@@ -452,12 +451,12 @@ Page 1 "Company Information"
                     ApplicationArea = Suite;
                     Caption = 'Company Badge Text';
                     Editable = SystemIndicatorTextEditable;
-                    ToolTip = 'Specifies text that you want to use in the Company Badge. Only the first 4 characters will be shown in the badge.';
+                    ToolTip = 'Specifies text that you want to use in the Company Badge. Only the first 6 characters will be shown in the badge.';
 
                     trigger OnValidate()
                     begin
                         "Custom System Indicator Text" := SystemIndicatorText;
-                        SystemIndicatorOnAfterValidate;
+                        SystemIndicatorOnAfterValidate();
                     end;
                 }
             }
@@ -538,9 +537,6 @@ Page 1 "Company Information"
                 ApplicationArea = Advanced;
                 Caption = 'Report Layouts';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedOnly = true;
                 RunObject = Page "Report Layout Selection";
                 ToolTip = 'Specify the layout to use on reports when viewing, printing, and saving them. The layout defines things like text font, field placement, or background.';
             }
@@ -556,9 +552,6 @@ Page 1 "Company Information"
                         ApplicationArea = Advanced;
                         Caption = 'General Ledger Setup';
                         Image = JournalSetup;
-                        Promoted = true;
-                        PromotedCategory = Category4;
-                        PromotedIsBig = true;
                         RunObject = Page "General Ledger Setup";
                         ToolTip = 'Define your general accounting policies, such as the allowed posting period and how payments are processed. Set up your default dimensions for financial analysis.';
                     }
@@ -616,9 +609,6 @@ Page 1 "Company Information"
                     ApplicationArea = Advanced;
                     Caption = 'No. Series';
                     Image = NumberSetup;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "No. Series";
                     ToolTip = 'Set up the number series from which a new number is automatically assigned to new cards and documents, such as item cards and sales invoices.';
                 }
@@ -631,9 +621,6 @@ Page 1 "Company Information"
                     ApplicationArea = Advanced;
                     Caption = 'Users';
                     Image = Users;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page Users;
                     ToolTip = 'Set up the employees who will work in this company.';
                 }
@@ -668,9 +655,6 @@ Page 1 "Company Information"
                     ApplicationArea = Advanced;
                     Caption = 'Currencies';
                     Image = Currencies;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page Currencies;
                     ToolTip = 'Set up the different currencies that you trade in by defining which general ledger accounts the involved transactions are posted to and how the foreign currency amounts are rounded.';
                 }
@@ -691,9 +675,6 @@ Page 1 "Company Information"
                     ApplicationArea = Advanced;
                     Caption = 'Post Codes';
                     Image = MailSetup;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     RunObject = Page "Post Codes";
                     ToolTip = 'Set up the post codes of cities where your business partners are located.';
                 }
@@ -710,9 +691,6 @@ Page 1 "Company Information"
                     ApplicationArea = Advanced;
                     Caption = 'Languages';
                     Image = Language;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     RunObject = Page Languages;
                     ToolTip = 'Set up the languages that are spoken by your different business partners, so that you can print item names or descriptions in the relevant language.';
                 }
@@ -738,11 +716,65 @@ Page 1 "Company Information"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Report Layouts_Promoted"; "Report Layouts")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Application Settings', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("General Ledger Setup_Promoted"; "General Ledger Setup")
+                {
+                }
+                actionref("No. Series_Promoted"; "No. Series")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'System Settings', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Users_Promoted; Users)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Currencies', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Action27_Promoted; Action27)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Codes', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Languages_Promoted; Languages)
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Regional Settings', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref("Post Codes_Promoted"; "Post Codes")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateSystemIndicator;
+        UpdateSystemIndicator();
     end;
 
     trigger OnClosePage()
@@ -750,7 +782,7 @@ Page 1 "Company Information"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         if ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(Experience) then
-            RestartSession;
+            RestartSession();
 
         if SystemIndicatorChanged then begin
             Message(CompanyBadgeRefreshPageTxt);
@@ -760,7 +792,7 @@ Page 1 "Company Information"
 
     trigger OnInit()
     begin
-        SetShowMandatoryConditions;
+        SetShowMandatoryConditions();
     end;
 
     trigger OnOpenPage()
@@ -768,7 +800,7 @@ Page 1 "Company Information"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
     begin
-        Rec.Reset;
+        Rec.Reset();
         if not Rec.Get() then begin
             Rec.Init();
             Rec.Insert();
@@ -787,7 +819,7 @@ Page 1 "Company Information"
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         FormatAddress: Codeunit "Format Address";
         Experience: Text;
-        SystemIndicatorText: Code[4];
+        SystemIndicatorText: Code[6];
         [InDataSet]
         SystemIndicatorTextEditable: Boolean;
         IBANMissing: Boolean;
@@ -806,14 +838,14 @@ Page 1 "Company Information"
         IndicatorStyle: Option;
     begin
         GetSystemIndicator(CustomSystemIndicatorText, IndicatorStyle); // IndicatorStyle is not used
-        SystemIndicatorText := CopyStr(CustomSystemIndicatorText, 1, 4);
+        SystemIndicatorText := CopyStr(CustomSystemIndicatorText, 1, 6);
         SystemIndicatorTextEditable := CurrPage.Editable and ("System Indicator" = "System Indicator"::"Custom");
     end;
 
     local procedure SystemIndicatorOnAfterValidate()
     begin
         SystemIndicatorChanged := true;
-        UpdateSystemIndicator
+        UpdateSystemIndicator();
     end;
 
     local procedure SetShowMandatoryConditions()

@@ -205,7 +205,7 @@
                 ReminderIssue: Codeunit "Reminder-Issue";
             begin
                 TestField(Open, true);
-                CheckBillSituation;
+                CheckBillSituation();
                 if PaymentTerms.Get("Payment Terms Code") then
                     PaymentTerms.VerifyMaxNoDaysTillDueDate("Due Date", "Document Date", FieldCaption("Due Date"));
 
@@ -495,7 +495,7 @@
                 TestField(Open, true);
                 CalcFields("Remaining Amount");
 
-                CheckBillSituation;
+                CheckBillSituation();
 
                 if "Amount to Apply" * "Remaining Amount" < 0 then
                     FieldError("Amount to Apply", StrSubstNo(Text000, FieldCaption("Remaining Amount")));
@@ -555,7 +555,7 @@
             begin
                 TestField(Open, true);
                 if "Payment Method Code" <> xRec."Payment Method Code" then begin
-                    ValidatePaymentMethod;
+                    ValidatePaymentMethod();
                     CarteraDoc.UpdatePaymentMethodCode(
                       "Document No.", "Customer No.", "Bill No.", "Payment Method Code")
                 end;
@@ -1074,7 +1074,7 @@
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     [Scope('OnPrem')]
@@ -1118,7 +1118,7 @@
         if IsHandled Then
             exit(Style);
         if Open then begin
-            if WorkDate > "Due Date" then
+            if WorkDate() > "Due Date" then
                 exit('Unfavorable')
         end else
             if "Closed at Date" > "Due Date" then

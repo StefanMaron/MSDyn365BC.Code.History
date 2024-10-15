@@ -11,17 +11,17 @@ page 9151 "My Vendors"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor numbers that are displayed in the My Vendor Cue on the Role Center.';
 
                     trigger OnValidate()
                     begin
-                        SyncFieldsWithVendor
+                        SyncFieldsWithVendor();
                     end;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Phone No.';
@@ -38,7 +38,7 @@ page 9151 "My Vendors"
                     Lookup = false;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field("<Balance>"; "Balance (LCY)")
+                field("<Balance>"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance';
@@ -75,7 +75,7 @@ page 9151 "My Vendors"
 
     trigger OnAfterGetRecord()
     begin
-        SyncFieldsWithVendor
+        SyncFieldsWithVendor();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -102,7 +102,7 @@ page 9151 "My Vendors"
                 Name := Vendor.Name;
                 "Phone No." := Vendor."Phone No.";
                 if MyVendor.Get("User ID", "Vendor No.") then
-                    Modify;
+                    Modify();
             end;
     end;
 }

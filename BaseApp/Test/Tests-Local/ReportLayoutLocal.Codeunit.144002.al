@@ -211,12 +211,12 @@ codeunit 144002 "Report Layout - Local"
 
         // [GIVEN] Vendor with Balance = "S" on date "D1". Net Debit LCY = "D", Net Credit LCY = "C" on date "D2"
         VendorNo := LibraryPurchase.CreateVendorNo();
-        StartBalanceLCY := MockVendorLedgerEntry(VendorNo, WorkDate - 1, 1);
-        DebitLCY := MockVendorLedgerEntry(VendorNo, WorkDate, 1);
-        CreditLCY := MockVendorLedgerEntry(VendorNo, WorkDate, -1);
+        StartBalanceLCY := MockVendorLedgerEntry(VendorNo, WorkDate() - 1, 1);
+        DebitLCY := MockVendorLedgerEntry(VendorNo, WorkDate(), 1);
+        CreditLCY := MockVendorLedgerEntry(VendorNo, WorkDate(), -1);
 
         // [WHEN] Run REP 304 "Vendor - Detail Trial Balance" with "Show Amounts in LCY" = TRUE, date filter "D2.."
-        RunVendorDetailTrialBalanceReport(VendorNo, WorkDate);
+        RunVendorDetailTrialBalanceReport(VendorNo, WorkDate());
 
         // [THEN] StartBalance = "S"; NetDebit  = TotalDebit = "D"; NetCredit = TotalCredit = "C"; TotalBalance = "A" + "D" - "C"
         LibraryReportDataset.LoadDataSetFile;
@@ -244,12 +244,12 @@ codeunit 144002 "Report Layout - Local"
 
         // [GIVEN] Customer with Balance = "S" on date "D1". Net Debit LCY = "D", Net Credit LCY = "C" on date "D2"
         CustomerNo := LibrarySales.CreateCustomerNo();
-        StartBalanceLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate - 1, 1);
-        CreditLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate, 1);
-        DebitLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate, -1);
+        StartBalanceLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate() - 1, 1);
+        CreditLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate(), 1);
+        DebitLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate(), -1);
 
         // [WHEN] Run REP 104 "Customer - Detail Trial Balance" with "Show Amounts in LCY" = TRUE, date filter "D2.."
-        RunCustomerDetailTrialBalanceReport(CustomerNo, WorkDate);
+        RunCustomerDetailTrialBalanceReport(CustomerNo, WorkDate());
 
         // [THEN] StartBalance = "S"; NetDebit  = TotalDebit = "D"; NetCredit = TotalCredit = "C"; TotalBalance = "A" - "D" + "C"
         LibraryReportDataset.LoadDataSetFile;
@@ -277,7 +277,7 @@ codeunit 144002 "Report Layout - Local"
         // [GIVEN] Starting balance of G/L Account "X" with Debit Amount = 10
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         OpeningAmt := LibraryRandom.RandDec(100, 2);
-        MockGLEntry(GLEntry, GLAccountNo, WorkDate, OpeningAmt, 0);
+        MockGLEntry(GLEntry, GLAccountNo, WorkDate(), OpeningAmt, 0);
 
         // [GIVEN] G/L Register has G/L Entry with Debit Amount = 20 and Posting Date = 01-01-25 in new Fiscal Year
         LibraryFiscalYear.CreateFiscalYear();
@@ -420,7 +420,7 @@ codeunit 144002 "Report Layout - Local"
         LibraryLowerPermissions.SetO365BusFull;
         SetPeriodTransNos(StrSubstNo('%1..%2', WorkDate + 1, WorkDate + 3));
         for i := 1 to ArrayLen(GLEntry) do
-            GLEntry[i].Find;
+            GLEntry[i].Find();
 
         // [WHEN] Run report 10706 "Account - Official Acc. Book" for 01-01-2018..03-01-2018 period
         RunAccountOfficialAccBookReport(StrSubstNo('%1..%2', WorkDate + 1, WorkDate + 3));
@@ -450,7 +450,7 @@ codeunit 144002 "Report Layout - Local"
 
         // [GIVEN] Sales Invoice
         CreateSalesInvoiceWithVATPostingSetup(SalesHeader, VATPostingSetup);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
 
         // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
@@ -481,7 +481,7 @@ codeunit 144002 "Report Layout - Local"
         // [GIVEN] Posted Sales Invoice
         CreateSalesInvoiceWithVATPostingSetup(SalesHeader, VATPostingSetup);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
@@ -540,12 +540,12 @@ codeunit 144002 "Report Layout - Local"
         GLEntryTo: Record "G/L Entry";
     begin
         with GLRegister do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GetNewRecNo(GLRegister, FieldNo("No."));
 
             MockGLEntry(
               GLEntryFrom, LibraryUtility.GenerateRandomCode(GLEntryFrom.FieldNo("G/L Account No."), DATABASE::"G/L Entry"),
-              CalcDate('<1M>', WorkDate), LibraryRandom.RandDec(100, 2), "No.");
+              CalcDate('<1M>', WorkDate()), LibraryRandom.RandDec(100, 2), "No.");
             MockGLEntry(
               GLEntryTo, LibraryUtility.GenerateRandomCode(GLEntryFrom.FieldNo("G/L Account No."), DATABASE::"G/L Entry"),
               GLEntryFrom."Posting Date" + 1, LibraryRandom.RandDec(100, 2), "No.");
@@ -555,7 +555,7 @@ codeunit 144002 "Report Layout - Local"
             "Posting Date" := GLEntryFrom."Posting Date";
             "From Entry No." := GLEntryFrom."Entry No.";
             "To Entry No." := GLEntryTo."Entry No.";
-            Insert;
+            Insert();
         end;
         GLAccFrom := GLEntryFrom."G/L Account No.";
         DateFrom := GLEntryFrom."Posting Date";
@@ -569,13 +569,13 @@ codeunit 144002 "Report Layout - Local"
         GLEntry: Record "G/L Entry";
     begin
         with GLRegister do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GetNewRecNo(GLRegister, FieldNo("No."));
             MockGLEntry(GLEntry, GLAccountNo, PostingDate, DebitAmount, "No.");
             "Posting Date" := GLEntry."Posting Date";
             "From Entry No." := GLEntry."Entry No.";
             "To Entry No." := GLEntry."Entry No.";
-            Insert;
+            Insert();
             exit(GLEntry."Entry No.");
         end;
     end;
@@ -583,7 +583,7 @@ codeunit 144002 "Report Layout - Local"
     local procedure MockGLEntry(var GLEntry: Record "G/L Entry"; GLAccNo: Code[20]; PostingDate: Date; DebitAmount: Decimal; TransactionNo: Integer)
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "G/L Account No." := GLAccNo;
             "Posting Date" := PostingDate;
@@ -591,7 +591,7 @@ codeunit 144002 "Report Layout - Local"
             "Debit Amount" := DebitAmount;
             "Transaction No." := TransactionNo;
             "Period Trans. No." := "Entry No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -600,11 +600,11 @@ codeunit 144002 "Report Layout - Local"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Vendor No." := VendorNo;
             "Posting Date" := PostingDate;
-            Insert;
+            Insert();
             exit(MockDetailedVendorLedgerEntry(VendorNo, "Entry No.", PostingDate, Sign));
         end;
     end;
@@ -614,7 +614,7 @@ codeunit 144002 "Report Layout - Local"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Vendor No." := VendorNo;
             "Vendor Ledger Entry No." := VLENo;
@@ -629,7 +629,7 @@ codeunit 144002 "Report Layout - Local"
                 "Credit Amount" := -Amount;
                 "Credit Amount (LCY)" := -"Amount (LCY)";
             end;
-            Insert;
+            Insert();
             exit(Abs("Amount (LCY)"));
         end;
     end;
@@ -639,11 +639,11 @@ codeunit 144002 "Report Layout - Local"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
             "Posting Date" := PostingDate;
-            Insert;
+            Insert();
             exit(MockDetailedCustomerLedgerEntry(CustomerNo, "Entry No.", PostingDate, Sign));
         end;
     end;
@@ -653,7 +653,7 @@ codeunit 144002 "Report Layout - Local"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
             "Cust. Ledger Entry No." := CLENo;
@@ -668,7 +668,7 @@ codeunit 144002 "Report Layout - Local"
                 "Credit Amount" := Amount;
                 "Credit Amount (LCY)" := "Amount (LCY)";
             end;
-            Insert;
+            Insert();
             exit(Abs("Amount (LCY)"));
         end;
     end;
@@ -779,7 +779,7 @@ codeunit 144002 "Report Layout - Local"
     procedure RHCustomerAnnualDeclaration(var CustomerAnnualDeclaration: TestRequestPage "Customer - Annual Declaration")
     begin
         CustomerAnnualDeclaration.Customer.SetFilter(
-          "Date Filter", StrSubstNo('%1..%2', Format(CalcDate('<-1Y>', WorkDate)), Format(WorkDate)));
+          "Date Filter", StrSubstNo('%1..%2', Format(CalcDate('<-1Y>', WorkDate())), Format(WorkDate())));
         CustomerAnnualDeclaration.SaveAsPdf(FormatFileName(CustomerAnnualDeclaration.Caption));
     end;
 
@@ -787,7 +787,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHVendorAnnualDeclaration(var VendorAnnualDeclaration: TestRequestPage "Vendor - Annual Declaration")
     begin
-        VendorAnnualDeclaration.Vendor.SetFilter("Date Filter", Format(WorkDate));
+        VendorAnnualDeclaration.Vendor.SetFilter("Date Filter", Format(WorkDate()));
         VendorAnnualDeclaration.SaveAsPdf(FormatFileName(VendorAnnualDeclaration.Caption));
     end;
 
@@ -828,7 +828,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHDetailAccountStatement(var DetailAccountStatement: TestRequestPage "Detail Account Statement")
     begin
-        DetailAccountStatement."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        DetailAccountStatement."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         DetailAccountStatement.SaveAsPdf(FormatFileName(DetailAccountStatement.Caption));
     end;
 
@@ -836,7 +836,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHMainAccountingBook(var MainAccountingBook: TestRequestPage "Main Accounting Book")
     begin
-        MainAccountingBook."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        MainAccountingBook."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         MainAccountingBook.SaveAsPdf(FormatFileName(MainAccountingBook.Caption));
     end;
 
@@ -844,7 +844,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHDetailAccStatCOEntries(var DetailAccStatCOEntries: TestRequestPage "Detail Acc. Stat.- C&O Entries")
     begin
-        DetailAccStatCOEntries."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        DetailAccStatCOEntries."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         DetailAccStatCOEntries.SaveAsPdf(FormatFileName(DetailAccStatCOEntries.Caption));
     end;
 
@@ -894,7 +894,7 @@ codeunit 144002 "Report Layout - Local"
         AccScheduleName.SetRange(Standardized, true);
         AccScheduleName.FindFirst();
         NormalizedAccountSchedule."Acc. Schedule Name".SetFilter(Name, AccScheduleName.Name);
-        NormalizedAccountSchedule."Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate));
+        NormalizedAccountSchedule."Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate()));
         NormalizedAccountSchedule.SaveAsPdf(FormatFileName(NormalizedAccountSchedule.Caption));
     end;
 
@@ -904,11 +904,11 @@ codeunit 144002 "Report Layout - Local"
     var
         EndDate: Date;
     begin
-        EndDate := CalcDate('<CM>', WorkDate);
+        EndDate := CalcDate('<CM>', WorkDate());
         LibraryVariableStorage.Enqueue(EndDate);
 
         Statement.ShowOverdueEntries.SetValue(LibraryVariableStorage.DequeueBoolean);
-        Statement."Start Date".SetValue(CalcDate('<-CM+1D>', WorkDate));
+        Statement."Start Date".SetValue(CalcDate('<-CM+1D>', WorkDate()));
         Statement."End Date".SetValue(EndDate);
         Statement.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
