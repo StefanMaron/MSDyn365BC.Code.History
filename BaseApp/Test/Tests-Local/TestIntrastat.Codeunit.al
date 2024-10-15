@@ -1,4 +1,4 @@
-codeunit 134153 "Test Intrastat"
+﻿codeunit 134153 "Test Intrastat"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -26,7 +26,7 @@ codeunit 134153 "Test Intrastat"
         ExportCancelledErr: Label 'Export cancelled.';
 
     [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandlerFalse,CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure TestIntrastatMakeDiskErrorOnSecondRunConfirmFalse()
     var
@@ -57,7 +57,7 @@ codeunit 134153 "Test Intrastat"
     end;
 
     [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandlerTrue,CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure TestIntrastatMakeDiskNoErrorOnSecondRunConfirmTrue()
     var
@@ -89,7 +89,7 @@ codeunit 134153 "Test Intrastat"
     end;
 
     [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure TestIntrastatMakeDiskErrorOnBlankTransactionType()
     var
@@ -277,6 +277,7 @@ codeunit 134153 "Test Intrastat"
     end;
 
     [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure IntrastatMakeDiskStatisticalValue()
     var
@@ -304,6 +305,7 @@ codeunit 134153 "Test Intrastat"
           FindOrCreateIntrastatEntryExitPoint);
         IntrastatJnlLine.Validate("Total Weight", LibraryRandom.RandIntInRange(100, 200));
         IntrastatJnlLine.Modify(true);
+        Commit();
 
         // [WHEN] Run 'Intrastat - Make Disk Tax Auth' report
         Filename := FileManagement.ServerTempFileName('txt');
@@ -562,6 +564,13 @@ codeunit 134153 "Test Intrastat"
         LibraryVariableStorage.Dequeue(Type);
         IntrastatFormReqPage."Intrastat Jnl. Line".SetFilter(Type, Format(Type));
         IntrastatFormReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateIntrastatDeclDiskReqPageHandler(var CreateIntrastatDeclDisk: TestRequestPage "Create Intrastat Decl. Disk")
+    begin
+        CreateIntrastatDeclDisk.OK.Invoke;
     end;
 }
 

@@ -193,6 +193,11 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies if it is possible to use SEPA direct debit export by filling in the Bank Branch No. and Bank Account No. fields instead of the IBAN and SWIFT No. fields on the bank account and customer bank account cards.';
                 }
+                field("Local SEPA Instr. Priority"; "Local SEPA Instr. Priority")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to use the local SEPA functionality to generate the InstrPrty XML element in documents. Otherwise, the generic functionality will be used';
+                }
             }
             group(Control1900309501)
             {

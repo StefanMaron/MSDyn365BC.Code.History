@@ -7,7 +7,7 @@
   </OwnedComments>
   <Item ItemId=";Codeunit 3303160028 - NamedType 1098592984" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[http://www.nltaxonomie.nl/nt14/bd/20191211/dictionary/bd-data]]></Val>
+      <Val><![CDATA[http://www.nltaxonomie.nl/nt15/bd/20201209/dictionary/bd-data]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

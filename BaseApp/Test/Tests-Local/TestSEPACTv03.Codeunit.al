@@ -1473,6 +1473,86 @@ codeunit 144101 "Test SEPA CT v03"
           StrSubstNo(MustBeEnteredMsg, DummyProposalLine.FIELDCAPTION(IBAN), DummyProposalLine.TABLECAPTION));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocalSEPAInstrPrtyIsEnabledByDefaultInGenLedgSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [FEATURE] [DEMO]
+        // [SCENARIO 381529] The "Local SEPA Instr. Prioririty" option is enabled by default in the General Ledger Setup
+
+        Initialize();
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Local SEPA Instr. Priority");
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    [Scope('OnPrem')]
+    procedure InstrPrtyValueWHenLocalSEPAInstrPrtyIsEnabled()
+    var
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        ExportProtocolCode: Code[20];
+        FileName: Text;
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 381529] SEPA CT xml file has InstrPrty equals "HIGH" when when export with "Local SEPA Instr. Prioririty" option is enabled in the General Ledger Setup
+
+        Initialize();
+
+        // [GIVEN] "Local SEPA Instr. Priority" is enabled in General Ledger Setup
+        UpdateLocalInstrPrtyInGenLedgSetup(true);
+
+        // [GIVEN] Export protocol with "SEPA CT pain.001.001.03" xml port
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol();
+
+        // [GIVEN] Vendor entry for export
+        SetupForExportByNumberOfDocuments(BankAccount, VendorBankAccount, ExportProtocolCode, 1, TotalAmount);
+
+        // [WHEN] Run xml export
+        FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+
+        // [THEN] Xml file is exported with InstrPrty = HIGH
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
+        XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'HIGH', 1);
+        XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    [Scope('OnPrem')]
+    procedure InstrPrtyValueWHenLocalSEPAInstrPrtyIsDisabled()
+    var
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        ExportProtocolCode: Code[20];
+        FileName: Text;
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 381529] SEPA CT xml file has InstrPrty equals "NORM" when when export with "Local SEPA Instr. Prioririty" option is enabled in the General Ledger Setup
+
+        Initialize();
+
+        // [GIVEN] "Local SEPA Instr. Priority" is disabled in General Ledger Setup
+        UpdateLocalInstrPrtyInGenLedgSetup(false);
+
+        // [GIVEN] Export protocol with "SEPA CT pain.001.001.03" xml port
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol();
+
+        // [GIVEN] Vendor entry for export
+        SetupForExportByNumberOfDocuments(BankAccount, VendorBankAccount, ExportProtocolCode, 1, TotalAmount);
+
+        // [WHEN] Run xml export
+        FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+
+        // [THEN] Xml file is exported with InstrPrty = NORM
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
+        XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 1);
+        XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'HIGH', 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test SEPA CT v03");
@@ -1521,12 +1601,17 @@ codeunit 144101 "Test SEPA CT v03"
     end;
 
     local procedure SetupForExport(var BankAccount: Record "Bank Account"; var VendorBankAccount: Record "Vendor Bank Account"; ExportProtocolCode: Code[20]; var TotalAmount: Decimal; var NoOfDocuments: Integer)
+    begin
+        NoOfDocuments := GenerateNoOfDocuments();
+        SetupForExportByNumberOfDocuments(BankAccount, VendorBankAccount, ExportProtocolCode, NoOfDocuments, TotalAmount);
+    end;
+
+    local procedure SetupForExportByNumberOfDocuments(var BankAccount: Record "Bank Account"; var VendorBankAccount: Record "Vendor Bank Account"; ExportProtocolCode: Code[20]; NoOfDocuments: Integer; var TotalAmount: Decimal)
     var
         Vendor: Record Vendor;
         i: Integer;
     begin
         SetUpTransactionMode(CreateSEPABankAccount(BankAccount, ''), ExportProtocolCode);
-        NoOfDocuments := GenerateNoOfDocuments;
         for i := 1 to NoOfDocuments do begin
             CreateVendorWithBankAccount(Vendor, BankAccount, '');
             TotalAmount += CreateAndPostPurchInvoice(Vendor."No.", false);
@@ -2130,6 +2215,15 @@ codeunit 144101 "Test SEPA CT v03"
             Validate("LCY Code", LCYCode);
             Modify(true);
         end;
+    end;
+
+    local procedure UpdateLocalInstrPrtyInGenLedgSetup(NewLocalInstrPrty: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Local SEPA Instr. Priority", NewLocalInstrPrty);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure FormatIBAN(IBAN: Text): Text

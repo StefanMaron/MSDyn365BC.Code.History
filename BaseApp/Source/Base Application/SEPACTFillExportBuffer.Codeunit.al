@@ -96,7 +96,11 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                     else
                         OnFillExportBufferOnSetAsRecipient(GenJnlLine, PaymentExportData, TempGenJnlLine);
                 end;
-                CollectDataFromLocalSource(TempGenJnlLine);
+                if GeneralLedgerSetup."Local SEPA Instr. Priority" then
+                    CollectDataFromLocalSource(TempGenJnlLine)
+                else
+                    Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::NORMAL);
+
 
                 Validate("SEPA Payment Method", "SEPA Payment Method"::TRF);
                 Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SLEV);

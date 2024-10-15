@@ -1,10 +1,9 @@
-report 11413 "Create Intrastat Decl. Disk"
+﻿report 11413 "Create Intrastat Decl. Disk"
 {
     // // Note: Intrastat Jnl. Batch dataitem has MaxIteration = 1
 
     Caption = 'Create Intrastat Decl. Disk';
     ProcessingOnly = true;
-    UseRequestPage = false;
 
     dataset
     {
@@ -73,8 +72,10 @@ report 11413 "Create Intrastat Decl. Disk"
                     Write(Format(ItemDirection));
                     Write(PADSTR2(CompanyInfo."VAT Registration No.", 12, '0', 'L'));
                     Write(PADSTR2(Format(LineNo, 0, '<Integer>'), 5, '0', '<'));
-                    Write(PADSTR2('', 3, ' ', '<'));
-
+                    if CounterpartyInfo and (Type = Type::Shipment) then
+                        Write(PADSTR2("Country/Region of Origin Code", 3, ' ', '<'))
+                    else
+                        Write(PADSTR2('', 3, ' ', '<'));
                     case ContainsAlpha(Country."Intrastat Code") of
                         true:
                             Write(PADSTR2(Country."Intrastat Code", 3, ' ', '>'));
@@ -85,8 +86,8 @@ report 11413 "Create Intrastat Decl. Disk"
                     Write(PADSTR2("Transport Method", 1, '', '>'));
                     Write('0');
                     Write(PADSTR2("Entry/Exit Point", 2, '0', '<'));
-                    Write('00');
-                    Write(PADSTR2("Transaction Type", 1, '', '>'));
+                    Write('00'); // Statistical system
+                    Write(PADSTR2("Transaction Type", 1, '', '>')); // Transaction code
                     Write(PADSTR2(DelChr("Tariff No."), 8, '0', '<'));
                     Write('00');
                     Write(Sign(RoundedWeight, IsCorrection));
@@ -109,6 +110,15 @@ report 11413 "Create Intrastat Decl. Disk"
                     Write('000');
                     Write(PADSTR2("Intrastat Jnl. Batch"."Currency Identifier", 1, ' ', '>'));
                     Write(PADSTR2('', 6, ' ', '>'));
+                    if CounterpartyInfo then
+                        if Type = Type::Receipt then begin
+                            Write('  ');
+                            Write(PadStr('', 17, ' '));
+                        end else begin
+                            Write(PADSTR2("Transaction Specification", 2, ' ', '<'));
+                            Write(PADSTR2(CopyStr("Partner VAT ID", 1, 17), 17, ' ', '<'));
+                        end;
+
                     Write(CrLf);
                 end;
 
@@ -247,6 +257,18 @@ report 11413 "Create Intrastat Decl. Disk"
 
         layout
         {
+            area(content)
+            {
+                group(Options)
+                {
+                    field(Counterparty; CounterpartyInfo)
+                    {
+                        ApplicationArea = BasicEU;
+                        Caption = 'Counter party info';
+                        ToolTip = 'Specifies if counter party information and country of origin will be included.';
+                    }
+                }
+            }
         }
 
         actions
@@ -309,6 +331,7 @@ report 11413 "Create Intrastat Decl. Disk"
         ZeroReceipt: Boolean;
         ZeroShipment: Boolean;
         ServerFileName: Text;
+        CounterpartyInfo: Boolean;
 
     local procedure RegNoCBS(): Text[10]
     begin

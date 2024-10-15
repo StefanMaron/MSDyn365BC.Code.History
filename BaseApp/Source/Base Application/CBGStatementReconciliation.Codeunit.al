@@ -140,6 +140,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                             CustLedgerEntry.SetCurrentKey("Customer No.", Open);
                             CustLedgerEntry.SetRange("Customer No.", CBGStatementLine."Account No.");
                             CustLedgerEntry.SetRange(Open, true);
+                            CustLedgerEntry.SetFilter("Document Type", '<>%1', CustLedgerEntry."Document Type"::Payment);
                             GetTransactionModeFilter(CBGStatementLine, strFilter, TransactionMode."Account Type"::Customer);
                             if strFilter <> '' then
                                 CustLedgerEntry.SetFilter("Transaction Mode Code", strFilter);
@@ -171,6 +172,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                             VendorLedgerEntry.SetCurrentKey("Vendor No.", Open);
                             VendorLedgerEntry.SetRange("Vendor No.", CBGStatementLine."Account No.");
                             VendorLedgerEntry.SetRange(Open, true);
+                            VendorLedgerEntry.SetFilter("Document Type", '<>%1', VendorLedgerEntry."Document Type"::Payment);
                             GetTransactionModeFilter(CBGStatementLine, strFilter, TransactionMode."Account Type"::Vendor);
                             if strFilter <> '' then
                                 VendorLedgerEntry.SetFilter("Transaction Mode Code", strFilter);
@@ -202,6 +204,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                             EmployeeLedgerEntry.SetCurrentKey("Employee No.", Open);
                             EmployeeLedgerEntry.SetRange("Employee No.", CBGStatementLine."Account No.");
                             EmployeeLedgerEntry.SetRange(Open, true);
+                            EmployeeLedgerEntry.SetFilter("Document Type", '<>%1', EmployeeLedgerEntry."Document Type"::Payment);
                             GetTransactionModeFilter(CBGStatementLine, strFilter, TransactionMode."Account Type"::Employee);
                             if strFilter <> '' then
                                 EmployeeLedgerEntry.SetFilter("Transaction Mode Code", strFilter);

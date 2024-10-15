@@ -1,4 +1,4 @@
-codeunit 144018 "ERM MISC"
+﻿codeunit 144018 "ERM MISC"
 {
     // 1. Verify Transaction Mode Code and Bank Account Code after Posting Service Order.
     // 2. Verify Transaction Mode Code and Bank Account Code after Posting Service Invoice.
@@ -43,6 +43,7 @@ codeunit 144018 "ERM MISC"
         LibraryNLLocalization: Codeunit "Library - NL Localization";
         isInitialized: Boolean;
         EntryExitPointErr: Label 'Reported Entry/Exit Point is incorrect.';
+        WrongValueErr: Label 'Wrong value %1 in intrastat file.';
 
     [Test]
     [Scope('OnPrem')]
@@ -75,6 +76,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure VatRegistrationNoInIntrastatFile()
     var
@@ -97,7 +99,8 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlBatch.Modify(true);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, CountryCode);
-        Commit;
+        Commit();
+        LibraryVariableStorage.Enqueue(false);
 
         Filename := FileManagement.ServerTempFileName('txt');
 
@@ -170,7 +173,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure IntrastatMakeDiskWorksFromJnlLinesWithFilters()
     var
@@ -199,6 +202,7 @@ codeunit 144018 "ERM MISC"
           FindOrCreateIntrastatTransactionType, FindOrCreateIntrastatEntryExitPoint);
 
         PrepareFileNameStorageForSubscriber(Filename);
+        LibraryVariableStorage.Enqueue(false);
 
         // [GIVEN] A filter applied on "IntJ" lines to show only "Item1".
         // [WHEN] Create Intrastat Declaration File is invoked.
@@ -426,6 +430,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('Internal')]
     procedure EmptyEntryExitPointInIntrastatFile()
     var
@@ -448,6 +453,8 @@ codeunit 144018 "ERM MISC"
         // [GIVEN] Set an empty "Entry/Exit Point" on Intrastat Jnl. Line
         IntrastatJnlLine.Validate("Entry/Exit Point", '');
         IntrastatJnlLine.Modify(true);
+        Commit();
+        LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Create Intrastat Declaration Disc
         Filename := FileManagement.ServerTempFileName('txt');
@@ -461,6 +468,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('Internal')]
     procedure FilledEntryExitPointInIntrastatFile()
     var
@@ -479,6 +487,8 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlBatch.Modify(true);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        Commit();
+        LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Create Intrastat Declaration Disc
         Filename := FileManagement.ServerTempFileName('txt');
@@ -492,6 +502,70 @@ codeunit 144018 "ERM MISC"
           GetEntryExitPointFromDeclarationFile(DeclarationFile),
           EntryExitPointErr);
         DeclarationFile.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure PartnerIDInShipmentIntrastatFileCounterpartyFalse()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        Filename: Text;
+    begin
+        // [FEATURE] [Intrastat] [Export]
+        // [SCENARIO 376893] Create Intrastat Decl. with "Partner VAT ID" in shipment Intrastat Jnl. Line when Counterparty = false
+        Initialize();
+
+        // [GIVEN] Prepare shipment Intrastat Journal Line whith "Partner VAT ID" = 'NL23456789456' and Transaction Specification = '12'
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
+        IntrastatJnlBatch.Modify(true);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine);
+        Commit();
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename);
+
+        // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure PartnerIDInShipmentIntrastatFileCounterpartyTrue()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        Filename: Text;
+    begin
+        // [FEATURE] [Intrastat] [Export]
+        // [SCENARIO 376893] Create Intrastat Decl. with "Partner VAT ID" in shipment Intrastat Jnl. Line when Counterparty = true
+        Initialize();
+
+        // [GIVEN] Prepare shipment Intrastat Journal Line whith "Partner VAT ID" = 'NL0123456789' and Transaction Specification = '12'
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
+        IntrastatJnlBatch.Modify(true);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine);
+        Commit();
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename);
+
+        // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
+        VerifyTransactionAndPatnerIDInDeclarationFile(
+          Filename, IntrastatJnlLine."Transaction Specification",
+          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID");
     end;
 
     local procedure Initialize()
@@ -924,6 +998,14 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlLine.Modify(true);
     end;
 
+    local procedure UpdatePartnerIDInIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+        IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
+        IntrastatJnlLine."Transaction Specification" := Format(LibraryRandom.RandIntInRange(10, 99));
+        IntrastatJnlLine."Partner VAT ID" := LibraryUtility.GenerateGUID();
+        IntrastatJnlLine.Modify();
+    end;
+
     local procedure VerifyGLEntry(DocumentNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -961,6 +1043,20 @@ codeunit 144018 "ERM MISC"
         CustLedgerEntry.FindFirst;
         CustLedgerEntry.TestField("Transaction Mode Code", ServiceHeader."Transaction Mode Code");
         CustLedgerEntry.TestField("Recipient Bank Account", ServiceHeader."Bank Account Code");
+    end;
+
+    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(FileName: Text; ExpectedTransaction: Text; ExpectedPartnedID: Text)
+    var
+        DeclFile: File;
+        DeclarationString: Text[256];
+    begin
+        DeclFile.TextMode(true);
+        Assert.IsTrue(DeclFile.Open(FileName), FileName);
+        DeclFile.Read(DeclarationString);
+        DeclFile.Read(DeclarationString);
+        Assert.AreEqual(ExpectedTransaction, CopyStr(DeclarationString, 116, 2), StrSubstNo(WrongValueErr, 'Transaction'));
+        Assert.AreEqual(ExpectedPartnedID, CopyStr(DeclarationString, 118, 17), StrSubstNo(WrongValueErr, 'Partner ID'));
+        DeclFile.Close();
     end;
 
     [ModalPageHandler]
@@ -1016,6 +1112,14 @@ codeunit 144018 "ERM MISC"
         end;
         GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
         GLAccountWhereUsedList.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateIntrastatDeclDiskReqPageHandler(var CreateIntrastatDeclDisk: TestRequestPage "Create Intrastat Decl. Disk")
+    begin
+        CreateIntrastatDeclDisk.Counterparty.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CreateIntrastatDeclDisk.OK.Invoke;
     end;
 }
 
