@@ -1,4 +1,4 @@
-codeunit 141021 "ERM Electronic - Banking"
+﻿codeunit 141021 "ERM Electronic - Banking"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -476,7 +476,7 @@ codeunit 141021 "ERM Electronic - Banking"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment vendor ledger entry has a link to EFT register
-        FindPaymentVendorLedgerEntry(VendorLedgerEntry, Vendor."No.");
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Payment);
         VendorLedgerEntry.TestField("EFT Register No.", EFTRegister."No.");
     end;
 
@@ -1736,6 +1736,194 @@ codeunit 141021 "ERM Electronic - Banking"
         EFTRegister.TestField("Total Amount (LCY)", GenJournalLine.Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateEFTFileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure EFTRegisterForAppliedPaymentVendLedgerEntry_PaymentToInvoice()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EFTRegister: Record "EFT Register";
+    begin
+        // [FEATURE] [EFT Payment]
+        // [SCENARIO 431726] Payment application to invoice does not clear EFT Register No. and EFT Bank Account No. for payment entry
+        Initialize();
+
+        // [GIVEN] Create and post invoice for vendor VEND
+        CreateAndPostPurchaseOrderForNewNotWHTVendor(Vendor);
+
+        // [GIVEN] Create payment journal line to bank BANK applied to posted invoice
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        CreateVendorEFTPaymentJournalLine(GenJournalLine, GenJournalBatch, Vendor);
+
+        // [GIVEN] Run EFT export for created payment
+        EFTPaymentCreateFile(GenJournalLine);
+        FindEFTRegister(EFTRegister, GenJournalBatch."Bal. Account No.");
+
+        // [GIVEN] Exported payment journal line is being posted
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        // [GIVEN] Vendor payment ledger entry has "EFT Register No." and "EFT Bank Account No." filled in
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Payment);
+        VendorLedgerEntry.TestField("EFT Register No.", EFTRegister."No.");
+        VendorLedgerEntry.TestField("EFT Bank Account No.", Vendor."EFT Bank Account No.");
+
+        // [WHEN] Apply payment to invoice entry
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Invoice);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
+
+        // [THEN] Payment vendor ledger entry still has "EFT Register No." and "EFT Bank Account No." filled in
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Payment);
+        VendorLedgerEntry.TestField("EFT Bank Account No.", Vendor."EFT Bank Account No.");
+        VendorLedgerEntry.TestField("EFT Register No.", EFTRegister."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateEFTFileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure EFTRegisterForAppliedPaymentVendLedgerEntry_InvoiceToPayment()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EFTRegister: Record "EFT Register";
+    begin
+        // [FEATURE] [EFT Payment]
+        // [SCENARIO 431726] Invoice application to payment does not clear EFT Register No. and EFT Bank Account No. for payment entry
+        Initialize();
+
+        // [GIVEN] Create and post invoice for vendor VEND
+        CreateAndPostPurchaseOrderForNewNotWHTVendor(Vendor);
+
+        // [GIVEN] Create payment journal line to bank BANK applied to posted invoice
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        CreateVendorEFTPaymentJournalLine(GenJournalLine, GenJournalBatch, Vendor);
+
+        // [GIVEN] Run EFT export for created payment
+        EFTPaymentCreateFile(GenJournalLine);
+        FindEFTRegister(EFTRegister, GenJournalBatch."Bal. Account No.");
+
+        // [GIVEN] Exported payment journal line is being posted
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        // [GIVEN] Vendor payment ledger entry has "EFT Register No." and "EFT Bank Account No." filled in
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Invoice);
+
+        // [WHEN] Apply payment to invoice entry
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Payment);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
+
+        // [THEN] Payment vendor ledger entry still has "EFT Register No." and "EFT Bank Account No." filled in
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Payment);
+        VendorLedgerEntry.TestField("EFT Bank Account No.", Vendor."EFT Bank Account No.");
+        VendorLedgerEntry.TestField("EFT Register No.", EFTRegister."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateEFTFileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure EFTRegisterForUnappliedPaymentVendLedgerEntry()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EFTRegister: Record "EFT Register";
+    begin
+        // [FEATURE] [EFT Payment]
+        // [SCENARIO 431726] Unapply does not clear EFT Register No. and EFT Bank Account No. for payment entry
+        Initialize();
+
+        // [GIVEN] Create and post invoice for vendor VEND
+        CreateAndPostPurchaseOrderForNewNotWHTVendor(Vendor);
+
+        // [GIVEN] Create payment journal line to bank BANK applied to posted invoice
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        CreateVendorEFTPaymentJournalLine(GenJournalLine, GenJournalBatch, Vendor);
+
+        // [GIVEN] Run EFT export for created payment
+        EFTPaymentCreateFile(GenJournalLine);
+        FindEFTRegister(EFTRegister, GenJournalBatch."Bal. Account No.");
+
+        // [GIVEN] Exported payment journal line is being posted
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        // [GIVEN] Vendor payment ledger entry has "EFT Register No." and "EFT Bank Account No." filled in
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Payment);
+        VendorLedgerEntry.TestField("EFT Register No.", EFTRegister."No.");
+        VendorLedgerEntry.TestField("EFT Bank Account No.", Vendor."EFT Bank Account No.");
+
+        // [GIVEN] Apply payment to invoice entry
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Invoice);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
+
+        // [WHEN] Unapply entries
+        LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
+
+        // [THEN] Payment vendor ledger entry still has "EFT Register No." and "EFT Bank Account No." filled in
+        FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Payment);
+        VendorLedgerEntry.TestField("EFT Bank Account No.", Vendor."EFT Bank Account No.");
+        VendorLedgerEntry.TestField("EFT Register No.", EFTRegister."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateEFTFileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateEFTPaymentForUpdatedLine()
+    var
+        Vendor: array[3] of Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EFTRegister: Record "EFT Register";
+        i: Integer;
+        TotalAmount: Decimal;
+    begin
+        // [FEATURE] [EFT Payment]
+        // [SCENARIO 431503] Create EFT payments function considers updated paymen line
+        Initialize();
+
+        // [GIVEN] Create and post invoice for vendor VEND1, VEND2 and VEND3
+        for i := 1 to 3 do
+            CreateAndPostPurchaseOrderForNewNotWHTVendor(Vendor[i]);
+
+        // [GIVEN] Create payment journal lines LINE1 and LINE2 for VEND1 and VEND2 applied to posted invoices
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        for i := 1 to 2 do
+            TotalAmount += CreateVendorEFTPaymentJournalLineNoBalanceAccAppliedToInvoice(GenJournalLine, GenJournalBatch, Vendor[i]);
+
+        // [GIVEN] Create balancing bank entry
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Account Type"::"Bank Account", GenJournalBatch."Bal. Account No.",
+            "Gen. Journal Account Type"::"Bank Account", '', -TotalAmount);
+        GenJournalLine.Validate("Document No.", GenJournalBatch.Name);
+        GenJournalLine.Modify();
+
+        // [WHEN] Set Account No. = VEND3 instead of VEND1
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Account No.", Vendor[1]."No.");
+        GenJournalLine.FindFirst();
+        GenJournalLine.Validate("Account No.", Vendor[3]."No.");
+        GenJournalLine.Validate("EFT Bank Account No.", Vendor[3]."EFT Bank Account No.");
+        GenJournalLine.Modify();
+
+        // [GIVEN] Both lines LINE1 and LINE2 are exported
+        EFTPaymentCreateFile(GenJournalLine);
+        FindEFTRegister(EFTRegister, GenJournalBatch."Bal. Account No.");
+        EFTRegister.TestField("Total Amount (LCY)", -TotalAmount);
+    end;
+
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1862,6 +2050,16 @@ codeunit 141021 "ERM Electronic - Banking"
             TotalAmount += InvoiceAmount;
             TotalWHTAmount += WHTAmount;
         end;
+    end;
+
+    local procedure CreateAndPostPurchaseOrderForNewNotWHTVendor(var Vendor: Record Vendor)
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("EFT Payment", True);
+        Vendor.Validate("EFT Bank Account No.", CreateVendorBankAccount(Vendor."No."));
+        Vendor.Name := CopyStr(Format(CreateGuid()), 1, 32); // Vendor name has 32 symbols in the file
+        Vendor.Modify();
+        CreateAndPostPurchaseOrder(Vendor."No.", "Purchase Line Type"::Item, LibraryInventory.CreateItemNo(), true);
     end;
 
     local procedure CreateAndPostPurchaseOrderForNewVendor(var Vendor: Record Vendor): Code[20]
@@ -2143,11 +2341,53 @@ codeunit 141021 "ERM Electronic - Banking"
         GenJournalLine.FindFirst;
     end;
 
-    local procedure FindPaymentVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.FindFirst();
+    end;
+
+    local procedure CreateVendorEFTPaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; Vendor: Record Vendor)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Document Type", "Gen. Journal Document Type"::Invoice);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Account Type"::Vendor, Vendor."No.",
+            "Gen. Journal Account Type"::"Bank Account", GenJnlBatch."Bal. Account No.", -VendorLedgerEntry."Remaining Amount");
+        GenJournalLine.Validate("EFT Payment", true);
+        GenJournalLine.Validate("EFT Bank Account No.", Vendor."EFT Bank Account No.");
+        GenJournalLine.Modify();
+    end;
+
+    local procedure CreateVendorEFTPaymentJournalLineNoBalanceAccAppliedToInvoice(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; Vendor: Record Vendor): Decimal
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Document Type", "Gen. Journal Document Type"::Invoice);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        VendorLedgerEntry.Modify();
+
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Account Type"::Vendor, Vendor."No.",
+            "Gen. Journal Account Type"::"Bank Account", '', -VendorLedgerEntry."Remaining Amount");
+        GenJournalLine.Validate("Document No.", GenJnlBatch.Name);
+        GenJournalLine.Validate("EFT Payment", true);
+        GenJournalLine.Validate("EFT Bank Account No.", Vendor."EFT Bank Account No.");
+        GenJournalLine."Applies-to ID" := UserId;
+        GenJournalLine.Modify();
+
+        exit(VendorLedgerEntry."Remaining Amount");
     end;
 
     local procedure SuggestVendorPayments(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; VendorNoFilter: Text; SummarizePerVendor: Boolean)

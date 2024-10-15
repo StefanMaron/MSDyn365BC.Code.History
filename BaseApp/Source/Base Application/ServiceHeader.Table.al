@@ -2927,7 +2927,7 @@
                         until ServDocReg.Next() = 0;
                 end;
                 StoreServiceCommentLineToTemp(TempServiceCommentLine);
-                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header".AsInteger(), "Document Type".AsInteger(), "No.");
+                ServiceCommentLine.DeleteServiceInvoiceLinesRelatedComments(Rec);
                 IsHandled := false;
                 OnRecreateServLinesOnBeforeServLineDeleteAll(Rec, ServLine, CurrFieldNo, IsHandled);
                 if not IsHandled then
@@ -2957,6 +2957,7 @@
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("Table Subtype", "Document Type");
         ServiceCommentLine.SetRange("No.", "No.");
+        ServiceCommentLine.SetRange(Type, "Service Comment Line Type"::General);
         if ServiceCommentLine.FindSet() then
             repeat
                 TempServiceCommentLine := ServiceCommentLine;

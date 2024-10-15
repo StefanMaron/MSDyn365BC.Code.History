@@ -2324,9 +2324,10 @@
                         if ("Salesperson Code" = '') and (Cont."Salesperson Code" <> '') then
                             Validate("Salesperson Code", Cont."Salesperson Code");
 
-                UpdateSellToCust("Sell-to Contact No.");
-                UpdateSellToCustTemplateCode;
-                UpdateShipToContact;
+                if ("Sell-to Contact No." <> xRec."Sell-to Contact No.") then
+                    UpdateSellToCust("Sell-to Contact No.");
+                UpdateSellToCustTemplateCode();
+                UpdateShipToContact();
             end;
         }
         field(5053; "Bill-to Contact No."; Code[20])

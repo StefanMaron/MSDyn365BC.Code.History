@@ -34,7 +34,7 @@ table 1205 "Credit Transfer Register"
         }
         field(6; "No. of Transfers"; Integer)
         {
-            CalcFormula = Count ("Credit Transfer Entry" WHERE("Credit Transfer Register No." = FIELD("No.")));
+            CalcFormula = Count("Credit Transfer Entry" WHERE("Credit Transfer Register No." = FIELD("No.")));
             Caption = 'No. of Transfers';
             FieldClass = FlowField;
         }
@@ -45,7 +45,7 @@ table 1205 "Credit Transfer Register"
         }
         field(8; "From Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("From Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("From Bank Account No.")));
             Caption = 'From Bank Account Name';
             FieldClass = FlowField;
         }
@@ -69,6 +69,14 @@ table 1205 "Credit Transfer Register"
     fieldgroups
     {
     }
+
+    trigger OnDelete()
+    var
+        CreditTransferEntry: Record "Credit Transfer Entry";
+    begin
+        CreditTransferEntry.SetRange("Credit Transfer Register No.", "No.");
+        CreditTransferEntry.DeleteAll();
+    end;
 
     var
         PaymentsFileNotFoundErr: Label 'The original payment file was not found.\Export a new file from the Payment Journal window.';
