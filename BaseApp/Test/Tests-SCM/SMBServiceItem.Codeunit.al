@@ -2190,7 +2190,7 @@ codeunit 137510 "SMB Service Item"
 
     [Test]
     [Scope('OnPrem')]
-    procedure AssemblyLineForNonInventoryItemHasBlankLocationCode()
+    procedure AssemblyLineForNonInventoryItemSetsLocationCode()
     var
         Location: Record Location;
         AsmItem: Record Item;
@@ -2200,7 +2200,7 @@ codeunit 137510 "SMB Service Item"
         AssemblyLine: Record "Assembly Line";
     begin
         // [FEATURE] [Non-Inventory Item] [Assembly]
-        // [SCENARIO 301348] Assembly line for non-inventory item always has blank location code.
+        // [SCENARIO] Assembly line for non-inventory item supports location code.
         Initialize();
 
         // [GIVEN] Location "L".
@@ -2219,19 +2219,19 @@ codeunit 137510 "SMB Service Item"
         AssemblyHeader.Validate(Quantity, LibraryRandom.RandInt(10));
         AssemblyHeader.Modify(true);
 
-        // [THEN] Location Code is blank on the assembly line for non-inventory item "C".
+        // [THEN] Location Code is set on the assembly line for non-inventory item "C".
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange("No.", CompNonInvtItem."No.");
         AssemblyLine.FindFirst();
-        AssemblyLine.TestField("Location Code", '');
+        AssemblyLine.TestField("Location Code", Location.Code);
 
         // [THEN] No availability warning is shown.
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure PostingAssemblyConsumptionForNonInventoryItemWhenLocationMandatory()
+    procedure PostingAssemblyConsumptionForNonInventoryItemSetsLocation()
     var
         Location: Record Location;
         AsmItem: Record Item;
@@ -2241,7 +2241,7 @@ codeunit 137510 "SMB Service Item"
         PostedAssemblyLine: Record "Posted Assembly Line";
     begin
         // [FEATURE] [Non-Inventory Item] [Assembly]
-        // [SCENARIO 301348] Location Mandatory setting in Inventory Setup is not checked when posting assembly consumption of non-inventory item.
+        // [SCENARIO] When posting assembly consumption of non-inventory item, the location is set.
         Initialize();
 
         // [GIVEN] Enable "Location Mandatory" setting in Inventory Setup.
@@ -2263,11 +2263,11 @@ codeunit 137510 "SMB Service Item"
         // [WHEN] Post the assembly order.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
-        // [THEN] The assembly consumption of non-inventory item "C" is successfully posted.
+        // [THEN] The assembly consumption of non-inventory item "C" is successfully posted with location set.
         PostedAssemblyLine.SetRange("Order No.", AssemblyHeader."No.");
         PostedAssemblyLine.SetRange("No.", CompNonInvtItem."No.");
         PostedAssemblyLine.FindFirst();
-        PostedAssemblyLine.TestField("Location Code", '');
+        PostedAssemblyLine.TestField("Location Code", Location.Code);
     end;
 
     [Test]
@@ -2325,7 +2325,7 @@ codeunit 137510 "SMB Service Item"
         AssemblyLine: Record "Assembly Line";
     begin
         // [FEATURE] [Non-Inventory Item] [Assembly]
-        // [SCENARIO 309827] When you update location code on assembly header, it does not propagate to assembly lines for non-inventory items.
+        // [SCENARIO 309827] When you update location code on assembly header, it propagates to assembly lines for non-inventory items.
         Initialize();
 
         LibraryAssembly.SetStockoutWarning(false);
@@ -2349,12 +2349,12 @@ codeunit 137510 "SMB Service Item"
         // [WHEN] Set location code = "L" on the assembly header.
         AssemblyHeader.Validate("Location Code", Location.Code);
 
-        // [THEN] Location code remains blank on the line for non-inventory item "NI".
+        // [THEN] Location code is set on the line for non-inventory item "NI".
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange("No.", CompNonInvtItem."No.");
         AssemblyLine.FindFirst();
-        AssemblyLine.TestField("Location Code", '');
+        AssemblyLine.TestField("Location Code", Location.Code);
     end;
 
     [Test]

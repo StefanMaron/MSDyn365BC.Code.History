@@ -1,7 +1,7 @@
 ﻿codeunit 134100 "ERM Prepayment"
 {
     Subtype = Test;
-    TestPermissions = Restrictive;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin
@@ -3831,6 +3831,62 @@
                 CannotChangePrepmtAccErr, PurchaseHeader.RecordId, GeneralPostingSetup.FieldCaption("Purch. Prepayments Account")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPaymentMethodCodeOnCustomerLedgerEntriesForPrepaymentInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PaymentMethod: Record "Payment Method";
+    begin
+        // [FEATURE] [Sales] [Prepayment %]
+        // [SCENARIO 449090] Payment Method Code is not populated on the Customer Ledger Entries for Prepayment Invoices
+        Initialize();
+
+        // [GIVEN] Create a payment method
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+
+        // [GIVEN] Create Sales Header, Sales Line
+        CreateSalesDocument(SalesHeader, SalesLine);
+        SalesHeader."Prepayment %" := LibraryRandom.RandDec(99, 5);
+        SalesHeader."Payment Method Code" := PaymentMethod.Code;
+        SalesHeader.Modify(true);
+
+        // [WHEN] Post Sales Prepayment Invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Verify customer ledger entry
+        VerifyCustomerLedgerEntryForSalesPrepayment(SalesHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPaymentMethodCodeOnVendorLedgerEntriesForPrepaymentInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PaymentMethod: Record "Payment Method";
+    begin
+        // [FEATURE] [Purchase] [Prepayment %]
+        // [SCENARIO 449090] Payment Method Code is not populated on the Vendor Ledger Entries for Prepayment Invoices
+        Initialize();
+
+        // [GIVEN] Create a payment method
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+
+        // [GIVEN] Create Purchase Header, Purchase Line
+        CreatePurchDocument(PurchaseHeader, PurchaseLine, 1);
+        PurchaseHeader."Prepayment %" := LibraryRandom.RandDec(99, 5);
+        PurchaseHeader."Payment Method Code" := PaymentMethod.Code;
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Purchase Prepayment Invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Verify vendor ledger entry
+        VerifyVendLedgerEntryForPurchPrepayment(PurchaseHeader."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6196,6 +6252,30 @@
             Modify(true);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
         end;
+    end;
+
+    local procedure VerifyCustomerLedgerEntryForSalesPrepayment(OrderNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        FindSalesPrepmtInvoice(SalesInvoiceHeader, OrderNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Payment Method Code");
+    end;
+
+    local procedure VerifyVendLedgerEntryForPurchPrepayment(OrderNo: Code[20])
+    var
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+        PurchInvoiceHeader: Record "Purch. Inv. Header";
+    begin
+        FindPurchPrepmtInvoice(PurchInvoiceHeader, OrderNo);
+        VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
+        VendLedgerEntry.SetRange("Document No.", PurchInvoiceHeader."No.");
+        VendLedgerEntry.FindFirst();
+        VendLedgerEntry.TestField("Payment Method Code");
     end;
 
     [ConfirmHandler]

@@ -627,30 +627,6 @@
         exit(false);
     end;
 
-    trigger OnFindRecord(Which: Text) Found: Boolean
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOnFindRecord(Rec, Which, Found, IsHandled);
-        if IsHandled then
-            exit(Found);
-
-        exit(Rec.Find(Which));
-    end;
-
-    trigger OnNextRecord(Steps: Integer) ActualSteps: Integer
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOnNextRecord(Rec, Steps, ActualSteps, IsHandled);
-        if IsHandled then
-            exit(ActualSteps);
-
-        exit(Rec.Next(Steps));
-    end;
-
     trigger OnOpenPage()
     begin
         if CalcType = CalcType::Direct then begin
@@ -1609,16 +1585,6 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnFindRecord(var CustLedgerEntry: Record "Cust. Ledger Entry"; Which: Text; var Found: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnNextRecord(var CustLedgerEntry: Record "Cust. Ledger Entry"; Steps: Integer; var ActualSteps: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
     local procedure OnBeforePostDirectApplication(var CustLedgerEntry: Record "Cust. Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary)
     begin
     end;
@@ -1698,4 +1664,3 @@
     begin
     end;
 }
-

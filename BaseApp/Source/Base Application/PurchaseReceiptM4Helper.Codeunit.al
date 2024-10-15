@@ -110,6 +110,8 @@ codeunit 14938 "Purchase Receipt M-4 Helper"
         ExcelReportBuilderMgr.AddPagebreak;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by procedure InsertGLAccount()', '20.0')]
     [Scope('OnPrem')]
     procedure InsertBuffer(var InvPostBuffer: Record "Invoice Post. Buffer"; AccountNo: Code[20]; var AccountNoToUpdate: Code[20])
     begin
@@ -118,6 +120,19 @@ codeunit 14938 "Purchase Receipt M-4 Helper"
         if not InvPostBuffer.FindFirst() then begin
             InvPostBuffer."G/L Account" := AccountNo;
             InvPostBuffer.Insert();
+            if AccountNoToUpdate = '' then
+                AccountNoToUpdate := AccountNo;
+        end;
+    end;
+#endif
+
+    procedure InsertGLAccount(var GLAccountNetChange: Record "G/L Account Net Change"; AccountNo: Code[20]; var AccountNoToUpdate: Code[20])
+    begin
+        GLAccountNetChange.Reset();
+        GLAccountNetChange.SetRange("No.", AccountNo);
+        if not GLAccountNetChange.FindFirst() then begin
+            GLAccountNetChange."No." := AccountNo;
+            GLAccountNetChange.Insert();
             if AccountNoToUpdate = '' then
                 AccountNoToUpdate := AccountNo;
         end;

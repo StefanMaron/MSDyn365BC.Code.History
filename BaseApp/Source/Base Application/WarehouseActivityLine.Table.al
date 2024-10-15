@@ -1786,6 +1786,22 @@
         OnAfterLookupTrackingSummary(WhseActivLine, TempTrackingSpecification, TrackingType);
     end;
 
+    procedure CheckItemTrackingAvailability(): Boolean
+    var
+        TempTrackingSpec: Record "Tracking Specification" temporary;
+    begin
+        InitTrackingSpecFromWhseActivLine(TempTrackingSpec, Rec);
+        TempTrackingSpec."Quantity (Base)" := "Qty. Outstanding (Base)";
+        TempTrackingSpec."Qty. to Handle" := "Qty. Outstanding";
+        TempTrackingSpec."Qty. to Handle (Base)" := "Qty. Outstanding (Base)";
+        TempTrackingSpec.Insert();
+
+        GetItem();
+        Clear(ItemTrackingDataCollection);
+        ItemTrackingDataCollection.SetCurrentBinAndItemTrkgCode("Bin Code", ItemTrackingCode);
+        exit(ItemTrackingDataCollection.CheckAvailableTrackingQuantity(TempTrackingSpec));
+    end;
+
     procedure CheckReservedItemTrkg(CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50])
     var
         IsHandled: Boolean;
@@ -2129,6 +2145,9 @@
         AsmHeader.CalcFields("Assemble to Order");
         "Assemble to Order" := AsmHeader."Assemble to Order";
         "ATO Component" := true;
+        Item."No." := "Item No.";
+        Item.ItemSKUGet(Item, "Location Code", "Variant Code");
+        "Shelf No." := Item."Shelf No.";
 
         OnAfterTransferAllButWhseDocDetailsFromAssemblyLine(Rec, AssemblyLine);
     end;

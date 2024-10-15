@@ -696,7 +696,8 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        RefreshBOM;
+                        Rec.TestStatusOpen();
+                        Rec.RefreshBOM();
                         CurrPage.Update();
                     end;
                 }

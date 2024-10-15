@@ -3201,6 +3201,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     var
         ItemUnitofMeasure: Record "Item Unit of Measure";
     begin
+        Assert.IsTrue(Item.Type = ItemTempl.Type, InsertedItemErr);
+
         Assert.IsTrue(Item."Inventory Posting Group" = ItemTempl."Inventory Posting Group", InsertedItemErr);
         Assert.IsTrue(Item."Gen. Prod. Posting Group" = ItemTempl."Gen. Prod. Posting Group", InsertedItemErr);
         Assert.IsTrue(Item."VAT Prod. Posting Group" = ItemTempl."VAT Prod. Posting Group", InsertedItemErr);

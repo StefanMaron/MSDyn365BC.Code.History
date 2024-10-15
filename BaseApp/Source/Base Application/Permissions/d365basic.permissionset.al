@@ -366,7 +366,10 @@ permissionset 207 "D365 BASIC"
                   tabledata "Inventory Posting Group" = R,
                   tabledata "Inventory Posting Setup" = R,
                   tabledata "Inventory Setup" = R,
+#if not CLEAN20
                   tabledata "Invoice Post. Buffer" = Rimd,
+#endif
+                  tabledata "Invoice Posting Buffer" = Rimd,
                   tabledata "Invoiced Booking Item" = RIMD,
                   tabledata "Invt. Post to G/L Test Buffer" = RIMD,
                   tabledata "Invt. Posting Buffer" = Rimd,

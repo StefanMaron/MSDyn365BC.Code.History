@@ -560,7 +560,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAutoReserveOneLine(IsHandled, AvailabilityDate);
+        OnBeforeAutoReserveOneLine(IsHandled, AvailabilityDate, CalcReservEntry);
         if IsHandled then
             exit;
 
@@ -2920,7 +2920,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean; var AvailabilityDate: Date)
+    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean; var AvailabilityDate: Date; var CalcReservEntry: Record "Reservation Entry")
     begin
     end;
 

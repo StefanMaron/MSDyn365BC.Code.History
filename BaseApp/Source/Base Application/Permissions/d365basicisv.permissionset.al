@@ -432,7 +432,10 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Inventory Report Entry" = RIMD,
                   tabledata "Inventory Report Header" = RIMD,
                   tabledata "Inventory Setup" = RIMD,
+#if not CLEAN20
                   tabledata "Invoice Post. Buffer" = RIMD,
+#endif
+                  tabledata "Invoice Posting Buffer" = RIMD,
                   tabledata "Invoiced Booking Item" = RIMD,
                   tabledata "Invt. Post to G/L Test Buffer" = RIMD,
                   tabledata "Invt. Posting Buffer" = RIMD,

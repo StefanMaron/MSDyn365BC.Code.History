@@ -59,7 +59,7 @@ page 351 "Customer Sales Lines"
                     AutoFormatType = 1;
                     Caption = 'Profit (LCY)';
                     DrillDown = true;
-                    ToolTip = 'Specifies the profit related to the customer, in local currency.';
+                    ToolTip = 'Specifies the original profit related to the customer, in local currency.';
 
                     trigger OnDrillDown()
                     begin

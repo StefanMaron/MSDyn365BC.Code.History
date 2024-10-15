@@ -2959,6 +2959,55 @@ codeunit 136302 "Job Consumption Purchase"
         NewPurchaseLine.TestField("Job Planning Line No.", PurchaseLine."Job Planning Line No.");
     end;
 
+    [Test]
+    procedure AppliesToEntryEmptyOnItemTrackingForPurchLineWithJob()
+    var
+        JobTask: Record "Job Task";
+        Item: Record Item;
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseHeaderReturn: Record "Purchase Header";
+        PurchaseLineReturn: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+        LotNo: Code[50];
+    begin
+        // [FEATURE] [Copy Document]
+        // [SCENARIO 438528] Applies-to Entry No. must be blank on item tracking line for purchase return order with job.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        CreateJobWithJobTask(JobTask);
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create and post a purchase order linked to a job for lot-tracked item.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeaderOrder, PurchaseLineOrder, PurchaseHeaderOrder."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        PurchaseLineOrder.Validate("Job No.", JobTask."Job No.");
+        PurchaseLineOrder.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLineOrder.Modify(true);
+        LibraryItemTracking.CreatePurchOrderItemTracking(
+          ReservationEntry, PurchaseLineOrder, '', LotNo, PurchaseLineOrder.Quantity);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [WHEN] Create a purchase return via "Get Document Lines to Reverse" function.
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderReturn, PurchaseHeaderReturn."Document Type"::"Return Order", PurchaseHeaderOrder."Buy-from Vendor No.");
+        CopyPostedPurchaseReceiptLines(PurchaseHeaderReturn);
+
+        // [THEN] "Applies-to Item Entry" is not populated on item tracking line for the purchase return.
+        // [THEN] This is because the original item entry for purchase is already applied to the job consumption.
+        PurchaseLineReturn.SetRange("No.", Item."No.");
+        LibraryPurchase.FindFirstPurchLine(PurchaseLineReturn, PurchaseHeaderReturn);
+        ReservationEntry.Reset();
+        ReservationEntry.SetSourceFilter(
+          Database::"Purchase Line", PurchaseLineReturn."Document Type".AsInteger(), PurchaseLineReturn."Document No.",
+          PurchaseLineReturn."Line No.", false);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Appl.-to Item Entry", 0);
+    end;
+
     local procedure Initialize()
     var
 #if not CLEAN19
@@ -4258,6 +4307,18 @@ codeunit 136302 "Job Consumption Purchase"
         CopyPurchaseDocument.SetParameters("Purchase Document Type From"::"Posted Invoice", DocNo, false, true);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run();
+    end;
+
+    local procedure CopyPostedPurchaseReceiptLines(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        LinesNotCopied: Integer;
+        MissingExCostRevLink: Boolean;
+    begin
+        PurchRcptLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        CopyDocMgt.SetProperties(false, false, false, false, true, true, false);
+        CopyDocMgt.CopyPurchRcptLinesToDoc(PurchaseHeader, PurchRcptLine, LinesNotCopied, MissingExCostRevLink);
     end;
 
     local procedure MockUpILE(var ItemLedgEntry: Record "Item Ledger Entry")
