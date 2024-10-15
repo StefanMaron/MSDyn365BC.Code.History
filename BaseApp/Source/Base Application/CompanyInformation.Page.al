@@ -118,6 +118,11 @@ Page 1 "Company Information"
                         VATRegistrationLogMgt.AssistEditCompanyInfoVATReg();
                     end;
                 }
+                field("Suppl. VAT Registration No."; "Suppl. VAT Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the company''s supplementary VAT registration number.';
+                }
                 field(GLN; GLN)
                 {
                     ApplicationArea = BasicEU;

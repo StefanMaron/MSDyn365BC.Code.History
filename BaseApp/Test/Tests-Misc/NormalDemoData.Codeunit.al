@@ -302,5 +302,25 @@ codeunit 138200 "Normal DemoData"
         VATStatementLine.FindFirst();
         Assert.IsTrue(StrPos(VATStatementLine."Row Totaling", '290') > 0, 'VATStatementLine."Row Totaling" should include 290 for Box 7.');
     end;
+
+    [Test]
+    procedure VATStatementSetupGB_BoxCaptions()
+    var
+        VATStatementLine: Record "VAT Statement Line";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 383326] Default GB demo VAT Statement Box captions
+        VATStatementLine.SetRange("Box No.", '2');
+        VATStatementLine.FindFirst();
+        Assert.AreEqual('VAT on goods acquired in Northern Ireland from EU', VATStatementLine.Description, 'Box 2');
+
+        VATStatementLine.SetRange("Box No.", '8');
+        VATStatementLine.FindFirst();
+        Assert.AreEqual('Value of goods ex. VAT from Northern Ireland to EU', VATStatementLine.Description, 'Box 8');
+
+        VATStatementLine.SetRange("Box No.", '9');
+        VATStatementLine.FindFirst();
+        Assert.AreEqual('Goods ex. VAT acquired in Northern Ireland from EU', VATStatementLine.Description, 'Box 9');
+    end;
 }
 

@@ -872,29 +872,102 @@ codeunit 134763 "Test Sales Post Preview"
         GLPostingPreview.OK.Invoke;
     end;
 
+    [Test]
+    procedure SalesInvoiceWithInvAndDiscPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Invoice] [UI]
+        // [SCENARIO 379797] Stan can preview posting of Sales Invoice when invoice discount is specified for the invoice
+        Initialize();
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+        SalesHeader.Modify(true);
+        Commit();
+
+        GLPostingPreview.Trap();
+
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(SalesLine."Line Amount" / 10);
+        Commit();
+        SalesInvoice.Preview.Invoke();
+
+        GLPostingPreview.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsModalPageHandler,VATAmountLinesModalPageHandler')]
+    procedure PostSalesOrderAfterUpdatingVATAmtonVATAmtLine()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+        VATAmount: Decimal;
+    begin
+        // [FEATURE] [VAT Difference] [UI] [Statistics] [Order]
+        // [SCENARIO] System can post Sales Order with zero amount line and with the specified VAT difference.
+
+        // [GIVEN]
+        Initialize();
+        LibrarySales.SetAllowVATDifference(true);
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandDecInRange(5, 10, 2));
+        LibrarySales.CreateCustomer(Customer);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine[1], SalesHeader, SalesLine[1].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine[1].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine[1].Validate("VAT %", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine[1].Modify(true);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine[2], SalesHeader, SalesLine[2].Type::Item, SalesLine[1]."No.", -(SalesLine[1].Quantity + 1));
+        SalesLine[2].Validate("Unit Price", SalesLine[1]."Unit Price");
+        SalesLine[1].Validate("VAT %", SalesLine[1]."VAT %");
+        SalesLine[2].Validate("Qty. to Ship", 0);
+        SalesLine[2].Modify(true);
+
+        VATAmount := Round((SalesLine[1].Amount * SalesLine[1]."VAT %" / 100) + LibraryRandom.RandDecInRange(2, 4, 2), 2);
+        LibraryVariableStorage.Enqueue(VATAmount);
+        OpenSalesOrderStatisticsPage(SalesHeader."No.");
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VATPostingSetup.Get(SalesLine[1]."VAT Bus. Posting Group", SalesLine[1]."VAT Prod. Posting Group");
+        VerifyAmountOnGLEntry(DocumentNo, VATPostingSetup."Sales VAT Account", -VATAmount);
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Sales Post Preview");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Sales Post Preview");
         IsInitialized := true;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryERM.CreateNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Sales Post Preview");
     end;
 
@@ -945,6 +1018,20 @@ codeunit 134763 "Test Sales Post Preview"
         Commit();
     end;
 
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Purchase, ItemNo, Quantity);
+        ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDecInRange(10, 100, 2));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
     local procedure CreateItemWithFIFO(): Code[20]
     var
         Item: Record Item;
@@ -955,6 +1042,26 @@ codeunit 134763 "Test Sales Post Preview"
             Modify(true);
             exit("No.");
         end;
+    end;
+
+    local procedure FindEntriesAndSetAppliesToID(var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; InvNo: Code[20]; PmtNo: Code[20])
+    begin
+        LibraryERM.FindCustomerLedgerEntry(
+          ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Document Type"::Payment, PmtNo);
+        ApplyingCustLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyCustomerEntry(ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Remaining Amount");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvNo);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+    end;
+
+    local procedure OpenSalesOrderStatisticsPage(OrderNo: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", OrderNo);
+        SalesOrder.Statistics.Invoke();
+        SalesOrder.Close();
     end;
 
     local procedure PostPartialQuantity(var SalesHeader: Record "Sales Header"; Invoice: Boolean)
@@ -1002,20 +1109,6 @@ codeunit 134763 "Test Sales Post Preview"
         PmtNo := GenJournalLine."Document No.";
     end;
 
-    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)
-    var
-        ItemJournalBatch: Record "Item Journal Batch";
-        ItemJournalLine: Record "Item Journal Line";
-    begin
-        SelectItemJournalBatch(ItemJournalBatch);
-        LibraryInventory.CreateItemJournalLine(
-          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::Purchase, ItemNo, Quantity);
-        ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDecInRange(10, 100, 2));
-        ItemJournalLine.Modify(true);
-        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-    end;
-
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
     var
         ItemJournalTemplate: Record "Item Journal Template";
@@ -1024,16 +1117,6 @@ codeunit 134763 "Test Sales Post Preview"
         LibraryInventory.SelectItemJournalBatchName(
           ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
-    end;
-
-    local procedure FindEntriesAndSetAppliesToID(var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; InvNo: Code[20]; PmtNo: Code[20])
-    begin
-        LibraryERM.FindCustomerLedgerEntry(
-          ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Document Type"::Payment, PmtNo);
-        ApplyingCustLedgerEntry.CalcFields("Remaining Amount");
-        LibraryERM.SetApplyCustomerEntry(ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Remaining Amount");
-        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvNo);
-        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
     end;
 
     [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
@@ -1048,6 +1131,17 @@ codeunit 134763 "Test Sales Post Preview"
             RecordExportBuffer.SetRange(RecordID, Rec.RecordId);
             Assert.RecordIsEmpty(RecordExportBuffer);
         end;
+    end;
+
+    local procedure VerifyAmountOnGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+
+        GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure GLPostingPreviewHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
@@ -1119,6 +1213,19 @@ codeunit 134763 "Test Sales Post Preview"
         DetCustLedgEntrPreview.Next;
         Assert.IsTrue(
           DetCustLedgEntrPreview.Amount.AsDEcimal <> 0, 'Application does not exist');
+    end;
+
+    [ModalPageHandler]
+    procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+    end;
+
+    [ModalPageHandler]
+    procedure VATAmountLinesModalPageHandler(var VATAmountLines: TestPage "VAT Amount Lines")
+    begin
+        VATAmountLines."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        VATAmountLines.OK.Invoke();
     end;
 }
 
