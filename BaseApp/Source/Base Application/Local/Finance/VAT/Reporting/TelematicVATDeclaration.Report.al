@@ -230,7 +230,7 @@ report 10715 "Telematic VAT Declaration"
         Negative: Code[1];
         Counter: Integer;
         Position: Integer;
-        FieldValue: Text[30];
+        FieldValue: Text[80];
         Acum: Integer;
         Decimal1: Text[30];
         Decimal2: Text[30];

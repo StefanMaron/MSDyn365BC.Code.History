@@ -579,6 +579,8 @@ report 10705 "Purchases Invoice Book"
                                 Base := 0;
                             if VATBuffer.Find() then begin
                                 VATBuffer.Base := VATBuffer.Base + Base;
+                                NonDeductibleVATBaseAmount := NonDeductibleVATBaseAmount + "Non-Deductible VAT Base";
+                                NonDeductibleVATAmount := NonDeductibleVATAmount + "Non-Deductible VAT Amount";
                                 if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
                                     BaseImport := BaseImport + Base;
                                 if (not ShowAutoInvCred) or ("VAT Calculation Type" <> "VAT Calculation Type"::"Reverse Charge VAT") then begin
@@ -588,6 +590,8 @@ report 10705 "Purchases Invoice Book"
                                 VATBuffer.Modify();
                             end else begin
                                 VATBuffer.Base := Base;
+                                NonDeductibleVATBaseAmount := "Non-Deductible VAT Base";
+                                NonDeductibleVATAmount := "Non-Deductible VAT Amount";
                                 if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
                                     BaseImport := Base;
                                 if (not ShowAutoInvCred) or ("VAT Calculation Type" <> "VAT Calculation Type"::"Reverse Charge VAT") then begin
@@ -602,6 +606,8 @@ report 10705 "Purchases Invoice Book"
                                 "Additional-Currency Base" := 0;
                             if VATBuffer.Find() then begin
                                 VATBuffer.Base := VATBuffer.Base + "Additional-Currency Base";
+                                NonDeductibleVATAmount := NonDeductibleVATAmount + "Non-Deductible VAT Amount ACY";
+                                NonDeductibleVATBaseAmount := NonDeductibleVATBaseAmount + "Non-Deductible VAT Base ACY";
                                 if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
                                     BaseImport := BaseImport + "Additional-Currency Base";
                                 if (not ShowAutoInvCred) or ("VAT Calculation Type" <> "VAT Calculation Type"::"Reverse Charge VAT") then begin
@@ -611,6 +617,8 @@ report 10705 "Purchases Invoice Book"
                                 VATBuffer.Modify();
                             end else begin
                                 VATBuffer.Base := "Additional-Currency Base";
+                                NonDeductibleVATAmount := "Non-Deductible VAT Amount ACY";
+                                NonDeductibleVATBaseAmount := "Non-Deductible VAT Base ACY";
                                 if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
                                     BaseImport := "Additional-Currency Base";
                                 if (not ShowAutoInvCred) or ("VAT Calculation Type" <> "VAT Calculation Type"::"Reverse Charge VAT") then begin
@@ -639,6 +647,8 @@ report 10705 "Purchases Invoice Book"
                         Clear(PurchCrMemoHeader);
                         Clear(PurchInvHeader);
                         Clear(Vendor);
+                        NonDeductibleVATBaseAmount := 0;
+                        NonDeductibleVATAmount := 0;
 
                         if not PrintAmountsInAddCurrency then
                             GLSetup.Get()
@@ -743,10 +753,13 @@ report 10705 "Purchases Invoice Book"
                     column(VATEntry2_NonDeductibleVAT; VATEntry2."Non-Deductible VAT %")
                     {
                     }
-                    column(VATEntry2_NonDeductibleVATBase; VATEntry2."Non-Deductible VAT Base")
+                    column(VATEntry2_NonDeductibleVATBase; NonDeductibleVATBaseAmount)
                     {
                     }
-                    column(VATEntry2_NonDeductibleVATAmt; VATEntry2."Non-Deductible VAT Amount")
+                    column(VATEntry2_NonDeductibleVATAmt; NonDeductibleVATAmount)
+                    {
+                    }
+                    column(VATEntry2_TotalAmount; VATBuffer2.Base + VATBuffer2.Amount + NonDeductibleVATBaseAmount + NonDeductibleVATAmount)
                     {
                     }
 
@@ -1359,5 +1372,7 @@ report 10705 "Purchases Invoice Book"
         NoTaxableText: Text;
         NoTaxablePrinted: Boolean;
         OnlyIncludeSIIDocuments: Boolean;
+        NonDeductibleVATBaseAmount: Decimal;
+        NonDeductibleVATAmount: Decimal;
 }
 

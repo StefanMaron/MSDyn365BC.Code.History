@@ -89,6 +89,14 @@ xmlport 1001 "SEPA CT pain.001.001.09"
                         fieldelement(InstrPrty; PaymentExportDataGroup."SEPA Instruction Priority Text")
                         {
                         }
+                        textelement(SvcLvl)
+                        {
+                            XmlName = 'SvcLvl';
+                            textelement(sepatxt)
+                            {
+                                XmlName = 'Cd';
+                            }
+                        }
                     }
                     textelement(ReqdExctnDt)
                     {
@@ -404,6 +412,7 @@ xmlport 1001 "SEPA CT pain.001.001.09"
         until PaymentExportData.Next() = 0;
         InsertPmtGroup(PaymentGroupNo);
         GetOrgIdOthrId(PaymentExportData."Sender Bank Account Code");
+        SepaTxt := 'SEPA';
     end;
 
     local procedure IsNewGroup(): Boolean

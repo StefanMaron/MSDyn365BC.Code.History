@@ -12,6 +12,7 @@
         Assert: Codeunit Assert;
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryHumanResource: Codeunit "Library - Human Resource";
+        LibrarySales: Codeunit "Library - Sales";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -20,6 +21,7 @@
         PrivactBlockedTestFieldErr: Label 'they are marked as blocked due to privacy';
         ShownEmployeeCardErr: Label 'Wrong employee card is shown';
         ShownContactCardErr: Label 'Wrong contact card is shown';
+        ContactErr: Label 'Contact No. %1 must be updated without error.', Comment = '%1= Contact No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -363,6 +365,57 @@
         Assert.IsTrue(ContactCard.Name.Value.Contains(Employee."First Name"), ShownContactCardErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure LinkContactFromBusinessRelationInSalesDocument()
+    var
+        BusinessRelation: array[2] of Record "Business Relation";
+        Contact: array[2] of Record Contact;
+        ContactBusinessRelation: array[3] of Record "Contact Business Relation";
+        Customer: array[2] of Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        //[SCENARIO 538554] Error When trying to link Contact that has a business relation From Sales Document.
+        Initialize();
+
+        // [GIVEN] Create two Customers X and Y.
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] Create Contact X With Custome Xr.
+        LibraryMarketing.CreateContactWithCustomer(Contact[1], Customer[1]);
+
+        // [GIVEN] Create two Business Relations.
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation[1]);
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation[2]);
+
+        // [GIVEN] Create two Contact Business Relation with seperate Business Relation and Validate Customer X and Y.
+        LibraryMarketing.CreateContactBusinessRelation(ContactBusinessRelation[1], Contact[1]."No.", BusinessRelation[1].Code);
+        ContactBusinessRelation[1].Validate("Link to Table", ContactBusinessRelation[1]."Link to Table"::Customer);
+        ContactBusinessRelation[1].Validate("No.", Customer[1]."No.");
+        ContactBusinessRelation[1].Modify(true);
+
+        LibraryMarketing.CreateContactBusinessRelation(ContactBusinessRelation[2], Contact[1]."No.", BusinessRelation[2].Code);
+        ContactBusinessRelation[2].Validate("Link to Table", ContactBusinessRelation[2]."Link to Table"::Customer);
+        ContactBusinessRelation[2].Validate("No.", Customer[2]."No.");
+        ContactBusinessRelation[2].Modify(true);
+
+        // [GIVEN] Create Sales Quote and Validate Bill to Customer.
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, Customer[2]."No.");
+        SalesHeader.Validate("Bill-to Customer No.", Customer[1]."No.");
+        SalesHeader.Modify(true);
+
+        // [WHEN] Update Sell-to Contact No.
+        SalesHeader.UpdateSellToCust(ContactBusinessRelation[1]."Contact No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] Sell to Contact No. must not have error when updated.
+        Assert.AreEqual(
+            SalesHeader."Sell-to Contact No.",
+            ContactBusinessRelation[1]."Contact No.",
+            ContactErr);
+    end;
+
     local procedure Initialize()
     var
         EmployeeTempl: Record "Employee Templ.";
@@ -419,5 +472,16 @@
     procedure EmployeeCreatedMessageHandler(Msg: Text[1024])
     begin
         Assert.IsTrue(Msg = 'The Employee record has been created.', 'Wrong message after employee was created.');
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }

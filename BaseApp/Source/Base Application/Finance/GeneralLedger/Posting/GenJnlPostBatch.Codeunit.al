@@ -860,6 +860,10 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             GenJnlLine2."VAT Amount (LCY)" := GenJnlLine2."VAT Amount (LCY)" * Factor;
             GenJnlLine2."VAT Base Amount (LCY)" := GenJnlLine2."VAT Base Amount (LCY)" * Factor;
             GenJnlLine2."Source Currency Amount" := GenJnlLine2."Source Currency Amount" * Factor;
+            GenJnlLine2."Non-Deductible VAT Amount" := GenJnlLine2."Non-Deductible VAT Amount" * Factor;
+            GenJnlLine2."Non-Deductible VAT Base" := GenJnlLine2."Non-Deductible VAT Base" * Factor;
+            GenJnlLine2."Non-Deductible VAT Amount LCY" := GenJnlLine2."Non-Deductible VAT Amount LCY" * Factor;
+            GenJnlLine2."Non-Deductible VAT Base LCY" := GenJnlLine2."Non-Deductible VAT Base LCY" * Factor;
             if GenJnlLine2."Job No." <> '' then
                 MultiplyJobAmounts(GenJnlLine2, Factor);
         end;

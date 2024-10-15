@@ -1,6 +1,6 @@
 codeunit 134141 "ERM Bank Reconciliation"
 {
-    Permissions = TableData "Bank Account Ledger Entry" = ri,
+    Permissions = TableData "Bank Account Ledger Entry" = rid,
                   TableData "Bank Account Statement" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -20,8 +20,6 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        WrongAmountErr: Label '%1 must be %2.', Locked = true;
-        HasBankEntriesMsg: Label 'When you use action Delete the bank statement will be deleted';
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -39,6 +37,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         StatementAlreadyExistsErr: Label 'A bank account reconciliation with statement number %1 already exists.', Comment = '%1 - statement number';
         PaymentLineAppliedMsg: Label '%1 payment lines out of 1 are applied.\\', Comment = '%1 - number';
         CheckVATEntryErr: Label 'Check that all the entries with the same';
+        WrongAmountErr: Label '%1 must be %2.', Locked = true;
+        HasBankEntriesMsg: Label 'When you use action Delete the bank statement will be deleted';
 
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
@@ -1085,6 +1085,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         Commit();
 
         // [WHEN] Run report "Bank Acc. Recon. - Test" with enabled "Print outstanding transactions" for "B".
+        LibraryVariableStorage.Enqueue(true);
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Bank Acc. Recon. - Test", RequestPageXML);
         LibraryReportDataset.RunReportAndLoad(REPORT::"Bank Acc. Recon. - Test", BankAccReconciliation, RequestPageXML);
 
@@ -1275,6 +1276,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
         BankAccReconPostYesNo: Codeunit "Bank Acc. Recon. Post (Yes/No)";
         Amount: Decimal;
         BankAccountNo: Code[20];
@@ -1286,7 +1288,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         Initialize();
 
         // [GIVEN] Payment Reconciliation line for 01.04.18
-        BankAccountNo := CreateBankAccount();
+        BankAccountNo := CreateBankAccount(BankAccount);
+        UpdateLastStatementNoOnBankAccount(BankAccount, '');
         CreateAndPostPurchaseInvoice(VendorNo, VendorLedgerEntryNo, Amount);
 
         LibraryERM.CreateBankAccReconciliation(
@@ -1310,7 +1313,7 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [THEN] Bank Acc. Reconciliation Lines are posted
         VerifyBankAccountLastStatementFields(
-          BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconciliation."Statement No.", 0);
+          BankAccountNo, BankAccReconciliation."Statement No.", '', 0);
     end;
 
     [Test]
@@ -1600,7 +1603,6 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         GenJournalLine: Record "Gen. Journal Line";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         BankAccountNo: Code[20];
         AccountNo: Code[20];
@@ -1611,7 +1613,6 @@ codeunit 134141 "ERM Bank Reconciliation"
         Initialize();
 
         // [GIVEN] GL Account without any previous entry
-        GeneralLedgerSetup.Get();
         LibraryERM.CreateGLAccount(GLAccount);
 
         // [GIVEN] Two posted vendor payments
@@ -1632,6 +1633,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliation.SetRecFilter();
 
         // [WHEN] Run report "Bank Acc. Recon. - Test"
+        LibraryVariableStorage.Enqueue(true);
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Bank Acc. Recon. - Test", RequestPageXML);
         LibraryReportDataset.RunReportAndLoad(REPORT::"Bank Acc. Recon. - Test", BankAccReconciliation, RequestPageXML);
 
@@ -1655,7 +1657,6 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         GenJournalLine: Record "Gen. Journal Line";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         BankAccountNo: Code[20];
         AccountNo: Code[20];
@@ -1667,7 +1668,6 @@ codeunit 134141 "ERM Bank Reconciliation"
         Initialize();
 
         // [GIVEN] GL Account without any previous entry
-        GeneralLedgerSetup.Get();
         LibraryERM.CreateGLAccount(GLAccount);
 
         // [GIVEN] Two posted vendor payments
@@ -1690,6 +1690,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliation.SetRecFilter();
 
         // [WHEN] Run report "Bank Acc. Recon. - Test"
+        LibraryVariableStorage.Enqueue(true);
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Bank Acc. Recon. - Test", RequestPageXML);
         LibraryReportDataset.RunReportAndLoad(REPORT::"Bank Acc. Recon. - Test", BankAccReconciliation, RequestPageXML);
 
@@ -2837,7 +2838,6 @@ codeunit 134141 "ERM Bank Reconciliation"
     [Scope('OnPrem')]
     procedure NoOustandingTransactionsVisibleInBankAccStatementsReport()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
@@ -2857,7 +2857,6 @@ codeunit 134141 "ERM Bank Reconciliation"
         Initialize();
 
         // [GIVEN] GL Account without any previous entry
-        GeneralLedgerSetup.Get();
         LibraryERM.CreateGLAccount(GLAccount);
         // [GIVEN] Bank account X
         BankAccountNo := LibraryERM.CreateBankAccountNoWithNewPostingGroup(GLAccount);
@@ -2903,7 +2902,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [THEN] Outstanding transaction fields are not visible
         LibraryReportDataset.AssertElementWithValueNotExist('Outstanding_BankTransaction_Amount', -OutstandingBankPaymentAmount);
         LibraryReportDataset.AssertElementWithValueNotExist('Outstanding_Check_Amount', -OutstandingCheckAmount);
-         
+
         // [THEN] "CP" appears as completed payment
         LibraryReportDataset.AssertElementWithValueExists('Amt1_BankAccStmtLineStmt', -ClosedBankPaymentAmount);
     end;
@@ -2913,7 +2912,6 @@ codeunit 134141 "ERM Bank Reconciliation"
     [Scope('OnPrem')]
     procedure CheckingOustandingPaymentsInBankAccStatementsReport_TransactionStillOpenAfterPostingDay()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
@@ -2921,6 +2919,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         GenJournalLine: array[3] of Record "Gen. Journal Line";
         MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccRecTest: Codeunit "Bank Acc. Recon. Test";
         VendorNo: Code[20];
         BankAccountNo: Code[20];
         RequestPageXML: Text;
@@ -2931,9 +2930,9 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [FEATURE] [Bank Account Statement Report]
         // [SCENARIO 341166] Bank and Check payments were open before posting day and not closed afterwards.
         Initialize();
+        BankAccountLedgerEntry.DeleteAll();
 
         // [GIVEN] GL Account without any previous entry
-        GeneralLedgerSetup.Get();
         LibraryERM.CreateGLAccount(GLAccount);
         // [GIVEN] Bank account
         BankAccountNo := LibraryERM.CreateBankAccountNoWithNewPostingGroup(GLAccount);
@@ -2944,12 +2943,10 @@ codeunit 134141 "ERM Bank Reconciliation"
         ClosedBankPaymentAmount := GenJournalLine[1].Amount;
         // [WHEN] Create and post what will be the outstanding payment "OP"
         PostPaymentJournalLineWithDateAndSource(GenJournalLine[2], WorkDate() - 1, VendorNo, BankAccountNo);
-        OutstandingBankPaymentAmount := GenJournalLine[2].Amount;
         // [WHEN] Create and post what will be the outstanding check "OC"
         CreatePaymentJournalLineWithVendorAndBank(GenJournalLine[3], VendorNo, BankAccountNo, WorkDate() - 1);
         GenJournalLine[3].Validate("Bank Payment Type", GenJournalLine[3]."Bank Payment Type"::"Manual Check");
         GenJournalLine[3].Modify();
-        OutstandingCheckAmount := GenJournalLine[3].Amount;
         LibraryERM.PostGeneralJnlLine(GenJournalLine[3]);
 
         // [WHEN] Create bank reconciliation for "CP"
@@ -2966,6 +2963,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [WHEN] Post bank reconciliation
         BankAccReconciliation."Statement Ending Balance" := BankAccReconciliationLine."Statement Amount";
         BankAccReconciliation.Modify();
+        OutstandingBankPaymentAmount := BankAccRecTest.TotalOutstandingBankTransactions(BankAccReconciliation);
+        OutstandingCheckAmount := BankAccRecTest.TotalOutstandingPayments(BankAccReconciliation);
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [WHEN] Bank Statement report is visited, Print outstanding transactions = true 
@@ -2978,8 +2977,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset.AssertElementWithValueExists('Amt1_BankAccStmtLineStmt', -ClosedBankPaymentAmount);
 
         // [THEN] "OP" and "OC" appear as outstanding
-        LibraryReportDataset.AssertElementWithValueExists('Outstanding_BankTransaction_Amount', -OutstandingBankPaymentAmount);
-        LibraryReportDataset.AssertElementWithValueExists('Outstanding_Check_Amount', -OutstandingCheckAmount);
+        LibraryReportDataset.AssertElementWithValueExists('Outstanding_BankTransaction_Amount', OutstandingBankPaymentAmount);
+        LibraryReportDataset.AssertElementWithValueExists('Outstanding_Check_Amount', OutstandingCheckAmount);
     end;
 
     [Test]
@@ -2987,7 +2986,6 @@ codeunit 134141 "ERM Bank Reconciliation"
     [Scope('OnPrem')]
     procedure CheckingOustandingPaymentsInBankAccStatementsReport_TransactionClosedAfterPostingDay()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         BankAccReconciliation: array[2] of Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
@@ -2995,19 +2993,22 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         GenJournalLine: array[3] of Record "Gen. Journal Line";
         MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccRecTest: Codeunit "Bank Acc. Recon. Test";
         VendorNo: Code[20];
         BankAccountNo: Code[20];
         RequestPageXML: Text;
         ClosedBankPaymentAmount: Decimal;
         ClosedAfterwardsCheckAmount: Decimal;
         ClosedAfterwardsBankPaymentAmount: Decimal;
+        OutstandingCheckAmount: Decimal;
+        OutstandingBankPaymentAmount: Decimal;
     begin
         // [FEATURE] [Bank Account Statement Report]
         // [SCENARIO 341166] Bank and Check payments were open before posting day and closed afterwards.
         Initialize();
+        BankAccountLedgerEntry.DeleteAll();
 
         // [GIVEN] GL Account without any previous entry
-        GeneralLedgerSetup.Get();
         LibraryERM.CreateGLAccount(GLAccount);
         // [GIVEN] Bank account
         BankAccountNo := LibraryERM.CreateBankAccountNoWithNewPostingGroup(GLAccount);
@@ -3040,6 +3041,9 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [WHEN] Post bank reconciliation
         BankAccReconciliation[1]."Statement Ending Balance" := BankAccReconciliationLine."Statement Amount";
         BankAccReconciliation[1].Modify();
+        OutstandingBankPaymentAmount := BankAccRecTest.TotalOutstandingBankTransactions(BankAccReconciliation[1]);
+        OutstandingCheckAmount := BankAccRecTest.TotalOutstandingPayments(BankAccReconciliation[1]);
+
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation[1]);
 
         // [WHEN] Create bank reconciliation for "CAP" and "CAC" and suggest lines
@@ -3050,9 +3054,9 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [WHEN] Post bank reconciliation for "CAP" and "CAC"
         UpdateBankAccRecStmEndingBalance(BankAccReconciliation[2],
             -(ClosedBankPaymentAmount + ClosedAfterwardsBankPaymentAmount + ClosedAfterwardsCheckAmount));
-        LibraryERM.PostBankAccReconciliation(BankAccReconciliation[2]);
 
         // [WHEN] Bank Statement report is visited, Print outstanding transactions = true 
+        Commit();
         LibraryVariableStorage.Enqueue(true);
         BankAccountStatement.SetRange("Bank Account No.", BankAccountNo);
         BankAccountStatement.FindFirst();
@@ -3062,9 +3066,11 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [THEN] "CP" appears as completed payment
         LibraryReportDataset.AssertElementWithValueExists('Amt1_BankAccStmtLineStmt', -ClosedBankPaymentAmount);
 
-        // [THEN] "OP" and "OC" appear as outstanding
-        LibraryReportDataset.AssertElementWithValueExists('Outstanding_BankTransaction_Amount', -ClosedAfterwardsBankPaymentAmount);
-        LibraryReportDataset.AssertElementWithValueExists('Outstanding_Check_Amount', -ClosedAfterwardsCheckAmount);
+        // [THEN] "OP" and "OC" appear as outstanding 
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', OutstandingBankPaymentAmount);
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdPayments', OutstandingCheckAmount);
+        LibraryReportDataset.AssertElementWithValueExists('Outstanding_BankTransaction_Amount', OutstandingBankPaymentAmount);
+        LibraryReportDataset.AssertElementWithValueExists('Outstanding_Check_Amount', OutstandingCheckAmount);
     end;
 
     [HandlerFunctions('CorruptSuggestLinesHandler')]
@@ -4268,7 +4274,6 @@ codeunit 134141 "ERM Bank Reconciliation"
     [HandlerFunctions('BankAccountStatementRequestPageHandler')]
     procedure BankAccountStatementReportDoesNotConsiderEntriesClosedAfterAsClosed()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -4283,7 +4288,6 @@ codeunit 134141 "ERM Bank Reconciliation"
         FirstReconciliationAmount, SecondReconciliationAmount : Decimal;
     begin
         Initialize();
-        GeneralLedgerSetup.Get();
         LibraryERM.CreateGLAccount(GLAccount);
         BankAccountNo := LibraryERM.CreateBankAccountNoWithNewPostingGroup(GLAccount);
         AccountNo := LibraryPurchase.CreateVendorNo();
@@ -4342,10 +4346,131 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliation.FindFirst();
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
         Commit();
-        // [THEN] The total outstanding amount should include the already closed amount from the second reconciliation.
+        // [THEN] The total outstanding amount shouldn't include the already closed amount from the second reconciliation.
         RequestPageXML := Report.RunRequestPage(Report::"Bank Account Statement", RequestPageXML);
         LibraryReportDataset.RunReportAndLoad(Report::"Bank Account Statement", BankAccountStatement, RequestPageXML);
-        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', SecondReconciliationAmount);
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('BankAccReconTestRequestPageHandler')]
+    procedure OutstandingTransactionsOnBankAccountTestReport()
+    var
+        GLAccount: Record "G/L Account";
+        BankAccReconciliation: array[2] of Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: array[4] of Record "Bank Account Ledger Entry";
+        Amount: array[4] of Decimal;
+        RequestPageXML: Text;
+        BankAccountNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 543178] Show outstanding bank transactions on bank account reconsiliation test report
+        // [GIVEN] Bank Account X
+        Initialize();
+        BankAccReconciliation[1].DeleteAll();
+        BankAccountLedgerEntry[1].DeleteAll();
+        LibraryERM.CreateGLAccount(GLAccount);
+        BankAccountNo := LibraryERM.CreateBankAccountNoWithNewPostingGroup(GLAccount);
+
+        for i := 1 to ArrayLen(Amount) do
+            Amount[i] := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Bank Acc. Ledger Entry 1, posting date 20.1.2000.
+        // [GIVEN] Bank Acc. Ledger Entry 2, posting date 20.2.2000.
+        CreateBankAccountLedgerEntry(BankAccountLedgerEntry[1], BankAccountNo, WorkDate() - 30, 0D, Amount[1], true);
+        CreateBankAccountLedgerEntry(BankAccountLedgerEntry[2], BankAccountNo, WorkDate(), 0D, Amount[2], true);
+
+        // [GIVEN] A bank reconciliation X for this bank, statement date = 31.1.2000.
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation[1], BankAccountNo, BankAccReconciliation[1]."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation[1].Validate("Statement Date", WorkDate() - 29);
+        BankAccReconciliation[1].Modify(true);
+
+        SuggestBankRecLines(BankAccReconciliation[1], true, 0D, BankAccReconciliation[1]."Statement Date");
+
+        // [GIVEN] A bank reconciliation Y for this bank, statement date = 28.2.2000.
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation[2], BankAccountNo, BankAccReconciliation[2]."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation[2].Validate("Statement Date", WorkDate() + 1);
+        BankAccReconciliation[2].Modify(true);
+
+        Commit();
+        SuggestBankRecLines(BankAccReconciliation[2], true, 0D, BankAccReconciliation[2]."Statement Date");
+
+        // [GIVEN] Bank Acc. Ledger Entry 3, posting date 20.1.2000.
+        // [GIVEN] Bank Acc. Ledger Entry 4, posting date 20.2.2000.
+        CreateBankAccountLedgerEntry(BankAccountLedgerEntry[3], BankAccountNo, WorkDate() - 30, 0D, Amount[3], true);
+        CreateBankAccountLedgerEntry(BankAccountLedgerEntry[4], BankAccountNo, WorkDate(), 0D, Amount[4], true);
+
+        // [WHEN] The test report is run for bank reconciliation Y, print outstanding transactions = true
+        Commit();
+        LibraryVariableStorage.Enqueue(true);
+        RequestPageXML := Report.RunRequestPage(Report::"Bank Acc. Recon. - Test", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Bank Acc. Recon. - Test", BankAccReconciliation[2], RequestPageXML);
+
+        // [THEN] The total outstanding transactions includes amounts from Bank Acc. Ledger Entry 3 and Bank Acc. Ledger Entry 4
+        LibraryReportDataset.AssertElementWithValueExists('Outstd_Bank_Transac_Amount', Amount[3]);
+        LibraryReportDataset.AssertElementWithValueExists('Outstd_Bank_Transac_Amount', Amount[4]);
+        LibraryReportDataset.AssertElementWithValueNotExist('Outstd_Bank_Transac_Amount', Amount[2]);
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', Amount[3] + Amount[4]);
+    end;
+
+    [Test]
+    [HandlerFunctions('BankAccountStatementRequestPageHandler')]
+    procedure OutstandingTransactionsOnBankAccountStatementReport()
+    var
+        GLAccount: Record "G/L Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccountLedgerEntry: array[4] of Record "Bank Account Ledger Entry";
+        BankAccRecTest: Codeunit "Bank Acc. Recon. Test";
+        Amount: array[4] of Decimal;
+        TotalOutstandingTransactionAmount: Decimal;
+        RequestPageXML: Text;
+        BankAccountNo: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 543178] Show outstanding bank transactions on bank account statement report
+        // [GIVEN] Bank Account X
+        Initialize();
+        BankAccountLedgerEntry[1].DeleteAll();
+        LibraryERM.CreateGLAccount(GLAccount);
+        BankAccountNo := LibraryERM.CreateBankAccountNoWithNewPostingGroup(GLAccount);
+
+        for i := 1 to ArrayLen(Amount) do
+            Amount[i] := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Bank Acc. Ledger Entry 1, posting date 20.1.2000.
+        // [GIVEN] Bank Acc. Ledger Entry 2, posting date 20.2.2000.
+        CreateBankAccountLedgerEntry(BankAccountLedgerEntry[1], BankAccountNo, WorkDate() - 30, 0D, Amount[1], true);
+        CreateBankAccountLedgerEntry(BankAccountLedgerEntry[2], BankAccountNo, WorkDate(), 0D, Amount[2], true);
+
+        // [GIVEN] A bank reconciliation X for this bank, statement date = 31.1.2000.
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation.Validate("Statement Date", WorkDate() - 29);
+        BankAccReconciliation.Modify(true);
+        SuggestBankRecLines(BankAccReconciliation, true, 0D, BankAccReconciliation."Statement Date");
+
+        // [GIVEN] Bank Acc. Ledger Entry 3, posting date 20.1.2000.
+        CreateBankAccountLedgerEntry(BankAccountLedgerEntry[3], BankAccountNo, WorkDate() - 30, 0D, Amount[3], true);
+
+        TotalOutstandingTransactionAmount := BankAccRecTest.TotalOutstandingBankTransactions(BankAccReconciliation);
+        // [GIVEN] Post bank reconsiliation X
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [GIVEN] Bank Acc. Ledger Entry 4, posting date 20.1.2000.
+        CreateBankAccountLedgerEntry(BankAccountLedgerEntry[4], BankAccountNo, WorkDate() - 30, 0D, Amount[4], true);
+
+        // [WHEN] The statement report is run for bank statement X, print outstanding transactions = true
+        Commit();
+        BankAccountStatement.SetRange("Bank Account No.", BankAccountNo);
+        LibraryVariableStorage.Enqueue(true);
+        RequestPageXML := Report.RunRequestPage(Report::"Bank Account Statement", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Bank Account Statement", BankAccountStatement, RequestPageXML);
+
+        // [THEN] Outstanding transaction includes Bank Acc. Ledger Entry 3; total outstanding bank transactions amount is transferred from bank acc. reconsiliation
+        LibraryReportDataset.AssertElementWithValueExists('Outstanding_BankTransaction_Amount', Amount[3]);
+        LibraryReportDataset.AssertElementWithValueNotExist('Outstanding_BankTransaction_Amount', Amount[2]);
+        LibraryReportDataset.AssertElementWithValueNotExist('Outstanding_BankTransaction_Amount', Amount[4]);
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', TotalOutstandingTransactionAmount);
     end;
 
     local procedure Initialize()
@@ -4369,6 +4494,17 @@ codeunit 134141 "ERM Bank Reconciliation"
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Bank Reconciliation");
+    end;
+
+    local procedure CreateBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; PostingDate: Date; ClosedAtDate: Date; Amount: Decimal; Open: Boolean)
+    begin
+        BankAccountLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, BankAccountLedgerEntry.FieldNo("Entry No."));
+        BankAccountLedgerEntry."Posting Date" := PostingDate;
+        BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
+        BankAccountLedgerEntry."Closed at Date" := ClosedAtDate;
+        BankAccountLedgerEntry.Amount := Amount;
+        BankAccountLedgerEntry.Open := Open;
+        BankAccountLedgerEntry.Insert();
     end;
 
     local procedure ManualApplyAndPostBankAccountReconciliation(var BankAccount: Record "Bank Account"; StatementNo: Code[20]; Vendor: Record Vendor; var GenJournalLine: Record "Gen. Journal Line"; var EndingBalance: Decimal)
@@ -5561,7 +5697,8 @@ codeunit 134141 "ERM Bank Reconciliation"
     [Scope('OnPrem')]
     procedure BankAccReconTestRequestPageHandler(var BankAccReconTest: TestRequestPage "Bank Acc. Recon. - Test")
     begin
-        // Close handler
+        BankAccReconTest.PrintOutstdTransac.SetValue(LibraryVariableStorage.DequeueBoolean());
+        BankAccReconTest.OK().Invoke();
     end;
 
     [RequestPageHandler]

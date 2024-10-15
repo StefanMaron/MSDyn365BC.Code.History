@@ -2032,6 +2032,45 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,PostAndReconcilePageHandler,BankAccountStatementRequestPageHandler')]
+    procedure GLBalanceOnBankAccountStatementWhenPostedFromPaymentRecJournal()
+    var
+        BankAccount: Record "Bank Account";
+        BankGLAccount: Record "G/L Account";
+        OtherGLAccount: Record "G/L Account";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO] The field GL Balance at Posting date in the Bank Statement report should consider the entries posted from the payment reconciliation journal.
+        Initialize();
+        // [GIVEN] A new bank account with no balance in either the Bank Account or corresponding GL account.
+        LibraryERM.CreateGLAccount(BankGLAccount);
+        LibraryERM.CreateBankAccount(BankAccount, BankGLAccount);
+        // [GIVEN] A posted payment reconciliation journal that posted a new GL Entry to some other GLAccount as one of its lines.
+        LibraryERM.CreateGLAccount(OtherGLAccount);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
+        OpenPmtReconJnl(BankAccReconciliation, PaymentReconciliationJournal);
+        PaymentReconciliationJournal."Transaction Date".SetValue(WorkDate());
+        PaymentReconciliationJournal."Statement Amount".SetValue(100);
+        PaymentReconciliationJournal."Account Type".SetValue(Enum::"Gen. Journal Account Type"::"G/L Account");
+        PaymentReconciliationJournal."Account No.".SetValue(OtherGLAccount."No.");
+        PaymentReconciliationJournal.Accept.Invoke();
+        BankAccReconciliation."Statement Date" := WorkDate();
+        BankAccReconciliation.Validate("Statement Ending Balance", 100);
+        BankAccReconciliation.Modify();
+        PaymentReconciliationJournal.Post.Invoke();
+        Commit();
+        // [WHEN] The Bank Statement report is run.
+        BankAccountStatement.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+        RequestPageXML := Report.RunRequestPage(Report::"Bank Account Statement", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Bank Account Statement", BankAccountStatement, RequestPageXML);
+        // [THEN] The GLBalanceAtPostingDate field includes the newly posted line.
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalBalOnBankAccount', 100);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -3120,6 +3159,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // Warning HeaderError1 does not exist for Payment Reconciliation (TFS 398635)
         LibraryReportDataset.AssertElementWithValueNotExist(
             'HeaderError1', 'Statement Ending Balance must be equal to Total Balance.');
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', OutstdTransactions);
 
         // Verify Totals
         Assert.AreEqual(GLBalance,
@@ -3268,5 +3308,14 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Reply := true;
     end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BankAccountStatementRequestPageHandler(var BankAccountStatement: TestRequestPage "Bank Account Statement")
+    begin
+        BankAccountStatement.PrintOutstandingTransaction.SetValue(true);
+        BankAccountStatement.OK().Invoke();
+    end;
+
 }
 

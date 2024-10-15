@@ -3003,6 +3003,10 @@ table 81 "Gen. Journal Line"
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
+        field(6230; "Non-Ded. VAT FA Cost"; Boolean)
+        {
+            Caption = 'Non-Ded. VAT FA Cost';
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
