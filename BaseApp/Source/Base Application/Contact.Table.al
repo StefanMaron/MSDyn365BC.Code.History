@@ -1628,16 +1628,19 @@
                 ContBusRel."Link to Table"::Customer:
                     begin
                         Cust.Get(ContBusRel."No.");
+                        Cust.SetRange("Date Filter", 0D, WorkDate());
                         PAGE.Run(PAGE::"Customer Card", Cust);
                     end;
                 ContBusRel."Link to Table"::Vendor:
                     begin
                         Vend.Get(ContBusRel."No.");
+                        Vend.SetRange("Date Filter", 0D, WorkDate());
                         PAGE.Run(PAGE::"Vendor Card", Vend);
                     end;
                 ContBusRel."Link to Table"::"Bank Account":
                     begin
                         BankAcc.Get(ContBusRel."No.");
+                        BankAcc.SetRange("Date Filter", 0D, WorkDate());
                         PAGE.Run(PAGE::"Bank Account Card", BankAcc);
                     end;
             end;

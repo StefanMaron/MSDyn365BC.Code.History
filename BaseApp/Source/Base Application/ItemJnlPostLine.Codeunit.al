@@ -4431,16 +4431,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
     local procedure IsNotInternalWhseMovement(ItemJnlLine: Record "Item Journal Line"): Boolean
     begin
-        with ItemJnlLine do begin
-            if ("Entry Type" = "Entry Type"::Transfer) and
-               ("Location Code" = "New Location Code") and
-               ("Dimension Set ID" = "New Dimension Set ID") and
-               ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
-               not Adjustment
-            then
-                exit(false);
-            exit(true)
-        end;
+        exit(ItemJnlLine.IsNotInternalWhseMovement());
     end;
 
     procedure SetCalledFromInvtPutawayPick(NewCalledFromInvtPutawayPick: Boolean)

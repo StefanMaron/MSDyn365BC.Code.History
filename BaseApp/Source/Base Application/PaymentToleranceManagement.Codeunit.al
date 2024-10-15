@@ -928,6 +928,7 @@ codeunit 426 "Payment Tolerance Management"
         AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
         AppliedCustLedgEntry.SetRange(Open, true);
+        AppliedCustLedgEntry.SetFilter("Max. Payment Tolerance", '<>%1', 0);
 
         if CustledgEntry."Applies-to Doc. No." <> '' then
             AppliedCustLedgEntry.SetRange("Document No.", CustledgEntry."Applies-to Doc. No.")
@@ -940,16 +941,14 @@ codeunit 426 "Payment Tolerance Management"
             AppliedCustLedgEntry.SetRange(Positive, false);
         if AppliedCustLedgEntry.FindSet(false, false) then
             repeat
-                if AppliedCustLedgEntry."Max. Payment Tolerance" <> 0 then begin
-                    AppliedCustLedgEntry.CalcFields(Amount);
-                    if CustledgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
-                        AppliedCustLedgEntry.Amount :=
-                          CurrExchRate.ExchangeAmount(
-                            AppliedCustLedgEntry.Amount,
-                            AppliedCustLedgEntry."Currency Code",
-                            CustledgEntry."Currency Code", CustledgEntry."Posting Date");
-                    TotalAmount := TotalAmount + AppliedCustLedgEntry.Amount;
-                end;
+                AppliedCustLedgEntry.CalcFields(Amount);
+                if CustledgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
+                    AppliedCustLedgEntry.Amount :=
+                      CurrExchRate.ExchangeAmount(
+                        AppliedCustLedgEntry.Amount,
+                        AppliedCustLedgEntry."Currency Code",
+                        CustledgEntry."Currency Code", CustledgEntry."Posting Date");
+                TotalAmount := TotalAmount + AppliedCustLedgEntry.Amount;
             until AppliedCustLedgEntry.Next = 0;
 
         AppliedCustLedgEntry.LockTable;
@@ -957,7 +956,7 @@ codeunit 426 "Payment Tolerance Management"
         AcceptedTolAmount := Amount + AppliedAmount;
         Number := AppliedCustLedgEntry.Count;
 
-        if AppliedCustLedgEntry.Find('-') then
+        if AppliedCustLedgEntry.FindSet(true, false) then
             repeat
                 AppliedCustLedgEntry.CalcFields("Remaining Amount");
                 AppliedCustLedgEntryTemp := AppliedCustLedgEntry;
@@ -977,6 +976,7 @@ codeunit 426 "Payment Tolerance Management"
                             AppliedCustLedgEntry."Currency Code",
                             CustledgEntry."Currency Code", CustledgEntry."Posting Date");
                     AcceptedEntryTolAmount := Round((AppliedCustLedgEntry.Amount / TotalAmount) * AcceptedTolAmount);
+                    AcceptedEntryTolAmount := GetMinTolAmountByAbsValue(AcceptedEntryTolAmount, AppliedCustLedgEntry."Max. Payment Tolerance");
                     TotalAmount := TotalAmount - AppliedCustLedgEntry.Amount;
                     AcceptedTolAmount := AcceptedTolAmount - AcceptedEntryTolAmount;
                     AppliedCustLedgEntry."Accepted Payment Tolerance" := RetAccPmtTol(CustledgEntry."Applies-to Doc. No.",
@@ -1009,6 +1009,7 @@ codeunit 426 "Payment Tolerance Management"
         AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
         AppliedVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
         AppliedVendLedgEntry.SetRange(Open, true);
+        AppliedVendLedgEntry.SetFilter("Max. Payment Tolerance", '<>%1', 0);
 
         if VendLedgEntry."Applies-to Doc. No." <> '' then
             AppliedVendLedgEntry.SetRange("Document No.", VendLedgEntry."Applies-to Doc. No.")
@@ -1021,16 +1022,14 @@ codeunit 426 "Payment Tolerance Management"
             AppliedVendLedgEntry.SetRange(Positive, true);
         if AppliedVendLedgEntry.FindSet(false, false) then
             repeat
-                if AppliedVendLedgEntry."Max. Payment Tolerance" <> 0 then begin
-                    AppliedVendLedgEntry.CalcFields(Amount);
-                    if VendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
-                        AppliedVendLedgEntry.Amount :=
-                          CurrExchRate.ExchangeAmount(
-                            AppliedVendLedgEntry.Amount,
-                            AppliedVendLedgEntry."Currency Code",
-                            VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
-                    TotalAmount := TotalAmount + AppliedVendLedgEntry.Amount;
-                end;
+                AppliedVendLedgEntry.CalcFields(Amount);
+                if VendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
+                    AppliedVendLedgEntry.Amount :=
+                      CurrExchRate.ExchangeAmount(
+                        AppliedVendLedgEntry.Amount,
+                        AppliedVendLedgEntry."Currency Code",
+                        VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
+                TotalAmount := TotalAmount + AppliedVendLedgEntry.Amount;
             until AppliedVendLedgEntry.Next = 0;
 
         AppliedVendLedgEntry.LockTable;
@@ -1038,7 +1037,7 @@ codeunit 426 "Payment Tolerance Management"
         AcceptedTolAmount := Amount + AppliedAmount;
         Number := AppliedVendLedgEntry.Count;
 
-        if AppliedVendLedgEntry.Find('-') then
+        if AppliedVendLedgEntry.FindSet(true, false) then
             repeat
                 AppliedVendLedgEntry.CalcFields("Remaining Amount");
                 AppliedVendLedgEntryTemp := AppliedVendLedgEntry;
@@ -1064,6 +1063,7 @@ codeunit 426 "Payment Tolerance Management"
                             AppliedVendLedgEntry."Currency Code",
                             VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
                     AcceptedEntryTolAmount := Round((AppliedVendLedgEntry.Amount / TotalAmount) * AcceptedTolAmount);
+                    AcceptedEntryTolAmount := GetMinTolAmountByAbsValue(AcceptedEntryTolAmount, AppliedVendLedgEntry."Max. Payment Tolerance");
                     TotalAmount := TotalAmount - AppliedVendLedgEntry.Amount;
                     AcceptedTolAmount := AcceptedTolAmount - AcceptedEntryTolAmount;
                     AppliedVendLedgEntry."Accepted Payment Tolerance" := RetAccPmtTol(VendLedgEntry."Applies-to Doc. No.",
@@ -2189,6 +2189,15 @@ codeunit 426 "Payment Tolerance Management"
                 if Vendor.Get(AccountNo) then
                     exit(Vendor.Name);
         end;
+    end;
+
+    local procedure GetMinTolAmountByAbsValue(ExpectedEntryTolAmount: Decimal; MaxPmtTolAmount: Decimal) AcceptedEntryTolAmount: Decimal
+    var
+        Math: Codeunit Math;
+        Sign: Integer;
+    begin
+        Sign := ExpectedEntryTolAmount / Abs(ExpectedEntryTolAmount);
+        AcceptedEntryTolAmount := Sign * Math.Min(Abs(ExpectedEntryTolAmount), Abs(MaxPmtTolAmount));
     end;
 
     [IntegrationEvent(false, false)]
