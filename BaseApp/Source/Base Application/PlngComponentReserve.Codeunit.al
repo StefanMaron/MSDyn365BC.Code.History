@@ -363,6 +363,9 @@ codeunit 99000840 "Plng. Component-Reserve"
         TrackingSpecification: Record "Tracking Specification";
         ReservationEntry: Record "Reservation Entry";
     begin
+        if PlanningComp."Location Code" <> ReqLine."Location Code" then
+            exit;
+
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Requisition Line", 0,

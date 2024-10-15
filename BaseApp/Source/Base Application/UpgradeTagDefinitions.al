@@ -54,6 +54,9 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetDimensionValueDimensionIdUpgradeTag());
         PerCompanyUpgradeTags.Add(GetGLAccountAPITypeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPostCodeServiceKeyUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetFixAPISalesInvoicesCreatedFromOrders());
+        PerCompanyUpgradeTags.Add(GetFixAPIPurchaseInvoicesCreatedFromOrders());
+        PerCompanyUpgradeTags.Add(GetDeleteSalesOrdersOrphanedRecords());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -496,6 +499,21 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetPostCodeServiceKeyUpgradeTag(): Code[250];
     begin
         exit('MS-369092-PostCodeServiceKey-20200915')
+    end;
+
+    procedure GetFixAPISalesInvoicesCreatedFromOrders(): Code[250];
+    begin
+        exit('MS-377282-GetFixAPISalesInvoicesCreatedFromOrders-20201029');
+    end;
+
+    procedure GetFixAPIPurchaseInvoicesCreatedFromOrders(): Code[250];
+    begin
+        exit('MS-377282-GetFixAPIPurchaseInvoicesCreatedFromOrders-20201029');
+    end;
+
+    procedure GetDeleteSalesOrdersOrphanedRecords(): Code[250];
+    begin
+        exit('MS-377433-DeleteSalesOrdersOrphanedRecords-20201102');
     end;
 }
 

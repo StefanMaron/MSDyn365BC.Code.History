@@ -21,6 +21,10 @@ table 5328 "CRM Synch Status"
             Editable = false;
             DataClassification = SystemMetadata;
         }
+        field(4; "Cust. Statistics Synch. Time"; DateTime)
+        {
+            Caption = 'Customer Statistics Synchronization Time';
+        }
     }
 
     keys
