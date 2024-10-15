@@ -56,6 +56,7 @@ table 9009 "Permission Set Buffer"
 
     var
         IsTempErr: Label '%1 should only be used as a temporary record.', Comment = '%1 table caption';
+        CannotRenameTenantPermissionSetHavingUsageErr: Label 'You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group.';
 
     procedure SetType()
     begin
@@ -108,6 +109,7 @@ table 9009 "Permission Set Buffer"
     procedure RenameTenantPermissionSet()
     var
         TenantPermissionSet: Record "Tenant Permission Set";
+        AccessControl: Record "Access Control";
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
         if xRec."Role ID" = '' then
@@ -116,6 +118,11 @@ table 9009 "Permission Set Buffer"
             exit;
         PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
         if Type = Type::"User-Defined" then begin
+            AccessControl.SetRange("App ID", xRec."App ID");
+            AccessControl.SetRange("Role ID", xRec."Role ID");
+            if not AccessControl.IsEmpty() then
+                Error(CannotRenameTenantPermissionSetHavingUsageErr);
+
             TenantPermissionSet.Get(xRec."App ID", xRec."Role ID");
             TenantPermissionSet.Rename(xRec."App ID", "Role ID");
         end;

@@ -780,7 +780,7 @@
     var
         PurchaseLineBackup: Record "Purchase Line";
     begin
-        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0)) then
+        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0) and (PurchLine.Amount <> 0)) then
             exit;
 
         ItemJnlRollRndg := true;
@@ -1808,7 +1808,8 @@
             exit;
 
         with PurchaseLine do begin
-            TestField(Amount);
+            if "Line Discount %" <> 100 then
+                TestField(Amount);
             TestField("Job No.", '');
         end;
     end;
@@ -3380,6 +3381,7 @@
         with TempPurchLine do begin
             ResetTempLines(TempPurchLine);
             SetRange(Type, Type::"Charge (Item)");
+            SetFilter("Line Discount %", '<>100');
             if IsEmpty then
                 exit;
 
