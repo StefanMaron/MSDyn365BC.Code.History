@@ -58,8 +58,7 @@
 
             trigger OnValidate()
             begin
-                if not IsTemporary() then
-                    TestField("Posting Date");
+                CheckPostingDateNotEmpty();
                 Validate("Document Date", "Posting Date");
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor();
@@ -1106,6 +1105,19 @@
             Resource.TestField("Use Time Sheet", false);
     end;
 
+    local procedure CheckPostingDateNotEmpty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPostingDateNotEmpty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not IsTemporary() then
+            TestField("Posting Date");
+    end;
+
     local procedure CopyFromItem()
     begin
         GetItem;
@@ -1971,6 +1983,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemAvailable(var JobJournalLine: Record "Job Journal Line"; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPostingDateNotEmpty(var JobJournalLine: Record "Job Journal Line"; var LineIsEmpty: Boolean)
     begin
     end;
 

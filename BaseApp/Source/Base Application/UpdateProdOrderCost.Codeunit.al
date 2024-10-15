@@ -319,6 +319,7 @@ codeunit 99000757 "Update Prod. Order Cost"
                 TotalCostQty := 0;
                 TotalUnitCost := 0;
                 Item.Get(ProdOrderComp."Item No.");
+                OnUpdateUnitCostOnProdOrderOnAfterGetProdOrderCompItem(ProdOrderLine, ProdOrderComp, Item);
                 if Item."Costing Method".AsInteger() <= Item."Costing Method"::Average.AsInteger() then begin
                     ReservEntry."Source Type" := DATABASE::"Prod. Order Component";
                     ReservEntry.InitSortingAndFilters(true);
@@ -386,6 +387,11 @@ codeunit 99000757 "Update Prod. Order Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateUnitCostOnProdOrderOnAfterValidateUnitCost(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitCostOnProdOrderOnAfterGetProdOrderCompItem(ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; var Item: Record Item)
     begin
     end;
 

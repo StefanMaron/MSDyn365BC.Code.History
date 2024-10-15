@@ -54,7 +54,6 @@ page 40 "Item Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
-                    OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.';
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {

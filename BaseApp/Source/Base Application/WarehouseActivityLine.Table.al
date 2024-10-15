@@ -1,4 +1,4 @@
-table 5767 "Warehouse Activity Line"
+﻿table 5767 "Warehouse Activity Line"
 {
     Caption = 'Warehouse Activity Line';
     DrillDownPageID = "Warehouse Activity Lines";
@@ -222,6 +222,7 @@ table 5767 "Warehouse Activity Line"
 
             trigger OnValidate()
             var
+                QtyToHandleBase: Decimal;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -249,8 +250,11 @@ table 5767 "Warehouse Activity Line"
                 if not UseBaseQty then begin
                     "Qty. to Handle (Base)" :=
                         UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Handle", "Qty. per Unit of Measure");
-                    if "Qty. to Handle (Base)" > "Qty. Outstanding (Base)" then // rounding error- qty same, not base qty
-                        "Qty. to Handle (Base)" := "Qty. Outstanding (Base)";
+                    if "Qty. to Handle (Base)" > "Qty. Outstanding (Base)" then begin // rounding error- qty same, not base qty
+                        QtyToHandleBase := "Qty. Outstanding (Base)";
+                        OnValidateQtyToHandleOnAfterCalcQtyToHandleBase(Rec, "Qty. To Handle (Base)", QtyToHandleBase);
+                        "Qty. to Handle (Base)" := QtyToHandleBase;
+                    end;
                 end;
 
                 if ("Activity Type" = "Activity Type"::"Put-away") and
@@ -1770,9 +1774,6 @@ table 5767 "Warehouse Activity Line"
                     Item.SetRange("Lot No. Filter", ItemTrkgCode);
                     Item.CalcFields(Inventory, "Reserved Qty. on Inventory");
                     WhseItemTrackingSetup."Lot No." := ItemTrkgCode;
-                    LineReservedQty :=
-                      WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, WhseItemTrackingSetup, TempWhseActivLine);
                     ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
                     ReservEntry.SetRange("Item No.", "Item No.");
                     ReservEntry.SetRange("Variant Code", "Variant Code");
@@ -1796,6 +1797,14 @@ table 5767 "Warehouse Activity Line"
                                 AvailQtyFromOtherResvLines := AvailQtyFromOtherResvLines + Abs(ReservEntry2."Quantity (Base)");
                         until ReservEntry.Next = 0;
 
+                    TempWhseActivLine := Rec;
+                    TempWhseActivLine."Qty. Outstanding (Base)" *= -1;
+                    TempWhseActivLine.Insert();
+
+                    LineReservedQty :=
+                      WhseAvailMgt.CalcLineReservedQtyOnInvt(
+                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, WhseItemTrackingSetup, TempWhseActivLine);
+
                     if (Item.Inventory - Abs(Item."Reserved Qty. on Inventory") +
                         LineReservedQty + AvailQtyFromOtherResvLines +
                         WhseAvailMgt.CalcReservQtyOnPicksShips("Location Code", "Item No.", "Variant Code", TempWhseActivLine)) <
@@ -1807,7 +1816,7 @@ table 5767 "Warehouse Activity Line"
                 OnCheckReservedItemTrkgOnCkeckTypeElseCase(Rec, CheckType, ItemTrkgCode);
         end;
 
-        OnAfterCheckReservedItemTrkg(Rec, xRec, CurrFieldNo, LineReservedQty);
+        OnAfterCheckReservedItemTrkg(Rec, xRec, CurrFieldNo, 0, LineReservedQty);
     end;
 
     procedure DeleteBinContent(ActionType: Option)
@@ -2986,6 +2995,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToHandleOnAfterCalcQtyToHandleBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyToHandleBase: Decimal; var NewQtyToHandleBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQtyToHandleOnBeforeCalcQtyToHandleBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; var xWarehouseActivityLine: Record "Warehouse Activity Line"; Location: Record Location; CallingFieldNo: Integer)
     begin
     end;
@@ -3046,8 +3060,9 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckReservedItemTrkg(var WarehouseActivityLine: Record "Warehouse Activity Line"; xRec: Record "Warehouse Activity Line"; CurrFieldNo: Integer; LineReservedQty: Integer)
+    local procedure OnAfterCheckReservedItemTrkg(var WarehouseActivityLine: Record "Warehouse Activity Line"; xRec: Record "Warehouse Activity Line"; CurrFieldNo: Integer; LineReservedQty: Integer; ReservedQty: Decimal)
     begin
+        // use ReservedQty parameter instead of LineReservedQty for the same purpose
     end;
 }
 

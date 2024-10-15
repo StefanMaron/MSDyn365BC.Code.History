@@ -451,6 +451,7 @@
                 ReserveTransferLine.VerifyChange(Rec, xRec);
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
 
+                OnValidateVariantCodeOnBeforeCheckEmptyVariantCode(Rec, xRec, CurrFieldNo);
                 if "Variant Code" = '' then
                     exit;
 
@@ -1868,6 +1869,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateTransferToCodeOnBeforeVerifyChange(var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnBeforeCheckEmptyVariantCode(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; CurrentFieldNo: Integer)
     begin
     end;
 }

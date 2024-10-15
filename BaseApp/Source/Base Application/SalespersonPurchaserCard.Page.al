@@ -222,14 +222,14 @@ page 5116 "Salesperson/Purchaser Card"
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Common Data Service';
+                Caption = 'Dataverse';
                 Visible = CDSIntegrationEnabled or CRMIntegrationEnabled;
                 action(CRMGotoSystemUser)
                 {
                     ApplicationArea = Suite;
                     Caption = 'User';
                     Image = CoupledUser;
-                    ToolTip = 'Open the coupled Common Data Service system user.';
+                    ToolTip = 'Open the coupled Dataverse system user.';
 
                     trigger OnAction()
                     var
@@ -244,7 +244,7 @@ page 5116 "Salesperson/Purchaser Card"
                     ApplicationArea = Suite;
                     Caption = 'Synchronize';
                     Image = Refresh;
-                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+                    ToolTip = 'Send or get updated data to or from Dataverse.';
 
                     trigger OnAction()
                     var
@@ -257,14 +257,14 @@ page 5116 "Salesperson/Purchaser Card"
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Common Data Service user.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse user.';
 
                         trigger OnAction()
                         var
@@ -280,7 +280,7 @@ page 5116 "Salesperson/Purchaser Card"
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Common Data Service user.';
+                        ToolTip = 'Delete the coupling to a Dataverse user.';
 
                         trigger OnAction()
                         var

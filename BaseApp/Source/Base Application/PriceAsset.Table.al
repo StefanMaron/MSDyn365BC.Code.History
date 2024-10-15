@@ -72,6 +72,7 @@ table 7003 "Price Asset"
             var
                 ItemUnitofMeasure: Record "Item Unit of Measure";
                 ResourceUnitofMeasure: Record "Resource Unit of Measure";
+                UnitofMeasure: Record "Unit of Measure";
             begin
                 if "Unit of Measure Code" <> '' then
                     case "Asset Type" of
@@ -84,6 +85,11 @@ table 7003 "Price Asset"
                             begin
                                 TestField("Asset No.");
                                 ResourceUnitofMeasure.Get("Asset No.", "Unit of Measure Code");
+                            end;
+                        "Asset Type"::"Resource Group":
+                            begin
+                                TestField("Asset No.");
+                                UnitofMeasure.Get("Unit of Measure Code");
                             end;
                         else
                             Error(AssetTypeForUOMErr);
@@ -131,15 +137,17 @@ table 7003 "Price Asset"
                 Resource: Record Resource;
                 WorkType: Record "Work Type";
             begin
-                TestField("Asset Type", "Asset Type"::Resource);
+                if not ("Asset Type" in ["Asset Type"::Resource, "Asset Type"::"Resource Group"]) then
+                    TestField("Asset Type", "Asset Type"::Resource);
                 TestField("Asset No.");
 
                 if WorkType.Get("Work Type Code") and (WorkType."Unit of Measure Code" <> '') then
                     "Unit of Measure Code" := WorkType."Unit of Measure Code"
-                else begin
-                    Resource.Get("Asset No.");
-                    "Unit of Measure Code" := Resource."Base Unit of Measure";
-                end;
+                else
+                    if "Asset Type" = "Asset Type"::Resource then begin
+                        Resource.Get("Asset No.");
+                        "Unit of Measure Code" := Resource."Base Unit of Measure";
+                    end;
             end;
         }
         field(29; Description; Text[100])

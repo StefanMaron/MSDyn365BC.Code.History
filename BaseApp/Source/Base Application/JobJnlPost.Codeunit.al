@@ -31,6 +31,8 @@ codeunit 1021 "Job Jnl.-Post"
             if not Confirm(Text001) then
                 exit;
 
+            OnCodeOnAftreConfirm(JobJnlLine);
+
             TempJnlBatchName := "Journal Batch Name";
 
             CODEUNIT.Run(CODEUNIT::"Job Jnl.-Post Batch", JobJnlLine);
@@ -55,6 +57,11 @@ codeunit 1021 "Job Jnl.-Post"
                 "Line No." := 1;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAftreConfirm(var JobJnlLine: Record "Job Journal Line")
+    begin
     end;
 }
 

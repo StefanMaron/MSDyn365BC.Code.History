@@ -18,12 +18,22 @@ codeunit 9300 "Sync. Looping Helper"
         TempSkippedField.Insert();
     end;
 
+    procedure SkipFieldSynchronization(var SyncLoopingHelper: Codeunit "Sync. Looping Helper"; TableNo: Integer)
+    begin
+        SkipFieldSynchronization(SyncLoopingHelper, TableNo, 0);
+    end;
+
     procedure RestoreFieldSynchronization(TableNo: Integer; FieldNo: Integer)
     begin
         if not TempSkippedField.Get(TableNo, FieldNo) then
             exit;
 
         TempSkippedField.Delete();
+    end;
+
+    procedure RestoreFieldSynchronization(TableNo: Integer)
+    begin
+        RestoreFieldSynchronization(TableNo, 0);
     end;
 
     [IntegrationEvent(false, false)]
@@ -43,5 +53,10 @@ codeunit 9300 "Sync. Looping Helper"
     begin
         OnIsFieldSynchronizationSkipped(TableNo, FieldNo, Skipped);
         exit(Skipped);
+    end;
+
+    procedure IsFieldSynchronizationSkipped(TableNo: Integer): Boolean
+    begin
+        exit(IsFieldSynchronizationSkipped(TableNo, 0));
     end;
 }

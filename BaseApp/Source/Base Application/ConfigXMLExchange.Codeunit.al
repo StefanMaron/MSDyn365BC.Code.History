@@ -754,6 +754,14 @@ codeunit 8614 "Config. XML Exchange"
         exit(false);
     end;
 
+    [TryFunction]
+    local procedure TryOpenTable(TableId: Integer)
+    var
+        RecordRef: RecordRef;
+    begin
+        RecordRef.Open(TableId);
+    end;
+
     local procedure FillPackageMetadataFromXML(var PackageCode: Code[20]; TableID: Integer; var TableNode: DotNet XmlNode)
     var
         ConfigPackage: Record "Config. Package";
@@ -773,7 +781,7 @@ codeunit 8614 "Config. XML Exchange"
             if PackageCode = '' then
                 Error(MissingInExcelFileErr, ConfigPackageTable.FieldCaption("Package Code"));
         end;
-        if (TableID > 0) and (not ConfigPackageTable.Get(PackageCode, TableID)) then begin
+        if (TableID > 0) and (not ConfigPackageTable.Get(PackageCode, TableID)) and TryOpenTable(TableID) then begin
             if not ExcelMode then begin
                 ConfigPackageTable.Init();
                 ConfigPackageTable."Package Code" := PackageCode;

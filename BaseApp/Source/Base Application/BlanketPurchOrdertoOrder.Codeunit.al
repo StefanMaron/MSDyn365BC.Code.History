@@ -33,6 +33,7 @@
         PurchBlanketOrderLine.Reset();
         PurchBlanketOrderLine.SetRange("Document Type", "Document Type");
         PurchBlanketOrderLine.SetRange("Document No.", "No.");
+        OnRunOnAfterPurchBlanketOrderLineSetFilters(PurchBlanketOrderLine);
         if PurchBlanketOrderLine.FindSet then
             repeat
                 if (PurchBlanketOrderLine.Type = PurchBlanketOrderLine.Type::" ") or
@@ -82,12 +83,13 @@
                         OnAfterPurchOrderLineInsert(PurchOrderLine, PurchBlanketOrderLine);
                     end;
 
+                    OnRunOnBeforeCheckModifyPurchBlanketOrderLine(PurchOrderLine, PurchBlanketOrderLine, PurchLine);
                     if PurchBlanketOrderLine."Qty. to Receive" <> 0 then begin
                         PurchBlanketOrderLine.Validate("Qty. to Receive", 0);
                         PurchBlanketOrderLine.Modify();
                     end;
 
-                    OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine);
+                    OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine, PurchLine);
                 end;
             until PurchBlanketOrderLine.Next = 0;
 
@@ -137,6 +139,7 @@
         PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         PurchLine.SetRange("Blanket Order No.", PurchBlanketOrderLine."Document No.");
         PurchLine.SetRange("Blanket Order Line No.", PurchBlanketOrderLine."Line No.");
+        OnCalcQuantityOnOrdersOnAfterPurchLineSetFilters(PurchLine);
         QuantityOnOrders := 0;
         if PurchLine.FindSet then
             repeat
@@ -318,12 +321,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcQuantityOnOrdersOnAfterPurchLineSetFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreatePurchHeaderOnBeforePurchOrderHeaderInitRecord(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterPurchBlanketOrderLineLoop(var PurchOrderLine: Record "Purchase Line")
+    local procedure OnRunOnAfterPurchBlanketOrderLineLoop(var PurchOrderLine: Record "Purchase Line"; var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterPurchBlanketOrderLineSetFilters(var PurchBlanketOrderLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCheckModifyPurchBlanketOrderLine(var PurchOrderLine: Record "Purchase Line"; var PurchBlanketOrderLine: Record "Purchase Line"; var PurchLine: Record "Purchase Line")
     begin
     end;
 }

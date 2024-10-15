@@ -625,6 +625,99 @@ codeunit 147111 "SCM Item Documents"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemGLTurnoverWithNegativeRevaluation()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Qty: Decimal;
+        UnitCost: Decimal;
+        NewAmount: Decimal;
+        RevaluationAmount: Decimal;
+        DebitCost: Decimal;
+        CreditCost: Decimal;
+        DebitQty: Decimal;
+        CreditQty: Decimal;
+    begin
+        // [FEATURE] [Item G/L Turnover] [Revaluation]
+        // [SCENARIO 379097] Debit and credit amounts on "Item G/L Turnover" page for revalued item. "Red Storno" is disabled.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        UnitCost := LibraryRandom.RandDecInRange(50, 100, 2);
+        NewAmount := LibraryRandom.RandDecInRange(10, 20, 2);
+        RevaluationAmount := Qty * UnitCost - NewAmount;
+
+        // [GIVEN] Post 5 pcs, each per 150 LCY.
+        // [GIVEN] Post -5 pcs. Run the cost adjustment.
+        LibraryInventory.CreateItem(Item);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty, UnitCost);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", Qty, 0);
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Post the revaluation of the positive inventory adjustment. Old amount = 750 LCY, revalued amount = 700 LCY. Red Storno = FALSE.
+        PostItemRevaluationPerItemLedgerEntry(Item."No.", NewAmount, false);
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [WHEN] Open "Item G/L Turnover" page.
+        CalculateItemGLTurnover(DebitCost, CreditCost, DebitQty, CreditQty, Item."No.");
+
+        // [THEN] Debit quantity = credit quantity = 5.
+        // [THEN] Debit amount = 800 LCY (750 original + 50 adjusted cost of the negative adjustment entry posted as debit).
+        // [THEN] Debit amount = 800 LCY (750 original + 50 revaluation of the original entry posted as credit).
+        Assert.AreEqual(Qty, DebitQty, WrongQuantityErr);
+        Assert.AreEqual(Qty, CreditQty, WrongQuantityErr);
+        Assert.AreEqual(Qty * UnitCost + RevaluationAmount, DebitCost, WrongAmountErr);
+        Assert.AreEqual(Qty * UnitCost + RevaluationAmount, CreditCost, WrongAmountErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemGLTurnoverWithNegativeRevaluationRedStorno()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Qty: Decimal;
+        UnitCost: Decimal;
+        NewAmount: Decimal;
+        DebitCost: Decimal;
+        CreditCost: Decimal;
+        DebitQty: Decimal;
+        CreditQty: Decimal;
+    begin
+        // [FEATURE] [Item G/L Turnover] [Revaluation] [Red Storno]
+        // [SCENARIO 379097] Debit and credit amounts on "Item G/L Turnover" page for revalued item. "Red Storno" is enabled.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        UnitCost := LibraryRandom.RandDecInRange(50, 100, 2);
+        NewAmount := LibraryRandom.RandDecInRange(10, 20, 2);
+
+        // [GIVEN] Enable Red Storno.
+        EnableRedStorno();
+
+        // [GIVEN] Post 5 pcs, each per 150 LCY.
+        // [GIVEN] Post -5 pcs. Run the cost adjustment.
+        LibraryInventory.CreateItem(Item);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty, UnitCost);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", Qty, 0);
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Post the revaluation of the positive inventory adjustment. Old amount = 750 LCY, revalued amount = 700 LCY. Red Storno = TRUE.
+        PostItemRevaluationPerItemLedgerEntry(Item."No.", NewAmount, true);
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [WHEN] Open "Item G/L Turnover" page.
+        CalculateItemGLTurnover(DebitCost, CreditCost, DebitQty, CreditQty, Item."No.");
+
+        // [THEN] Debit quantity = credit quantity = 5.
+        // [THEN] Debit amount = 700 LCY (750 original - 50 revaluation of the original entry posted as debit with minus sign).
+        // [THEN] Debit amount = 700 LCY (750 original - 50 adjusted cost of the negative adjustment entry posted as credit with minus sign).
+        Assert.AreEqual(Qty, DebitQty, WrongQuantityErr);
+        Assert.AreEqual(Qty, CreditQty, WrongQuantityErr);
+        Assert.AreEqual(NewAmount, DebitCost, WrongAmountErr);
+        Assert.AreEqual(NewAmount, CreditCost, WrongAmountErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -758,6 +851,16 @@ codeunit 147111 "SCM Item Documents"
         InventorySetup.Modify();
     end;
 
+    local procedure FindLastPositiveItemLedgEntry(ItemNo: Code[20]): Integer
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.FindLast();
+        exit(ItemLedgerEntry."Entry No.");
+    end;
+
     local procedure UpdateItemDocumentLineFA(var ItemDocumentHeader: Record "Item Document Header"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10])
     var
         ItemDocumentLine: Record "Item Document Line";
@@ -818,6 +921,27 @@ codeunit 147111 "SCM Item Documents"
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
+        ItemJournalLine.Validate("Inventory Value (Revalued)", NewAmount);
+        ItemJournalLine.Modify(true);
+
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure PostItemRevaluationPerItemLedgerEntry(ItemNo: Code[20]; NewAmount: Decimal; RedStorno: Boolean)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+          ItemJournalLine, ItemJournalBatch, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.");
+        ItemJournalLine.Validate("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
+
+        ItemJournalLine.Validate("Item No.", ItemNo);
+        ItemJournalLine.Validate("Applies-to Entry", FindLastPositiveItemLedgEntry(ItemNo));
+        ItemJournalLine."Red Storno" := RedStorno;
         ItemJournalLine.Validate("Inventory Value (Revalued)", NewAmount);
         ItemJournalLine.Modify(true);
 

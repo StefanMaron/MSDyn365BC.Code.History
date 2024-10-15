@@ -362,7 +362,7 @@ page 5 Currencies
         {
             group(ActionGroupCRM)
             {
-                Caption = 'Common Data Service';
+                Caption = 'Dataverse';
                 Image = Administration;
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoTransactionCurrency)
@@ -370,7 +370,7 @@ page 5 Currencies
                     ApplicationArea = Suite;
                     Caption = 'Transaction Currency';
                     Image = CoupledCurrency;
-                    ToolTip = 'Open the coupled Common Data Service transaction currency.';
+                    ToolTip = 'Open the coupled Dataverse transaction currency.';
 
                     trigger OnAction()
                     var
@@ -385,7 +385,7 @@ page 5 Currencies
                     ApplicationArea = Suite;
                     Caption = 'Synchronize';
                     Image = Refresh;
-                    ToolTip = 'Send updated data to Common Data Service.';
+                    ToolTip = 'Send updated data to Dataverse.';
 
                     trigger OnAction()
                     var
@@ -408,14 +408,14 @@ page 5 Currencies
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Common Data Service Transaction Currency.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse transaction currency.';
 
                         trigger OnAction()
                         var
@@ -431,7 +431,7 @@ page 5 Currencies
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Common Data Service Transaction Currency.';
+                        ToolTip = 'Delete the coupling to a Dataverse transaction currency.';
 
                         trigger OnAction()
                         var

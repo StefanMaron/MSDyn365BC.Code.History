@@ -762,7 +762,14 @@
     end;
 
     procedure CalcVATAmountLines(SalesInvHeader: Record "Sales Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcVATAmountLines(Rec, SalesInvHeader, TempVATAmountLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempVATAmountLine.DeleteAll();
         SetRange("Document No.", SalesInvHeader."No.");
         if Find('-') then
@@ -1096,6 +1103,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetItemLedgEntries(var SalesInvLine: Record "Sales Invoice Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcVATAmountLines(SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

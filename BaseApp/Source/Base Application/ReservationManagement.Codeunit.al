@@ -703,6 +703,9 @@
                 StopReservation := true;
         end;
 
+        if CalcReservEntry."Source Type" = DATABASE::"Job Planning Line" then
+            StopReservation := CalcReservEntry."Source Subtype" <> 2;
+
         OnAutoReserveOnBeforeStopReservation(CalcReservEntry, FullAutoReservation, AvailabilityDate, MaxQtyToReserve, MaxQtyToReserveBase, StopReservation);
         if StopReservation then begin
             FullAutoReservation := true;
@@ -833,7 +836,7 @@
     begin
         IsReserved := false;
         OnBeforeAutoReserveItemLedgEntry(
-          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserve, Description, AvailabilityDate, IsReserved, CalcReservEntry);
+          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, IsReserved, CalcReservEntry);
         if IsReserved then
             exit;
 
@@ -2050,8 +2053,13 @@
     end;
 
     procedure GetSourceRecordValue(var ReservEntry: Record "Reservation Entry"; SetAsCurrent: Boolean; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)") SourceQty: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        OnGetSourceRecordValue(ReservEntry, SetAsCurrent, ReturnOption, SourceQty, SourceRecRef);
+        IsHandled := false;
+        OnGetSourceRecordValue(ReservEntry, SetAsCurrent, ReturnOption, SourceQty, SourceRecRef, IsHandled);
+        if IsHandled then
+            exit;
 
         if SetAsCurrent then
             SetReservSource(SourceRecRef, ReservEntry.GetTransferDirection());
@@ -2377,15 +2385,15 @@
         ItemTrackingHandling := Mode;
     end;
 
-    procedure DeleteItemTrackingConfirm(): Boolean
+    procedure DeleteItemTrackingConfirm() Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDeleteItemTrackingConfirm(CalcReservEntry2, IsHandled);
+        OnBeforeDeleteItemTrackingConfirm(CalcReservEntry2, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         if not ItemTrackingExist(CalcReservEntry2) then
             exit(true);
@@ -2796,7 +2804,14 @@
     end;
 
     local procedure CheckQuantityIsCompletelyReleased(QtyToRelease: Decimal; DeleteAll: Boolean; CurrentItemTrackingSetup: Record "Item Tracking Setup"; ReservEntry: Record "Reservation Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckQuantityIsCompletelyReleased(ItemTrackingHandling, QtyToRelease, DeleteAll, CurrentItemTrackingSetup, ReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if QtyToRelease = 0 then
             exit;
 
@@ -3163,7 +3178,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeleteItemTrackingConfirm(var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteItemTrackingConfirm(var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -3219,7 +3234,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSourceRecordValue(var ReservEntry: Record "Reservation Entry"; SetAsCurrent: Boolean; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"; var ReturnQty: Decimal; var SourceRecRef: RecordRef)
+    local procedure OnGetSourceRecordValue(var ReservEntry: Record "Reservation Entry"; SetAsCurrent: Boolean; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"; var ReturnQty: Decimal; var SourceRecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 
@@ -3340,6 +3355,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCallCalcReservedQtyOnPick(CalcReservEntry: Record "Reservation Entry"; Positive: Boolean; var ShouldCalsReservedQtyOnPick: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQuantityIsCompletelyReleased(ItemTrackingHandling: Option "None","Allow deletion",Match; QtyToRelease: Decimal; DeleteAll: Boolean; CurrentItemTrackingSetup: Record "Item Tracking Setup"; ReservEntry: Record "Reservation Entry"; var IsHandled: boolean)
     begin
     end;
 }

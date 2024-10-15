@@ -1480,6 +1480,7 @@
         CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
         RemainingQty := "Remaining Qty." - Abs("Reserved Quantity");
         RemainingQtyBase := "Remaining Qty. (Base)" - Abs("Reserved Qty. (Base)");
+        OnAfterGetRemainingQty(Rec, RemainingQty, RemainingQtyBase);
     end;
 
     procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
@@ -2245,6 +2246,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(JobPlanningLine: Record "Job Planning Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRemainingQty(JobPlanningLine: Record "Job Planning Line"; var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
     begin
     end;
 

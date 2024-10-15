@@ -225,7 +225,8 @@
         if "Dimension Code" = GLSetup."Global Dimension 2 Code" then
             UpdateGlobalDimCode(2, "Table ID", "No.", "Dimension Value Code");
         DimMgt.DefaultDimOnInsert(Rec);
-        UpdateParentId;
+        UpdateParentId();
+        UpdateParentType();
     end;
 
     trigger OnModify()
@@ -947,7 +948,7 @@
         Modified: Boolean;
     begin
         Modified := UpdateParentId();
-        Modified := UpdateParentType();
+        Modified := Modified or UpdateParentType();
         Modified := Modified or UpdateDimensionId();
         Modified := Modified or UpdateDimensionValueId();
         exit(Modified);
@@ -1022,6 +1023,7 @@
             EmployeeTempl.Modify(true);
         end;
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNo(DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
     begin

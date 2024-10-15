@@ -1,4 +1,4 @@
-report 7315 "Calculate Whse. Adjustment"
+﻿report 7315 "Calculate Whse. Adjustment"
 {
     Caption = 'Calculate Warehouse Adjustment';
     ProcessingOnly = true;
@@ -35,6 +35,7 @@ report 7315 "Calculate Whse. Adjustment"
                                 SNLotNumbersByBin.SetFilter(Lot_No, Item.GetFilter("Lot No. Filter"));
                                 SNLotNumbersByBin.SetFilter(Serial_No, Item.GetFilter("Serial No. Filter"));
                                 SNLotNumbersByBin.SetFilter(CD_No, Item.GetFilter("CD No. Filter"));
+                                OnAfterGetRecordItemOnAfterSNLotNumbersByBinSetFilters(SNLotNumbersByBin, Item);
                                 SNLotNumbersByBin.Open;
 
                                 while SNLotNumbersByBin.Read do begin
@@ -81,6 +82,7 @@ report 7315 "Calculate Whse. Adjustment"
                                             ReservationEntry.SetRange("Serial No.", "Serial No.");
                                         if "CD No." <> '' then
                                             ReservationEntry.SetRange("CD No.", "CD No.");
+                                        OnAfterGetRecordItemOnAfterReservationEntrySetFilters(AdjmtBinQuantityBuffer, ReservationEntry);
                                         ReservationEntry.CalcSums("Qty. to Handle (Base)");
                                         if ReservationEntry."Qty. to Handle (Base)" <> 0 then begin
                                             "Qty. to Handle (Base)" += ReservationEntry."Qty. to Handle (Base)";
@@ -399,6 +401,7 @@ report 7315 "Calculate Whse. Adjustment"
             WarehouseEntry.SetRange("Serial No.", TempBinContentBuffer."Serial No.");
             WarehouseEntry.SetRange("CD No.", TempBinContentBuffer."CD No.");
             WarehouseEntry.SetFilter("Entry Type", '%1|%2', EntryType, WarehouseEntry."Entry Type"::Movement);
+            OnCreateReservationEntryOnAfterWarehouseEntrySetFilters(WarehouseEntry, TempBinContentBuffer);
             if not WarehouseEntry.FindFirst then
                 exit;
 
@@ -430,7 +433,7 @@ report 7315 "Calculate Whse. Adjustment"
                 if ItemJournalLine."Order Type" = ItemJournalLine."Order Type"::Production then
                     OrderLineNo := ItemJournalLine."Order Line No.";
 
-                OnBeforeCreateReservEntryFor(ItemJournalLine);
+                OnBeforeCreateReservEntryFor(ItemJournalLine, WarehouseEntry);
 
                 CreateReservEntry.CreateReservEntryFor(
                   DATABASE::"Item Journal Line", ItemJournalLine."Entry Type".AsInteger(), ItemJournalLine."Journal Template Name",
@@ -463,6 +466,7 @@ report 7315 "Calculate Whse. Adjustment"
             TempReservationEntryBuffer.SetRange("CD No.", CDNo);
 
         TempReservationEntryBuffer.SetRange(Positive, WarehouseEntry."Qty. (Base)" < 0);
+        OnUpdateWarehouseEntryQtyByReservationEntryBufferOnAfterTempReservationEntryBufferSetFilters(TempReservationEntryBuffer, WarehouseEntry);
         TempReservationEntryBuffer.CalcSums("Quantity (Base)", Quantity);
 
         WarehouseEntry."Qty. (Base)" += TempReservationEntryBuffer."Quantity (Base)";
@@ -492,6 +496,16 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemOnAfterSNLotNumbersByBinSetFilters(var SNLotNumbersByBin: Query "Lot Numbers by Bin"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordItemOnAfterReservationEntrySetFilters(var TempAdjmtBinContentBuffer: Record "Bin Content Buffer" temporary; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAdjmtBinQuantityBufferInsert(var BinContentBuffer: Record "Bin Content Buffer"; WarehouseEntry: Record "Warehouse Entry"; var SNLotNumbersByBin: Query "Lot Numbers by Bin")
     begin
     end;
@@ -502,7 +516,7 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateReservEntryFor(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeCreateReservEntryFor(var ItemJournalLine: Record "Item Journal Line"; var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 
@@ -512,7 +526,17 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationEntryOnAfterWarehouseEntrySetFilters(var WarehouseEntry: Record "Warehouse Entry"; var TempBinContentBuffer: Record "Bin Content Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertItemLineOnBeforeValidateFields(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateWarehouseEntryQtyByReservationEntryBufferOnAfterTempReservationEntryBufferSetFilters(var TempReservationEntryBuffer: Record "Reservation Entry" temporary; var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 }

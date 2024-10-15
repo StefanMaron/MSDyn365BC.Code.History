@@ -27,7 +27,6 @@ page 5780 "Whse. Pick Subform"
                 {
                     ApplicationArea = Warehouse;
                     BlankZero = true;
-                    OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,,Outbound Transfer,Prod. Consumption,,,,,,,Service Order,,Assembly Consumption';
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
                 field("Source No."; "Source No.")

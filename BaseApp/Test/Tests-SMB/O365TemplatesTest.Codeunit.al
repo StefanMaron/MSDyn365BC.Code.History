@@ -3837,6 +3837,7 @@ codeunit 138012 "O365 Templates Test"
     var
         Item2: Record Item;
         ItemDiscGroup: Record "Item Discount Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         LibraryInventory.CreateItem(Item2);
         CreateBlankItem(Item);
@@ -3850,6 +3851,10 @@ codeunit 138012 "O365 Templates Test"
         Item.Validate("Gen. Prod. Posting Group", Item2."Gen. Prod. Posting Group");
         Item.Validate("Automatic Ext. Texts", not Item."Automatic Ext. Texts");
         Item.Validate("VAT Prod. Posting Group", Item2."VAT Prod. Posting Group");
+
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        EditSalesSetupWithVATBusPostGrPrice(VATBusinessPostingGroup.Code);
+
         LibrarySmallBusiness.SetVATBusPostingGrPriceSetup(Item."VAT Prod. Posting Group", not Item."Price Includes VAT");
         Item.Validate("Price Includes VAT", not Item."Price Includes VAT");
         Item.Validate("Costing Method", Item."Costing Method"::FIFO);
@@ -4913,6 +4918,15 @@ codeunit 138012 "O365 Templates Test"
         RecordRef2.GetTable(NewItem);
 
         VerifyRecordRefsMatch(RecordRef1, RecordRef2);
+    end;
+
+    local procedure EditSalesSetupWithVATBusPostGrPrice(BusPostingGroupVal: Code[20])
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesSetup.Get();
+        SalesSetup."VAT Bus. Posting Gr. (Price)" := BusPostingGroupVal;
+        SalesSetup.Modify();
     end;
 
     [ModalPageHandler]
