@@ -9,5 +9,8 @@ dotnet
         type("System.Security.Cryptography.CryptoStream"; "Cryptography.CryptoStream") { }
         type("System.Security.Cryptography.CryptoStreamMode"; "Cryptography.CryptoStreamMode") { }
         type("System.Security.Cryptography.KeySizes"; "Cryptography.KeySizes") { }
+        type("System.Security.Cryptography.Rfc2898DeriveBytes"; "Rfc2898DeriveBytes") { }
+        type("System.Security.Cryptography.SymmetricAlgorithm"; "Cryptography.SymmetricAlgorithm") { }
+        type("System.Security.Cryptography.DESCryptoServiceProvider"; "Cryptography.DESCryptoServiceProvider") { }
     }
 }

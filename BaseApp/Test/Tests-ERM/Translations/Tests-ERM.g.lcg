@@ -1229,6 +1229,15 @@
       <Cmt Name="Dev"><![CDATA[%1=G/L Budget Name]D;]A;(LookupHint=Codeunit ERM Batch Job II - NamedType BudgetError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2382063891 - NamedType 1302901676" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The job no. %1 was successfully copied to the new job no. %2 with the status Planning.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Batch Job II - NamedType JobsCopyMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1111060729 - NamedType 2317558431" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Column Caption must match.]]></Val>
@@ -8868,15 +8877,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PEPPOL Management Tests - NamedType NoUnitOfMeasureErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1507343860 - NamedType 3817064206" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Credit Memo %1 contains lines on which the Unit of Measure Code field is empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PEPPOL Management Tests - NamedType NoUnitOfMeasureCRErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1507343860 - NamedType 1839775097" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
