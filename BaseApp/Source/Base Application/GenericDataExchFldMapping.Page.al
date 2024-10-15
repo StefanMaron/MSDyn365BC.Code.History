@@ -63,6 +63,11 @@ page 1218 "Generic Data Exch Fld Mapping"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the rule that transforms imported text to a supported value before it can be mapped to a specified field in Microsoft Dynamics 365. When you choose a value in this field, the same value is entered in the Transformation Rule field in the Data Exch. Field Mapping Buf. table and vice versa.';
                 }
+                field(Priority; Priority)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the order that the field mappings must be processed. The field mapping with the highest number will be processed first.';
+                }
             }
         }
     }

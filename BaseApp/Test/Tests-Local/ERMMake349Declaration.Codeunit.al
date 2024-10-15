@@ -199,7 +199,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         VerifyValuesOnGeneratedTextFile(FileName, 93, VendorNo);  // Starting Position is 93.
 
         // Verify: that the produced file gives the expected format.
-        ValidateFormat349FileHeader(FileName, PostingDate, '', TelephoneNumberTxt, ContactNameTxt, true, 'C', '01');
+        ValidateFormat349FileHeader(FileName, PostingDate, '', TelephoneNumberTxt, ContactNameTxt, true, ' ', '01');
         ValidateFormat349FileRecord(FileName, PostingDate, Vendor."No.", Vendor.Name, OperationCode, Amount);
     end;
 
@@ -249,7 +249,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         VerifyValuesOnGeneratedTextFile(FileName, 133, 'S');  // S is explicitly used for Operation Code in Report 10710. Starting Position is 133.
 
         // Verify: that the produced file gives the expected format.
-        ValidateFormat349FileHeader(FileName, WorkDate, '', TelephoneNumberTxt, ContactNameTxt, true, 'C', '01');
+        ValidateFormat349FileHeader(FileName, WorkDate, '', TelephoneNumberTxt, ContactNameTxt, true, ' ', '01');
         ValidateFormat349FileRecord(FileName, WorkDate, Customer."No.", Customer.Name, 'E', Amount);
     end;
 
@@ -294,7 +294,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         VerifyValuesOnGeneratedTextFile(FileName, 133, 'I');  // I is explicitly used for Operation Code in Report 10710. Starting Position is 133.
 
         // Verify: that the produced file gives the expected format.
-        ValidateFormat349FileHeader(FileName, WorkDate, '', TelephoneNumberTxt, ContactNameTxt, true, 'C', '01');
+        ValidateFormat349FileHeader(FileName, WorkDate, '', TelephoneNumberTxt, ContactNameTxt, true, ' ', '01');
         ValidateFormat349FileRecord(FileName, WorkDate, Vendor."No.", Vendor.Name, 'A', Amount);
     end;
 
