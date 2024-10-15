@@ -30,6 +30,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -51,6 +52,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         BOMMustBeCertifiedErr: Label 'Status must be equal to ''Certified''  in Production BOM Header';
         PeriodType: Option Day,Week,Month,Quarter,Year,Period;
         AmountType: Option "Net Change","Balance at Date";
+        AppliesToEntryMissingErr: Label 'Applies-to Entry must have a value';
 
     [Test]
     [Scope('OnPrem')]
@@ -695,6 +697,53 @@ codeunit 137077 "SCM Supply Planning -IV"
         // Verify: Verify Inventory of Item is updated after Purchase Order posting for Item.
         Item.CalcFields(Inventory);
         Item.TestField(Inventory, PurchaseLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SubcontractCreditMemoSkipBaseQtyBalCheck()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        PurchaseLine: Record "Purchase Line";
+        RoutingHeader: Record "Routing Header";
+        PurchInvoiceHeader: Record "Purch. Inv. Header";
+        PurchCreditMemo: Record "Purchase Header";
+        ReasonCode: Record "Reason Code";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [SCENARIO] Bug 420029 - Validation for quantity and base quantity balance should be skipped for subcontract credit memo
+        // [GIVEN] Item, routing, work center.
+        Initialize();
+        CreateItem(Item);
+        CreateRoutingSetup(WorkCenter, RoutingHeader);
+        UpdateItemRoutingNo(Item, RoutingHeader."No.");
+        LibraryERM.CreateReasonCode(ReasonCode);
+
+        // [GIVEN] Create and refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrderWithLocationAndBin(ProductionOrder, Item."No.", '', '');  // Without Location and Bin.
+
+        // [GIVEN] Calculate Subcontracts from Subcontracting worksheet and Carry Out Action Message.
+        CalculateSubcontractOrder(WorkCenter);
+        CarryOutActionMessageSubcontractWksh(Item."No.");
+
+        // [WHEN] After carry out, Post Purchase Order as Receive and invoice.
+        SelectPurchaseOrderLine(PurchaseLine, Item."No.");
+        PostPurchaseDocument(PurchaseLine, true);
+
+        // [WHEN] Create corrective credit memo
+        PurchInvoiceHeader.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchInvoiceHeader.FindFirst();
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvoiceHeader, PurchCreditMemo);
+
+        // [THEN] Validation of base qty balanced should not be triggered when Updating Qty. to Invoice in credit memo lines
+        // [THEN] Instead, missing applies-to entry error is thrown
+        PurchCreditMemo.Validate("Vendor Cr. Memo No.", PurchCreditMemo."No.");
+        PurchCreditMemo.Validate("Reason Code", ReasonCode.Code);
+        PurchCreditMemo.Modify(true);
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchCreditMemo, true, true);
+        Assert.ExpectedError(AppliesToEntryMissingErr);
     end;
 
     [Test]
@@ -3165,6 +3214,68 @@ codeunit 137077 "SCM Supply Planning -IV"
                     GLEntry.TestField("Prod. Order No.", ProductionOrder."No.");
                 until GLItemLedgerRelation.Next() = 0;
         until ValueEntry.Next() = 0;
+    end;
+
+    [Test]
+    procedure DirectUnitCostInPlannedPurchaseOrderCorrespondsOrderDate()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PriceListLine: Record "Price List Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        LeadTime: DateFormula;
+        OldPrice: Decimal;
+        NewPrice: Decimal;
+    begin
+        // [FEATURE] [Purchase Price]
+        // [SCENARIO 405461] Direct Unit Cost on purchase line created by planning corresponds to Order Date in the purchase header.
+        Initialize();
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.AddSetup(
+          PriceCalculationSetup, "Price Calculation Method"::"Lowest Price", "Price Type"::Purchase,
+          "Price Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
+        OldPrice := LibraryRandom.RandDecInRange(10, 20, 2);
+        NewPrice := LibraryRandom.RandDecInRange(30, 60, 2);
+        Evaluate(LeadTime, '<14D>');
+
+        // [GIVEN] Lot-for-lot item with vendor and Lead Time Calculation = 14D.
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
+        Item.Validate("Vendor No.", Vendor."No.");
+        Item.Validate("Lead Time Calculation", LeadTime);
+        Item.Modify(true);
+
+        // [GIVEN] Purchase price "X" ending yesterday (Workdate - 1).
+        LibraryPriceCalculation.CreatePurchPriceLine(
+          PriceListLine, '', "Price Source Type"::Vendor, Vendor."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Direct Unit Cost", OldPrice);
+        PriceListLine.Validate("Ending Date", WorkDate() - 1);
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [GIVEN] Purchase price "Y" starting today (Workdate).
+        LibraryPriceCalculation.CreatePurchPriceLine(
+          PriceListLine, '', "Price Source Type"::Vendor, Vendor."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Direct Unit Cost", NewPrice);
+        PriceListLine.Validate("Starting Date", WorkDate());
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [GIVEN] Sales order.
+        CreateSalesOrder(Item."No.", '');
+
+        // [WHEN] Calculate regenerative plan and carry out action message.
+        CalcRegenPlanAndCarryOut(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+
+        // [THEN] "Direct Unit Cost" on the supplying purchase line = "Y".
+        FindPurchLine(PurchaseLine, Item."No.");
+        PurchaseLine.TestField("Direct Unit Cost", NewPrice);
+
+        // [THEN] "Order Date" on the purchase header = Workdate.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.TestField("Order Date", WorkDate());
     end;
 
     local procedure Initialize()

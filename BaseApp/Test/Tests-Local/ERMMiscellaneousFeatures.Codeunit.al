@@ -326,6 +326,46 @@ codeunit 141020 "ERM Miscellaneous Features"
         UnbindSubscription(ERMMiscellaneousFeatures);
     end;
 
+    [Test]
+    [HandlerFunctions('RemittanceAdviceJournalRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunRemittanceAdviceJournalByDefault()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        ReportSelections: Record "Report Selections";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [Purchase] [Remittance Advice]
+        // [SCENARIO 419949] Remittance Advice - Journal report by default is run when Report Selection for V. Remittance is empty
+        Initialize();
+
+        // [GIVEN] Enable Suite application area setup
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Payment journal line
+        CreateGenJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Report Selection for V.Remittance is empty
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
+        ReportSelections.DeleteAll(true);
+
+        // [GIVEN] Open payment journal page with created line
+        Commit();
+        PaymentJournal.OpenEdit;
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        PaymentJournal.GotoRecord(GenJournalLine);
+
+        // [WHEN] Print Remittance Advance is being hit
+        PaymentJournal.PrintRemittanceAdvance.Invoke;
+
+        // [THEN] Report Remittance Advice - Journal opened
+        // Verified by having RemittanceAdviceJournalRequestPageHandler
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

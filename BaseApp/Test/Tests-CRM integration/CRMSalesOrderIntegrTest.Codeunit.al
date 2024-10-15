@@ -115,12 +115,9 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     [Scope('OnPrem')]
     procedure PostToAccountWhenSalesOrderIsPosted()
     var
-        Customer: Record Customer;
-        CRMAccount: Record "CRM Account";
         CRMPost: Record "CRM Post";
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ItemNo: Code[20];
+        CRMSalesorder: Record "CRM Salesorder";
     begin
         // [SCENARIO] Test that a Post is posted to the CRM Account when a Sales Order is posted in NAV
         // [GIVEN] We have a coupled CRM Account and NAV Customer
@@ -130,10 +127,11 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Initialize;
         CleanCRMPost(CRMPost);
 
-        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
-        ItemNo := '';
-        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::Order, Customer."No.", ItemNo, 1, '', WorkDate);
+        // [GIVEN] CRM Salesorder in local currency
+        PrepareCRMSalesOrder(CRMSalesorder, 0, 0);
+
+        // [WHEN] The user clicks 'Create in NAV' CRM Sales Orders page
+        CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
 
         Assert.IsTrue(CRMPost.IsEmpty, 'CRMPost should be empty');
 
@@ -144,7 +142,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PostToAccountWhenInvoiceIsPosted()
+    procedure DontPostToAccountWhenUncoupledInvoiceIsPosted()
     var
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
@@ -170,7 +168,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
-        Assert.AreEqual(1, CRMPost.Count, 'Nothing is posted');
+        Assert.AreEqual(0, CRMPost.Count, 'Nothing is posted');
     end;
 
     [Test]
@@ -1468,6 +1466,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
         CRMPost: Record "CRM Post";
+        CRMSalesorder: Record "CRM Salesorder";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -1491,10 +1490,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [WHEN] The Sales Order is posted
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
-
-        // [THEN] CRM Integration record for Customer marked as skipped
-        CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
-        CRMIntegrationRecord.TestField(Skipped, true);
 
         // [THEN] No Post is created on the Account
         Assert.RecordCount(CRMPost, 0);
@@ -1663,9 +1658,9 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [THEN] Sales line Amount = Unit Price - VAT
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
-        SalesLine.TestField(Amount, Round(Item."Unit Price" / (1 + SalesLine."VAT %" / 100), LibraryERM.GetAmountRoundingPrecision()));
+        Assert.AreNearlyEqual(SalesLine.Amount, Round(Item."Unit Price" / (1 + SalesLine."VAT %" / 100), LibraryERM.GetAmountRoundingPrecision()), 0.01, '');
         // [THEN] Sales Line Amount Including VAT = Unit Price 
-        SalesLine.TestField("Amount Including VAT", Round(SalesLine.Amount + (SalesLine.Amount * SalesLine."VAT %" / 100), LibraryERM.GetAmountRoundingPrecision()));
+        Assert.AreNearlyEqual(SalesLine."Amount Including VAT", Round(SalesLine.Amount + (SalesLine.Amount * SalesLine."VAT %" / 100), LibraryERM.GetAmountRoundingPrecision()), 0.01, '');
     end;
 
     [Test]

@@ -2361,7 +2361,7 @@
                 if xRec."Order Tracking Policy" = "Order Tracking Policy" then
                     exit;
                 if "Order Tracking Policy".AsInteger() > xRec."Order Tracking Policy".AsInteger() then begin
-                    Message(Text99000000 + Text99000001,"Order Tracking Policy");
+                    Message(Text99000000 + Text99000001, "Order Tracking Policy");
                 end else begin
                     ActionMessageEntry.SetCurrentKey("Reservation Entry");
                     ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
@@ -2885,7 +2885,13 @@
     local procedure TestNoWhseEntriesExist(CurrentFieldName: Text)
     var
         WarehouseEntry: Record "Warehouse Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestNoWhseEntriesExist(Rec, CurrentFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
         WarehouseEntry.SetRange("Item No.", "No.");
         if not WarehouseEntry.IsEmpty() then
             Error(WhseEntriesExistErr, CurrentFieldName);
@@ -3837,6 +3843,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoPurchLinesExist(Item: Record Item; CurrentFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoWhseEntriesExist(Item: Record Item; CurrentFieldName: Text; var IsHandled: Boolean)
     begin
     end;
 

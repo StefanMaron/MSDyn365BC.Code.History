@@ -268,6 +268,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                     DtldVendorLedgEntry.SetRange("Vendor No.", Vendor."No.");
                     DtldVendorLedgEntry.SetRange("Posting Date", CalcDate('<+1D>', PeriodStartDate[5]), PeriodStartDate[6]);
                     DtldVendorLedgEntry.SetRange("Entry Type", DtldVendorLedgEntry."Entry Type"::Application);
+                    CopyDimFiltersFromVendor(DtldVendorLedgEntry);
                     if DtldVendorLedgEntry.Find('-') then
                         repeat
                             "Entry No." := DtldVendorLedgEntry."Vendor Ledger Entry No.";
@@ -278,6 +279,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                     SetRange("Vendor No.", Vendor."No.");
                     SetRange(Open, true);
                     SetRange("Posting Date", 0D, PeriodStartDate[5]);
+                    CopyDimFiltersFromVendor("Vendor Ledger Entry");
                     if Find('-') then
                         repeat
                             Mark(true);
@@ -423,6 +425,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                 VendorLedgerEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date", "Currency Code");
                 VendorLedgerEntry.SetRange("Vendor No.", "No.");
                 VendorLedgerEntry.SetRange(Open, true);
+                CopyDimFiltersFromVendor(VendorLedgerEntry);
                 CalcFields("Net Change (LCY)");
                 AccountNetChange := "Net Change (LCY)";
                 VendorLedgerEntry.SetRange("Posting Date", 0D, PeriodStartDate[5]);
@@ -905,6 +908,22 @@ report 17117 "Aged Acc. Pay. (BackDating)"
         PrintEntryDetailsEnable := PrintAccountDetails = true;
         if PrintEntryDetailsEnable = false then
             PrintEntryDetails := false;
+    end;
+
+    local procedure CopyDimFiltersFromVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        if Vendor.GetFilter("Global Dimension 1 Filter") <> '' then
+            VendorLedgerEntry.SetFilter("Global Dimension 1 Code", Vendor.GetFilter("Global Dimension 1 Filter"));
+        if Vendor.GetFilter("Global Dimension 2 Filter") <> '' then
+            VendorLedgerEntry.SetFilter("Global Dimension 2 Code", Vendor.GetFilter("Global Dimension 2 Filter"));
+    end;
+
+    local procedure CopyDimFiltersFromVendor(var DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
+        if Vendor.GetFilter("Global Dimension 1 Filter") <> '' then
+            DtldVendorLedgEntry.SetFilter("Initial Entry Global Dim. 1", Vendor.GetFilter("Global Dimension 1 Filter"));
+        if Vendor.GetFilter("Global Dimension 2 Filter") <> '' then
+            DtldVendorLedgEntry.SetFilter("Initial Entry Global Dim. 2", Vendor.GetFilter("Global Dimension 2 Filter"));
     end;
 }
 

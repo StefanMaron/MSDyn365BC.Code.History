@@ -2388,7 +2388,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralPostingSetup.Modify(true);
     end;
 
-    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Option)
+    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin

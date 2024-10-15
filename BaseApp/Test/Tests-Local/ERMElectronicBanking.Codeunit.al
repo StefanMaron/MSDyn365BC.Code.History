@@ -1685,6 +1685,57 @@ codeunit 141021 "ERM Electronic - Banking"
         LibraryReportDataset.AssertValueInElement('DisplayEntries_Amount', WHTAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,CreateEFTFileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportEFTPaymentSkipWHT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        EFTRegister: Record "EFT Register";
+        BankAccountNo: Code[20];
+        FilePath: Text;
+        TextLine: Text;
+    begin
+        // [SCENARIO 415469] Export EFT Payment should consider "Skip WHT" when calculating amount
+        Initialize();
+
+        // [GIVEN] Create and Post Purchase Order with WHT Posting Setup.
+        BankAccountNo :=
+          CreateBankAccount(True, CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 5)) + 'D>', WorkDate));  // EFT Payment - FALSE, Last Payment Date before WORKDATE.
+        CreateGenJournalBatch(GenJournalBatch, BankAccountNo);
+        FindWHTPostingSetup(WHTPostingSetup);
+        CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Set "EFT Payment" = true
+        Vendor.Validate("EFT Payment", True);
+        Vendor.Modify();
+        CreateGLAccount(GLAccount, WHTPostingSetup."WHT Product Posting Group");
+        CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::"G/L Account", GLAccount."No.", false);
+
+        // [GIVEN] Suggested Payment journal line applied to Posted Order
+        SuggestVendorPayments(GenJournalLine, GenJournalBatch, Vendor."No.", false);
+
+        // [GIVEN] Set journal line Skip WHT = Yes
+        UpdateGenJournalLineSkipWHT(GenJournalLine, true);
+
+        // [WHEN] EFT File is being created
+        FilePath := EFTPaymentCreateFile(GenJournalLine);
+
+        // [THEN] Payment exported with WHT Amount = 0
+        TextLine := LibraryTextFileValidation.ReadLine(FilePath, 2);
+        VerifyPaymentFileLineAmountAndWHTAmount(TextLine, GenJournalLine.Amount, 0);
+
+        // [THEN] EFT Register Entry created, "Total Amount (LCY)" = Gen. Journal Line amount
+        FindEFTRegister(EFTRegister, BankAccountNo);
+        EFTRegister.TestField("Total Amount (LCY)", GenJournalLine.Amount);
+    end;
+
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";

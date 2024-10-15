@@ -58,12 +58,6 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
     end;
 
-    local procedure Initialize()
-    begin
-        LibraryTestInitialize.OnTestInitialize(Codeunit::"Invoice Premapping Tests");
-        LibraryVariableStorage.Clear;
-    end;
-
     [Test]
     [Scope('OnPrem')]
     procedure TestSuccessfulInvoicePremappingWithGLNAndItemBarCode()
@@ -80,7 +74,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -125,7 +119,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -176,7 +170,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -227,7 +221,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -273,7 +267,7 @@ codeunit 139157 "Invoice Premapping Tests"
         GLEntry: Record "G/L Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
         IncomingDocument.Get(DataExch."Incoming Entry No.");
 
@@ -321,7 +315,7 @@ codeunit 139157 "Invoice Premapping Tests"
         CompanyInformation: Record "Company Information";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
 
         // modify gln value in intermediate table
@@ -341,7 +335,7 @@ codeunit 139157 "Invoice Premapping Tests"
         CompanyInformation: Record "Company Information";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
 
         // modify vat reg no value in intermediate table
@@ -362,14 +356,14 @@ codeunit 139157 "Invoice Premapping Tests"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO 302420] No error on import two Intermediate Data Import lines of company's VAT Reg No. when correct value is in the second line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Data Exchange Definition with Intermediate Data Import of two lines for company's VAT Registration No.
         // [GIVEN] First line has tax scheme ID value '45678911', second line has VAT Registration No. value 'NL012345678'
         SetupTestTables(DataExch);
         DeleteIntermediateTableRow(DataExch, DATABASE::"Company Information", CompanyInformation.FieldNo("VAT Registration No."));
         CompanyInformation.Get();
-        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID;
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify();
         InsertIntermediateTableRow(
           DataExch, DATABASE::"Company Information", CompanyInformation.FieldNo("VAT Registration No."), InvalidVATRegNoTxt);
@@ -393,14 +387,14 @@ codeunit 139157 "Invoice Premapping Tests"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO 302420] No error on import two Intermediate Data Import lines of company's VAT Reg No. when correct value is in the first line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Data Exchange Definition with Intermediate Data Import of two lines for company's VAT Registration No.
         // [GIVEN] First line has VAT Registration No. value 'NL012345678', second line has tax scheme ID value '45678911'
         SetupTestTables(DataExch);
         DeleteIntermediateTableRow(DataExch, DATABASE::"Company Information", CompanyInformation.FieldNo("VAT Registration No."));
         CompanyInformation.Get();
-        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID;
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify();
         InsertIntermediateTableRow(
           DataExch, DATABASE::"Company Information", CompanyInformation.FieldNo("VAT Registration No."),
@@ -425,7 +419,7 @@ codeunit 139157 "Invoice Premapping Tests"
         CompanyInformation: Record "Company Information";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
 
         // modify gln value in intermediate table
@@ -446,7 +440,7 @@ codeunit 139157 "Invoice Premapping Tests"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
 
         // remove document currency value in intermediate table
@@ -466,7 +460,7 @@ codeunit 139157 "Invoice Premapping Tests"
         DocumentCurrency: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
         DocumentCurrency := GetIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Currency Code"), 1);
 
@@ -489,7 +483,7 @@ codeunit 139157 "Invoice Premapping Tests"
         DocumentCurrency: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
         DocumentCurrency := GetIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Currency Code"), 1);
 
@@ -517,7 +511,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -548,7 +542,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -579,7 +573,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -610,7 +604,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -638,7 +632,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -671,13 +665,13 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
         VendorBankAccount.Init();
         VendorBankAccount."Vendor No." := BuyFromVendor."No.";
-        VendorBankAccount.Code := LibraryUtility.GenerateGUID;
-        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID;
+        VendorBankAccount.Code := LibraryUtility.GenerateGUID();
+        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID();
         VendorBankAccount.Insert(true);
 
         // delete gln and vat reg value from intermediate table
@@ -710,14 +704,14 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
         VendorBankAccount.Init();
         VendorBankAccount."Vendor No." := BuyFromVendor."No.";
-        VendorBankAccount.Code := LibraryUtility.GenerateGUID;
-        VendorBankAccount."Bank Branch No." := LibraryUtility.GenerateGUID;
-        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID;
+        VendorBankAccount.Code := LibraryUtility.GenerateGUID();
+        VendorBankAccount."Bank Branch No." := LibraryUtility.GenerateGUID();
+        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
         VendorBankAccount.Insert(true);
 
         // delete gln and vat reg value from intermediate table
@@ -752,7 +746,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
         BuyFromVendor."Phone No." := Format(LibraryRandom.RandIntInRange(1000000, 9999999));
@@ -788,7 +782,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -827,7 +821,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -858,7 +852,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -896,7 +890,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -929,7 +923,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -959,7 +953,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -992,7 +986,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -1025,7 +1019,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -1057,7 +1051,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataExchTable(DataExch);
         SetupValidIntermediateTable(DataExch, BuyFromVendor, PayToVendor, Item1, Item2, UnitOfMeasure, Qty, Description);
 
@@ -1082,7 +1076,7 @@ codeunit 139157 "Invoice Premapping Tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
 
         // modify unit of measure value in intermediate table
@@ -1103,7 +1097,7 @@ codeunit 139157 "Invoice Premapping Tests"
         CompanyInformation: Record "Company Information";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
 
         // modify unit of measure value in intermediate table
@@ -1133,7 +1127,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Debit Acc. for Non-Item Lines", '');
         PurchasesPayablesSetup.Modify(true);
@@ -1162,7 +1156,7 @@ codeunit 139157 "Invoice Premapping Tests"
         MappingText: Text[50];
     begin
         // Setup
-        Initialize;
+        Initialize();
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Debit Acc. for Non-Item Lines", '');
         PurchasesPayablesSetup.Modify(true);
@@ -1206,7 +1200,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
 
@@ -1253,7 +1247,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Description: Text[100];
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
 
@@ -1279,7 +1273,7 @@ codeunit 139157 "Invoice Premapping Tests"
         TotalAmountExclVAT := LibraryRandom.RandDecInRange(1, 100, 2);
         InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo(Amount),
           Format(TotalAmountExclVAT, 0, 9));
-        VendorInvoiceNo := LibraryUtility.GenerateGUID;
+        VendorInvoiceNo := LibraryUtility.GenerateGUID();
         InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Vendor Invoice No."),
           VendorInvoiceNo);
 
@@ -1310,7 +1304,7 @@ codeunit 139157 "Invoice Premapping Tests"
         PreMapIncomingPurchDoc: Codeunit "Pre-map Incoming Purch. Doc";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
 
         // remove document type from intermediate table
@@ -1333,7 +1327,7 @@ codeunit 139157 "Invoice Premapping Tests"
         PreMapIncomingPurchDoc: Codeunit "Pre-map Incoming Purch. Doc";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
 
         // remove document type from intermediate table
@@ -1356,9 +1350,9 @@ codeunit 139157 "Invoice Premapping Tests"
         VendorInvoiceNo: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
-        VendorInvoiceNo := LibraryUtility.GenerateGUID;
+        VendorInvoiceNo := LibraryUtility.GenerateGUID();
 
         // change document type to "Credit Memo" in intermediate table
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Document Type"),
@@ -1386,11 +1380,11 @@ codeunit 139157 "Invoice Premapping Tests"
         VendorInvoiceNo: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
-        VendorInvoiceNo := LibraryUtility.GenerateGUID;
+        VendorInvoiceNo := LibraryUtility.GenerateGUID();
         PurchaseHeader."Vendor Invoice No." := VendorInvoiceNo;
         PurchaseHeader.Modify();
 
@@ -1424,13 +1418,13 @@ codeunit 139157 "Invoice Premapping Tests"
         ExpectedDocumentType: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTestTables(DataExch);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
           Vendor."No.", Item."No.", 1, '', Today);
-        VendorInvoiceNo := LibraryUtility.GenerateGUID;
+        VendorInvoiceNo := LibraryUtility.GenerateGUID();
         PurchaseHeader."Vendor Invoice No." := VendorInvoiceNo;
         PurchaseHeader.Modify();
         PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1473,6 +1467,648 @@ codeunit 139157 "Invoice Premapping Tests"
         Assert.AreEqual(Vendor.ABN, OCRVendors.ABN, 'ABN');
     end;
 
+    [Test]
+    procedure FindBuyFromVendorByGLNWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorGLN: Text[13];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same GLN and one has Blocked = "", non-blocked Vendor is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with GLN = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "A".
+        VendorGLN := CreateValidGLN();
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', '', VendorGLN);
+        CreateVendor(Vendor, "Vendor Blocked"::" ", '', '', '', '', VendorGLN);
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, '', '', '', '', VendorGLN);
+
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), VendorGLN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+
+        // tear down
+        Vendor.SetRange(GLN, VendorGLN);
+        Vendor.DeleteAll();
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByGLNWhenBlockedPaymentVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorGLN: Text[13];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same GLN and they only has Blocked = Payment/All, Vendor with Blocked "Payment" is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Two Vendors with GLN = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "A".
+        VendorGLN := CreateValidGLN();
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', '', VendorGLN);
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, '', '', '', '', VendorGLN);
+
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), VendorGLN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Vendor "V2" with Blocked = Payment is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(Vendor."No."), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+
+        // tear down
+        Vendor.SetRange(GLN, VendorGLN);
+        Vendor.DeleteAll();
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByGLNWhenBlockedAllVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorGLN: Text[13];
+        FirstVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same GLN and they only has Blocked = All, first Vendor with Blocked "All" is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Two Vendors with GLN = "A". Both Vendor "V1" and "V2" has Blocked = All.
+        // [GIVEN] Incoming Document with Vendor No. = "A".
+        VendorGLN := CreateValidGLN();
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', '', VendorGLN);
+        FirstVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', '', VendorGLN);
+
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), VendorGLN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] First blocked Vendor "V1" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(FirstVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+
+        // tear down
+        Vendor.SetRange(GLN, VendorGLN);
+        Vendor.DeleteAll();
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByVATWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorABN: Text[11];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same VAT and one has Blocked = "", non-blocked Vendor is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with blank GLN and VAT Registration No. = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "" and Vendor VAT Registration No. = "A".
+        VendorABN := LibraryUtility.GenerateGUID();
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', VendorABN, '');
+        CreateVendor(Vendor, "Vendor Blocked"::" ", '', '', '', VendorABN, '');
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, '', '', '', VendorABN, '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        UpdateIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN), VendorABN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByVATWhenBlockedPaymentVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorABN: Text[11];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same VAT and they only has Blocked = Payment/All, Vendor with Blocked "Payment" is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Two Vendors with blank GLN and with VAT Registration No. = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "" and Vendor VAT Registration No. = "A".
+        VendorABN := LibraryUtility.GenerateGUID();
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', VendorABN, '');
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, '', '', '', VendorABN, '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        UpdateIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN), VendorABN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Vendor "V2" with Blocked = Payment is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(Vendor."No."), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByVATWhenBlockedAllVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorABN: Text[11];
+        FirstVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same VAT and they only has Blocked = All, first Vendor with Blocked "All" is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Two Vendors with blank GLN and with VAT Registration No. = "A". Both Vendor "V1" and "V2" has Blocked = All.
+        // [GIVEN] Incoming Document with Vendor No. = "" and Vendor VAT Registration No. = "A".
+        VendorABN := LibraryUtility.GenerateGUID();
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', VendorABN, '');
+        FirstVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', VendorABN, '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        UpdateIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN), VendorABN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] First blocked Vendor "V1" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(FirstVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByPhoneNoWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PhoneNo: Text[30];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same Phone No. and one has Blocked = "", non-blocked Vendor is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with blank GLN and VAT, and with Phone No. = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor Phone No. = "A".
+        PhoneNo := LibraryUtility.GenerateRandomNumericText(5) + CopyStr(LibraryUtility.GenerateGUID(), 3);
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', PhoneNo, '', '');
+        CreateVendor(Vendor, "Vendor Blocked"::" ", '', '', PhoneNo, '', '');
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, '', '', PhoneNo, '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        InsertIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo("Phone No."), PhoneNo);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByPhoneNoWhenBlockedPaymentVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PhoneNo: Text[30];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same Phone No. and they only has Blocked = Payment/All, Vendor with Blocked "Payment" is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Two Vendors with blank GLN and VAT, and with Phone No. = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor Phone No. = "A".
+        PhoneNo := LibraryUtility.GenerateRandomNumericText(5) + CopyStr(LibraryUtility.GenerateGUID(), 3);
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', PhoneNo, '', '');
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, '', '', PhoneNo, '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        InsertIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo("Phone No."), PhoneNo);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Vendor "V2" with Blocked = Payment is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(Vendor."No."), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByPhoneNoWhenBlockedAllVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PhoneNo: Text[30];
+        FirstVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same Phone No. and they only has Blocked = All, first Vendor with Blocked "All" is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Two Vendors with blank GLN and VAT, and with Phone No. = "A". Both Vendor "V1" and "V2" has Blocked = All.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor Phone No. = "A".
+        PhoneNo := LibraryUtility.GenerateRandomNumericText(5) + CopyStr(LibraryUtility.GenerateGUID(), 3);
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', PhoneNo, '', '');
+        FirstVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', PhoneNo, '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        InsertIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo("Phone No."), PhoneNo);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] First blocked Vendor "V1" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(FirstVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByNameWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorName: Text[100];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same Name and blank Address and one has Blocked = "", non-blocked Vendor is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with blank GLN and VAT, and with Name = "A", Address = "". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor Name = "A", Vendor Address = "".
+        VendorName := LibraryUtility.GenerateGUID();
+        CreateVendor(Vendor, "Vendor Blocked"::All, VendorName, '', '', '', '');
+        CreateVendor(Vendor, "Vendor Blocked"::" ", VendorName, '', '', '', '');
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, VendorName, '', '', '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name"), VendorName);
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Address"));
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByNameAndAddressWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorName: Text[100];
+        VendorAddress: Text[100];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same Name and Address and one has Blocked = "", non-blocked Vendor is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with blank GLN and VAT, and with Name = "A", Address = "B". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor Name = "A", Vendor Address = "B".
+        VendorName := LibraryUtility.GenerateGUID();
+        VendorAddress := LibraryUtility.GenerateGUID();
+        CreateVendor(Vendor, "Vendor Blocked"::All, VendorName, VendorAddress, '', '', '');
+        CreateVendor(Vendor, "Vendor Blocked"::" ", VendorName, VendorAddress, '', '', '');
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, VendorName, VendorAddress, '', '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name"), VendorName);
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Address"), VendorAddress);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByIBANWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorIBAN: Text[20];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same IBAN and one has Blocked = "", non-blocked Vendor is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with blank GLN and VAT. Each has Vendor Bank Account with IBAN = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor IBAN = "A".
+        VendorIBAN := LibraryUtility.GenerateGUID();
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::All, VendorIBAN, '', '');
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::" ", VendorIBAN, '', '');
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::Payment, VendorIBAN, '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        InsertIntermediateTableRow(DataExch, Database::"Vendor Bank Account", VendorBankAccount.FieldNo(IBAN), VendorIBAN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByIBANWhenBlockedPaymentVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorIBAN: Text[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same IBAN and they only has Blocked = Payment/All, Vendor with Blocked "Payment" is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Two Vendors with blank GLN and VAT. Each has Vendor Bank Account with IBAN = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor IBAN = "A".
+        VendorIBAN := LibraryUtility.GenerateGUID();
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::All, VendorIBAN, '', '');
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::Payment, VendorIBAN, '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        InsertIntermediateTableRow(DataExch, Database::"Vendor Bank Account", VendorBankAccount.FieldNo(IBAN), VendorIBAN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Vendor "V2" with Blocked = Payment is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(Vendor."No."), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByIBANWhenBlockedAllVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorIBAN: Text[20];
+        FirstVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same GLN and they only has Blocked = All, Vendor with Blocked "All" is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Two Vendors with blank GLN and VAT. Each has Vendor Bank Account with IBAN = "A". Both Vendor "V1" and "V2" has Blocked = All.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor IBAN = "A".
+        VendorIBAN := LibraryUtility.GenerateGUID();
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::All, VendorIBAN, '', '');
+        FirstVendorNo := Vendor."No.";
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::All, VendorIBAN, '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        InsertIntermediateTableRow(DataExch, Database::"Vendor Bank Account", VendorBankAccount.FieldNo(IBAN), VendorIBAN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] First blocked Vendor "V1" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(FirstVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindBuyFromVendorByBankBranchAndAccountNoWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorBankAccount: Record "Vendor Bank Account";
+        BankBranchNo: Text[20];
+        BankAccNo: Text[30];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same Bank Branch No. and Bank Account No. and one has Blocked = "", non-blocked Vendor is selected for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with blank GLN and VAT. Each has Vendor Bank Account with IBAN = "", Bank Branch No. = "A", Bank Account No. = "B".
+        // [GIVEN] Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Vendor No. = "", Vendor VAT Registration No. = "" and Vendor IBAN = "", Vendor Bank Branch No. = "A", Vendor Bank Account No. = "B".
+        BankBranchNo := LibraryUtility.GenerateGUID();
+        BankAccNo := LibraryUtility.GenerateGUID();
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::All, '', BankBranchNo, BankAccNo);
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::" ", '', BankBranchNo, BankAccNo);
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendorWithBankAccount(Vendor, "Vendor Blocked"::Payment, '', BankBranchNo, BankAccNo);
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::Vendor, Vendor.FieldNo(ABN));
+        InsertIntermediateTableRow(DataExch, Database::"Vendor Bank Account", VendorBankAccount.FieldNo("Bank Branch No."), BankBranchNo);
+        InsertIntermediateTableRow(DataExch, Database::"Vendor Bank Account", VendorBankAccount.FieldNo("Bank Account No."), BankAccNo);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindPayToVendorByGLNWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorGLN: Text[13];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same GLN and one has Blocked = "", non-blocked Vendor is selected as Pay-to Vendor for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with GLN = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Pay-to Vendor No. = "A".
+        VendorGLN := CreateValidGLN();
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', '', VendorGLN);
+        CreateVendor(Vendor, "Vendor Blocked"::" ", '', '', '', '', VendorGLN);
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, '', '', '', '', VendorGLN);
+
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), VendorGLN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected as Pay-to Vendor for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), 1), '');
+
+        // tear down
+        Vendor.SetRange(GLN, VendorGLN);
+        Vendor.DeleteAll();
+    end;
+
+    [Test]
+    procedure FindPayToVendorByVATWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorABN: Text[11];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same VAT and one has Blocked = "", non-blocked Vendor is selected as Pay-to Vendor for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with blank GLN and VAT Registration No. = "A". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Pay-to Vendor No. = "" and VAT Registration No. = "A".
+        VendorABN := LibraryUtility.GenerateGUID();
+        CreateVendor(Vendor, "Vendor Blocked"::All, '', '', '', VendorABN, '');
+        CreateVendor(Vendor, "Vendor Blocked"::" ", '', '', '', VendorABN, '');
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, '', '', '', VendorABN, '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."));
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo(ABN), VendorABN);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected as Pay-to Vendor for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), 1), '');
+    end;
+
+    [Test]
+    procedure FindPayToVendorByNameAndAddressWhenNonBlockedVendor();
+    var
+        DataExch: Record "Data Exch.";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorName: Text[100];
+        VendorAddress: Text[100];
+        NonBlockedVendorNo: Code[20];
+    begin
+        // [SCENARIO 418945] When multiple vendors have the same Name and Address and one has Blocked = "", non-blocked Vendor is selected as Pay-to Vendor for Purchase Invoice created from Incoming Document.
+        Initialize();
+        SetupTestTables(DataExch);
+
+        // [GIVEN] Three Vendors with blank GLN and VAT, and with Name = "A", Address = "B". Vendor "V1" has Blocked = All, "V2" has Blocked = "", "V3" has Blocked = Payment.
+        // [GIVEN] Incoming Document with Pay-to Vendor No. = "", VAT Registration No. = "" and Pay-to Vendor Name = "A", Pay-to Vendor Address = "B".
+        VendorName := LibraryUtility.GenerateGUID();
+        VendorAddress := LibraryUtility.GenerateGUID();
+        CreateVendor(Vendor, "Vendor Blocked"::All, VendorName, VendorAddress, '', '', '');
+        CreateVendor(Vendor, "Vendor Blocked"::" ", VendorName, VendorAddress, '', '', '');
+        NonBlockedVendorNo := Vendor."No.";
+        CreateVendor(Vendor, "Vendor Blocked"::Payment, VendorName, VendorAddress, '', '', '');
+
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."));
+        DeleteIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo(ABN));
+        UpdateIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Name"), VendorName);
+        InsertIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Address"), VendorAddress);
+
+        // [WHEN] Run codeunit Pre-map Incoming Purch. Doc, which is run when Purchase Invoice is created from Incoming Document.
+        Codeunit.Run(Codeunit::"Pre-map Incoming Purch. Doc", DataExch);
+
+        // [THEN] Non-blocked Vendor "V2" is selected as Pay-to Vendor for Purchase Invoice.
+        Assert.AreEqual(
+            Format(NonBlockedVendorNo), GetIntermediateTableRow(DataExch, Database::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), 1), '');
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Invoice Premapping Tests");
+        LibraryVariableStorage.Clear();
+    end;
+
+    local procedure CreateVendor(var Vendor: Record Vendor; BlockedValue: Enum "Vendor Blocked"; VendorName: Text[100]; VendorAddress: Text[100]; PhoneNo: Text[30]; VendorABN: Text[11]; VendorGLN: Code[13])
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate(Name, VendorName);
+        Vendor.Validate(Address, VendorAddress);
+        Vendor.Validate("Phone No.", PhoneNo);
+        Vendor.ABN := VendorABN;   // to avoid validation warnings
+        Vendor.Validate(GLN, VendorGLN);
+        Vendor.Validate(Blocked, BlockedValue);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor; BlockedValue: Enum "Vendor Blocked"; VendorIBAN: Code[50]; BankBranchNo: Text[20]; BankAccNo: Text[30])
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        CreateVendor(Vendor, BlockedValue, '', '', '', '', '');
+        CreateVendorBankAccount(VendorBankAccount, Vendor."No.", VendorIBAN, BankBranchNo, BankAccNo);
+    end;
+
+    local procedure CreateVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; VendorNo: Code[20]; VendorIBAN: Code[50]; BankBranchNo: Text[20]; BankAccNo: Text[30])
+    begin
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
+        VendorBankAccount."Bank Branch No." := BankBranchNo;
+        VendorBankAccount."Bank Account No." := BankAccNo;
+        VendorBankAccount.IBAN := VendorIBAN;
+        VendorBankAccount.Modify(false);
+    end;
+
+    local procedure CreateValidGLN(): Code[13]
+    var
+        FirstPart: Text;
+        CheckDigit: Text;
+    begin
+        FirstPart := LibraryUtility.GenerateRandomNumericText(12);
+        CheckDigit := Format(StrCheckSum(FirstPart, '131313131313'));
+        exit(CopyStr(FirstPart + CheckDigit, 1, 13));
+    end;
+
     local procedure SetupDataExchTable(var DataExch: Record "Data Exch.")
     var
         IncomingDocument: Record "Incoming Document";
@@ -1481,7 +2117,7 @@ codeunit 139157 "Invoice Premapping Tests"
         IncomingDocEntryNo: Integer;
     begin
         IncomingDocEntryNo := 1;
-        if IncomingDocument.FindLast then
+        if IncomingDocument.FindLast() then
             IncomingDocEntryNo += IncomingDocument."Entry No.";
 
         IncomingDocument.Init();
@@ -1489,12 +2125,12 @@ codeunit 139157 "Invoice Premapping Tests"
         IncomingDocument.Insert();
 
         DataExchDef.Init();
-        DataExchDef.Code := LibraryUtility.GenerateGUID;
+        DataExchDef.Code := LibraryUtility.GenerateGUID();
         DataExchDef.Insert();
 
         EntryNo := 1;
 
-        if DataExch.FindLast then
+        if DataExch.FindLast() then
             EntryNo += DataExch."Entry No.";
 
         DataExch.Init();
@@ -1532,7 +2168,7 @@ codeunit 139157 "Invoice Premapping Tests"
         PreMapIncomingPurchDoc: Codeunit "Pre-map Incoming Purch. Doc";
     begin
         CompanyInfo.Get();
-        CompanyInfo.GLN := LibraryUtility.GenerateGUID;
+        CompanyInfo.GLN := LibraryUtility.GenerateGUID();
         CompanyInfo."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInfo."Country/Region Code");
         CompanyInfo.Modify(true);
 
@@ -1549,9 +2185,9 @@ codeunit 139157 "Invoice Premapping Tests"
           , DocumentCurrency);
 
         LibraryPurchase.CreateVendor(BuyFromVendor);
-        BuyFromVendor.GLN := LibraryUtility.GenerateGUID;
-        BuyFromVendor.ABN := LibraryUtility.GenerateGUID;
-        BuyFromVendor."VAT Registration No." := LibraryUtility.GenerateGUID;
+        BuyFromVendor.GLN := LibraryUtility.GenerateGUID();
+        BuyFromVendor.ABN := LibraryUtility.GenerateGUID();
+        BuyFromVendor."VAT Registration No." := LibraryUtility.GenerateGUID();
         BuyFromVendor.Address := LibraryUtility.GenerateRandomCode(BuyFromVendor.FieldNo(Address), DATABASE::Vendor);
         BuyFromVendor.Name := LibraryUtility.GenerateRandomCode(BuyFromVendor.FieldNo(Name), DATABASE::Vendor);
         BuyFromVendor.Modify(true);
@@ -1567,9 +2203,9 @@ codeunit 139157 "Invoice Premapping Tests"
           BuyFromVendor."VAT Registration No.");
 
         LibraryPurchase.CreateVendor(PayToVendor);
-        PayToVendor.GLN := LibraryUtility.GenerateGUID;
-        PayToVendor.ABN := LibraryUtility.GenerateGUID;
-        PayToVendor."VAT Registration No." := LibraryUtility.GenerateGUID;
+        PayToVendor.GLN := LibraryUtility.GenerateGUID();
+        PayToVendor.ABN := LibraryUtility.GenerateGUID();
+        PayToVendor."VAT Registration No." := LibraryUtility.GenerateGUID();
         PayToVendor.Name := LibraryUtility.GenerateRandomCode(PayToVendor.FieldNo(Name), DATABASE::Vendor);
         PayToVendor.Modify(true);
 
@@ -1683,7 +2319,7 @@ codeunit 139157 "Invoice Premapping Tests"
         IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
         IntermediateDataImport.SetRange("Table ID", TableNo);
         IntermediateDataImport.SetRange("Field ID", FieldNo);
-        IntermediateDataImport.FindFirst;
+        IntermediateDataImport.FindFirst();
         IntermediateDataImport.Value := Value;
         IntermediateDataImport.Modify();
     end;
@@ -1706,7 +2342,7 @@ codeunit 139157 "Invoice Premapping Tests"
         IntermediateDataImport.SetRange("Table ID", TableNo);
         IntermediateDataImport.SetRange("Field ID", FieldNo);
         IntermediateDataImport.SetRange("Record No.", RecordNo);
-        IntermediateDataImport.FindFirst;
+        IntermediateDataImport.FindFirst();
         exit(IntermediateDataImport.Value);
     end;
 
@@ -1717,15 +2353,15 @@ codeunit 139157 "Invoice Premapping Tests"
     begin
         OCRDataCorrection.OpenEdit;
         OCRDataCorrection.GotoRecord(IncomingDocument);
-        OCRDataCorrection."Vendor Bank Branch No.".SetValue(LibraryUtility.GenerateGUID);
-        OCRDataCorrection."Vendor Bank Account No.".SetValue(LibraryUtility.GenerateGUID);
-        OCRDataCorrection."Vendor Name".SetValue(LibraryUtility.GenerateGUID);
-        OCRDataCorrection."Vendor IBAN".SetValue(LibraryUtility.GenerateGUID);
-        OCRDataCorrection."Vendor VAT Registration No.".SetValue(LibraryUtility.GenerateGUID);
-        OCRDataCorrection."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        OCRDataCorrection."Vendor Bank Branch No.".SetValue(LibraryUtility.GenerateGUID());
+        OCRDataCorrection."Vendor Bank Account No.".SetValue(LibraryUtility.GenerateGUID());
+        OCRDataCorrection."Vendor Name".SetValue(LibraryUtility.GenerateGUID());
+        OCRDataCorrection."Vendor IBAN".SetValue(LibraryUtility.GenerateGUID());
+        OCRDataCorrection."Vendor VAT Registration No.".SetValue(LibraryUtility.GenerateGUID());
+        OCRDataCorrection."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         OCRDataCorrection."Document Date".SetValue(LibraryRandom.RandDateFrom(Today, 10));
         OCRDataCorrection."Due Date".SetValue(LibraryRandom.RandDateFrom(Today + 10, 20));
-        OCRDataCorrection."Order No.".SetValue(LibraryUtility.GenerateGUID);
+        OCRDataCorrection."Order No.".SetValue(LibraryUtility.GenerateGUID());
         LibraryERM.CreateCurrency(Currency);
         OCRDataCorrection."Currency Code".SetValue(Currency.Code);
         OCRDataCorrection."Amount Excl. VAT".SetValue(LibraryRandom.RandDec(1000, 2));
@@ -1822,7 +2458,7 @@ codeunit 139157 "Invoice Premapping Tests"
         LastLineNo: Integer;
     begin
         with TextToAccMapping do begin
-            if FindLast then
+            if FindLast() then
                 LastLineNo := "Line No.";
 
             Init;

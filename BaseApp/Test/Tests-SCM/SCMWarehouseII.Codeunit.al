@@ -19,6 +19,7 @@ codeunit 137048 "SCM Warehouse II"
         LocationOrange3: Record Location;
         LocationWhite: Record Location;
         LocationRed: Record Location;
+        LocationPink: Record Location;
         LocationIntransit: Record Location;
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
@@ -2039,6 +2040,54 @@ codeunit 137048 "SCM Warehouse II"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPartialWarehouseReceipt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        Bin: Record Bin;
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WhsePostReceipt: Codeunit "Whse.-Post Receipt";
+        PartialQty: Integer;
+    begin
+        Initialize();
+
+        PartialQty := 4;
+
+        // Bug 419578 Attempt to undo partial Warehouse Receipt of Purchase Order results in error, "This will cause the quantity and base quantity fields to be out of balance."
+        // [GIVEN] An item with 1 unit of measures and qty. rounding precision as default
+        CreateItemWithRepl(Item, Item."Replenishment System"::Purchase);
+        LibraryWarehouse.FindBin(Bin, LocationPink.Code, '', 1);
+        UpdateItemInventory(Item."No.", LocationPink.Code, Bin.Code, LibraryRandom.RandIntInRange(20, 100));
+
+        // [GIVEN] Create and release Purchase Order and Create Warehouse Receipt.
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, Item."No.",
+          10);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [WHEN]: Warehouse receipt is posted
+        WarehouseReceiptLine.SetRange("Source Document", "Warehouse Activity Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        if WarehouseReceiptLine.FindFirst() then begin
+            WarehouseReceiptLine.Validate("Qty. to Receive", PartialQty);
+            WarehouseReceiptLine.Modify(true);
+        end;
+
+        WhsePostReceipt.Run(WarehouseReceiptLine);
+
+        //[Then] Undo Purchase Receipt Line
+        UndoPurchaseReceiptLines(PurchaseLine);
+
+        //[Then] Verify Quantity after Undo Receipt on Posted Purchase Receipt And Quantity Received is blank on Purchase Line.
+        VerifyUndoReceiptLineOnPostedReceipt(PurchaseLine."Document No.", PartialQty);
+        VerifyQuantityReceivedOnPurchaseLine(PurchaseHeader."Document Type", PurchaseHeader."No.");
+    end;
+
+    [Test]
     [HandlerFunctions('PickSelectionPageHandler')]
     [Scope('OnPrem')]
     procedure WhseBatchPickFromPickWorksheet()
@@ -2350,11 +2399,13 @@ codeunit 137048 "SCM Warehouse II"
         LibraryWarehouse.CreateLocationWMS(LocationOrange2, true, true, true, true, true);  // Location: Orange2.
         LibraryWarehouse.CreateLocationWMS(LocationOrange3, true, true, false, true, true);  // Location: Orange.
         LibraryWarehouse.CreateLocationWMS(LocationRed, false, false, false, true, true);  // Location: Red.
+        LibraryWarehouse.CreateLocationWMS(LocationPink, true, false, true, true, true);  // Location: Orange.
         LibraryWarehouse.CreateInTransitLocation(LocationIntransit);
 
         LibraryWarehouse.CreateNumberOfBins(LocationOrange.Code, '', '', LibraryRandom.RandInt(5) + 2, false);  // 2 is required as minimun number of Bin must be 2.
         LibraryWarehouse.CreateNumberOfBins(LocationOrange2.Code, '', '', LibraryRandom.RandInt(5), false);
         LibraryWarehouse.CreateNumberOfBins(LocationOrange3.Code, '', '', LibraryRandom.RandInt(5), false);
+        LibraryWarehouse.CreateNumberOfBins(LocationPink.Code, '', '', LibraryRandom.RandInt(5), false);
 
         LocationCode2 := LocationOrange.Code;  // Assign value to global variable for use in handler.
     end;
@@ -3482,6 +3533,74 @@ codeunit 137048 "SCM Warehouse II"
         PostedWhseReceiptLine.TestField("Item No.", ItemNo);
         PostedWhseReceiptLine.TestField("Location Code", LocationCode);
         PostedWhseReceiptLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Integer)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Location Code", LocationPink.Code);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Location Code", LocationPink.Code);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateVendor(): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateItemWithRepl(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Last Direct Cost", LibraryRandom.RandDec(10, 2));  // Using Random value for Last Direct Cost.
+        Item.Validate("Unit Price", LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
+        Item.Modify(true);
+    end;
+
+    local procedure UndoPurchaseReceiptLines(PurchaseLine: Record "Purchase Line")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        FindReceiptLine(PurchRcptLine, PurchaseLine."No.");
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+    end;
+
+    local procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; No: Code[20])
+    begin
+        PurchRcptLine.SetRange("No.", No);
+        PurchRcptLine.FindFirst();
+    end;
+
+    local procedure VerifyUndoReceiptLineOnPostedReceipt(DocumentNo: Code[20]; QtyToReceive: Decimal)
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Order No.", DocumentNo);
+        PurchRcptLine.FindLast();
+        PurchRcptLine.TestField(Quantity, -1 * QtyToReceive);
+    end;
+
+    local procedure VerifyQuantityReceivedOnPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("Quantity Received", 0);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [RequestPageHandler]
