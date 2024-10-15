@@ -1,4 +1,4 @@
-codeunit 5407 "Prod. Order Status Management"
+﻿codeunit 5407 "Prod. Order Status Management"
 {
     Permissions = TableData "Source Code Setup" = r,
                   TableData "Production Order" = rimd,
@@ -577,8 +577,8 @@ codeunit 5407 "Prod. Order Status Management"
                     else begin
                         QtyToPost := GetNeededQty(0, false);
                         if SuppliedByProdOrderLine.Get(Status, "Prod. Order No.", "Supplied-by Line No.") and
-                           (SuppliedByProdOrderLine."Remaining Quantity" = 0) or
-                           (Abs(QtyToPost * "Qty. per Unit of Measure" - "Remaining Qty. (Base)") < Item."Rounding Precision")
+                           (SuppliedByProdOrderLine."Remaining Quantity" = 0) and
+                           (SuppliedByProdOrderLine.Quantity = SuppliedByProdOrderLine."Finished Quantity")
                         then
                             QtyToPost := GetNeededQty(1, false);
                     end;

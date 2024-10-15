@@ -2262,6 +2262,56 @@ codeunit 142060 "ERM Misc. Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemSalesByCustomerHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ItemSalesByCustomerReportByUndoShipment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        Quantity: Decimal;
+        PstdDocNo: Code[20];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 444496] Item Sales by Customer report is not calculating correctly when an 'Undo shipment' is performed
+
+        Initialize();
+
+        // [GIVEN] Create Sales Order and post the shipment.
+        CreateSalesOrder(SalesHeader, SalesLine);
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Undo Shipment.
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentLine.FindLast();
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [GIVEN] Create one more Sales document and Inoive and shipped to get the value in report.
+        ItemNo := SalesLine."No.";
+        CreateAndPostSalesOrder(SalesLine, ItemNo, '', WorkDate());
+        Quantity := SalesLine."Quantity Shipped";
+
+        // [THEN] Create and post Sales Return Order.
+        CreateAndModifySalesDocument(
+            SalesLine, SalesLine."Document Type"::"Return Order", SalesLine."No.", '', WorkDate(), '', '', SalesLine."Sell-to Customer No.");
+        PostSalesDocument(SalesLine);
+
+        // [THEN] Enqueue values to report Item Sales by Customer.
+        EnqueueValuesForItemSalesByCustomerReport(0, 0, 0, 0, SalesLine."No.", '', false);
+
+        // [THEN] Run Item Sales By Customer report.
+        REPORT.Run(REPORT::"Item Sales by Customer");
+
+        // [VERIFY]: Verify Invoiced Quantity on Item Sales By Customer Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange(ItemNoCapLbl, SalesLine."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals(ItemLedgerEntryInvoicedQuantityLbl, 0);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals(ItemLedgerEntryInvoicedQuantityLbl, Quantity);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2974,6 +3024,21 @@ codeunit 142060 "ERM Misc. Report"
             Assert.AreEqual(PaymentXNo, "Document No.", StrSubstNo(PaymentNotFoundErr, PaymentXNo));
             Assert.AreEqual(ExpectedVendorNo, "Vendor No.", FieldCaption("Vendor No."));
         end;
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        GetSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure GetSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
     end;
 
     [RequestPageHandler]
