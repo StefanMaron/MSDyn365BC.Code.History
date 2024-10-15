@@ -54,14 +54,14 @@ codeunit 9015 "Application System Constants"
     begin
         // Should be 'Platform Product Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('18.0.35122.0');
+        exit('18.0.35424.0');
     end;
 
     procedure PlatformFileVersion(): Text[80]
     begin
         // Should be 'Platform File Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('18.0.35122.0');
+        exit('18.0.35424.0');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Version Triggers", 'GetApplicationVersion', '', false, false)]
