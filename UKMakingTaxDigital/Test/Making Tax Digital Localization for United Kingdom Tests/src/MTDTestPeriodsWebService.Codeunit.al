@@ -25,6 +25,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
         RetrieveVATReturnPeriodsTxt: Label 'Retrieve VAT Return Periods.', Locked = true;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_Negative_DisabledOutput()
     var
@@ -42,6 +43,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_Negative_Reason()
     var
@@ -62,6 +64,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_Negative_BlankedJsonResponse()
     var
@@ -77,6 +80,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_Negative_WrongJsonResponse()
     var
@@ -92,6 +96,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_OneNewPeriod_DisabledOutput()
     var
@@ -109,7 +114,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('GetMTDRecords_RPH,MessageHandler,SendNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('GetMTDRecords_RPH,MessageHandler,SendNotificationHandler,RecallNotificationHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_OneNewPeriod_UI()
     var
@@ -131,6 +136,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_OneNewPeriod_ExpiredToken()
     var
@@ -152,7 +158,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_OneUpToDatePeriod()
     var
@@ -170,7 +176,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_OneModifiedPeriod_OrgAmt()
     var
@@ -188,7 +194,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_OneModifiedPeriod_PeriodKey()
     var
@@ -206,7 +212,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_OneModifiedPeriod_Status()
     var
@@ -224,7 +230,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_OneModifiedPeriod_ReceivedDate()
     var
@@ -242,7 +248,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_TwoNewPeriods()
     var
@@ -258,7 +264,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_TwoUpToDatePeriods()
     var
@@ -278,7 +284,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_TwoModifiedPeriods()
     var
@@ -298,7 +304,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_TwoPeriodsInclOneNew()
     var
@@ -316,7 +322,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_TwoPeriodsInclOneModified()
     var
@@ -336,7 +342,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_TwoPeriodsInclOneNewAndOneModified()
     var
@@ -354,6 +360,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_AutoReceiveJob_Negative()
     var
@@ -373,7 +380,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATPeriods_AutoReceiveJob_Positive()
     var
@@ -394,6 +401,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure MarkAcceptedVATReturnAsClosed()
     var
@@ -662,6 +670,11 @@ codeunit 148084 "MTDTestPeriodsWebService"
     [RecallNotificationHandler]
     [Scope('OnPrem')]
     procedure RecallNotificationHandler(var TheNotification: Notification): Boolean
+    begin
+    end;
+
+    [ModalPageHandler]
+    procedure MTDWebClientFPHeaders_MPH(var MTDWebClientFPHeaders: TestPage "MTD Web Client FP Headers")
     begin
     end;
 }

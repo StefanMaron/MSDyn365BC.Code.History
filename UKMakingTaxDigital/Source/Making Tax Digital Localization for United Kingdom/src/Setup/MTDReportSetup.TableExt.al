@@ -103,6 +103,10 @@ tableextension 10539 "MTD Report Setup" extends "VAT Report Setup"
 #endif
             ObsoleteReason = 'Replaced by configurable Fraud Prevention Headers Setup page';
         }
+        field(10540; "MTD FP Public IP Service URL"; Text[250])
+        {
+            Caption = 'User IP Address Service';
+        }
     }
 
     internal procedure GetMTDOAuthSetupCode(): Code[20]

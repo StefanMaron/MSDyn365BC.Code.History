@@ -8,6 +8,9 @@ page 10537 "MTD Fraud Prevention Headers"
     Caption = 'HMRC Fraud Prevention Headers Setup';
     PageType = List;
     SourceTable = "MTD Default Fraud Prev. Hdr";
+    ObsoleteReason = 'Not used anymore.';
+    ObsoleteTag = '21.0';
+    ObsoleteState = Pending;
 
     layout
     {

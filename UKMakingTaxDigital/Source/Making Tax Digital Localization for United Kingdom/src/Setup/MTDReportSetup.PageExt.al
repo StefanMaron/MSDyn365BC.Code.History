@@ -7,8 +7,35 @@ pageextension 10539 "MTD Report Setup" extends "VAT Report Setup"
 {
     layout
     {
+        modify("Return Period")
+        {
+            Caption = 'Making Tax Digital';
+        }
+        modify("Auto Update Job")
+        {
+            Visible = false;
+        }
         addlast("Return Period")
         {
+            field(MTDFPPublicIPServiceURL; Rec."MTD FP Public IP Service URL")
+            {
+                ToolTip = 'Specifies the endpoint of an IP address lookup service that will return the IP address of the user who submits the report. The IP address of the user is included with Fraud Prevention Headers when Business Central communicates with HMRC.';
+                ApplicationArea = Basic, Suite;
+
+                trigger OnAssistEdit()
+                var
+                    MTDFraudPreventionMgt: Codeunit "MTD Fraud Prevention Mgt.";
+                begin
+                    MTDFraudPreventionMgt.TestPublicIPServiceURL(Rec."MTD FP Public IP Service URL");
+                end;
+
+                trigger OnValidate()
+                var
+                    MTDFraudPreventionMgt: Codeunit "MTD Fraud Prevention Mgt.";
+                begin
+                    MTDFraudPreventionMgt.TestPublicIPServiceURL(Rec."MTD FP Public IP Service URL");
+                end;
+            }
 #if not CLEAN19
             field(MTDDisableFPHeaders; "MTD Disable FraudPrev. Headers")
             {

@@ -15,6 +15,8 @@ codeunit 10540 "MTD Upgrade"
     begin
         UpgradeVATReportSetup();
         UpgradeDailyLimit();
+        UpgradeDisablePeriodJob();
+        UpgradeDefaultRedirect();
     end;
 
     local procedure UpgradeVATReportSetup()
@@ -81,4 +83,32 @@ codeunit 10540 "MTD Upgrade"
         end;
     end;
 #endif
+
+    local procedure UpgradeDisablePeriodJob()
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        if UpgradeTag.HasUpgradeTag(MTDMgt.GetDisablePeriodJobTag()) then
+            exit;
+
+        if VATReportSetup.Get() then begin
+            VATReportSetup."Update Period Job Frequency" := VATReportSetup."Update Period Job Frequency"::Never;
+            if VATReportSetup.Modify() then;
+        end;
+
+        UpgradeTag.SetUpgradeTag(MTDMgt.GetDisablePeriodJobTag());
+    end;
+
+    local procedure UpgradeDefaultRedirect()
+    var
+        OAuth20Setup: Record "OAuth 2.0 Setup";
+        MTDOAuth20Mgt: Codeunit "MTD OAuth 2.0 Mgt";
+    begin
+        if UpgradeTag.HasUpgradeTag(MTDMgt.GetDefaultRedirectTag()) then
+            exit;
+
+        MTDOAuth20Mgt.InitOAuthSetup(OAuth20Setup, MTDOAuth20Mgt.GetOAuthPRODSetupCode());
+
+        UpgradeTag.SetUpgradeTag(MTDMgt.GetDefaultRedirectTag());
+    end;
 }
