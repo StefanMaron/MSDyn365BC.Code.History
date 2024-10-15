@@ -19,7 +19,12 @@ codeunit 134196 "Payment Practices Library"
 
     procedure CreatePaymentPracticeHeaderSimple(var PaymentPracticeHeader: Record "Payment Practice Header")
     begin
-        CreatePaymentPracticeHeader(PaymentPracticeHeader, "Paym. Prac. Header Type"::Vendor, "Paym. Prac. Aggregation Type"::"Company Size", Calcdate('<-CY>', WorkDate()), Calcdate('<CY>', WorkDate()));
+        CreatePaymentPracticeHeader(PaymentPracticeHeader, "Paym. Prac. Header Type"::Vendor, "Paym. Prac. Aggregation Type"::"Company Size", WorkDate() - 180, WorkDate() + 180);
+    end;
+
+    procedure CreatePaymentPracticeHeaderSimple(var PaymentPracticeHeader: Record "Payment Practice Header"; HeaderType: Enum "Paym. Prac. Header Type"; AggregationType: Enum "Paym. Prac. Aggregation Type")
+    begin
+        CreatePaymentPracticeHeader(PaymentPracticeHeader, HeaderType, AggregationType, WorkDate() - 180, WorkDate() + 180);
     end;
 
     procedure CreateCompanySizeCode(): Code[20]
@@ -61,6 +66,27 @@ codeunit 134196 "Payment Practices Library"
             CompanySizeCodes[i] := CreateCompanySizeCode();
     end;
 
+    procedure InitializePaymentPeriods(var PaymentPeriods: array[3] of Record "Payment Period")
+    var
+        PaymentPeriod: Record "Payment Period";
+        i: Integer;
+    begin
+        PaymentPeriod.SetupDefaults();
+        PaymentPeriod.SetCurrentKey("Days From");
+        PaymentPeriod.FindSet();
+        for i := 1 to ArrayLen(PaymentPeriods) do begin
+            PaymentPeriods[i] := PaymentPeriod;
+            PaymentPeriod.Next();
+        end;
+    end;
+
+    procedure InitAndGetLastPaymentPeriod(var PaymentPeriod: Record "Payment Period")
+    begin
+        PaymentPeriod.SetupDefaults();
+        PaymentPeriod.SetRange("Days To", 0);
+        PaymentPeriod.FindLast();
+    end;
+
     procedure SetCompanySize(var Vendor: Record Vendor; CompanySizeCode: Code[20])
     begin
         Vendor."Company Size Code" := CompanySizeCode;
@@ -100,6 +126,18 @@ codeunit 134196 "Payment Practices Library"
     begin
         PaymentPracticeLine.SetRange("Header No.", PaymentPracticeHeader."No.");
         Assert.RecordCount(PaymentPracticeLine, NumberOfLines);
+    end;
+
+    procedure VerifyPeriodLine(PaymentPracticeHeaderNo: Integer; SourceType: Enum "Paym. Prac. Header Type"; PaymentPeriodCode: Code[20]; PctInPeriodExpected: Decimal; PctInPeriodAmountExpected: Decimal)
+    var
+        PaymentPracticeLine: Record "Payment Practice Line";
+    begin
+        PaymentPracticeLine.SetRange("Header No.", PaymentPracticeHeaderNo);
+        PaymentPracticeLine.SetRange("Payment Period Code", PaymentPeriodCode);
+        PaymentPracticeLine.SetRange("Source Type", SourceType);
+        PaymentPracticeLine.FindFirst();
+        Assert.AreNearlyEqual(PctInPeriodExpected, PaymentPracticeLine."Pct Paid in Period", 0.1, '"Pct Paid in Period" is not as expected');
+        Assert.AreNearlyEqual(PctInPeriodAmountExpected, PaymentPracticeLine."Pct Paid in Period (Amount)", 0.1, '"Pct Paid in Period (Amount)" is not as expected');
     end;
 
     procedure VerifyBufferCount(PaymentPracticeHeader: Record "Payment Practice Header"; NumberOfLines: Integer; SourceType: Enum "Paym. Prac. Header Type")

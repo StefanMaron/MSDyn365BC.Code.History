@@ -9,10 +9,14 @@ codeunit 134197 "Payment Practices UT"
     end;
 
     var
+        PaymentPeriods: array[3] of Record "Payment Period";
+        Assert: Codeunit "Assert";
         PaymentPracticesLibrary: Codeunit "Payment Practices Library";
         PaymentPractices: Codeunit "Payment Practices";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         CompanySizeCodes: array[3] of Code[20];
         Initialized: Boolean;
@@ -51,11 +55,11 @@ codeunit 134197 "Payment Practices UT"
 
         // [GIVEN] Vendor with company size and an entry in the period
         VendorNo := PaymentPracticesLibrary.CreateVendorNoWithSizeAndExcl(CompanySizeCodes[1], false);
-        MockInvoiceAndPayment_Vendor(VendorNo, WorkDate(), WorkDate(), WorkDate());
+        MockVendorInvoice(VendorNo, WorkDate(), WorkDate());
 
         // [GIVEN]Vendor with company size and an entry in the period, but with Excl. from Payment Practice = true
         VendorExcludedNo := PaymentPracticesLibrary.CreateVendorNoWithSizeAndExcl(CompanySizeCodes[2], true);
-        MockInvoiceAndPayment_Vendor(VendorExcludedNo, WorkDate(), WorkDate(), WorkDate());
+        MockVendorInvoice(VendorExcludedNo, WorkDate(), WorkDate());
 
         // [WHEN] Generate payment practices for vendors by size
         PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader);
@@ -71,22 +75,21 @@ codeunit 134197 "Payment Practices UT"
         PaymentPracticeHeader: Record "Payment Practice Header";
         Customer: Record Customer;
         CustomerExcluded: Record Customer;
-        CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // [SCENARIO] Generate payment practices for customers with excl. from payment practices = true and existing entries in those dates. Report dataset will contain entries only for vendor without excl.
         Initialize();
 
         // [GIVEN] Customer with an entry in the period
         LibrarySales.CreateCustomer(Customer);
-        MockCustomerEntry(Customer."No.", CustLedgerEntry, "Gen. Journal Document Type"::Invoice, WorkDate(), WorkDate(), false);
+        MockCustomerInvoice(Customer."No.", WorkDate(), WorkDate());
 
         // [GIVEN] Customer with an entry in the period, but with Excl. from Payment Practice = true
         LibrarySales.CreateCustomer(CustomerExcluded);
         PaymentPracticesLibrary.SetExcludeFromPaymentPractices(CustomerExcluded, true);
-        MockCustomerEntry(CustomerExcluded."No.", CustLedgerEntry, "Gen. Journal Document Type"::Invoice, WorkDate(), WorkDate(), false);
+        MockCustomerInvoice(CustomerExcluded."No.", WorkDate(), WorkDate());
 
         // [WHEN] Generate payment practices for cust+vendors
-        PaymentPracticesLibrary.CreatePaymentPracticeHeader(PaymentPracticeHeader, PaymentPracticeHeader."Header Type"::"Vendor+Customer", PaymentPracticeHeader."Aggregation Type"::Period, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::"Vendor+Customer", "Paym. Prac. Aggregation Type"::Period);
         PaymentPractices.Generate(PaymentPracticeHeader);
 
         // [THEN] Report dataset will contain only 1 entry
@@ -105,7 +108,7 @@ codeunit 134197 "Payment Practices UT"
 
         // [GIVEN] Vendor with company size and an entry in the period
         VendorNo := PaymentPracticesLibrary.CreateVendorNoWithSizeAndExcl(CompanySizeCodes[1], false);
-        MockInvoiceAndPayment_Vendor(VendorNo, WorkDate(), WorkDate(), WorkDate());
+        MockVendorInvoice(VendorNo, WorkDate(), WorkDate());
 
         // [GIVEN] Lines were generated for Header
         PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader);
@@ -131,13 +134,13 @@ codeunit 134197 "Payment Practices UT"
 
         // [GIVEN] Vendor with company size and an entry in the period
         VendorNo := PaymentPracticesLibrary.CreateVendorNoWithSizeAndExcl(CompanySizeCodes[1], false);
-        MockInvoiceAndPayment_Vendor(VendorNo, WorkDate(), WorkDate(), WorkDate());
+        MockVendorInvoice(VendorNo, WorkDate(), WorkDate());
 
         // [GIVEN] Lines were generated for Header
         PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader);
         PaymentPractices.Generate(PaymentPracticeHeader);
 
-        // [WHEN] Change Aggregation Type
+        // [WHEN] Change Aggregation Type and say "no" in confirm handler
         PaymentPracticeHeader.Validate("Aggregation Type", PaymentPracticeHeader."Aggregation Type"::Period);
         // handled by Confirm handler
 
@@ -147,40 +150,355 @@ codeunit 134197 "Payment Practices UT"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler_Yes')]
     procedure ConfirmToCleanUpOnTypeValidation()
+    var
+        PaymentPracticeHeader: Record "Payment Practice Header";
+        VendorNo: Code[20];
     begin
-        // test confirm to delete stuff when generated data and new type validation
+        // [SCENARIO] When lines already exist on header and you change Header Type you need to confirm that lines will be deleted
+        Initialize();
+
+        // [GIVEN] Vendor with company size and an entry in the period
+        VendorNo := PaymentPracticesLibrary.CreateVendorNoWithSizeAndExcl(CompanySizeCodes[1], false);
+        MockVendorInvoice(VendorNo, WorkDate(), WorkDate());
+
+        // [GIVEN] Lines were generated for Header
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::Vendor, "Paym. Prac. Aggregation Type"::Period);
+        PaymentPractices.Generate(PaymentPracticeHeader);
+
+        // [WHEN] Change Aggregation Type and say "yes" in confirm handler
+        PaymentPracticeHeader.Validate("Header Type", PaymentPracticeHeader."Header Type"::Customer);
+        // handled by Confirm handler
+
+        // [THEN] Lines were deleted
+        PaymentPracticesLibrary.VerifyLinesCount(PaymentPracticeHeader, 0);
     end;
 
     [Test]
     procedure ReportDataSetForVendorsByPeriod()
+    var
+        PaymentPracticeHeader: Record "Payment Practice Header";
+        PeriodAmounts: array[3] of Decimal;
+        TotalAmount: Decimal;
+        ExpectedPeriodPcts: array[3] of Decimal;
+        PeriodCounts: array[3] of Integer;
+        TotalCount: Integer;
+        ExpectedPeriodAmountPcts: array[3] of Decimal;
+        VendorNo: Code[20];
+        Amount: Decimal;
+        i: Integer;
+        j: Integer;
     begin
-        // test report dataset for vendors by period
+        // [SCENARIO] Check report dataset for vendors by several entries in different periods
+        Initialize();
+
+        // [GIVEN] Create a vendor
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create a payment practice header for Current Year of type Vendor
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::Vendor, "Paym. Prac. Aggregation Type"::Period);
+
+        // [GIVEN] Post several entries for the vendor in 3 different periods
+        for i := 1 to 3 do
+            for j := 1 to LibraryRandom.RandInt(10) do begin
+                PeriodCounts[i] += 1;
+                TotalCount += 1;
+                Amount := MockVendorInvoiceAndPaymentInPeriod(VendorNo, WorkDate(), PaymentPeriods[i]."Days From", PaymentPeriods[i]."Days To");
+                PeriodAmounts[i] += Amount;
+                TotalAmount += Amount;
+            end;
+
+        // [WHEN] Lines were generated for Header
+        PaymentPractices.Generate(PaymentPracticeHeader);
+
+        // [THEN] Check that report dataset contains correct percentages for each period
+        PrepareExpectedPeriodPcts(ExpectedPeriodPcts, ExpectedPeriodAmountPcts, PeriodCounts, TotalCount, PeriodAmounts, TotalAmount);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Vendor, PaymentPeriods[1].Code, ExpectedPeriodPcts[1], ExpectedPeriodAmountPcts[1]);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Vendor, PaymentPeriods[2].Code, ExpectedPeriodPcts[2], ExpectedPeriodAmountPcts[2]);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Vendor, PaymentPeriods[3].Code, ExpectedPeriodPcts[3], ExpectedPeriodAmountPcts[3]);
     end;
 
     [Test]
     procedure ReportDataSetForCustomersByPeriod()
+    var
+        PaymentPracticeHeader: Record "Payment Practice Header";
+        ExpectedPeriodPcts: array[3] of Decimal;
+        ExpectedPeriodAmountPcts: array[3] of Decimal;
+        PeriodAmounts: array[3] of Decimal;
+        TotalAmount: Decimal;
+        PeriodCounts: array[3] of Integer;
+        TotalCount: Integer;
+        CustomerNo: Code[20];
+        Amount: Decimal;
+        i: Integer;
+        j: Integer;
     begin
-        // test report dataset for customers by period
+        // [SCENARIO] Check report dataset for customers by several entries in different periods
+        Initialize();
+
+        // [GIVEN] Create a Customer
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Create a payment practice header for Current Year of type Customer
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::Customer, "Paym. Prac. Aggregation Type"::Period);
+
+        // [GIVEN] Post several entries for the customer in 3 different periods
+        for i := 1 to 3 do
+            for j := 1 to LibraryRandom.RandInt(10) do begin
+                PeriodCounts[i] += 1;
+                TotalCount += 1;
+                Amount := MockCustomerInvoiceAndPaymentInPeriod(CustomerNo, WorkDate(), PaymentPeriods[i]."Days From", PaymentPeriods[i]."Days To");
+                PeriodAmounts[i] += Amount;
+                TotalAmount += Amount;
+            end;
+
+        // [WHEN] Lines were generated for Header
+        PaymentPractices.Generate(PaymentPracticeHeader);
+
+        // [THEN] Check that report dataset contains correct percentages for each period
+        PrepareExpectedPeriodPcts(ExpectedPeriodPcts, ExpectedPeriodAmountPcts, PeriodCounts, TotalCount, PeriodAmounts, TotalAmount);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Customer, PaymentPeriods[1].Code, ExpectedPeriodPcts[1], ExpectedPeriodAmountPcts[1]);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Customer, PaymentPeriods[2].Code, ExpectedPeriodPcts[2], ExpectedPeriodAmountPcts[2]);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Customer, PaymentPeriods[3].Code, ExpectedPeriodPcts[3], ExpectedPeriodAmountPcts[3]);
     end;
 
     [Test]
     procedure ReportDataSetForCustomersVendorsByPeriod()
+    var
+        PaymentPracticeHeader: Record "Payment Practice Header";
+        Vendor_PeriodAmounts: array[3] of Decimal;
+        Vendor_TotalAmount: Decimal;
+        Vendor_PeriodCounts: array[3] of Integer;
+        Vendor_TotalCount: Integer;
+        Vendor_ExpectedPeriodPcts: array[3] of Decimal;
+        Vendor_ExpectedPeriodAmountPcts: array[3] of Decimal;
+        Customer_PeriodAmounts: array[3] of Decimal;
+        Customer_TotalAmount: Decimal;
+        Customer_PeriodCounts: array[3] of Integer;
+        Customer_TotalCount: Integer;
+        Customer_ExpectedPeriodPcts: array[3] of Decimal;
+        Customer_ExpectedPeriodAmountPcts: array[3] of Decimal;
+        CustomerNo: Code[20];
+        VendorNo: Code[20];
+        Amount: Decimal;
+        i: Integer;
+        j: Integer;
     begin
-        // test report dataset for customers+vendors by by period
+        // [SCENARIO] Check report dataset for customers by several entries in different periods
+        Initialize();
+
+        // [GIVEN] Create a Customer
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Create a vendor
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create a payment practice header for Current Year of Type Vendor+Customer
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::"Vendor+Customer", "Paym. Prac. Aggregation Type"::Period);
+
+        // [GIVEN] Post several entries for the vendor in 3 different periods
+        for i := 1 to 3 do
+            for j := 1 to LibraryRandom.RandInt(10) do begin
+                Vendor_PeriodCounts[i] += 1;
+                Vendor_TotalCount += 1;
+                Amount := MockVendorInvoiceAndPaymentInPeriod(VendorNo, WorkDate(), PaymentPeriods[i]."Days From", PaymentPeriods[i]."Days To");
+                Vendor_PeriodAmounts[i] += Amount;
+                Vendor_TotalAmount += Amount;
+            end;
+
+        // [GIVEN] Post several entries for the customer in 3 different periods
+        for i := 1 to 3 do
+            for j := 1 to LibraryRandom.RandInt(10) do begin
+                Customer_PeriodCounts[i] += 1;
+                Customer_TotalCount += 1;
+                Amount := MockCustomerInvoiceAndPaymentInPeriod(CustomerNo, WorkDate(), PaymentPeriods[i]."Days From", PaymentPeriods[i]."Days To");
+                Customer_PeriodAmounts[i] += Amount;
+                Customer_TotalAmount += Amount;
+            end;
+
+        // [WHEN] Lines were generated for Header
+        PaymentPractices.Generate(PaymentPracticeHeader);
+
+        // [THEN] Check that report dataset contains correct percentages for each period for vendors
+        PrepareExpectedPeriodPcts(Vendor_ExpectedPeriodPcts, Vendor_ExpectedPeriodAmountPcts, Vendor_PeriodCounts, Vendor_TotalCount, Vendor_PeriodAmounts, Vendor_TotalAmount);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Vendor, PaymentPeriods[1].Code, Vendor_ExpectedPeriodPcts[1], Vendor_ExpectedPeriodAmountPcts[1]);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Vendor, PaymentPeriods[2].Code, Vendor_ExpectedPeriodPcts[2], Vendor_ExpectedPeriodAmountPcts[2]);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Vendor, PaymentPeriods[3].Code, Vendor_ExpectedPeriodPcts[3], Vendor_ExpectedPeriodAmountPcts[3]);
+
+        // [THEN] Check that report dataset contains correct percentages for each period for customers
+        PrepareExpectedPeriodPcts(Customer_ExpectedPeriodPcts, Customer_ExpectedPeriodAmountPcts, Customer_PeriodCounts, Customer_TotalCount, Customer_PeriodAmounts, Customer_TotalAmount);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Customer, PaymentPeriods[1].Code, Customer_ExpectedPeriodPcts[1], Customer_ExpectedPeriodAmountPcts[1]);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Customer, PaymentPeriods[2].Code, Customer_ExpectedPeriodPcts[2], Customer_ExpectedPeriodAmountPcts[2]);
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Customer, PaymentPeriods[3].Code, Customer_ExpectedPeriodPcts[3], Customer_ExpectedPeriodAmountPcts[3]);
     end;
 
     [Test]
-    procedure AveragesCalculationInHeader()
+    procedure AveragesCalculationInHeader_PctPaidOnTime()
+    var
+        PaymentPracticeHeader: Record "Payment Practice Header";
+        PaidOnTimeCount: Integer;
+        PaidLateCount: Integer;
+        UnpaidOverdueCount: Integer;
+        ExpectedPctPaidOnTime: Decimal;
+        VendorNo: Code[20];
+        i: Integer;
     begin
-        // test averages in header
+        // [SCENARIO] Check averages calcation in header, for percentage of entries paid in time
+        Initialize();
+
+        // [GIVEN] Create a vendor
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create a payment practice header for Current Year of type Vendor
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::Vendor, "Paym. Prac. Aggregation Type"::Period);
+
+        // [GIVEN] Post several entries paid on time, this will affect total entries considered and total entries paid on time.
+        PaidOnTimeCount := LibraryRandom.RandInt(20);
+        for i := 1 to PaidOnTimeCount do
+            MockVendorInvoiceAndPayment(VendorNo, WorkDate(), WorkDate() + LibraryRandom.RandInt(10), WorkDate());
+
+        // [GIVEN] Post several entries paid late, this will affect total entries considered.
+        PaidLateCount := LibraryRandom.RandInt(20);
+        for i := 1 to PaidLateCount do
+            MockVendorInvoiceAndPayment(VendorNo, WorkDate(), WorkDate(), WorkDate() + LibraryRandom.RandInt(10));
+
+        // [GIVEN] Post several entries unpaid overdue, this will affect total entries considered.
+        UnpaidOverdueCount := LibraryRandom.RandInt(20);
+        for i := 1 to UnpaidOverdueCount do
+            MockVendorInvoice(VendorNo, WorkDate() - 50, WorkDate() - LibraryRandom.RandInt(40));
+
+        // [GIVEN] Post several entries unpaid not overdue, these will not affect count
+        for i := 1 to LibraryRandom.RandInt(20) do
+            MockVendorInvoice(VendorNo, WorkDate(), WorkDate() + LibraryRandom.RandInt(10));
+
+        // [WHEN] Lines were generated for Header
+        PaymentPractices.Generate(PaymentPracticeHeader);
+
+        // [THEN] Check that report dataset contains correct percentage paid on time.
+        ExpectedPctPaidOnTime := PaidOnTimeCount / (PaidOnTimeCount + PaidLateCount + UnpaidOverdueCount) * 100;
+        PaymentPracticeHeader.Get(PaymentPracticeHeader."No.");
+        Assert.AreNearlyEqual(ExpectedPctPaidOnTime, PaymentPracticeHeader."Pct Paid On Time", 0.01, 'Pct Paid On Time is not equal to expected.');
     end;
 
-    // more tests with complex scenarios for math
+    [Test]
+    procedure AveragesCalculationInHeader_ActualPaymentTime()
+    var
+        PaymentPracticeHeader: Record "Payment Practice Header";
+        ExpectedActualPaymentTime: Integer;
+        TotalEntries: Integer;
+        ActualPaymentTime: Integer;
+        ActualPaymentTimeSum: Integer;
+        i: Integer;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO] Check averages calcation in header, for average actual payment times
+        Initialize();
+
+        // [GIVEN] Create a vendor
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create a payment practice header for Current Year of type Vendor
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::Vendor, "Paym. Prac. Aggregation Type"::Period);
+
+        // [GIVEN] Post a lot of entries with varying actual payment time
+        TotalEntries := LibraryRandom.RandInt(100);
+        for i := 1 to TotalEntries do begin
+            ActualPaymentTime := LibraryRandom.RandInt(30);
+            MockVendorInvoiceAndPayment(VendorNo, WorkDate(), WorkDate(), WorkDate() + ActualPaymentTime);
+            ActualPaymentTimeSum += ActualPaymentTime;
+        end;
+
+        // [WHEN] Lines were generated for Header
+        PaymentPractices.Generate(PaymentPracticeHeader);
+
+        // [THEN] Check that report dataset contains correct average for actual payment time. It's integer, so rounded.
+        PaymentPracticeHeader.Get(PaymentPracticeHeader."No.");
+        ExpectedActualPaymentTime := Round(ActualPaymentTimeSum / TotalEntries, 1);
+        Assert.AreEqual(ExpectedActualPaymentTime, PaymentPracticeHeader."Average Actual Payment Period", 'Average Actual Payment Time is not equal to expected.');
+    end;
+
+    [Test]
+    procedure AveragesCalculationInHeader_AgreedPaymentTime()
+    var
+        PaymentPracticeHeader: Record "Payment Practice Header";
+        ExpectedAgreedPaymentTime: Integer;
+        TotalPaidEntries: Integer;
+        TotalUnpaidEntries: Integer;
+        AgreedPaymentTime: Integer;
+        AgreedPaymentTimeSum: Integer;
+        i: Integer;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO] Check averages calcation in header, for agreed actual payment times
+        Initialize();
+
+        // [GIVEN] Create a vendor
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create a payment practice header for Current Year of type Vendor
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::Vendor, "Paym. Prac. Aggregation Type"::Period);
+
+        // [GIVEN] Post a lot of entries with varying agreed payment time. Paid
+        TotalPaidEntries := LibraryRandom.RandInt(100);
+        for i := 1 to TotalPaidEntries do begin
+            AgreedPaymentTime := LibraryRandom.RandInt(30);
+            MockVendorInvoiceAndPayment(VendorNo, WorkDate(), WorkDate() + AgreedPaymentTime, WorkDate() + AgreedPaymentTime);
+            AgreedPaymentTimeSum += AgreedPaymentTime;
+        end;
+
+        // [GIVEN] Post a lot of entries with varying agreed payment time. Unpaid
+        TotalUnpaidEntries += LibraryRandom.RandInt(100);
+        for i := 1 to TotalUnpaidEntries do begin
+            AgreedPaymentTime := LibraryRandom.RandInt(30);
+            MockVendorInvoice(VendorNo, WorkDate(), WorkDate() + AgreedPaymentTime);
+            AgreedPaymentTimeSum += AgreedPaymentTime;
+        end;
+        // [WHEN] Lines were generated for Header
+        PaymentPractices.Generate(PaymentPracticeHeader);
+
+        // [THEN] Check that report dataset contains correct average for agreed payment time. It's integer, so rounded.
+        PaymentPracticeHeader.Get(PaymentPracticeHeader."No.");
+        ExpectedAgreedPaymentTime := Round(AgreedPaymentTimeSum / (TotalPaidEntries + TotalUnpaidEntries), 1);
+        Assert.AreEqual(ExpectedAgreedPaymentTime, PaymentPracticeHeader."Average Actual Payment Period", 'Average Actual Payment Time is not equal to expected.');
+    end;
+
+
+    [Test]
+    procedure ReportDataSetForVendorsByPeriod_DaysToZero()
+    var
+        PaymentPracticeHeader: Record "Payment Practice Header";
+        PaymentPeriod: Record "Payment Period";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 493671] Payment is processed correctly for Payment Period with Days To = 0
+        Initialize();
+
+        // [GIVEN] Create a vendor
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create a payment period with DaysTo = 0
+        PaymentPracticesLibrary.InitAndGetLastPaymentPeriod(PaymentPeriod);
+
+        // [GIVEN] Create a payment practice header for Current Year of type Vendor
+        PaymentPracticesLibrary.CreatePaymentPracticeHeaderSimple(PaymentPracticeHeader, "Paym. Prac. Header Type"::Vendor, "Paym. Prac. Aggregation Type"::Period);
+
+        // [GIVEN] Post an entry for the vendor in the period
+        MockVendorInvoiceAndPaymentInPeriod(VendorNo, WorkDate(), PaymentPeriod."Days From", PaymentPeriod."Days To");
+
+        // [WHEN] Lines were generated for Header
+        PaymentPractices.Generate(PaymentPracticeHeader);
+
+        // [THEN] Check that report dataset contains the line for the period correcly
+        PaymentPracticesLibrary.VerifyPeriodLine(PaymentPracticeHeader."No.", "Paym. Prac. Header Type"::Vendor, PaymentPeriod.Code, 100, 0);
+    end;
 
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Practices UT");
+
+        // This is so demodata and previous tests doesn't influence the tests
+        PaymentPracticesLibrary.SetExcludeFromPaymentPracticesOnAllVendorsAndCustomers();
 
         if Initialized then
             exit;
@@ -188,23 +506,13 @@ codeunit 134197 "Payment Practices UT"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Payment Practices UT");
 
         PaymentPracticesLibrary.InitializeCompanySizes(CompanySizeCodes);
-        // This is so demodata doesn't influence the tests
-        PaymentPracticesLibrary.SetExcludeFromPaymentPracticesOnAllVendorsAndCustomers();
+        PaymentPracticesLibrary.InitializePaymentPeriods(PaymentPeriods);
         Initialized := true;
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Payment Practices UT");
     end;
 
-    local procedure MockInvoiceAndPayment_Vendor(VendorNo: Code[20]; PostingDate: Date; DueDate: Date; PaymentPostingDate: Date)
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-    begin
-        MockVendLedgEntry(VendorNo, VendorLedgerEntry, "Gen. Journal Document Type"::Invoice, PostingDate, DueDate, true);
-        VendorLedgerEntry.CalcFields("Amount (LCY)");
-        MockPaymentApplication(VendorNo, VendorLedgerEntry."Entry No.", PaymentPostingDate, VendorLedgerEntry."Amount (LCY)", VendorLedgerEntry."Amount (LCY)");
-    end;
-
-    local procedure MockVendLedgEntry(VendorNo: Code[20]; var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
+    local procedure MockVendLedgerEntry(VendorNo: Code[20]; var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; PmtPostingDate: Date; IsOpen: Boolean)
     begin
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
@@ -214,10 +522,45 @@ codeunit 134197 "Payment Practices UT"
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Due Date" := DueDate;
         VendorLedgerEntry.Open := IsOpen;
+        VendorLedgerEntry."Closed at Date" := PmtPostingDate;
+        VendorLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         VendorLedgerEntry.Insert();
     end;
 
-    local procedure MockCustomerEntry(CustomerNo: Code[20]; var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
+    local procedure MockVendorInvoice(VendorNo: Code[20]; PostingDate: Date; DueDate: Date) InvoiceAmount: Decimal;
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        MockVendLedgerEntry(VendorNo, VendorLedgerEntry, "Gen. Journal Document Type"::Invoice, PostingDate, DueDate, 0D, true);
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        InvoiceAmount := VendorLedgerEntry."Amount (LCY)";
+    end;
+
+    local procedure MockVendorInvoiceAndPayment(VendorNo: Code[20]; PostingDate: Date; DueDate: Date; PaymentPostingDate: Date) InvoiceAmount: Decimal;
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        MockVendLedgerEntry(VendorNo, VendorLedgerEntry, "Gen. Journal Document Type"::Invoice, PostingDate, DueDate, PaymentPostingDate, false);
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        InvoiceAmount := VendorLedgerEntry."Amount (LCY)";
+    end;
+
+    local procedure MockVendorInvoiceAndPaymentInPeriod(VendorNo: Code[20]; StartingDate: Date; PaidInDays_min: Integer; PaidInDays_max: Integer) InvoiceAmount: Decimal;
+    var
+        PostingDate: Date;
+        DueDate: Date;
+        PaymentPostingDate: Date;
+    begin
+        PostingDate := StartingDate;
+        DueDate := StartingDate;
+        if PaidInDays_max <> 0 then
+            PaymentPostingDate := PostingDate + LibraryRandom.RandIntInRange(PaidInDays_min, PaidInDays_max)
+        else
+            PaymentPostingDate := PostingDate + PaidInDays_min + LibraryRandom.RandInt(10);
+        InvoiceAmount := MockVendorInvoiceAndPayment(VendorNo, PostingDate, DueDate, PaymentPostingDate);
+    end;
+
+    local procedure MockCustLedgerEntry(CustomerNo: Code[20]; var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; PmtPostingDate: Date; IsOpen: Boolean)
     begin
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
@@ -227,48 +570,51 @@ codeunit 134197 "Payment Practices UT"
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Due Date" := DueDate;
         CustLedgerEntry.Open := IsOpen;
+        CustLedgerEntry."Closed at Date" := PmtPostingDate;
+        CustLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         CustLedgerEntry.Insert();
     end;
 
-    local procedure MockSimpleVendLedgEntry(VendorNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean): Integer
+    local procedure MockCustomerInvoice(CustomerNo: Code[20]; PostingDate: Date; DueDate: Date) InvoiceAmount: Decimal;
     var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        MockVendLedgEntry(VendorNo, VendorLedgerEntry, DocType, PostingDate, DueDate, IsOpen);
-        exit(VendorLedgerEntry."Entry No.");
+        MockCustLedgerEntry(CustomerNo, CustLedgerEntry, "Gen. Journal Document Type"::Invoice, PostingDate, DueDate, 0D, true);
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        InvoiceAmount := CustLedgerEntry."Amount (LCY)";
     end;
 
-    local procedure MockPaymentApplication(VendorNo: Code[20]; InvLedgEntryNo: Integer; PostingDate: Date; EntryAmount: Decimal; AppliedAmount: Decimal)
+    local procedure MockCustomerInvoiceAndPayment(CustomerNo: Code[20]; PostingDate: Date; DueDate: Date; PaymentPostingDate: Date) InvoiceAmount: Decimal;
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        MockEntryApplication(VendorNo, InvLedgEntryNo, PostingDate, EntryAmount, AppliedAmount);
+        MockCustLedgerEntry(CustomerNo, CustLedgerEntry, "Gen. Journal Document Type"::Invoice, PostingDate, DueDate, PaymentPostingDate, false);
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        InvoiceAmount := CustLedgerEntry."Amount (LCY)";
     end;
 
-    local procedure MockEntryApplication(VendorNo: Code[20]; InvLedgEntryNo: Integer; PostingDate: Date; EntryAmount: Decimal; AppliedAmount: Decimal)
+    local procedure MockCustomerInvoiceAndPaymentInPeriod(CustomerNo: Code[20]; StartingDate: Date; PaidInDays_min: Integer; PaidInDays_max: Integer) InvoiceAmount: Decimal;
     var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        EntryNo: Integer;
+        PostingDate: Date;
+        DueDate: Date;
+        PaymentPostingDate: Date;
     begin
-        EntryNo := MockSimpleVendLedgEntry(VendorNo, "Gen. Journal Document Type"::Payment, PostingDate, 0D, true);
-        MockDtldVendLedgEntry("Detailed CV Ledger Entry Type"::"Initial Entry", PostingDate, EntryNo, 0, "Gen. Journal Document Type"::Payment, EntryAmount);
-        MockDtldVendLedgEntry("Detailed CV Ledger Entry Type"::Application, PostingDate, EntryNo, InvLedgEntryNo, VendorLedgerEntry."Document Type"::Invoice, -AppliedAmount);
-        MockDtldVendLedgEntry("Detailed CV Ledger Entry Type"::Application, PostingDate, InvLedgEntryNo, EntryNo, "Gen. Journal Document Type"::Payment, AppliedAmount);
+        PostingDate := StartingDate;
+        DueDate := StartingDate + LibraryRandom.RandIntInRange(1, 5);
+        PaymentPostingDate := PostingDate + LibraryRandom.RandIntInRange(PaidInDays_min, PaidInDays_max);
+        InvoiceAmount := MockCustomerInvoiceAndPayment(CustomerNo, PostingDate, DueDate, PaymentPostingDate);
     end;
 
-    local procedure MockDtldVendLedgEntry(EntryType: Enum "Detailed CV Ledger Entry Type"; PostingDate: Date; LedgEntryNo: Integer; AppliedLedgEntryNo: Integer; DocType: Enum "Gen. Journal Document Type"; AppliedAmount: Decimal): Integer
+    local procedure PrepareExpectedPeriodPcts(var ExpectedPeriodPcts: array[3] of Decimal; var ExpectedPeriodAmountPcts: array[3] of Decimal; PeriodCounts: array[3] of Integer; TotalCount: Integer; PeriodAmounts: array[3] of Decimal; TotalAmount: Decimal)
     var
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        i: Integer;
     begin
-        DetailedVendorLedgEntry.Init();
-        DetailedVendorLedgEntry."Entry Type" := EntryType;
-        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
-        DetailedVendorLedgEntry."Document Type" := DocType;
-        DetailedVendorLedgEntry."Posting Date" := PostingDate;
-        DetailedVendorLedgEntry."Vendor Ledger Entry No." := LedgEntryNo;
-        DetailedVendorLedgEntry."Applied Vend. Ledger Entry No." := AppliedLedgEntryNo;
-        DetailedVendorLedgEntry."Amount (LCY)" := AppliedAmount;
-        DetailedVendorLedgEntry."Ledger Entry Amount" := EntryType = "Detailed CV Ledger Entry Type"::"Initial Entry";
-        DetailedVendorLedgEntry.Insert();
-        exit(DetailedVendorLedgEntry."Entry No.");
+        for i := 1 to ArrayLen(ExpectedPeriodPcts) do begin
+            if TotalCount <> 0 then
+                ExpectedPeriodPcts[i] := PeriodCounts[i] / TotalCount * 100;
+            if TotalAmount <> 0 then
+                ExpectedPeriodAmountPcts[i] := PeriodAmounts[i] / TotalAmount * 100;
+        end;
     end;
 
     [ConfirmHandler]
