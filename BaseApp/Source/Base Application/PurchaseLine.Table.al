@@ -734,8 +734,10 @@
                       Round(
                         (UnitCostCurrency - "Direct Unit Cost" + "Line Discount Amount" / Quantity) /
                         ("Direct Unit Cost" - "Line Discount Amount" / Quantity) * 100, 0.00001);
-                    if IndirectCostPercent >= 0 then
+                    if IndirectCostPercent >= 0 then begin
                         "Indirect Cost %" := IndirectCostPercent;
+                        CheckLineTypeOnIndirectCostPercentUpdate();
+                    end;
                 end;
 
                 UpdateSalesCost;
@@ -1044,8 +1046,7 @@
                 TestField("No.");
                 TestStatusOpen;
 
-                if Type = Type::"Charge (Item)" then
-                    TestField("Indirect Cost %", 0);
+                CheckLineTypeOnIndirectCostPercentUpdate();
 
                 if (Type = Type::Item) and ("Prod. Order No." = '') then begin
                     GetItem(Item);
@@ -3858,6 +3859,19 @@
         LineAmount := "Line Amount" - "Inv. Discount Amount";
 
         OnAfterCalcLineAmount(Rec, LineAmount);
+    end;
+
+    local procedure CheckLineTypeOnIndirectCostPercentUpdate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckLineTypeOnIndirectCostPercentUpdate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Type <> Type::Item then
+            TestField("Indirect Cost %", 0);
     end;
 
     local procedure CopyFromStandardText()
@@ -7644,6 +7658,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateReturnReasonCode(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLineTypeOnIndirectCostPercentUpdate(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
