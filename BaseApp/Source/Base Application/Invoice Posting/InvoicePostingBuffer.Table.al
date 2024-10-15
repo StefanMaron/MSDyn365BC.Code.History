@@ -158,6 +158,11 @@
             Caption = 'VAT Base Before Pmt. Disc.';
             DataClassification = SystemMetadata;
         }
+        field(40; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            DataClassification = SystemMetadata;
+        }
         field(215; "Entry Description"; Text[100])
         {
             Caption = 'Entry Description';
@@ -274,6 +279,14 @@
             Caption = 'Journal Template Name';
             DataClassification = SystemMetadata;
             TableRelation = "Gen. Journal Template";
+            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 
@@ -290,7 +303,7 @@
     }
 
     var
-        TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary;
+        TempInvoicePostBufferRounding: Record "Invoice Posting Buffer" temporary;
         DimMgt: Codeunit DimensionManagement;
 
     procedure PrepareSales(var SalesLine: Record "Sales Line")
@@ -333,10 +346,7 @@
             "VAT Amount (ACY)" := 0;
         end;
 
-        if SalesLine."IC Partner Code" = '' then
-            "Journal Template Name" := SalesLine.GetJnlTemplateName()
-        else
-            "Journal Template Name" := GetICGenJnlTemplateFromSalesSetup(SalesLine);
+        "Journal Templ. Name" := SalesLine.GetJnlTemplateName();
 
         OnAfterPrepareSales(SalesLine, Rec);
     end;
@@ -456,10 +466,7 @@
             "VAT Amount (ACY)" := 0;
         end;
 
-        if PurchLine."IC Partner Code" = '' then
-            "Journal Template Name" := PurchLine.GetJnlTemplateName()
-        else
-            "Journal Template Name" := GetICGenJnlTemplateFromPurchSetup(PurchLine);
+        "Journal Templ. Name" := PurchLine.GetJnlTemplateName();
 
         OnAfterPreparePurchase(PurchLine, Rec);
     end;
@@ -570,7 +577,7 @@
         PrepmtAdjInvoicePostingBuffer."Dimension Set ID" := InvoicePostingBuffer."Dimension Set ID";
         PrepmtAdjInvoicePostingBuffer."Global Dimension 1 Code" := InvoicePostingBuffer."Global Dimension 1 Code";
         PrepmtAdjInvoicePostingBuffer."Global Dimension 2 Code" := InvoicePostingBuffer."Global Dimension 2 Code";
-        PrepmtAdjInvoicePostingBuffer."Journal Template Name" := InvoicePostingBuffer."Journal Template Name";
+        PrepmtAdjInvoicePostingBuffer."Journal Templ. Name" := InvoicePostingBuffer."Journal Templ. Name";
         PrepmtAdjInvoicePostingBuffer."System-Created Entry" := true;
         PrepmtAdjInvoicePostingBuffer."Entry Description" := InvoicePostingBuffer."Entry Description";
         OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostingBuffer(PrepmtAdjInvoicePostingBuffer, InvoicePostingBuffer);
@@ -642,7 +649,7 @@
     begin
         TypeValue := Type.AsInteger();
         GroupID :=
-          PadField("Journal Template Name", MaxStrLen("Journal Template Name")) +
+          PadField("Journal Templ. Name", MaxStrLen("Journal Templ. Name")) +
           Format(TypeValue) +
           PadField("G/L Account", MaxStrLen("G/L Account")) +
           PadField("Gen. Bus. Posting Group", MaxStrLen("Gen. Bus. Posting Group")) +
@@ -767,42 +774,6 @@
     begin
         "Non Deductible VAT Amt." := TotalNDAmount;
         "Non Ded. VAT Amt. (ACY)" := TotalNDAmountACY;
-    end;
-
-    local procedure GetICGenJnlTemplateFromSalesSetup(SalesLine: Record "Sales Line"): Code[10]
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-    begin
-        if SalesLine."IC Partner Code" = '' then
-            exit;
-
-        SalesReceivablesSetup.Get();
-        with SalesLine do begin
-            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then begin
-                SalesReceivablesSetup.TestField("IC Jnl. Templ. Sales Cr. Memo");
-                exit(SalesReceivablesSetup."IC Jnl. Templ. Sales Cr. Memo");
-            end;
-            SalesReceivablesSetup.TestField("IC Jnl. Templ. Sales Invoice");
-            exit(SalesReceivablesSetup."IC Jnl. Templ. Sales Invoice");
-        end;
-    end;
-
-    local procedure GetICGenJnlTemplateFromPurchSetup(PurchLine: Record "Purchase Line"): Code[10]
-    var
-        PurchPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        if PurchLine."IC Partner Code" = '' then
-            exit;
-
-        PurchPayablesSetup.Get();
-        with PurchLine do begin
-            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then begin
-                PurchPayablesSetup.TestField("IC Jnl. Templ. Purch. Cr. Memo");
-                exit(PurchPayablesSetup."IC Jnl. Templ. Purch. Cr. Memo");
-            end;
-            PurchPayablesSetup.TestField("IC Jnl. Templ. Purch. Invoice");
-            exit(PurchPayablesSetup."IC Jnl. Templ. Purch. Invoice");
-        end;
     end;
 
     procedure ClearVATFields()

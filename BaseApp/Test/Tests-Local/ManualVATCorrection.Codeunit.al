@@ -97,7 +97,7 @@ codeunit 144029 "Manual VAT Correction"
 
         // [GIVEN] New record B with Posting Date = X related to VAT Statement Z.
         CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
-        VATStatementLine.FindLast;
+        VATStatementLine.FindLast();
         TempManualVATCorrection.Validate("Statement Line No.", VATStatementLine."Line No.");
 
         // [WHEN] Record B is being inserted
@@ -302,8 +302,8 @@ codeunit 144029 "Manual VAT Correction"
     begin
         with VATStatementLine do begin
             SetRange("Row No.", RowNo);
-            FindFirst;
-            Validate("Row No.", LibraryUtility.GenerateGUID);
+            FindFirst();
+            Validate("Row No.", LibraryUtility.GenerateGUID());
             Modify(true);
             exit("Row No.");
         end;
@@ -369,7 +369,7 @@ codeunit 144029 "Manual VAT Correction"
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
-        VATStatementLine.FindLast;
+        VATStatementLine.FindLast();
         with ManualVATCorrection do begin
             Validate("Statement Template Name", VATStatementLine."Statement Template Name");
             Validate("Statement Name", VATStatementLine."Statement Name");

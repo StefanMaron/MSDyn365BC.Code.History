@@ -232,7 +232,7 @@ page 570 "Chart of Accounts (G/L)"
                         begin
                             CurrPage.SetSelectionFilter(GLAcc);
                             DefaultDimMultiple.SetMultiRecord(GLAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

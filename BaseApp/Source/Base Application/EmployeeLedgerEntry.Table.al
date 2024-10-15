@@ -38,7 +38,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry".Amount WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry".Amount WHERE("Ledger Entry Amount" = CONST(true),
                                                                              "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                              "Posting Date" = FIELD("Date Filter")));
             Caption = 'Amount';
@@ -49,7 +49,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry".Amount WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Employee Ledger Entry".Amount WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
                                                                              "Posting Date" = FIELD("Date Filter")));
             Caption = 'Remaining Amount';
             Editable = false;
@@ -58,7 +58,7 @@ table 5222 "Employee Ledger Entry"
         field(15; "Original Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                      "Entry Type" = FILTER("Initial Entry"),
                                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Original Amt. (LCY)';
@@ -68,7 +68,7 @@ table 5222 "Employee Ledger Entry"
         field(16; "Remaining Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Remaining Amt. (LCY)';
             Editable = false;
@@ -77,7 +77,7 @@ table 5222 "Employee Ledger Entry"
         field(17; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                      "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Amount (LCY)';
@@ -159,6 +159,11 @@ table 5222 "Employee Ledger Entry"
                 TestField(Open, true);
             end;
         }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            DataClassification = SystemMetadata;
+        }
         field(49; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
@@ -170,7 +175,7 @@ table 5222 "Employee Ledger Entry"
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(51; "Bal. Account Type"; enum "Gen. Journal Account Type")
+        field(51; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
         }
@@ -201,7 +206,7 @@ table 5222 "Employee Ledger Entry"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Debit Amount" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Debit Amount" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                      "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                      "Posting Date" = FIELD("Date Filter")));
             Caption = 'Debit Amount';
@@ -213,7 +218,7 @@ table 5222 "Employee Ledger Entry"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Credit Amount" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Credit Amount" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                       "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                       "Posting Date" = FIELD("Date Filter")));
             Caption = 'Credit Amount';
@@ -224,7 +229,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Debit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Debit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                            "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                            "Posting Date" = FIELD("Date Filter")));
             Caption = 'Debit Amount (LCY)';
@@ -235,7 +240,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry"."Credit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
+            CalcFormula = Sum("Detailed Employee Ledger Entry"."Credit Amount (LCY)" WHERE("Ledger Entry Amount" = CONST(true),
                                                                                             "Employee Ledger Entry No." = FIELD("Entry No."),
                                                                                             "Posting Date" = FIELD("Date Filter")));
             Caption = 'Credit Amount (LCY)';
@@ -251,7 +256,7 @@ table 5222 "Employee Ledger Entry"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Employee Ledger Entry".Amount WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Detailed Employee Ledger Entry".Amount WHERE("Employee Ledger Entry No." = FIELD("Entry No."),
                                                                              "Entry Type" = FILTER("Initial Entry"),
                                                                              "Posting Date" = FIELD("Date Filter")));
             Caption = 'Original Amount';
@@ -411,6 +416,14 @@ table 5222 "Employee Ledger Entry"
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
+            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
     }
 
@@ -448,7 +461,7 @@ table 5222 "Employee Ledger Entry"
         "Salespers./Purch. Code" := GenJnlLine."Salespers./Purch. Code";
         "Source Code" := GenJnlLine."Source Code";
         "Reason Code" := GenJnlLine."Reason Code";
-        "Journal Template Name" := GenJnlLine."Journal Template Name";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "User ID" := UserId;
         "Bal. Account Type" := GenJnlLine."Bal. Account Type";
@@ -499,6 +512,7 @@ table 5222 "Employee Ledger Entry"
         "Closed at Date" := CVLedgerEntryBuffer."Closed at Date";
         "Closed by Amount" := CVLedgerEntryBuffer."Closed by Amount";
         "Applies-to ID" := CVLedgerEntryBuffer."Applies-to ID";
+        "Journal Templ. Name" := CVLedgerEntryBuffer."Journal Templ. Name";
         "Journal Batch Name" := CVLedgerEntryBuffer."Journal Batch Name";
         "Bal. Account Type" := CVLedgerEntryBuffer."Bal. Account Type";
         "Bal. Account No." := CVLedgerEntryBuffer."Bal. Account No.";
@@ -510,7 +524,6 @@ table 5222 "Employee Ledger Entry"
         "Credit Amount (LCY)" := CVLedgerEntryBuffer."Credit Amount (LCY)";
         "No. Series" := CVLedgerEntryBuffer."No. Series";
         "Amount to Apply" := CVLedgerEntryBuffer."Amount to Apply";
-        "Journal Template Name" := CVLedgerEntryBuffer."Journal Template Name";
 
         OnAfterCopyEmplLedgerEntryFromCVLedgEntryBuffer(Rec, CVLedgerEntryBuffer);
     end;

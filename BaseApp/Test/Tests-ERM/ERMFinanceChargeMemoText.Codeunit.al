@@ -17,6 +17,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryFinanceChargeMemo: Codeunit "Library - Finance Charge Memo";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         BeginningTextNew: Label 'Posting Date must be %1.';
         EndingTextNew: Label 'Please pay the total of %1.';
@@ -28,11 +29,14 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Finance Charge Memo Text");
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Finance Charge Memo Text");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Finance Charge Memo Text");
@@ -54,7 +58,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         // Check Line Description, Beginning Text and Ending Text after suggesting Lines for a Finance Charge Memo.
 
         // Setup: Create Finance Charge Terms with Beginning and Ending Texts, update it on Customer. Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
         CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency);
         PostedDocumentNo := CreateAndPostSalesInvoice(Customer."No.");
@@ -91,7 +95,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         // Test Finance Charge Memo Lines after Suggesting Lines for Finance Charge Memo.
 
         // 1. Setup: Create Finance Charge Terms, Create Customer, Create and Post General Journal Line for Refund.
-        Initialize;
+        Initialize();
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
         CreateCustomer(Customer, FinanceChargeTerms.Code, '');
         Amount := CreateAndPostGeneralJournal(Customer."No.");
@@ -112,7 +116,6 @@ codeunit 134906 "ERM Finance Charge Memo Text"
     end;
 
     [Test]
-    [HandlerFunctions('IssuedFinChargeMemosRPH')]
     [Scope('OnPrem')]
     procedure IssuedFinanceChargeMemo()
     var
@@ -128,7 +131,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
 
         // 1. Setup: Create Finance Charge Terms, Create Customer, Create and Post General Journal Line for Refund, Create Finance Charge
         // Memo Header and Suggest Lines.
-        Initialize;
+        Initialize();
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
         CreateCustomer(Customer, FinanceChargeTerms.Code, '');
         Amount := CreateAndPostGeneralJournal(Customer."No.");
@@ -144,7 +147,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
 
         // 3. Verify: Verify Issued Finance Charge Memo Lines.
         IssuedFinChargeMemoHeader.SetRange("Pre-Assigned No.", FinanceChargeMemoHeader."No.");
-        IssuedFinChargeMemoHeader.FindFirst;
+        IssuedFinChargeMemoHeader.FindFirst();
         VerifyIssuedChargeMemoLine(
           IssuedFinChargeMemoHeader."No.", IssuedFinChargeMemoLine.Type::"Customer Ledger Entry", Amount, CalculatedAmount);
         VerifyIssuedChargeMemoLine(
@@ -285,7 +288,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
     begin
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         FinanceChargeMemoLine.SetRange(Type, Type);
-        FinanceChargeMemoLine.FindFirst;
+        FinanceChargeMemoLine.FindFirst();
     end;
 
     local procedure GetLineDescription(FinanceChargeMemoNo: Code[20]; LineType: Option): Text[100]
@@ -295,7 +298,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         FinanceChargeMemoLine.SetRange("Line Type", LineType);
         FinanceChargeMemoLine.SetFilter(Description, '<>''''');
-        FinanceChargeMemoLine.FindFirst;
+        FinanceChargeMemoLine.FindFirst();
         exit(FinanceChargeMemoLine.Description);
     end;
 
@@ -314,20 +317,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         FinanceChargeMemoHeader.SetRange("No.", FinanceChargeMemoHeader."No.");
         SuggestFinChargeMemoLines.SetTableView(FinanceChargeMemoHeader);
         SuggestFinChargeMemoLines.UseRequestPage(false);
-        SuggestFinChargeMemoLines.Run;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure IssuedFinChargeMemosRPH(var IssuedFinChargeMemos: TestRequestPage "Issue Finance Charge Memos")
-    var
-        JnlTemplateName: Code[10];
-        JnlBatchName: Code[10];
-    begin
-        LibraryERM.FindGenJnlTemplateAndBatch(JnlTemplateName, JnlBatchName);
-        IssuedFinChargeMemos.JnlTemplateName.SetValue(JnlTemplateName);
-        IssuedFinChargeMemos.JnlBatchName.SetValue(JnlBatchName);
-        IssuedFinChargeMemos.OK.Invoke;
+        SuggestFinChargeMemoLines.Run();
     end;
 
     local procedure VerifyLineDescription(FinanceChargeMemoNo: Code[20]; Description: Text[100])
@@ -336,7 +326,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
     begin
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         FinanceChargeMemoLine.SetRange(Type, FinanceChargeMemoLine.Type::"Customer Ledger Entry");
-        FinanceChargeMemoLine.FindFirst;
+        FinanceChargeMemoLine.FindFirst();
         Assert.AreEqual(Description, FinanceChargeMemoLine.Description, DescriptionError);
     end;
 
@@ -360,7 +350,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
     begin
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         IssuedFinChargeMemoLine.SetRange(Type, Type);
-        IssuedFinChargeMemoLine.FindFirst;
+        IssuedFinChargeMemoLine.FindFirst();
         IssuedFinChargeMemoLine.TestField("Remaining Amount", RemainingAmount);
         IssuedFinChargeMemoLine.TestField(Amount, Amount);
     end;

@@ -64,9 +64,9 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting ATS in Whse/IT IM");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         ClearLastError;
         MfgSetup.Get();
@@ -184,7 +184,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
-        if BinContent.FindFirst then begin
+        if BinContent.FindFirst() then begin
             BinContent.CalcFields(Quantity);
             BinContent.TestField(Quantity, Quantity);
         end else
@@ -220,7 +220,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         VerifyRegInvtMvmtHeader(AssemblyHeader, ExpectedNoOfRegInvtMmnt);
 
         RegdInvtMovementHdr.SetRange("Invt. Movement No.", WarehouseActivityHeaderNo);
-        RegdInvtMovementHdr.FindFirst;
+        RegdInvtMovementHdr.FindFirst();
 
         TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
@@ -308,7 +308,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         Assert.AreEqual(1, WarehouseActivityHeader.Count, CopyStr('There should be 1 whse activity header within the filter: ' +
             WarehouseActivityHeader.GetFilters, 1, 1024));
 
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
     end;
 
     [Normal]
@@ -334,7 +334,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             TempAssemblyLine.Reset();
             TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
             TempAssemblyLine.SetRange("No.", NotEnoughItemNo);
-            TempAssemblyLine.FindFirst;
+            TempAssemblyLine.FindFirst();
 
             if ActionType = RegdInvtMovementLn."Action Type"::Take then
                 VerifyRegInvtMvmtLine(RegdInvtMovementHdr, TempAssemblyLine, ActionType, LocationAdditionalBinCode,
@@ -389,7 +389,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             TempAssemblyLine.Reset();
             TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
             TempAssemblyLine.SetRange("No.", NotEnoughItemNo);
-            TempAssemblyLine.FindFirst;
+            TempAssemblyLine.FindFirst();
 
             if ActionType = WhseActivityLine."Action Type"::Take then
                 VerifyWhseActivityLine(
@@ -414,7 +414,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         Assert.AreEqual(1, WhseActivityLine.Count, CopyStr('There is no whse activity line within the filter: ' +
             WhseActivityLine.GetFilters, 1, 1024));
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
 
         Assert.AreEqual(TempAssemblyLine.Description, WhseActivityLine.Description, 'Incorrect descriprion');
         Assert.AreEqual(TempAssemblyLine."Unit of Measure Code", WhseActivityLine."Unit of Measure Code", 'Incorrect UOM');
@@ -474,7 +474,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
             AssemblyLine.SetRange("No.", NotEnoughItemNo);
-            AssemblyLine.FindFirst;
+            AssemblyLine.FindFirst();
 
             LibraryAssembly.AddItemInventory(
               AssemblyLine, WorkDate2, AssemblyLine."Location Code", LocationAdditionalBinCode, ResultQtys[ItemsCount]);
@@ -542,7 +542,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         AssemblyHeader.Init();
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ExpectedError);
     end;
 
@@ -585,7 +585,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssemblyHeader: Record "Assembly Header";
     begin
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
 
         LibraryAssembly.CreateInvtMovement(AssemblyHeader."No.", false, false, true);
         AutoFillQtyInventoryActivity(AssemblyHeader);
@@ -656,7 +656,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         TempAssemblyLine.Reset();
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         TempAssemblyLine.SetRange("No.", NotEnoughItemNo);
-        TempAssemblyLine.FindFirst;
+        TempAssemblyLine.FindFirst();
 
         VerifyWhseActivityLine(WhseActivityHeader, TempAssemblyLine, WhseActivityLine."Action Type"::Take, LocationTakeBinCode,
           TempAssemblyLine."Quantity to Consume", TempAssemblyLine."Quantity to Consume" - NotEnoughQty);
@@ -749,7 +749,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         WhseActivityHeader.Reset();
         WhseActivityHeader.SetRange("Location Code", AssemblyHeader."Location Code");
-        WhseActivityHeader.FindLast;
+        WhseActivityHeader.FindLast();
 
         // Check that quantity is not autofilled
         if WhseActivityHeader.Type <> WhseActivityHeader.Type::Pick then begin
@@ -806,7 +806,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // Post rest of the asembly order
         AssemblyHeader.Reset();
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
 
         if WhseActivity = WhseActivityType::None then
             PurchaseComponentsToBin(AssemblyHeader, 0, Location, LocationToBinCode)
@@ -900,7 +900,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 CreatePurchaseLine(PurchaseHeader, AssemblyLine."No.", Location, BinCode,
                   Round(AssemblyLine.Quantity + QtySupplement, 1, '>'));
@@ -957,7 +957,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
             AssemblyLine.SetRange("No.", NotEnoughItemNo);
-            AssemblyLine.FindFirst;
+            AssemblyLine.FindFirst();
 
             CreatePurchaseLine(PurchaseHeader, AssemblyLine."No.",
               Location, LocationAdditionalBinCode, ResultQtys[ItemsCount]);
@@ -987,7 +987,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange("No.", ItemNo);
-            AssemblyLine.FindLast;
+            AssemblyLine.FindLast();
 
             AssemblyLine.Validate("Bin Code", LocationAdditionalBinCode);
             AssemblyLine.Validate("Quantity to Consume", Quantity);
@@ -1075,7 +1075,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             exit;
 
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
 
         case WhseActivity of
             WhseActivityType::WhsePick:
@@ -1113,7 +1113,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
 
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 GetItemIT(AssemblyLine."No.", ITType);
                 if (ITType = Tracking::Serial) or (ITType = Tracking::LotSerial) then begin
@@ -1145,21 +1145,21 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
             WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
             WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
-            WhseReceiptLine.FindFirst;
+            WhseReceiptLine.FindFirst();
             WarehouseReceiptHeader.Get(WhseReceiptLine."No.");
             LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
         end;
 
         PurchaseHeader.Reset();
         PurchaseHeader.SetRange("No.", PurchaseHeaderNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         if Location."Require Put-away" then begin
             WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-            WarehouseActivityHeader.FindFirst;
+            WarehouseActivityHeader.FindFirst();
             WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-            WarehouseActivityLine.FindFirst;
+            WarehouseActivityLine.FindFirst();
 
             WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
 
@@ -1167,7 +1167,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             WarehouseActivityLine.Reset();
             WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
             WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-            if WarehouseActivityLine.FindSet then
+            if WarehouseActivityLine.FindSet() then
                 repeat
                     WarehouseActivityLine.Validate("Zone Code", 'PICK');
                     WarehouseActivityLine.Validate("Bin Code", Bin.Code);
@@ -1252,7 +1252,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         WhseActivityHeader.Reset();
         WhseActivityHeader.SetRange("Location Code", AssemblyHeader."Location Code");
-        WhseActivityHeader.FindLast;
+        WhseActivityHeader.FindLast();
 
         // Check that quantity is not autofilled
         if WhseActivityHeader.Type <> WhseActivityHeader.Type::Pick then begin
@@ -1588,7 +1588,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
 
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 AssingITWhseActivityLine(AssemblyLine."No.", WhseActivityHeader, ITPartial, FindDirection);
             until (AssemblyLine.Next = 0);
@@ -1627,7 +1627,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             WhseActivityLineTake.SetRange("Serial No.", '');
             WhseActivityLineTake.SetRange("Lot No.", '');
             WhseActivityLineTake.SetRange("Action Type", WhseActivityLineTake."Action Type"::Take);
-            if not WhseActivityLineTake.FindFirst then
+            if not WhseActivityLineTake.FindFirst() then
                 exit; // in case of partial posting whse activity has less lines then in item ledger entries
 
             WhseActivityLinePlace.Reset();
@@ -1636,7 +1636,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
             WhseActivityLinePlace.SetRange("Serial No.", '');
             WhseActivityLinePlace.SetRange("Lot No.", '');
             WhseActivityLinePlace.SetRange("Action Type", WhseActivityLinePlace."Action Type"::Place);
-            WhseActivityLinePlace.FindFirst;
+            WhseActivityLinePlace.FindFirst();
 
             WhseActivityLineTake.Validate("Serial No.", ItemLedgerEntry."Serial No.");
             WhseActivityLinePlace.Validate("Serial No.", ItemLedgerEntry."Serial No.");
@@ -1660,7 +1660,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         WhseActivityLine.SetRange("Item No.", ItemNoToUpdate);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Place);
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
 
         ChangedItemQty := Round(WhseActivityLine.Quantity, 1, '<');
         ChangedItemQty += QtyToAdd;
@@ -1672,7 +1672,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         WhseActivityLine.SetRange("Item No.", ItemNoToUpdate);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
 
         ChangedItemQty := Round(WhseActivityLine.Quantity, 1, '<');
         ChangedItemQty += QtyToAdd;
@@ -1719,7 +1719,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure InvtMvmtFullPost()
     begin
         // TC-IMVMT
-        Initialize;
+        Initialize();
         NormalPostingInvtMvmt(100, 100, 0);
     end;
 
@@ -1729,7 +1729,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure InvtMvmtFullPartCompPost()
     begin
         // TC-IMVMT
-        Initialize;
+        Initialize();
         NormalPostingInvtMvmt(100, LibraryRandom.RandIntInRange(1, 99), 0);
     end;
 
@@ -1739,7 +1739,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure InvtMvmtPartPost()
     begin
         // TC-IMVMT
-        Initialize;
+        Initialize();
         NormalPostingInvtMvmt(LibraryRandom.RandIntInRange(1, 99), LibraryRandom.RandIntInRange(1, 99), 0);
     end;
 
@@ -1749,7 +1749,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure InvtMvmtFullPostQtySupplem()
     begin
         // TC-IMVMT
-        Initialize;
+        Initialize();
         NormalPostingInvtMvmt(100, 100, LibraryRandom.RandIntInRange(1, 10));
     end;
 
@@ -1759,7 +1759,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure InvtMvmtPartPostQtySupplem()
     begin
         // TC-IMVMT
-        Initialize;
+        Initialize();
         NormalPostingInvtMvmt(
           LibraryRandom.RandIntInRange(1, 99),
           LibraryRandom.RandIntInRange(1, 99),
@@ -1783,7 +1783,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // TC-IMVMT
         // Test does partial posting and verifies it. Then it posts rest of the order and verifies
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
 
         HeaderQtyFactor := LibraryRandom.RandIntInRange(1, 99);
@@ -1798,7 +1798,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // Post rest of the asembly order
         AssemblyHeader.Init();
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
 
         AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
@@ -1839,7 +1839,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         TotalATOMovementsToBeCreated: Integer;
     begin
         // TC-IMVMT
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
 
         HeaderQtyFactor := LibraryRandom.RandIntInRange(1, 100);
@@ -1868,7 +1868,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         PartialPostFactor: Decimal;
     begin
         // TC-IMVMT
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
 
         HeaderQtyFactor := LibraryRandom.RandIntInRange(1, 100);
@@ -1902,7 +1902,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
         // TC-IMVMT
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
 
         HeaderQtyFactor := LibraryRandom.RandIntInRange(1, 100);
@@ -1943,7 +1943,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in ToBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         NotEnoughItemPostingInvtMvmt(100, 100, true);
     end;
 
@@ -1954,7 +1954,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in ToBin)
         // Test checks that correspondent error appears during partial posting
-        Initialize;
+        Initialize();
         NotEnoughItemPostingInvtMvmt(
           LibraryRandom.RandIntInRange(1, 99),
           LibraryRandom.RandIntInRange(1, 99),
@@ -1968,7 +1968,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in ToBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         NotEnoughItemPostingInvtMvmt(100, 100, false);
     end;
 
@@ -1979,7 +1979,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in ToBin
         // Test checks that no error appears during partial posting
-        Initialize;
+        Initialize();
 
         NotEnoughItemPostingInvtMvmt(
           LibraryRandom.RandIntInRange(1, 99),
@@ -1995,7 +1995,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for partial posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and posts.
-        Initialize;
+        Initialize();
         MoveNotEnoughItemInvtMvmt(LibraryRandom.RandIntInRange(1, 100),
           LibraryRandom.RandIntInRange(1, 100));
     end;
@@ -2008,7 +2008,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for full posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and fully posts.
-        Initialize;
+        Initialize();
         MoveNotEnoughItemInvtMvmt(LibraryRandom.RandIntInRange(1, 100),
           LibraryRandom.RandIntInRange(1, 100));
     end;
@@ -2024,7 +2024,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         PartialPostFactor: Decimal;
         NoOfItems: Integer;
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
 
         HeaderQtyFactor := LibraryRandom.RandIntInRange(1, 100);
@@ -2057,7 +2057,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssemblyItemNo: Code[20];
     begin
         // Test checks that inventory movement created for one assembly order can be reused for another
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
 
         HeaderQtyFactor := 100;
@@ -2108,7 +2108,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         PartialPostFactor: Decimal;
     begin
         // Test checks that inventory movement cannot be created for more then qty outstanding
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
 
         HeaderQtyFactor := LibraryRandom.RandIntInRange(1, 100);
@@ -2133,7 +2133,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         WhseActivityLine.Reset();
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
 
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
         asserterror WhseActivityLine.Validate("Qty. to Handle", QtySupplement);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_QTY_OUTST) > 0,
           'Actual:' + GetLastErrorText + ',Expected:' + MSG_QTY_OUTST);
@@ -2152,7 +2152,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPost()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2164,7 +2164,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPost()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2177,7 +2177,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostQtySupplem()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2190,7 +2190,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostQtySupplem()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2204,7 +2204,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtFullPost2Steps()
     begin
         // Test does partial posting and verifies it. Then it posts rest of the order and verifies
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2217,7 +2217,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtRecreate()
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2231,7 +2231,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in FromBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2245,7 +2245,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in FromBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2260,7 +2260,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for partial posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and posts.
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2276,7 +2276,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for full posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and fully posts.
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2291,7 +2291,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for partial posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and posts.
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -2307,7 +2307,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for full posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and fully posts.
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -2318,7 +2318,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPostNoInvtMvmt()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2332,7 +2332,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtReuseFromAnotherOrder()
     begin
         // Test checks that inventory movement created for one assembly order can be reused for another
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2344,7 +2344,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostAO()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2356,7 +2356,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostAO()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2369,7 +2369,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostQtySupplemAO()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2382,7 +2382,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostQtySupplemAO()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2396,7 +2396,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtFullPost2StepsAO()
     begin
         // Test does partial posting and verifies it. Then it posts rest of the order and verifies
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2409,7 +2409,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtRecreateAO()
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2423,7 +2423,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in FromBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2437,7 +2437,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in FromBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2452,7 +2452,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for partial posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and posts.
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2468,7 +2468,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for full posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and fully posts.
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2483,7 +2483,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for partial posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and posts.
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -2499,7 +2499,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         // There is enough item in inventory
         // Test creates inventory movement for full posting, reduces one of the quantity, registeres inventory movement and posts.
         // Then test checks inventory movement for the rest of the qty, registeres inventory movement and fully posts.
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -2510,7 +2510,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPostNoInvtMvmtAO()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         LocationToBinCode := LocationInvtMvmt."To-Assembly Bin Code";
         CreateItems(Tracking::Untracked);
@@ -2525,7 +2525,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtReuseFromAnotherOrdAO()
     begin
         // Test checks that inventory movement created for one assembly order can be reused for another
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Untracked);
 
@@ -2537,7 +2537,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2549,7 +2549,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2562,7 +2562,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostQtySupplemS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2575,7 +2575,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostQtySupplemS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2589,7 +2589,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtFullPost2StepsS()
     begin
         // Test does partial posting and verifies it. Then it posts rest of the order and verifies
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2602,7 +2602,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtRecreateS()
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2616,7 +2616,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in FromBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2630,7 +2630,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in FromBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2643,7 +2643,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPostNoInvtMvmtS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2656,7 +2656,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostPartITS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2668,7 +2668,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostAOS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2680,7 +2680,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostAOS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2693,7 +2693,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostQtySupplemAOS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2706,7 +2706,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostQtySupplemAOS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2720,7 +2720,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtFullPost2StepsAOS()
     begin
         // Test does partial posting and verifies it. Then it posts rest of the order and verifies
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2733,7 +2733,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtRecreateAOS()
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2747,7 +2747,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in FromBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2761,7 +2761,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in FromBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2774,7 +2774,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPostNoInvtMvmtAOS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         LocationToBinCode := LocationInvtMvmt."To-Assembly Bin Code";
         CreateItems(Tracking::Serial);
@@ -2788,7 +2788,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostPartITAOS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
@@ -2800,7 +2800,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2812,7 +2812,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2825,7 +2825,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostQtySupplemL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2838,7 +2838,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostQtySupplemL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2852,7 +2852,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtFullPost2StepsL()
     begin
         // Test does partial posting and verifies it. Then it posts rest of the order and verifies
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2865,7 +2865,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtRecreateL()
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2879,7 +2879,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in FromBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2893,7 +2893,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in FromBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2906,7 +2906,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPostNoInvtMvmtL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2920,7 +2920,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtReuseFromAnotherOrderL()
     begin
         // Test checks that inventory movement created for one assembly order can be reused for another
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2932,7 +2932,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostPartITL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2944,7 +2944,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostAOL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2956,7 +2956,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostAOL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2969,7 +2969,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostQtySupplemAOL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2982,7 +2982,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostQtySupplemAOL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -2996,7 +2996,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtRecreateAOL()
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -3010,7 +3010,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in FromBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -3024,7 +3024,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in FromBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -3037,7 +3037,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPostNoInvtMvmtAOL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -3051,7 +3051,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtReuseFromAnotherOrdAOL()
     begin
         // Test checks that inventory movement created for one assembly order can be reused for another
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -3063,7 +3063,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostPartITAOL()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
@@ -3075,7 +3075,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3087,7 +3087,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3100,7 +3100,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostQtySupplemLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3113,7 +3113,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostQtySupplemLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3127,7 +3127,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtFullPost2StepsLS()
     begin
         // Test does partial posting and verifies it. Then it posts rest of the order and verifies
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3140,7 +3140,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtRecreateLS()
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3154,7 +3154,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in FromBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3168,7 +3168,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in FromBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3181,7 +3181,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPostNoInvtMvmtLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3194,7 +3194,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostPartITLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3206,7 +3206,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostAOLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3218,7 +3218,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostAOLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3231,7 +3231,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostQtySupplemAOLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3244,7 +3244,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPartPostQtySupplemAOLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3258,7 +3258,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtFullPost2StepsAOLS()
     begin
         // Test does partial posting and verifies it. Then it posts rest of the order and verifies
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3271,7 +3271,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     procedure ITInvtMvmtRecreateAOLS()
     begin
         // Test creates inventory movement, deletes it, creates a new one and verifies it
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3285,7 +3285,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is enough item in inventory but there is not enough item in FromBin
         // Test checks no error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3299,7 +3299,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         // There is not enough item in inventory (there is not enough item in FromBin)
         // Test checks that correspondent error appears during full posting
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3312,7 +3312,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtPostNoInvtMvmtAOLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
@@ -3325,7 +3325,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     [Scope('OnPrem')]
     procedure ITInvtMvmtFullPostPartITAOLS()
     begin
-        Initialize;
+        Initialize();
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 

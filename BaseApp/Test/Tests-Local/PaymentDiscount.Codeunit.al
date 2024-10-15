@@ -40,7 +40,7 @@ codeunit 144001 "Payment Discount"
         CreateSalesDocInLCYWithPrepmt(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         CalcAndUpdateSalesVATOnLines(SalesHeader, SalesLine);
         ExpectedAmount := CalcSalesExpectedAmount(SalesHeader);
-        SalesLine.TestField("Prepmt. Pmt. Disc. Amount", ExpectedAmount);
+        SalesLine.TestField("Prepmt. Pmt. Discount Amount", ExpectedAmount);
     end;
 
     [Test]
@@ -57,7 +57,7 @@ codeunit 144001 "Payment Discount"
         CreatePurchDocInLCYWithPrepmt(PurchHeader, PurchLine, PurchHeader."Document Type"::Order);
         CalcAndUpdatePurchVATOnLines(PurchHeader, PurchLine);
         ExpectedAmount := CalcPurchExpectedAmount(PurchHeader);
-        PurchLine.TestField("Prepmt. Pmt. Disc. Amount", ExpectedAmount);
+        PurchLine.TestField("Prepmt. Pmt. Discount Amount", ExpectedAmount);
     end;
 
     [Test]
@@ -76,7 +76,7 @@ codeunit 144001 "Payment Discount"
         CreateSalesDocInLCYWithPrepmt(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         CalcAndUpdateSalesVATOnLines(SalesHeader, SalesLine);
         ExpectedAmount := CalcSalesExpectedAmount(SalesHeader);
-        SalesLine.TestField("Prepmt. Pmt. Disc. Amount", ExpectedAmount);
+        SalesLine.TestField("Prepmt. Pmt. Discount Amount", ExpectedAmount);
         UpdateGLSetup(GLSetup."VAT Tolerance %", GLSetup."Pmt. Disc. Excl. VAT");
     end;
 
@@ -96,7 +96,7 @@ codeunit 144001 "Payment Discount"
         CreatePurchDocInLCYWithPrepmt(PurchHeader, PurchLine, PurchHeader."Document Type"::Order);
         CalcAndUpdatePurchVATOnLines(PurchHeader, PurchLine);
         ExpectedAmount := CalcPurchExpectedAmount(PurchHeader);
-        PurchLine.TestField("Prepmt. Pmt. Disc. Amount", ExpectedAmount);
+        PurchLine.TestField("Prepmt. Pmt. Discount Amount", ExpectedAmount);
         UpdateGLSetup(GLSetup."VAT Tolerance %", GLSetup."Pmt. Disc. Excl. VAT");
     end;
 
@@ -114,8 +114,8 @@ codeunit 144001 "Payment Discount"
         CreateSalesDocInLCYWithPrepmt(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         CalcAndUpdateSalesVATOnLines(SalesHeader, SalesLine);
         SalesPostPrepayments.FillInvLineBuffer(SalesHeader, SalesLine, PrepmtInvBuf);
-        SalesLine.TestField("Prepmt. Pmt. Disc. Amount");
-        PrepmtInvBuf.TestField("Original Pmt. Disc. Possible", SalesLine."Prepmt. Pmt. Disc. Amount");
+        SalesLine.TestField("Prepmt. Pmt. Discount Amount");
+        PrepmtInvBuf.TestField("Orig. Pmt. Disc. Possible", SalesLine."Prepmt. Pmt. Discount Amount");
     end;
 
     [Test]
@@ -132,8 +132,8 @@ codeunit 144001 "Payment Discount"
         CreatePurchDocInLCYWithPrepmt(PurchHeader, PurchLine, PurchHeader."Document Type"::Order);
         CalcAndUpdatePurchVATOnLines(PurchHeader, PurchLine);
         PurchPostPrepayments.FillInvLineBuffer(PurchHeader, PurchLine, PrepmtInvBuf);
-        PurchLine.TestField("Prepmt. Pmt. Disc. Amount");
-        PrepmtInvBuf.TestField("Original Pmt. Disc. Possible", PurchLine."Prepmt. Pmt. Disc. Amount");
+        PurchLine.TestField("Prepmt. Pmt. Discount Amount");
+        PrepmtInvBuf.TestField("Orig. Pmt. Disc. Possible", PurchLine."Prepmt. Pmt. Discount Amount");
     end;
 
     [Test]
@@ -236,7 +236,7 @@ codeunit 144001 "Payment Discount"
         InvNo := PostSOPrepaymentInvoice(SalesHeader);
         VerifyPmtDiscOnCustLedgEntry(SalesHeader."Bill-to Customer No.", InvNo, ExpectedAmount);
         PrepaymentSalesInvLine.SetRange("Document No.", InvNo);
-        PrepaymentSalesInvLine.FindFirst;
+        PrepaymentSalesInvLine.FindFirst();
         PrepaymentSalesInvLine.TestField("Shipment Date", SalesLine."Shipment Date");
         PrepaymentSalesInvLine.TestField("Responsibility Center", SalesLine."Responsibility Center");
     end;
@@ -551,7 +551,7 @@ codeunit 144001 "Payment Discount"
           Round(GetServVATBase(ServHeader) * (1 - ServHeader."Payment Discount %" / 100), LibraryERM.GetAmountRoundingPrecision);
         LibraryService.PostServiceOrder(ServHeader, true, false, true);
         ServiceInvoiceHeader.SetFilter("Order No.", ServHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         // [WHEN] Open Posted Service Invoice Statistics
         ServiceInvoiceStatistics.Trap;
@@ -789,7 +789,7 @@ codeunit 144001 "Payment Discount"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust);
         SalesHeader."Shipment Date" := WorkDate;
-        SalesHeader."Responsibility Center" := LibraryUtility.GenerateGUID;
+        SalesHeader."Responsibility Center" := LibraryUtility.GenerateGUID();
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader);
@@ -1091,7 +1091,7 @@ codeunit 144001 "Payment Discount"
         ServInvHeader: Record "Service Invoice Header";
     begin
         ServInvHeader.SetRange("Order No.", ServDocNo);
-        ServInvHeader.FindLast;
+        ServInvHeader.FindLast();
         exit(ServInvHeader."No.");
     end;
 
@@ -1117,7 +1117,7 @@ codeunit 144001 "Payment Discount"
             SetRange("Bill-to Customer No.", CustNo);
             SetRange("Prepayment Invoice", true);
             SetRange("Prepayment Order No.", OrderNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -1130,7 +1130,7 @@ codeunit 144001 "Payment Discount"
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange("Prepayment Invoice", true);
             SetRange("Prepayment Order No.", OrderNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -1178,8 +1178,8 @@ codeunit 144001 "Payment Discount"
         with CustLedgEntry do begin
             SetRange("Customer No.", CustNo);
             SetRange("Document No.", DocNo);
-            FindFirst;
-            TestField("Org. Pmt. Disc. Possible (LCY)", ExpectedAmount);
+            FindFirst();
+            TestField("Orig. Pmt. Disc. Possible(LCY)", ExpectedAmount);
         end;
     end;
 
@@ -1226,8 +1226,8 @@ codeunit 144001 "Payment Discount"
         with VendLedgEntry do begin
             SetRange("Vendor No.", VendNo);
             SetRange("Document No.", DocNo);
-            FindFirst;
-            TestField("Org. Pmt. Disc. Possible (LCY)", ExpectedAmount);
+            FindFirst();
+            TestField("Orig. Pmt. Disc. Possible(LCY)", ExpectedAmount);
         end;
     end;
 
@@ -1238,7 +1238,7 @@ codeunit 144001 "Payment Discount"
         with CustLedgEntry do begin
             SetRange("Customer No.", CustNo);
             SetRange("Document No.", DocNo);
-            FindLast;
+            FindLast();
             Assert.AreEqual(
               ExpectedAmount, "Original Pmt. Disc. Possible",
               StrSubstNo(WrongFieldValueErr, FieldCaption("Original Pmt. Disc. Possible"), TableCaption));
@@ -1252,7 +1252,7 @@ codeunit 144001 "Payment Discount"
         with VendLedgEntry do begin
             SetRange("Vendor No.", CustNo);
             SetRange("Document No.", DocNo);
-            FindLast;
+            FindLast();
             Assert.AreEqual(
               ExpectedAmount, "Original Pmt. Disc. Possible",
               StrSubstNo(WrongFieldValueErr, FieldCaption("Original Pmt. Disc. Possible"), TableCaption));
@@ -1264,7 +1264,7 @@ codeunit 144001 "Payment Discount"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoLine.SetRange("Document No.", CrMemoNo);
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         SalesCrMemoLine.TestField("Shipment Date", ShipmentDate);
         SalesCrMemoLine.TestField("Responsibility Center", ResponsibilityCenter);
     end;
@@ -1275,7 +1275,7 @@ codeunit 144001 "Payment Discount"
     begin
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.SetRange("Document No.", DocNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Base Before Pmt. Disc.", Amount);
     end;
 }

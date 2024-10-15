@@ -136,7 +136,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Breakbulks should not result in rounding residuals
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         // 1. Create an item with multiple UOMs for receiving, ship, and put-away
@@ -175,7 +175,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Breakbulks should not result in rounding residuals
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, '', 3.33333, 7);
@@ -210,7 +210,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // no quantity remains in both item ledger and warehouse entries.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -272,7 +272,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Pick correctly when using Multiple UOM with Item Tracking with item tracking
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, CreateItemTrackingCode, 54, 0);
@@ -307,7 +307,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Pick correctly when using Multiple UOM with Item Tracking with Pick according to FEFO
 
         // Setup
-        Initialize;
+        Initialize();
 
         UpdateItemInventoryOnWMSLocationSplitByLotNo(Item, Location, true, 54);
 
@@ -332,7 +332,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Pick correctly when using Multiple UOM with Item Tracking with item tracking
 
         // Setup
-        Initialize;
+        Initialize();
 
         UpdateItemInventoryOnWMSLocationSplitByLotNo(Item, Location, false, 54);
 
@@ -357,7 +357,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Pick correctly when using Multiple UOM without item tracking
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -401,7 +401,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Pick correctly when using Multiple UOM
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -446,7 +446,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Pick correctly when using Multiple UOM with Item Tracking with Pick according to FEFO
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, true);
 
         CreateItemWithPurchSaleAndPutAwayUnitOfMeasure(Item, CreateItemTrackingCode, 54, 0);
@@ -485,7 +485,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Breakbulk conversions should not cause rounding residuals when lot tracking is used
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateLotSpecificItemTrackingCode(ItemTrackingCode, true, false, false);
@@ -520,7 +520,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Breakbulk conversions should not cause rounding residuals without item tracking
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -564,7 +564,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possible to consume an item in SILVER when UOM <> BaseUOM
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
 
         LibraryInventory.CreateItem(ChildItem);
@@ -585,7 +585,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryPatterns.MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, ChildItem, WorkDate, Location.Code, '', 1, 0);
         ItemJnlLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJnlLine.FindFirst;
+        ItemJnlLine.FindFirst();
         ItemJnlLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
         ItemJnlLine.Validate("Bin Code", Bin.Code);
         ItemJnlLine.Modify(true);
@@ -614,7 +614,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Warehouse Physical Inventory should not cause rounding residuals
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateLotSpecificItemTrackingCode(ItemTrackingCode, true, true, false);
@@ -622,8 +622,8 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Item.Validate("Purch. Unit of Measure", CreateItemUnitOfMeasureCode(Item."No.", 30));
         Item.Modify(true);
 
-        LotNos[1] := LibraryUtility.GenerateGUID;
-        LotNos[2] := LibraryUtility.GenerateGUID;
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", 1, Location.Code);
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignMultipleLotNos);
@@ -671,7 +671,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Warehouse Adjustments should be calculated correctly when using multipleUOM and Item Tracking
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, true);
 
         CreateLotSpecificItemTrackingCode(ItemTrackingCode, true, true, true);
@@ -694,7 +694,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // Exercise
         LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         VerifyWhseUOMQty(Item."No.", Location.Code, Item."Base Unit of Measure", 0, 0, 0);
@@ -720,7 +720,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Picks should not cause rounding residuals
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateLotSpecificItemTrackingCode(ItemTrackingCode, true, false, false);
@@ -730,7 +730,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Item.Validate("Sales Unit of Measure", Item."Purch. Unit of Measure");
         Item.Modify(true);
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 1, Location.Code, LotNo);
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
@@ -761,7 +761,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possible to post a put-away for a Sales return order
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -824,7 +824,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Quantity (Base) in warehouse activity lines should be recorded correctly
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -832,7 +832,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         with BinContent do begin
             SetRange("Item No.", Item."No.");
-            FindFirst;
+            FindFirst();
             Validate(Fixed, true);
             Validate("Min. Qty.", 96);
             Validate("Max. Qty.", 192);
@@ -871,14 +871,14 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateLotTrackedItemWithPurchUnitOfMeasure(Item, 10);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 2, Location.Code, LibraryUtility.GenerateGUID);
-        CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 4, Location.Code, LibraryUtility.GenerateGUID);
+        CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 2, Location.Code, LibraryUtility.GenerateGUID());
+        CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 4, Location.Code, LibraryUtility.GenerateGUID());
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
 
         // Exercise
@@ -912,13 +912,13 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] The Create movement function should create a Warehouse Movement document with the correct Quantities
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateLotTrackedItemWithPurchUnitOfMeasure(Item, 10);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 10, Location.Code, LibraryUtility.GenerateGUID);
+        CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 10, Location.Code, LibraryUtility.GenerateGUID());
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
 
         // Exercise
@@ -946,7 +946,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             Bin[1].SetRange("Location Code", Location.Code);
             Bin[1].SetRange("Zone Code", "Zone Code");
             Bin[1].SetFilter(Code, '<>%1', "Bin Code");
-            Bin[1].FindFirst;
+            Bin[1].FindFirst();
 
             Next;
             Assert.AreEqual(10, Quantity, '');
@@ -971,7 +971,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possible to create breakbulk picks for lot-tracked items with multiple UOMs.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateLotSpecificItemTrackingCode(ItemTrackingCode, true, false, false);
@@ -1056,12 +1056,12 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // It should be possible to register a pick, even when breakbulk lines are displayed
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         for CurrLineNo := 1 to 10 do
-            CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 10, Location.Code, LibraryUtility.GenerateGUID);
+            CreatePurchaseLineWithLotTracking(PurchaseLine, PurchaseHeader, Item."No.", 10, Location.Code, LibraryUtility.GenerateGUID());
 
         PostWhseReceiptAndPutAwayFromPurchOrder(PurchaseHeader);
 
@@ -1090,7 +1090,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possible to change the quantity on consumption journal to <= the quantity of the pick/picked created.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateFullWMSLocation(Location, false);
         LibraryInventory.CreateItem(CompItem);
@@ -1123,7 +1123,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possible to change the quantity on consumption journal to <= the quantity of the pick/picked created.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateFullWMSLocation(Location, false);
         LibraryInventory.CreateItem(CompItem);
@@ -1164,7 +1164,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] Bin contents should be created when a warehouse movement is posted
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
         LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType);
         Bin[2].Validate("Bin Ranking", 10000);
@@ -1199,7 +1199,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryWarehouse.CreateWhseMovement(WhseWkshLine.Name, WhseWkshLine."Location Code", "Whse. Activity Sorting Method"::None, false, false);
 
         WarehouseActivityLine.SetRange("Item No.", Item."No.");
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
 
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -1242,7 +1242,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] When a Bin contains the same item stored in several units of measure, the picking suggested might have a wrong quantity
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -1281,13 +1281,13 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [WHEN] Now put multiple UOMs of the same Item in same Bin
         with WhseActivLine do begin
             SetRange("Item No.", Item."No.");
-            FindLast;
+            FindLast();
             Validate("Qty. to Handle", 1);
             Modify(true);
 
             TempWhseActivLine := WhseActivLine;
             SplitLine(WhseActivLine);
-            FindLast;
+            FindLast();
             Validate("Zone Code", TempWhseActivLine."Zone Code");
             Validate("Bin Code", TempWhseActivLine."Bin Code");
             Modify(true);
@@ -1302,7 +1302,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
             TempWhseActivLine := WhseActivLine;
             SplitLine(WhseActivLine);
-            FindLast;
+            FindLast();
             Validate("Zone Code", FindLocationPickZone("Location Code"));
             Validate("Bin Code", Bin.Code);
             Validate("Qty. to Handle", 74);
@@ -1342,7 +1342,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possibe to create put-aways as long the BaseQuantity is an integers for items with Item Tracking
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         CreateSNSpecificItemTrackingCode(ItemTrackingCode, false, false, false);
@@ -1394,7 +1394,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         with WhseRcptLine do begin
             SetRange("No.", WhseRcptHeader."No.");
-            FindFirst;
+            FindFirst();
             asserterror Validate("Qty. to Receive", 0.5);
             AssertRunTime('integer', 'It should not be possible to receive ratios of items that are serial nos. tracked');
         end;
@@ -1419,7 +1419,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possible to Breakbulk from smaller UOM to Larger
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -1441,7 +1441,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
           WhsePickRequest."Document Type"::Shipment, 0, WhseShptHeader."No.", Location.Code);
 
         LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, WhseWorksheetName.Name);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
           Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
@@ -1467,7 +1467,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possible to Breakbulk Pick from Smaller to Larger UOM's
 
         // Setup
-        Initialize;
+        Initialize();
         CreateFullWMSLocation(Location, false);
 
         LibraryInventory.CreateItem(Item);
@@ -1510,7 +1510,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO] It should be possible to receive an item even when other open orders for the same Item exist that use serial nos.
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSNSpecificItemTrackingCode(ItemTrackingCode, false, false, false);
         LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
@@ -1580,7 +1580,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [SCENARIO 327742] Warehouse Adjustments should be calculated correctly when using multipleUOM and Item Tracking
 
         // Setup
-        Initialize;
+        Initialize();
 
         CreateFullWMSLocation(Location, true);
         Location.Validate("Always Create Pick Line", true);
@@ -1597,7 +1597,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType);
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
         LibraryWarehouse.SelectWhseJournalBatchName(
           WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, WarehouseJournalTemplate.Name, Location.Code);
@@ -1613,7 +1613,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         VerifyWhseUOMQty(Item."No.", Location.Code, Item."Base Unit of Measure", 0, 0, 0);
@@ -1824,7 +1824,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [FEATURE] [Physical Inventory]
         // [SCENARIO] Changing the value of "Qty. (Phys. Inventory)" in warehouse journal line should update fields "Quantity" and "Quantity (Base)"
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         CreateFullWMSLocation(Location, false);
@@ -1854,7 +1854,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [FEATURE] [Physical Inventory]
         // [SCENARIO] When updating the quantity for physical inventory in the wareheouse journal, "Qty. (Calculated)" shoud be considered
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         CreateFullWMSLocation(Location, false);
@@ -1890,7 +1890,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         // [FEATURE] [Physical Inventory]
         // [SCENARIO] When updating the quantity for physical inventory in the wareheouse journal, all quantities should be counted in the unit of measure stated in the journal line
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(10, 20));
@@ -1924,9 +1924,9 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM WMS Item Unit of Measure");
 
         LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
 
         Initialized := true;
@@ -2156,7 +2156,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         with AssemblyHeader do begin
             Init;
             "Document Type" := "Document Type"::Quote;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Item No." := ItemNo;
             "Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
             "Unit of Measure Code" := UOMCode;
@@ -2171,7 +2171,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         with AssemblyLine do begin
             Init;
             "Document Type" := "Document Type"::Quote;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Line No." := 10000;
             Type := Type::Item;
             "No." := ItemNo;
@@ -2317,7 +2317,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     begin
         with TransferLine do begin
             Init;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Line No." := 10000;
             "Item No." := ItemNo;
             "Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
@@ -2349,7 +2349,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     begin
         with ProdOrderLine do begin
             Init;
-            "Prod. Order No." := LibraryUtility.GenerateGUID;
+            "Prod. Order No." := LibraryUtility.GenerateGUID();
             "Line No." := 10000;
             "Item No." := ItemNo;
             "Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
@@ -2364,7 +2364,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     begin
         with ProdOrderComponent do begin
             Init;
-            "Prod. Order No." := LibraryUtility.GenerateGUID;
+            "Prod. Order No." := LibraryUtility.GenerateGUID();
             "Prod. Order Line No." := 10000;
             "Line No." := 10000;
             "Item No." := ItemNo;
@@ -2381,7 +2381,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         with ServiceLine do begin
             Init;
             "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Line No." := 10000;
             Type := Type::Item;
             "No." := ItemNo;
@@ -2425,7 +2425,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WhseItemTrackingLine.SetRange("Source ID", WarehouseJournalLine."Journal Batch Name");
         WhseItemTrackingLine.SetRange("Source Batch Name", WarehouseJournalLine."Journal Template Name");
         WhseItemTrackingLine.SetRange("Source Ref. No.", WarehouseJournalLine."Line No.");
-        WhseItemTrackingLine.FindFirst;
+        WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.Validate("Expiration Date", ExpirationDate);
         WhseItemTrackingLine.Modify(true);
     end;
@@ -2459,7 +2459,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         EntryNo: Integer;
     begin
         with WarehouseEntry do begin
-            FindLast;
+            FindLast();
             EntryNo := "Entry No." + 1;
             Init;
             "Entry No." := EntryNo;
@@ -2494,7 +2494,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderStatus);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindWhseActivity(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20])
@@ -2553,7 +2553,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         with PurchaseLine do begin
             Init;
             "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Line No." := 10000;
             Type := Type::Item;
             "No." := ItemNo;
@@ -2570,7 +2570,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         with SalesLine do begin
             Init;
             "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Line No." := 10000;
             Type := Type::Item;
             "No." := ItemNo;
@@ -2656,7 +2656,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             SetRange("Journal Batch Name", JnlBatchName);
             SetRange("Location Code", LocationCode);
             SetRange("Lot No.", LotNo);
-            FindFirst;
+            FindFirst();
             Validate("Qty. (Phys. Inventory)", NewPhysInvQty);
             Modify(true);
         end;

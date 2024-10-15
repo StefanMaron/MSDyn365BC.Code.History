@@ -16,7 +16,7 @@ codeunit 764 "Aged Acc. Payable"
         NoOfPeriods: Integer;
     begin
         with BusChartBuf do begin
-            Initialize;
+            Initialize();
             SetXAxis(OverDueText, "Data Type"::String);
             AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
 
@@ -25,7 +25,7 @@ codeunit 764 "Aged Acc. Payable"
               "Period Filter Start Date", PeriodLength, NoOfPeriods,
               TempEntryNoAmountBuf);
 
-            if TempEntryNoAmountBuf.FindSet then
+            if TempEntryNoAmountBuf.FindSet() then
                 repeat
                     PeriodIndex := TempEntryNoAmountBuf."Entry No.";
                     AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
@@ -42,7 +42,7 @@ codeunit 764 "Aged Acc. Payable"
         NoOfPeriods: Integer;
     begin
         with BusChartBuf do begin
-            Initialize;
+            Initialize();
             SetXAxis(OverDueText, "Data Type"::String);
             AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
 
@@ -51,7 +51,7 @@ codeunit 764 "Aged Acc. Payable"
               VendorNo, '', "Period Filter Start Date", PeriodLength, NoOfPeriods,
               TempEntryNoAmountBuf);
 
-            if TempEntryNoAmountBuf.FindSet then
+            if TempEntryNoAmountBuf.FindSet() then
                 repeat
                     PeriodIndex := TempEntryNoAmountBuf."Entry No.";
                     AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
@@ -77,7 +77,7 @@ codeunit 764 "Aged Acc. Payable"
             VendLedgEntry.SetFilter(
               "Due Date",
               DateFilterByAge(Index, StartDate, PeriodLength, NoOfPeriods, EndDate));
-            if VendLedgEntry.FindSet then
+            if VendLedgEntry.FindSet() then
                 repeat
                     RemainingAmountLCY += VendLedgEntry."Remaining Amt. (LCY)";
                 until VendLedgEntry.Next() = 0;

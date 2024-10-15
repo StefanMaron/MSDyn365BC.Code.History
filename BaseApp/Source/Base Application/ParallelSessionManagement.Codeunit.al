@@ -40,7 +40,7 @@ codeunit 490 "Parallel Session Management"
             for TempIntegerFreeMemMapFile.Number := 1 to ArrayLen(MemoryMappedFile) do
                 TempIntegerFreeMemMapFile.Insert();
 
-        if not TempIntegerFreeMemMapFile.FindFirst then
+        if not TempIntegerFreeMemMapFile.FindFirst() then
             exit(false);
 
         TempParallelSessionEntry."File Exists" := true;
@@ -126,7 +126,7 @@ codeunit 490 "Parallel Session Management"
 
         TempParallelSessionEntry.Reset();
         TempParallelSessionEntry.SetRange(Processed, false);
-        if TempParallelSessionEntry.FindSet then
+        if TempParallelSessionEntry.FindSet() then
             repeat
                 TempInteger.Init();
                 StartSession(TempInteger.Number, TempParallelSessionEntry."Object ID to Run", CompanyName, TempParallelSessionEntry);
@@ -151,13 +151,13 @@ codeunit 490 "Parallel Session Management"
         MemMappedFileFound: Boolean;
     begin
         TempParallelSessionEntry.Reset();
-        if TempInteger.FindSet then
+        if TempInteger.FindSet() then
             repeat
                 if not ActiveSession.Get(ServiceInstanceId, TempInteger.Number) then begin
                     TempInteger.Delete();
                     NoOfActiveSessions -= 1;
                     TempParallelSessionEntry.SetRange("Session ID", TempInteger.Number);
-                    if TempParallelSessionEntry.FindFirst then begin
+                    if TempParallelSessionEntry.FindFirst() then begin
                         if TempParallelSessionEntry."File Exists" then begin
                             i := 1;
                             MemMappedFileFound := false;

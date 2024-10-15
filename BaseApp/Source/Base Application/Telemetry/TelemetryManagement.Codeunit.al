@@ -18,7 +18,7 @@ codeunit 1350 "Telemetry Management"
 #endif
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure ScheduleDailyTelemetryAfterCompanyOpen()
     var
         JobQueueEntry: Record "Job Queue Entry";

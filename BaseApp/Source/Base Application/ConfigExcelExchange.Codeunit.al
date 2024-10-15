@@ -1,4 +1,4 @@
-﻿codeunit 8618 "Config. Excel Exchange"
+codeunit 8618 "Config. Excel Exchange"
 {
 
     trigger OnRun()
@@ -36,7 +36,6 @@
         ExcelFileNameTok: Label '*%1.xlsx', Comment = '%1 = String generated from current datetime to make sure file names are unique ';
         ExcelFileExtensionTok: Label '.xlsx';
         InvalidDataInSheetMsg: Label 'Data in sheet ''%1'' could not be imported, because the sheet has an unexpected format.', Comment = '%1=excel sheet name';
-        ExportFromExcelMsg: Label 'Export from Excel';
         ImportFromExcelMsg: Label 'Import from Excel';
         RapidStartTxt: Label 'RapidStart', Locked = true;
         FileOnServer: Boolean;
@@ -48,14 +47,14 @@
         FileName: Text;
         "Filter": Text;
     begin
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         ConfigPackageTable.SetRange("Package Code", ConfigLine."Package Code");
         Filter := ConfigMgt.MakeTableFilter(ConfigLine, true);
         if Filter <> '' then
             ConfigPackageTable.SetFilter("Table ID", Filter);
 
         ConfigPackageTable.SetRange("Dimensions as Columns", true);
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 if not (ConfigPackageTable.DimensionPackageDataExist or (ConfigPackageTable.DimensionFieldsCount > 0)) then
                     ConfigPackageTable.InitDimensionFields;
@@ -136,7 +135,7 @@
 
         DataTable := DataSet.Tables.Item(1);
 
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 if IsNull(StringBld) then begin
                     StringBld := StringBld.StringBuilder;
@@ -250,7 +249,7 @@
     [Scope('OnPrem')]
     procedure SetSelectedTables(var ConfigPackageTable: Record "Config. Package Table")
     begin
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 SelectedTable.Number := ConfigPackageTable."Table ID";
                 if SelectedTable.Insert() then;
@@ -572,7 +571,7 @@
 
         RecRef.Open(ConfigPackageTable."Table ID");
         ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
-        if ConfigPackageField.FindSet then begin
+        if ConfigPackageField.FindSet() then begin
             ColumnID := 1;
             repeat
                 if TypeHelper.GetField(ConfigPackageField."Table ID", ConfigPackageField."Field ID", Field) or

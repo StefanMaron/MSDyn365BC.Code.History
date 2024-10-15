@@ -105,6 +105,10 @@ table 271 "Bank Account Ledger Entry"
         {
             Caption = 'Closed at Date';
         }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(49; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
@@ -284,6 +288,14 @@ table 271 "Bank Account Ledger Entry"
         {
             Caption = 'Journal Template Name';
             TableRelation = "Gen. Journal Template";
+            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
     }
 
@@ -354,15 +366,16 @@ table 271 "Bank Account Ledger Entry"
         "Dimension Set ID" := GenJnlLine."Dimension Set ID";
         "Our Contact Code" := GenJnlLine."Salespers./Purch. Code";
         "Source Code" := GenJnlLine."Source Code";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "Reason Code" := GenJnlLine."Reason Code";
         "Currency Code" := GenJnlLine."Currency Code";
         "User ID" := UserId;
         "Bal. Account Type" := GenJnlLine."Bal. Account Type";
         "Bal. Account No." := GenJnlLine."Bal. Account No.";
-        "Journal Template Name" := GenJnlLine."Journal Template Name";
         if GenJnlLine."Linked Table ID" <> 0 then
             SetBankAccReconciliationLine(GenJnlLine);
+
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
     end;
 

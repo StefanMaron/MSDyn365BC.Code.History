@@ -38,7 +38,7 @@ report 11303 "Centralization Ledger"
             }
             dataitem("G/L Entry"; "G/L Entry")
             {
-                DataItemTableView = SORTING("Journal Template Name", "Posting Date", "Document No.");
+                DataItemTableView = SORTING("Journal Templ. Name", "Posting Date", "Document No.");
                 column(ReportFilter_GLEntry; ReportFilter)
                 {
                 }
@@ -48,7 +48,7 @@ report 11303 "Centralization Ledger"
                 column(PrintDetail; PrintDetail)
                 {
                 }
-                column(JnlTempName; StrSubstNo(Text11302, FieldCaption("Journal Template Name"), "Journal Template Name"))
+                column(JnlTempName; StrSubstNo(Text11302, FieldCaption("Journal Templ. Name"), "Journal Templ. Name"))
                 {
                 }
                 column(TotalDebit; TotalDebit)
@@ -132,14 +132,14 @@ report 11303 "Centralization Ledger"
                 column(EntryNo_GLEntry; "Entry No.")
                 {
                 }
-                column(JnlTempName_GLEntry; "Journal Template Name")
+                column(JnlTempName_GLEntry; "Journal Templ. Name")
                 {
                 }
                 dataitem("G/L Entry2"; "G/L Entry")
                 {
-                    DataItemLink = "Journal Template Name" = FIELD("Journal Template Name");
+                    DataItemLink = "Journal Templ. Name" = FIELD("Journal Templ. Name");
                     DataItemLinkReference = "G/L Entry";
-                    DataItemTableView = SORTING("Journal Template Name", "G/L Account No.", "Posting Date", "Document Type");
+                    DataItemTableView = SORTING("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
                     column(AddCurrCreditAmt_GLEntry2; "Add.-Currency Credit Amount")
                     {
                         AutoFormatExpression = GetCurrencyCode();
@@ -165,7 +165,7 @@ report 11303 "Centralization Ledger"
                     column(EntryNo_GLEntry2; "Entry No.")
                     {
                     }
-                    column(JnlTempName_GLEntry2; "Journal Template Name")
+                    column(JnlTempName_GLEntry2; "Journal Templ. Name")
                     {
                     }
 
@@ -179,7 +179,7 @@ report 11303 "Centralization Ledger"
                         if PrintDetail then
                             TotalMessage := 'Total'
                         else
-                            TotalMessage := "Journal Template Name";
+                            TotalMessage := "Journal Templ. Name";
 
                         GrTotalDebit := GrTotalDebit + "Debit Amount";
                         GrTotalCredit := GrTotalCredit + "Credit Amount";
@@ -195,7 +195,7 @@ report 11303 "Centralization Ledger"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if OldName <> "Journal Template Name" then begin
+                    if OldName <> "Journal Templ. Name" then begin
                         TotalDebit := 0;
                         TotalCredit := 0;
                         TotalAddCurrDebit := 0;
@@ -207,10 +207,10 @@ report 11303 "Centralization Ledger"
                     TotalAddCurrDebit := TotalAddCurrDebit + "Add.-Currency Debit Amount";
                     TotalAddCurrCredit := TotalAddCurrCredit + "Add.-Currency Credit Amount";
 
-                    if OldName = "Journal Template Name" then
+                    if OldName = "Journal Templ. Name" then
                         CurrReport.Skip();
 
-                    OldName := "Journal Template Name";
+                    OldName := "Journal Templ. Name";
                 end;
 
                 trigger OnPreDataItem()

@@ -48,7 +48,7 @@ table 1702 "Deferral Line"
                 if IsHandled then
                     exit;
 
-                if GenJnlCheckLine.DateNotAllowed("Posting Date", "Gen. Jnl. Template Name") then
+                if DeferralUtilities.IsDateNotAllowed("Posting Date") then
                     Error(InvalidPostingDateErr, "Posting Date");
 
                 if AccountingPeriod.IsEmpty() then
@@ -115,8 +115,8 @@ table 1702 "Deferral Line"
 
     var
         DeferralHeader: Record "Deferral Header";
-        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
-        InvalidPostingDateErr: Label '%1 is not within the range of posting dates for your company.', Comment = '%1=The date passed in for the posting date.';
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        InvalidPostingDateErr: Label '%1 is not within the range of posting dates for deferrals for your company. Check the user setup for the allowed deferrals posting dates.', Comment = '%1=The date passed in for the posting date.';
         DeferSchedOutOfBoundsErr: Label 'The deferral schedule falls outside the accounting periods that have been set up for the company.';
         InvalidDeferralLineDateErr: Label 'The posting date for this deferral schedule line is not valid.';
         ZeroAmountToDeferErr: Label 'The deferral amount cannot be 0.';

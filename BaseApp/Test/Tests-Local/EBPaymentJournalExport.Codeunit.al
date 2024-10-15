@@ -79,7 +79,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -122,7 +122,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -169,7 +169,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -236,7 +236,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -271,7 +271,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -314,7 +314,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -359,7 +359,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -403,7 +403,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -444,7 +444,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -484,7 +484,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -517,7 +517,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -551,7 +551,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -584,7 +584,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -626,7 +626,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -677,7 +677,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -722,7 +722,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -777,7 +777,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -816,7 +816,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -853,7 +853,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -890,7 +890,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -928,7 +928,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -966,7 +966,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -1005,7 +1005,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -1045,7 +1045,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorNo: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -1085,7 +1085,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -1119,7 +1119,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol: Code[20];
         Swift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -1159,7 +1159,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [SCENARIO] Country's "ISO Code" is in exported XML file.
 
         // [GIVEN] Create setup and post Purchase Invoice for two Vendors.
-        Initialize;
+        Initialize();
         CountryCode := FindCountryRegionISO(ISOCountryCode);
         ExportProtocol := CreateSEPAExportProtocol(true);
         VendorSwift := GenerateBankAccSwiftCode;
@@ -1195,7 +1195,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Swift: Code[20];
         VendorSwift: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -1238,7 +1238,7 @@ codeunit 144008 "EB - Payment Journal Export"
         InvAmount1: Decimal;
         InvAmount2: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Preparation: create settings
         CountryCode := FindCountryRegion;
@@ -1285,7 +1285,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [SCENARIO] Non-Euro Country's "ISO Code" is in exported XML file.
 
         // [GIVEN] Create setup and post Purchase Invoice for two Vendors.
-        Initialize;
+        Initialize();
         CountryCode := FindCountryRegionISO(ISOCountryCode);
         ExportProtocol := CreateSEPAExportProtocol(false);
         VendorSwift := GenerateBankAccSwiftCode;
@@ -1323,7 +1323,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // Verify Purchase invoices and Credit Memo should be closed after posting General Journal with "Export Payment Lines"
 
         // [GIVEN] Create a new Export Protocol and Vendor, post Purchase Invoice for Vendor.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorForExportSuggestedPayment(CountryCode, ExportProtocol);
 
         // Create a Puchase Invoice and Purchase Credit Memo
@@ -1363,7 +1363,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 375473] Result of EB Payment Journal entries check should not depend on sorting by "Separate Line" (1st line has "Separate Line" TRUE)
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prerequisites for Payment Journal Lines creation: Payment Journal Template and Batch, Country Code, Export protocol, Vendor created
         CreatePaymentJnlBatch(PaymJournalBatch);
@@ -1418,7 +1418,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 375473] Result of EB Payment Journal entries check should not depend on sorting by "Separate Line" (1st Payment Line has "Separate Line" FALSE)
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prerequisites for Payment Journal Lines creation: Payment Journal Template and Batch, Country Code, Export protocol, Vendor created
         CreatePaymentJnlBatch(PaymJournalBatch);
@@ -1475,7 +1475,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Amounts: array[3] of Decimal;
     begin
         // [SCENARIO 379902] Export several payments after modifying one line amount in case of "Post General Journal Lines" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three purchase invoices, each with Amount = 1000.
         CreatePostThreePurchaseInvoices(VendorNo, CountryCode, ExportProtocol, Amounts);
@@ -1514,7 +1514,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Amounts: array[3] of Decimal;
     begin
         // [SCENARIO 379902] Export several payments after modifying one line amount in case of "Post General Journal Lines" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three purchase invoices, each with Amount = 1000.
         CreatePostThreePurchaseInvoices(VendorNo, CountryCode, ExportProtocol, Amounts);
@@ -1548,7 +1548,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [SEPA] [Purchase]
         // [SCENARIO 382058] File SEPA Payments export should generate an error when vendor is blocked
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal Line for blocked Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -1574,7 +1574,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [SEPA] [Sales]
         // [SCENARIO 382058] File SEPA Payments export should generate an error when customer is blocked
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal Line for blocked Customer
         LibrarySales.CreateCustomer(Customer);
@@ -1600,7 +1600,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [SEPA] [Purchase]
         // [SCENARIO 382058] File SEPA Payments export should generate an error when vendor is blocked
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal Line for blocked Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -1626,7 +1626,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [SEPA] [Sales]
         // [SCENARIO 382058] File SEPA Payments export should generate an error when customer is blocked
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal Line for blocked Customer
         LibrarySales.CreateCustomer(Customer);
@@ -1656,7 +1656,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [SEPA] [Export] [Purchase] [Suggest Vendor Payments]
         // [SCENARIO 211167] Fields "Bal. Account Type" and "Bal. Account No." of Vendor Ledger Entry should be blank after exporting payments with automatic posting
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PostPurchaseInvoice(CountryCode, ExportProtocol, VendorNo, true);
@@ -1674,7 +1674,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // [THEN] "Gen. Journal Line"."Bal. Account No." = ''
         FilterVendorLedgerEntry(VendorLedgerEntry, VendorNo, VendorLedgerEntry."Document Type"::Payment);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Bal. Account No.", '');
 
         // [THEN] "Gen. Journal Line"."Bal. Account Type" = "G/L Account"
@@ -1695,7 +1695,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [SEPA] [Export] [Purchase] [Suggest Vendor Payments]
         // [SCENARIO 211167] Fields "Bal. Account Type" and "Bal. Account No." of Gen. Journal Line should be empty after exporting payments without automatic posting
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PostPurchaseInvoice(CountryCode, ExportProtocol, VendorNo, true);
@@ -1713,7 +1713,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // [THEN] "Gen. Journal Line"."Bal. Account No." = ''
         FilterGenJnlLine(GenJournalLine, VendorNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Bal. Account No.", '');
 
         // [THEN] "Gen. Journal Line"."Bal. Account Type" = ''
@@ -1736,7 +1736,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [Export] [Purchase] [Sales]
         // [SCENARIO 221119] Exporting of Payment Journal create correct Gen. Journal Lines if Payment Lines have different "Account Type" and same "Account No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with No. = "CVNo"
         // [GIVEN] Vendor Bank Account with "Code" = "CVBACode" and "Bank Account No." = "BA"
@@ -1791,7 +1791,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [Export] [Purchase] [UT]
         // [SCENARIO 288144] PmtTpInf tag and InstrPrty tag with NORM value are included in Payment Export file
-        Initialize;
+        Initialize();
 
         CountryCode := FindCountryRegion;
         ExportProtocol := CreateSEPAExportProtocol(false);
@@ -1824,7 +1824,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         // [FEATURE] [Export] [Purchase] [UT]
         // [SCENARIO 288144] PmtTpInf tag and InstrPrty tag with HIGH value are included in Payment Export file
-        Initialize;
+        Initialize();
 
         CountryCode := FindCountryRegion;
         ExportProtocol := CreateSEPAExportProtocol(false);
@@ -2163,7 +2163,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         VendorBankAccount.SetRange("Vendor No.", CustomerNo);
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
         CustomerBankAccount.Rename(CustomerNo, VendorBankAccount.Code);
         CustomerBankAccount.Validate("Country/Region Code", CountryCode);
@@ -2226,7 +2226,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         PaymentJournalLine.SetRange("Journal Batch Name", PaymJournalBatch.Name);
         PaymentJournalLine.SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
-        PaymentJournalLine.FindFirst;
+        PaymentJournalLine.FindFirst();
         PaymentJournalLine.Validate("Line No.", PaymentJournalLine."Line No." + 1);
         PaymentJournalLine.Validate("Account Type", PaymentJournalLine."Account Type"::Customer);
         PaymentJournalLine.Validate("Account No.", CustomerNo);
@@ -2334,7 +2334,7 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         PaymentJournalTemplate: Record "Payment Journal Template";
     begin
-        if not PaymentJournalTemplate.FindLast then
+        if not PaymentJournalTemplate.FindLast() then
             LibraryBEHelper.CreatePaymentJournalTemplate(PaymentJournalTemplate);
         LibraryBEHelper.CreatePaymentJournalBatch(PaymJournalBatch, PaymentJournalTemplate.Name);
     end;
@@ -2370,7 +2370,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         with GenJournalLine do begin
             FilterGenJnlLine(GenJournalLine, VendorNo);
-            FindFirst;
+            FindFirst();
             Reset;
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
@@ -2393,7 +2393,7 @@ codeunit 144008 "EB - Payment Journal Export"
         GLAccount: Record "G/L Account";
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General);
-        GenJnlTemplate.FindFirst;
+        GenJnlTemplate.FindFirst();
         with GenJnlBatch do begin
             LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
             LibraryERM.FindGLAccount(GLAccount);
@@ -2409,7 +2409,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         FilterPmtJnlLine(PaymentJournalLine, PaymJournalBatch, PaymentJournalLine.Status::Created);
         with PaymentJournalLine do begin
-            FindFirst;
+            FindFirst();
             Next;
             Validate(Amount, Round(Amount / 3));
             Modify(true);
@@ -2428,7 +2428,7 @@ codeunit 144008 "EB - Payment Journal Export"
     local procedure FindVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         FilterVendorLedgerEntry(VendorLedgerEntry, VendorNo, DocumentType);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure FilterPmtJnlLine(var PaymentJournalLine: Record "Payment Journal Line"; PaymJournalBatch: Record "Paym. Journal Batch"; StatusValue: Option)
@@ -2463,7 +2463,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         ExportProtocol.Get(ExportProtocolCode);
         NoSeriesLine.SetRange("Series Code", ExportProtocol."Export No. Series");
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         exit(NoSeriesLine."Last No. Used");
     end;
 
@@ -2518,13 +2518,13 @@ codeunit 144008 "EB - Payment Journal Export"
             "Account Type" := AccountType;
             "Account No." := AccountNo;
             "Export Protocol Code" := ExportProtocol;
-            "Payment Message" := LibraryUtility.GenerateGUID;
+            "Payment Message" := LibraryUtility.GenerateGUID();
             Amount := LibraryRandom.RandDec(10, 2);
-            "Beneficiary Bank Account No." := LibraryUtility.GenerateGUID;
-            "Beneficiary IBAN" := LibraryUtility.GenerateGUID;
-            "SWIFT Code" := LibraryUtility.GenerateGUID;
+            "Beneficiary Bank Account No." := LibraryUtility.GenerateGUID();
+            "Beneficiary IBAN" := LibraryUtility.GenerateGUID();
+            "SWIFT Code" := LibraryUtility.GenerateGUID();
             "Bank Country/Region Code" := "Journal Batch Name";
-            "Bank Account" := LibraryUtility.GenerateGUID;
+            "Bank Account" := LibraryUtility.GenerateGUID();
             Insert;
             SetFilter("Export Protocol Code", ExportProtocol);
         end;
@@ -2805,7 +2805,7 @@ codeunit 144008 "EB - Payment Journal Export"
         GenJournalLine.SetRange("Account Type", AccountType);
         GenJournalLine.SetRange("Account No.", AccountNo);
         Assert.RecordCount(GenJournalLine, 1);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Get(
           GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No." + GLAccDeltaLineNo);
         GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::"G/L Account");

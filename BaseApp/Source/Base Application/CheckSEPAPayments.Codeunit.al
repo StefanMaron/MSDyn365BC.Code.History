@@ -7,7 +7,7 @@ codeunit 2000004 "Check SEPA Payments"
         CheckPaymJnlLine.Init();
         CheckPaymJnlLine.CheckCompanyName;
 
-        if FindSet then begin
+        if FindSet() then begin
             CheckPaymJnlLine.CheckExportProtocol("Export Protocol Code");
             repeat
                 CheckPaymJnlLine.CheckCustVendName(Rec);

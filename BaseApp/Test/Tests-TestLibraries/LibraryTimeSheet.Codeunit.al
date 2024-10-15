@@ -40,7 +40,7 @@ codeunit 131904 "Library - Time Sheet"
         end;
 
         Initialized := true;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         Commit();
     end;
@@ -52,7 +52,7 @@ codeunit 131904 "Library - Time Sheet"
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
         TimeSheetLine.SetRange("Assembly Order No.", AssemblyHeaderNo);
         TimeSheetLine.SetRange("Assembly Order Line No.", AssemblyLineNo);
-        TimeSheetLine.FindLast;
+        TimeSheetLine.FindLast();
         TimeSheetLine.CalcFields("Total Quantity");
 
         Assert.AreEqual(AssemblyLineQuantity, TimeSheetLine."Total Quantity",
@@ -70,7 +70,7 @@ codeunit 131904 "Library - Time Sheet"
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
         TimeSheetLine.SetRange("Service Order No.", ServiceHeaderNo);
         TimeSheetLine.SetRange("Service Order Line No.", ServiceLineNo);
-        TimeSheetLine.FindLast;
+        TimeSheetLine.FindLast();
         TimeSheetLine.CalcFields("Total Quantity");
 
         Assert.AreEqual(ServiceLineQuantity, TimeSheetLine."Total Quantity",
@@ -100,7 +100,7 @@ codeunit 131904 "Library - Time Sheet"
     begin
         JobPlanningLine.SetRange("Job No.", JobNo);
         JobPlanningLine.SetRange("Job Task No.", JobTaskNo);
-        if JobPlanningLine.FindLast then;
+        if JobPlanningLine.FindLast() then;
         LineNo := JobPlanningLine."Line No." + 10000;
 
         JobPlanningLine.Init();
@@ -139,18 +139,18 @@ codeunit 131904 "Library - Time Sheet"
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
         Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
-        Date.FindFirst;
+        Date.FindFirst();
 
         WorkDate := Date."Period Start";
 
         // create time sheet
         CreateTimeSheets.InitParameters(Date."Period Start", 1, Resource."No.", false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
 
         // find created time sheet
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
-        TimeSheetHeader.FindFirst;
+        TimeSheetHeader.FindFirst();
     end;
 
     procedure CreateTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; Type: Enum "Time Sheet Line Type"; JobNo: Code[20]; JobTaskNo: Code[20]; ServiceOrderNo: Code[20]; CauseOfAbsenceCode: Code[10])
@@ -276,9 +276,9 @@ codeunit 131904 "Library - Time Sheet"
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         with CauseOfAbsence do begin
-            FindFirst;
+            FindFirst();
             if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst;
+                HumanResourceUnitOfMeasure.FindFirst();
                 Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
                 Modify(true);
             end;
@@ -287,31 +287,31 @@ codeunit 131904 "Library - Time Sheet"
 
     procedure FindHRUnitOfMeasure(var HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure")
     begin
-        HumanResourceUnitOfMeasure.FindFirst;
+        HumanResourceUnitOfMeasure.FindFirst();
     end;
 
     procedure FindJobJournalBatch(var JobJournalBatch: Record "Job Journal Batch"; JournalTemplateName: Code[10])
     begin
         JobJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
-        JobJournalBatch.FindFirst;
+        JobJournalBatch.FindFirst();
     end;
 
     procedure FindJobJournalTemplate(var JobJournalTemplate: Record "Job Journal Template")
     begin
-        JobJournalTemplate.FindFirst;
+        JobJournalTemplate.FindFirst();
     end;
 
     procedure FindJob(var Job: Record Job)
     begin
         Job.SetFilter("Person Responsible", '<>''''');
-        Job.FindFirst;
+        Job.FindFirst();
     end;
 
     procedure FindJobTask(JobNo: Code[20]; var JobTask: Record "Job Task")
     begin
         JobTask.SetRange("Job No.", JobNo);
         JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
-        JobTask.FindFirst;
+        JobTask.FindFirst();
     end;
 
     procedure GetAccountingPeriod(var AccountingPeriod: Record "Accounting Period")
@@ -320,10 +320,10 @@ codeunit 131904 "Library - Time Sheet"
     begin
         // find first open accounting period
         AccountingPeriod.SetRange(Closed, false);
-        if not AccountingPeriod.FindFirst then begin
+        if not AccountingPeriod.FindFirst() then begin
             // if accounting period is not found then create new one
             AccountingPeriod.Reset();
-            if AccountingPeriod.FindLast then
+            if AccountingPeriod.FindLast() then
                 StartingDate := CalcDate('<+1M>', AccountingPeriod."Starting Date")
             else
                 StartingDate := CalcDate('<CM>', Today);
@@ -356,7 +356,7 @@ codeunit 131904 "Library - Time Sheet"
     [Scope('OnPrem')]
     procedure GetTimeSheetLineBuffer(var TimeSheetLine: Record "Time Sheet Line")
     begin
-        if TempTimeSheetLine.FindSet then
+        if TempTimeSheetLine.FindSet() then
             repeat
                 TimeSheetLine := TempTimeSheetLine;
                 TimeSheetLine.Insert();
@@ -584,7 +584,7 @@ codeunit 131904 "Library - Time Sheet"
         Commit();
         Clear(SuggestJobJnlLines);
         SuggestJobJnlLines.InitParameters(JobJournalLine, ResourceNo, '', '', StartingDate, EndingDate);
-        SuggestJobJnlLines.Run;
+        SuggestJobJnlLines.Run();
     end;
 
     procedure RunCreateTimeSheetsReport(StartDate: Date; NewNoOfPeriods: Integer; ResourceNo: Code[20])
@@ -594,7 +594,7 @@ codeunit 131904 "Library - Time Sheet"
         Clear(CreateTimeSheets);
         CreateTimeSheets.InitParameters(StartDate, NewNoOfPeriods, ResourceNo, false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Time Sheet", 'OnAfterProcess', '', false, false)]

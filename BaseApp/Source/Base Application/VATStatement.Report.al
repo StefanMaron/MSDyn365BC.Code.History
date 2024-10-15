@@ -293,10 +293,10 @@
                         EndDate := DMY2Date(31, 12, 9999)
                     else
                         EndDate := EndDateReq;
-                    GLEntry.SetCurrentKey("Journal Template Name", "G/L Account No.", "Posting Date", "Document Type");
+                    GLEntry.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
                     GLEntry.SetRange("Posting Date", GetPeriodStartDate, EndDate);
                     if JournalTempl <> '' then
-                        GLEntry.SetRange("Journal Template Name", JournalTempl);
+                        GLEntry.SetRange("Journal Templ. Name", JournalTempl);
 
                     if VATStmtLine2."Document Type" = VATStmtLine2."Document Type"::"All except Credit Memo" then
                         GLEntry.SetFilter("Document Type", '<>%1', VATStmtLine2."Document Type"::"Credit Memo")
@@ -318,11 +318,11 @@
                 begin
                     VATEntry.Reset();
                     VATEntry.SetCurrentKey(
-                      "Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
+                      "Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
                     VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine2."VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine2."VAT Prod. Posting Group");
                     if JournalTempl <> '' then
-                        VATEntry.SetRange("Journal Template Name", JournalTempl);
+                        VATEntry.SetRange("Journal Templ. Name", JournalTempl);
                     VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
                     if VATStmtLine2."Document Type" = VATStmtLine2."Document Type"::"All except Credit Memo" then
                         VATEntry.SetFilter("Document Type", '<>%1', VATStmtLine2."Document Type"::"Credit Memo")

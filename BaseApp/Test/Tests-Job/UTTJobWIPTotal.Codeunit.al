@@ -27,7 +27,7 @@ codeunit 136357 "UT T Job WIP Total"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job WIP Total");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job WIP Total");
@@ -66,7 +66,7 @@ codeunit 136357 "UT T Job WIP Total"
     var
         JobWIPWarning: Record "Job WIP Warning";
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that a Job WIP Total can be deleted and that all Job WIP Warnings are deleted as well.
@@ -89,7 +89,7 @@ codeunit 136357 "UT T Job WIP Total"
     var
         JobWIPWarning: Record "Job WIP Warning";
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that WIP Warnings is false when no warnings exist.

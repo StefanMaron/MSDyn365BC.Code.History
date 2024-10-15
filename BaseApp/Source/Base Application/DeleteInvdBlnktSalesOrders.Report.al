@@ -26,22 +26,22 @@ report 291 "Delete Invd Blnkt Sales Orders"
                 SalesLine.SetRange("Document Type", "Document Type");
                 SalesLine.SetRange("Document No.", "No.");
                 SalesLine.SetFilter("Quantity Invoiced", '<>0');
-                if SalesLine.FindFirst then begin
+                if SalesLine.FindFirst() then begin
                     SalesLine.SetRange("Quantity Invoiced");
                     SalesLine.SetFilter("Outstanding Quantity", '<>0');
                     OnAfterSetSalesLineFilters(SalesLine);
-                    if not SalesLine.FindFirst then begin
+                    if not SalesLine.FindFirst() then begin
                         SalesLine.SetRange("Outstanding Quantity");
                         SalesLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
-                        if not SalesLine.FindFirst then begin
+                        if not SalesLine.FindFirst() then begin
                             SalesLine.LockTable();
-                            if not SalesLine.FindFirst then begin
+                            if not SalesLine.FindFirst() then begin
                                 SalesLine.SetRange("Qty. Shipped Not Invoiced");
                                 SalesLine2.SetRange("Blanket Order No.", "No.");
-                                if not SalesLine2.FindFirst then begin
+                                if not SalesLine2.FindFirst() then begin
                                     ArchiveManagement.AutoArchiveSalesDocument("Sales Header");
                                     SalesLine.SetFilter("Qty. to Assemble to Order", '<>0');
-                                    if SalesLine.FindSet then
+                                    if SalesLine.FindSet() then
                                         repeat
                                             ATOLink.DeleteAsmFromSalesLine(SalesLine);
                                         until SalesLine.Next() = 0;

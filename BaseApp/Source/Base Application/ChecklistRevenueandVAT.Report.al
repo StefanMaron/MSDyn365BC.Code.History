@@ -429,7 +429,7 @@ report 11312 "Checklist Revenue and VAT"
                         Clear(TotalAmount[i]);
                         GLEntry1.SetFilter("G/L Account No.", "No.");
                         GLEntry1.SetFilter("Posting Date", DateFilter[i]);
-                        if GLEntry1.FindSet then
+                        if GLEntry1.FindSet() then
                             repeat
                                 TotalAmount[i] := TotalAmount[i] - GLEntry1.Amount;
                             until GLEntry1.Next() = 0;
@@ -588,7 +588,7 @@ report 11312 "Checklist Revenue and VAT"
                     column(G_L_Entry__Source_No__; "Source No.")
                     {
                     }
-                    column(G_L_Entry__Journal_Template_Name_; "Journal Template Name")
+                    column(G_L_Entry__Journal_Template_Name_; "Journal Templ. Name")
                     {
                     }
                     column(G_L_Entry__G_L_Entry___Debit_Amount_; "G/L Entry"."Debit Amount")
@@ -670,11 +670,11 @@ report 11312 "Checklist Revenue and VAT"
             }
             dataitem("<G/L Entry2>"; "G/L Entry")
             {
-                DataItemTableView = SORTING("Journal Template Name", "Posting Date", "Document No.") WHERE("Gen. Posting Type" = CONST(Sale));
+                DataItemTableView = SORTING("Journal Templ. Name", "Posting Date", "Document No.") WHERE("Gen. Posting Type" = CONST(Sale));
                 column(G_L_Entry2___Posting_Date_; "Posting Date")
                 {
                 }
-                column(G_L_Entry2___Journal_Template_Name_; "Journal Template Name")
+                column(G_L_Entry2___Journal_Template_Name_; "Journal Templ. Name")
                 {
                 }
                 column(G_L_Entry2___Document_No__; "Document No.")
@@ -801,7 +801,7 @@ report 11312 "Checklist Revenue and VAT"
                     VATEntry.SetRange("Posting Date", "Posting Date");
                     VATEntry.SetRange("Document No.", "Document No.");
                     VATEntry.SetRange(Type, VATEntry.Type::Sale);
-                    if VATEntry.FindSet then
+                    if VATEntry.FindSet() then
                         repeat
                             BaseVAT := BaseVAT + VATEntry.Base;
                             BaseBefPmtDisc := BaseBefPmtDisc + VATEntry."Base Before Pmt. Disc.";
@@ -809,7 +809,7 @@ report 11312 "Checklist Revenue and VAT"
 
                     GLEntry2.SetRange("Document No.", "Document No.");
                     GLEntry2.SetRange("Gen. Posting Type", "Gen. Posting Type"::Sale);
-                    if GLEntry2.FindSet then
+                    if GLEntry2.FindSet() then
                         repeat
                             Amount1 := Amount1 + GLEntry2.Amount;
                         until GLEntry2.Next() = 0;
@@ -1013,7 +1013,7 @@ report 11312 "Checklist Revenue and VAT"
             AccountingPeriod.Reset();
             AccountingPeriod.SetRange("Starting Date", Calender."Period Start");
             AccountingPeriod.SetRange(Name, Calender."Period Name");
-            if AccountingPeriod.FindFirst then
+            if AccountingPeriod.FindFirst() then
                 DateName[i] := AccountingPeriod.Name;
         end;
         DateName[NoOfPeriods + 1] := Text11301;

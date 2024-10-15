@@ -43,9 +43,9 @@ codeunit 144015 "CODA Import Tests"
 
         LibraryCODADataProvider.InsertSampleCODAStatement(CODAStatement, 'NBL');
 
-        CODAStatement.FindFirst;
+        CODAStatement.FindFirst();
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false);
         // TFS ID 397033: Stan can print processed CODA statement
         // Handled by calling CODAStatementLineRequestPageHandler
@@ -93,7 +93,7 @@ codeunit 144015 "CODA Import Tests"
         DeleteAllCODALines;
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportMultipleStatementsToCODAstatementDataFiles(1));
-        ImportCODAStatement.Run;
+        ImportCODAStatement.Run();
 
         Commit();
 
@@ -102,7 +102,7 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementListPage.OpenView;
         CODAStatementListPage.First;
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
         CODAStatementPage.Trap;
@@ -149,11 +149,11 @@ codeunit 144015 "CODA Import Tests"
         // Run the processing only report with the two data files.
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportMultipleStatementsToCODAstatementDataFiles(1));
-        ImportCODAStatement.Run;
+        ImportCODAStatement.Run();
 
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportMultipleStatementsToCODAstatementDataFiles(2));
-        ImportCODAStatement.Run;
+        ImportCODAStatement.Run();
 
         Commit();
 
@@ -167,7 +167,7 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementLine.SetFilter("Bank Account No.", BankAccount."No.");
         CODAStatementLine.SetFilter("Statement No.", StatementNo);
         Assert.AreEqual(4, CODAStatementLine.Count, 'CODA statement Lines count failed');
-        CODAStatementLine.FindFirst;
+        CODAStatementLine.FindFirst();
         Assert.AreEqual(10000, CODAStatementLine."Statement Line No.", 'CODAStatementLine."Statement Line No.');
         Assert.AreEqual(CODAStatementLine.ID::Movement, CODAStatementLine.ID, 'CODAStatementLine.ID');
         Assert.AreEqual(CODAStatementLine.Type::Global, CODAStatementLine.Type, 'CODAStatementLine.Type');
@@ -192,7 +192,7 @@ codeunit 144015 "CODA Import Tests"
         Commit();
         ImportCODAWithSpecificAccountType(BankAccount, 'Bank Account', BBLEURTxt);
 
-        CODAStatement.FindFirst;
+        CODAStatement.FindFirst();
         Assert.AreEqual(1, CODAStatement.Count, 'Line count failed');
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
@@ -221,7 +221,7 @@ codeunit 144015 "CODA Import Tests"
 
         ImportCODAWithSpecificAccountType(BankAccount, '', '');
 
-        CODAStatement.FindFirst;
+        CODAStatement.FindFirst();
         Assert.AreEqual(1, CODAStatement.Count, 'Line count failed');
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
@@ -236,7 +236,7 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementLine.SetFilter("Bank Account No.", BankAccount."No.");
         CODAStatementLine.SetFilter("Statement No.", CODAStatement."Statement No.");
         Assert.AreEqual(4, CODAStatementLine.Count, 'CODA statement Lines count failed');
-        CODAStatementLine.FindFirst;
+        CODAStatementLine.FindFirst();
         Assert.AreEqual(10000, CODAStatementLine."Statement Line No.", 'CODAStatementLine."Statement Line No.');
         Assert.AreEqual(CODAStatementLine.ID::Movement, CODAStatementLine.ID, 'CODAStatementLine.ID');
         Assert.AreEqual(CODAStatementLine.Type::Global, CODAStatementLine.Type, 'CODAStatementLine.Type');
@@ -256,7 +256,7 @@ codeunit 144015 "CODA Import Tests"
         BankAccountPage."CODA S&tatements".Invoke;
         CODAStatementListPage.First;
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
         CODAStatementPage.Trap;
@@ -294,7 +294,7 @@ codeunit 144015 "CODA Import Tests"
 
         ImportCODAWithSpecificAccountType(BankAccount, 'Customer', '60000');
 
-        CODAStatement.FindFirst;
+        CODAStatement.FindFirst();
         Assert.AreEqual(1, CODAStatement.Count, 'Line count failed');
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
@@ -312,7 +312,7 @@ codeunit 144015 "CODA Import Tests"
         BankAccountPage."CODA S&tatements".Invoke;
         CODAStatementListPage.First;
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
         CODAStatementPage.Trap;
@@ -350,7 +350,7 @@ codeunit 144015 "CODA Import Tests"
 
         ImportCODAWithSpecificAccountType(BankAccount, 'Vendor', '62000');
 
-        CODAStatement.FindFirst;
+        CODAStatement.FindFirst();
         Assert.AreEqual(1, CODAStatement.Count, 'Line count failed');
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
@@ -368,7 +368,7 @@ codeunit 144015 "CODA Import Tests"
         BankAccountPage."CODA S&tatements".Invoke;
         CODAStatementListPage.FILTER.SetFilter("Bank Account No.", BankAccount."No.");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
         CODAStatementPage.Trap;
@@ -407,7 +407,7 @@ codeunit 144015 "CODA Import Tests"
 
         ImportCODAWithSpecificAccountType(BankAccount, 'G/L Account', '499999');
 
-        CODAStatement.FindFirst;
+        CODAStatement.FindFirst();
         Assert.AreEqual(1, CODAStatement.Count, 'Line count failed');
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
@@ -425,7 +425,7 @@ codeunit 144015 "CODA Import Tests"
         BankAccountPage."CODA S&tatements".Invoke;
         CODAStatementListPage.FILTER.SetFilter("Bank Account No.", BankAccount."No.");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
         CODAStatementPage.Trap;
@@ -476,11 +476,11 @@ codeunit 144015 "CODA Import Tests"
         DeleteAllCODALines;
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.PrintOneOfMultipleCODAStatementsDataFile);
-        ImportCODAStatement.Run;
+        ImportCODAStatement.Run();
 
         Commit();
 
-        CODAStatement.FindFirst;
+        CODAStatement.FindFirst();
         Assert.AreEqual(33, CODAStatement.Count, 'Line count failed');
 
         // Process CODA Statement Lines
@@ -488,7 +488,7 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementListPage.First;
         CODAStatementPage.Trap;
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
         CODAStatementListPage.View.Invoke;
@@ -528,14 +528,14 @@ codeunit 144015 "CODA Import Tests"
         DeleteAllCODALines;
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OntVangenCODA20090416DataFile);
-        ImportCODAStatement.Run;
+        ImportCODAStatement.Run();
 
         Commit();
 
         CODAStatementListPage.OpenView;
         CODAStatementListPage.First;
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
         CODAStatementPage.Trap;
@@ -581,11 +581,11 @@ codeunit 144015 "CODA Import Tests"
         DeleteAllCODALines;
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OntVangenCODAScenario373926DataFile);
-        ImportCODAStatement.Run;
+        ImportCODAStatement.Run();
         Commit;
 
         // [GIVEN] Open the imported CODA statement
-        CODAStatement.FindFirst;
+        CODAStatement.FindFirst();
         CODAStatement.SetRecFilter;
         LibraryVariableStorage.Enqueue(false); // Default application for "Post CODA Stmt. Lines"
         LibraryVariableStorage.Enqueue(false); // Dont print for "Post CODA Stmt. Lines"
@@ -597,7 +597,7 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementLine.SetRange("Bank Account No.", CODAStatement."Bank Account No.");
         CODAStatementLine.SetRange("Statement No.", CODAStatement."Statement No.");
         CODAStatementLine.SetRange(ID, CODAStatementLine.ID::Movement);
-        CODAStatementLine.FindFirst;
+        CODAStatementLine.FindFirst();
         Assert.RecordCount(CODAStatementLine, 8);
         VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Indirectly applied", -837.63, 0, -837.63);
         VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Partly applied", -832.34, 0, -832.34);
@@ -892,7 +892,7 @@ codeunit 144015 "CODA Import Tests"
         DeleteAllCODALines;
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportAccountTypeTestDataFile);
-        ImportCODAStatement.Run;
+        ImportCODAStatement.Run();
 
         Commit();
     end;

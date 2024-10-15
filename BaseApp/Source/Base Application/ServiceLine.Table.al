@@ -151,10 +151,10 @@ table 5902 "Service Line"
                     if Quantity <> 0 then begin
                         InitOutstanding;
                         if "Document Type" = "Document Type"::"Credit Memo" then
-                            InitQtyToInvoice
+                            InitQtyToInvoice()
                         else
-                            InitQtyToShip;
-                        UpdateWithWarehouseShip;
+                            InitQtyToShip();
+                        UpdateWithWarehouseShip();
                     end;
                     AdjustMaxLabourUnitPrice("Unit Price");
 
@@ -163,20 +163,17 @@ table 5902 "Service Line"
                     then
                         Validate(Quantity, xRec.Quantity);
                     UpdateUnitPriceByField(FieldNo("No."));
-                    UpdateAmounts;
+                    UpdateAmounts();
                 end;
                 UpdateReservation(FieldNo("No."));
 
-                GetDefaultBin;
+                GetDefaultBin();
 
                 if not IsTemporary then
-                    CreateDim(
-                      DimMgt.TypeToTableID5(Type.AsInteger()), "No.",
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Responsibility Center", "Responsibility Center");
+                    CreateDimFromDefaultDim(Rec.FieldNo("No."));
 
                 if ServiceLine.Get("Document Type", "Document No.", "Line No.") then
-                    Modify;
+                    Modify();
             end;
         }
         field(7; "Location Code"; Code[10])
@@ -185,19 +182,11 @@ table 5902 "Service Line"
             TableRelation = Location;
 
             trigger OnValidate()
-            var
-                Item: Record Item;
             begin
-                TestStatusOpen;
-                UpdateWithWarehouseShip;
-                GetServHeader;
+                TestStatusOpen();
+                UpdateWithWarehouseShip();
+                GetServHeader();
                 if Type = Type::Item then begin
-                    // Location code in allowed only for inventoriable items
-                    if "Location Code" <> '' then begin
-                        GetItem(Item);
-                        Item.TestField(Type, Item.Type::Inventory);
-                    end;
-
                     if Quantity <> 0 then
                         WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
                     if "Location Code" <> xRec."Location Code" then begin
@@ -210,6 +199,7 @@ table 5902 "Service Line"
                     GetUnitCost;
                 end;
                 GetDefaultBin;
+                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -273,11 +263,11 @@ table 5902 "Service Line"
                 end;
 
                 if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
-                    InitOutstanding;
+                    InitOutstanding();
                     if "Document Type" = "Document Type"::"Credit Memo" then
-                        InitQtyToInvoice
+                        InitQtyToInvoice()
                     else
-                        InitQtyToShip;
+                        InitQtyToShip();
                 end;
                 CheckItemAvailable(FieldNo(Quantity));
 
@@ -290,11 +280,11 @@ table 5902 "Service Line"
                 if Type = Type::Item then begin
                     WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
                     UpdateReservation(FieldNo(Quantity));
-                    UpdateWithWarehouseShip;
+                    UpdateWithWarehouseShip();
                     if ("Quantity (Base)" * xRec."Quantity (Base)" <= 0) and ("No." <> '') then begin
                         GetItem(Item);
                         if (Item."Costing Method" = Item."Costing Method"::Standard) and not IsShipment then
-                            GetUnitCost;
+                            GetUnitCost();
                     end;
                     if ("Appl.-from Item Entry" <> 0) and (xRec.Quantity < Quantity) then
                         CheckApplFromItemLedgEntry(ItemLedgEntry);
@@ -754,10 +744,7 @@ table 5902 "Service Line"
                     Job.TestBlocked;
                 end;
 
-                CreateDim(
-                  DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID5(Type.AsInteger()), "No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
             end;
         }
         field(46; "Job Task No."; Code[20])
@@ -917,7 +904,7 @@ table 5902 "Service Line"
                             ServShptHeader.SetRange("Ship-to Code", ServHeader."Ship-to Code");
                             ServShptHeader.SetRange("Bill-to Customer No.", ServHeader."Bill-to Customer No.");
                             ServShptHeader.SetRange("No.", "Shipment No.");
-                            ServShptHeader.FindFirst;
+                            ServShptHeader.FindFirst();
                         end;
                     end;
                     TestField("Appl.-to Service Entry", 0);
@@ -1117,7 +1104,9 @@ table 5902 "Service Line"
             CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
                                                                    "Source Ref. No." = FIELD("Line No."),
                                                                    "Source Type" = CONST(5902),
+#pragma warning disable
                                                                    "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                    "Reservation Status" = CONST(Reservation)));
             Caption = 'Reserved Quantity';
             DecimalPlaces = 0 : 5;
@@ -1447,11 +1436,15 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             var
+                Item: Record Item;
                 WMSManagement: Codeunit "WMS Management";
                 WhseIntegrationManagement: Codeunit "Whse. Integration Management";
             begin
                 TestField("Location Code");
                 TestField(Type, Type::Item);
+
+                GetItem(Item);
+                Item.TestField(Type, Item.Type::Inventory);
 
                 if "Bin Code" <> '' then
                     if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
@@ -1517,7 +1510,7 @@ table 5902 "Service Line"
                     if ServHeader."Language Code" <> '' then begin
                         UnitOfMeasureTranslation.SetRange(Code, "Unit of Measure Code");
                         UnitOfMeasureTranslation.SetRange("Language Code", ServHeader."Language Code");
-                        if UnitOfMeasureTranslation.FindFirst then
+                        if UnitOfMeasureTranslation.FindFirst() then
                             "Unit of Measure" := UnitOfMeasureTranslation.Description;
                     end;
                 end;
@@ -1679,7 +1672,9 @@ table 5902 "Service Line"
             CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
                                                                             "Source Ref. No." = FIELD("Line No."),
                                                                             "Source Type" = CONST(5902),
+#pragma warning disable
                                                                             "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                             "Reservation Status" = CONST(Reservation)));
             Caption = 'Reserved Qty. (Base)';
             DecimalPlaces = 0 : 5;
@@ -1708,10 +1703,7 @@ table 5902 "Service Line"
                 if IsHandled then
                     exit;
 
-                CreateDim(
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DimMgt.TypeToTableID5(Type.AsInteger()), "No.",
-                  DATABASE::Job, "Job No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
             end;
         }
         field(5702; "Substitution Available"; Boolean)
@@ -1744,7 +1736,9 @@ table 5902 "Service Line"
         {
             BlankZero = true;
             CalcFormula = Sum("Warehouse Shipment Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(5902),
+#pragma warning disable
                                                                                          "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                                          "Source No." = FIELD("Document No."),
                                                                                          "Source Line No." = FIELD("Line No.")));
             Caption = 'Whse. Outstanding Qty. (Base)';
@@ -2682,7 +2676,7 @@ table 5902 "Service Line"
 
     trigger OnInsert()
     begin
-        if TempTrackingSpecification.FindFirst then
+        if TempTrackingSpecification.FindFirst() then
             InsertItemTracking;
 
         if Quantity <> 0 then
@@ -2696,6 +2690,8 @@ table 5902 "Service Line"
     end;
 
     trigger OnModify()
+    var
+        ServDocumentsMgt: Codeunit "Serv-Documents Mgt.";
     begin
         if "Document Type" = ServiceLine."Document Type"::Invoice then
             CheckIfCanBeModified;
@@ -2710,7 +2706,7 @@ table 5902 "Service Line"
             UpdateReservation(0);
         end;
 
-        UpdateServiceLedgerEntry;
+        ServDocumentsMgt.UpdateServiceLedgerEntry(Rec, xRec);
         IsCustCrLimitChecked := false;
     end;
 
@@ -2850,6 +2846,8 @@ table 5902 "Service Line"
 
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -2857,6 +2855,7 @@ table 5902 "Service Line"
         No: array[10] of Code[20];
         DimensionSetID: Integer;
         IsHandled: Boolean;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         IsHandled := false;
         OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
@@ -2882,9 +2881,46 @@ table 5902 "Service Line"
         if DimensionSetID = 0 then
             DimensionSetID := ServHeader."Dimension Set ID";
         UpdateDimSetupFromDimSetID(TableID, No, DimensionSetID);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Service Management",
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Service Management",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", DimensionSetID, DATABASE::Customer);
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        DimensionSetID: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceCodeSetup.Get();
+        GetServHeader;
+        if not ServItemLine.Get(ServHeader."Document Type", ServHeader."No.", "Service Item Line No.") then
+            ServItemLine.Init();
+
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        DimensionSetID := ServItemLine."Dimension Set ID";
+        if DimensionSetID = 0 then
+            DimensionSetID := ServHeader."Dimension Set ID";
+        UpdateDimSetupFromDimSetID(DefaultDimSource, DimensionSetID);
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Service Management",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", DimensionSetID, DATABASE::Customer);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
@@ -2984,7 +3020,7 @@ table 5902 "Service Line"
         ItemLedgerEntry.SetRange("Serial No.", SerialNo);
         ItemLedgerEntry.SetRange("Variant Code", VariantCode);
         ItemLedgerEntry.SetRange(Open, true);
-        if not ItemLedgerEntry.FindLast then
+        if not ItemLedgerEntry.FindLast() then
             exit(false);
 
         LocationCode := ItemLedgerEntry."Location Code";
@@ -3108,7 +3144,7 @@ table 5902 "Service Line"
         ServiceLine.SetRange(Type, Type::Item);
         ServiceLine.SetFilter("Line No.", '<>%1', "Line No.");
         ServiceLine.SetRange("No.", "No.");
-        if ServiceLine.FindFirst then
+        if ServiceLine.FindFirst() then
             Error(Text015, Item.TableCaption, "No.");
     end;
 
@@ -3402,7 +3438,7 @@ table 5902 "Service Line"
         "Location Code" := '';
         if Type = Type::Resource then
             "Location Code" := ServOrderMgt.FindResLocationCode("No.", ServHeader."Order Date");
-        if ("Location Code" = '') and (not IsNonInventoriableItem) then
+        if "Location Code" = '' then
             "Location Code" := ServHeader."Location Code";
 
         OnInitHeaderDefaultsOnAfterAssignLocationCode(Rec, ServHeader);
@@ -3879,7 +3915,7 @@ table 5902 "Service Line"
             ServiceLine.SetFilter("Line No.", '<>%1', "Line No.");
             ServiceLine.SetRange("Component Line No.", ComponentLineNo);
             ServiceLine.SetFilter("Spare Part Action", '<>%1', "Spare Part Action"::" ");
-            if ServiceLine.FindFirst then
+            if ServiceLine.FindFirst() then
                 Error(CompAlreadyReplacedErr, ServiceLine."Line No.");
         end;
     end;
@@ -3910,7 +3946,7 @@ table 5902 "Service Line"
         CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
         ServiceLine := Rec;
-        if TempTrackingSpecification.FindFirst then begin
+        if TempTrackingSpecification.FindFirst() then begin
             ServiceLineReserve.DeleteLine(Rec);
             Clear(CreateReservEntry);
             ReservEntry.CopyTrackingFromSpec(TempTrackingSpecification);
@@ -3948,7 +3984,7 @@ table 5902 "Service Line"
         if IsHandled then
             exit;
 
-        if Type <> Type::Item then
+        if (Type <> Type::Item) or IsNonInventoriableItem() then
             exit;
 
         "Bin Code" := '';
@@ -4459,7 +4495,7 @@ table 5902 "Service Line"
                 Cust.Get(ServHeader."Bill-to Customer No.");
                 CustPostingGroup.Get(Cust."Customer Posting Group");
             end;
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Type = Type::"G/L Account" then
                         RoundingLineInserted := ("No." = CustPostingGroup."Invoice Rounding Account") or RoundingLineInserted;
@@ -4934,7 +4970,7 @@ table 5902 "Service Line"
             ServiceLine.Reset();
             ServiceLine.SetRange("Document Type", "Document Type");
             ServiceLine.SetRange("Document No.", "Document No.");
-            if ServiceLine.FindLast then
+            if ServiceLine.FindLast() then
                 NextLine := ServiceLine."Line No." + 10000
             else
                 NextLine := 10000;
@@ -5072,7 +5108,7 @@ table 5902 "Service Line"
                 DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No."));
     end;
 
-    local procedure UpdateReservation(CalledByFieldNo: Integer)
+    procedure UpdateReservation(CalledByFieldNo: Integer)
     var
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
     begin
@@ -5097,7 +5133,7 @@ table 5902 "Service Line"
         OrderTrackingForm: Page "Order Tracking";
     begin
         OrderTrackingForm.SetServLine(Rec);
-        OrderTrackingForm.RunModal;
+        OrderTrackingForm.RunModal();
     end;
 
     procedure ShowOrderPromisingLine()
@@ -5112,7 +5148,7 @@ table 5902 "Service Line"
 
         OrderPromisingLines.SetSourceType(OrderPromisingLine."Source Type"::"Service Order".AsInteger());
         OrderPromisingLines.SetTableView(OrderPromisingLine);
-        OrderPromisingLines.RunModal;
+        OrderPromisingLines.RunModal();
     end;
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item)
@@ -5160,51 +5196,6 @@ table 5902 "Service Line"
             SetFilter("Quantity (Base)", '>0');
         SetRange("Job No.", ' ');
         OnAfterFindLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
-    end;
-
-    local procedure UpdateServiceLedgerEntry()
-    var
-        ServiceLedgerEntry: Record "Service Ledger Entry";
-        Currency: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        LCYRoundingPrecision: Decimal;
-        CurrencyFactor: Decimal;
-    begin
-        if "Appl.-to Service Entry" = 0 then
-            exit;
-        if not ServiceLedgerEntry.Get("Appl.-to Service Entry") then
-            exit;
-        if ("Unit Price" = xRec."Unit Price") and ("Unit Cost" = xRec."Unit Cost") and (Amount = xRec.Amount) and
-           ("Line Discount Amount" = xRec."Line Discount Amount") and ("Line Discount %" = xRec."Line Discount %")
-        then
-            exit;
-
-        CurrencyFactor := 1;
-        if "Currency Code" <> '' then begin
-            CurrencyExchangeRate.SetRange("Currency Code", "Currency Code");
-            CurrencyExchangeRate.SetRange("Starting Date", 0D, "Order Date");
-            if CurrencyExchangeRate.FindLast then
-                CurrencyFactor := CurrencyExchangeRate."Adjustment Exch. Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
-        end;
-        GeneralLedgerSetup.Get();
-        LCYRoundingPrecision := 0.01;
-        if Currency.Get(GeneralLedgerSetup."LCY Code") then
-            LCYRoundingPrecision := Currency."Amount Rounding Precision";
-
-        if "Unit Price" <> xRec."Unit Price" then
-            ServiceLedgerEntry."Unit Price" := -Round("Unit Price" / CurrencyFactor, LCYRoundingPrecision);
-        if "Unit Cost (LCY)" <> xRec."Unit Cost (LCY)" then
-            ServiceLedgerEntry."Unit Cost" := "Unit Cost (LCY)";
-        if Amount <> xRec.Amount then begin
-            ServiceLedgerEntry.Amount := -Amount;
-            ServiceLedgerEntry."Amount (LCY)" := -Round(Amount / CurrencyFactor, LCYRoundingPrecision);
-        end;
-        if "Line Discount Amount" <> xRec."Line Discount Amount" then
-            ServiceLedgerEntry."Discount Amount" := Round("Line Discount Amount" / CurrencyFactor, LCYRoundingPrecision);
-        if "Line Discount %" <> xRec."Line Discount %" then
-            ServiceLedgerEntry."Discount %" := "Line Discount %";
-        ServiceLedgerEntry.Modify();
     end;
 
     local procedure ValidateServiceItemLineNumber(var ServiceLine: Record "Service Line")
@@ -5382,7 +5373,7 @@ table 5902 "Service Line"
     var
         Location: Record Location;
     begin
-        if ("Document Type" <> "Document Type"::Order) or (Type <> Type::Item) then
+        if ("Document Type" <> "Document Type"::Order) or IsNonInventoriableItem() then
             exit(false);
         exit(Location.RequireReceive("Location Code") or Location.RequireShipment("Location Code"));
     end;
@@ -5507,7 +5498,7 @@ table 5902 "Service Line"
                 NextLineNo := ServiceLine."Line No." + LineStep
             else
                 if BelowxRec then begin
-                    ServiceLine.FindLast;
+                    ServiceLine.FindLast();
                     NextLineNo := ServiceLine."Line No." + LineStep;
                 end else
                     if ServiceLine.Next(-1) = 0 then begin
@@ -5530,7 +5521,6 @@ table 5902 "Service Line"
         exit(NextLineNo);
     end;
 
-    [Scope('OnPrem')]
     procedure GetLineNo(): Integer
     var
         ServLine: Record "Service Line";
@@ -5571,6 +5561,19 @@ table 5902 "Service Line"
         exit(Item.IsNonInventoriableType);
     end;
 
+    procedure IsInventoriableItem(): Boolean
+    var
+        Item: Record Item;
+    begin
+        if Type <> Type::Item then
+            exit(false);
+        if "No." = '' then
+            exit(false);
+        GetItem(Item);
+        exit(Item.IsInventoriableType());
+    end;
+
+#if not CLEAN20
     local procedure UpdateDimSetupFromDimSetID(var TableID: array[10] of Integer; var No: array[10] of Code[20]; InheritFromDimSetID: Integer)
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
@@ -5611,11 +5614,11 @@ table 5902 "Service Line"
 
         DefaultDim.SetRange("Table ID", SourceID);
         DefaultDim.SetRange("No.", SourceNo);
-        if DefaultDim.FindSet then
+        if DefaultDim.FindSet() then
             repeat
                 TempDimSetEntry.SetRange("Dimension Code", DefaultDim."Dimension Code");
                 TempDimSetEntry.SetRange("Dimension Value Code", DefaultDim."Dimension Value Code");
-                if TempDimSetEntry.FindFirst then begin
+                if TempDimSetEntry.FindFirst() then begin
                     UpdateDimSetup(TableID, No, DefaultDim."Table ID", DefaultDim."No.", LastAddedTableID);
                     TableAdded := true;
                 end;
@@ -5636,6 +5639,50 @@ table 5902 "Service Line"
             TableID[LastAddedTableID] := NewTableID;
             No[LastAddedTableID] := NewNo;
         end;
+    end;
+#endif
+
+    local procedure UpdateDimSetupFromDimSetID(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer)
+    var
+        TempDimSetEntry: Record "Dimension Set Entry" temporary;
+    begin
+        DimMgt.GetDimensionSet(TempDimSetEntry, InheritFromDimSetID);
+        ServHeader.Get("Document Type", "Document No.");
+        UpdateDimSetupByDefaultDim(Database::"Service Order Type", ServHeader."Service Order Type", TempDimSetEntry, DefaultDimSource);
+        UpdateDimSetupByDefaultDim(Database::Customer, ServHeader."Bill-to Customer No.", TempDimSetEntry, DefaultDimSource);
+        UpdateDimSetupByDefaultDim(Database::"Salesperson/Purchaser", ServHeader."Salesperson Code", TempDimSetEntry, DefaultDimSource);
+        UpdateDimSetupByDefaultDim(Database::"Service Contract Header", ServHeader."Contract No.", TempDimSetEntry, DefaultDimSource);
+        UpdateDimSetupByDefaultDim(Database::"Service Item", ServItemLine."Service Item No.", TempDimSetEntry, DefaultDimSource);
+        UpdateDimSetupByDefaultDim(Database::"Service Item Group", ServItemLine."Service Item Group Code", TempDimSetEntry, DefaultDimSource);
+    end;
+
+    local procedure UpdateDimSetupByDefaultDim(SourceID: Integer; SourceNo: Code[20]; var TempDimSetEntry: Record "Dimension Set Entry" temporary; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DefaultDim: Record "Default Dimension";
+        SourceCodeSetup: Record "Source Code Setup";
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+        TableAdded: Boolean;
+    begin
+        if SourceNo = '' then
+            exit;
+
+        SourceCodeSetup.Get();
+        DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup."Service Management");
+        DefaultDimensionPriority.SetRange("Table ID", SourceID);
+        if DefaultDimensionPriority.IsEmpty() then
+            exit;
+
+        DefaultDim.SetRange("Table ID", SourceID);
+        DefaultDim.SetRange("No.", SourceNo);
+        if DefaultDim.FindSet() then
+            repeat
+                TempDimSetEntry.SetRange("Dimension Code", DefaultDim."Dimension Code");
+                TempDimSetEntry.SetRange("Dimension Value Code", DefaultDim."Dimension Value Code");
+                if TempDimSetEntry.FindFirst() then begin
+                    DimMgt.AddDimSource(DefaultDimSource, DefaultDim."Table ID", DefaultDim."No.");
+                    TableAdded := true;
+                end;
+            until (DefaultDim.Next() = 0) or TableAdded;
     end;
 
     local procedure UpdateLineDiscPct()
@@ -5668,11 +5715,95 @@ table 5902 "Service Line"
         ItemTempl.TestField("Inventory Posting Group");
     end;
 
+    procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
+    var
+        TempLineErrorMessage: Record "Error Message" temporary;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if ShowAllLinesEnabled then begin
+            MarkedOnly(false);
+            ShowAllLinesEnabled := false;
+        end else begin
+            DocumentErrorsMgt.GetErrorMessages(TempLineErrorMessage);
+            if TempLineErrorMessage.FindSet() then
+                repeat
+                    if Rec.Get(TempLineErrorMessage."Context Record ID") then
+                        Rec.Mark(true)
+                until TempLineErrorMessage.Next() = 0;
+            MarkedOnly(true);
+            ShowAllLinesEnabled := true;
+        end;
+    end;
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
         exit(UOMMgt.CalcBaseQty(
             "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID5(Rec.Type.AsInteger()), Rec."No.", FieldNo = Rec.FieldNo("No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Service Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Service Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Service Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -5842,21 +5973,25 @@ table 5902 "Service Line"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ServiceLine: Record "Service Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetHideReplacementDialog(var ServiceLine: Record "Service Line"; var HideReplacementDialog: Boolean)
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Event is never raised.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowNonstock(var ServiceLine: Record "Service Line")
     begin

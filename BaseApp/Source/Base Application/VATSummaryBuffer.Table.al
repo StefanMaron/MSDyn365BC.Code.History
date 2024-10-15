@@ -90,7 +90,6 @@ table 11303 "VAT Summary Buffer"
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
 
-    [Scope('OnPrem')]
     procedure InsertLine()
     var
         VATSumBuffer: Record "VAT Summary Buffer";
@@ -110,7 +109,6 @@ table 11303 "VAT Summary Buffer"
             Insert;
     end;
 
-    [Scope('OnPrem')]
     procedure GetLine(Number: Integer)
     begin
         if Number = 1 then
@@ -119,7 +117,6 @@ table 11303 "VAT Summary Buffer"
             Next;
     end;
 
-    [Scope('OnPrem')]
     procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin

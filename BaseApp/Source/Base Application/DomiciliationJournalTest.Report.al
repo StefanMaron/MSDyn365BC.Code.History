@@ -156,7 +156,7 @@ report 2000020 "Domiciliation Journal - Test"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimensionSetEntry.FindSet then
+                                if not DimensionSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -232,7 +232,7 @@ report 2000020 "Domiciliation Journal - Test"
                         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                         CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                         CustLedgEntry.SetRange("Customer No.", "Customer No.");
-                        if CustLedgEntry.FindFirst then begin
+                        if CustLedgEntry.FindFirst() then begin
                             DueDate[1] := CustLedgEntry."Due Date";
                             if CustLedgEntry."Remaining Pmt. Disc. Possible" <> 0 then
                                 DueDate[2] := CustLedgEntry."Pmt. Discount Date";

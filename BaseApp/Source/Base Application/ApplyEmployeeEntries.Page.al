@@ -356,7 +356,7 @@ page 234 "Apply Employee Entries"
                     Image = Navigate;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
 
@@ -520,7 +520,6 @@ page 234 "Apply Employee Entries"
     end;
 
     var
-        TempApplyingEmplLedgEntry: Record "Employee Ledger Entry" temporary;
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         GenJnlLine: Record "Gen. Journal Line";
@@ -530,12 +529,6 @@ page 234 "Apply Employee Entries"
         GenJnlApply: Codeunit "Gen. Jnl.-Apply";
         Navigate: Page Navigate;
         GenJnlLineApply: Boolean;
-        ApplnDate: Date;
-        ApplnRoundingPrecision: Decimal;
-        ApplnRounding: Decimal;
-        ApplnType: Option " ","Applies-to Doc. No.","Applies-to ID";
-        AmountRoundingPrecision: Decimal;
-        CalcType: Enum "Vendor Apply Calculation Type";
         EmplEntryApplID: Code[50];
         AppliesToID: Code[50];
         ValidExchRate: Boolean;
@@ -552,18 +545,25 @@ page 234 "Apply Employee Entries"
         ApplicationPostedMsg: Label 'The application was successfully posted.';
         ApplicationDateErr: Label 'The posting date entered must not be before the posting date on the employee ledger entry.';
         ApplicationProcessCanceledErr: Label 'Post application process has been canceled.';
+        WorkDateErr: Label 'When using workdate for applying/unapplying, the workdate must not be before the latest posting date %1 on the entries to apply.', Comment = '%1 - a date';
         IsOfficeAddin: Boolean;
-        WorkdateErr: Label 'When using workdate for applying/unapplying, the workdate must not be before the latest posting date %1 on the entries to apply.', Comment = '%1 - a date';
 
     protected var
+        TempApplyingEmplLedgEntry: Record "Employee Ledger Entry" temporary;
         AppliedEmplLedgEntry: Record "Employee Ledger Entry";
         GenJnlLine2: Record "Gen. Journal Line";
         EmplLedgEntry: Record "Employee Ledger Entry";
+        ApplnDate: Date;
+        ApplnRoundingPrecision: Decimal;
+        ApplnRounding: Decimal;
+        ApplnType: Enum "Vendor Apply-to Type";
+        AmountRoundingPrecision: Decimal;
         AppliedAmount: Decimal;
         ApplyingAmount: Decimal;
         PmtDiscAmount: Decimal;
         ApplnCurrencyCode: Code[10];
         DifferentCurrenciesInAppln: Boolean;
+        CalcType: Enum "Vendor Apply Calculation Type";
 
     local procedure CheckEarlierPostingDate()
     var
@@ -614,7 +614,7 @@ page 234 "Apply Employee Entries"
     var
         Employee: Record Employee;
     begin
-        OnBeforeSetApplyingEmplLedgEntry(AppliedEmplLedgEntry, GenJnlLine);
+        OnBeforeSetApplyingEmplLedgEntry(TempApplyingEmplLedgEntry, GenJnlLine);
         case CalcType of
             CalcType::Direct:
                 begin
@@ -694,7 +694,7 @@ page 234 "Apply Employee Entries"
 
     protected procedure CalcApplnAmount()
     begin
-        OnBeforeCalcApplnAmount(Rec, GenJnlLine, AppliedEmplLedgEntry, CalcType.AsInteger(), ApplnType);
+        OnBeforeCalcApplnAmount(Rec, GenJnlLine, AppliedEmplLedgEntry, CalcType.AsInteger(), ApplnType.AsInteger());
 
         AppliedAmount := 0;
         PmtDiscAmount := 0;
@@ -703,7 +703,7 @@ page 234 "Apply Employee Entries"
         case CalcType of
             CalcType::Direct:
                 begin
-                    FindAmountRounding;
+                    FindAmountRounding();
                     EmplEntryApplID := UserId;
                     if EmplEntryApplID = '' then
                         EmplEntryApplID := '***';
@@ -723,7 +723,7 @@ page 234 "Apply Employee Entries"
                         AppliedEmplLedgEntry.SetFilter("Entry No.", '<>%1', EmplLedgEntry."Entry No.");
                     end;
 
-                    HandlChosenEntries(0, EmplLedgEntry."Remaining Amount");
+                    HandleChosenEntries(0, EmplLedgEntry."Remaining Amount");
                 end;
             CalcType::"Gen. Jnl. Line":
                 begin
@@ -764,7 +764,7 @@ page 234 "Apply Employee Entries"
                                 AppliedEmplLedgEntry.SetRange(Open, true);
                                 AppliedEmplLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
 
-                                HandlChosenEntries(1, GenJnlLine2.Amount);
+                                HandleChosenEntries(1, GenJnlLine2.Amount);
                             end;
                     end;
                 end;
@@ -864,7 +864,7 @@ page 234 "Apply Employee Entries"
             EmplLedgEntry.SetRange(Open, true);
             EmplLedgEntry.SetRange("Applying Entry", true);
             OnFindFindApplyingEntryOnAfterEmplLedgEntrySetFilters(Rec, EmplLedgEntry);
-            if EmplLedgEntry.FindFirst then begin
+            if EmplLedgEntry.FindFirst() then begin
                 EmplLedgEntry.CalcFields(Amount, "Remaining Amount");
                 TempApplyingEmplLedgEntry := EmplLedgEntry;
                 Rec.SetFilter("Entry No.", '<>%1', EmplLedgEntry."Entry No.");
@@ -891,14 +891,12 @@ page 234 "Apply Employee Entries"
 
     local procedure PostDirectApplication(PreviewMode: Boolean)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        NewApplyUnapplyParameters: Record "Apply Unapply Parameters";
         EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
         PostApplication: Page "Post Application";
         ApplicationDate: Date;
-        NewApplicationDate: Date;
-        NewDocumentNo: Code[20];
         IsHandled: Boolean;
-        NewJnlTemplateName: Code[10];
-        NewJnlBatchName: Code[10];
     begin
         IsHandled := false;
         OnBeforePostDirectApplication(Rec, PreviewMode, IsHandled);
@@ -911,31 +909,34 @@ page 234 "Apply Employee Entries"
                 ApplicationDate := EmplEntryApplyPostedEntries.GetApplicationDate(Rec);
 
                 OnPostDirectApplicationBeforeSetValues(ApplicationDate);
-                GLSetup.Get();
+                Clear(ApplyUnapplyParameters);
+                ApplyUnapplyParameters.CopyFromEmplLedgEntry(Rec);
+                GLSetup.GetRecordOnce();
                 if GLSetup."Use Workdate for Appl./Unappl." then begin
-                    if ApplicationDate > WorkDate then
-                        Error(WorkdateErr, ApplicationDate);
-                    PostApplication.SetValues(
-                      GLSetup."Jnl. Templ. Name for Applying", GLSetup."Jnl. Batch Name for Applying",
-                      "Document No.", WorkDate);
+                    if ApplicationDate > WorkDate() then
+                        Error(WorkDateErr, ApplicationDate);
+                    ApplyUnapplyParameters."Posting Date" := WorkDate();
                 end else
-                    PostApplication.SetValues(
-                      GLSetup."Jnl. Templ. Name for Applying", GLSetup."Jnl. Batch Name for Applying",
-                      "Document No.", ApplicationDate);
-                if ACTION::OK = PostApplication.RunModal then begin
-                    PostApplication.GetValues(
-                      NewJnlTemplateName, NewJnlBatchName,
-                      NewDocumentNo, NewApplicationDate);
-                    if NewApplicationDate < ApplicationDate then
+                    ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+                if GLSetup."Journal Templ. Name Mandatory" then begin
+                    GLSetup.TestField("Apply Jnl. Template Name");
+                    GLSetup.TestField("Apply Jnl. Batch Name");
+                    ApplyUnapplyParameters."Journal Template Name" := GLSetup."Apply Jnl. Template Name";
+                    ApplyUnapplyParameters."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
+                end;
+                PostApplication.SetParameters(ApplyUnapplyParameters);
+                if ACTION::OK = PostApplication.RunModal() then begin
+                    PostApplication.GetParameters(NewApplyUnapplyParameters);
+                    if NewApplyUnapplyParameters."Posting Date" < ApplicationDate then
                         Error(ApplicationDateErr);
                 end else
                     Error(ApplicationProcessCanceledErr);
 
-                OnPostDirectApplicationBeforeApply();
+                OnPostDirectApplicationBeforeApply(GLSetup, NewApplyUnapplyParameters);
                 if PreviewMode then
-                    EmplEntryApplyPostedEntries.PreviewApply(Rec, NewDocumentNo, NewApplicationDate, NewJnlTemplateName, NewJnlBatchName)
+                    EmplEntryApplyPostedEntries.PreviewApply(Rec, NewApplyUnapplyParameters)
                 else
-                    EmplEntryApplyPostedEntries.Apply(Rec, NewDocumentNo, NewApplicationDate, NewJnlTemplateName, NewJnlBatchName);
+                    EmplEntryApplyPostedEntries.Apply(Rec, NewApplyUnapplyParameters);
 
                 if not PreviewMode then begin
                     Message(ApplicationPostedMsg);
@@ -964,7 +965,7 @@ page 234 "Apply Employee Entries"
         AppliesToID := AppliesToID2;
     end;
 
-    local procedure HandlChosenEntries(Type: Option Direct,GenJnlLine; CurrentAmount: Decimal)
+    local procedure HandleChosenEntries(Type: Option Direct,GenJnlLine; CurrentAmount: Decimal)
     var
         TempAppliedEmplLedgEntry: Record "Employee Ledger Entry" temporary;
         CorrectionAmount: Decimal;
@@ -1029,7 +1030,7 @@ page 234 "Apply Employee Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDirectApplicationBeforeApply()
+    local procedure OnPostDirectApplicationBeforeApply(GLSetup: Record "General Ledger Setup"; var NewApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 

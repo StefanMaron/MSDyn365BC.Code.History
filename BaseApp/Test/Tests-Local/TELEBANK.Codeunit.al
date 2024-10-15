@@ -45,7 +45,7 @@ codeunit 144051 TELEBANK
         FileObject: DotNet File;
         ServerFilename: Text;
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         // Create No Series for the Gen Journal Template
         LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');

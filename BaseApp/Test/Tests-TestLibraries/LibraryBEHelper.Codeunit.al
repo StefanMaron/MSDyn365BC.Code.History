@@ -44,7 +44,7 @@ codeunit 143000 "Library - BE Helper"
     begin
         with VATRegistrationNoFormat do begin
             SetRange("Country/Region Code", CountryCode);
-            if FindLast then;
+            if FindLast() then;
             "Country/Region Code" := CountryCode;
             "Line No." += 10000;
             Format := FormatText;
@@ -78,7 +78,7 @@ codeunit 143000 "Library - BE Helper"
         Vendor: Record Vendor;
     begin
         Customer.SetFilter("VAT Registration No.", '<>%1', '');
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 TempVATEntry."Entry No." += 1;
                 TempVATEntry."VAT Registration No." := Customer."VAT Registration No.";
@@ -86,7 +86,7 @@ codeunit 143000 "Library - BE Helper"
             until Customer.Next = 0;
 
         Vendor.SetFilter("VAT Registration No.", '<>%1', '');
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 TempVATEntry."Entry No." += 1;
                 TempVATEntry."VAT Registration No." := Vendor."VAT Registration No.";
@@ -139,7 +139,7 @@ codeunit 143000 "Library - BE Helper"
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
     begin
         VATRegistrationNoFormat.SetRange("Country/Region Code", CountryCode);
-        if VATRegistrationNoFormat.FindFirst then
+        if VATRegistrationNoFormat.FindFirst() then
             Result := VATRegistrationNoFormat.Format
         else
             Error(VatRegNoFormatNotFoundErr);
@@ -258,7 +258,7 @@ codeunit 143000 "Library - BE Helper"
         ResourceNo := Resource."No.";
 
         Resource.SetFilter("No.", ResourceNo);
-        Resource.FindFirst;
+        Resource.FindFirst();
         with Resource do begin
             Validate("Unit Price", LibraryRandom.RandInt(100));
             Modify;
@@ -407,7 +407,7 @@ codeunit 143000 "Library - BE Helper"
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenPostingType);
 
         GLAccount.SetRange("No.", GLAccountNo);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
 
         GLAccount."% Non deductible VAT" := NonDeductibleVAT;
         GLAccount.Modify();

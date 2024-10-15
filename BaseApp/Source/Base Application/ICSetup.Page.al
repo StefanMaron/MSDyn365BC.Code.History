@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 621 "IC Setup"
 {
     ApplicationArea = Intercompany;
@@ -5,6 +6,9 @@ page 621 "IC Setup"
     PageType = StandardDialog;
     SourceTable = "Company Information";
     UsageCategory = Administration;
+    ObsoleteReason = 'Replaced by "Intercompany Setup" page.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -12,7 +16,8 @@ page 621 "IC Setup"
         {
             group("Current Company")
             {
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code";
+                "IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Intercompany Partner Code';
@@ -24,6 +29,21 @@ page 621 "IC Setup"
                     Caption = 'Auto. Send Transactions';
                     ToolTip = 'Specifies that as soon as transactions arrive in the intercompany outbox, they will be sent to the intercompany partner.';
                 }
+                field(OpenNewICSetupPageTxt; OpenNewICSetupPageTxt)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ShowCaption = false;
+                    Style = StrongAccent;
+                    StyleExpr = true;
+                    ToolTip = 'Run new Intercompany Setup page.';
+
+                    trigger OnDrillDown()
+                    begin
+                        CurrPage.Update(true);
+                        Page.Run(Page::"Intercompany Setup");
+                    end;
+                }
             }
         }
     }
@@ -31,5 +51,19 @@ page 621 "IC Setup"
     actions
     {
     }
+
+    trigger OnInit()
+    var
+        ICAutoAcceptFeatureMgt: Codeunit "IC Auto Accept Feature Mgt.";
+    begin
+        if ICAutoAcceptFeatureMgt.IsICAutoAcceptTransactionEnabled() then begin
+            Page.Run(Page::"Intercompany Setup");
+            Error('');
+        end;
+    end;
+
+    var
+        OpenNewICSetupPageTxt: Label 'Open new Intercompany Setup page';
 }
+#endif
 

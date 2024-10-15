@@ -135,6 +135,13 @@ page 5919 "Service Mgt. Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
                 }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Advanced;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
+                }
+#if not CLEAN20
                 field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
                 {
                     ApplicationArea = Advanced;
@@ -142,7 +149,11 @@ page 5919 "Service Mgt. Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of service invoices.';
                     Visible = false;
+                    ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
             }
             group("Mandatory Fields")
             {
@@ -284,21 +295,43 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number series code that will be used to assign numbers to invoices.';
                 }
+                field("Posted Service Invoice Nos."; "Posted Service Invoice Nos.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the number series code that will be used to assign numbers to service invoices when they are posted.';
+                }
+#if not CLEAN20
                 field("Jnl. Templ. Serv. Inv."; "Jnl. Templ. Serv. Inv.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the journal template to use for posting service invoices.';
+                    ObsoleteReason = 'Replaced by W1 field in page Gen. Jnl. Posting Setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
+#endif
                 field("Service Credit Memo Nos."; "Service Credit Memo Nos.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number series code that will be used to assign numbers to service credit memos.';
                 }
+                field("Posted Serv. Credit Memo Nos."; "Posted Serv. Credit Memo Nos.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the number series code that will be used to assign numbers to service credit memos when they are posted.';
+                }
+#if not CLEAN20
                 field("Jnl. Templ. Serv. CM"; "Jnl. Templ. Serv. CM")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies which general journal template to use for service credit memos.';
+                    ObsoleteReason = 'Replaced by W1 field in page Gen. Jnl. Posting Setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
+#endif
                 field("Posted Service Shipment Nos."; "Posted Service Shipment Nos.")
                 {
                     ApplicationArea = Service;
@@ -334,12 +367,53 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number series code that will be used to assign numbers to credit memos for service contracts.';
                 }
+                field("Prepaid Posting Document Nos."; "Prepaid Posting Document Nos.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the number series code that will be used to assign a document number to the journal lines.';
+                }
+#if not CLEAN20
                 field("Jnl. Templ. Serv. Contr. Inv."; "Jnl. Templ. Serv. Contr. Inv.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the journal template to use for posting service contract invoices.';
+                    ObsoleteReason = 'Replaced by W1 field in page Gen. Jnl. Posting Setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Jnl. Templ. Serv. Contr. CM"; "Jnl. Templ. Serv. Contr. CM")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the name of the journal template to use for posting service contract credit memos.';
+                    ObsoleteReason = 'Replaced by W1 field in page Gen. Jnl. Posting Setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
+                }
+#endif
+            }
+            group("Journal Templates")
+            {
+                Caption = 'Journal Templates';
+                Visible = JnlTemplateNameVisible;
+
+                field("Serv. Inv. Template Name"; Rec."Serv. Inv. Template Name")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the name of the journal template to use for posting service invoices.';
+                }
+                field("Serv. Cr. Memo Templ. Name"; Rec."Serv. Cr. Memo Templ. Name")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies which general journal template to use for service credit memos.';
+                }
+                field("Serv. Contr. Inv. Templ. Name"; Rec."Serv. Contr. Inv. Templ. Name")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the name of the journal template to use for posting service contract invoices.';
+                }
+                field("Serv. Contr. Cr.M. Templ. Name"; Rec."Serv. Contr. Cr.M. Templ. Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the journal template to use for posting service contract credit memos.';
@@ -366,15 +440,21 @@ page 5919 "Service Mgt. Setup"
     }
 
     trigger OnOpenPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         Reset;
         if not Get then begin
             Init;
             Insert;
         end;
+
+        GeneralLedgerSetup.Get();
+        JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
     end;
 
     var
         CalendarMgmt: Codeunit "Calendar Management";
+        JnlTemplateNameVisible: Boolean;
 }
 

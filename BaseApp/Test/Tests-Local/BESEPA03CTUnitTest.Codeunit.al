@@ -35,7 +35,7 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
         ExportProtocol: Record "Export Protocol";
         PaymentJournalLine: Record "Payment Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.03",
@@ -64,7 +64,7 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
         ExportProtocol: Record "Export Protocol";
         PaymentJournalLine: Record "Payment Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.03",
@@ -95,7 +95,7 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
         ExportProtocol: Record "Export Protocol";
         PaymentJournalLine: Record "Payment Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.03",

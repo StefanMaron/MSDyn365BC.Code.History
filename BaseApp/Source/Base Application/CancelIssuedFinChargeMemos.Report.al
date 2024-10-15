@@ -15,7 +15,7 @@ report 1395 "Cancel Issued Fin.Charge Memos"
                 CancelIssuedFinChargeMemo: Codeunit "Cancel Issued Fin. Charge Memo";
             begin
                 CancelIssuedFinChargeMemo.SetParameters(UseSameDocumentNo, UseSamePostingDate, NewPostingDate, NoOfRecords > 1);
-                CancelIssuedFinChargeMemo.SetJournal(DummyGenJnlLine);
+                CancelIssuedFinChargeMemo.SetGenJnlBatch(GenJnlBatch);
                 if CancelIssuedFinChargeMemo.Run("Issued Fin. Charge Memo Header") then begin
                     if CancelIssuedFinChargeMemo.GetErrorMessages(TempErrorMessage) then
                         AddIssuedFinChargeMemoHeaderToErrorBuffer;
@@ -82,41 +82,39 @@ report 1395 "Cancel Issued Fin.Charge Memos"
                     Enabled = NewPostingDateEnabled;
                     ToolTip = 'Specifies the new posting date for corrective ledger entries.';
                 }
-                field(JnlTemplateName; DummyGenJnlLine."Journal Template Name")
+                field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Journal Template Name';
                     TableRelation = "Gen. Journal Template";
                     ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                    Visible = IsJournalTemplNameVisible;
 
                     trigger OnValidate()
                     begin
-                        DummyGenJnlLine."Journal Batch Name" := '';
+                        GenJnlLineReq."Journal Batch Name" := '';
                     end;
                 }
-                field(JnlBatchName; DummyGenJnlLine."Journal Batch Name")
+                field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Journal Batch Name';
                     Lookup = true;
                     ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                    Visible = IsJournalTemplNameVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
+                    var
+                        GenJnlManagement: Codeunit GenJnlManagement;
                     begin
-                        DummyGenJnlLine.TestField("Journal Template Name");
-                        GenJournalTemplate.Get(DummyGenJnlLine."Journal Template Name");
-                        GenJnlBatch.SetRange("Journal Template Name", DummyGenJnlLine."Journal Template Name");
-                        GenJnlBatch."Journal Template Name" := DummyGenJnlLine."Journal Template Name";
-                        GenJnlBatch.Name := DummyGenJnlLine."Journal Batch Name";
-                        if PAGE.RunModal(0, GenJnlBatch) = ACTION::LookupOK then
-                            DummyGenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+                        GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if DummyGenJnlLine."Journal Batch Name" <> '' then begin
-                            DummyGenJnlLine.TestField("Journal Template Name");
-                            GenJnlBatch.Get(DummyGenJnlLine."Journal Template Name", DummyGenJnlLine."Journal Batch Name");
+                        if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                            GenJnlLineReq.TestField("Journal Template Name");
+                            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
                     end;
                 }
@@ -141,8 +139,7 @@ report 1395 "Cancel Issued Fin.Charge Memos"
 
     var
         TempIssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header" temporary;
-        GenJournalTemplate: Record "Gen. Journal Template";
-        DummyGenJnlLine: Record "Gen. Journal Line";
+        GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
         NoOfRecords: Integer;
         NothingToCancelErr: Label 'There is nothing to cancel.';
@@ -151,6 +148,8 @@ report 1395 "Cancel Issued Fin.Charge Memos"
         NewPostingDate: Date;
         [InDataSet]
         NewPostingDateEnabled: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
         SpecifyPostingDateErr: Label 'You must specify a posting date.';
         ShowNotCancelledFinChargeMemosQst: Label 'One or more of the selected issued finance charge memos could not be canceled.\\Do you want to see a list of the issued finance charge memos that were not canceled?';
 

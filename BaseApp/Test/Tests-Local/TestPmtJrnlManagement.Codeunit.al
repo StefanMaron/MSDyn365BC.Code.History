@@ -34,7 +34,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         // Verify
         Assert.IsTrue(JnlSelected, '');
         Assert.AreEqual(1, PaymentJnlTemplate.Count, '');
-        PaymentJnlTemplate.FindFirst;
+        PaymentJnlTemplate.FindFirst();
         PaymentJournalLine.FilterGroup(2);
         Assert.AreEqual(PaymentJnlTemplate.Name, PaymentJournalLine.GetRangeMin("Journal Template Name"), '');
         PaymentJournalLine.FilterGroup(0);
@@ -83,7 +83,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.TemplateSelection(PaymentJournalLine, JnlSelected);
 
         // Verify
-        PaymentJnlTemplate.FindLast;
+        PaymentJnlTemplate.FindLast();
         Assert.IsTrue(JnlSelected, '');
         PaymentJournalLine.FilterGroup(2);
         Assert.AreEqual(PaymentJnlTemplate.Name, PaymentJournalLine.GetRangeMin("Journal Template Name"), '');
@@ -172,7 +172,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.OpenJnlBatch(PaymJournalBatch);
 
         // Validate
-        PaymentJnlTemplate.FindFirst;
+        PaymentJnlTemplate.FindFirst();
         Assert.AreEqual(PaymentJnlTemplate.Name, PaymJournalBatch.GetRangeMin("Journal Template Name"), '');
     end;
 
@@ -241,7 +241,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.LookupName(PaymentJnlTemplate.Name, PaymJournalBatch.Name, NewJnlBatchName);
 
         // Verify
-        PaymJournalBatch.FindLast;
+        PaymJournalBatch.FindLast();
         Assert.AreEqual(PaymJournalBatch.Name, NewJnlBatchName, '');
     end;
 
@@ -448,7 +448,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         // Setup
         PaymentJnlLine.Init();
         PaymentJnlLine."Account Type" := PaymentJnlLine."Account Type"::Customer;
-        PaymentJnlLine."Account No." := LibrarySales.CreateCustomerNo;
+        PaymentJnlLine."Account No." := LibrarySales.CreateCustomerNo();
 
         // Execise and validate (opens page)
         PmtJrnlManagement.ShowCard(PaymentJnlLine);
@@ -465,7 +465,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         // Setup
         PaymentJnlLine.Init();
         PaymentJnlLine."Account Type" := PaymentJnlLine."Account Type"::Vendor;
-        PaymentJnlLine."Account No." := LibraryPurchase.CreateVendorNo;
+        PaymentJnlLine."Account No." := LibraryPurchase.CreateVendorNo();
 
         // Execise and validate (opens page)
         PmtJrnlManagement.ShowCard(PaymentJnlLine);

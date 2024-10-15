@@ -13,6 +13,7 @@ codeunit 1000 "Job Calculate WIP"
     var
         TempJobWIPBuffer: array[2] of Record "Job WIP Buffer" temporary;
         GLSetup: Record "General Ledger Setup";
+        GenJnlBatch: Record "Gen. Journal Batch";
         GenJnPostLine: Codeunit "Gen. Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
         ErrorMessageMgt: Codeunit "Error Message Management";
@@ -32,8 +33,6 @@ codeunit 1000 "Job Calculate WIP"
         WIPAmount: Decimal;
         RecognizedAllocationPercentage: Decimal;
         CannotModifyAssociatedEntriesErr: Label 'The %1 cannot be modified because the job has associated job WIP entries.', Comment = '%1=The job task table name.';
-        JnlTemplateName: Code[10];
-        JnlBatchName: Code[10];
 
     procedure JobCalcWIP(var Job: Record Job; WIPPostingDate2: Date; DocNo2: Code[20])
     var
@@ -57,7 +56,7 @@ codeunit 1000 "Job Calculate WIP"
         JobWIPGLEntry.SetCurrentKey("Job No.", Reversed, "Job Complete");
         JobWIPGLEntry.SetRange("Job No.", Job."No.");
         JobWIPGLEntry.SetRange("Job Complete", true);
-        if JobWIPGLEntry.FindFirst then begin
+        if JobWIPGLEntry.FindFirst() then begin
             JobWIPEntry.DeleteEntriesForJob(Job);
             exit;
         end;
@@ -531,7 +530,7 @@ codeunit 1000 "Job Calculate WIP"
 
         JobTaskDimension.SetRange("Job No.", JobTask."Job No.");
         JobTaskDimension.SetRange("Job Task No.", JobTask."Job Task No.");
-        if JobTaskDimension.FindSet then
+        if JobTaskDimension.FindSet() then
             repeat
                 TempDimensionBuffer."Dimension Code" := JobTaskDimension."Dimension Code";
                 TempDimensionBuffer."Dimension Value Code" := JobTaskDimension."Dimension Value Code";
@@ -613,7 +612,7 @@ codeunit 1000 "Job Calculate WIP"
         if BufferType = BufferType::"Applied Sales" then
             JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Sale);
 
-        if JobLedgerEntry.FindSet then
+        if JobLedgerEntry.FindSet() then
             repeat
                 CreateWIPBufferEntryFromLedger(JobLedgerEntry, JobTask, JobWIPTotal, BufferType)
             until JobLedgerEntry.Next() = 0;
@@ -708,7 +707,7 @@ codeunit 1000 "Job Calculate WIP"
     begin
         NextEntryNo := JobWIPEntry.GetLastEntryNo() + 1;
 
-        GetGLSetup;
+        GetGLSetup();
         if TempJobWIPBuffer[1].Find('-') then
             repeat
                 CreateEntry := true;
@@ -754,7 +753,17 @@ codeunit 1000 "Job Calculate WIP"
             until TempJobWIPBuffer[1].Next() = 0;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by W1 CalcGLWIP() and SetGenJnlBatch()', '20.0')]
     procedure CalcGLWIP(JobNo: Code[20]; JustReverse: Boolean; DocNo: Code[20]; PostingDate: Date; NewPostDate: Boolean; JnlTemplateName2: Code[10]; JnlBatchName2: Code[10])
+    begin
+        if GenJnlBatch.Get(JnlTemplateName2, JnlBatchName2) then;
+        SetGenJnlBatch(GenJnlBatch);
+        CalcGLWIP(JobNo, JustReverse, DocNo, PostingDate, NewPostDate);
+    end;
+#endif
+
+    procedure CalcGLWIP(JobNo: Code[20]; JustReverse: Boolean; DocNo: Code[20]; PostingDate: Date; NewPostDate: Boolean)
     var
         SourceCodeSetup: Record "Source Code Setup";
         GLEntry: Record "G/L Entry";
@@ -767,8 +776,6 @@ codeunit 1000 "Job Calculate WIP"
         NextEntryNo: Integer;
         NextTransactionNo: Integer;
     begin
-        JnlTemplateName := JnlTemplateName2;
-        JnlBatchName := JnlBatchName2;
         JobWIPGLEntry.LockTable();
         JobWIPEntry.LockTable();
         Job.LockTable();
@@ -791,7 +798,7 @@ codeunit 1000 "Job Calculate WIP"
         NextEntryNo := JobWIPGLEntry.GetLastEntryNo() + 1;
 
         JobWIPGLEntry.SetCurrentKey("WIP Transaction No.");
-        if JobWIPGLEntry.FindLast then
+        if JobWIPGLEntry.FindLast() then
             NextTransactionNo := JobWIPGLEntry."WIP Transaction No." + 1
         else
             NextTransactionNo := 1;
@@ -870,7 +877,7 @@ codeunit 1000 "Job Calculate WIP"
 
         with JobTask do begin
             SetRange("Job No.", Job."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     "Recognized Sales G/L Amount" := "Recognized Sales Amount";
                     "Recognized Costs G/L Amount" := "Recognized Costs Amount";
@@ -881,7 +888,7 @@ codeunit 1000 "Job Calculate WIP"
         with JobLedgerEntry do begin
             SetRange("Job No.", Job."No.");
             SetFilter("Amt. to Post to G/L", '<>%1', 0);
-            if FindSet then
+            if FindSet() then
                 repeat
                     "Amt. Posted to G/L" += "Amt. to Post to G/L";
                     Modify;
@@ -912,9 +919,7 @@ codeunit 1000 "Job Calculate WIP"
     begin
         GLAcc.Get(AccNo);
         with GenJnlLine do begin
-            Init;
-            "Journal Template Name" := JnlTemplateName;
-            "Journal Batch Name" := JnlBatchName;
+            Init();
             "Posting Date" := JnlPostingDate;
             "Account No." := AccNo;
             "Bal. Account No." := BalAccNo;
@@ -928,6 +933,11 @@ codeunit 1000 "Job Calculate WIP"
             "Job No." := JobNo;
             "System-Created Entry" := true;
             "Dimension Set ID" := JobWIPGLEntryDimSetID;
+            GetGLSetup();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                "Journal Template Name" := GenJnlBatch."Journal Template Name";
+                "Journal Batch Name" := GenJnlBatch.Name;
+            end;
         end;
         Clear(DimMgt);
         DimMgt.UpdateGlobalDimFromDimSetID(GenJnlLine."Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
@@ -1128,8 +1138,10 @@ codeunit 1000 "Job Calculate WIP"
     [EventSubscriber(ObjectType::Table, Database::"Job Task", 'OnBeforeRenameEvent', '', false, false)]
     procedure VerifyJobWIPEntryOnBeforeRename(var Rec: Record "Job Task"; var xRec: Record "Job Task"; RunTrigger: Boolean)
     begin
-        if not Rec.IsTemporary then
-            VerifyJobWIPEntryIsEmpty(Rec."Job No.");
+        if Rec.IsTemporary then
+            exit;
+
+        VerifyJobWIPEntryIsEmpty(Rec."Job No.");
     end;
 
     local procedure JobTaskWIPRelatedFieldsAreModified(JobTask: Record "Job Task"): Boolean
@@ -1153,6 +1165,11 @@ codeunit 1000 "Job Calculate WIP"
         JobWIPEntry.SetRange("Job No.", JobNo);
         if not JobWIPEntry.IsEmpty() then
             Error(CannotModifyAssociatedEntriesErr, JobTask.TableCaption);
+    end;
+
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
     end;
 
     [IntegrationEvent(false, false)]

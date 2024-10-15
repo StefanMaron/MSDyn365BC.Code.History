@@ -53,7 +53,7 @@ codeunit 144010 "VAT Reports BE"
         Txt: Text;
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateCustomer(Customer, true);
@@ -87,7 +87,7 @@ codeunit 144010 "VAT Reports BE"
         Item: Record Item;
         Representative: Record Representative;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateCustomer(Customer, true);
@@ -124,7 +124,7 @@ codeunit 144010 "VAT Reports BE"
         Txt: Text;
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateCustomer(Customer, true);
@@ -162,7 +162,7 @@ codeunit 144010 "VAT Reports BE"
         AmountToTest: Decimal;
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateCustomer(Customer, true);
@@ -205,7 +205,7 @@ codeunit 144010 "VAT Reports BE"
         PostingDate: Date;
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateCustomer(Customer, true);
@@ -255,7 +255,7 @@ codeunit 144010 "VAT Reports BE"
         DocumentNo: Code[20];
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateCustomer(Customer, true);
@@ -288,7 +288,7 @@ codeunit 144010 "VAT Reports BE"
         SalesLine: Record "Sales Line";
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateItemWithCost(Item);
@@ -313,7 +313,7 @@ codeunit 144010 "VAT Reports BE"
         Item: Record Item;
         CompanyInformation: Record "Company Information";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateItemWithCost(Item);
@@ -347,7 +347,7 @@ codeunit 144010 "VAT Reports BE"
         Item: Record Item;
         I: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateCustomer(Customer, true);
@@ -408,7 +408,7 @@ codeunit 144010 "VAT Reports BE"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO REP.020] VAT Correction Amount in 'Declaration Summary Report' (TC157006)
-        Initialize;
+        Initialize();
 
         // [GIVEN] ACY is not set on General Ledger Setup
         AmtInAddCurr := false;
@@ -423,7 +423,7 @@ codeunit 144010 "VAT Reports BE"
         CorrectionAmount := AddManualVATCorrection(VATStatementLine, PostingDate, AmtInAddCurr);
 
         // [WHEN] Run Report 11311 VAT Statement Summary with 'Show ACY Amounts'=No
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         VATStatementName.Reset();
         VATStatementSummaryOpen(
           PostingDate, 12, true, 2, false, AmtInAddCurr, true, VATStatementName, VATStatementLine."Statement Template Name");
@@ -448,7 +448,7 @@ codeunit 144010 "VAT Reports BE"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO REP.021] VAT Correction Amount in 'Declaration Summary Report' in ACY
-        Initialize;
+        Initialize();
 
         // [GIVEN] ACY is set on General Ledger Setup
         CreateAddnlReportingCurrency;
@@ -464,7 +464,7 @@ codeunit 144010 "VAT Reports BE"
         CorrectionAmount := AddManualVATCorrection(VATStatementLine, PostingDate, AmtInAddCurr);
 
         // [WHEN] Run Report 11311 VAT Statement Summary with 'Show ACY Amounts'=Yes
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         VATStatementName.Reset();
         VATStatementSummaryOpen(
           PostingDate, 12, true, 2, false, AmtInAddCurr, true, VATStatementName, VATStatementLine."Statement Template Name");
@@ -490,7 +490,7 @@ codeunit 144010 "VAT Reports BE"
         // should be calculated together in exported file for the same customer within same year.
 
         // Setup: Create Customer. Create and post Sales Invoice at WorkDate. Create VAT - VIES Correction.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate);
         CorrectionAmount := LibraryRandom.RandDec(100, 2);
         CreateVATVIESCorrection(Customer, -CorrectionAmount, WorkDate, false); // FALSE means no need to fill in Posting Date.
@@ -518,7 +518,7 @@ codeunit 144010 "VAT Reports BE"
         FileName: Text;
     begin
         // [SCENARIO TFS107002] Customer with Zero Balance should not be in the XML File
-        Initialize;
+        Initialize();
 
         // [GIVEN]
         PostingDate := LibraryRandom.RandDateFromInRange(WorkDate, 100, 200);
@@ -549,7 +549,7 @@ codeunit 144010 "VAT Reports BE"
         // [FEATURE] [UT] [Non Deductible VAT]
         // [SCENARIO 379117] User should be able to use "Incl. Non Deductible VAT" for VAT Settlement rows with "Amount Type" Base
 
-        Initialize;
+        Initialize();
         VATStatementLine."Amount Type" := VATStatementLine."Amount Type"::Base;
         VATStatementLine.Validate("Incl. Non Deductible VAT", true);
         VATStatementLine.TestField("Incl. Non Deductible VAT", true);
@@ -564,7 +564,7 @@ codeunit 144010 "VAT Reports BE"
         // [FEATURE] [UT] [Non Deductible VAT]
         // [SCENARIO 379117] User should not be able to use "Incl. Non Deductible VAT" for VAT Settlement rows with "Amount Type" different than Base or Amount
 
-        Initialize;
+        Initialize();
         VATStatementLine."Amount Type" := VATStatementLine."Amount Type"::"Unrealized Base";
         asserterror VATStatementLine.Validate("Incl. Non Deductible VAT", true);
         Assert.ExpectedError('Amount Type must not be Unrealized Base in VAT Statement Line Statement');
@@ -582,7 +582,7 @@ codeunit 144010 "VAT Reports BE"
     begin
         // [FEATURE] [Sales] [EC Sales List]
         // [SCENARIO 381864] EC Sales List prints a correct value in the "Total Value of Item Service Supplies" column if posted sales invoice has second line with Amount = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Product Posting Setup" with "VAT EU"."EU Service" = TRUE
         // [GIVEN] "VAT Bus. Product Group" = "X", "VAT Prod. Posting Group" = "Y1"
@@ -598,7 +598,7 @@ codeunit 144010 "VAT Reports BE"
         CreateAndPostSalesInvoice(ExpectedValue, GeneralPostingSetup, VATBusinessPostingGroupCode,
           LibraryRandom.RandDecInRange(1000, 2000, 5), VATProdPostingSetupCode[1], 0, VATProdPostingSetupCode[2]);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         Commit();
 
@@ -625,7 +625,7 @@ codeunit 144010 "VAT Reports BE"
     begin
         // [FEATURE] [Sales] [EC Sales List]
         // [SCENARIO 381864] EC Sales List prints a correct value in the "Total Value of Item Service Supplies" column if posted sales invoice has first line with Amount = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Product Posting Setup" with "VAT EU"."EU Service" = TRUE
         // [GIVEN] "VAT Bus. Product Group" = "X", "VAT Prod. Posting Group" = "Y1"
@@ -641,7 +641,7 @@ codeunit 144010 "VAT Reports BE"
         CreateAndPostSalesInvoice(ExpectedValue, GeneralPostingSetup, VATBusinessPostingGroupCode,
           0, VATProdPostingSetupCode[2], LibraryRandom.RandIntInRange(1000, 2000), VATProdPostingSetupCode[1]);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         Commit();
 
@@ -669,7 +669,7 @@ codeunit 144010 "VAT Reports BE"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 325903] Run report "VAT-VIES Declaration Disk" in case one of the Customers has blank "Country/Region Code".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales document for Customer with blank "Country/Region Code".
         CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate);
@@ -693,7 +693,7 @@ codeunit 144010 "VAT Reports BE"
         VATVIESCorrection: Record "VAT VIES Correction";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"VAT Reports BE");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         VATVIESCorrection.DeleteAll();
 
         if isInitialized then
@@ -733,7 +733,7 @@ codeunit 144010 "VAT Reports BE"
         VATVIESDeclarationDisk.SetTableView(Customer);
         FileName := FileManagement.ServerTempFileName('txt');
         VATVIESDeclarationDisk.SetFileName(FileName);
-        VATVIESDeclarationDisk.Run;
+        VATVIESDeclarationDisk.Run();
     end;
 
     [HandlerFunctions('VATVIESDeclarationDiskRequestPageHandler')]
@@ -779,7 +779,7 @@ codeunit 144010 "VAT Reports BE"
             SetRange("Period Type", VATVIESCorrection."Period Type");
             SetRange("Declaration Period No.", VATVIESCorrection."Declaration Period No.");
             SetRange("Declaration Period Year", VATVIESCorrection."Declaration Period Year");
-            if FindLast then
+            if FindLast() then
                 exit("Line No." + 10000);
             exit(10000);
         end;
@@ -1002,7 +1002,7 @@ codeunit 144010 "VAT Reports BE"
         with VATEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Posting Date", PostingDate);
-            if FindFirst then begin
+            if FindFirst() then begin
                 if InACY then
                     exit("Additional-Currency Base");
                 exit(Base);
@@ -1016,7 +1016,7 @@ codeunit 144010 "VAT Reports BE"
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         exit(AccountingPeriod."Starting Date");
     end;
 

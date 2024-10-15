@@ -36,7 +36,7 @@ codeunit 144023 "Test Apply G/L Account"
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=59812
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Set the consolidation accounts in the GLAccounts table
         SetCreditAndDebitConsolidationAccounts(DebitAccountNo, CreditAccountNo);
@@ -49,9 +49,9 @@ codeunit 144023 "Test Apply G/L Account"
 
         Commit();
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Assets);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
         // --------------------------------------------------------------------------------
         // Excercise : Run 'Import Consolidation from DB' report.
         LibraryVariableStorage.Enqueue(BusinessUnit."Starting Date");
@@ -64,7 +64,7 @@ codeunit 144023 "Test Apply G/L Account"
         // Verify that the 'Amount' and 'Remaining Amount' are equal
         GLEntry.SetFilter("G/L Account No.", DebitAccountNo + '|' + CreditAccountNo);
 
-        if GLEntry.FindSet then begin
+        if GLEntry.FindSet() then begin
             repeat
                 Assert.AreEqual(GLEntry.Amount, GLEntry."Remaining Amount", '');
             until GLEntry.Next = 0;
@@ -85,13 +85,13 @@ codeunit 144023 "Test Apply G/L Account"
 
         // Verify that the amount and remaining amount on the previously created entries
         // are set to 0 and new entries are created
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         EntryNo := GLEntry."Entry No.";
 
         GLEntry.Reset();
         GLEntry.SetRange("G/L Account No.", DebitAccountNo);
 
-        if GLEntry.FindSet then begin
+        if GLEntry.FindSet() then begin
             repeat
                 if GLEntry."Entry No." = EntryNo then
                     Assert.AreEqual(0, GLEntry.Amount, '');
@@ -105,12 +105,12 @@ codeunit 144023 "Test Apply G/L Account"
         GLEntry.Reset();
         GLEntry.SetRange("G/L Account No.", CreditAccountNo);
 
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         EntryNo := GLEntry."Entry No.";
 
         GLEntry.Reset();
         GLEntry.SetRange("G/L Account No.", CreditAccountNo);
-        if GLEntry.FindSet then begin
+        if GLEntry.FindSet() then begin
             repeat
                 if GLEntry."Entry No." = EntryNo then
                     Assert.AreEqual(0, GLEntry.Amount, '');
@@ -149,7 +149,7 @@ codeunit 144023 "Test Apply G/L Account"
         ApplyAfterPostingTransferFundsFromOneCashAccountoToAnother(FirstLineDocNo, SecondLineDocNo);
 
         GLAccount.SetRange("No.", '580000');
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         ChartOfAccountsPage.OpenView;
         ChartOfAccountsPage.GotoRecord(GLAccount);
 
@@ -157,7 +157,7 @@ codeunit 144023 "Test Apply G/L Account"
         ChartOfAccountsPage."Ledger E&ntries".Invoke;
 
         GLEntry.SetRange("Document No.", SecondLineDocNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         GeneralLedgerEntriesPage.GotoRecord(GLEntry);
         ApplyGeneralLedgerEntriesPage.Trap;
@@ -187,7 +187,7 @@ codeunit 144023 "Test Apply G/L Account"
 
         GLAccount.Reset();
         GLAccount.SetRange("No.", '580000');
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         ChartOfAccountsPage.OpenView;
         ChartOfAccountsPage.GotoRecord(GLAccount);
 
@@ -195,7 +195,7 @@ codeunit 144023 "Test Apply G/L Account"
         ChartOfAccountsPage."Ledger E&ntries".Invoke;
 
         GLEntry.SetRange("Document No.", SecondLineDocNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         GeneralLedgerEntriesPage.GotoRecord(GLEntry);
         ApplyGeneralLedgerEntriesPage.Trap;
@@ -225,7 +225,7 @@ codeunit 144023 "Test Apply G/L Account"
 
         // ---------------------------------------------------------------
         GLAccount.SetRange("No.", '510000');
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         ChartOfAccountsPage.OpenView;
         ChartOfAccountsPage.GotoRecord(GLAccount);
 
@@ -270,10 +270,10 @@ codeunit 144023 "Test Apply G/L Account"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381565] Amount, Applied Amount and Balance controls should be zero after reset Applies-to ID on Apply General Ledger Entries page
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Entry "GLE" with Amount = 100
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         Amount := MockGLEntry(GLAccountNo);
         GeneralLedgerEntries.OpenView;
         GeneralLedgerEntries.FILTER.SetFilter("G/L Account No.", GLAccountNo);
@@ -326,7 +326,7 @@ codeunit 144023 "Test Apply G/L Account"
 
         // ---------------------------------------------------------------
         GLAccount.SetRange("No.", '580000');
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         ChartOfAccountsPage.OpenView;
         ChartOfAccountsPage.GotoRecord(GLAccount);
 
@@ -399,7 +399,7 @@ codeunit 144023 "Test Apply G/L Account"
     begin
         LibraryERM.CreateBusinessUnit(BusinessUnit);
         BusinessUnit.Name := 'Cons1';
-        CompanyInfo.FindFirst;
+        CompanyInfo.FindFirst();
         BusinessUnit."Company Name" := CopyStr(CompanyInfo.Name, 1, MaxStrLen(BusinessUnit."Company Name"));
         BusinessUnit."Starting Date" := CalcDate('<CY-1Y+1D>', WorkDate);
         BusinessUnit."Ending Date" := CalcDate('<CY>', WorkDate);
@@ -456,10 +456,10 @@ codeunit 144023 "Test Apply G/L Account"
         ReqPage.EndingDate.SetValue := DequeueVar;           // Ending Date
 
         LibraryVariableStorage.Dequeue(DequeueVar);
-        ReqPage."SelectJnlLine.""Journal Template Name""".SetValue := DequeueVar;       // Journal Template Name
+        ReqPage.JournalTemplateName.SetValue := DequeueVar;       // Journal Template Name
 
         LibraryVariableStorage.Dequeue(DequeueVar);
-        ReqPage."SelectJnlLine.""Journal Batch Name""".SetValue := DequeueVar;       // Journal Batch Name
+        ReqPage.JournalBatchName.SetValue := DequeueVar;       // Journal Batch Name
 
         ReqPage.OK.Invoke;
     end;
@@ -490,7 +490,7 @@ codeunit 144023 "Test Apply G/L Account"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         GJTemplateListPage.GotoRecord(GenJournalTemplate);
         GJTemplateListPage.OK.Invoke;

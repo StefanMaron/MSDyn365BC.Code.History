@@ -14,7 +14,7 @@
     {
         dataitem("VAT Entry"; "VAT Entry")
         {
-            DataItemTableView = SORTING("Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date") WHERE(Closed = CONST(false), Type = FILTER(Purchase .. Sale));
+            DataItemTableView = SORTING("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date") WHERE(Closed = CONST(false), Type = FILTER(Purchase .. Sale));
 
             trigger OnAfterGetRecord()
             begin
@@ -42,8 +42,7 @@
             var
                 GLSetup: Record "General Ledger Setup";
             begin
-                Window.Open(
-                  Text002);
+                Window.Open(Text002Txt);
                 if Count > 0 then
                     VATEntryStep := 10000 * 100000 div Count;
 
@@ -83,9 +82,8 @@
                         else
                             GLAccNo := Currency."Residual Gains Account";
                         InsertGLEntry(
-                          "Posting Date", "Document Date", "Document Type".AsInteger(), PostingDocNo, GLAccNo,
-                          GenJnlLine."Journal Batch Name", "Reason Code", -TotalAddCurrAmount,
-                          GenJnlLine."Journal Template Name");
+                          "Posting Date", "Document Date", "Document Type".AsInteger(), DocumentNo, GLAccNo,
+                          "Reason Code", -TotalAddCurrAmount);
                         TotalAddCurrAmount := 0;
                     end;
 
@@ -130,9 +128,7 @@
 
             trigger OnPreDataItem()
             begin
-                Window.Open(
-                  Text003 +
-                  Text004);
+                Window.Open(Text003Txt + Text004Txt);
             end;
         }
         dataitem("Value Entry"; "Value Entry")
@@ -171,9 +167,7 @@
 
             trigger OnPreDataItem()
             begin
-                Window.Open(
-                  Text011 +
-                  Text006);
+                Window.Open(Text011Txt + Text006Txt);
             end;
         }
         dataitem("Job Ledger Entry"; "Job Ledger Entry")
@@ -194,9 +188,7 @@
 
             trigger OnPreDataItem()
             begin
-                Window.Open(
-                  Text007 +
-                  Text008);
+                Window.Open(Text007Txt + Text008Txt);
             end;
         }
         dataitem("Prod. Order Line"; "Prod. Order Line")
@@ -217,9 +209,7 @@
 
             trigger OnPreDataItem()
             begin
-                Window.Open(
-                  Text99000004 +
-                  Text99000002);
+                Window.Open(Text99000004Txt + Text99000002Txt);
             end;
         }
         dataitem("Cost Entry"; "Cost Entry")
@@ -245,9 +235,7 @@
 
             trigger OnPreDataItem()
             begin
-                Window.Open(
-                  Text012 +
-                  Text004);
+                Window.Open(Text012Txt + Text004Txt);
             end;
         }
     }
@@ -282,44 +270,71 @@
                             GLSetup := GLSetup2;
                         end;
                     }
-                    field("GenJnlLine.""Journal Template Name"""; GenJnlLine."Journal Template Name")
+                    field(PostingDocNo; DocumentNo)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Document No.';
+                        ToolTip = 'Specifies a document number that will be copied to rounding entries if another document number does not apply. The batch job creates these rounding entries.';
+                        Visible = not IsJournalTemplNameVisible;
+                    }
+                    field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Journal Template Name';
                         TableRelation = "Gen. Journal Template";
                         ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
 
                         trigger OnValidate()
                         begin
-                            GenJnlLine."Journal Batch Name" := '';
+                            GenJnlLineReq."Journal Batch Name" := '';
                         end;
                     }
-                    field("GenJnlLine.""Journal Batch Name"""; GenJnlLine."Journal Batch Name")
+                    field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Journal Batch Name';
                         Lookup = true;
                         ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
 
                         trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
                         begin
-                            GenJnlLine.TestField("Journal Template Name");
-                            GenJournalTempl.Get(GenJnlLine."Journal Template Name");
-                            GenJnlBatch.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
-                            GenJnlBatch."Journal Template Name" := GenJnlLine."Journal Template Name";
-                            GenJnlBatch.Name := GenJnlLine."Journal Batch Name";
-                            if PAGE.RunModal(0, GenJnlBatch) = ACTION::LookupOK then
-                                GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
                         end;
 
                         trigger OnValidate()
                         begin
-                            if GenJnlLine."Journal Batch Name" <> '' then begin
-                                GenJnlLine.TestField("Journal Template Name");
-                                GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                             end;
                         end;
                     }
+#if not CLEAN20
+                    field("GenJnlLine.""Journal Template Name"""; GenJnlLineReq."Journal Template Name")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Journal Template Name';
+                        TableRelation = "Gen. Journal Template";
+                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        ObsoleteReason = 'Replacec by control JnlTemplateName';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '20.0';
+                    }
+                    field("GenJnlLine.""Journal Batch Name"""; GenJnlLineReq."Journal Batch Name")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Journal Batch Name';
+                        Lookup = true;
+                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        ObsoleteReason = 'Replacec by control JnlBatchName';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '20.0';
+                    }
+#endif
                     field(RetainedEarningsAcc; RetainedEarningsGLAcc."No.")
                     {
                         ApplicationArea = Suite;
@@ -382,38 +397,42 @@
         SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Adjust Add. Reporting Currency");
 
-        if GenJnlLine."Journal Template Name" = '' then
-            Error(Text11300);
-        if GenJnlLine."Journal Batch Name" = '' then
-            Error(Text11301);
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if GenJnlLineReq."Journal Template Name" = '' then
+                Error(Text11300Err);
+            if GenJnlLineReq."Journal Batch Name" = '' then
+                Error(Text11301Err);
 
-        Clear(NoSeriesMgt);
-        Clear(PostingDocNo);
-        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
-        GenJnlBatch.TestField("No. Series");
-        PostingDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", FiscalYearEndDate2, true);
+            Clear(NoSeriesMgt);
+            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+            GenJnlBatch.TestField("No. Series");
+            DocumentNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", FiscalYearEndDate2, true);
+        end else
+            if DocumentNo = '' then
+                Error(
+                    Text000Err, GenJnlLineReq.FieldCaption("Document No."));
+
         if RetainedEarningsGLAcc."No." = '' then
-            Error(Text001);
+            Error(Text001Err);
     end;
 
     var
-        Text000: Label 'Enter a %1.';
-        Text001: Label 'Enter Retained Earnings Account No.';
-        Text002: Label 'Processing VAT Entries @1@@@@@@@@@@\';
-        Text003: Label 'Processing G/L Entries...\\';
-        Text004: Label 'Posting Date #1##########\';
-        Text006: Label 'Item No. #1##########\';
-        Text007: Label 'Processing Job Ledger Entries...\\';
-        Text008: Label 'Job No. #1##########\';
-        Text010: Label 'Residual caused by rounding of %1';
-        Text011: Label 'Processing Value Entries...\\';
-        Text012: Label 'Processing Cost Entries...\\';
-        Text99000002: Label 'Prod. Order No. #1##########\';
-        Text99000004: Label 'Processing Finished Prod. Order Lines...\\';
-        Text11300: Label 'Please enter a Journal Template Name.';
-        Text11301: Label 'Please enter a Journal Batch Name.';
-        GenJournalTempl: Record "Gen. Journal Template";
-        GenJnlLine: Record "Gen. Journal Line";
+        Text000Err: Label 'Enter a %1.', Comment = '%1 - Document No.';
+        Text001Err: Label 'Enter Retained Earnings Account No.';
+        Text002Txt: Label 'Processing VAT Entries @1@@@@@@@@@@\';
+        Text003Txt: Label 'Processing G/L Entries...\\';
+        Text004Txt: Label 'Posting Date #1##########\';
+        Text006Txt: Label 'Item No. #1##########\';
+        Text007Txt: Label 'Processing Job Ledger Entries...\\';
+        Text008Txt: Label 'Job No. #1##########\';
+        Text010Txt: Label 'Residual caused by rounding of %1', Comment = '%1 - additional currency amount';
+        Text011Txt: Label 'Processing Value Entries...\\';
+        Text012Txt: Label 'Processing Cost Entries...\\';
+        Text99000002Txt: Label 'Prod. Order No. #1##########\';
+        Text99000004Txt: Label 'Processing Finished Prod. Order Lines...\\';
+        Text11300Err: Label 'Please enter a Journal Template Name.';
+        Text11301Err: Label 'Please enter a Journal Batch Name.';
+        GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
         GLSetup: Record "General Ledger Setup";
         GLSetup2: Record "General Ledger Setup";
@@ -452,8 +471,8 @@
         LastFiscalYearStartDate: Date;
         LastFiscalYearEndDate: Date;
         LastIsAccPeriodClosingDate: Boolean;
+        IsJournalTemplNameVisible: Boolean;
         DocumentNo: Code[20];
-        PostingDocNo: Code[10];
 
     procedure SetAddCurr(AddCurr: Code[10])
     begin
@@ -522,21 +541,26 @@
             GLEntry3.CalcSums("Additional-Currency Amount");
             if GLEntry3."Additional-Currency Amount" <> 0 then begin
                 InsertGLEntry(
-                  FiscalYearEndDate2, FiscalYearEndDate2, GLEntry3."Document Type"::" ".AsInteger(), PostingDocNo,
-                  CloseIncomeStmtBuffer2."G/L Account No.",
-                  GenJnlLine."Journal Batch Name", '', -GLEntry3."Additional-Currency Amount",
-                  GenJnlLine."Journal Template Name");
-
+                  FiscalYearEndDate2, FiscalYearEndDate2, GLEntry3."Document Type"::" ".AsInteger(), DocumentNo,
+                  CloseIncomeStmtBuffer2."G/L Account No.", '', -GLEntry3."Additional-Currency Amount");
                 InsertGLEntry(
-                  FiscalYearEndDate2, FiscalYearEndDate2, GLEntry3."Document Type"::" ".AsInteger(), PostingDocNo,
-                  RetainedEarningsGLAcc."No.",
-                  GenJnlLine."Journal Batch Name", '', GLEntry3."Additional-Currency Amount",
-                  GenJnlLine."Journal Template Name");
+                  FiscalYearEndDate2, FiscalYearEndDate2, GLEntry3."Document Type"::" ".AsInteger(), DocumentNo,
+                  RetainedEarningsGLAcc."No.", '', GLEntry3."Additional-Currency Amount");
             end;
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by new W1 version of InsertGLEntry()', '20.0')]
     procedure InsertGLEntry(PostingDate: Date; DocumentDate: Date; DocumentType: Integer; DocumentNo: Code[20]; GLAccountNo: Code[20]; JnlBatchName: Code[10]; ReasonCode: Code[10]; AddCurrAmount: Decimal; JnlTemplName: Code[10])
+    begin
+        GenJnlBatch."Journal Template Name" := JnlTemplName;
+        GenJnlBatch.Name := JnlBatchName;
+        InsertGLEntry(PostingDate, DocumentDate, DocumentType, DocumentNo, GLAccountNo, ReasonCode, AddCurrAmount);
+    end;
+#endif
+
+    procedure InsertGLEntry(PostingDate: Date; DocumentDate: Date; DocumentType: Integer; DocumentNo: Code[20]; GLAccountNo: Code[20]; ReasonCode: Code[10]; AddCurrAmount: Decimal)
     var
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
@@ -548,8 +572,10 @@
             FiscalYearStartDate := AccountingPeriodMgt.GetPeriodStartingDate;
 
             GLReg.LockTable();
-            if GLReg.FindLast then;
-            GLReg.Initialize(GLReg."No." + 1, 0, 0, SourceCodeSetup."Adjust Add. Reporting Currency", JnlBatchName, JnlTemplName);
+            if GLReg.FindLast() then;
+            GLReg.Initialize(
+                GLReg."No." + 1, 0, 0, SourceCodeSetup."Adjust Add. Reporting Currency",
+                GenJnlBatch.Name, GenJnlBatch."Journal Template Name");
         end else
             NextEntryNo := NextEntryNo + 1;
 
@@ -562,7 +588,7 @@
         GLEntry2.Description :=
           CopyStr(
             StrSubstNo(
-              Text010,
+              Text010Txt,
               GLEntry2.FieldCaption("Additional-Currency Amount")),
             1, MaxStrLen(GLEntry2.Description));
         GLEntry2."Source Code" := SourceCodeSetup."Adjust Add. Reporting Currency";
@@ -570,7 +596,8 @@
         GLEntry2."Source No." := '';
         GLEntry2."Job No." := '';
         GLEntry2.Quantity := 0;
-        GLEntry2."Journal Batch Name" := JnlBatchName;
+        GLEntry2."Journal Templ. Name" := GenJnlBatch."Journal Template Name";
+        GLEntry2."Journal Batch Name" := GenJnlBatch.Name;
         GLEntry2."Reason Code" := ReasonCode;
         GLEntry2."Entry No." := NextEntryNo;
         GLEntry2."Transaction No." := NextTransactionNo;
@@ -588,19 +615,36 @@
             GLEntry2."Add.-Currency Debit Amount" := 0;
             GLEntry2."Add.-Currency Credit Amount" := -GLEntry2."Additional-Currency Amount";
         end;
-        GLEntry2."Journal Template Name" := JnlTemplName;
         GLEntry2.Insert();
 
         GLReg."To Entry No." := GLEntry2."Entry No.";
     end;
 
+    procedure InitializeRequest(NewDocumentNo: Code[20]; NewRetainedEarningsGLAccNo: Code[20])
+    begin
+        DocumentNo := NewDocumentNo;
+        RetainedEarningsGLAcc."No." := NewRetainedEarningsGLAccNo;
+        GLSetup2 := GLSetup;
+        CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate, GLSetup."Additional Reporting Currency");
+    end;
+
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
+        GenJnlLineReq."Journal Template Name" := GenJnlBatch."Journal Template Name";
+        GenJnlLineReq."Journal Batch Name" := GenJnlBatch.Name;
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by W1 version of InitializeRequest()', '20.0')]
     procedure InitializeRequest(NewRetainedEarningsGLAccNo: Code[20]; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
     begin
         RetainedEarningsGLAcc."No." := NewRetainedEarningsGLAccNo;
         GLSetup2 := GLSetup;
         CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate, GLSetup."Additional Reporting Currency");
-        GenJnlLine."Journal Template Name" := NewJnlTemplName;
-        GenJnlLine."Journal Batch Name" := NewJnlBatchName;
+        GenJnlLineReq."Journal Template Name" := NewJnlTemplName;
+        GenJnlLineReq."Journal Batch Name" := NewJnlBatchName;
     end;
+#endif
 }
 

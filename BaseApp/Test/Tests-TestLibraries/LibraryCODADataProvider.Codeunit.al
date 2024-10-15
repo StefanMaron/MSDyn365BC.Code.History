@@ -4767,7 +4767,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.SetRange("Statement No.", StatementNo);
         CODAStatementLine.SetRange("Statement Line No.", StatementLineNo);
 
-        CODAStatementLine.FindFirst;
+        CODAStatementLine.FindFirst();
 
         case StatementLineNo of
             10000, 30000, 40000:

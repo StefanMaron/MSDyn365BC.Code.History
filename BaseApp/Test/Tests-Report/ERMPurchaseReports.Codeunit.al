@@ -46,7 +46,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value with different VAT.
 
         // Setup: Create Purchase Order with different VAT.
-        Initialize;
+        Initialize();
         CreateVATPurchaseDocument(PurchaseHeader, TempPurchaseLine, false);
         TempPurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, TempPurchaseLine, VATAmountLine);
 
@@ -83,7 +83,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value for Charge Item Line.
 
         // Setup: Create Purchase Order for Item and Charge Item. Using RANDOM for Quantity and Direct Unit Cost.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemCharge(ItemCharge);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
         LibraryPurchase.CreatePurchaseLine(
@@ -110,7 +110,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value for Dimension Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithDimension(DefaultDimension);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, DefaultDimension."No.", '');
 
@@ -137,7 +137,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value using Receive and Invoice Flag.
 
         // Setup: Modify Purchase & Payables Setup.
-        Initialize;
+        Initialize();
         PurchSetup.Get();
         PurchSetup.Validate("Ext. Doc. No. Mandatory", true);
         PurchSetup.Modify(true);
@@ -167,7 +167,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Purchase Document Test Report showing correct value with Currency.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, CreateCurrencyAndExchangeRate);
 
         // Exercise: Save Report using default value.
@@ -189,7 +189,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Purchase Order Report showing correct value with Currency.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, CreateCurrencyAndExchangeRate);
 
         // Exercise: Save Report using default value.
@@ -214,7 +214,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value with different VAT.
 
         // Setup: Create Purchase Order with different VAT.
-        Initialize;
+        Initialize();
         CreateVATPurchaseDocument(PurchaseHeader, TempPurchaseLine, false);
         TempPurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, TempPurchaseLine, VATAmountLine);
 
@@ -251,7 +251,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value for Dimension Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithDimension(DefaultDimension);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, DefaultDimension."No.", '');
         ExpectedDimensionValue := StrSubstNo('%1 %2', DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
@@ -274,7 +274,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Purchase Order Report with Archive Option.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
 
         // Exercise: Save Report using Archive Flag Yes.
@@ -296,7 +296,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Purchase Order Report with Option Interaction Log Entry.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
 
         // Exercise: Save Report using Interaction Log Entry Flag Yes.
@@ -317,7 +317,7 @@ codeunit 134983 "ERM Purchase Reports"
         // [SCENARIO] Check Purchase Order Report showing correct value with Currency.
 
         // [GIVEN] Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, CreateCurrencyAndExchangeRate);
 
         // [WHEN] Save Report using default value.
@@ -342,7 +342,7 @@ codeunit 134983 "ERM Purchase Reports"
         // [SCENARIO]Check Report showing correct value with different VAT.
 
         // [GIVEN] Create Purchase Order with different VAT.
-        Initialize;
+        Initialize();
         CreateVATPurchaseDocument(PurchaseHeader, TempPurchaseLine, false);
         TempPurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, TempPurchaseLine, VATAmountLine);
 
@@ -378,7 +378,7 @@ codeunit 134983 "ERM Purchase Reports"
         // [SCENARIO] Check Purchase Order Report with Option Interaction Log Entry.
 
         // [ GIVEN] Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
 
         // [WHEN] Save Report using Interaction Log Entry Flag Yes.
@@ -400,7 +400,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Posted Purchase Invoice Report showing correct value with Currency.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, CreateCurrencyAndExchangeRate);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -426,7 +426,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value for Dimension Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithDimension(DefaultDimension);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, DefaultDimension."No.", '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -452,7 +452,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Purchase Order Report with Option Interaction Log Entry.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -477,7 +477,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value with different VAT.
 
         // Setup: Create Purchase Order with different VAT.
-        Initialize;
+        Initialize();
         CreateVATPurchaseDocument(PurchaseHeader, TempPurchaseLine, false);
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
         PurchInvLine.CalcVATAmountLines(PurchInvHeader, VATAmountLine);
@@ -510,7 +510,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Posted Purchase Credit Memo Report showing correct value with Currency.
 
         // Setup: Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateItem, CreateCurrencyAndExchangeRate);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -537,7 +537,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Posted Credit Memo Report showing correct value for Dimension Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithDimension(DefaultDimension);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", DefaultDimension."No.", '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -563,7 +563,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Posted Purchase Credit Memo Report with Option Interaction Log Entry.
 
         // Setup: Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateItem, '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -587,7 +587,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Report showing correct value for VAT Entry.
 
         // Setup: Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
@@ -626,7 +626,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check VAT Exceptions Report with Additional Currency.
 
         // Setup: Update Additional Currency on General Ledger Setup. Create and Post Purchase Order.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(OldAdditionalReportingCurrency, CurrencyCode);
         DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, 0);
@@ -656,7 +656,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check VAT Exceptions Report for VAT Difference.
 
         // Setup: Create and Post Purchase Order with VAT Difference Random Values.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, LibraryUtility.GenerateRandomFraction);
 
         // Exercise: Save VAT Exceptions Report.
@@ -680,7 +680,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [FEATURE] [Vendor - List]
         // [SCENARIO] Check Vendor List Report values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order for Vendor "V"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
@@ -715,7 +715,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [FEATURE] [Vendor - List]
         // [SCENARIO 376798] "Vendor - List" report prints global dimension captions in case of vendor dimension filters
-        Initialize;
+        Initialize();
         UpdateGlobalDims;
 
         // [GIVEN] General Ledger Setup with two global dimensions: "Department", "Project".
@@ -752,11 +752,11 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Vendor Register Report with LCY.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
         LineAmount := FindPurchaseLineAmount(PurchaseHeader."No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Save Vendor Register Report and Verify it.
         SaveAndVerifyVendorRegister(GLRegister."No.", LineAmount, false);
@@ -774,9 +774,9 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Vendor Register Report with FCY.
 
         // Setup.
-        Initialize;
+        Initialize();
         Amount := CreatePostPurchDocWithCurr(PurchaseHeader, CreateCurrencyAndExchangeRate);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Save Vendor Register Report and Verify it.
         SaveAndVerifyVendorRegister(GLRegister."No.", Amount, true);
@@ -790,7 +790,7 @@ codeunit 134983 "ERM Purchase Reports"
         ShowType: Option "Purchases (LCY)","Balance (LCY)";
     begin
         // Check Vendor Top 10 List Report with option Balance LCY.
-        Initialize;
+        Initialize();
         VendorTop10List(ShowType::"Balance (LCY)");
     end;
 
@@ -802,7 +802,7 @@ codeunit 134983 "ERM Purchase Reports"
         ShowType: Option "Purchases (LCY)","Balance (LCY)";
     begin
         // Check Vendor Top 10 List Report with option Purchases LCY.
-        Initialize;
+        Initialize();
         VendorTop10List(ShowType::"Purchases (LCY)");
     end;
 
@@ -817,7 +817,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Setup: Create and Post Purchase Order with Currency. Customized Round formula is required as per Report.
         CreatePostPurchDocWithCurr(PurchaseHeader, CreateCurrencyAndExchangeRate);
         VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Amount (LCY)");
         TotalPurchase := Round(VendorLedgerEntry."Purchase (LCY)" / VendorLedgerEntry."Purchase (LCY)" * 100, 0.1);
 
@@ -827,7 +827,7 @@ codeunit 134983 "ERM Purchase Reports"
         VendorTop10List.SetTableView(Vendor);
         LibraryVariableStorage.Enqueue(ShowType);
         Commit();
-        VendorTop10List.Run;
+        VendorTop10List.Run();
 
         // Verify: Verify Saved Report with Different Fields data.
         LibraryReportDataset.LoadDataSetFile;
@@ -860,7 +860,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Vendor Item Purchases Report.
 
         // Setup: Create Purchase Document, Update Invoice Discount for Vendor and then calculate Invoice Discount.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateItem, '');
         CreateInvoiceDiscountForVendor(PurchaseHeader."Buy-from Vendor No.");
         GetPurchaseLine(PurchaseLine, PurchaseHeader);
@@ -872,13 +872,13 @@ codeunit 134983 "ERM Purchase Reports"
         Vendor.SetRange("No.", PurchaseHeader."Buy-from Vendor No.");
         VendorItemPurchases.SetTableView(Vendor);
         Commit();
-        VendorItemPurchases.Run;
+        VendorItemPurchases.Run();
         LibraryReportDataset.LoadDataSetFile;
 
         // Verify: Verify data on Vendor Item Purchases Report.
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Item No.", PurchaseLine."No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         LibraryReportDataset.SetRange('Value_Entry__Item_No__', PurchaseLine."No.");
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'Value_Entry__Item_No__', PurchaseLine."No."));
@@ -902,7 +902,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Purchase Return Shipment Report without any option.
 
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostReturnShipment(CreateItem);
 
         // Exercise: Save Purchase Return Shipment Report without any option selected.
@@ -924,7 +924,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Purchase Return Shipment Report with Show Internal Information option.
 
         // Setup: Create Item With Dimension, Create Purchase Return Order and Post it with Ship Option.
-        Initialize;
+        Initialize();
         CreateItemWithDimension(DefaultDimension);
         DocumentNo := CreateAndPostReturnShipment(DefaultDimension."No.");
         GetReturnShipmentLine(ReturnShipmentLine, DocumentNo);
@@ -952,7 +952,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Purchase Return Shipment Report with Show Correction Lines option.
 
         // Setup: Create and Post Purchase Return Shipment and Undo the posted Shipment.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostReturnShipment(CreateItem);
         GetReturnShipmentLine(ReturnShipmentLine, DocumentNo);
         LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
@@ -977,7 +977,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // Check Interaction Log Entry after Saving Purchase Return Shipment Report with Log Interaction Option.
         // Setup:
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostReturnShipment(CreateItem);
 
         // Exercise: Save Purchase Return Shipment Report with Log Interaction Option.
@@ -998,7 +998,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check Currency Code after saving Vendor Summary Aging Report.
 
         // Setup: Post Purchase Document with Currecy Code.
-        Initialize;
+        Initialize();
         CreatePostPurchDocWithCurr(PurchaseHeader, CreateCurrencyAndExchangeRate);
 
         // Exercise: Save Vendor - Summary Aging Report.
@@ -1019,7 +1019,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Check purchase order report when purchase line exist with Type value blank.
 
         // Setup: Create purchase order with type blank
-        Initialize;
+        Initialize();
         CreatePurchaseDocWithTypeBlank(PurchaseHeader);
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
 
@@ -1044,7 +1044,7 @@ codeunit 134983 "ERM Purchase Reports"
         // [SCENARIO] Check purchase order report when purchase line exist with Type value blank.
 
         // [GIVEN] Create purchase order with type blank
-        Initialize;
+        Initialize();
         CreatePurchaseDocWithTypeBlank(PurchaseHeader);
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
 
@@ -1069,7 +1069,7 @@ codeunit 134983 "ERM Purchase Reports"
         ExpectedErrorText: Text;
     begin
         // [SCENARIO 109016.1] Verify that "Purchase Document - Test" report correctly checks External Doc. No. for the same Vendor
-        Initialize;
+        Initialize();
         VendorInvoiceNo :=
           CopyStr(
             LibraryUtility.GenerateRandomText(MaxStrLen(OriginalPurchaseHeader."Vendor Invoice No.")),
@@ -1094,7 +1094,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(RepCaptionErrorTxt, ExpectedErrorText);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1108,7 +1108,7 @@ codeunit 134983 "ERM Purchase Reports"
         ExpectedErrorText: Text;
     begin
         // [SCENARIO 109016.2] Verify that "Purchase Prepmt. Doc. - Test" report correctly checks External Doc. No. for the same Vendor
-        Initialize;
+        Initialize();
         VendorInvoiceNo :=
           CopyStr(
             LibraryUtility.GenerateRandomText(MaxStrLen(OriginalPurchaseHeader."Vendor Invoice No.")),
@@ -1133,7 +1133,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(RepCaptionErrorTxt, ExpectedErrorText);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1147,7 +1147,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [FEATURE] [Vendor] [UT]
         // [SCENARIO 376798] COD368 "FormatDocument" method GetRecordFiltersWithCaptions() returns vendor filter string with global dimension's captions
-        Initialize;
+        Initialize();
         UpdateGlobalDims;
 
         // [GIVEN] General Ledger Setup with two global dimensions: "Department", "Project".
@@ -1176,11 +1176,11 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [FEATURE] [Purchase - Credit Memo]
         // [SCENARIO 382079] Value of "Your Reference" of Posted Purchase Cr. Memo have to printed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase credit memo with "Your Reference" = "Ref"
         CreatePostPurchCrMemoWithYourRef(PostedCrMemoNo, YourReference);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Print report 407 - "Purchase - Credit Memo"
         SavePurchaseCrMemoReport(PostedCrMemoNo, false, true);
@@ -1198,7 +1198,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [FEATURE] [Purchase Quote]
         // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Purchase - Quote" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report "Purchase - Quote" was run for the first time, "Archive Document" flag state was changed before the report was run.
         Commit();
@@ -1226,7 +1226,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [FEATURE] [Purchase Order]
         // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Order" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report "Order" was run for the first time, "Archive Document" flag state was changed before the report was run.
         Commit();
@@ -1254,7 +1254,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [FEATURE] [Blanket Purchase Order]
         // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Blanket Purchase Order" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report "Blanket Purchase Order" was run for the first time, "Archive Document" flag state was changed before the report was run.
         Commit();
@@ -1282,7 +1282,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [FEATURE] [Purchase Order]
         // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Standard Purchase - Order" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report "Standard Purchase - Order" was run for the first time, "Archive Document" flag state was changed before the report was run.
         Commit();
@@ -1310,7 +1310,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseLine: Record "Purchase Line";
     begin
         // [SCENARIO 263850] Purchase Line "Job No." and "Job Task No." exist in Purchase Order Report dataset.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Order and Purchase Line with "Job No." and "Job Task No.".
         CreatePurchaseOrderWithLineSetJobTask(PurchaseHeader, PurchaseLine);
@@ -1337,7 +1337,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         // [SCENARIO 263850] Purchase Line "Unit Price (LCY)" exist in Purchase Order Report dataset.
         // [SCENARIO 322593] Column caption for Direct Unit Cost value is "Direct Unit Cost".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Order and Purchase Line with Unit Price.
         CreatePurchaseOrderWithLine(PurchaseHeader, PurchaseLine);
@@ -1369,7 +1369,7 @@ codeunit 134983 "ERM Purchase Reports"
         PostedDocumentNo: Code[20];
     begin
         // [SCENARIO 272731] The value of Total Amount must be shown when "Purchase Invoice"."Prices Including VAT" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Total Amount = 100 and "Prices Including VAT" = TRUE
         CreatePurchaseOrderWithLine(PurchaseHeader, PurchaseLine);
@@ -1381,7 +1381,7 @@ codeunit 134983 "ERM Purchase Reports"
         Clear(PurchaseInvoice);
         PurchInvHeader.SetRange("No.", PostedDocumentNo);
         PurchaseInvoice.SetTableView(PurchInvHeader);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         PurchaseInvoice.SaveAsExcel(LibraryReportValidation.GetFileName);
 
         // [THEN] The Total Amount = 100
@@ -1401,7 +1401,7 @@ codeunit 134983 "ERM Purchase Reports"
         ShipToAddress: Text[50];
     begin
         // [SCENARIO 278343] Report "Purchase - Return Shipment" is run and result contains Ship-to Address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post Purchase Return Shipment with Ship-to Address "X"
         DocumentNo := CreateAndPostReturnShipmentWithShipToAddress(ShipToName, ShipToContact, ShipToAddress);
@@ -1454,13 +1454,13 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Reports");
 
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -1746,9 +1746,9 @@ codeunit 134983 "ERM Purchase Reports"
         // Not using Library Item Finder method to make this funtion World ready.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetFilter("VAT %", '>0&<>%1', VATPct);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         Item.SetRange(Blocked, false);
-        Item.FindFirst;
+        Item.FindFirst();
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2)); // Using Random for Random Decimal value.
         Item.Validate("Unit Price", Item."Last Direct Cost");
@@ -1762,7 +1762,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         exit(PurchaseLine."Amount Including VAT");
     end;
 
@@ -1771,13 +1771,13 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GetReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; DocumentNo: Code[20])
     begin
         ReturnShipmentLine.SetRange("Document No.", DocumentNo);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure SaveAndVerifyVendorRegister(GLRegisterNo: Integer; ExpectedValue: Decimal; AmountLCY: Boolean)
@@ -1807,7 +1807,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
         PurchaseCreditMemo.InitializeRequest(0, ShowInternalInfo, LogInteraction);  // Using 0 for No. of Copies.
         Commit();
-        PurchaseCreditMemo.Run;
+        PurchaseCreditMemo.Run();
     end;
 
     local procedure SavePurchaseDocumentTestReport(DocumentNo: Code[20]; Receive: Boolean; Invoice: Boolean; ShowDimension: Boolean; ShowItemCharge: Boolean)
@@ -1850,7 +1850,7 @@ codeunit 134983 "ERM Purchase Reports"
         Clear(PurchaseInvoice);
         PurchInvHeader.SetRange("No.", DocumentNo);
         PurchaseInvoice.SetTableView(PurchInvHeader);
-        PurchaseInvoice.Run;
+        PurchaseInvoice.Run();
     end;
 
     local procedure SavePurchaseOrderReport(DocumentNo: Code[20]; ShowInternalInfo: Boolean; ArchiveDocument: Boolean; LogInteraction: Boolean)
@@ -1885,7 +1885,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseReturnShipment.SetTableView(ReturnShipmentHeader);
         PurchaseReturnShipment.InitializeRequest(0, ShowInternalInfo, ShowCorrectionLines, ShowLogInteract);  // Using 0 for No. of Copies.
         Commit();
-        PurchaseReturnShipment.Run;
+        PurchaseReturnShipment.Run();
         LibraryReportDataset.LoadDataSetFile;
     end;
 
@@ -1898,7 +1898,7 @@ codeunit 134983 "ERM Purchase Reports"
         GLRegister.SetRange("No.", No);
         VendorRegister.SetTableView(GLRegister);
         VendorRegister.InitializeRequest(AmountLCY);
-        VendorRegister.Run;
+        VendorRegister.Run();
     end;
 
     local procedure UpdateAddnlReportingCurrency(var OldAdditionalReportingCurrency: Code[10]; AdditionalReportingCurrency: Code[10])
@@ -1981,7 +1981,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         InteractionLogEntry.SetRange("Document Type", DocumentType);
         InteractionLogEntry.SetRange("Document No.", DocumentNo);
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
     end;
 
     local procedure VerifyPostedInvoice(DocumentNo: Code[20])
@@ -2007,11 +2007,11 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         PurchaseHeaderArchive.SetRange("Document Type", DocumentType);
         PurchaseHeaderArchive.SetRange("No.", No);
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
 
         PurchaseLineArchive.SetRange("Document Type", PurchaseHeaderArchive."Document Type");
         PurchaseLineArchive.SetRange("Document No.", PurchaseHeaderArchive."No.");
-        PurchaseLineArchive.FindFirst;
+        PurchaseLineArchive.FindFirst();
     end;
 
     local procedure VerifyReturnShipment(DocumentNo: Code[20])

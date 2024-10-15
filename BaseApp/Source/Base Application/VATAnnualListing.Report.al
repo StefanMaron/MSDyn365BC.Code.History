@@ -201,7 +201,7 @@ report 11308 "VAT Annual Listing"
                         if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
                             Buffer.Reset();
                             Buffer.SetRange("VAT Registration No.", VAT1 + ' ' + VAT2);
-                            if Buffer.FindFirst then begin
+                            if Buffer.FindFirst() then begin
                                 Buffer.Base += -WBase;
                                 Buffer.Amount += -WAmount;
                                 Buffer.Modify();

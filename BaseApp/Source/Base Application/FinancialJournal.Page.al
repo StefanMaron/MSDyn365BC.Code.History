@@ -651,7 +651,7 @@ page 11300 "Financial Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action("Test Report")
@@ -775,13 +775,9 @@ page 11300 "Financial Journal"
         CurrentJnlBatchName: Code[10];
         AccName: Text[100];
         BalAccName: Text[100];
-        Balance: Decimal;
-        TotalBalance: Decimal;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         ShortcutDimCode: array[8] of Code[20];
-        BalanceLastStatement: Decimal;
-        StatementEndingBalance: Decimal;
         Total: Decimal;
         Currency: Boolean;
         OpenedFromBatch: Boolean;
@@ -791,6 +787,12 @@ page 11300 "Financial Journal"
         TotalBalanceVisible: Boolean;
         StyleTxt: Text;
         ImportBankStatementBalanceMsg: Label 'The Statement Ending Balance field may not show the actual balance according to the imported bank statement.';
+
+	protected var
+        BalanceLastStatement: Decimal;
+        StatementEndingBalance: Decimal;
+        Balance: Decimal;
+        TotalBalance: Decimal;
 
     local procedure UpdateBalance()
     begin
@@ -818,7 +820,7 @@ page 11300 "Financial Journal"
             Error(Text11300, -(Total - StatementEndingBalance + BalanceLastStatement));
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure UpdateStatementAmounts()
     begin
         FilterGroup(2);

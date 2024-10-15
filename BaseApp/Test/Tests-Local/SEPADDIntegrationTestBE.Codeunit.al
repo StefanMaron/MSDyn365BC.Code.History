@@ -128,7 +128,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         PaymentJnlExportErrorText.SetRange("Journal Batch Name", DomJnlLine."Journal Batch Name");
         PaymentJnlExportErrorText.SetRange("Journal Line No.", DomJnlLine."Line No.");
         Assert.AreEqual(1, PaymentJnlExportErrorText.Count, ErrorCountErr);
-        PaymentJnlExportErrorText.FindFirst;
+        PaymentJnlExportErrorText.FindFirst();
         PaymentJnlExportErrorText.TestField("Error Text", PartnerTypeErr);
 
         // Exercise
@@ -276,7 +276,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         REPORT.Run(REPORT::"Create Gen. Jnl. Lines", true, true, DomJnlLine);
 
         CustLedgerEntry.SetRange("Customer No.", DomJnlLine."Customer No.");
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         CustLedgerEntry.TestField(Open, false);
         CustLedgerEntry.TestField("Document Type", CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.CalcFields(Amount);
@@ -399,7 +399,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         LibraryERM.CreateGLAccount(GLAccount);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
-        GenJnlBatch."Bal. Account No." := LibraryUtility.GenerateGUID;
+        GenJnlBatch."Bal. Account No." := LibraryUtility.GenerateGUID();
         GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
         GenJnlBatch.Modify();
         Commit();
@@ -487,7 +487,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         LibraryERM.CreateGLAccount(GLAccount);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
-        GenJnlBatch."Bal. Account No." := LibraryUtility.GenerateGUID;
+        GenJnlBatch."Bal. Account No." := LibraryUtility.GenerateGUID();
         GenJnlBatch.Modify();
         Commit();
 
@@ -552,9 +552,9 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryERM.CreateBankAccount(BankAccount);
         CreateBankExportImportSetup(BankExportImportSetup, CodeunitID, XmlPortID, CheckExportCodeunitID);
         BankAccount."SEPA Direct Debit Exp. Format" := BankExportImportSetup.Code;
-        BankAccount.IBAN := LibraryUtility.GenerateGUID;
-        BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
-        BankAccount."Creditor No." := LibraryUtility.GenerateGUID;
+        BankAccount.IBAN := LibraryUtility.GenerateGUID();
+        BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
+        BankAccount."Creditor No." := LibraryUtility.GenerateGUID();
         BankAccount.Modify();
     end;
 
@@ -580,13 +580,13 @@ codeunit 144009 "SEPA DD Integration Test - BE"
     local procedure CreateCustomerAndCustomerBankAccount(var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account"; PartnerType: Enum "Partner Type")
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Name := LibraryUtility.GenerateGUID;
+        Customer.Name := LibraryUtility.GenerateGUID();
         Customer."Partner Type" := PartnerType;
         Customer."Domiciliation No." := DomNoTxt;
         Customer.Modify();
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
-        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID;
-        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
+        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID();
+        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
         CustomerBankAccount.Modify();
     end;
 
@@ -633,10 +633,10 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
         SuggestDomiciliations.SetJournal(DomJnlLine);
         Commit();
-        SuggestDomiciliations.Run;
+        SuggestDomiciliations.Run();
         DomJnlLine.SetRange("Journal Template Name", DomJnlLine."Journal Template Name");
         DomJnlLine.SetRange("Journal Batch Name", DomJnlLine."Journal Batch Name");
-        DomJnlLine.FindFirst;
+        DomJnlLine.FindFirst();
     end;
 
     local procedure CreateDirectDebitCollectionEntryFromDomJnl(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; DomiciliationJournalLine: Record "Domiciliation Journal Line")

@@ -51,7 +51,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of VAT Prod. Posting Group on Sales Line when Sales Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise: Validate VAT Prod. Posting Group for Error.
@@ -75,7 +75,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Qty on Sales Line when Sales Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise: Validate Quantity for Error.
@@ -99,7 +99,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Item No. on Sales Line when Sales Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise: Validate Item No. for Error.
@@ -123,7 +123,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Line Discount Percent on Sales Line when Sales Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise: Validate Line Discount for Error.
@@ -147,7 +147,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Unit Price on Sales Line when Sales Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise: Validate Unit Price for Error.
@@ -171,7 +171,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Allow Invoice Discount on Sales Line when Sales Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise: Validate Allow Invoice Discount for Error.
@@ -195,7 +195,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Type on Sales Line when Sales Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise: Validate Sales Line Type for Error.
@@ -218,7 +218,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Prepayment No Series. validation does not throw unexpected error
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Excercise and Verify: validation should be done without error.
@@ -236,7 +236,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Prepayment Cr. Memo No. Series. validation does not throw unexpected error
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
 
         // Excercise and Verify: validation should be done without error.
@@ -254,7 +254,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Prepayment Cr. Memo No. Series. validation does not throw unexpected error
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
 
         // Excercise and Verify: validation should be done without error.
@@ -272,7 +272,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Direct Cost in Sales Line after validating Location Code when Return Reason Code is set
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
 
         // Excercise: setup return reason code and location
@@ -292,7 +292,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Direct Cost in Sales Line after validating Location Code when Return Reason Code is set
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
 
         // Excercise: setup return reason code and location
@@ -312,7 +312,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [FEATURE] [Sales]
         // [SCENARIO 181156] "Unit Cost" is recalculated after removal of "Return Reason Code" with "Inventory Value Zero" in Sales Return Order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order with "Unit Cost" = "X"
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
@@ -337,7 +337,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [FEATURE] [Sales]
         // [SCENARIO 181156] "Unit Cost" is zero when validate Quantity after "Return Reason Code" with "Inventory Value Zero" in Sales Return Order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "A" with "Costing Method" = Standard
         // [GIVEN] Sales Return Order with Item "A", Quantity = 0 and "Unit Cost" = "X"
@@ -365,7 +365,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Sales Header does not exist after Deletion.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         DocumentNo := SalesLine."Document No.";
 
@@ -388,7 +388,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of VAT Prod. Posting Group on Purchase Line when Purchase Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Validate VAT Prod. Posting Group for Error.
@@ -413,7 +413,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Quantity on Purchase Line when Purchase Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Validate Quantity for Error.
@@ -438,7 +438,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Item No. on Purchase Line when Purchase Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Validate Item No. for Error.
@@ -463,7 +463,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Line Discount Amount on Purchase Line when Purchase Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Validate Line Discount Amount for Error.
@@ -488,7 +488,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Line Amount on Purchase Line when Purchase Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Validate Line Amount for Error.
@@ -513,7 +513,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Error Raised on Validate of Type Charge (Item) on Purchase Line when Purchase Order is Released.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Validate Type Charge (Item) for Error.
@@ -537,7 +537,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check PrepaymentNo. Series. validation does not throw unexpected error
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise and Verify: field validation must not throw error
@@ -555,7 +555,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Prepayment Cr. Memo No. Series. validation does not throw unexpected error
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
 
         // Exercise and Verify: field validation must not throw error
@@ -573,7 +573,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Prepayment Cr. Memo No. Series. validation does not throw unexpected error
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
 
         // Exercise and Verify: field validation must not throw error
@@ -591,7 +591,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Direct Cost in Purchase Line after validating Location Code when Return Reason Code is set
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
 
         // Excercise: setup return reason code and location
@@ -612,7 +612,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Direct Cost in Purchase Line after validating Location Code when Return Reason Code is set
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
 
         // Excercise: setup return reason code and location
@@ -633,7 +633,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [FEATURE] [Purchase]
         // [SCENARIO 181156] "Direct Unit Cost" is recalculated after removal of "Return Reason Code" with "Inventory Value Zero" in Purchase Return Order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order with "Direct Unit Cost" = "X"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
@@ -659,7 +659,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [FEATURE] [Purchase]
         // [SCENARIO 181156] "Direct Unit Cost" is zero when validate Quantity after "Return Reason Code" with "Inventory Value Zero" in Purchase Return Order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "A" with "Costing Method" = Standard
         // [GIVEN] Purchase Return Order with Item "A", Quantity = 0 and "Direct Unit Cost" = "X"
@@ -687,7 +687,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check that Purchase Order does not exist after Deleting.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
         DocumentNo := PurchaseLine."Document No.";
 
@@ -706,7 +706,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesHeader: Record "Sales Header";
     begin
         // Check VAT Amount on Sales Order when its Release.
-        Initialize;
+        Initialize();
         CreateSalesDocCheckAmtRelease(SalesHeader."Document Type"::Order);
     end;
 
@@ -717,7 +717,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesHeader: Record "Sales Header";
     begin
         // Check VAT Amount on Sales Order when its Open.
-        Initialize;
+        Initialize();
         CreateSalesDocCheckAmtOpen(SalesHeader."Document Type"::Order);
     end;
 
@@ -728,7 +728,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesHeader: Record "Sales Header";
     begin
         // Check VAT Amount on Sales Credit Memo when its Release.
-        Initialize;
+        Initialize();
         CreateSalesDocCheckAmtRelease(SalesHeader."Document Type"::"Credit Memo");
     end;
 
@@ -739,7 +739,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesHeader: Record "Sales Header";
     begin
         // Check VAT Amount on Sales Credit Memo when its Open.
-        Initialize;
+        Initialize();
         CreateSalesDocCheckAmtOpen(SalesHeader."Document Type"::"Credit Memo");
     end;
 
@@ -750,7 +750,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Check VAT Amount on Purchase Order when its Release.
-        Initialize;
+        Initialize();
         CreatePurchDocCheckAmtRelease(PurchaseHeader."Document Type"::Order);
     end;
 
@@ -761,7 +761,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Check VAT Amount on Purchase Order when its Open.
-        Initialize;
+        Initialize();
         CreatePurchDocCheckAmtOpen(PurchaseHeader."Document Type"::Order);
     end;
 
@@ -830,7 +830,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create and Release Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, DocumentType);
 
         // Exercise: Open Purchase Document.
@@ -854,7 +854,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Sales Document - Test Report when Sales Order is created with Foreign Currency and Blank Posting Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupAndCreateSalesDocument(SalesHeader, DefaultPostingDate, SalesHeader."Document Type"::Order);
 
         // Exercise: Run and Save Sales Document - Test Report.
@@ -884,7 +884,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Return Order Confirmation Report when Sales Order is created with Foreign Currency and Blank Posting Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupAndCreateSalesDocument(SalesHeader, DefaultPostingDate, SalesHeader."Document Type"::"Return Order");
 
         // Exercise: Run and Save Return Order Confirmation Report.
@@ -912,7 +912,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Purchase Document - Test Report when Purchase Order is created with Foreign Currency and Blank Posting Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupAndCreatePurchDocument(PurchaseHeader, DefaultPostingDate, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Run and Save Purchase Document - Test Report.
@@ -940,7 +940,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Order Report when Purchase Order is created with Foreign Currency and Blank Posting Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupAndCreatePurchDocument(PurchaseHeader, DefaultPostingDate, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Run and Save Order Report.
@@ -968,7 +968,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Check Return Order Report when Purchase Order is created with Foreign Currency and Blank Posting Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupAndCreatePurchDocument(PurchaseHeader, DefaultPostingDate, PurchaseHeader."Document Type"::"Return Order");
 
         // Exercise: Run and Save Return Order Report.
@@ -993,12 +993,12 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Verify error while insert Tariff No. more than 20 characters.
 
         // Setup.
-        Initialize;
+        Initialize();
         TariffNumber.Init();
 
         // Exercise.
         asserterror TariffNumber.Validate(
-            "No.", (LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID));  // Assign More than 20 characters.
+            "No.", (LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID()));  // Assign More than 20 characters.
 
         // Verify: Verify error while insert Tariff No. more than 20 characters.
         Assert.ExpectedErrorCode(StringLengthExceededErr);
@@ -1015,7 +1015,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Verify Values on Item Matrix after set Date Filter on Item Statistics.
 
         // Setup. Find Item, open Item Statistics page and set Item and Date Filter.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         ItemStatistics.OpenEdit;
         ItemStatistics.ItemFilter.SetValue(Item."No.");
@@ -1058,7 +1058,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         // Setup: Post Sales Journal and Update Applies Doc No. on Cash Recceipt Journal.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         CreateCustomerWithPaymentTermsCode(Customer);
         CreateJournalLine(GenJournalLine, Customer."Gen. Bus. Posting Group", DocumentTypeForSalesJournal,
@@ -1114,7 +1114,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         SalesAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup. Create item.
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -1148,7 +1148,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Setup. Find Journal Batch
         LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
 
         // Setup. Create Item Journal Line and Store the Sales Amount.
         LibraryInventory.CreateItemJournalLine(
@@ -1171,7 +1171,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Vendor: Record Vendor;
     begin
         // Setup: Post Purchase Journal and Update Applies Doc No. on Payment Journal.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         CreateVendorWithPaymentTermsCode(Vendor);
         CreateJournalLine(GenJournalLine, Vendor."Gen. Bus. Posting Group", DocumentTypeForPurchaseJournal,
@@ -1203,7 +1203,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesLine: Record "Sales Line";
     begin
         // Check Sales Document - Test Report when Sales Order is Created and Shipped with Dimensions
-        Initialize;
+        Initialize();
 
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         LibrarySales.PostSalesDocument(SalesHeader, true, false); // Ship
@@ -1224,7 +1224,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [SCENARIO 360231] Verify that location code can be updated in sales order with blank line.
 
         // [GIVEN] Sales Order with blank line
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         CreateSalesOrderWithBlankLine(SalesHeader);
@@ -1251,7 +1251,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [SCENARIO 360231] Verify that location code can be updated in purchase order with blank line.
 
         // [GIVEN] Purchase Order with blank line
-        Initialize;
+        Initialize();
         CreatePurchOrderWithBlankLine(PurchHeader);
         LibraryWarehouse.CreateLocation(Location);
         // [GIVEN] Vendor A with location code X
@@ -1275,7 +1275,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // [FEATURE] [Sales] [Return Reason]
         // [SCENARIO 375645] Validating Return Reason Code with Inventory Value Zero in Sales Line should not reset Unit Price
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Line with Unit Price = "Y"
         // [GIVEN] Return Reason Code "X" with Inventory Value Zero = TRUE
@@ -1301,7 +1301,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
-        Initialize;
+        Initialize();
         UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate - 1);
 
         // [GIVEN] Purchase order "PO" with "Posting Date" = 21/02/2016, "Receive" = FALSE, "Invoice" = FALSE
@@ -1333,7 +1333,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
-        Initialize;
+        Initialize();
         UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate + 10);
 
         // [GIVEN] Purchase order "PO" posted as receipt with "Posting Date" = 21/01/2016, "Receive" = TRUE, "Invoice" = FALSE
@@ -1375,7 +1375,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
-        Initialize;
+        Initialize();
         UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate - 1);
 
         // [GIVEN] Sales order "SO" with "Posting Date" = 21/02/2016, "Ship" = FALSE, "Invoice" = FALSE
@@ -1407,7 +1407,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
-        Initialize;
+        Initialize();
         UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate + 10);
 
         // [GIVEN] Sals order "SO" posted as shipment with "Posting Date" = 21/01/2016, "Ship" = TRUE, "Invoice" = FALSE
@@ -1540,7 +1540,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         ReturnShipmentHeader.SetRange("No.", GetLastNoUsedFromNoSeries(PurchasesPayablesSetup."Posted Return Shpt. Nos."));
         Assert.RecordCount(ReturnShipmentHeader, 1);
 
-        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo");
+        GenJournalTemplate.Get(PurchasesPayablesSetup."P. Cr. Memo Template Name");
         PurchCrMemoHdr.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
         Assert.RecordCount(PurchCrMemoHdr, 1);
     end;
@@ -1576,7 +1576,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchRcptHeader.SetRange("No.", GetLastNoUsedFromNoSeries(PurchasesPayablesSetup."Posted Receipt Nos."));
         Assert.RecordCount(PurchRcptHeader, 1);
 
-        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Invoice");
+        GenJournalTemplate.Get(PurchasesPayablesSetup."P. Invoice Template Name");
         PurchInvHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
         Assert.RecordCount(PurchInvHeader, 1);
     end;
@@ -1608,7 +1608,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Invoice");
+        GenJournalTemplate.Get(PurchasesPayablesSetup."P. Invoice Template Name");
         PurchInvHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
         Assert.RecordCount(PurchInvHeader, 1);
     end;
@@ -1640,7 +1640,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo");
+        GenJournalTemplate.Get(PurchasesPayablesSetup."P. Cr. Memo Template Name");
         PurchCrMemoHdr.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
         Assert.RecordCount(PurchCrMemoHdr, 1);
     end;
@@ -1679,7 +1679,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         ReturnReceiptHeader.SetRange("No.", GetLastNoUsedFromNoSeries(SalesReceivablesSetup."Posted Return Receipt Nos."));
         Assert.RecordCount(ReturnReceiptHeader, 1);
 
-        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        GenJournalTemplate.Get(SalesReceivablesSetup."S. Invoice Template Name");
         SalesCrMemoHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
         Assert.RecordCount(SalesCrMemoHeader, 1);
     end;
@@ -1715,7 +1715,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesShipmentHeader.SetRange("No.", GetLastNoUsedFromNoSeries(SalesReceivablesSetup."Posted Shipment Nos."));
         Assert.RecordCount(SalesShipmentHeader, 1);
 
-        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        GenJournalTemplate.Get(SalesReceivablesSetup."S. Invoice Template Name");
         SalesInvoiceHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
         Assert.RecordCount(SalesInvoiceHeader, 1);
     end;
@@ -1747,7 +1747,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         PostSalesDocument(SalesHeader, true, true);
 
-        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        GenJournalTemplate.Get(SalesReceivablesSetup."S. Invoice Template Name");
         SalesInvoiceHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
         Assert.RecordCount(SalesInvoiceHeader, 1);
     end;
@@ -1779,7 +1779,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         PostSalesDocument(SalesHeader, true, true);
 
-        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        GenJournalTemplate.Get(SalesReceivablesSetup."S. Invoice Template Name");
         SalesCrMemoHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
         Assert.RecordCount(SalesCrMemoHeader, 1);
     end;
@@ -2072,8 +2072,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         NoSeriesNumbersPrefix := IncStr(NoSeriesNumbersPrefix);
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch Status Error");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         // Lazy Setup.
@@ -2081,12 +2081,12 @@ codeunit 134383 "ERM Sales/Purch Status Error"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch Status Error");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SavePurchasesSetup();
         LibrarySetupStorage.SaveSalesSetup();
@@ -2473,7 +2473,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", DocumentNo);
         SalesDocumentTest.SetTableView(SalesHeader);
-        SalesDocumentTest.Run;
+        SalesDocumentTest.Run();
     end;
 
     local procedure SetupAndCreateSalesDocument(var SalesHeader: Record "Sales Header"; var DefaultPostingDate: Enum "Default Posting Date"; DocumentType: Enum "Sales Document Type")

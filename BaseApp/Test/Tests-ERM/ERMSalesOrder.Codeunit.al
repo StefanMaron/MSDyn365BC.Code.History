@@ -73,7 +73,7 @@ codeunit 134378 "ERM Sales Order"
         // Test New Sales Order creation.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Sales Order.
         CreateSalesOrder(SalesHeader, SalesLine);
@@ -99,7 +99,7 @@ codeunit 134378 "ERM Sales Order"
         // Create a Sales Order and calculates applicable VAT for a VAT Posting Group in Sales Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine);
 
         // Exercise: Calculate VAT Amount on Sales Order.
@@ -129,7 +129,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [SCENARIO 315920] Line is getting refreshed inside posting of Invoice.
 
-        Initialize;
+        Initialize();
         // [GIVEN] Create Order, where Description is 'A' in the line.
         CreateSalesOrder(SalesHeader, SalesLine);
         SalesLine.validate(Quantity, 2);
@@ -161,7 +161,7 @@ codeunit 134378 "ERM Sales Order"
         // Check that Posted shipment has same Posted Line after Post Sales Order as Ship.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
@@ -192,7 +192,7 @@ codeunit 134378 "ERM Sales Order"
         // Post a Sales Order as Ship and Invoice and Verify Customer Ledger, GL Entry, Value Entry and VAT Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine);
 
         // Exercise: Post Sales Order as Ship and Invoice.
@@ -224,7 +224,7 @@ codeunit 134378 "ERM Sales Order"
         // Test if Post a Sales Order with Warehouse Location and generate Posted Sales Shipment Entry.
 
         // Setup
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
@@ -246,7 +246,7 @@ codeunit 134378 "ERM Sales Order"
 
         // Verify: Verify Quantity Posted Shipment Document.
         SalesShipmentLine.SetRange("Document No.", PostedSaleShipmentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         Assert.AreEqual(SalesLine."Quantity Shipped", SalesShipmentLine.Quantity, StrSubstNo(FieldErr, SalesLine.TableCaption,
             SalesShipmentLine.TableCaption));
@@ -269,7 +269,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Line Discount on Sales Order, Post as Ship and Invoice and Verify Posted GL Entry.
 
         // Setup: Create Line Discount Setup.
-        Initialize;
+        Initialize();
         PriceListLine.DeleteAll();
         LibrarySales.SetStockoutWarning(false);
         SetupLineDiscount(SalesLineDiscount);
@@ -304,7 +304,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Invoice Discount on Sales Order, Post as Ship and Invoice and Verify Posted GL Entry.
 
         // Setup: Create Invoice Discount Setup.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         SetupInvoiceDiscount(CustInvoiceDisc);
@@ -347,7 +347,7 @@ codeunit 134378 "ERM Sales Order"
         // Test if Post a Sales Order with Currency and generate Posted Sales Invoice Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
@@ -383,7 +383,7 @@ codeunit 134378 "ERM Sales Order"
         PostedSaleInvoiceNo: Code[20];
     begin
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(false);
         LibrarySales.SetStockoutWarning(false);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -400,7 +400,7 @@ codeunit 134378 "ERM Sales Order"
         BatchPostSalesOrders.InitializeRequest(true, true, WorkDate, false, false, false);
         BatchPostSalesOrders.SetTableView(SalesHeader);
         BatchPostSalesOrders.UseRequestPage := false;
-        BatchPostSalesOrders.Run;
+        BatchPostSalesOrders.Run();
 
         // Verify: Verify Posted Sales Invoice Header exists.
         Assert.IsTrue(SalesInvoiceHeader.Get(PostedSaleInvoiceNo), 'Unable to find sales invoice header');
@@ -424,7 +424,7 @@ codeunit 134378 "ERM Sales Order"
         PostedSaleInvoiceNo: Code[20];
     begin
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -443,7 +443,7 @@ codeunit 134378 "ERM Sales Order"
         BatchPostSalesOrders.InitializeRequest(true, true, WorkDate, false, false, false);
         BatchPostSalesOrders.SetTableView(SalesHeader);
         BatchPostSalesOrders.UseRequestPage := false;
-        BatchPostSalesOrders.Run;
+        BatchPostSalesOrders.Run();
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
         // Verify: Verify Posted Sales Invoice Header exists.
@@ -465,7 +465,7 @@ codeunit 134378 "ERM Sales Order"
         // Check Invoice Discount Amount on Posting Partial Sales Order.
 
         // Setup: Create Sales Order with Partial Invoice.
-        Initialize;
+        Initialize();
         CreateAndModifySalesOrder(SalesHeader, SalesLine);
         InvoiceDiscountAmount :=
           SalesLine."Unit Price" * SalesLine."Qty. to Invoice" * FindCustomerInvoiceDiscount(SalesHeader."Sell-to Customer No.") / 100;
@@ -489,7 +489,7 @@ codeunit 134378 "ERM Sales Order"
         // Check Invoice Discount Amount on Posting Partial Sales Order with Custom values.
 
         // Setup: Create and Post Sales Order with Partial Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(false);
 
         CreateAndModifySalesOrder(SalesHeader, SalesLine);
@@ -518,7 +518,7 @@ codeunit 134378 "ERM Sales Order"
         // Check that Status changes from Open to Released after posting Sales Order with partial Shipment.
 
         // Setup: Create Sales Header and Sales Line.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
 
@@ -548,7 +548,7 @@ codeunit 134378 "ERM Sales Order"
         // Check Sales Line fields after making Sales Invoice with Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesInvoiceWithCurrency(SalesHeader, SalesLine); // Prices Including VAT
         if SalesLine."Currency Code" = '' then
             Currency.InitRoundingPrecision
@@ -578,7 +578,7 @@ codeunit 134378 "ERM Sales Order"
         // Check Sales Line fields after making Sales Invoice with Currency and Release.
 
         // Setup: Calculate VAT Base Amount on Sales Line.
-        Initialize;
+        Initialize();
         CreateSalesInvoiceWithCurrency(SalesHeader, SalesLine); // Prices Including VAT
         if SalesLine."Currency Code" = '' then
             Currency.InitRoundingPrecision
@@ -613,7 +613,7 @@ codeunit 134378 "ERM Sales Order"
         // Check Sales Line fields after making Sales Invoice with Currency and Reopen for LCY.
 
         // Setup: Convert Currency in LCY on Sales Line.
-        Initialize;
+        Initialize();
         CreateSalesInvoiceWithCurrency(SalesHeader, SalesLine);
         OutStandingAmountLCY := Round(LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code", '', WorkDate));
         if SalesLine."Currency Code" = '' then
@@ -643,10 +643,10 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Order Page not editable if no customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Order page is opened
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // [THEN] Contact Field is not editable
         Assert.IsFalse(SalesOrder."Sell-to Contact".Editable, ContactShouldNotBeEditableErr);
@@ -662,7 +662,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Order Page editable if customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
@@ -684,10 +684,10 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Invoice Page not editable if no customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Invoice page is opened
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // [THEN] Contact Field is not editable
         Assert.IsFalse(SalesInvoice."Sell-to Contact".Editable, ContactShouldNotBeEditableErr);
@@ -703,7 +703,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Invoice Page editable if customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Invoice
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
@@ -725,10 +725,10 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Credit Memo Page not editable if no customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Credit Memo page is opened
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
 
         // [THEN] Contact Field is not editable
         Assert.IsFalse(SalesCreditMemo."Sell-to Contact".Editable, ContactShouldNotBeEditableErr);
@@ -744,7 +744,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Credit Memo Page editable if customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Credit Memo
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer);
@@ -767,7 +767,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Bill-to Address Fields on Sales Order Page not editable if Customer selected equals Bill-to Customer
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
@@ -796,7 +796,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Bill-to Address Fields on Sales Order Page editable if Customer selected not equals Bill-to Customer
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
@@ -827,7 +827,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Bill-to Address Fields on Sales Invoice Page not editable if Customer selected equals Bill-to Customer
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Invoice
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
@@ -856,7 +856,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [Scenario] Bill-to Address Fields on Sales Invoice Page editable if Customer selected not equals Bill-to Customer
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Invoice
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
@@ -933,7 +933,7 @@ codeunit 134378 "ERM Sales Order"
         // Returns TRUE if the sales order has been deleted, otherwise FALSE.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Prepare:
         // Create sales order
@@ -960,7 +960,7 @@ codeunit 134378 "ERM Sales Order"
         DeleteInvoicedSalesOrders.SetTableView(SalesHeader);
 
         // Delete - execute report:
-        DeleteInvoicedSalesOrders.Run;
+        DeleteInvoicedSalesOrders.Run();
 
         // Return TRUE if sales order was deleted, otherwise FALSE
         exit(SalesHeader.Get(SalesHeader."Document Type"::Order, SalesHeaderDocNo) = false);
@@ -977,7 +977,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Navigate functionality for Posted Sales Invoice.
 
         // 1. Setup. Create Sales Order.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         LibrarySales.SetStockoutWarning(false);
 
@@ -987,7 +987,7 @@ codeunit 134378 "ERM Sales Order"
         // 2. Exercise: Post Sales Order as Ship & Invoice and open Navigate form.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         // Set global variable for page handler.
         PostingDate2 := SalesInvoiceHeader."Posting Date";
@@ -1014,7 +1014,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Navigate functionality for Posted Sales Shipment.
 
         // 1. Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         LibrarySales.SetStockoutWarning(false);
 
@@ -1052,7 +1052,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Navigate functionality for Posted Sales Credit Memo.
 
         // 1. Setup: Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         LibrarySales.SetStockoutWarning(false);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -1066,7 +1066,7 @@ codeunit 134378 "ERM Sales Order"
         // 2. Exercise: Post Sales Credit Memo and open Navigate page.
         LibrarySales.PostSalesDocument(SalesHeader, false, false);
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
         // Set global variable for page handler.
         PostingDate2 := SalesCrMemoHeader."Posting Date";
@@ -1094,7 +1094,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Navigate functionality for Financial Management.
 
         // 1. Setup. Create General Journal Line.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
 
         GenJournalTemplate.SetRange(Recurring, false);
@@ -1115,7 +1115,7 @@ codeunit 134378 "ERM Sales Order"
         // 2. Exercise: Post General Journal Line and open Navigate page.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         Navigate.SetDoc(PostingDate2, DocumentNo2);
-        Navigate.Run;
+        Navigate.Run();
 
         // 3. Verify: Verify Number of entries for all related tables.
         VerifyPostedPaymentNavigation(DocumentNo2);
@@ -1133,7 +1133,7 @@ codeunit 134378 "ERM Sales Order"
         // Post a Sales Invoice and see Balance in LCY on Customer.
 
         // 1. Setup: Create Customer, Sales Header,and Sales Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         LibrarySales.CreateSalesLine(
@@ -1162,7 +1162,7 @@ codeunit 134378 "ERM Sales Order"
         // Test case to verify Sales Amount(LCY).
 
         // Setup : Creating Customer,Currency and Sales Order with Random Quantity.
-        Initialize;
+        Initialize();
         VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithCurrency(CreateCurrency));
@@ -1189,7 +1189,7 @@ codeunit 134378 "ERM Sales Order"
         // Test create a Sales Invoice and calculate applicable VAT for a VAT Posting Group in Sales Invoice.
 
         // 1. Setup: Find a Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // 2. Exercise: Create a Sales Invoice.
@@ -1215,7 +1215,7 @@ codeunit 134378 "ERM Sales Order"
         // Check if system is creating Sales Shipment Line after posting.
 
         // 1. Setup: Create a Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(false);
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -1249,7 +1249,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Line Discount on Sales Invoice.
 
         // 1. Setup: Setup Line Discount.
-        Initialize;
+        Initialize();
         SetupLineDiscount(SalesLineDiscount);
 
         // 2. Exercise: Create a Sales Invoice.
@@ -1274,7 +1274,7 @@ codeunit 134378 "ERM Sales Order"
         // Test post the Sales Invoice and verify GL Entry for the Line Discount Amount.
 
         // 1. Setup: Setup Line Discount and create a Sales Order.
-        Initialize;
+        Initialize();
         PriceListLine.DeleteAll();
         SetupLineDiscount(SalesLineDiscount);
         CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
@@ -1305,7 +1305,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Invoice Discount on Sales Invoice.
 
         // 1. Setup: Setup Invoice Discount.
-        Initialize;
+        Initialize();
         SetupInvoiceDiscount(CustInvoiceDisc);
 
         // 2. Exercise: Create a Sales Invoice, calculate Invoice Discount.
@@ -1330,7 +1330,7 @@ codeunit 134378 "ERM Sales Order"
         // Test Invoice Discount posted in GL Entry for the Sales Invoice.
 
         // 1. Setup: Setup Invoice Discount and create a Sales Order.
-        Initialize;
+        Initialize();
         SetupInvoiceDiscount(CustInvoiceDisc);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustInvoiceDisc.Code);
         CreateSalesLines(SalesLine, SalesHeader);
@@ -1364,7 +1364,7 @@ codeunit 134378 "ERM Sales Order"
 
         // 1. Setup: Create Customer, Item, Extended Text. Update Stockout Warning field on Sales & Receivables Setup.
         // Create Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Text := CreateItemAndExtendedText(Item);
         UpdateSalesReceivablesSetup(OldStockoutWarning, false);
@@ -1378,7 +1378,7 @@ codeunit 134378 "ERM Sales Order"
         // 3. Verify: Check Desription and No. of Sales Order must match with Extended Text Line.
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::" ");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Description, Text);
 
         // 4. Tear Down: Rollback Stockout Warning field on Sales & Receivables Setup.
@@ -1396,7 +1396,7 @@ codeunit 134378 "ERM Sales Order"
         // Try to Post a Sales Order with Blank Posting Date.
 
         // Setup: Create Sales Order with Modified Sales and Receivables Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivableSetup;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
@@ -1428,7 +1428,7 @@ codeunit 134378 "ERM Sales Order"
         // Verify that Qty to Ship in Sales Line is blank after doing Undo shipment when Default Quantity To Ship field is balnk in Sales & Receivable setup.
 
         // Setup: Update Sales & Receivable setup, Create and post sales order.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Blank);
 
@@ -1461,7 +1461,7 @@ codeunit 134378 "ERM Sales Order"
         // Verify that Qty to ship in Sales Line is blank after enering G/L Account with UoM
 
         // Setup: Update Sales & Receivables setup, Create sales order.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Blank);
 
@@ -1498,7 +1498,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order Line - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
@@ -1542,7 +1542,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order Line - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
@@ -1588,7 +1588,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order Line - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
@@ -1632,7 +1632,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order Line - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
@@ -1677,7 +1677,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order Line - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
-        Initialize;
+        Initialize();
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
@@ -1723,7 +1723,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order Line - Rounding Precision]
         // [SCENARIO] Base values are rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
@@ -1787,7 +1787,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order Line - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
-        Initialize;
+        Initialize();
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
@@ -1849,7 +1849,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order Line - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
@@ -1908,7 +1908,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361537] "Qty. to ship (Base)" in Sales Line is validated while "Default Qty. to Ship" is "Remainder"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Remainder" in Sales and Receivables Setup.
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
@@ -1943,7 +1943,7 @@ codeunit 134378 "ERM Sales Order"
         Loc1: Record Location;
         Loc2: Record Location;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Remainder" in Sales and Receivables Setup.
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
@@ -2003,7 +2003,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361537] "Qty. to ship (Base)" in Sales Line is validated while "Default Qty. to Ship" is "Blank"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Blank" in Sales and Receivables Setup.
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Blank);
@@ -2031,7 +2031,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361537] "Return Qty. to Receive (Base)" in Sales Line is validated while "Default Qty. to Ship" is "Remainder"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Remainder" in Sales and Receivables Setup.
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
@@ -2059,7 +2059,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361537] "Return Qty. to Receive (Base)" in Sales Line is validated while "Default Qty. to Ship" is "Blank"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Blank" in Sales and Receivables Setup.
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Blank);
@@ -2087,7 +2087,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361731] "Return Qty. to Receive (Base)" in Credit Memo Line is validated while "Default Qty. to Ship" is "Remainder"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Remainder" in Sales and Receivables Setup
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
@@ -2115,7 +2115,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361731] "Return Qty. to Receive (Base)" in Credit Memo Line is validated while "Default Qty. to Ship" is "Blank"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Receive" in Sales and Receivables Setup
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Blank);
@@ -2143,7 +2143,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361731] "Qty. to Ship (Base)" in Invoice Line is validated while "Default Qty. to Ship" is "Remainder"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Remainder" in Sales and Receivables Setup.
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
@@ -2171,7 +2171,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361731] "Qty. to Ship (Base)" in Invoice Line is validated while "Default Qty. to Ship" is "Blank"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Ship" is "Blank" in Sales and Receivables Setup
         UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Blank);
@@ -2199,7 +2199,7 @@ codeunit 134378 "ERM Sales Order"
         // Check the Quantity on Posted Sales Invoice Line when Sales Order Posted using Sales Order Page.
 
         // Setup: Create Sales Order with Partial Quantity.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
@@ -2225,7 +2225,7 @@ codeunit 134378 "ERM Sales Order"
         // Verify that no Overflow error on sales line with more ranges.
 
         // Setup. Create Sales order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer, LibraryInventory.CreateItem(Item));
 
         // Exercise: Taken large random values.
@@ -2249,7 +2249,7 @@ codeunit 134378 "ERM Sales Order"
         // Verify the Status open error when one more Sales Line added on released Sales Order.
 
         // Setup: Create released sales order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer, LibraryInventory.CreateItem(Item));
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -2273,7 +2273,7 @@ codeunit 134378 "ERM Sales Order"
         // Verify no error will appear while posting a Sales Order with discount on Currency rounding.
 
         // Setup: Create Sales order with Currency Code.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesHeaderWithCurrency(SalesHeader, CreateAndUpdateCurrency);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item,
@@ -2298,7 +2298,7 @@ codeunit 134378 "ERM Sales Order"
         DefaultDimension: Record "Default Dimension";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
@@ -2324,7 +2324,7 @@ codeunit 134378 "ERM Sales Order"
         FromSalesOrderNo: Code[20];
     begin
         // [SCENARIO] Verifies Ship and Invoice fiels in document copied for posted Sales Order
-        Initialize;
+        Initialize();
         // [GIVEN] Create Sales Order with two lines
         // [GIVEN] In second line set Qty. to Ship = 0
         // [GIVEN] Release, Post (Ship) and Post (Invoice) sales order
@@ -2335,7 +2335,7 @@ codeunit 134378 "ERM Sales Order"
         Assert.IsFalse(SalesHeader.Invoice, WrongValueSalesHeaderInvoiceErr);
         Assert.IsFalse(SalesHeader.Ship, WrongValueSalesHeaderShipErr);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2348,7 +2348,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [Cue] [Ship] [Invoice] [UI]
         // [SCENARIO 310657] Shipped Sales Order increases value of "SOs Shipped Not Invoiced" on "Small Business Owner Act." and included in sales order list page opened by drill down
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipped X Sales Orders shipped not invoiced
         PreviousCount := SBOwnerCue.CountSalesOrdersShippedNotInvoiced;
@@ -2374,7 +2374,7 @@ codeunit 134378 "ERM Sales Order"
         // [Cue] [Ship] [Invoice] [UI]
         // [SCENARIO 310657] Separately posted invoice of shipped sales order decreases value of "SOs Shipped Not Invoiced" on "Small Business Owner Act."
         // [SCENARIO 310657] And order is not more included in sales order list page opened by drill down
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipped X Sales Orders shipped not invoiced
         PreviousCount := SBOwnerCue.CountSalesOrdersShippedNotInvoiced;
@@ -2406,7 +2406,7 @@ codeunit 134378 "ERM Sales Order"
         InvoiceDiscountValue: Decimal;
     begin
         // [SCENARIO 375185] Invoice Discount is recalculated on Sales Line created from Posted Shipment Line but not in Sales Header
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
         // [GIVEN] Create sales order and calcucate "Inv. Discount Amount" = "X" excl. VAT
         CreateSalesOrderAndGetDiscountWithoutVAT(SalesHeader);
@@ -2438,7 +2438,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Discount] [Shipment Lines]
         // [SCENARIO 364443] Invoice Discount Amount remains after "Get Shipment Lines" from posted Sales Order. "Sales & Receivables Setup"."Calc. Inv. Discount" = TRUE.
-        Initialize;
+        Initialize();
         UpdateCalcInvDiscountSetup(true);
 
         // [GIVEN] Create and Ship Sales Order with Invoice Discount Amount = "A"
@@ -2465,7 +2465,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Discount] [Shipment Lines]
         // [SCENARIO 364443] Invoice Discount Amount remains after "Get Shipment Lines" from posted Sales Order. "Sales & Receivables Setup"."Calc. Inv. Discount" = FALSE.
-        Initialize;
+        Initialize();
         UpdateCalcInvDiscountSetup(false);
 
         // [GIVEN] Create and Ship Sales Order with Invoice Discount Amount = "A"
@@ -2492,7 +2492,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Discount] [Return Receipt Lines]
         // [SCENARIO 364443] Invoice Discount Amount remains after "Get Return Receipt Lines" from posted Sales Return Order. "Sales & Receivables Setup"."Calc. Inv. Discount" = TRUE.
-        Initialize;
+        Initialize();
         UpdateCalcInvDiscountSetup(true);
 
         // [GIVEN] Create and Ship Sales Return Order with Invoice Discount Amount = "A"
@@ -2519,7 +2519,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Discount] [Return Receipt Lines]
         // [SCENARIO 364443] Invoice Discount Amount remains after "Get Return Receipt Lines" from posted Sales Return Order. "Sales & Receivables Setup"."Calc. Inv. Discount" = FALSE.
-        Initialize;
+        Initialize();
         UpdateCalcInvDiscountSetup(false);
 
         // [GIVEN] Create and Ship Sales Return Order with Invoice Discount Amount = "A"
@@ -2546,7 +2546,7 @@ codeunit 134378 "ERM Sales Order"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 364561] Two G/L Entries with zero amount are created after posting of Sales Invoice with zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Posting Setup, where "Receivables Account No." = "X", "Sales Account No." = "Y"
         // [WHEN] Post Sales Invoice with zero amount
@@ -2573,7 +2573,7 @@ codeunit 134378 "ERM Sales Order"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 364561] G/L Register should be in sync with Vendor Ledger Entry after posting of Sales Invoice with zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Invoice with zero amount
         // [WHEN] Post Sales Invoice
@@ -2581,7 +2581,7 @@ codeunit 134378 "ERM Sales Order"
 
         // [THEN] Customer Ledger Entry No. in range ["From Entry No.",..,"To Entry No."] of G/L Register
         FindCustLedgerEntry(CustLedgerEntry, SalesHeader."Bill-to Customer No.", DocumentNo);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         Assert.IsTrue(
           CustLedgerEntry."Entry No." in [GLRegister."From Entry No." .. GLRegister."To Entry No."],
           CustLedgerEntry.FieldCaption("Entry No."));
@@ -2601,7 +2601,7 @@ codeunit 134378 "ERM Sales Order"
         // [SCENARIO 158032] Invoice Discount is not recalculated on Sales Line created from Posted Shipment Line if "Sales & Receivables Setup"."Calc. Inv. Discount" = FALSE
 
         // [GIVEN] Create Sales Order with Customer with Discount percent, set "Invoice Discount Amount" to "Y"
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(false);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerInvDiscount);
         CreateSalesLine(
@@ -2642,7 +2642,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Salesperson Code]
         // [SCENARIO 377079] Salesperson Code must be filled in Sales Header if Contact has one.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Header "SH".
         DummySalesHeader."Document Date" := WorkDate;
@@ -2668,7 +2668,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Salesperson Code]
         // [SCENARIO 377079] Existing Salesperson Code must not be re-filled in Sales Header if Contact has one.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact having Salespersone Code "SC"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -2704,7 +2704,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 377443] Posted Sales Invoice with Item Charge should inherit dimensions from assigned Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Dimension
         CreateDimValues(ConflictDimension, ConflictDimValue);
@@ -2739,7 +2739,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Statistics] [Item Charge]
         // [SCENARIO 378379] Create Sales Invoice with Item Charge Assignment (Prices Incl. VAT = TRUE), change VAT difference and post
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales & Receivables Setup"."Allow VAT Difference" = TRUE
         // [GIVEN] "General Ledger Setup"."Max. VAT Difference Allowed" = "D"
@@ -2753,12 +2753,12 @@ codeunit 134378 "ERM Sales Order"
 
         // [THEN] SalesInvoiceLine.Amount = "A-D"
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField(Amount, AmountToAssign - MaxVATDifference);
 
         // [THEN] ValueEntry."Sales Amount (Actual)" = "A-D"
         ValueEntry.SetRange("Document No.", SalesInvoiceNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Sales Amount (Actual)", AmountToAssign - MaxVATDifference);
     end;
 
@@ -2775,7 +2775,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Statistics] [Item Charge]
         // [SCENARIO 378379] Create Sales Invoice with Item Charge Assignment (Prices Incl. VAT = FALSE), change VAT difference and post
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales & Receivables Setup"."Allow VAT Difference" = TRUE
         // [GIVEN] "General Ledger Setup"."Max. VAT Difference Allowed" = "D"
@@ -2789,12 +2789,12 @@ codeunit 134378 "ERM Sales Order"
 
         // [THEN] SalesInvoiceLine.Amount = "A"
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField(Amount, AmountToAssign);
 
         // [THEN] ValueEntry."Sales Amount (Actual)" = "A"
         ValueEntry.SetRange("Document No.", SalesInvoiceNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Sales Amount (Actual)", AmountToAssign);
     end;
 
@@ -2811,7 +2811,7 @@ codeunit 134378 "ERM Sales Order"
         // [SCENARIO 164950] Field "Gen. Bus. Posting Group" is updated in lines when user changes it in the document header and Gen. Business Posting Group has "Auto Insert Default" = False
 
         // [GIVEN] Gen. Bus. Posting Group "B" with "Auto Insert Default" = False,
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
         GenBusPostingGroup.Modify();
@@ -2842,7 +2842,7 @@ codeunit 134378 "ERM Sales Order"
         // [SCENARIO 164950] Field "Gen. Bus. Posting Group" is not updated in lines when user changes it in the document header and chooses "No" in Confirm dialog
 
         // [GIVEN] Gen. Bus. Posting Group "B" with "Auto Insert Default" = False,
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
         GenBusPostingGroup.Modify();
@@ -2873,7 +2873,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [SCENARIO 379123] Message raised when delete Sales Invoice with "Posted Invoice Nos." = "Invoice Nos."
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Invoice with "Posting No. Series" = "No. Series"
         SalesReceivablesSetup.Get();
         LibrarySales.CreateSalesHeader(
@@ -2902,7 +2902,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 379418] Equally Item Charge Assignment line Amount to Assign calculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 3 item lines and equally assigned item charge line (Suggest Choice = 1 - Equally)
         // [GIVEN] AmountToAssign = "A", QtyToAssign = "Q"
@@ -2928,7 +2928,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 379418] Item Charge Assignment by amount line Amount to Assign calculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 3 item lines and assigned item charge line by amount (Suggest Choice = 2 - Amount)
         // [GIVEN] AmountToAssign = "A", QtyToAssign = "Q"
@@ -2955,7 +2955,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By Description] [G/L Account]
         // [SCENARIO 203978] Sales Line's G/L Account validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'GLACC_TEST_GLACC';
         Description := 'Description(Test)Description';
 
@@ -2995,7 +2995,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By Description] [Item]
         // [SCENARIO 203978] Sales Line's Item validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'ITEM_TEST_ITEM';
         Description := 'Description(Test)Description';
 
@@ -3034,7 +3034,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By Description] [Item Charge]
         // [SCENARIO 203978] Sales Line's Item Charge validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'ITEMCH_TEST_ITEMCH';
         Description := 'Description(Test)Description';
 
@@ -3073,7 +3073,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By Description] [Fixed Asset]
         // [SCENARIO 203978] Sales Line's Fixed Asset validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'FA_TEST_FA';
         Description := 'Description(Test)Description';
 
@@ -3112,7 +3112,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By Description] [Resource]
         // [SCENARIO 203978] Sales Line's Resource validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'RES_TEST_RES';
         Description := 'Description(Test)Description';
 
@@ -3152,7 +3152,7 @@ codeunit 134378 "ERM Sales Order"
         // [SCENARIO 222522] Sales Line's Standard Text validation can not be done using "Description" field.
         // [SCENARIO 222522] Typed value remains in the "Description" field with empty "Type", "No." values.
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'STDTEXT_TEST_STDTEXT';
         Description := 'Description(Test)Description';
 
@@ -3190,7 +3190,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By No] [G/L Account]
         // [SCENARIO 215821] Sales Line's G/L Account validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'GLACC_TEST_GLACC';
         Description := 'Description(Test)Description';
@@ -3231,7 +3231,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By No] [Item]
         // [SCENARIO 215821] Sales Line's Item validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'ITEM_TEST_ITEM';
         Description := 'Description(Test)Description';
@@ -3272,7 +3272,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By No] [Item Charge]
         // [SCENARIO 215821] Sales Line's Item Charge validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'ITEMCH_TEST_ITEMCH';
         Description := 'Description(Test)Description';
@@ -3313,7 +3313,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By No] [Fixed Asset]
         // [SCENARIO 215821] Sales Line's Fixed Asset validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'FA_TEST_FA';
         Description := 'Description(Test)Description';
@@ -3354,7 +3354,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By No] [Resource]
         // [SCENARIO 215821] Sales Line's Resource validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'RES_TEST_RES';
         Description := 'Description(Test)Description';
@@ -3395,7 +3395,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Find Record By No] [Standard Text]
         // [SCENARIO 222522] Sales Line's Standard Text validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'STDTEXT_TEST_STDTEXT';
         Description := 'Description(Test)Description';
@@ -3485,7 +3485,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UT]
         // [SCENARIO 211691] "Line Amount" recalculates by GetLineAmountToHandle function of table "Sales Line" based on current Quantity and "Unit Price"
 
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 3);
@@ -3509,7 +3509,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UT]
         // [SCENARIO 261533] "Line Amount" recalculates by GetLineAmountToHandle function of table "Sales Line" based on current Quantity and "Unit Price"
         // [SCENARIO 261533] in case of integer Amount Rounding Precision, rounding of partial Quantity
-        Initialize;
+        Initialize();
         LibraryERM.SetAmountRoundingPrecision(1);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
@@ -3530,7 +3530,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UT] [Prepayment]
         // [SCENARIO 261533] "Line Amount" recalculates by GetLineAmountToHandle function of table "Sales Line" based on current Quantity and "Unit Price"
         // [SCENARIO 261533] in case of integer Amount Rounding Precision, rounding of partial Quantity, prepayment
-        Initialize;
+        Initialize();
         LibraryERM.SetAmountRoundingPrecision(1);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
@@ -3561,7 +3561,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Statistics] [VAT Difference] [Invoice Discount]
         // [SCENARIO 215643] Cassie can adjust Invoice Discount at invoice tab of Sales Order statistics page and can update Total VAT amount on VAT Amount lines.
         // [SCENARIO 215643] Changed amounts are reflected on totals subform of sales order and are reflected at posted VAT, Customer Ledger Entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] System setup allows Invoice Discount and Max. VAT Difference = 10
         VATDiffAmount := EnableVATDiffAmount;
@@ -3625,7 +3625,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Statistics] [VAT Difference]
         // [SCENARIO 224140] Totals on sales invoice page has correct values in invoice with VAT Difference
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Difference is allowed
         MaxVATDifference := EnableVATDiffAmount;
@@ -3661,7 +3661,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Statistics] [VAT Difference]
         // [SCENARIO 224140] "Amount Incl. VAT" contains VAT Difference in open Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Difference is allowed
         MaxVATDifference := EnableVATDiffAmount;
@@ -3695,7 +3695,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [SCENARIO 263847] "Quote No." must not be visible when switch from Sales Order with filled "Quote No." to one with blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "SO1" with filled "Quote No."
         CreateSalesOrderWithQuoteNo(SalesHeaderOrderFromQuote);
@@ -3727,7 +3727,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UI]
         // [SCENARIO 263847] "Quote No." must be visible when switch from Sales Order with blank "Quote No." to one with filled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "SO1" with filled "Quote No."
         CreateSalesOrderWithQuoteNo(SalesHeaderOrderFromQuote);
@@ -3758,7 +3758,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 266357] Expected sales amount includes invoice discount when you post sales shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order line. Quantity = 40 pcs, "Unit Price" = 100 LCY, "Inv. Discount Amount" = 200 LCY, which is 5% discount.
         LibrarySales.SetCalcInvDiscount(true);
@@ -3782,7 +3782,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 266357] Expected sales amount includes invoice discount when you post sales shipment from a sales order with two lines.
-        Initialize;
+        Initialize();
 
         LibrarySales.SetCalcInvDiscount(true);
 
@@ -3815,7 +3815,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 266357] Expected sales amount with invoice discounts corresponds to shipped but not invoiced quantity, when you post a sales order with "Ship and Invoice" option in several steps.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order line. Quantity = 40 pcs, "Unit Price" = 100 LCY, "Inv. Discount Amount" = 200 LCY, which is 5% discount.
         LibrarySales.SetCalcInvDiscount(true);
@@ -3879,7 +3879,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Invoice Discount]
         // [SCENARIO 266357] Invoicing sales order reverses all expected sales amount including invoice discount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order line. Quantity = 20 pcs, "Unit Price" = 100 LCY, "Inv. Discount Amount" = 100 LCY, which is 5% discount.
         LibrarySales.SetCalcInvDiscount(true);
@@ -3910,7 +3910,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Return Order] [Invoice Discount]
         // [SCENARIO 266357] Expected sales amount with invoice discounts corresponds to received but not invoiced quantity, when you post a sales return order with "Receive and Invoice" option in several steps.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales return order line. Quantity = 40 pcs, "Unit Price" = 100 LCY, "Inv. Discount Amount" = 200 LCY, which is 5% discount.
         LibrarySales.SetCalcInvDiscount(true);
@@ -3974,8 +3974,8 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [UT]
         // [SCENARIO 270421] Amount shipped not invoiced (LCY) calculates sum of corresponding values of sales lines filtered by Document Type and Document No.
 
-        Initialize;
-        DocumentNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        DocumentNo := LibraryUtility.GenerateGUID();
         for Index := 1 to 2 do begin
             MockSalesHeader(SalesHeader, "Sales Document Type".FromInteger(Index), DocumentNo);
             MockSalesLineWithShipNotInvLCY(SalesLine, SalesHeader, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
@@ -4005,11 +4005,11 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 286007] Navigate page opened from Posted Sales Shipment page has Document No. filter equal to Posted Sales Shipment "No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with Sales Line having Location with "Require Shipment" set to TRUE
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
@@ -4055,7 +4055,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Sales Order] [Item Charge] [Get Shipment Lines]
         // [SCENARIO 290332] Posting invoice filled with Get shipment lines doesn't raise an error when item and its charge were shipped separately.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Charge
         LibraryInventory.CreateItemCharge(ItemCharge);
@@ -4115,7 +4115,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Sales Order]
         // [SCENARIO 320976] For Inventoriable item type changing Location Code to new one in Sales Order should not send notification
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] My Notification for Posting Setup is created and enabled
         SetupMyNotificationsForPostingSetup;
@@ -4146,7 +4146,7 @@ codeunit 134378 "ERM Sales Order"
         // [FEATURE] [Sales Order]
         // [SCENARIO 320976] For inventoriable item type changing Location Code to new one in Sales Order should send notification
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] My Notification for Posting Setup is created and enabled
         SetupMyNotificationsForPostingSetup;
@@ -4175,7 +4175,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Undo shipment] [Resource]
         // [SCENARIO 289385] Stan is able to undo shipment for sales shipment line of Recource type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post shipment of sales order with Resource type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -4207,7 +4207,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Undo shipment] [Item charge]
         // [SCENARIO 289385] Stan is able to undo shipment for sales shipment line of Charge (Item) type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post shipment of sales order with Charge (Item) type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -4240,7 +4240,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Undo shipment] [Item charge]
         // [SCENARIO 289385] Stan is able to undo shipment for sales shipment line of G/L Account type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post shipment of sales order with G/L Account type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -4272,7 +4272,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Undo receipt] [Resource]
         // [SCENARIO 289385] Stan is able to undo receipt for return receipt line of Recource type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post receipt of sales return order with Resource type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -4304,7 +4304,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Undo receipt] [Item charge]
         // [SCENARIO 289385] Stan is able to undo receipt for return receipt line of Charge (Item) type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post receipt of sales return order with Charge (Item) type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -4337,7 +4337,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Undo receipt] [G/L Account]
         // [SCENARIO 289385] Stan is able to undo receipt for return receipt line of G/L Account type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post receipt of sales return order with G/L Account line type
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -4368,7 +4368,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Contact] [UT]
         // [SCENARIO 323845] Changing Sell-to Contact No. on Sales Order changes Sell-to Email when it's not empty.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order for Customer with Contact with non-empty E-mail.
         CreateCustomerWithContactWithEmailAndPhone(Customer, Contact, LibraryUtility.GenerateRandomEmail);
@@ -4392,7 +4392,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Contact] [UT]
         // [SCENARIO 323845] Changing Sell-to Contact No. on Sales Order changes Sell-to Email when it's empty and Stan accepts the change..
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order for Customer with Contact with empty E-mail.
         CreateCustomerWithContactWithEmailAndPhone(Customer, Contact, '');
@@ -4416,7 +4416,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Contact] [UT]
         // [SCENARIO 323845] Changing Sell-to Contact No. on Sales Order changes Sell-to Email when it's empty and Stan rejects the change..
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order for Customer with Contact with empty E-mail.
         CreateCustomerWithContactWithEmailAndPhone(Customer, Contact, '');
@@ -4440,7 +4440,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         // [FEATURE] [Contact] [UT]
         // [SCENARIO 323845] Changing Sell-to Contact No on Sales Order changes Sell-to Phone No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order for Customer with Contact with Phone No.
         CreateCustomerWithContactWithEmailAndPhone(Customer, Contact, LibraryUtility.GenerateRandomEmail);
@@ -4757,8 +4757,8 @@ codeunit 134378 "ERM Sales Order"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Order");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -4766,10 +4766,10 @@ codeunit 134378 "ERM Sales Order"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Order");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
@@ -4782,7 +4782,7 @@ codeunit 134378 "ERM Sales Order"
         VATPostingSetup: Record "VAT Posting Setup";
         VATItem: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup."VAT %" := VAT;
@@ -4833,12 +4833,12 @@ codeunit 134378 "ERM Sales Order"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         LibraryWarehouse.AutofillQtyToShipWhseShipment(WarehouseShipmentHeader);
 
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
     end;
 
@@ -4881,7 +4881,7 @@ codeunit 134378 "ERM Sales Order"
         LibrarySales.CreateCustomer(Customer);
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         with Contact do begin
             Get(ContactBusinessRelation."Contact No.");
             Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
@@ -4894,7 +4894,7 @@ codeunit 134378 "ERM Sales Order"
 
             Type := Type::Person;
             "No." := '';
-            Name := LibraryUtility.GenerateGUID;
+            Name := LibraryUtility.GenerateGUID();
             "E-Mail" := CopyStr(Email, 1, StrLen("E-Mail"));
             "Phone No." := CopyStr(LibraryUtility.GenerateRandomNumericText(MaxStrLen("Phone No.")), 1, MaxStrLen("Phone No."));
             Insert(true);
@@ -5179,19 +5179,19 @@ codeunit 134378 "ERM Sales Order"
     local procedure FindSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; OrderNo: Code[20])
     begin
         SalesShipmentHeader.SetRange("Order No.", OrderNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
     end;
 
     local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; OrderNo: Code[20])
     begin
         SalesShipmentLine.SetRange("Order No.", OrderNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; ReturnOrderNo: Code[20])
     begin
         ReturnReceiptLine.SetRange("Return Order No.", ReturnOrderNo);
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
     end;
 
 #if not CLEAN19
@@ -5350,7 +5350,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        if not InventoryPostingGroup.FindFirst then
+        if not InventoryPostingGroup.FindFirst() then
             LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
 
         with Item do begin
@@ -5463,7 +5463,7 @@ codeunit 134378 "ERM Sales Order"
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvoiceDisc.SetRange(Code, Code);
-        CustInvoiceDisc.FindFirst;
+        CustInvoiceDisc.FindFirst();
         exit(CustInvoiceDisc."Discount %");
     end;
 
@@ -5473,7 +5473,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         FindSalesShipmentHeader(SalesShipmentHeader, OrderNo);
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindSalesLines(var SalesLine: Record "Sales Line")
@@ -5488,7 +5488,7 @@ codeunit 134378 "ERM Sales Order"
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -5497,7 +5497,7 @@ codeunit 134378 "ERM Sales Order"
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -5611,7 +5611,7 @@ codeunit 134378 "ERM Sales Order"
     local procedure FindSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; OrderNo: Code[20])
     begin
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure InitGlobalVariables()
@@ -5816,7 +5816,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         WarehouseShipmentLine.SetRange("Source No.", DocumentNo);
         WarehouseShipmentLine.SetRange("Source Line No.", LineNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Whse.-Post Shipment", WarehouseShipmentLine);
     end;
 
@@ -5946,7 +5946,7 @@ codeunit 134378 "ERM Sales Order"
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
         VATPostingSetup."Reverse Chrg. VAT Acc." := VATPostingSetup."Purchase VAT Account";
         VATPostingSetup."VAT Calculation Type" := VATCalculationType;
-        VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateGUID;
+        VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateGUID();
         VATPostingSetup.Modify();
     end;
 
@@ -6051,7 +6051,7 @@ codeunit 134378 "ERM Sales Order"
         CreateSalesInvoiceWithItemCharge(SalesHeaderCharge, SalesHeader, PricesInclVAT);
         SalesLine.SetRange("Document Type", SalesHeaderCharge."Document Type");
         SalesLine.SetRange("Document No.", SalesHeaderCharge."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         FindShipmentLine(SalesShipmentLine, SalesHeader."No.");
         LibraryInventory.CreateItemChargeAssignment(
           ItemChargeAssignmentSales, SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
@@ -6071,7 +6071,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         WarehouseShipmentLine.SetRange("Source No.", SalesHeaderNo);
         WarehouseShipmentLine.SetRange("Source Line No.", SalesLineLineNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Whse.-Post Shipment", WarehouseShipmentLine);
     end;
 
@@ -6098,7 +6098,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         GeneralLedgerSetup.Get();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Amount (LCY)");
         Assert.AreNearlyEqual(
           Amount, CustLedgerEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
@@ -6115,7 +6115,7 @@ codeunit 134378 "ERM Sales Order"
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Inv. Disc. Account");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           InvoiceDiscountAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), InvoiceDiscountAmount, GLEntry.TableCaption));
@@ -6134,7 +6134,7 @@ codeunit 134378 "ERM Sales Order"
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Line Disc. Account");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           LineDiscountAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), LineDiscountAmount, GLEntry.TableCaption));
@@ -6150,7 +6150,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         GeneralLedgerSetup.Get();
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         Assert.AreNearlyEqual(
           LineDiscountAmount, SalesInvoiceLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, SalesInvoiceLine.FieldCaption("Inv. Discount Amount"), LineDiscountAmount, SalesInvoiceLine.TableCaption));
@@ -6164,7 +6164,7 @@ codeunit 134378 "ERM Sales Order"
         // Verifing Remaining Amount(LCY).
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
         Currency.Get(CustLedgerEntry."Currency Code");
         Assert.AreNearlyEqual(
@@ -6222,7 +6222,7 @@ codeunit 134378 "ERM Sales Order"
     local procedure VerifyNavigateRecords(var DocumentEntry: Record "Document Entry"; TableID: Integer; NoOfRecords: Integer)
     begin
         DocumentEntry.SetRange("Table ID", TableID);
-        DocumentEntry.FindFirst;
+        DocumentEntry.FindFirst();
         DocumentEntry.TestField("No. of Records", NoOfRecords);
     end;
 
@@ -6322,7 +6322,7 @@ codeunit 134378 "ERM Sales Order"
         SalesShipmentLine.SetRange("Order No.", SalesLine."Document No.");
         SalesShipmentLine.SetRange(Type, SalesLine.Type);
         SalesShipmentLine.SetRange("No.", SalesLine."No.");
-        SalesShipmentLine.FindLast;
+        SalesShipmentLine.FindLast();
         SalesShipmentLine.TestField(Quantity, -1 * SalesLine."Qty. to Ship");
     end;
 
@@ -6333,7 +6333,7 @@ codeunit 134378 "ERM Sales Order"
         ReturnReceiptLine.SetRange("Return Order No.", SalesLine."Document No.");
         ReturnReceiptLine.SetRange(Type, SalesLine.Type);
         ReturnReceiptLine.SetRange("No.", SalesLine."No.");
-        ReturnReceiptLine.FindLast;
+        ReturnReceiptLine.FindLast();
         ReturnReceiptLine.TestField(Quantity, -1 * SalesLine."Return Qty. to Receive");
     end;
 
@@ -6342,10 +6342,10 @@ codeunit 134378 "ERM Sales Order"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         ValueEntry.SetFilter("Item Charge No.", '<>%1', '');
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(
           ExpectedDimSetID, ValueEntry."Dimension Set ID", StrSubstNo(IncorrectDimSetIDErr, ItemLedgEntry.TableCaption));
     end;
@@ -6356,7 +6356,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Qty. to Ship", 0);
     end;
 
@@ -6367,9 +6367,9 @@ codeunit 134378 "ERM Sales Order"
     begin
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField(Quantity, Quantity);
     end;
 
@@ -6378,7 +6378,7 @@ codeunit 134378 "ERM Sales Order"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry.SetRange("Dimension Code", DimCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         Assert.AreEqual(
           DimensionSetEntry."Dimension Set ID", SalesHeader."Dimension Set ID",
           StrSubstNo(WrongDimValueErr, SalesHeader."No."));
@@ -6559,7 +6559,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, '');
-            LibraryVariableStorage.Clear;
+            LibraryVariableStorage.Clear();
             LibraryVariableStorage.Enqueue("Sales Document Type From"::Order);
             LibraryVariableStorage.Enqueue(FromSalesOrderNo);
             CopySalesDocument(SalesHeader);
@@ -6573,7 +6573,7 @@ codeunit 134378 "ERM Sales Order"
     begin
         Commit();
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.RunModal;
+        CopySalesDocument.RunModal();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]

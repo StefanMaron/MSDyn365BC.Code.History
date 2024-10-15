@@ -69,7 +69,7 @@ codeunit 136605 "ERM RS Role Center"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         InitGetProgressScenario_Group;
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Group);
@@ -83,7 +83,7 @@ codeunit 136605 "ERM RS Role Center"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         InitGetProgressScenario_Area;
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Area);
@@ -97,7 +97,7 @@ codeunit 136605 "ERM RS Role Center"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         AddConfigLine(ConfigLine."Line Type"::Table, ConfigLine.Status::" ", true);
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Table);
 
@@ -110,7 +110,7 @@ codeunit 136605 "ERM RS Role Center"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         InitGetProgressScenario_Area;
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Group);
@@ -124,7 +124,7 @@ codeunit 136605 "ERM RS Role Center"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         InitGetProgressScenario_Area;
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Area);
@@ -138,7 +138,7 @@ codeunit 136605 "ERM RS Role Center"
     var
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         InitGetProgressScenario_AreaWithoutGroup;
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Area);
@@ -153,7 +153,7 @@ codeunit 136605 "ERM RS Role Center"
         RapidStartServicesCue: Record "RapidStart Services Cue";
         ConfigLine: Record "Config. Line";
     begin
-        Initialize;
+        Initialize();
         InitVerifyCueScenario;
 
         GetRapidStartCue(RapidStartServicesCue);
@@ -280,7 +280,7 @@ codeunit 136605 "ERM RS Role Center"
     local procedure FindConfigLine(var ConfigLine: Record "Config. Line"; LineType: Option "Area",Group,"Table")
     begin
         ConfigLine.SetRange("Line Type", LineType);
-        ConfigLine.FindLast;
+        ConfigLine.FindLast();
     end;
 
     local procedure GetRapidStartCue(var RapidStartServicesCue: Record "RapidStart Services Cue")

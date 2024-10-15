@@ -19,7 +19,7 @@ codeunit 134384 "ERM Document Posting Error"
         LibrarySales: Codeunit "Library - Sales";
         IsInitialized: Boolean;
         SalesOrderPostingErr: Label 'The total amount for the invoice must be 0 or greater.';
-        PurchaseInvoicePostingErr: Label 'Amount must be negative in Gen. Journal Line Journal Template Name=''%1'',Journal Batch Name='''',Line No.=''0''.', Comment = '.';
+        PurchaseInvoicePostingErr: Label 'Amount must be negative';
         StatusErr: Label 'Status must be equal to ''Open''  in %1: Document Type=%2, No.=%3. Current value is ''Released''.', Comment = '.';
 
     [Test]
@@ -31,7 +31,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Sales Order Posting Error for Negative value and Status field.
 
         // Setup: Create Sales Order with Negative value.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
 
         // Exercise: Post Sales Order.
@@ -51,14 +51,14 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Purchase Invoice Posting Error for Negative value and Status field.
 
         // Setup: Create Purchase Invoice with Negative value.
-        Initialize;
+        Initialize();
         CreatePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         // Exercise: Post Purchase Invoice.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Posting Error and Status field.
-        Assert.ExpectedError(GetPurchInvPostingErr(PurchaseHeader));
+        Assert.ExpectedError(PurchaseInvoicePostingErr);
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Open);
     end;
 
@@ -71,7 +71,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Release Sales Order not allow changing Sell-to Customer No. field.
 
         // Setup: Create Sales Order and use Release function.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
 
         // Exercise: Validate Sell to Customer No.
@@ -90,7 +90,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Release Sales Invoice not allow changing Bill-to Customer No. field.
 
         // Setup: Create Sales Invoice and use Release function.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // Exercise: Validate Bill-to Customer No.
@@ -109,7 +109,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Release Sales Order not allow changing Prices Including VAT field.
 
         // Setup: Create Sales Order and use Release function.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
 
         // Exercise: Change Prices Including VAT.
@@ -132,7 +132,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test VAT Business Posting Group not changing on Purchase Order while Change Pay to Vendor field.
 
         // Setup: Create Purchase Invoice with Negative value.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(OldBillToSellToVATCalc, GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
         CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         VATBusPostingGroup := PurchaseHeader."VAT Bus. Posting Group";
@@ -158,7 +158,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Release Sales Credit Memo not allow changing Currency Code field.
 
         // Setup: Create Sales Credit Memo and use Release function.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         LibraryERM.FindCurrency(Currency);
 
@@ -178,7 +178,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Release Purchase Credit Memo not allow changing Buy-from Vendor No. field.
 
         // Setup: Create Purchase Credit Memo and use Release function.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
 
         // Exercise: Validate Buy-from Vendor No. on Release Purchase Header.
@@ -197,7 +197,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Release Purchase Order not allow changing Pay-to Vendor No. field.
 
         // Setup: Create Purchase Order and use Release function.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Validate Pay to Vendor No. on Purchase Header.
@@ -216,7 +216,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Release Purchase Order not allow changing Prices Including VAT field.
 
         // Setup: Create Purchase Order and use Release function.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Validate Prices Including VAT on Purchase Header.
@@ -236,7 +236,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Test Release Purchase Invoice not allow changing Currency Code field.
 
         // Setup: Create Purchase Invoice and use Release function.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         LibraryERM.FindCurrency(Currency);
 
@@ -257,7 +257,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify not possible to delete Released Sales Item Line.
 
         // Setup: Create and Release Sale Order.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         FindSalesLine(SalesLine, SalesHeader."No.", SalesLine.Type::Item);
 
@@ -279,7 +279,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify not possible to delete Released Sales Item Line with zero Quantity.
 
         // Setup: Create Sale Order with multiple Lines and Release Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 0);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -303,7 +303,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify possible to delete Released Sales G/L Account Line.
 
         // Setup: Create Sale Order for Type G/L Account and Release Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
@@ -328,7 +328,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify not possible to add new Item Line in Released Sales Order with Quantity value zero.
 
         // Setup: Create and Release Sales Order for Item.
-        Initialize;
+        Initialize();
         CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
 
         // Exercise: Add New Item Line in Released Sales Line with Quantity zero.
@@ -349,7 +349,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify possible to add new Charge Item Line in Released Sales Order.
 
         // Setup: Create and Release Sales Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemCharge(ItemCharge);
         CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         LibrarySales.ReopenSalesDocument(SalesHeader);
@@ -372,7 +372,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify not possible to delete Released Purchase Line.
 
         // Setup: Create and Release Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.", PurchaseLine.Type::Item);
 
@@ -394,7 +394,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify not possible to delete Released Purchase Line.
 
         // Setup: Create Purchase Order for multiple lines and  Release Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 0);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -419,7 +419,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify possible to delete Released Purchase Order for Line Type G/L Account.
 
         // Setup: Create Purchase Order for G/L Account lines. Using Random value for Quantity and Release Purchase Order.
-        Initialize;
+        Initialize();
         LibraryERM.FindGLAccount(GLAccount);
         CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         LibraryPurchase.CreatePurchaseLine(
@@ -447,7 +447,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Verify not possible to add new Item Line in Released Purchase Order.
 
         // Setup: Create and Release Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Add new Item Line with Random Quantity in Released Purchase Line.
@@ -468,7 +468,7 @@ codeunit 134384 "ERM Document Posting Error"
     begin
         // Verify possible to add new G/L Account Line in Released Purchase Order.
         // Setup: Create and Release Purchase Order.
-        Initialize;
+        Initialize();
         LibraryERM.FindGLAccount(GLAccount);
         CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
@@ -533,7 +533,7 @@ codeunit 134384 "ERM Document Posting Error"
     begin
         // [FEATURE] [Sales] [VAT] [Price Including VAT]
         // [SCENARIO 367912] Stan can post sales order with negative line when the total "Amount Including VAT" is 0 and "Price Incl. VAT" = TRUE
-        Initialize;
+        Initialize();
 
         CreateTwoVATPostingSetups(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20), 0);
 
@@ -688,7 +688,7 @@ codeunit 134384 "ERM Document Posting Error"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, Type);
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; Type: Enum "Sales Document Type")
@@ -696,7 +696,7 @@ codeunit 134384 "ERM Document Posting Error"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, Type);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
     end;
 
     local procedure UpdateGeneralLedgerSetup(var OldBillToSellToVATCalc: Enum "G/L Setup VAT Calculation"; BillToSellToVATCalc: Enum "G/L Setup VAT Calculation")
@@ -707,11 +707,6 @@ codeunit 134384 "ERM Document Posting Error"
         OldBillToSellToVATCalc := GeneralLedgerSetup."Bill-to/Sell-to VAT Calc.";
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BillToSellToVATCalc);
         GeneralLedgerSetup.Modify(true);
-    end;
-
-    local procedure GetPurchInvPostingErr(PurchHeader: Record "Purchase Header"): Text[250]
-    begin
-        exit(StrSubstNo(PurchaseInvoicePostingErr, PurchHeader."Journal Template Name"));
     end;
 
     local procedure VerifyReleaseSalesDocument(SalesHeader: Record "Sales Header")

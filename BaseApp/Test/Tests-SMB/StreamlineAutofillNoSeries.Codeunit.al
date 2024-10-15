@@ -32,7 +32,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeries: Record "No. Series";
     begin
         // [GIVEN] NoSeries where Default Nos is TRUE and Manual Nos is FALSE
-        Initialize;
+        Initialize();
         NoSeries.Get(CreateNonVisibleNoSeries(false));
         NoSeries.Validate("Default Nos.", true);
         NoSeries.Validate("Manual Nos.", false);
@@ -51,7 +51,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeries: Record "No. Series";
     begin
         // [GIVEN] NoSeries where Manual Nos is TRUE and Default Nos is FALSE
-        Initialize;
+        Initialize();
         NoSeries.Get(CreateNonVisibleNoSeries(false));
         NoSeries.Validate("Manual Nos.", true);
         NoSeries.Validate("Default Nos.", false);
@@ -70,12 +70,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::Quote;
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, '');
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
     end;
 
     [Test]
@@ -85,12 +85,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::Order;
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, '');
 
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
     end;
 
     [Test]
@@ -100,12 +100,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::Order;
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, WrongNoSeriesCodeTxt);
 
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
     end;
 
     [Test]
@@ -115,12 +115,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         SIPage: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::Invoice;
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, '');
 
-        SIPage.OpenNew;
+        SIPage.OpenNew();
     end;
 
     [Test]
@@ -130,12 +130,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         SIPage: TestPage "Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::Invoice;
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, WrongNoSeriesCodeTxt);
 
-        SIPage.OpenNew;
+        SIPage.OpenNew();
     end;
 
     [Test]
@@ -145,12 +145,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::"Credit Memo";
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, '');
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
     end;
 
     [Test]
@@ -160,12 +160,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::"Return Order";
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, '');
 
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
     end;
 
     [Test]
@@ -175,12 +175,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::"Blanket Order";
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, WrongNoSeriesCodeTxt);
 
-        BlanketSalesOrder.OpenNew;
+        BlanketSalesOrder.OpenNew();
     end;
 
     [Test]
@@ -190,12 +190,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         Reminder: TestPage Reminder;
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::Reminder;
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, WrongNoSeriesCodeTxt);
 
-        Reminder.OpenNew;
+        Reminder.OpenNew();
     end;
 
     [Test]
@@ -205,12 +205,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         FinanceChargeMemo: TestPage "Finance Charge Memo";
     begin
-        Initialize;
+        Initialize();
 
         CurrentSalesSetupDocType := SalesSetupDocType::FinChMemo;
         UpdateNoSeriesOnSalesSetup(CurrentSalesSetupDocType, WrongNoSeriesCodeTxt);
 
-        FinanceChargeMemo.OpenNew;
+        FinanceChargeMemo.OpenNew();
     end;
 
     [Test]
@@ -220,12 +220,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        Initialize;
+        Initialize();
 
         CurrentPurchSetupDocType := PurchSetupDocType::Quote;
         UpdateNoSeriesOnPurchSetup('');
 
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
     end;
 
     [Test]
@@ -235,12 +235,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        Initialize;
+        Initialize();
 
         CurrentPurchSetupDocType := PurchSetupDocType::Order;
         UpdateNoSeriesOnPurchSetup('');
 
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
     end;
 
     [Test]
@@ -250,12 +250,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        Initialize;
+        Initialize();
 
         CurrentPurchSetupDocType := PurchSetupDocType::Order;
         UpdateNoSeriesOnPurchSetup(WrongNoSeriesCodeTxt);
 
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
     end;
 
     [Test]
@@ -265,12 +265,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CurrentPurchSetupDocType := PurchSetupDocType::Invoice;
         UpdateNoSeriesOnPurchSetup('');
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
     end;
 
     [Test]
@@ -280,12 +280,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CurrentPurchSetupDocType := PurchSetupDocType::Invoice;
         UpdateNoSeriesOnPurchSetup(WrongNoSeriesCodeTxt);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
     end;
 
     [Test]
@@ -295,12 +295,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CurrentPurchSetupDocType := PurchSetupDocType::"Credit Memo";
         UpdateNoSeriesOnPurchSetup('');
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
     end;
 
     [Test]
@@ -310,12 +310,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        Initialize;
+        Initialize();
 
         CurrentPurchSetupDocType := PurchSetupDocType::"Return Order";
         UpdateNoSeriesOnPurchSetup('');
 
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
     end;
 
     [Test]
@@ -325,12 +325,12 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        Initialize;
+        Initialize();
 
         CurrentPurchSetupDocType := PurchSetupDocType::"Blanket Order";
         UpdateNoSeriesOnPurchSetup(WrongNoSeriesCodeTxt);
 
-        BlanketPurchaseOrder.OpenNew;
+        BlanketPurchaseOrder.OpenNew();
     end;
 
     [Test]
@@ -340,7 +340,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
 
@@ -361,7 +361,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -385,7 +385,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -406,7 +406,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -429,7 +429,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(true);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -453,7 +453,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -479,7 +479,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -505,7 +505,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -530,7 +530,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -554,7 +554,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
@@ -576,7 +576,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
 
@@ -601,11 +601,11 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesManagement: Codeunit NoSeriesManagement;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, 0D);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         NoSeries.Get(NoSeriesCode);
 
         ValidateFieldsOnNoSeriesListPage(NoSeries, NoSeriesLine);
@@ -620,14 +620,14 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesManagement: Codeunit NoSeriesManagement;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, 0D);
         NoSeriesLine.DeleteAll();
         NoSeriesLine.Reset();
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
 
         NoSeries.Get(NoSeriesCode);
 
@@ -642,13 +642,13 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesLine: Record "No. Series Line";
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
 
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
         NoSeriesLine.DeleteAll();
-        if NoSeriesLine.FindFirst then;
+        if NoSeriesLine.FindFirst() then;
 
         NoSeries.Get(NoSeriesCode);
 
@@ -662,7 +662,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         NoSeries: Record "No. Series";
     begin
-        Initialize;
+        Initialize();
 
         NoSeriesCodeForUseInModalPageHendler := CreateNonVisibleNoSeries(false);
 
@@ -678,7 +678,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetSalesReceivablesSetup_CustomerNos(NoSeriesCode);
@@ -710,14 +710,14 @@ codeunit 138100 "Streamline. Autofill No Series"
         CustomerCard: TestPage "Customer Card";
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetSalesReceivablesSetup_CustomerNos(NoSeriesCode);
 
         // [WHEN] NoSeries for Customer is set to Default and opennew CustomerCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
 
         // [THEN] The the handler should open
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean,
@@ -725,7 +725,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] NoSeries for Customer is NOT set to Default and opennew CustomerCard
         SetNoSeriesDefaultNos(NoSeriesCode, false);
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
 
         // [THEN] The the handler should NOT open
         LibraryVariableStorage.AssertEmpty;
@@ -739,7 +739,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetSalesReceivablesSetup_CustomerNos(NoSeriesCode);
@@ -767,7 +767,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetPurchasesPayablesSetup_VendorNos(NoSeriesCode);
@@ -799,14 +799,14 @@ codeunit 138100 "Streamline. Autofill No Series"
         VendorCard: TestPage "Vendor Card";
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetPurchasesPayablesSetup_VendorNos(NoSeriesCode);
 
         // [WHEN] NoSeries for Vendor is set to Default and opennew VendorCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
 
         // [THEN] The the handler should open
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean,
@@ -814,7 +814,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] NoSeries for Vendor is NOT set to Default and opennew VendorCard
         SetNoSeriesDefaultNos(NoSeriesCode, false);
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
 
         // [THEN] The the handler should NOT open
         LibraryVariableStorage.AssertEmpty;
@@ -828,7 +828,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetPurchasesPayablesSetup_VendorNos(NoSeriesCode);
@@ -856,7 +856,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetInventorySetup_ItemNos(NoSeriesCode);
@@ -888,14 +888,14 @@ codeunit 138100 "Streamline. Autofill No Series"
         ItemCard: TestPage "Item Card";
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetInventorySetup_ItemNos(NoSeriesCode);
 
         // [WHEN] NoSeries for Item is set to Default and opennew ItemCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
 
         // [THEN] The the handler should open
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean,
@@ -903,7 +903,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] NoSeries for Item is NOT set to Default and opennew ItemCard
         SetNoSeriesDefaultNos(NoSeriesCode, false);
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
 
         // [THEN] The the handler should NOT open
         LibraryVariableStorage.AssertEmpty;
@@ -917,7 +917,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetInventorySetup_ItemNos(NoSeriesCode);
@@ -944,7 +944,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetInventorySetup_TransferOrderNos(NoSeriesCode);
@@ -973,7 +973,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetInventorySetup_TransferOrderNos(NoSeriesCode);
@@ -1001,7 +1001,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         Result: Boolean;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetHumanResourcesSetup_EmployeeNos(NoSeriesCode);
@@ -1032,7 +1032,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Get the NoSeries
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         SetHumanResourcesSetup_EmployeeNos(NoSeriesCode);
@@ -1063,13 +1063,13 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode: Code[20];
         NewNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         NoSeriesCode := CreateNonVisibleNoSeries(true);
         SetSalesReceivablesSetup_CustomerNos(NoSeriesCode);
 
         // [WHEN] NoSeries for Customer is set and opennew CustomerCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         if CustomerCard."No.".Value = '' then begin
             NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
             SetNoSeriesDefaultNos(NoSeriesCode, false);
@@ -1087,7 +1087,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         end;
 
         // [THEN] A new CustomerCard is opened without errors and with NoSeries adjusted.
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
     end;
 
     [Test]
@@ -1101,13 +1101,13 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode: Code[20];
         NewNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         NoSeriesCode := CreateNonVisibleNoSeries(true);
         SetPurchasesPayablesSetup_VendorNos(NoSeriesCode);
 
         // [WHEN] NoSeries for Vendor is set and opennew CustomerCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         if VendorCard."No.".Value = '' then begin
             NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
             SetNoSeriesDefaultNos(NoSeriesCode, false);
@@ -1125,7 +1125,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         end;
 
         // [THEN] A new VendorCard is opened without errors and with NoSeries adjusted.
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
     end;
 
     [Test]
@@ -1138,13 +1138,13 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode: Code[20];
         NewNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         NoSeriesCode := CreateNonVisibleNoSeries(true);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Quote, NoSeriesCode);
 
         // [WHEN] NoSeries for SalesQuoteCard is set and opennew CustomerCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        SalesQuoteCard.OpenNew;
+        SalesQuoteCard.OpenNew();
         if SalesQuoteCard."No.".Value = '' then begin
             NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
             SetNoSeriesDefaultNos(NoSeriesCode, false);
@@ -1163,7 +1163,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         end;
 
         // [THEN] A new SalesQuoteCard is opened without errors and with NoSeries adjusted.
-        SalesQuoteCard.OpenNew;
+        SalesQuoteCard.OpenNew();
     end;
 
     [Test]
@@ -1176,13 +1176,13 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode: Code[20];
         NewNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         NoSeriesCode := CreateNonVisibleNoSeries(true);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
 
         // [WHEN] NoSeries for SalesInvoiceCard is set and opennew CustomerCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        SalesInvoiceCard.OpenNew;
+        SalesInvoiceCard.OpenNew();
         if SalesInvoiceCard."No.".Value = '' then begin
             NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
             SetNoSeriesDefaultNos(NoSeriesCode, false);
@@ -1201,7 +1201,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         end;
 
         // [THEN] A new SalesInvoiceCard is opened without errors and with NoSeries adjusted.
-        SalesInvoiceCard.OpenNew;
+        SalesInvoiceCard.OpenNew();
     end;
 
     [Test]
@@ -1214,14 +1214,14 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode: Code[20];
         NewNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         NoSeriesCode := CreateNonVisibleNoSeries(true);
         CurrentPurchSetupDocType := PurchSetupDocType::Quote;
         UpdateNoSeriesOnPurchSetup(NoSeriesCode);
 
         // [WHEN] NoSeries for PurchaseQuoteCard is set and opennew CustomerCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        PurchaseQuoteCard.OpenNew;
+        PurchaseQuoteCard.OpenNew();
         if PurchaseQuoteCard."No.".Value = '' then begin
             NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
             SetNoSeriesDefaultNos(NoSeriesCode, false);
@@ -1240,7 +1240,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         end;
 
         // [THEN] A new PurchaseQuoteCard is opened without errors and with NoSeries adjusted.
-        PurchaseQuoteCard.OpenNew;
+        PurchaseQuoteCard.OpenNew();
     end;
 
     [Test]
@@ -1253,14 +1253,14 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode: Code[20];
         NewNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         NoSeriesCode := CreateNonVisibleNoSeries(true);
         CurrentPurchSetupDocType := PurchSetupDocType::Invoice;
         UpdateNoSeriesOnPurchSetup(NoSeriesCode);
 
         // [WHEN] NoSeries for PurchaseInvoiceCard is set and opennew CustomerCard
         SetNoSeriesDefaultNos(NoSeriesCode, true);
-        PurchaseInvoiceCard.OpenNew;
+        PurchaseInvoiceCard.OpenNew();
         if PurchaseInvoiceCard."No.".Value = '' then begin
             NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
             SetNoSeriesDefaultNos(NoSeriesCode, false);
@@ -1279,7 +1279,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         end;
 
         // [THEN] A new PurchaseInvoiceCard is opened without errors and with NoSeries adjusted.
-        PurchaseInvoiceCard.OpenNew;
+        PurchaseInvoiceCard.OpenNew();
     end;
 
     [Test]
@@ -1292,7 +1292,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 219136] Field "No." must be empty, other fields must be filled after validating of Customer on non-inserting Sales header record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales & Receivables Setup with "Posted Invoice Nos." = "NOS1" and "Posted Shipment Nos." = "NOS2"
         UpdateSalesSetupPostedNoSeries(NoSeriesCode);
@@ -1329,7 +1329,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     begin
         // [FEATURE] [UT] [Purchase]
         // [SCENARIO 219136] Field "No." must be empty, other fields must be filled after validating of Vendor on non-inserting Purchase header record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchases & Payables Setup with "Posted Invoice Nos." = "NOS1" and "Posted Receipt Nos." = "NOS2"
         UpdatePurchaseSetupPostedNoSeries(NoSeriesCode);
@@ -1414,8 +1414,8 @@ codeunit 138100 "Streamline. Autofill No Series"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Streamline. Autofill No Series");
         CurrentSalesSetupDocType := -1;
         CurrentPurchSetupDocType := -1;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -1515,7 +1515,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Journal Templ. Sales Invoice" := CreateGenJnlTemplWithPostingNoSeries(NoSeriesCode[1]);
+        SalesReceivablesSetup."S. Invoice Template Name" := CreateGenJnlTemplWithPostingNoSeries(NoSeriesCode[1]);
         NoSeriesCode[2] := LibraryERM.CreateNoSeriesCode;
         SalesReceivablesSetup."Posted Shipment Nos." := NoSeriesCode[2];
         SalesReceivablesSetup.Modify();
@@ -1526,7 +1526,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Journal Templ. Purch. Invoice" := CreateGenJnlTemplWithPostingNoSeries(NoSeriesCode[1]);
+        PurchasesPayablesSetup."P. Invoice Template Name" := CreateGenJnlTemplWithPostingNoSeries(NoSeriesCode[1]);
         NoSeriesCode[2] := LibraryERM.CreateNoSeriesCode;
         PurchasesPayablesSetup."Posted Receipt Nos." := NoSeriesCode[2];
         PurchasesPayablesSetup.Modify();
@@ -1635,7 +1635,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
-        if NoSeriesLine.FindLast then
+        if NoSeriesLine.FindLast() then
             NoSeriesLine."Line No." += 1;
 
         NoSeriesLine."Series Code" := NoSeriesCode;

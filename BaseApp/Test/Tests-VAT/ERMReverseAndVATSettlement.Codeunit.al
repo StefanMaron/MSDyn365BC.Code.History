@@ -47,7 +47,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
 
         // Setup: First run VAT Settlement Report to Calculate VAT Entry for all records, then Create and Post General Journal Line and
         // Run VAT Settlement Report for Posted Entry only.
-        Initialize;
+        Initialize();
         CalcAndVATSettlement(LibraryERM.CreateGLAccountNo, DocNo);
         CreatePostGeneralJournalLine(GenJournalLine, WorkDate);
         VATAmount :=
@@ -74,7 +74,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
 
         // Setup: First run VAT Settlement Report to Calculate VAT Entry for all records, then Create and Post General Journal Line and
         // VAT Settlement Report for Posted Entry only.
-        Initialize;
+        Initialize();
         CalcAndVATSettlement(LibraryERM.CreateGLAccountNo, DocNo);
         CreatePostGeneralJournalLine(GenJournalLine, WorkDate);
 
@@ -101,7 +101,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         // [SCENARIO] Check Reverse Transaction Error after Run Date Compression VAT Entry Batch job for Posted General Journal Lines.
 
         // [GIVEN] Posted General Journal Line with Transaction No. = 200
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         CreatePostGeneralJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(true));
         TransactionNo := GetGLEntryTransactionNo(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.");
@@ -109,7 +109,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         // [GIVEN] Run Date Compress Batch job for VAT Entries.
         DateCompressVATEntry(GenJournalLine."Posting Date");
         // [GIVEN] Last TransactionNo = 201 (TFS 380533)
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         GLEntry.TestField("Transaction No.", TransactionNo + 1);
 
         // [WHEN] Reverse posted Journal line
@@ -914,20 +914,27 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         exit(GLEntry."Transaction No.");
     end;
 
     local procedure DateCompressVATEntry(PostingDate: Date)
     var
         DateComprRegister: Record "Date Compr. Register";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressVATEntries: Report "Date Compress VAT Entries";
     begin
         // Run the Date Compress VAT Entry Report with a closed Accounting Period.
+        DateComprRetainFields."Retain Document No." := true;
+        DateComprRetainFields."Retain Bill-to/Pay-to No." := false;
+        DateComprRetainFields."Retain EU 3-Party Trade" := false;
+        DateComprRetainFields."Retain Country/Region Code" := false;
+        DateComprRetainFields."Retain Internal Ref. No." := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
         DateCompressVATEntries.InitializeRequest(
-          PostingDate, PostingDate, DateComprRegister."Period Length"::Day, true, false, false, false, false, false);
+          PostingDate, PostingDate, DateComprRegister."Period Length"::Day, DateComprRetainFields, false);
         DateCompressVATEntries.UseRequestPage(false);
-        DateCompressVATEntries.Run;
+        DateCompressVATEntries.Run();
     end;
 
     local procedure ReverseGLAccount(GLAccountNo: Code[20]; DocumentNo: Code[20])
@@ -938,7 +945,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
     begin
         TransactionNo := GetGLEntryTransactionNo(GLAccountNo, DocumentNo);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(TransactionNo);
         Assert.ExpectedError(StrSubstNo(ReversalError, VATEntry.TableCaption, VATEntry."Entry No."));
@@ -953,7 +960,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange(Type, VATEntry.Type::Settlement);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(Base, VATEntry.Base, GeneralLedgerSetup."Appln. Rounding Precision",
           StrSubstNo(VATBaseError, Base, VATEntry.Base, VATEntry.TableCaption));
     end;

@@ -100,7 +100,7 @@ report 2000022 "Create Gen. Jnl. Lines"
         if PostGenJnlLines then begin
             GenJnlLine.SetRange("Journal Template Name", GeneralJournalTemplateName);
             GenJnlLine.SetRange("Journal Batch Name", GeneralJournalBatchName);
-            GenJnlLine.FindFirst;
+            GenJnlLine.FindFirst();
             CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", GenJnlLine);
         end;
     end;
@@ -146,7 +146,7 @@ report 2000022 "Create Gen. Jnl. Lines"
     begin
         LastGenJnlLine.SetRange("Journal Template Name", GeneralJournalTemplateName);
         LastGenJnlLine.SetRange("Journal Batch Name", GeneralJournalBatchName);
-        if LastGenJnlLine.FindLast then;
+        if LastGenJnlLine.FindLast() then;
     end;
 
     [Scope('OnPrem')]

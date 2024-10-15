@@ -256,9 +256,14 @@
         {
             Caption = 'Partner ID';
             DataClassification = CustomerContent;
-            ObsoleteState = Pending;
             ObsoleteReason = 'Merged to W1';
+#if CLEAN18
+            ObsoleteTag = '21.0';
+            ObsoleteState = Removed;
+#else
             ObsoleteTag = '18.0';
+            ObsoleteState = Pending;
+#endif
         }
     }
 
@@ -352,7 +357,7 @@
             if TemplateFilter <> '' then
                 IntrastatJnlBatch.SetFilter("Journal Template Name", TemplateFilter);
             IntrastatJnlBatch.SetFilter(Name, BatchFilter);
-            IntrastatJnlBatch.FindFirst;
+            IntrastatJnlBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -566,7 +571,7 @@
         exit('QV999999999999');
     end;
 
-    local procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
+    protected procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
     begin
@@ -575,7 +580,7 @@
         exit(false);
     end;
 
-    local procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
+    protected procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
     var
         Vendor: Record Vendor;
     begin

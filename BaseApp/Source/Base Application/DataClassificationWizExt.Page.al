@@ -65,12 +65,6 @@ pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification 
     end;
 
     var
-        MediaRepositoryStandard: Record "Media Repository";
-        MediaRepositoryDone: Record "Media Repository";
-        MediaResourcesStandard: Record "Media Resources";
-        MediaResourcesDone: Record "Media Resources";
-        ClientTypeManagement: Codeunit "Client Type Management";
-        TopBannerVisible: Boolean;
         StepValues: Option Welcome,"Choose Mode","Set Rules",Apply,Verify,"Verify Related Fields",Finish;
         ShouldNextBeEnabled: Boolean;
 

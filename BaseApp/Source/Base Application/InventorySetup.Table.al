@@ -68,6 +68,27 @@
                     UpdateNameInLedgerEntries.NotifyAboutBlankNamesInLedgerEntries(RecordId);
             end;
         }
+        field(180; "Invt. Cost Jnl. Template Name"; Code[10])
+        {
+            Caption = 'Invt. Cost Jnl. Template Name';
+            TableRelation = "Gen. Journal Template";
+
+            trigger OnValidate()
+            begin
+                if "Invt. Cost Jnl. Template Name" = '' then
+                    "Invt. Cost Jnl. Batch Name" := '';
+            end;
+        }
+        field(181; "Invt. Cost Jnl. Batch Name"; Code[10])
+        {
+            Caption = 'Jnl. Batch Name Cost Posting';
+            TableRelation = IF ("Invt. Cost Jnl. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Invt. Cost Jnl. Template Name"));
+
+            trigger OnValidate()
+            begin
+                TestField("Invt. Cost Jnl. Template Name");
+            end;
+        }
         field(5700; "Transfer Order Nos."; Code[20])
         {
             AccessByPermission = TableData "Transfer Header" = R;
@@ -109,7 +130,7 @@
             AccessByPermission = TableData "Item Reference" = R;
             Caption = 'Use Item References';
             ObsoleteReason = 'Replaced by default visibility for Item Reference''s fields and actions.';
-#if not CLEAN20
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '19.0';
 #else
@@ -136,7 +157,7 @@
                 ChangeExpCostPostToGL: Codeunit "Change Exp. Cost Post. to G/L";
             begin
                 if "Expected Cost Posting to G/L" <> xRec."Expected Cost Posting to G/L" then
-                    if ItemLedgEntry.FindFirst then begin
+                    if ItemLedgEntry.FindFirst() then begin
                         ChangeExpCostPostToGL.ChangeExpCostPostingToGL(Rec, "Expected Cost Posting to G/L");
                         Find;
                     end;
@@ -285,22 +306,27 @@
         {
             Caption = 'Jnl. Templ. Name Cost Posting';
             TableRelation = "Gen. Journal Template";
-
-            trigger OnValidate()
-            begin
-                if "Jnl. Templ. Name Cost Posting" = '' then
-                    "Jnl. Batch Name Cost Posting" := '';
-            end;
+            ObsoleteReason = 'Replaced by field Invt. Cost Jnl. Template Name.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11306; "Jnl. Batch Name Cost Posting"; Code[10])
         {
             Caption = 'Jnl. Batch Name Cost Posting';
             TableRelation = IF ("Jnl. Templ. Name Cost Posting" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Jnl. Templ. Name Cost Posting"));
-
-            trigger OnValidate()
-            begin
-                TestField("Jnl. Templ. Name Cost Posting");
-            end;
+            ObsoleteReason = 'Replaced by field Invt. Cost Jnl. Batch Name.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 

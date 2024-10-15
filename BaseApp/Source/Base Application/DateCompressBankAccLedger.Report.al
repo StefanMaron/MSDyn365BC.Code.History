@@ -29,13 +29,13 @@ report 1498 "Date Compress Bank Acc. Ledger"
                     SetRange("Currency Code", "Currency Code");
                     SetRange("Document Type", "Document Type");
 
-                    if RetainNo(FieldNo("Document No.")) then
+                    if DateComprRetainFields."Retain Document No." then
                         SetRange("Document No.", "Document No.");
-                    if RetainNo(FieldNo("Our Contact Code")) then
+                    if DateComprRetainFields."Retain Contact Code" then
                         SetRange("Our Contact Code", "Our Contact Code");
-                    if RetainNo(FieldNo("Global Dimension 1 Code")) then
+                    if DateComprRetainFields."Retain Global Dimension 1" then
                         SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                    if RetainNo(FieldNo("Global Dimension 2 Code")) then
+                    if DateComprRetainFields."Retain Global Dimension 2" then
                         SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
                     if Amount >= 0 then
                         SetFilter(Amount, '>=0')
@@ -92,10 +92,10 @@ report 1498 "Date Compress Bank Acc. Ledger"
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress Bank Acc. Ledger", '', TempSelectedDim);
                 GLSetup.Get();
-                Retain[3] :=
+                DateComprRetainFields."Retain Global Dimension 1" :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Bank Acc. Ledger", '', GLSetup."Global Dimension 1 Code");
-                Retain[4] :=
+                DateComprRetainFields."Retain Global Dimension 2" :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Bank Acc. Ledger", '', GLSetup."Global Dimension 2 Code");
 
@@ -163,19 +163,19 @@ report 1498 "Date Compress Bank Acc. Ledger"
                     group("Retain Field Contents")
                     {
                         Caption = 'Retain Field Contents';
-                        field("Retain[1]"; Retain[1])
+                        field("Retain[1]"; DateComprRetainFields."Retain Document No.")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that is processed by the report or batch job.';
                         }
-                        field("Retain[2]"; Retain[2])
+                        field("Retain[2]"; DateComprRetainFields."Retain Contact Code")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Our Contact Code';
                             ToolTip = 'Specifies the employee who is responsible for this bank account.';
                         }
-                        field("Retain[5]"; Retain[5])
+                        field("Retain[5]"; DateComprRetainFields."Retain Journal Template Name")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Journal Template Name';
@@ -269,21 +269,17 @@ report 1498 "Date Compress Bank Acc. Ledger"
         SelectedDim: Record "Selected Dimension";
         TempSelectedDim: Record "Selected Dimension" temporary;
         DimSelectionBuf: Record "Dimension Selection Buffer";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
         DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         BankAccLedgEntryFilter: Text[250];
-        NoOfFields: Integer;
-        Retain: array[10] of Boolean;
-        FieldNumber: array[10] of Integer;
-        FieldNameArray: array[10] of Text[100];
         LastEntryNo: Integer;
         NextTransactionNo: Integer;
         NoOfDeleted: Integer;
         GLRegExists: Boolean;
-        i: Integer;
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
@@ -313,16 +309,22 @@ report 1498 "Date Compress Bank Acc. Ledger"
           EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date", EntrdDateComprReg."Period Length",
           BankAccLedgEntryFilter, GLReg."No.", SourceCodeSetup."Compress Bank Acc. Ledger");
 
-        for i := 1 to NoOfFields do
-            if Retain[i] then
-                DateComprReg."Retain Field Contents" :=
-                  CopyStr(
-                    DateComprReg."Retain Field Contents" + ',' + FieldNameArray[i], 1,
-                    MaxStrLen(DateComprReg."Retain Field Contents"));
+        if DateComprRetainFields."Retain Document No." then
+            AddFieldContent(NewBankAccLedgEntry.FieldName("Document No."));
+        if DateComprRetainFields."Retain Contact Code" then
+            AddFieldContent(NewBankAccLedgEntry.FieldName("Our Contact Code"));
+
         DateComprReg."Retain Field Contents" := CopyStr(DateComprReg."Retain Field Contents", 2);
 
         GLRegExists := false;
         NoOfDeleted := 0;
+    end;
+
+    local procedure AddFieldContent(FieldName: Text)
+    begin
+        DateComprReg."Retain Field Contents" :=
+            CopyStr(
+                DateComprReg."Retain Field Contents" + ',' + FieldName, 1, MaxStrLen(DateComprReg."Retain Field Contents"));
     end;
 
     local procedure InsertRegisters(var GLReg: Record "G/L Register"; var DateComprReg: Record "Date Compr. Register")
@@ -367,25 +369,6 @@ report 1498 "Date Compress Bank Acc. Ledger"
             NextTransactionNo := LastTransactionNo + 1;
             InitRegisters;
         end;
-    end;
-
-    local procedure InsertField(Number: Integer; Name: Text[100])
-    begin
-        NoOfFields := NoOfFields + 1;
-        FieldNumber[NoOfFields] := Number;
-        FieldNameArray[NoOfFields] := Name;
-    end;
-
-    local procedure RetainNo(Number: Integer): Boolean
-    begin
-        exit(Retain[Index(Number)]);
-    end;
-
-    local procedure Index(Number: Integer): Integer
-    begin
-        for i := 1 to NoOfFields do
-            if Number = FieldNumber[i] then
-                exit(i);
     end;
 
     local procedure SummarizeEntry(var NewBankAccLedgEntry: Record "Bank Account Ledger Entry"; BankAccLedgEntry: Record "Bank Account Ledger Entry")
@@ -451,17 +434,16 @@ report 1498 "Date Compress Bank Acc. Ledger"
             NewBankAccLedgEntry."User ID" := UserId;
             NewBankAccLedgEntry."Transaction No." := NextTransactionNo;
 
-            if RetainNo(FieldNo("Document No.")) then
+            if DateComprRetainFields."Retain Document No." then
                 NewBankAccLedgEntry."Document No." := "Document No.";
-            if RetainNo(FieldNo("Our Contact Code")) then
+            if DateComprRetainFields."Retain Contact Code" then
                 NewBankAccLedgEntry."Our Contact Code" := "Our Contact Code";
-            if RetainNo(FieldNo("Global Dimension 1 Code")) then
+            if DateComprRetainFields."Retain Global Dimension 1" then
                 NewBankAccLedgEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if RetainNo(FieldNo("Global Dimension 2 Code")) then
+            if DateComprRetainFields."Retain Global Dimension 2" then
                 NewBankAccLedgEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
-
-            if RetainNo(FieldNo("Journal Template Name")) then
-                NewBankAccLedgEntry."Journal Template Name" := "Journal Template Name";
+            if DateComprRetainFields."Retain Journal Template Name" then
+                NewBankAccLedgEntry."Journal Templ. Name" := "Journal Templ. Name";
 
             Window.Update(1, NewBankAccLedgEntry."Bank Account No.");
             Window.Update(2, NewBankAccLedgEntry."Posting Date");
@@ -492,41 +474,52 @@ report 1498 "Date Compress Bank Acc. Ledger"
         if EntrdBankAccLedgEntry.Description = '' then
             EntrdBankAccLedgEntry.Description := Text009;
 
-        with "Bank Account Ledger Entry" do begin
-            InsertField(FieldNo("Document No."), FieldCaption("Document No."));
-            InsertField(FieldNo("Our Contact Code"), FieldCaption("Our Contact Code"));
-            InsertField(FieldNo("Global Dimension 1 Code"), FieldCaption("Global Dimension 1 Code"));
-            InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
-            InsertField(FieldNo("Journal Template Name"), FieldCaption("Journal Template Name"));
-        end;
         DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         UseDataArchive := DataArchiveProviderExists;
     end;
 
 #if not CLEAN19
-    [Obsolete('Use the overload with RetainJnlTemplate instead', '19.0')]
+    [Obsolete('Replaced by InitializeRequest with DateComprRetainFields parameter', '19.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainOurContactCode: Boolean; RetainDimensionText: Text[250])
     begin
         InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentNo, RetainOurContactCode, RetainDimensionText, false, true);
     end;
 #endif
 
+#if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest with DateComprRetainFields parameter', '20.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainOurContactCode: Boolean; RetainDimensionText: Text[250]; RetainJnlTemplate: Boolean)
     begin
         InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentNo, RetainOurContactCode, RetainDimensionText, RetainJnlTemplate, true);
     end;
+#endif
 
+#if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest with DateComprRetainFields parameter', '20.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainOurContactCode: Boolean; RetainDimensionText: Text[250]; RetainJnlTemplate: Boolean; DoUseDataArchive: Boolean)
     begin
-        InitializeParameter;
+        InitializeParameter();
         EntrdDateComprReg."Starting Date" := StartingDate;
         EntrdDateComprReg."Ending Date" := EndingDate;
         EntrdDateComprReg."Period Length" := PeriodLength;
         EntrdBankAccLedgEntry.Description := Description;
-        Retain[1] := RetainDocumentNo;
-        Retain[2] := RetainOurContactCode;
+        DateComprRetainFields."Retain Document No." := RetainDocumentNo;
+        DateComprRetainFields."Retain Contact Code" := RetainOurContactCode;
+        DateComprRetainFields."Retain Journal Template Name" := RetainJnlTemplate;
         RetainDimText := RetainDimensionText;
-        Retain[5] := RetainJnlTemplate;
+        UseDataArchive := DoUseDataArchive and DataArchiveProviderExists;
+    end;
+#endif
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; NewDateComprRetainFields: Record "Date Compr. Retain Fields"; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
+    begin
+        InitializeParameter();
+        EntrdDateComprReg."Starting Date" := StartingDate;
+        EntrdDateComprReg."Ending Date" := EndingDate;
+        EntrdDateComprReg."Period Length" := PeriodLength;
+        EntrdBankAccLedgEntry.Description := Description;
+        DateComprRetainFields := NewDateComprRetainFields;
+        RetainDimText := RetainDimensionText;
         UseDataArchive := DoUseDataArchive and DataArchiveProviderExists;
     end;
 
@@ -540,10 +533,10 @@ report 1498 "Date Compress Bank Acc. Ledger"
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
-        TelemetryDimensions.Add('RetainOurContactCode', Format(Retain[2], 0, 9));
+        TelemetryDimensions.Add('RetainDocumentNo', Format(DateComprRetainFields."Retain Document No.", 0, 9));
+        TelemetryDimensions.Add('RetainOurContactCode', Format(DateComprRetainFields."Retain Contact Code", 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
-        TelemetryDimensions.Add('RetainJnlTemplate', Format(Retain[5], 0, 9));
+        TelemetryDimensions.Add('RetainJnlTemplate', Format(DateComprRetainFields."Retain Journal Template Name", 0, 9));
         TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4I', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);

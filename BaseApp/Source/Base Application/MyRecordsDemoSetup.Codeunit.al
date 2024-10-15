@@ -48,7 +48,7 @@ codeunit 280 "My Records Demo Setup"
         I := 0;
         MaxCustomersToAdd := 5;
         Customer.SetFilter(Balance, '<>0');
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 I += 1;
                 MyCustomer."User ID" := UserId;
@@ -75,7 +75,7 @@ codeunit 280 "My Records Demo Setup"
         MaxItemsToAdd := 5;
 
         Item.SetFilter("Unit Price", '<>0');
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 I += 1;
                 MyItem."User ID" := UserId;
@@ -101,7 +101,7 @@ codeunit 280 "My Records Demo Setup"
         I := 0;
         MaxVendorsToAdd := 5;
         Vendor.SetFilter(Balance, '<>0');
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 I += 1;
                 MyVendor."User ID" := UserId;
@@ -127,7 +127,7 @@ codeunit 280 "My Records Demo Setup"
         I := 0;
         MaxAccountsToAdd := 5;
         GLAccount.SetRange("Reconciliation Account", true);
-        if GLAccount.FindSet then
+        if GLAccount.FindSet() then
             repeat
                 I += 1;
                 MyAccount."User ID" := UserId;
@@ -136,8 +136,8 @@ codeunit 280 "My Records Demo Setup"
             until (GLAccount.Next() = 0) or (I >= MaxAccountsToAdd);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterLogInStart', '', false, false)]
-    local procedure OnAfterLogInStartSubscriber()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
+    local procedure OnAfterLoginSubscriber()
     begin
         SetupMyRecords();
     end;

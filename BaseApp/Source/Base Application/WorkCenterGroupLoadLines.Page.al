@@ -167,7 +167,7 @@ page 99000892 "Work Center Group Load Lines"
             CapacityUoM := MfgSetup."Show Capacity In";
         WorkCenter.SetCurrentKey("Work Center Group Code");
         WorkCenter.SetRange("Work Center Group Code", WorkCenterGroup.Code);
-        if WorkCenter.FindSet then
+        if WorkCenter.FindSet() then
             repeat
                 WorkCenterGroup.CopyFilter("Date Filter", WorkCenter."Date Filter");
                 WorkCenter.CalcFields("Capacity (Effective)", "Prod. Order Need (Qty.)");

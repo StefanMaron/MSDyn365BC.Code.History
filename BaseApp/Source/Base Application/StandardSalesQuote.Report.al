@@ -1,4 +1,4 @@
-﻿report 1304 "Standard Sales - Quote"
+report 1304 "Standard Sales - Quote"
 {
     RDLCLayout = './StandardSalesQuote.rdlc';
     WordLayout = './StandardSalesQuote.docx';
@@ -59,34 +59,34 @@
             column(CompanyGiroNo_Lbl; CompanyInfoGiroNoLbl)
             {
             }
-            column(CompanyBankName; CompanyInfo."Bank Name")
+            column(CompanyBankName; CompanyBankAccount.Name)
             {
             }
             column(CompanyBankName_Lbl; CompanyInfoBankNameLbl)
             {
             }
-            column(CompanyBankBranchNo; CompanyInfo."Bank Branch No.")
+            column(CompanyBankBranchNo; CompanyBankAccount."Bank Branch No.")
             {
             }
-            column(CompanyBankBranchNo_Lbl; CompanyInfo.FieldCaption("Bank Branch No."))
+            column(CompanyBankBranchNo_Lbl; CompanyBankAccount.FieldCaption("Bank Branch No."))
             {
             }
-            column(CompanyBankAccountNo; CompanyInfo."Bank Account No.")
+            column(CompanyBankAccountNo; CompanyBankAccount."Bank Account No.")
             {
             }
             column(CompanyBankAccountNo_Lbl; CompanyInfoBankAccNoLbl)
             {
             }
-            column(CompanyIBAN; CompanyInfo.IBAN)
+            column(CompanyIBAN; CompanyBankAccount.IBAN)
             {
             }
-            column(CompanyIBAN_Lbl; CompanyInfo.FieldCaption(IBAN))
+            column(CompanyIBAN_Lbl; CompanyBankAccount.FieldCaption(IBAN))
             {
             }
-            column(CompanySWIFT; CompanyInfo."SWIFT Code")
+            column(CompanySWIFT; CompanyBankAccount."SWIFT Code")
             {
             }
-            column(CompanySWIFT_Lbl; CompanyInfo.FieldCaption("SWIFT Code"))
+            column(CompanySWIFT_Lbl; CompanyBankAccount.FieldCaption("SWIFT Code"))
             {
             }
             column(CompanyLogoPosition; CompanyLogoPosition)
@@ -466,20 +466,6 @@
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
-#if not CLEAN18
-                column(CrossReferenceNo_Line; "Cross-Reference No.")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference No.';
-                    ObsoleteTag = '17.0';
-                }
-                column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference No.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 column(ItemReferenceNo_Line; "Item Reference No.")
                 {
                 }
@@ -841,6 +827,9 @@
                 FormatAddr.SalesHeaderBillTo(CustAddr, Header);
                 ShowShippingAddr := FormatAddr.SalesHeaderShipTo(ShipToAddr, CustAddr, Header);
 
+                if not CompanyBankAccount.Get(Header."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
 
@@ -947,7 +936,7 @@
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if Header.FindSet then
+            if Header.FindSet() then
                 repeat
                     Header.CalcFields("No. of Archived Versions");
                     if Header."Bill-to Contact No." <> '' then
@@ -1015,6 +1004,7 @@
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         DummyCompanyInfo: Record "Company Information";
         SalesSetup: Record "Sales & Receivables Setup";

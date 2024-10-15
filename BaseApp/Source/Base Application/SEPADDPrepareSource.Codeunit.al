@@ -18,7 +18,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         if not FromDirectDebitCollectionEntry.IsEmpty() then begin
             FromDirectDebitCollectionEntry.SetFilter(Status, '%1|%2',
               FromDirectDebitCollectionEntry.Status::New, FromDirectDebitCollectionEntry.Status::"File Created");
-            if FromDirectDebitCollectionEntry.FindSet then
+            if FromDirectDebitCollectionEntry.FindSet() then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
                     ToDirectDebitCollectionEntry.Insert();
@@ -36,7 +36,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         DomiciliationJournalLine.SetRange("Journal Template Name", DirectDebitCollection.Identifier);
         DomiciliationJournalLine.SetRange("Journal Batch Name", DirectDebitCollection."Domiciliation Batch Name");
         DomiciliationJournalLine.SetRange(Status, DomiciliationJournalLine.Status::Marked);
-        if DomiciliationJournalLine.FindSet then
+        if DomiciliationJournalLine.FindSet() then
             repeat
                 ToDirectDebitCollectionEntry.Init();
                 ToDirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";

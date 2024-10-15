@@ -66,7 +66,7 @@ table 2000002 "Paym. Journal Batch"
     begin
         PaymentJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         PaymentJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        if PaymentJnlLine.FindSet then
+        if PaymentJnlLine.FindSet() then
             repeat
                 PaymentJnlLine.Rename("Journal Template Name", Name, PaymentJnlLine."Line No.");
             until (PaymentJnlLine.Next() = 0);

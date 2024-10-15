@@ -33,7 +33,7 @@ codeunit 144006 "CODA Tests"
         TransactionCoding: Record "Transaction Coding";
     begin
         // [SCENARIO 291527] Search Customer by Bank Account No. for CODA Statement Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "Cust" with "Bank Account No." = '123456789'
         // [GIVEN] CODA Statement line has "Bank Account No. Other Party" = '123456789'
@@ -54,7 +54,7 @@ codeunit 144006 "CODA Tests"
         TransactionCoding: Record "Transaction Coding";
     begin
         // [SCENARIO 291527] Search Vendor by Bank Account No. for CODA Statement Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "Vend" has Bank Account with "Bank Account No." = '123456789'
         // [GIVEN] CODA Statement line has "Bank Account No. Other Party" = '123456789'
@@ -75,7 +75,7 @@ codeunit 144006 "CODA Tests"
         TransactionCoding: Record "Transaction Coding";
     begin
         // [SCENARIO 291527] Search Customer by IBAN for CODA Statement Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "Cust" has Bank Account with IBAN = 'BE0123456789'
         // [GIVEN] CODA Statement line has "Bank Account No. Other Party" = 'BE0123456789'
@@ -96,7 +96,7 @@ codeunit 144006 "CODA Tests"
         TransactionCoding: Record "Transaction Coding";
     begin
         // [SCENARIO 291527] Search Vendor by IBAN for CODA Statement Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "Vend" has Bank Account with IBAN = 'BE0123456789'
         // [GIVEN] CODA Statement line has "Bank Account No. Other Party" = 'BE0123456789'
@@ -119,7 +119,7 @@ codeunit 144006 "CODA Tests"
         BankAccOtherParty: Text[20];
     begin
         // [SCENARIO 291527] Search Customer by IBAN first for CODA Statement Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "Cust1" has Bank Account with "Bank Account No." = '1110123456789'
         // [GIVEN] Customer "Cust2" has Bank Account with IBAN = '1110123456789'
@@ -149,7 +149,7 @@ codeunit 144006 "CODA Tests"
         BankAccOtherParty: Text[20];
     begin
         // [SCENARIO 291527] Search Vendor by IBAN first for CODA Statement Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "Vend1" has Bank Account with "Bank Account No." = '2220123456789'
         // [GIVEN] Vendor "Vend2" has Bank Account with IBAN = '2220123456789'
@@ -177,12 +177,12 @@ codeunit 144006 "CODA Tests"
         CODAStatementLine: Record "CODA Statement Line";
         BankAccount: Record "Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         LibraryCODAHelper.CreateVendorBankAccount(VendorBankAccount);
         CreateCODAStatementLine(CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
 
-        BankAccount.FindLast;
+        BankAccount.FindLast();
         asserterror CODAStatementLine.Rename(BankAccount."No.", CODAStatementLine."Statement No.", CODAStatementLine."Statement Line No.");
     end;
 
@@ -196,7 +196,7 @@ codeunit 144006 "CODA Tests"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // 1. Create a Customer and a CustomerBankAccount.
         LibraryCODAHelper.CreateCustomerBankAccount(CustomerBankAccount);
@@ -218,7 +218,7 @@ codeunit 144006 "CODA Tests"
         // Validation
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Customer No.", CustomerBankAccount."Customer No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Assert.AreEqual(1, CustLedgerEntry.Count, IncorrectNoOfRecordsErr);
         Assert.AreEqual('', CustLedgerEntry."Applies-to ID", AppliedToIdNotResetErr);
         Assert.AreEqual(0, CustLedgerEntry."Amount to Apply", AmountToApplyNotResetErr);
@@ -234,7 +234,7 @@ codeunit 144006 "CODA Tests"
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // 1. Create a Vendor and a CustomerBankAccount.
         LibraryCODAHelper.CreateVendorBankAccount(VendorBankAccount);
@@ -256,7 +256,7 @@ codeunit 144006 "CODA Tests"
         // Validation
         VendLedgerEntry.Reset();
         VendLedgerEntry.SetRange("Vendor No.", VendorBankAccount."Vendor No.");
-        VendLedgerEntry.FindFirst;
+        VendLedgerEntry.FindFirst();
         Assert.AreEqual(1, VendLedgerEntry.Count, IncorrectNoOfRecordsErr);
         Assert.AreEqual('', VendLedgerEntry."Applies-to ID", AppliedToIdNotResetErr);
         Assert.AreEqual(0, VendLedgerEntry."Amount to Apply", AmountToApplyNotResetErr);
@@ -272,7 +272,7 @@ codeunit 144006 "CODA Tests"
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // 1. Create a Vendor and a CustomerBankAccount.
         LibraryCODAHelper.CreateVendorBankAccount(VendorBankAccount);
@@ -304,7 +304,7 @@ codeunit 144006 "CODA Tests"
         Vendor: Record Vendor;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // 1. Create a Vendor and a VendorBankAccount.
         LibraryCODAHelper.CreateVendorBankAccount(VendorBankAccount);
@@ -339,7 +339,7 @@ codeunit 144006 "CODA Tests"
         Customer: Record Customer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // 1. Create a Customer and a CustomerBankAccount.
         LibraryCODAHelper.CreateCustomerBankAccount(CustomerBankAccount);
@@ -360,7 +360,7 @@ codeunit 144006 "CODA Tests"
         // Account Name field contains Vendor Name.
         CODAStatementLine.Validate("Account No.", CustomerBankAccount."Customer No.");
         Customer.SetRange("No.", CustomerBankAccount."Customer No.");
-        Customer.FindFirst;
+        Customer.FindFirst();
 
         Assert.AreEqual(Customer.Name, CODAStatementLine."Account Name", '');
     end;
@@ -375,7 +375,7 @@ codeunit 144006 "CODA Tests"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryCODAHelper.CreateCustomerBankAccount(CustomerBankAccount);
         CreateCustLedgerEntry(CustLedgerEntry, CustomerBankAccount."Customer No.", true);
@@ -400,7 +400,7 @@ codeunit 144006 "CODA Tests"
     begin
         // Ensure the the table triggers are tested.
         BankAccount.SetFilter("Payment Export Format", '<>%1', '');
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         CODAStatement.Init();
         CODAStatement.Validate("Bank Account No.", BankAccount."No.");
         if CODAStatement."Statement No." = '' then
@@ -429,16 +429,16 @@ codeunit 144006 "CODA Tests"
     begin
         // [FEATURE] [UT] [UI] [Apply] [Applies-to]
         // [SCENARIO 287687] When Stan applies Customer Ledger Entry to a CODA Statement Line, "Applies-to ID" field is updated for CODA Statement Line.
-        Initialize;
+        Initialize();
 
         CreateCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, false);
 
         with CODAStatementLine do begin
             Init;
-            "Statement No." := LibraryUtility.GenerateGUID;
+            "Statement No." := LibraryUtility.GenerateGUID();
             "Statement Line No." := LibraryRandom.RandInt(100);
             "Posting Date" := WorkDate;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Account Type" := "Account Type"::Customer;
             "Account No." := CustLedgerEntry."Customer No.";
             Insert;
@@ -862,7 +862,7 @@ codeunit 144006 "CODA Tests"
           CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
         UpdateCODAStatementLine(
           CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor, TotalAmount,
-          CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID);
+          CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
         CODAStatementLine.Validate("Account No.", VendorBankAccount."Vendor No.");
         CODAStatementLine.Modify(true);
 
@@ -903,7 +903,7 @@ codeunit 144006 "CODA Tests"
           CODAStatementLine, CustomerBankAccount."Bank Account No.", TransactionCoding."Account Type"::Customer);
         UpdateCODAStatementLine(
           CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Customer, TotalAmount,
-          CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID);
+          CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
         CODAStatementLine.Validate("Account No.", CustomerBankAccount."Customer No.");
         CODAStatementLine.Modify(true);
 
@@ -935,7 +935,7 @@ codeunit 144006 "CODA Tests"
     var
         LastEntryNo: Integer;
     begin
-        VendLedgerEntry.FindLast;
+        VendLedgerEntry.FindLast();
         LastEntryNo := VendLedgerEntry."Entry No.";
 
         VendLedgerEntry.Init();
@@ -960,7 +960,7 @@ codeunit 144006 "CODA Tests"
     var
         LastEntryNo: Integer;
     begin
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         LastEntryNo := CustLedgerEntry."Entry No.";
 
         CustLedgerEntry.Init();
@@ -1010,7 +1010,7 @@ codeunit 144006 "CODA Tests"
         LastTransactionCoding: Record "Transaction Coding";
     begin
         with TransactionCoding do begin
-            if LastTransactionCoding.FindLast then;
+            if LastTransactionCoding.FindLast() then;
             "Transaction Family" := LastTransactionCoding."Transaction Family" + 1;
             Transaction := LastTransactionCoding.Transaction + 1;
             "Transaction Category" := LastTransactionCoding."Transaction Category" + 1;

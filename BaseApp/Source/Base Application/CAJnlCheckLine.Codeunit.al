@@ -64,7 +64,7 @@ codeunit 1101 "CA Jnl.-Check Line"
             IsHandled := false;
             OnRunCheckOnBeforeDateNotAllowed(CostJnlLine, IsHandled);
             if not IsHandled then
-                if GenJnlCheckLine.DateNotAllowed("Posting Date", '') then
+                if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                     FieldError("Posting Date", Text005);
         end;
 

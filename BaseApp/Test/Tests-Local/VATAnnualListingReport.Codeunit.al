@@ -48,7 +48,7 @@ codeunit 144013 "VAT Annual Listing Report"
         StartDate: Date;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate);
 
         // Create customer, an item and post an invoice to that customer for the item
@@ -60,7 +60,7 @@ codeunit 144013 "VAT Annual Listing Report"
 
         // Verify report datasaet against VATEntry table.
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(Abs(VATEntry.Amount), Abs(VATEntry.Base));
     end;
 
@@ -74,7 +74,7 @@ codeunit 144013 "VAT Annual Listing Report"
         StartDate: Date;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate);
 
         // Create customer, an item and post an invoice to that customer for the item
@@ -86,7 +86,7 @@ codeunit 144013 "VAT Annual Listing Report"
 
         // Verify report datasaet against VATEntry table.
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile;
 
@@ -100,7 +100,7 @@ codeunit 144013 "VAT Annual Listing Report"
     procedure YearOlderThan1900ReturnsError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror OpenAnnualListingRep(true, true, 1899, 0, IncludeCountry::All, '', '');
@@ -115,7 +115,7 @@ codeunit 144013 "VAT Annual Listing Report"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO 391947] Report Annual Listing does not print line for Customer with posted Sales Credit Memo only.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo for Domestic Customer.
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -141,7 +141,7 @@ codeunit 144013 "VAT Annual Listing Report"
         StartDate: Date;
     begin
         // [SCENARIO 264378] Report VAT Annual Listing does not print invoices which amount less than Minimum Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post invoice with amount X
         StartDate := CalcDate('<+CY+1D>', WorkDate);
@@ -168,7 +168,7 @@ codeunit 144013 "VAT Annual Listing Report"
         CrMemoAmount: Decimal;
     begin
         // [SCENARIO 391947] Report VAT Annual Listing does not print credit memos with amount less than Minimum Amount and without applied Sales Invoice from previous year.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post credit memo with amount X
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -198,7 +198,7 @@ codeunit 144013 "VAT Annual Listing Report"
         InvoiceAmount: Decimal;
     begin
         // [SCENARIO 391947] Report Annual Listing does not print Invoice and Credit Memo if sum of their amounts is less than Minimum Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with amount = 500 and VAT = 10%
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -473,7 +473,7 @@ codeunit 144013 "VAT Annual Listing Report"
         InvoiceAmount: Decimal;
     begin
         // [SCENARIO 264378] Report VAT Annual Listing prints invoice which amount is greater than Minimum Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post invoice with amount 100
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -487,7 +487,7 @@ codeunit 144013 "VAT Annual Listing Report"
 
         // [THEN] Entry for the customer is printed with <TurnOver> = 100 and <VATAmount> = 10
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(-VATEntry.Amount, -VATEntry.Base);
     end;
 
@@ -604,7 +604,7 @@ codeunit 144013 "VAT Annual Listing Report"
     begin
         with SalesInvoiceHeader do begin
             SetRange("Sell-to Customer No.", CustomerNo);
-            FindLast;
+            FindLast();
             CalcFields(Amount);
             exit(Amount);
         end;
@@ -616,7 +616,7 @@ codeunit 144013 "VAT Annual Listing Report"
     begin
         with SalesCrMemoHeader do begin
             SetRange("Sell-to Customer No.", CustomerNo);
-            FindLast;
+            FindLast();
             CalcFields(Amount);
             exit(Amount);
         end;

@@ -25,7 +25,7 @@
                     CopyFilters(Vend2);
                     SetCurrentKey(Priority);
                     SetRange(Priority, 0);
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             Window.Update(1, "No.");
                             AmountPerVendor := 0;
@@ -53,7 +53,7 @@
                 PaymJnlLine.LockTable();
                 PaymJnlLine.SetRange("Journal Template Name", PaymJnlBatch."Journal Template Name");
                 PaymJnlLine.SetRange("Journal Batch Name", PaymJnlBatch.Name);
-                if PaymJnlLine.FindLast then;
+                if PaymJnlLine.FindLast() then;
 
                 if MaximumAmount > 0 then begin
                     SetCurrentKey(Priority);
@@ -208,7 +208,7 @@
                 VendLedgEntry.SetRange(Positive, true);
                 VendLedgEntry.SetRange("On Hold", '');
                 VendLedgEntry.SetRange("Applies-to ID", '');
-                if VendLedgEntry.FindSet then
+                if VendLedgEntry.FindSet() then
                     repeat
                         SetPaymJnlLine;
                     until VendLedgEntry.Next() = 0;
@@ -219,7 +219,7 @@
             VendLedgEntry.SetRange("Due Date", 0D, DueDate);
             VendLedgEntry.SetRange("On Hold", '');
             VendLedgEntry.SetRange("Applies-to ID", '');
-            if VendLedgEntry.FindSet then
+            if VendLedgEntry.FindSet() then
                 repeat
                     SetPaymJnlLine;
                 until VendLedgEntry.Next() = 0;
@@ -232,7 +232,7 @@
                 VendLedgEntry.SetFilter("Remaining Pmt. Disc. Possible", '<0');
                 VendLedgEntry.SetRange("On Hold", '');
                 VendLedgEntry.SetRange("Applies-to ID", '');
-                if VendLedgEntry.FindSet then
+                if VendLedgEntry.FindSet() then
                     repeat
                         SetPaymJnlLine;
                     until VendLedgEntry.Next() = 0;
@@ -275,7 +275,7 @@
             PaymJnlLine2.SetRange("Applies-to Doc. Type", VendLedgEntry."Document Type");
             PaymJnlLine2.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
             PaymJnlLine2.SetFilter(Status, '<>%1', PaymJnlLine2.Status::Posted);
-            if not PaymJnlLine2.FindFirst then begin
+            if not PaymJnlLine2.FindFirst() then begin
                 Init;
                 "Journal Template Name" := PaymJnlTemplate.Name;
                 "Journal Batch Name" := PaymJnlBatch.Name;

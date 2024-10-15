@@ -108,7 +108,7 @@ table 5936 "Service Document Register"
                     ServDocReg.SetCurrentKey("Destination Document Type", "Destination Document No.");
                     ServDocReg.SetRange("Destination Document Type", ServDocReg."Destination Document Type"::Invoice);
                     ServDocReg.SetRange("Destination Document No.", SalesDocNo);
-                    if ServDocReg.FindFirst then
+                    if ServDocReg.FindFirst() then
                         case ServDocReg."Source Document Type" of
                             ServDocReg."Source Document Type"::Order:
                                 begin
@@ -128,7 +128,7 @@ table 5936 "Service Document Register"
                     ServDocReg.SetCurrentKey("Destination Document Type", "Destination Document No.");
                     ServDocReg.SetRange("Destination Document Type", ServDocReg."Destination Document Type"::"Credit Memo");
                     ServDocReg.SetRange("Destination Document No.", SalesDocNo);
-                    if ServDocReg.FindFirst then
+                    if ServDocReg.FindFirst() then
                         case ServDocReg."Source Document Type" of
                             ServDocReg."Source Document Type"::Order:
                                 begin

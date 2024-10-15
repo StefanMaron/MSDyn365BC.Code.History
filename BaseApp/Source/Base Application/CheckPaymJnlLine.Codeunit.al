@@ -27,7 +27,6 @@ codeunit 2000001 CheckPaymJnlLine
         Text014: Label 'The Name field cannot be blank for customer %1 in payment journal line number %2.';
         Text015: Label 'The Name field cannot be blank for vendor %1 in payment journal line number %2.';
 
-    [Scope('OnPrem')]
     procedure CheckPostingDate(var PaymentJnlLine: Record "Payment Journal Line"; TemplateName: Code[20])
     var
         PaymJnlLine: Record "Payment Journal Line";
@@ -50,7 +49,6 @@ codeunit 2000001 CheckPaymJnlLine
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure Init()
     begin
         GLSetup.Get();
@@ -59,7 +57,6 @@ codeunit 2000001 CheckPaymJnlLine
         TempGroupPmtJnlLine.DeleteAll();
     end;
 
-    [Scope('OnPrem')]
     procedure ClearErrorLog()
     begin
         ExportCheckErrorLog.Reset();
@@ -68,7 +65,7 @@ codeunit 2000001 CheckPaymJnlLine
 
     procedure InsertErrorLog(ErrorMessage: Text[250])
     begin
-        if ExportCheckErrorLog.FindLast then
+        if ExportCheckErrorLog.FindLast() then
             ErrorId := ExportCheckErrorLog."Entry No." + 1
         else
             ErrorId := 1;
@@ -79,7 +76,6 @@ codeunit 2000001 CheckPaymJnlLine
         ExportCheckErrorLog.Insert();
     end;
 
-    [Scope('OnPrem')]
     procedure ShowErrorLog()
     begin
         if not ExportCheckErrorLog.IsEmpty() then begin
@@ -88,7 +84,6 @@ codeunit 2000001 CheckPaymJnlLine
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckExportProtocol(ExportProtocolCode: Code[20])
     var
         ExportProtocol: Record "Export Protocol";
@@ -98,20 +93,18 @@ codeunit 2000001 CheckPaymJnlLine
             InsertErrorLog(StrSubstNo(Text003, ExportProtocol.Code));
     end;
 
-    [Scope('OnPrem')]
     procedure ErrorNoPayments()
     begin
         InsertErrorLog(Text004);
     end;
 
-    [Scope('OnPrem')]
     procedure FillGroupLineAmountBuf(PmtJnlLine: Record "Payment Journal Line")
     var
         LastLineNo: Integer;
     begin
         with TempGroupPmtJnlLine do begin
             Reset;
-            if FindLast then
+            if FindLast() then
                 LastLineNo := "Line No.";
 
             SetRange("Account Type", PmtJnlLine."Account Type");
@@ -136,7 +129,6 @@ codeunit 2000001 CheckPaymJnlLine
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckTotalLineAmounts()
     var
         IsHandled: Boolean;
@@ -149,7 +141,7 @@ codeunit 2000001 CheckPaymJnlLine
         with TempGroupPmtJnlLine do begin
             Reset;
             SetFilter(Amount, '<=%1', 0);
-            if FindSet then
+            if FindSet() then
                 repeat
                     InsertErrorLog(
                       StrSubstNo(Text005, "Account Type", "Account No.", "Beneficiary Bank Account"));
@@ -157,14 +149,12 @@ codeunit 2000001 CheckPaymJnlLine
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure ErrorIfCurrencyNotEuro(PmtJnlLine: Record "Payment Journal Line")
     begin
         if PmtJnlLine."Currency Code" <> GLSetup."Currency Euro" then
             InsertErrorLog(StrSubstNo(Text006, PmtJnlLine."Line No."));
     end;
 
-    [Scope('OnPrem')]
     procedure ErrorIfCurrencyEuro(PmtJnlLine: Record "Payment Journal Line")
     var
         IsHandled: Boolean;
@@ -178,7 +168,6 @@ codeunit 2000001 CheckPaymJnlLine
             InsertErrorLog(StrSubstNo(Text007, PmtJnlLine."Line No."));
     end;
 
-    [Scope('OnPrem')]
     procedure CheckBankForSEPA(PmtJnlLine: Record "Payment Journal Line")
     begin
         with PmtJnlLine do
@@ -192,7 +181,6 @@ codeunit 2000001 CheckPaymJnlLine
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckBeneficiaryBankForSEPA(PmtJnlLine: Record "Payment Journal Line"; EuroSEPA: Boolean)
     var
         IsHandled: Boolean;
@@ -269,7 +257,6 @@ codeunit 2000001 CheckPaymJnlLine
             BankAcc.Get(BankAccCode);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckCompanyName()
     var
         CompanyInfo: Record "Company Information";
@@ -279,7 +266,6 @@ codeunit 2000001 CheckPaymJnlLine
             InsertErrorLog(Text013);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckCustVendName(var PmtJnlLine: Record "Payment Journal Line")
     var
         Customer: Record Customer;

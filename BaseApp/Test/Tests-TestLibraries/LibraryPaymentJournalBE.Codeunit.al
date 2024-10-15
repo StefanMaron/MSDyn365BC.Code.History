@@ -87,7 +87,7 @@ codeunit 143002 "Library - Payment Journal BE"
     [Scope('OnPrem')]
     procedure CreateCustLedgEntryInvoice(var Customer: Record Customer; var CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10])
     begin
-        if CustLedgEntry.FindLast then;
+        if CustLedgEntry.FindLast() then;
         CustLedgEntry.Init();
         CustLedgEntry."Entry No." += 1;
         CustLedgEntry."Customer No." := Customer."No.";
@@ -106,7 +106,7 @@ codeunit 143002 "Library - Payment Journal BE"
     [Scope('OnPrem')]
     procedure CreateVendLedgEntryInvoice(var Vendor: Record Vendor; var VendLedgEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10])
     begin
-        if VendLedgEntry.FindLast then;
+        if VendLedgEntry.FindLast() then;
         VendLedgEntry.Init();
         VendLedgEntry."Entry No." += 1;
         VendLedgEntry."Vendor No." := Vendor."No.";
@@ -128,7 +128,7 @@ codeunit 143002 "Library - Payment Journal BE"
         SuggestDomicilations: Report "Suggest domicilations";
     begin
         SuggestDomicilations.SetJournal(DomiciliationJournalLine);
-        SuggestDomicilations.RunModal;
+        SuggestDomicilations.RunModal();
     end;
 }
 

@@ -38,7 +38,7 @@ codeunit 2000020 DomiciliationJnlManagement
                     Commit();
                 end;
             1:
-                DomJnlTemplate.FindFirst;
+                DomJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, DomJnlTemplate) = ACTION::LookupOK;
         end;
@@ -65,7 +65,7 @@ codeunit 2000020 DomiciliationJnlManagement
     begin
         DomJnlBatch.SetRange("Journal Template Name", CurrenJnlTemplateName);
         if not DomJnlBatch.Get(CurrenJnlTemplateName, CurrentJnlBatchName) then begin
-            if not DomJnlBatch.FindLast then begin
+            if not DomJnlBatch.FindLast() then begin
                 DomJnlBatch.Init();
                 DomJnlBatch."Journal Template Name" := CurrenJnlTemplateName;
                 DomJnlBatch.Name := Text000;
@@ -95,18 +95,18 @@ codeunit 2000020 DomiciliationJnlManagement
         DomJnlBatch.FilterGroup(0);
 
         if DomJnlBatch.IsEmpty() then begin
-            if not DomJnlTemplate.FindFirst then
+            if not DomJnlTemplate.FindFirst() then
                 TemplateSelection(DomJnlLine, JnlSelected);
-            if DomJnlTemplate.FindFirst then
+            if DomJnlTemplate.FindFirst() then
                 CheckTemplateName(DomJnlTemplate.Name, DomJnlBatch.Name);
         end;
-        DomJnlBatch.FindFirst;
+        DomJnlBatch.FindFirst();
         JnlSelected := true;
         if DomJnlBatch.GetFilter("Journal Template Name") <> '' then
             DomJnlTemplate.SetRange(Name, DomJnlBatch.GetFilter("Journal Template Name"));
         case DomJnlTemplate.Count of
             1:
-                DomJnlTemplate.FindFirst;
+                DomJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, DomJnlTemplate) = ACTION::LookupOK;
         end;
@@ -254,7 +254,7 @@ codeunit 2000020 DomiciliationJnlManagement
         with DomicJnlLine do begin
             CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
             CustLedgEntry.SetRange("Customer No.", "Customer No.");
-            if CustLedgEntry.FindLast then;
+            if CustLedgEntry.FindLast() then;
             PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
         end;
     end;
@@ -346,7 +346,7 @@ codeunit 2000020 DomiciliationJnlManagement
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
             CustLedgEntry.SetRange("Customer No.", "Customer No.");
-            if CustLedgEntry.FindLast then begin
+            if CustLedgEntry.FindLast() then begin
                 CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", -"Pmt. Disc. Possible");
                 CustLedgEntry.Validate("Pmt. Discount Date", "Posting Date");
                 CustLedgEntry.Modify(true)

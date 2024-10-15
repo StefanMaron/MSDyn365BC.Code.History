@@ -373,7 +373,7 @@ page 9816 "Permission Set by User"
         User.SetCurrentKey("User Name");
         AllUsersHavePermission := true;
         HideExternalUsers(User);
-        if User.FindSet then
+        if User.FindSet() then
             repeat
                 i += 1;
                 if PermissionPagesMgt.IsInColumnsRange(i) then begin
@@ -414,7 +414,7 @@ page 9816 "Permission Set by User"
             AllUsersHavePermission := AllUsersHavePermission and UserHasPermission;
         end else begin
             HideExternalUsers(User);
-            if User.FindSet then
+            if User.FindSet() then
                 repeat
                     SetUserPermission(User."User Security ID", UserHasPermission);
                 until User.Next() = 0;

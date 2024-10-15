@@ -74,16 +74,24 @@
                     Importance = Additional;
                     ToolTip = 'Specifies a date formula that calculates the time it takes to make items available in inventory after they have been received. The time element is used to calculate the expected receipt date as follows: Order Date + Lead Time Calculation = Planned Receipt Date + Inbound Warehouse Handling Time + Safety Lead Time = Expected Receipt Date.';
                 }
+#if not CLEAN20
                 field("Jnl. Templ. Name Cost Posting"; "Jnl. Templ. Name Cost Posting")
                 {
                     ApplicationArea = BasicBE;
                     ToolTip = 'Specifies the name of the journal template to use for automatic and expected cost posting.';
+                    ObsoleteReason = 'Replaced by field Invt. Cost Jnl. Template Name.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
                 field("Jnl. Batch Name Cost Posting"; "Jnl. Batch Name Cost Posting")
                 {
                     ApplicationArea = BasicBE;
                     ToolTip = 'Specifies the name of the journal batch to use for automatic and expected cost posting.';
+                    ObsoleteReason = 'Replaced by field Invt. Cost Jnl. Batch Name.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
                 field("Prevent Negative Inventory"; "Prevent Negative Inventory")
                 {
                     ApplicationArea = Basic, Suite;
@@ -270,6 +278,23 @@
                     Visible = PackageVisible;
                 }
             }
+            group("Gen. Journal Templates")
+            {
+                Caption = 'Journal Templates';
+                Visible = IsJournalTemplatesVisible;
+
+                field("Invt. Cost Jnl. Template Name";
+                Rec."Invt. Cost Jnl. Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal template to use for automatic and expected cost posting.';
+                }
+                field("Invt. Cost Jnl. Batch Name"; Rec."Invt. Cost Jnl. Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal batch to use for automatic and expected cost posting.';
+                }
+            }
         }
         area(factboxes)
         {
@@ -404,14 +429,19 @@
         SetPackageVisibility();
         SetAdjustCostWizardActionVisibility();
 
+        GLSetup.Get();
+        IsJournalTemplatesVisible := GLSetup."Journal Templ. Name Mandatory";
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         PackageMgt: Codeunit "Package Management";
         SchedulingManager: Codeunit "Cost Adj. Scheduling Manager";
         [InDataSet]
         PackageVisible: Boolean;
         AdjustCostWizardVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplatesVisible: Boolean;
 
     local procedure SetPackageVisibility()
     begin

@@ -1,4 +1,4 @@
-codeunit 1313 "Correct Posted Purch. Invoice"
+﻿codeunit 1313 "Correct Posted Purch. Invoice"
 {
     Permissions = TableData "Purch. Inv. Header" = rm,
                   TableData "Purch. Cr. Memo Hdr." = rm;
@@ -71,7 +71,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         PostingCreditMemoFailedOpenPostedCMQst: Label 'Canceling the invoice failed because of the following error: \\%1\\A credit memo is posted. Do you want to open the posted credit memo?';
         PostingCreditMemoFailedOpenCMQst: Label 'Canceling the invoice failed because of the following error: \\%1\\A credit memo is created but not posted. Do you want to open the credit memo?';
         CreatingCreditMemoFailedNothingCreatedErr: Label 'Canceling the invoice failed because of the following error: \\%1.';
-        ErrorType: Option IsPaid,VendorBlocked,ItemBlocked,AccountBlocked,IsCorrected,IsCorrective,SerieNumInv,SerieNumCM,SerieNumPostCM,ItemIsReturned,FromOrder,PostingNotAllowed,LineFromOrder,WrongItemType,LineFromJob,DimErr,DimCombErr,DimCombHeaderErr,ExtDocErr,InventoryPostClosed;
         WrongDocumentTypeForCopyDocumentErr: Label 'You cannot correct or cancel this type of document.';
         InvoicePartiallyPaidMsg: Label 'Invoice %1 is partially paid or credited. The corrective credit memo may not be fully closed by the invoice.', Comment = '%1 - invoice no.';
         InvoiceClosedMsg: Label 'Invoice %1 is closed. The corrective credit memo will not be applied to the invoice.', Comment = '%1 - invoice no.';
@@ -93,12 +92,12 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         TestCorrectInvoiceIsAllowed(PurchInvHeader, CancellingOnly);
         if not CODEUNIT.Run(CODEUNIT::"Correct Posted Purch. Invoice", PurchInvHeader) then begin
             PurchCrMemoHdr.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
-            if PurchCrMemoHdr.FindFirst then begin
+            if PurchCrMemoHdr.FindFirst() then begin
                 if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedCMQst, GetLastErrorText)) then
                     PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
             end else begin
                 PurchaseHeader.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
-                if PurchaseHeader.FindFirst then begin
+                if PurchaseHeader.FindFirst() then begin
                     if Confirm(StrSubstNo(PostingCreditMemoFailedOpenCMQst, GetLastErrorText)) then
                         PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
                 end else
@@ -231,7 +230,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         CancelledDocument: Record "Cancelled Document";
     begin
         PurchCrMemoHdr.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
-        if PurchCrMemoHdr.FindLast then
+        if PurchCrMemoHdr.FindLast() then
             CancelledDocument.InsertPurchInvToCrMemoCancelledDocument(PurchInvHeader."No.", PurchCrMemoHdr."No.");
     end;
 
@@ -240,7 +239,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         DimensionManagement: Codeunit DimensionManagement;
     begin
         if not DimensionManagement.CheckDimIDComb(PurchInvHeader."Dimension Set ID") then
-            ErrorHelperHeader(ErrorType::DimCombHeaderErr, PurchInvHeader);
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::DimCombHeaderErr, PurchInvHeader);
     end;
 
     local procedure TestIfVendorIsBlocked(PurchInvHeader: Record "Purch. Inv. Header"; VendNo: Code[20])
@@ -249,7 +248,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     begin
         Vendor.Get(VendNo);
         if Vendor.Blocked in [Vendor.Blocked::All] then
-            ErrorHelperHeader(ErrorType::VendorBlocked, PurchInvHeader);
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::VendorBlocked, PurchInvHeader);
     end;
 
     local procedure TestVendorDimension(PurchInvHeader: Record "Purch. Inv. Header"; VendNo: Code[20])
@@ -263,7 +262,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         TableID[1] := DATABASE::Vendor;
         No[1] := Vendor."No.";
         if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvHeader."Dimension Set ID") then
-            ErrorHelperAccount(ErrorType::DimErr, Vendor.TableCaption, Vendor."No.", Vendor."No.", Vendor.Name);
+            ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, Vendor.TableCaption, Vendor."No.", Vendor."No.", Vendor.Name);
     end;
 
     local procedure TestPurchaseLines(PurchInvHeader: Record "Purch. Inv. Header")
@@ -281,7 +280,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
             repeat
                 if not IsCommentLine(PurchInvLine) then begin
                     if (not PurchInvLine.IsCancellationSupported) and NotInvRndAccount(PurchInvHeader."Vendor Posting Group", PurchInvLine) then
-                        ErrorHelperLine(ErrorType::WrongItemType, PurchInvLine);
+                        ErrorHelperLine("Correct Purch. Inv. Error Type"::WrongItemType, PurchInvLine);
 
                     if PurchInvLine.Type = PurchInvLine.Type::Item then begin
                         Item.Get(PurchInvLine."No.");
@@ -290,16 +289,16 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                             if (PurchInvLine.Quantity > 0) and (PurchInvLine."Job No." = '') and WasNotCancelled(PurchInvHeader."No.") then begin
                                 PurchInvLine.CalcReceivedPurchNotReturned(ReceivedQtyNoReturned, RevUnitCostLCY, false);
                                 if PurchInvLine.Quantity <> ReceivedQtyNoReturned then
-                                    ErrorHelperLine(ErrorType::ItemIsReturned, PurchInvLine);
+                                    ErrorHelperLine("Correct Purch. Inv. Error Type"::ItemIsReturned, PurchInvLine);
                             end;
 
                         if Item.Blocked then
-                            ErrorHelperLine(ErrorType::ItemBlocked, PurchInvLine);
+                            ErrorHelperLine("Correct Purch. Inv. Error Type"::ItemBlocked, PurchInvLine);
 
                         TableID[1] := DATABASE::Item;
                         No[1] := PurchInvLine."No.";
                         if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvLine."Dimension Set ID") then
-                            ErrorHelperAccount(ErrorType::DimErr, Item.TableCaption, No[1], Item."No.", Item.Description);
+                            ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, Item.TableCaption, No[1], Item."No.", Item.Description);
 
                         if Item.IsInventoriableType then
                             TestInventoryPostingSetup(PurchInvLine);
@@ -310,7 +309,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                     TestVATPostingSetup(PurchInvLine);
 
                     if not DimensionManagement.CheckDimIDComb(PurchInvLine."Dimension Set ID") then
-                        ErrorHelperLine(ErrorType::DimCombErr, PurchInvLine);
+                        ErrorHelperLine("Correct Purch. Inv. Error Type"::DimCombErr, PurchInvLine);
                 end;
             until PurchInvLine.Next() = 0;
     end;
@@ -325,14 +324,14 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     begin
         GLAccount.Get(AccountNo);
         if GLAccount.Blocked then
-            ErrorHelperAccount(ErrorType::AccountBlocked, GLAccount.TableCaption, AccountNo, '', '');
+            ErrorHelperAccount("Correct Purch. Inv. Error Type"::AccountBlocked, GLAccount.TableCaption, AccountNo, '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
 
         if PurchInvLine.Type = PurchInvLine.Type::Item then begin
             Item.Get(PurchInvLine."No.");
             if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvLine."Dimension Set ID") then
-                ErrorHelperAccount(ErrorType::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
+                ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
         end;
     end;
 
@@ -346,13 +345,13 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     begin
         GLAccount.Get(AccountNo);
         if GLAccount.Blocked then
-            ErrorHelperAccount(ErrorType::AccountBlocked, AccountNo, GLAccount.TableCaption, '', '');
+            ErrorHelperAccount("Correct Purch. Inv. Error Type"::AccountBlocked, AccountNo, GLAccount.TableCaption, '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
 
         if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvHeader."Dimension Set ID") then
             ErrorHelperAccount(
-                ErrorType::DimErr, AccountNo, GLAccount.TableCaption,
+                "Correct Purch. Inv. Error Type"::DimErr, AccountNo, GLAccount.TableCaption,
                 PurchInvHeader."Vendor Posting Group", VendorPostingGroup.TableCaption);
     end;
 
@@ -368,7 +367,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         PurchInvHeader.CalcFields("Amount Including VAT");
         PurchInvHeader.CalcFields("Remaining Amount");
         if PurchInvHeader."Amount Including VAT" <> PurchInvHeader."Remaining Amount" then
-            ErrorHelperHeader(ErrorType::IsPaid, PurchInvHeader);
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::IsPaid, PurchInvHeader);
     end;
 
     local procedure TestIfInvoiceIsCorrectedOnce(PurchInvHeader: Record "Purch. Inv. Header")
@@ -376,7 +375,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         CancelledDocument: Record "Cancelled Document";
     begin
         if CancelledDocument.FindPurchCancelledInvoice(PurchInvHeader."No.") then
-            ErrorHelperHeader(ErrorType::IsCorrected, PurchInvHeader);
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::IsCorrected, PurchInvHeader);
     end;
 
     local procedure TestIfInvoiceIsNotCorrectiveDoc(PurchInvHeader: Record "Purch. Inv. Header")
@@ -384,36 +383,43 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         CancelledDocument: Record "Cancelled Document";
     begin
         if CancelledDocument.FindPurchCorrectiveInvoice(PurchInvHeader."No.") then
-            ErrorHelperHeader(ErrorType::IsCorrective, PurchInvHeader);
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::IsCorrective, PurchInvHeader);
     end;
 
     local procedure TestIfPostingIsAllowed(PurchInvHeader: Record "Purch. Inv. Header")
     var
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
-        if GenJnlCheckLine.DateNotAllowed(PurchInvHeader."Posting Date", '') then
-            ErrorHelperHeader(ErrorType::PostingNotAllowed, PurchInvHeader);
+        if GenJnlCheckLine.DateNotAllowed(PurchInvHeader."Posting Date") then
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::PostingNotAllowed, PurchInvHeader);
     end;
 
     local procedure TestIfAnyFreeNumberSeries(PurchInvHeader: Record "Purch. Inv. Header")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
+        PostingNoSeries: Code[20];
     begin
         PostingDate := WorkDate;
         PurchasesPayablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Credit Memo Nos.", PostingDate) = '' then
-            ErrorHelperHeader(ErrorType::SerieNumCM, PurchInvHeader);
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::SerieNumCM, PurchInvHeader);
 
-        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo");
-        if NoSeriesManagement.TryGetNextNo(GenJournalTemplate."Posting No. Series", PostingDate) = '' then
-            ErrorHelperHeader(ErrorType::SerieNumPostCM, PurchInvHeader);
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Journal Templ. Name Mandatory" then begin
+            GenJournalTemplate.Get(PurchasesPayablesSetup."P. Cr. Memo Template Name");
+            PostingNoSeries := GenJournalTemplate."Posting No. Series";
+        end else
+            PostingNoSeries := PurchasesPayablesSetup."Posted Credit Memo Nos.";
+        if NoSeriesManagement.TryGetNextNo(PostingNoSeries, PostingDate) = '' then
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::SerieNumPostCM, PurchInvHeader);
 
         if (not CancellingOnly) and (NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '') then
-            ErrorHelperHeader(ErrorType::SerieNumInv, PurchInvHeader);
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::SerieNumInv, PurchInvHeader);
     end;
 
     local procedure TestExternalDocument(PurchInvHeader: Record "Purch. Inv. Header")
@@ -422,7 +428,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     begin
         PurchasesPayablesSetup.Get();
         if (PurchInvHeader."Vendor Invoice No." = '') and PurchasesPayablesSetup."Ext. Doc. No. Mandatory" then
-            ErrorHelperHeader(ErrorType::ExtDocErr, PurchInvHeader);
+            ErrorHelperHeader("Correct Purch. Inv. Error Type"::ExtDocErr, PurchInvHeader);
     end;
 
     local procedure TestInventoryPostingClosed(PurchInvHeader: Record "Purch. Inv. Header")
@@ -439,8 +445,8 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if DocumentHasLineWithRestrictedType then begin
             InventoryPeriod.SetRange(Closed, true);
             InventoryPeriod.SetFilter("Ending Date", '>=%1', PurchInvHeader."Posting Date");
-            if InventoryPeriod.FindFirst then
-                ErrorHelperHeader(ErrorType::InventoryPostClosed, PurchInvHeader);
+            if InventoryPeriod.FindFirst() then
+                ErrorHelperHeader("Correct Purch. Inv. Error Type"::InventoryPostClosed, PurchInvHeader);
         end;
     end;
 
@@ -562,7 +568,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         with PurchInvLine do begin
             SetRange("Document No.", InvNo);
             SetRange(Type, Type::Item);
-            if FindSet then
+            if FindSet() then
                 repeat
                     GetItemLedgEntries(ItemLedgEntry, false);
                 until Next() = 0;
@@ -575,7 +581,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     begin
         TempItemApplicationEntry.Reset();
         TempItemApplicationEntry.DeleteAll();
-        if ItemLedgEntry.FindSet then
+        if ItemLedgEntry.FindSet() then
             repeat
                 if ItemApplicationEntry.AppliedOutbndEntryExists(ItemLedgEntry."Entry No.", true, false) then
                     repeat
@@ -587,134 +593,134 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         exit(TempItemApplicationEntry.FindSet);
     end;
 
-    local procedure ErrorHelperHeader(ErrorOption: Option; PurchInvHeader: Record "Purch. Inv. Header")
+    local procedure ErrorHelperHeader(HeaderErrorType: Enum "Correct Purch. Inv. Error Type"; PurchInvHeader: Record "Purch. Inv. Header")
     var
         Vendor: Record Vendor;
     begin
         if CancellingOnly then
-            case ErrorOption of
-                ErrorType::IsPaid:
+            case HeaderErrorType of
+                "Correct Purch. Inv. Error Type"::IsPaid:
                     Error(PostedInvoiceIsPaidCCancelErr);
-                ErrorType::VendorBlocked:
+                "Correct Purch. Inv. Error Type"::VendorBlocked:
                     begin
                         Vendor.Get(PurchInvHeader."Pay-to Vendor No.");
                         Error(VendorIsBlockedCancelErr, Vendor.Name);
                     end;
-                ErrorType::IsCorrected:
+                "Correct Purch. Inv. Error Type"::IsCorrected:
                     Error(AlreadyCancelledErr);
-                ErrorType::IsCorrective:
+                "Correct Purch. Inv. Error Type"::IsCorrective:
                     Error(CancelCorrectiveDocErr);
-                ErrorType::SerieNumInv:
+                "Correct Purch. Inv. Error Type"::SerieNumInv:
                     Error(NoFreeInvoiceNoSeriesCancelErr);
-                ErrorType::SerieNumCM:
+                "Correct Purch. Inv. Error Type"::SerieNumCM:
                     Error(NoFreeCMSeriesCancelErr);
-                ErrorType::SerieNumPostCM:
+                "Correct Purch. Inv. Error Type"::SerieNumPostCM:
                     Error(NoFreePostCMSeriesCancelErr);
-                ErrorType::FromOrder:
+                "Correct Purch. Inv. Error Type"::FromOrder:
                     Error(InvoiceIsBasedOnOrderCancelErr);
-                ErrorType::PostingNotAllowed:
+                "Correct Purch. Inv. Error Type"::PostingNotAllowed:
                     Error(PostingNotAllowedCancelErr);
-                ErrorType::ExtDocErr:
+                "Correct Purch. Inv. Error Type"::ExtDocErr:
                     Error(ExternalDocCancelErr);
-                ErrorType::InventoryPostClosed:
+                "Correct Purch. Inv. Error Type"::InventoryPostClosed:
                     Error(InventoryPostClosedCancelErr);
-                ErrorType::DimCombHeaderErr:
+                "Correct Purch. Inv. Error Type"::DimCombHeaderErr:
                     Error(InvalidDimCombHeaderCancelErr);
             end
         else
-            case ErrorOption of
-                ErrorType::IsPaid:
+            case HeaderErrorType of
+                "Correct Purch. Inv. Error Type"::IsPaid:
                     Error(PostedInvoiceIsPaidCorrectErr);
-                ErrorType::VendorBlocked:
+                "Correct Purch. Inv. Error Type"::VendorBlocked:
                     begin
                         Vendor.Get(PurchInvHeader."Pay-to Vendor No.");
                         Error(VendorIsBlockedCorrectErr, Vendor.Name);
                     end;
-                ErrorType::IsCorrected:
+                "Correct Purch. Inv. Error Type"::IsCorrected:
                     Error(AlreadyCorrectedErr);
-                ErrorType::IsCorrective:
+                "Correct Purch. Inv. Error Type"::IsCorrective:
                     Error(CorrCorrectiveDocErr);
-                ErrorType::SerieNumInv:
+                "Correct Purch. Inv. Error Type"::SerieNumInv:
                     Error(NoFreeInvoiceNoSeriesCorrectErr);
-                ErrorType::SerieNumPostCM:
+                "Correct Purch. Inv. Error Type"::SerieNumPostCM:
                     Error(NoFreePostCMSeriesCorrectErr);
-                ErrorType::SerieNumCM:
+                "Correct Purch. Inv. Error Type"::SerieNumCM:
                     Error(NoFreeCMSeriesCorrectErr);
-                ErrorType::FromOrder:
+                "Correct Purch. Inv. Error Type"::FromOrder:
                     Error(InvoiceIsBasedOnOrderCorrectErr);
-                ErrorType::PostingNotAllowed:
+                "Correct Purch. Inv. Error Type"::PostingNotAllowed:
                     Error(PostingNotAllowedCorrectErr);
-                ErrorType::ExtDocErr:
+                "Correct Purch. Inv. Error Type"::ExtDocErr:
                     Error(ExternalDocCorrectErr);
-                ErrorType::InventoryPostClosed:
+                "Correct Purch. Inv. Error Type"::InventoryPostClosed:
                     Error(InventoryPostClosedCorrectErr);
-                ErrorType::DimCombHeaderErr:
+                "Correct Purch. Inv. Error Type"::DimCombHeaderErr:
                     Error(InvalidDimCombHeaderCorrectErr);
             end;
     end;
 
-    local procedure ErrorHelperLine(ErrorOption: Option; PurchInvLine: Record "Purch. Inv. Line")
+    local procedure ErrorHelperLine(LineErrorType: Enum "Correct Purch. Inv. Error Type"; PurchInvLine: Record "Purch. Inv. Line")
     var
         Item: Record Item;
     begin
         if CancellingOnly then
-            case ErrorOption of
-                ErrorType::ItemBlocked:
+            case LineErrorType of
+                "Correct Purch. Inv. Error Type"::ItemBlocked:
                     begin
                         Item.Get(PurchInvLine."No.");
                         Error(ItemIsBlockedCancelErr, Item."No.", Item.Description);
                     end;
-                ErrorType::ItemIsReturned:
+                "Correct Purch. Inv. Error Type"::ItemIsReturned:
                     begin
                         Item.Get(PurchInvLine."No.");
                         Error(ShippedQtyReturnedCancelErr, Item."No.", Item.Description);
                     end;
-                ErrorType::LineFromOrder:
+                "Correct Purch. Inv. Error Type"::LineFromOrder:
                     Error(PurchaseLineFromOrderCancelErr, PurchInvLine."No.", PurchInvLine.Description);
-                ErrorType::WrongItemType:
+                "Correct Purch. Inv. Error Type"::WrongItemType:
                     Error(LineTypeNotAllowedCancelErr, PurchInvLine."No.", PurchInvLine.Description, PurchInvLine.Type);
-                ErrorType::LineFromJob:
+                "Correct Purch. Inv. Error Type"::LineFromJob:
                     Error(UsedInJobCancelErr, PurchInvLine."No.", PurchInvLine.Description);
-                ErrorType::DimCombErr:
+                "Correct Purch. Inv. Error Type"::DimCombErr:
                     Error(InvalidDimCombinationCancelErr, PurchInvLine."No.", PurchInvLine.Description);
             end
         else
-            case ErrorOption of
-                ErrorType::ItemBlocked:
+            case LineErrorType of
+                "Correct Purch. Inv. Error Type"::ItemBlocked:
                     begin
                         Item.Get(PurchInvLine."No.");
                         Error(ItemIsBlockedCorrectErr, Item."No.", Item.Description);
                     end;
-                ErrorType::ItemIsReturned:
+                "Correct Purch. Inv. Error Type"::ItemIsReturned:
                     begin
                         Item.Get(PurchInvLine."No.");
                         Error(ShippedQtyReturnedCorrectErr, Item."No.", Item.Description);
                     end;
-                ErrorType::LineFromOrder:
+                "Correct Purch. Inv. Error Type"::LineFromOrder:
                     Error(PurchaseLineFromOrderCorrectErr, PurchInvLine."No.", PurchInvLine.Description);
-                ErrorType::WrongItemType:
+                "Correct Purch. Inv. Error Type"::WrongItemType:
                     Error(LineTypeNotAllowedCorrectErr, PurchInvLine."No.", PurchInvLine.Description, PurchInvLine.Type);
-                ErrorType::LineFromJob:
+                "Correct Purch. Inv. Error Type"::LineFromJob:
                     Error(UsedInJobCorrectErr, PurchInvLine."No.", PurchInvLine.Description);
-                ErrorType::DimCombErr:
+                "Correct Purch. Inv. Error Type"::DimCombErr:
                     Error(InvalidDimCombinationCorrectErr, PurchInvLine."No.", PurchInvLine.Description);
             end;
     end;
 
-    local procedure ErrorHelperAccount(ErrorOption: Option; AccountNo: Code[20]; AccountCaption: Text; No: Code[20]; Name: Text)
+    local procedure ErrorHelperAccount(AccountErrorType: Enum "Correct Purch. Inv. Error Type"; AccountNo: Code[20]; AccountCaption: Text; No: Code[20]; Name: Text)
     begin
         if CancellingOnly then
-            case ErrorOption of
-                ErrorType::AccountBlocked:
+            case AccountErrorType of
+                "Correct Purch. Inv. Error Type"::AccountBlocked:
                     Error(AccountIsBlockedCancelErr, AccountCaption, AccountNo);
-                ErrorType::DimErr:
+                "Correct Purch. Inv. Error Type"::DimErr:
                     Error(InvalidDimCodeCancelErr, AccountCaption, AccountNo, No, Name);
             end
         else
-            case ErrorOption of
-                ErrorType::AccountBlocked:
+            case AccountErrorType of
+                "Correct Purch. Inv. Error Type"::AccountBlocked:
                     Error(AccountIsBlockedCorrectErr, AccountCaption, AccountNo);
-                ErrorType::DimErr:
+                "Correct Purch. Inv. Error Type"::DimErr:
                     Error(InvalidDimCodeCorrectErr, AccountCaption, AccountNo, No, Name);
             end;
     end;

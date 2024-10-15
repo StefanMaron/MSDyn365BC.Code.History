@@ -129,7 +129,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 PostSourceDocument(WhseShptLine);
                 WhseJnlRegisterLine.LockTables();
 
-                if FindLast then;
+                if FindLast() then;
                 SetRange("Source Type");
                 SetRange("Source Subtype");
                 SetRange("Source No.");
@@ -740,7 +740,7 @@ codeunit 5763 "Whse.-Post Shipment"
         OnPostUpdateWhseDocumentsOnBeforeUpdateWhseShptHeader(WhseShptHeaderParam);
 
         WhseShptLine2.SetRange("No.", WhseShptHeaderParam."No.");
-        if not WhseShptLine2.FindFirst then begin
+        if not WhseShptLine2.FindFirst() then begin
             WhseShptHeaderParam.DeleteRelatedLines;
             WhseShptHeaderParam.Delete();
         end else begin
@@ -1393,9 +1393,9 @@ codeunit 5763 "Whse.-Post Shipment"
         with WhseShptLine do
             case "Source Type" of
                 DATABASE::"Sales Line":
-                    GenJnlTemplate := SalesHeader."Journal Template Name";
+                    GenJnlTemplate := SalesHeader."Journal Templ. Name";
                 DATABASE::"Purchase Line":
-                    GenJnlTemplate := PurchHeader."Journal Template Name";
+                    GenJnlTemplate := PurchHeader."Journal Templ. Name";
                 else
                     GenJnlTemplate := '';
             end;

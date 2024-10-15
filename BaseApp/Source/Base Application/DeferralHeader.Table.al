@@ -76,8 +76,11 @@ table 1701 "Deferral Header"
             trigger OnValidate()
             var
                 AccountingPeriod: Record "Accounting Period";
+                GenJnlBatch: Record "Gen. Journal Batch";
             begin
-                if GenJnlCheckLine.DateNotAllowed("Start Date", "Gen. Jnl. Template Name") then
+                if GenJnlBatch.Get("Gen. Jnl. Template Name", "Gen. Jnl. Batch Name") then
+                    GenJnlCheckLine.SetGenJnlBatch(GenJnlBatch);
+                if GenJnlCheckLine.DateNotAllowed("Start Date") then
                     Error(InvalidPostingDateErr, "Start Date");
 
                 if AccountingPeriod.IsEmpty() then

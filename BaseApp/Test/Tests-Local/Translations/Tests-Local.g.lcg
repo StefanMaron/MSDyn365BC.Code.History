@@ -590,18 +590,9 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Discount - NamedType WrongFieldValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 49323770 - NamedType 1749852448" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Please enter a Journal Batch Name]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales/Purchase Application - NamedType EmptyJnlBatchErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 49323770 - NamedType 65310996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Please enter a Journal Template Name]]></Val>
+      <Val><![CDATA[Journal Template Name must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

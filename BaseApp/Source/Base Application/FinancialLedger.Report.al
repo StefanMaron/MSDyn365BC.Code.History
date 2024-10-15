@@ -49,7 +49,7 @@ report 11304 "Financial Ledger"
                 dataitem("G/L Entry"; "G/L Entry")
                 {
                     DataItemLinkReference = PeriodLoop;
-                    DataItemTableView = SORTING("Journal Template Name", "Posting Date", "Document No.");
+                    DataItemTableView = SORTING("Journal Templ. Name", "Posting Date", "Document No.");
                     column(ReportFilter_GLEntry; ReportFilter)
                     {
                     }
@@ -66,7 +66,7 @@ report 11304 "Financial Ledger"
                     column(JTNdescription; JTNdescription)
                     {
                     }
-                    column(GenJnlTemplateNameFmt; Text11301 + Format("Journal Template Name"))
+                    column(GenJnlTemplateNameFmt; Text11301 + Format("Journal Templ. Name"))
                     {
                     }
                     column(HeaderPrinted; HeaderPrinted)
@@ -186,15 +186,15 @@ report 11304 "Financial Ledger"
 
                     trigger OnAfterGetRecord()
                     begin
-                        if OldName <> "Journal Template Name" then begin
+                        if OldName <> "Journal Templ. Name" then begin
                             TotalBalance := 0;
-                            OldName := "Journal Template Name";
-                            GJTempl.Get("Journal Template Name");
-                            if GJTempl."Bal. Account Type" = GJTempl."Bal. Account Type"::"G/L Account" then
-                                BalAccNo := GJTempl."Bal. Account No."
+                            OldName := "Journal Templ. Name";
+                            GenJnlTemplate.Get("Journal Templ. Name");
+                            if GenJnlTemplate."Bal. Account Type" = GenJnlTemplate."Bal. Account Type"::"G/L Account" then
+                                BalAccNo := GenJnlTemplate."Bal. Account No."
                             else
-                                if GJTempl."Bal. Account Type" = GJTempl."Bal. Account Type"::"Bank Account" then begin
-                                    BankAccount.Get(GJTempl."Bal. Account No.");
+                                if GenJnlTemplate."Bal. Account Type" = GenJnlTemplate."Bal. Account Type"::"Bank Account" then begin
+                                    BankAccount.Get(GenJnlTemplate."Bal. Account No.");
                                     BankAccPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
                                     BalAccNo := BankAccPostingGroup."G/L Account No.";
                                 end;
@@ -271,7 +271,7 @@ report 11304 "Financial Ledger"
 
                     trigger OnPreDataItem()
                     begin
-                        "G/L Entry".SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                        "G/L Entry".SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                         "G/L Entry".SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
                     end;
                 }
@@ -283,8 +283,8 @@ report 11304 "Financial Ledger"
                     var
                         GLEntry: Record "G/L Entry";
                     begin
-                        GLEntry.SetCurrentKey("Journal Template Name", "Posting Date", "Document No.");
-                        GLEntry.SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                        GLEntry.SetCurrentKey("Journal Templ. Name", "Posting Date", "Document No.");
+                        GLEntry.SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                         GLEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
 
                         if GLEntry.IsEmpty() then
@@ -310,7 +310,7 @@ report 11304 "Financial Ledger"
                     dataitem("<G/L Entry2>"; "G/L Entry")
                     {
                         DataItemLinkReference = "Gen. Journal Template";
-                        DataItemTableView = SORTING("Journal Template Name", "G/L Account No.", "Posting Date", "Document Type");
+                        DataItemTableView = SORTING("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
                         column(GLAccNo_GLEntry2; "G/L Account No.")
                         {
                         }
@@ -379,7 +379,7 @@ report 11304 "Financial Ledger"
                     dataitem("VAT Entry"; "VAT Entry")
                     {
                         DataItemLinkReference = "Gen. Journal Template";
-                        DataItemTableView = SORTING("Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
+                        DataItemTableView = SORTING("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
                         column(UseAmtsInAddCurr_VATEntry; UseAmtsInAddCurr)
                         {
                         }
@@ -447,7 +447,7 @@ report 11304 "Financial Ledger"
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                            SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                             "G/L Entry".CopyFilter("Posting Date", "Posting Date");
 
                             VATSumBuffer.DeleteAll();
@@ -745,7 +745,7 @@ report 11304 "Financial Ledger"
         BankAccPostingGroup: Record "Bank Account Posting Group";
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        GJTempl: Record "Gen. Journal Template";
+        GenJnlTemplate: Record "Gen. Journal Template";
         VATStmt: Report "VAT Statement";
         VATStmtAddCurr: Report "VAT Statement";
         OldName: Code[10];

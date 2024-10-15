@@ -377,7 +377,7 @@ page 2000022 "Domiciliation Journal"
                     trigger OnAction()
                     begin
                         SuggestDomiciliations.SetJournal(Rec);
-                        SuggestDomiciliations.RunModal;
+                        SuggestDomiciliations.RunModal();
                         Clear(SuggestDomiciliations);
                     end;
                 }

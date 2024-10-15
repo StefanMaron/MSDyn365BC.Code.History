@@ -433,20 +433,17 @@ table 5802 "Value Entry"
         }
         key(Key2; "Item Ledger Entry No.", "Entry Type")
         {
-            SumIndexFields = "Invoiced Quantity", "Sales Amount (Expected)", "Sales Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Cost Amount (Non-Invtbl.)(ACY)", "Purchase Amount (Actual)", "Purchase Amount (Expected)", "Discount Amount";
+            IncludedFields = "Invoiced Quantity", "Sales Amount (Expected)", "Sales Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Cost Amount (Non-Invtbl.)(ACY)", "Purchase Amount (Actual)", "Purchase Amount (Expected)", "Discount Amount";
         }
         key(Key3; "Item Ledger Entry No.", "Document No.", "Document Line No.")
         {
-            Enabled = false;
-            MaintainSQLIndex = false;
         }
         key(Key4; "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type", "Variance Type", "Item Charge No.", "Location Code", "Variant Code")
         {
-            SumIndexFields = "Invoiced Quantity", "Sales Amount (Expected)", "Sales Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)", "Purchase Amount (Actual)", "Expected Cost Posted to G/L", "Cost Posted to G/L", "Item Ledger Entry Quantity";
+            Enabled = false;
         }
         key(Key5; "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type", "Variance Type", "Item Charge No.", "Location Code", "Variant Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Source Type", "Source No.")
         {
-            Enabled = false;
             SumIndexFields = "Invoiced Quantity", "Sales Amount (Expected)", "Sales Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)", "Purchase Amount (Actual)", "Expected Cost Posted to G/L", "Cost Posted to G/L", "Item Ledger Entry Quantity";
         }
         key(Key6; "Document No.")
@@ -465,7 +462,7 @@ table 5802 "Value Entry"
         }
         key(Key10; "Capacity Ledger Entry No.", "Entry Type")
         {
-            SumIndexFields = "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)";
+            IncludedFields = "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)";
         }
         key(Key11; "Order Type", "Order No.", "Order Line No.")
         {
@@ -484,7 +481,7 @@ table 5802 "Value Entry"
         }
         key(Key15; "Item Ledger Entry No.", "Valuation Date")
         {
-            Enabled = false;
+            IncludedFields = "Posting Date";
         }
         key(Key16; "Location Code", "Inventory Posting Group")
         {
@@ -685,7 +682,7 @@ table 5802 "Value Entry"
     begin
         GLItemLedgRelation.SetCurrentKey("Value Entry No.");
         GLItemLedgRelation.SetRange("Value Entry No.", "Entry No.");
-        if GLItemLedgRelation.FindSet then
+        if GLItemLedgRelation.FindSet() then
             repeat
                 OnShowGLOnBeforeCopyToTempGLEntry(GLEntry, GLItemLedgRelation);
                 GLEntry.Get(GLItemLedgRelation."G/L Entry No.");
@@ -733,11 +730,10 @@ table 5802 "Value Entry"
     procedure GetAvgToDate(ToDate: Date): Date
     var
         CalendarPeriod: Record Date;
-        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
     begin
         CalendarPeriod."Period Start" := ToDate;
-        AvgCostAdjmtEntryPoint."Valuation Date" := ToDate;
-        AvgCostAdjmtEntryPoint.GetValuationPeriod(CalendarPeriod);
+        AvgCostEntryPointHandler.GetValuationPeriod(CalendarPeriod, ToDate);
         exit(CalendarPeriod."Period End");
     end;
 
@@ -784,7 +780,7 @@ table 5802 "Value Entry"
         Reset;
         SetCurrentKey("Item Ledger Entry No.");
         SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        FindFirst;
+        FindFirst();
     end;
 
     procedure IsInbound(): Boolean
@@ -818,10 +814,12 @@ table 5802 "Value Entry"
     local procedure OnSumCostsTillValuationDateOnAfterSetFilters(var ValueEntryRec: Record "Value Entry"; var ValueEntry: Record "Value Entry"; var Item: Record Item)
     begin
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnSumCostsTillValuationDateOnAfterSetCostAmounts(var ValueEntry: Record "Value Entry"; PrevValueEntrySum: Record "Value Entry"; QtyFactor: Decimal)
     begin
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnShowGLOnBeforeCopyToTempGLEntry(var GLEntry: Record "G/L Entry"; var GLItemLedgRelation: Record "G/L - Item Ledger Relation");
     begin

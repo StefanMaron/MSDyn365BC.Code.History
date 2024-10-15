@@ -45,7 +45,7 @@ codeunit 144019 "Telebank - Manual Tests"
 
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             VATPostingSetup.Init();
 
         LibraryInventory.CreateItem(Item);

@@ -1,18 +1,18 @@
 table 5105 "Customer Template"
 {
     Caption = 'Customer Template';
-#if not CLEAN18
+#if not CLEAN20
     DrillDownPageID = "Customer Template List";
     LookupPageID = "Customer Template List";
 #endif
     ReplicateData = true;
     ObsoleteReason = 'Deprecate mini and customer templates. Use table "Customer Templ." instead and for extensions.';
-#if not CLEAN18
+#if not CLEAN20
     ObsoleteState = Pending;
     ObsoleteTag = '18.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '21.0';
+    ObsoleteTag = '23.0';
 #endif
 
     fields
@@ -37,7 +37,7 @@ table 5105 "Customer Template"
             Caption = 'Global Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
                                                           Blocked = CONST(false));
-#if not CLEAN18
+#if not CLEAN20
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Global Dimension 1 Code");
@@ -50,7 +50,7 @@ table 5105 "Customer Template"
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
                                                           Blocked = CONST(false));
-#if not CLEAN18
+#if not CLEAN20
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
@@ -121,7 +121,7 @@ table 5105 "Customer Template"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
-#if not CLEAN18
+#if not CLEAN20
             trigger OnValidate()
             begin
                 if xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group" then
@@ -160,7 +160,7 @@ table 5105 "Customer Template"
         }
     }
 
-#if not CLEAN18
+#if not CLEAN20
     trigger OnDelete()
     begin
         DimMgt.DeleteDefaultDim(DATABASE::"Customer Template", Code);

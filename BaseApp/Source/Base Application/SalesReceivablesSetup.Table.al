@@ -339,6 +339,13 @@
         field(60; "Batch Archiving Quotes"; Boolean)
         {
             Caption = 'Batch Archiving Quotes';
+#if CLEAN20
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'The field is part of the removed functionality.';
+            ObsoleteTag = '20.0';
         }
         field(61; "Ignore Updated Addresses"; Boolean)
         {
@@ -347,6 +354,11 @@
         field(65; "Skip Manual Reservation"; Boolean)
         {
             Caption = 'Skip Manual Reservation';
+            DataClassification = SystemMetadata;
+        }
+        field(160; "Disable Search by Name"; Boolean)
+        {
+            Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
         }
         field(170; "Insert Std. Sales Lines Mode"; Option)
@@ -391,15 +403,91 @@
             ObsoleteState = Removed;
             ObsoleteTag = '18.0';
         }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+
+#if not CLEAN20
+            trigger OnValidate()
+            var
+                EnvironmentInformation: Codeunit "Environment Information";
+            begin
+                if "Allow Multiple Posting Groups" then
+                    if EnvironmentInformation.IsProduction() then
+                        error(MultiplePostingGroupsNotAllowedErr);
+            end;
+#endif
+        }
         field(200; "Quote Validity Calculation"; DateFormula)
         {
             Caption = 'Quote Validity Calculation';
             DataClassification = SystemMetadata;
         }
+        field(201; "S. Invoice Template Name"; Code[10])
+        {
+            Caption = 'Sales Invoice Journal Template';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(202; "S. Cr. Memo Template Name"; Code[10])
+        {
+            Caption = 'Sales Cr. Memo Journal Template';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(203; "S. Prep. Inv. Template Name"; Code[10])
+        {
+            Caption = 'Sales Prep. Invoice Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(204; "S. Prep. Cr.Memo Template Name"; Code[10])
+        {
+            Caption = 'Sales Prep. Cr. Memo Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(205; "IC Sales Invoice Template Name"; Code[10])
+        {
+            Caption = 'IC Sales Invoice Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Intercompany));
+        }
+        field(206; "IC Sales Cr. Memo Templ. Name"; Code[10])
+        {
+            Caption = 'IC Sales Cr. Memo Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Intercompany));
+        }
+        field(207; "Fin. Charge Jnl. Template Name"; Code[10])
+        {
+            Caption = 'Finance Charge Journal Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(208; "Reminder Journal Template Name"; Code[10])
+        {
+            Caption = 'Reminder Journal Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
+        field(209; "Reminder Journal Batch Name"; Code[10])
+        {
+            Caption = 'Reminder Journal Batch Name';
+            TableRelation = IF ("Reminder Journal Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Reminder Journal Template Name"));
+
+            trigger OnValidate()
+            begin
+                TestField("Reminder Journal Template Name");
+            end;
+        }
         field(210; "Copy Line Descr. to G/L Entry"; Boolean)
         {
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
+        }
+        field(211; "Fin. Charge Jnl. Batch Name"; Code[10])
+        {
+            Caption = 'Finance Charge Journal Batch Name';
+            TableRelation = IF ("Fin. Charge Jnl. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Fin. Charge Jnl. Template Name"));
+
+            trigger OnValidate()
+            begin
+                TestField("Fin. Charge Jnl. Template Name");
+            end;
         }
         field(393; "Canceled Issued Reminder Nos."; Code[20])
         {
@@ -416,6 +504,13 @@
         field(810; "Invoice Posting Setup"; Enum "Sales Invoice Posting")
         {
             Caption = 'Invoice Posting Setup';
+            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
 
             trigger OnValidate()
             var
@@ -432,6 +527,7 @@
                     InvoicePostingInterface.Check(Database::"Sales Header");
                 end;
             end;
+#endif
         }
         field(5329; "Write-in Product Type"; Option)
         {
@@ -568,65 +664,141 @@
         {
             Caption = 'Journal Templ. Sales Invoice';
             TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+            ObsoleteReason = 'Replaced by W1 field S. Invoice Template Name';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11311; "Journal Templ. Sales Cr. Memo"; Code[10])
         {
             Caption = 'Journal Templ. Sales Cr. Memo';
             TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+            ObsoleteReason = 'Replaced by W1 field S. Cr. Memo Template Name';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11313; "Insert Std. Cust. Sales Lines"; Option)
         {
             Caption = 'Insert Std. Cust. Sales Lines';
             ObsoleteReason = 'Merged to W1';
+#if CLEAN20
+            ObsoleteState = Removed;
+			ObsoleteTag = '20.0';
+#else
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
+#endif
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '15.0';
         }
         field(11314; Quotes; Boolean)
         {
             Caption = 'Quotes';
             ObsoleteReason = 'Merged to W1';
+#if CLEAN20
+            ObsoleteState = Removed;
+			ObsoleteTag = '20.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '15.0';
+#endif
         }
         field(11316; Orders; Boolean)
         {
             Caption = 'Orders';
+            ObsoleteReason = 'Merged to W1';
+#if CLEAN20
+            ObsoleteState = Removed;
+			ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif            
         }
         field(11317; Invoices; Boolean)
         {
             Caption = 'Invoices';
             ObsoleteReason = 'Merged to W1';
+#if CLEAN20
+            ObsoleteState = Removed;
+			ObsoleteTag = '20.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '15.0';
+#endif
         }
         field(11319; "Credit Memos"; Boolean)
         {
             Caption = 'Credit Memos';
             ObsoleteReason = 'Merged to W1';
+#if CLEAN20
+            ObsoleteState = Removed;
+			ObsoleteTag = '20.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '15.0';
+#endif
         }
         field(11320; "Jnl. Templ. Prep. S. Inv."; Code[10])
         {
             Caption = 'Jnl. Templ. Prep. S. Inv.';
             TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+            ObsoleteReason = 'Replaced by W1 field S. Prep. Inv. Template Name';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11321; "Jnl. Templ. Prep. S. Cr. Memo"; Code[10])
         {
             Caption = 'Jnl. Templ. Prep. S. Cr. Memo';
             TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+            ObsoleteReason = 'Replaced by W1 field S. Prep. Cr.Memo Template Name';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11322; "IC Jnl. Templ. Sales Invoice"; Code[10])
         {
             Caption = 'IC Jnl. Templ. Sales Invoice';
             TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Intercompany));
+            ObsoleteReason = 'Replaced by W1 field IC Sales Invoice Template Name';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11323; "IC Jnl. Templ. Sales Cr. Memo"; Code[10])
         {
             Caption = 'IC Jnl. Templ. Sales Cr. Memo';
             TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Intercompany));
+            ObsoleteReason = 'Replaced by W1 field IC Sales Cr. Memo Templ. Name';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 
@@ -645,7 +817,10 @@
     var
         Text001: Label 'Job Queue Priority must be zero or positive.';
         ProductCoupledErr: Label 'You must choose a record that is not coupled to a product in %1.', Comment = '%1 - Dynamics 365 Sales product name';
+#if not CLEAN20
         InvoicePostingNotAllowedErr: Label 'Use of alternative invoice posting interfaces in production environment is currently not allowed.';
+        MultiplePostingGroupsNotAllowedErr: Label 'Use of multiple posting groups in production environment is currently not allowed.';
+#endif
         RecordHasBeenRead: Boolean;
 
     procedure GetRecordOnce()

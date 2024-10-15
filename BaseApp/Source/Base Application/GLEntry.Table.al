@@ -273,6 +273,10 @@ table 17 "G/L Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(78; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -404,6 +408,14 @@ table 17 "G/L Entry"
         {
             Caption = 'Journal Template Name';
             TableRelation = "Gen. Journal Template";
+            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(11301; Open; Boolean)
         {
@@ -465,7 +477,7 @@ table 17 "G/L Entry"
         key(Key7; "Transaction No.")
         {
         }
-        key(Key8; "Journal Template Name", "Posting Date", "Document No.")
+        key(Key8; "Journal Templ. Name", "Posting Date", "Document No.")
         {
         }
         key(Key9; "IC Partner Code")
@@ -485,7 +497,7 @@ table 17 "G/L Entry"
         key(Key13; "VAT Bus. Posting Group", "VAT Prod. Posting Group")
         {
         }
-        key(Key14; "Journal Template Name", "G/L Account No.", "Posting Date", "Document Type")
+        key(Key14; "Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type")
         {
             SumIndexFields = Amount, "Additional-Currency Amount";
         }
@@ -560,7 +572,7 @@ table 17 "G/L Entry"
         OnBeforeShowValueEntries(ValueEntry, GLItemLedgRelation);
 
         GLItemLedgRelation.SetRange("G/L Entry No.", "Entry No.");
-        if GLItemLedgRelation.FindSet then
+        if GLItemLedgRelation.FindSet() then
             repeat
                 ValueEntry.Get(GLItemLedgRelation."Value Entry No.");
                 TempValueEntry.Init();
@@ -636,13 +648,13 @@ table 17 "G/L Entry"
             "Source Type" := "Source Type"::" ";
         "Job No." := GenJnlLine."Job No.";
         Quantity := GenJnlLine.Quantity;
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "Reason Code" := GenJnlLine."Reason Code";
         "User ID" := UserId;
         "No. Series" := GenJnlLine."Posting No. Series";
         "IC Partner Code" := GenJnlLine."IC Partner Code";
-	    "Prod. Order No." := GenJnlLine."Prod. Order No.";
-        "Journal Template Name" := GenJnlLine."Journal Template Name";
+        "Prod. Order No." := GenJnlLine."Prod. Order No.";
 
         OnAfterCopyGLEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

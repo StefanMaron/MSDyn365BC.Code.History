@@ -34,7 +34,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Receipt]
         // [SCENARIO 120548] Exported Intrastat Journal file values equal to Intrastat Journal Line values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Simplified Intrastat Declaration = true
         UpdateSimplifiedIntrastatDeclOnGLSetup(true);
@@ -67,7 +67,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Receipt]
         // [SCENARIO 268704] Exported Intrastat Journal of receipt with counterparty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Simplified Intrastat Declaration = true
         UpdateSimplifiedIntrastatDeclOnGLSetup(true);
@@ -100,7 +100,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Receipt]
         // [SCENARIO 268704] Exported Intrastat Journal of receipt for extended declaration
-        Initialize;
+        Initialize();
 
         // [GIVEN] Simplified Intrastat Declaration = false
         UpdateSimplifiedIntrastatDeclOnGLSetup(false);
@@ -133,7 +133,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Receipt]
         // [SCENARIO 268704] Exported Intrastat Journal of receipt for extended declaration with counterparty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Simplified Intrastat Declaration = false
         UpdateSimplifiedIntrastatDeclOnGLSetup(false);
@@ -166,7 +166,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Shipment]
         // [SCENARIO 268704] Export Intrastat Journal of shipments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Simplified Intrastat Declaration = true
         UpdateSimplifiedIntrastatDeclOnGLSetup(true);
@@ -199,7 +199,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Shipment]
         // [SCENARIO 268704] Export Intrastat Journal of shipments with Counterparty info
-        Initialize;
+        Initialize();
 
         // [GIVEN] Simplified Intrastat Declaration = true
         UpdateSimplifiedIntrastatDeclOnGLSetup(true);
@@ -232,7 +232,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Shipment]
         // [SCENARIO 268704] Export Intrastat Journal of shipments for extended declaration
-        Initialize;
+        Initialize();
 
         // [GIVEN] Simplified Intrastat Declaration = false
         UpdateSimplifiedIntrastatDeclOnGLSetup(false);
@@ -265,7 +265,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Shipment]
         // [SCENARIO 268704] Export Intrastat Journal of shipments for extended declaration with Counterparty info
-        Initialize;
+        Initialize();
 
         // [GIVEN] Simplified Intrastat Declaration = false
         UpdateSimplifiedIntrastatDeclOnGLSetup(false);
@@ -389,7 +389,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 268704] LocalizationManagement.GetCountryOfOriginCode takes value from Item when it is not blank
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item."Country/Region of Origin Code" :=
           LibraryUtility.GenerateRandomCode(Item.FieldNo("Country/Region of Origin Code"), DATABASE::Item);
         Item.Insert();
@@ -408,8 +408,8 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 268704] LocalizationManagement.GetCountryOfOriginCode takes value from CompanyInformation."Country/Region Code" when Item has blank value
-        Initialize;
-        Item."No." := LibraryUtility.GenerateGUID;
+        Initialize();
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
         CompanyInformation.Get();
         CompanyInformation."Country/Region Code" := CreateCountryRegionWithIntrastatCode;
@@ -432,7 +432,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 268704] Partner VAT ID is taken as Enterprise No from Bill-to Customer No. of Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
@@ -466,7 +466,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 268704] Partner VAT ID is taken as Enterprise No from Bill-to Customer No. of Sales Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = true
         UpdateShipmentOnInvoiceSalesSetup(true);
@@ -500,7 +500,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 268704] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
@@ -533,7 +533,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 268704] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Sales Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = true
         UpdateShipmentOnInvoiceSalesSetup(true);
@@ -564,7 +564,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 268704] Partner VAT ID returns default value for non EU customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
@@ -593,7 +593,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Purchase] [Return Shipment]
         // [SCENARIO 268704] Partner VAT ID is taken as Enterprise No from Pay-to Vendor No. of Purchase Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return Shipment on Credit Memo = false
         UpdateRetShpmtOnCrMemoPurchSetup(false);
@@ -625,7 +625,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Purchase] [Return Shipment]
         // [SCENARIO 268704] Partner VAT ID is taken as Enterprise No from Pay-to Vendor No. of Purchase Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return Shipment on Credit Memo = true
         UpdateRetShpmtOnCrMemoPurchSetup(true);
@@ -657,7 +657,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Purchase] [Return Shipment]
         // [SCENARIO 268704] Partner VAT ID is taken as VAT Registration No from Pay-to Vendor No. of Purchase Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return Shipment on Credit Memo = false
         UpdateRetShpmtOnCrMemoPurchSetup(false);
@@ -688,7 +688,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Purchase] [Return Shipment]
         // [SCENARIO 268704] Partner VAT ID is taken as VAT Registration No from Pay-to Vendor No. of Purchase Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return Shipment on Credit Memo = true
         UpdateRetShpmtOnCrMemoPurchSetup(true);
@@ -718,7 +718,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Purchase] [Return Shipment]
         // [SCENARIO 268704] Partner VAT ID returns default value for non EU vendor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return Shipment on Credit Memo = false
         UpdateRetShpmtOnCrMemoPurchSetup(false);
@@ -795,7 +795,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 268704] Export XML with same Tariff No. and Country of Origin and Partner VAT ID combination
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
@@ -827,7 +827,7 @@ codeunit 144052 "Test Intrastat Export"
         // [WHEN] Export Intrastat file
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         CreateFile(IntrastatJnlBatch, IntrastatJnlLine, KBONumberTxt, false, true);
 
         // [THEN] 1st <Item> section: 'EXTGO' = '12345', 'EXCNTORI' = 'SE', 'PARTNERID' = 'AT0123456'
@@ -852,7 +852,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Service] [Shipment]
         // [SCENARIO 299263] Partner VAT ID is taken as Enterprise No from Bill-to Customer No. of Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
@@ -886,7 +886,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Service] [Shipment]
         // [SCENARIO 299263] Partner VAT ID is taken as Enterprise No from Bill-to Customer No. of Service Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = true
         UpdateShipmentOnInvoiceSalesSetup(true);
@@ -920,7 +920,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Service] [Shipment]
         // [SCENARIO 299263] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
@@ -953,7 +953,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         // [FEATURE] [Service] [Shipment]
         // [SCENARIO 299263] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Service Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment on Sales Invoice = true
         UpdateShipmentOnInvoiceSalesSetup(true);
@@ -975,7 +975,7 @@ codeunit 144052 "Test Intrastat Export"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
@@ -994,7 +994,7 @@ codeunit 144052 "Test Intrastat Export"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", CreateCountryRegionWithIntrastatCode);
         Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code"));
-        Customer."Enterprise No." := LibraryUtility.GenerateGUID; // skip format check on validation
+        Customer."Enterprise No." := LibraryUtility.GenerateGUID(); // skip format check on validation
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -1006,7 +1006,7 @@ codeunit 144052 "Test Intrastat Export"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", CreateEUCountryRegionWithIntrastatCode);
         Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code"));
-        Customer."Enterprise No." := LibraryUtility.GenerateGUID; // skip format check on validation
+        Customer."Enterprise No." := LibraryUtility.GenerateGUID(); // skip format check on validation
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -1018,7 +1018,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Country/Region Code", CreateCountryRegionWithIntrastatCode);
         Vendor.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Vendor."Country/Region Code"));
-        Vendor."Enterprise No." := LibraryUtility.GenerateGUID; // skip format check on validation
+        Vendor."Enterprise No." := LibraryUtility.GenerateGUID(); // skip format check on validation
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1030,7 +1030,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Country/Region Code", CreateEUCountryRegionWithIntrastatCode);
         Vendor.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Vendor."Country/Region Code"));
-        Vendor."Enterprise No." := LibraryUtility.GenerateGUID; // skip format check on validation
+        Vendor."Enterprise No." := LibraryUtility.GenerateGUID(); // skip format check on validation
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1077,7 +1077,7 @@ codeunit 144052 "Test Intrastat Export"
             "Transport Method" := LibraryUtility.GenerateRandomCode(FieldNo("Transport Method"), DATABASE::"Intrastat Jnl. Line");
             "Transaction Specification" :=
               LibraryUtility.GenerateRandomCode(FieldNo("Transaction Specification"), DATABASE::"Intrastat Jnl. Line");
-            "Partner VAT ID" := LibraryUtility.GenerateGUID;
+            "Partner VAT ID" := LibraryUtility.GenerateGUID();
             "Country/Region of Origin Code" := "Country/Region Code";
             Modify(true);
         end;
@@ -1127,7 +1127,7 @@ codeunit 144052 "Test Intrastat Export"
         FileTempBlob.CreateOutStream(FileOutStream);
         IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, KBONumber, NihilDeclaration, Counterparty);
         IntrastatMakeDiskTaxAuth.UseRequestPage(false);
-        IntrastatMakeDiskTaxAuth.Run;
+        IntrastatMakeDiskTaxAuth.Run();
 
         Namespace := 'http://www.onegate.eu/2010-01-01';
         LibraryXPathXMLReader.InitializeWithBlob(FileTempBlob, Namespace);
@@ -1174,7 +1174,7 @@ codeunit 144052 "Test Intrastat Export"
         ItemLedgerEntry.SetRange("Source Type", ItemLedgerEntry."Source Type"::Customer);
         ItemLedgerEntry.SetRange("Source No.", SalesHeader."Sell-to Customer No.");
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure CreatePostPurchCrMemo(var ItemLedgerEntry: Record "Item Ledger Entry"; BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20])
@@ -1192,7 +1192,7 @@ codeunit 144052 "Test Intrastat Export"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ItemLedgerEntry.SetRange("Source Type", ItemLedgerEntry."Source Type"::Vendor);
         ItemLedgerEntry.SetRange("Source No.", PurchaseHeader."Buy-from Vendor No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure CreatePostServiceInvoice(var ItemLedgerEntry: Record "Item Ledger Entry"; var DocumentNo: Code[20]; ShipToCustomerNo: Code[20]; BillToCustomerNo: Code[20]; ItemNo: Code[20])
@@ -1213,7 +1213,7 @@ codeunit 144052 "Test Intrastat Export"
         ItemLedgerEntry.SetRange("Source Type", ItemLedgerEntry."Source Type"::Customer);
         ItemLedgerEntry.SetRange("Source No.", ServiceHeader."Customer No.");
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -1235,7 +1235,7 @@ codeunit 144052 "Test Intrastat Export"
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         Job.Init();
-        Job."No." := LibraryUtility.GenerateGUID;
+        Job."No." := LibraryUtility.GenerateGUID();
         Job."Bill-to Customer No." := CustomerNo;
         Job.Insert();
         JobLedgerEntry.Init();
@@ -1256,7 +1256,7 @@ codeunit 144052 "Test Intrastat Export"
         GetItemLedgerEntries.SetIntrastatJnlLine(IntrastatJnlLine);
         GetItemLedgerEntries.SetTableView(ItemLedgerEntry);
         GetItemLedgerEntries.UseRequestPage(false);
-        GetItemLedgerEntries.Run;
+        GetItemLedgerEntries.Run();
     end;
 
     local procedure ResetCustomerVATRegNo(var Customer: Record Customer)
@@ -1324,7 +1324,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField("Partner VAT ID", PartnerID);
     end;
 

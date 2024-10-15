@@ -10,9 +10,12 @@ codeunit 134712 "Autom. Payment Registration.UT"
 
     var
         Assert: Codeunit Assert;
+        LibraryERM: Codeunit "Library - ERM";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LineNoTAppliedErr: Label 'The line with transaction date %1 and transaction text ''%2'' is not applied. You must apply all lines.', Comment = '%1 - transaction date, %2 - arbitrary text';
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -21,7 +24,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         BankAccNo := CreateBankAcc;
 
@@ -40,7 +43,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         BankAccNo := CreateBankAcc;
 
@@ -63,7 +66,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         BankAccNo := CreateBankAcc;
 
@@ -84,7 +87,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         BankAccNo := CreateBankAcc;
         BankAccReconciliationCaller.CreateNewBankPaymentAppBatch(BankAccNo, BankAccReconciliation);
@@ -104,7 +107,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         BankAccNo := CopyStr(CreateGuid, 1, 20);
         asserterror
@@ -121,7 +124,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         TestStatementNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         InsertDummyBankReconHeaderAndLine(0, '0', BankAccReconciliation);
         InsertDummyBankReconHeaderAndLine(1, '0', BankAccReconciliation);
@@ -131,7 +134,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccReconciliation.SetFiltersOnBankAccReconLineTable(
           BankAccReconciliation, BankAccReconciliationLine);
 
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
 
         Assert.AreEqual(
           1, BankAccReconciliationLine.Count, '1.Wrong filtering on BankAccReconciliationLine table.');
@@ -148,13 +151,13 @@ codeunit 134712 "Autom. Payment Registration.UT"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        Initialize;
+        Initialize();
 
         InsertDummyBankReconHeaderAndLine(1, '0', BankAccReconciliation);
         BankAccReconciliation.SetFiltersOnBankAccReconLineTable(
           BankAccReconciliation, BankAccReconciliationLine);
 
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
         UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
 
         asserterror CODEUNIT.Run(CODEUNIT::"Bank Acc. Recon. Post (Yes/No)", BankAccReconciliation);
@@ -165,20 +168,28 @@ codeunit 134712 "Autom. Payment Registration.UT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Autom. Payment Registration.UT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
+
+        if IsInitialized then
+            exit;
+
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
+        IsInitialized := true;
+        Commit;
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     local procedure InsertDummyBankReconHeaderAndLine(StatementType: Option; StatementNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        GenJournalTemplate: Record "Gen. Journal Template";
     begin
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := StatementType;
         BankAccReconciliation."Bank Account No." := CreateBankAcc;
         BankAccReconciliation."Statement No." := StatementNo;
-        if GenJournalTemplate.FindFirst then
-            BankAccReconciliation."Journal Template Name" := GenJournalTemplate.Name;
         BankAccReconciliation.Insert();
 
         BankAccReconciliationLine.Init();

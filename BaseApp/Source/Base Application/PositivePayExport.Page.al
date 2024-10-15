@@ -90,7 +90,7 @@ page 1233 "Positive Pay Export"
     trigger OnOpenPage()
     begin
         PositivePayEntry.SetRange("Bank Account No.", "No.");
-        if PositivePayEntry.FindLast then begin
+        if PositivePayEntry.FindLast() then begin
             LastUploadDateEntered := DT2Date(PositivePayEntry."Upload Date-Time");
             LastUploadTime := DT2Time(PositivePayEntry."Upload Date-Time");
         end;

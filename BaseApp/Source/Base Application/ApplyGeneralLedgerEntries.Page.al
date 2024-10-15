@@ -327,7 +327,7 @@
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -473,7 +473,7 @@
 
             UndoGLEntry.SetCurrentKey("Closed by Entry No.");
             UndoGLEntry.SetRange("Closed by Entry No.", OrgGLEntry."Entry No.");
-            if UndoGLEntry.FindSet then
+            if UndoGLEntry.FindSet() then
                 repeat
                     RealEntryChanged(GLEntryBuf, GLEntry);
                     if Get(UndoGLEntry."Entry No.") then
@@ -528,7 +528,7 @@
     begin
         GLEntry.SetCurrentKey("G/L Account No.");
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        if GLEntry.FindSet then begin
+        if GLEntry.FindSet() then begin
             NoOfRecords := GLEntry.Count();
             Window.Open(Text11300);
             repeat
@@ -558,7 +558,7 @@
         end else begin
             GLEntry.SetCurrentKey("Closed by Entry No.");
             GLEntry.SetRange("Closed by Entry No.", OrgGLEntry."Entry No.");
-            if GLEntry.FindSet then
+            if GLEntry.FindSet() then
                 repeat
                     if GLEntry."Entry No." <> OrgGLEntry."Entry No." then
                         TransferGLEntry(TempGLEntryBuf, GLEntry);
@@ -586,7 +586,7 @@
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure UpdateAmounts()
     begin
         ShowAppliedAmount := 0;

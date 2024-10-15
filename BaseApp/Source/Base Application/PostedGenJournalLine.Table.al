@@ -1,4 +1,4 @@
-table 181 "Posted Gen. Journal Line"
+﻿table 181 "Posted Gen. Journal Line"
 {
     Caption = 'Posted Gen. Journal Line';
     LookupPageId = "Posted General Journal";
@@ -632,6 +632,19 @@ table 181 "Posted Gen. Journal Line"
             Caption = 'VAT Base Before Pmt. Disc.';
             Editable = false;
         }
+        field(126; "Orig. Pmt. Disc. Possible"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Original Pmt. Disc. Possible';
+            Editable = false;
+        }
+        field(127; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Orig. Pmt. Disc. Possible (LCY)';
+            Editable = false;
+        }
         field(160; "Job Queue Status"; Option)
         {
             Caption = 'Job Queue Status';
@@ -1015,10 +1028,26 @@ table 181 "Posted Gen. Journal Line"
         field(11301; "Original Pmt. Disc. Possible"; Decimal)
         {
             Caption = 'Original Pmt. Disc. Possible';
+            ObsoleteReason = 'Replaced by W1 field Orig. Pmt. Disc. Possible';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(11306; "Org. Pmt. Disc. Possible (LCY)"; Decimal)
         {
             Caption = 'Org. Pmt. Disc. Possible (LCY)';
+            ObsoleteReason = 'Replaced by W1 field Orig. Pmt. Disc. Possible(LCY)';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(11310; "Enterprise No."; Text[50])
         {

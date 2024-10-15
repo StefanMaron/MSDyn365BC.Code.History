@@ -14,7 +14,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        if FromGenJnlLine.FindSet then begin
+        if FromGenJnlLine.FindSet() then begin
             GenJnlBatch.Get(FromGenJnlLine."Journal Template Name", FromGenJnlLine."Journal Batch Name");
 
             repeat
@@ -40,7 +40,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
             PmtJnlLineToExport.SetFilter("Journal Template Name", FromGenJnlLine.GetFilter("Journal Template Name"));
             PmtJnlLineToExport.SetFilter("Journal Batch Name", FromGenJnlLine.GetFilter("Journal Batch Name"));
             PmtJnlLineToExport.SetFilter("Line No.", FromGenJnlLine.GetFilter("Line No."));
-            if PmtJnlLineToExport.FindSet then
+            if PmtJnlLineToExport.FindSet() then
                 repeat
                     TempGenJnlLine.Init();
                     TempGenJnlLine."Journal Template Name" := "Journal Template Name";

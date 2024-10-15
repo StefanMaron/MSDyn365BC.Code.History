@@ -1,4 +1,4 @@
-report 1003 "Post Invt. Cost to G/L - Test"
+﻿report 1003 "Post Invt. Cost to G/L - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PostInvtCosttoGLTest.rdlc';
@@ -18,7 +18,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(STRSUBSTNO_Text003_SELECTSTR_PostMethod___1_Text005__; StrSubstNo(Text003, SelectStr(PostMethod + 1, Text005)))
+            column(STRSUBSTNO_Text003_SELECTSTR_PostMethod___1_Text005__; StrSubstNo(PostedPostingTypeTxt, SelectStr(PostMethod + 1, PostingTypeTxt)))
             {
             }
             column(DocNo; DocNo)
@@ -108,7 +108,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                         until TempCapValueEntry.Next() = 0;
 
                     if PostMethod = PostMethod::"per Posting Group" then begin
-                        InvtPostToGL.SetGenJnlBatch(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                        InvtPostToGL.SetGenJnlBatch(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         InvtPostToGL.PostInvtPostBufPerPostGrp(DocNo, '');
                     end;
                 end;
@@ -175,7 +175,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry.FindSet then
+                            if not DimSetEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -301,6 +301,19 @@ report 1003 "Post Invt. Cost to G/L - Test"
             trigger OnPreDataItem()
             begin
                 GLSetup.Get();
+                if not GLSetup."Journal Templ. Name Mandatory" then
+                    case PostMethod of
+                        PostMethod::"per Posting Group":
+                            if DocNo = '' then
+                                Error(
+                                  EnterWhenPostingErr,
+                                  ItemValueEntry.FieldCaption("Document No."), SelectStr(PostMethod + 1, PostingTypeTxt));
+                        PostMethod::"per Entry":
+                            if DocNo <> '' then
+                                Error(
+                                  DoNotEnterWhenPostingErr,
+                                  ItemValueEntry.FieldCaption("Document No."), SelectStr(PostMethod + 1, PostingTypeTxt));
+                    end;
             end;
         }
     }
@@ -333,7 +346,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     {
                         ApplicationArea = Dimensions;
                         Caption = 'Show Dimensions';
-                        ToolTip = 'Specifies if you want dimensions information for the journal lines to be included in the report.';
+                        ToolTip = 'Specifies that the dimensions for each entry or posting group are included.';
                     }
                     field(ShowOnlyWarnings; ShowOnlyWarnings)
                     {
@@ -341,41 +354,39 @@ report 1003 "Post Invt. Cost to G/L - Test"
                         Caption = 'Show Only Warnings';
                         ToolTip = 'Specifies that only the entries that produce errors are included. If you do not select this check box, the report will show all entries that could be posted to the general ledger.';
                     }
-                    field(JnlTemplateName; GenJnlLine."Journal Template Name")
+                    field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Template Name';
                         TableRelation = "Gen. Journal Template";
                         ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
 
                         trigger OnValidate()
                         begin
-                            GenJnlLine."Journal Batch Name" := '';
+                            GenJnlLineReq."Journal Batch Name" := '';
                         end;
                     }
-                    field(JnlBatchName; GenJnlLine."Journal Batch Name")
+                    field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Batch Name';
                         Lookup = true;
                         ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
 
                         trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
                         begin
-                            GenJnlLine.TestField("Journal Template Name");
-                            GenJournalTemplate.Get(GenJnlLine."Journal Template Name");
-                            GenJnlBatch.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
-                            GenJnlBatch."Journal Template Name" := GenJnlLine."Journal Template Name";
-                            GenJnlBatch.Name := GenJnlLine."Journal Batch Name";
-                            if PAGE.RunModal(0, GenJnlBatch) = ACTION::LookupOK then
-                                GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
                         end;
 
                         trigger OnValidate()
                         begin
-                            if GenJnlLine."Journal Batch Name" <> '' then begin
-                                GenJnlLine.TestField("Journal Template Name");
-                                GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                             end;
                         end;
                     }
@@ -396,26 +407,30 @@ report 1003 "Post Invt. Cost to G/L - Test"
     begin
         OnBeforePreReport(PostValueEntryToGL, ItemValueEntry);
 
-        if GenJnlLine."Journal Template Name" = '' then
-            Error(Text11300);
-        if GenJnlLine."Journal Batch Name" = '' then
-            Error(Text11301);
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if GenJnlLineReq."Journal Template Name" = '' then
+                Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
+            if GenJnlLineReq."Journal Batch Name" = '' then
+                Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
 
-        Clear(NoSeriesMgt);
-        Clear(DocNo);
-        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
-        GenJnlBatch.TestField("No. Series");
-        DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
+            Clear(NoSeriesMgt);
+            Clear(DocNo);
+            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+            GenJnlBatch.TestField("No. Series");
+            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
+        end;
 
         ValueEntryFilter := PostValueEntryToGL.GetFilters;
     end;
 
     var
-        Text002: Label 'The following combination %1 = %2, %3 = %4, and %5 = %6 is not allowed.';
-        Text003: Label 'Posted %1';
-        Text005: Label 'per Posting Group,per Entry';
-        Text009: Label '%1 %2 does not exist.';
-        Text010: Label '%1 must be %2 for %3 %4.';
+        EnterWhenPostingErr: Label 'Please enter a %1 when posting %2.', Comment = '%1 - field caption, %2 - posting type';
+        DoNotEnterWhenPostingErr: Label 'Do not enter a %1 when posting %2.', Comment = '%1 - field caption, %2 - posting type';
+        FieldCombinationErr: Label 'The following combination %1 = %2, %3 = %4, and %5 = %6 is not allowed.', Comment = '%1, %3, %5 - field captions, %2, %4, %6 - field values';
+        PostedPostingTypeTxt: Label 'Posted %1', Comment = '%1 - posting type';
+        PostingTypeTxt: Label 'per Posting Group,per Entry';
+        DoesNotExistErr: Label '%1 %2 does not exist.', Comment = '%1 - field caption, %2 - field value';
+        MustBeForErr: Label '%1 must be %2 for %3 %4.', Comment = '%1 and %3 - field captions, %2 and %4 - field values';
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         TempInvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer" temporary;
@@ -424,9 +439,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
         ItemValueEntry: Record "Value Entry";
         InvtPostSetup: Record "Inventory Posting Setup";
         GenPostSetup: Record "General Posting Setup";
-        GenJournalTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
-        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlLineReq: Record "Gen. Journal Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         InvtPostToGL: Codeunit "Inventory Posting To G/L";
         PostMethod: Option "per Posting Group","per Entry";
@@ -440,6 +454,9 @@ report 1003 "Post Invt. Cost to G/L - Test"
         Continue: Boolean;
         ShowOnlyWarnings: Boolean;
         ErrorCounter: Integer;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        SetupBlockedErr: Label 'Setup is blocked in %1 for %2 %3 and %4 %5.', Comment = '%1 - General/Inventory Posting Setup, %2 %3 %4 %5 - posting groups.';
         Text011: Label '%1 is missing for %2 %3 and %4 %5.';
         Text012: Label '%1 is missing in %2, %3 %4.';
         Text013: Label '%1 must be false, if %2 is not Direct Cost or Revaluation.';
@@ -460,8 +477,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
         ItemValueEntry__Item_No__CaptionLbl: Label 'Item No.';
         DimensionsCaptionLbl: Label 'Dimensions';
         ErrorText_Number_CaptionLbl: Label 'Warning!';
-        Text11300: Label 'Please enter a Journal Template Name.';
-        Text11301: Label 'Please enter a Journal Batch Name.';
+        MissingJournalFieldErr: Label 'Please enter a %1 when posting inventory cost to G/L.', Comment = '%1 - field caption';
 
     local procedure FillInvtPostToGLTestBuf(ValueEntry: Record "Value Entry")
     begin
@@ -470,7 +486,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
                 exit;
 
             if PostMethod = PostMethod::"per Entry" then begin
-                InvtPostToGL.SetGenJnlBatch(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                if GLSetup."Journal Templ. Name Mandatory" then
+                    InvtPostToGL.SetGenJnlBatch(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                 InvtPostToGL.PostInvtPostBufPerEntry(ValueEntry);
             end;
         end;
@@ -530,7 +547,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
         with ValueEntry do
             AddError(
               StrSubstNo(
-                Text002,
+                FieldCombinationErr,
                 FieldCaption("Item Ledger Entry Type"), "Item Ledger Entry Type",
                 FieldCaption("Entry Type"), "Entry Type",
                 FieldCaption("Expected Cost"), "Expected Cost"))
@@ -541,21 +558,19 @@ report 1003 "Post Invt. Cost to G/L - Test"
         with InvtPostToGLTestBuf do
             if not GLAcc.Get("Account No.") then
                 AddError(
-                  StrSubstNo(
-                    Text009,
-                    GLAcc.TableCaption, "Account No."))
+                  StrSubstNo(DoesNotExistErr, GLAcc.TableCaption(), "Account No."))
             else begin
                 AccName := GLAcc.Name;
                 if GLAcc.Blocked then
                     AddError(
                       StrSubstNo(
-                        Text010,
+                        MustBeForErr,
                         GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "Account No."));
                 if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then begin
                     GLAcc."Account Type" := GLAcc."Account Type"::Posting;
                     AddError(
                       StrSubstNo(
-                        Text010,
+                        MustBeForErr,
                         GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption, "Account No."));
                 end;
             end;
@@ -581,7 +596,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                         FieldCaption("Invt. Posting Group Code"), "Invt. Posting Group Code"));
                     exit(false);
                 end
-            end else
+            end else begin
                 if not GenPostSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then begin
                     AddError(
                       StrSubstNo(
@@ -591,6 +606,16 @@ report 1003 "Post Invt. Cost to G/L - Test"
                         FieldCaption("Gen. Prod. Posting Group"), "Gen. Prod. Posting Group"));
                     exit(false);
                 end;
+                if GenPostSetup.Blocked then begin
+                    AddError(
+                      StrSubstNo(
+                        SetupBlockedErr,
+                        GenPostSetup.TableCaption,
+                        FieldCaption("Gen. Bus. Posting Group"), "Gen. Bus. Posting Group",
+                        FieldCaption("Gen. Prod. Posting Group"), "Gen. Prod. Posting Group"));
+                    exit(false);
+                end;
+            end;
         exit(true);
     end;
 
@@ -650,8 +675,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
         PostMethod := NewPostMethod;
         ShowDim := NewShowDim;
         ShowOnlyWarnings := NewShowOnlyWarnings;
-        GenJnlLine."Journal Template Name" := NewJnlTemplName;
-        GenJnlLine."Journal Batch Name" := NewJnlBatchName;
+        GenJnlLineReq."Journal Template Name" := NewJnlTemplName;
+        GenJnlLineReq."Journal Batch Name" := NewJnlBatchName;
     end;
 #endif
 
@@ -665,8 +690,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
 
     procedure SetGenJnlBatch(NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
     begin
-        GenJnlLine."Journal Template Name" := NewJnlTemplName;
-        GenJnlLine."Journal Batch Name" := NewJnlBatchName;
+        GenJnlLineReq."Journal Template Name" := NewJnlTemplName;
+        GenJnlLineReq."Journal Batch Name" := NewJnlBatchName;
     end;
 
     [IntegrationEvent(false, false)]
@@ -674,11 +699,13 @@ report 1003 "Post Invt. Cost to G/L - Test"
     begin
     end;
 
+#if not CLEAN20
     [IntegrationEvent(false, false)]
+    [Obsolete('Event is never raised.', '20.0')]
     local procedure OnAfterOnPreDataItem(var PostValueEntryToGL: Record "Post Value Entry to G/L"; CompanyName: Text)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostValueEntryToGLOnPreDataItem(var PostValueEntryToGL: Record "Post Value Entry to G/L"; CompanyName: Text)
     begin

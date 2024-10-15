@@ -71,14 +71,14 @@ report 2000004 "Payment Journal Post"
                     GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
 
                     LastGenJnlLine.Copy(GenJnlLine);
-                    if LastGenJnlLine.FindLast then;
+                    if LastGenJnlLine.FindLast() then;
 
                     PaymJnlLine.Copy("Payment Journal Line");
                     PaymJnlLine.SetCurrentKey(
                       "Bank Account", "Beneficiary Bank Account No.", Status, "Account Type", "Account No.", "Currency Code", "Posting Date");
                     PaymJnlLine.SetRange(Status, PaymJnlLine.Status::Processed);
                     PaymJnlLine.SetRange("Account Type");
-                    if PaymJnlLine.FindSet then begin
+                    if PaymJnlLine.FindSet() then begin
                         AppliesToID := '';
                         DocumentNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PaymJnlLine."Posting Date", false);
                         repeat
@@ -86,7 +86,7 @@ report 2000004 "Payment Journal Post"
                         until PaymJnlLine.Next() = 0;
                         PaymJnlLine.ModifyAll(Status, PaymJnlLine.Status::Posted);
                     end;
-                    if TempPaymJnlLine.FindSet then
+                    if TempPaymJnlLine.FindSet() then
                         repeat
                             SetGenJnlLine(TempPaymJnlLine);
                         until TempPaymJnlLine.Next() = 0;
@@ -106,7 +106,7 @@ report 2000004 "Payment Journal Post"
                         PaymJnlLine.Reset();
                         PaymJnlLine.SetRange("Journal Template Name", "Payment Journal Line"."Journal Template Name");
                         PaymJnlLine.SetRange("Journal Batch Name", PJBatchName);
-                        if PaymJnlLine.FindLast then
+                        if PaymJnlLine.FindLast() then
                             LineNo := PaymJnlLine."Line No."
                         else
                             LineNo := 0;
@@ -117,11 +117,11 @@ report 2000004 "Payment Journal Post"
                         PaymJnlLine.SetRange("Journal Batch Name", "Payment Journal Line"."Journal Batch Name");
                         PaymJnlLine.SetFilter("Separate Line", "Payment Journal Line".GetFilter("Separate Line"));
                         PaymJnlLine.SetFilter(Status, '<%1', PaymJnlLine.Status::Processed);
-                        if PaymJnlLine.FindSet then
+                        if PaymJnlLine.FindSet() then
                             repeat
                                 LineNo := LineNo + 10000;
                                 PaymJnlLine.Rename(PaymJnlLine."Journal Template Name", PJBatchName, LineNo);
-                            until not PaymJnlLine.FindFirst;
+                            until not PaymJnlLine.FindFirst();
                     end;
 
                     // Post
@@ -270,11 +270,11 @@ report 2000004 "Payment Journal Post"
                 if not IncludeDim then
                     PaymJnlLine.ModifyAll("Applies-to ID", AppliesToID, true)
                 else
-                    if PaymJnlLine.FindSet then
+                    if PaymJnlLine.FindSet() then
                         repeat
                             TempDimBuf.Reset();
                             TempDimBuf.DeleteAll();
-                            if SelectedDim.FindSet then
+                            if SelectedDim.FindSet() then
                                 repeat
                                     if DimensionSetEntry.Get(
                                          PaymJnlLine."Dimension Set ID", SelectedDim."Dimension Code")
@@ -402,7 +402,7 @@ report 2000004 "Payment Journal Post"
                 if (PaymentJnlLine."Line No." = GetCustBalLineNo) and (PaymentJnlLine."Account Type" = 0) then begin
                     GenJournalLine.Copy(LastGenJnlLine);
                     GenJournalLine.SetRange("Account Type", "Account Type"::Customer);
-                    GenJournalLine.FindLast;
+                    GenJournalLine.FindLast();
                     "Line No." := GenJournalLine."Line No." + 1;
                 end else
                     "Line No." := LastGenJnlLine."Line No." + 10000;
@@ -499,7 +499,7 @@ report 2000004 "Payment Journal Post"
             SelectedDim.SetRange("User ID", UserId);
             SelectedDim.SetRange("Object Type", 3);
             SelectedDim.SetRange("Object ID", ReportID);
-            if SelectedDim.FindSet then
+            if SelectedDim.FindSet() then
                 repeat
                     if DimensionSetEntry.Get(PaymJnlLine."Dimension Set ID", SelectedDim."Dimension Code") then begin
                         TempDimBuf."Dimension Code" := DimensionSetEntry."Dimension Code";

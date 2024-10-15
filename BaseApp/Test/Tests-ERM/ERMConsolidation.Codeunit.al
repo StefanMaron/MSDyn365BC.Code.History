@@ -49,7 +49,7 @@ codeunit 134092 "ERM Consolidation"
     begin
         // [SCENARIO 372046] G/L Account with Debit/Credit Balance should be consolidated to Debit/Credit Consolidation Account
 
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         // [GIVEN] G/L Account "X1" with Debit Balance = 100, "Cons. Debit Acc" = "A1", "Cons. Credit Acc." = "B1"
         ExpectedDebitAmount :=
@@ -83,7 +83,7 @@ codeunit 134092 "ERM Consolidation"
         // [FEATURE] [ACY]
         // [SCENARIO 372046] G/L Account with Debit/Credit Add. Currency Balance should be consolidated to Debit/Credit Consolidation Account
 
-        Initialize;
+        Initialize();
         UpdateAddnlReportingCurrency(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, LibraryRandom.RandDec(100, 2)));
         Amount := LibraryRandom.RandDec(100, 2);
         // [GIVEN] G/L Account "X1" with Debit Balance = 100, "Cons. Debit Acc" = "A1", "Cons. Credit Acc." = "B1"
@@ -111,7 +111,7 @@ codeunit 134092 "ERM Consolidation"
         // [FEATURE] [Reports]
         // [SCENARIO 372262] "G/L Account No." should be printed in "Consolidation - Test Database" report if related G/L Entry exists
 
-        Initialize;
+        Initialize();
         // [GIVEN] G/L Account = "X" with Consolidation Setup and posted G/L Entry
         CreateGLAccountWithConsolidationSetup(GLAccount);
         InsertGLEntry(GLAccount."No.");
@@ -134,7 +134,7 @@ codeunit 134092 "ERM Consolidation"
     begin
         // [FEATURE] [Reports] [UT]
         // [SCENARIO 375924] "G/L Consolidation Eliminations" report dataset uses "0"/"1" for boolean columns
-        Initialize;
+        Initialize();
 
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
 
@@ -160,7 +160,7 @@ codeunit 134092 "ERM Consolidation"
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 380422] "Consolidation - Test Database" report log error if wrong G/L Entry dimension value set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account = "X" with Consolidation Setup
         CreateGLAccountWithConsolidationSetup(GLAccount);
@@ -205,7 +205,7 @@ codeunit 134092 "ERM Consolidation"
     begin
         // [SCENARIO 273629] Consolidation Debit/Credit account is chosen based on amounts in generated temporary G/L Entries
 
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] G/L Account "X1" with "Cons. Debit Acc" = "A1", "Cons. Credit Acc." = "B1"
@@ -237,11 +237,10 @@ codeunit 134092 "ERM Consolidation"
     var
         AccountingPeriod: Record "Accounting Period";
         BusinessUnit: Record "Business Unit";
-        GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 298236] Consolidation do not throw error, even if Business Unit's dates are not Fiscal Year dates of Business Unit's Company
-        Initialize;
+        Initialize();
 
         // [GIVEN] No Accounting periods/Fiscal years setup
         AccountingPeriod.DeleteAll();
@@ -252,12 +251,9 @@ codeunit 134092 "ERM Consolidation"
         BusinessUnit.Validate("Starting Date", WorkDate);
         BusinessUnit.Validate("Ending Date", WorkDate + 1);
         BusinessUnit.Modify(true);
+        Commit();
 
         // [WHEN] Report "Import Consolidation from DB" is run
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
-        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
-        Commit();
         REPORT.Run(REPORT::"Import Consolidation from DB", true, false, BusinessUnit);
 
         // [THEN] No errors is thrown
@@ -276,7 +272,7 @@ codeunit 134092 "ERM Consolidation"
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 322981] G/L Consolidation Elimination report includes balanced account amount on general journal line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts "A", "B".
         LibraryERM.CreateGLAccount(GLAccount);
@@ -678,13 +674,15 @@ codeunit 134092 "ERM Consolidation"
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
         if IsInitialized then
             exit;
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         IsInitialized := true;
     end;
 
@@ -846,20 +844,16 @@ codeunit 134092 "ERM Consolidation"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         GLEntry.SetRange("Document No.", DocNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure RunConsolidation(var TempGLEntry: Record "G/L Entry" temporary; DebitGLAcc: Record "G/L Account"; CreditGLAcc: Record "G/L Account"; DateSource: Option) DocNo: Code[20]
     var
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlBatch: Record "Gen. Journal Batch";
         BusinessUnit: Record "Business Unit";
         Consolidate: Codeunit Consolidate;
     begin
-        DocNo := LibraryUtility.GenerateGUID;
-        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        Consolidate.SetDocNo(DocNo, GenJnlBatch."Journal Template Name", GenJnlBatch.Name);
+        DocNo := LibraryUtility.GenerateGUID();
+        Consolidate.SetDocNo(DocNo);
         Consolidate.InsertGLAccount(DebitGLAcc);
         Consolidate.InsertGLAccount(CreditGLAcc);
         TempGLEntry.FindSet();
@@ -897,7 +891,7 @@ codeunit 134092 "ERM Consolidation"
         Commit();
         // InitializeRequest to initialize selected dimensions description
         ExportConsolidation.InitializeRequest(2, '');
-        ExportConsolidation.Run;
+        ExportConsolidation.Run();
     end;
 
     local procedure VerifyGLEntryAmount(DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal)
@@ -971,8 +965,6 @@ codeunit 134092 "ERM Consolidation"
     [Scope('OnPrem')]
     procedure ImportConsolidationFromDBReportHandler(var ImportConsolidationfromDB: TestRequestPage "Import Consolidation from DB")
     begin
-        ImportConsolidationfromDB."SelectJnlLine.""Journal Template Name""".SetValue(LibraryVariableStorage.DequeueText);
-        ImportConsolidationfromDB."SelectJnlLine.""Journal Batch Name""".SetValue(LibraryVariableStorage.DequeueText);
         ImportConsolidationfromDB.StartingDate.SetValue(WorkDate);
         ImportConsolidationfromDB.EndingDate.SetValue(WorkDate + 1);
         ImportConsolidationfromDB.DocumentNo.SetValue(LibraryRandom.RandInt(100));

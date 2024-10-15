@@ -18,6 +18,8 @@ codeunit 1393 "Cancel Issued Reminder"
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         SourceCodeSetup: Record "Source Code Setup";
         TempErrorMessage: Record "Error Message" temporary;
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GLSetup: Record "General Ledger Setup";
         ReminderSourceCode: Code[10];
         TotalAmount: Decimal;
         TotalAmountLCY: Decimal;
@@ -25,23 +27,23 @@ codeunit 1393 "Cancel Issued Reminder"
         ShowIssuedReminderTxt: Label 'Show issued reminder %1.', Comment = '%1 - issued reminder number.';
         CancelAppliedEntryErr: Label 'You must unapply customer ledger entry %1 before canceling issued reminder %2.', Comment = '%1 - entry number, %2 - issued reminder number';
         ShowCustomerLedgerEntryTxt: Label 'Show customer ledger entry %1.', Comment = '%1 - entry number.';
+        MissingFieldNameErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
         SkipShowNotification: Boolean;
         UseSameDocumentNo: Boolean;
         UseSamePostingDate: Boolean;
         NewPostingDate: Date;
-        JournalTemplName: Code[10];
-        JournalBatchName: Code[10];
-        EmptyTemplateNameErr: Label 'Enter a Journal Template Name.';
-        EmptyBatchNameErr: Label 'Enter a Journal Batch Name.';
 
     local procedure CheckIssuedReminder(IssuedReminderHeader: Record "Issued Reminder Header") Result: Boolean
     begin
         IssuedReminderHeader.TestField(Canceled, false);
 
-        if JournalTemplName = '' then
-            Error(EmptyTemplateNameErr);
-        if JournalBatchName = '' then
-            Error(EmptyBatchNameErr);
+        GLSetup.Get();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if GenJnlBatch."Journal Template Name" = '' then
+                Error(MissingFieldNameErr, TempGenJnlLine."Journal Template Name");
+            if GenJnlBatch.Name = '' then
+                Error(MissingFieldNameErr, TempGenJnlLine."Journal Batch Name");
+        end;
 
         if not CheckAppliedReminderCustLedgerEntry(IssuedReminderHeader) then
             exit(false);
@@ -140,7 +142,7 @@ codeunit 1393 "Cancel Issued Reminder"
                 IssuedReminderLine2.SetRange("Document No.", IssuedReminderLine."Document No.");
                 IssuedReminderLine2.SetRange(Canceled, false);
                 IssuedReminderLine2.SetFilter("No. of Reminders", '>%1', IssuedReminderLine."No. of Reminders");
-                if IssuedReminderLine2.FindFirst then begin
+                if IssuedReminderLine2.FindFirst() then begin
                     TempErrorMessage.LogMessage(
                       IssuedReminderHeader,
                       IssuedReminderHeader.FieldNo("No."),
@@ -162,7 +164,7 @@ codeunit 1393 "Cancel Issued Reminder"
         CustLedgerEntry.SetRange("Customer No.", IssuedReminderHeader."Customer No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Reminder);
         CustLedgerEntry.SetRange("Document No.", IssuedReminderHeader."No.");
-        if CustLedgerEntry.FindFirst then begin
+        if CustLedgerEntry.FindFirst() then begin
             CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
             if CustLedgerEntry.Amount <> CustLedgerEntry."Remaining Amount" then begin
                 TempErrorMessage.LogMessage(
@@ -185,7 +187,7 @@ codeunit 1393 "Cancel Issued Reminder"
     begin
         ReminderFinChargeEntry.SetRange("No.", IssuedReminderLine."Reminder No.");
         ReminderFinChargeEntry.SetRange("Customer Entry No.", IssuedReminderLine."Entry No.");
-        if ReminderFinChargeEntry.FindFirst then begin
+        if ReminderFinChargeEntry.FindFirst() then begin
             ReminderFinChargeEntry.Canceled := true;
             ReminderFinChargeEntry.Modify();
         end;
@@ -245,8 +247,11 @@ codeunit 1393 "Cancel Issued Reminder"
             "Source Code" := ReminderSourceCode;
             "System-Created Entry" := SystemCreatedEntry;
             "Salespers./Purch. Code" := '';
-            "Journal Template Name" := JournalTemplName;
-            "Journal Batch Name" := JournalBatchName;
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                "Journal Template Name" := GenJnlBatch."Journal Template Name";
+                "Journal Batch Name" := GenJnlBatch.Name;
+            end;
         end;
 
         OnAfterInitGenJnlLine(GenJnlLine, IssuedReminderHeader);
@@ -307,11 +312,18 @@ codeunit 1393 "Cancel Issued Reminder"
         SkipShowNotification := NewSkipShowNotification;
     end;
 
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by SetGenJnlBatch()', '20.0')]
     procedure SetJournal(GenJournalLine: Record "Gen. Journal Line")
     begin
-        JournalTemplName := GenJournalLine."Journal Template Name";
-        JournalBatchName := GenJournalLine."Journal Batch Name";
+        if GenJnlBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then;
     end;
+#endif
 
     local procedure SetIssuedReminderCancelled(IssuedReminderHeader: Record "Issued Reminder Header"; DocumentNo: Code[20])
     var

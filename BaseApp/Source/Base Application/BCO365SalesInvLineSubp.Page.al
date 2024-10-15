@@ -40,6 +40,43 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                         RedistributeTotalsOnAfterValidate;
                         DescriptionSelected := Description <> '';
                     end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
+                    end;
                 }
                 field(LineQuantity; LineQuantity)
                 {
@@ -249,7 +286,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
         Type := Type::Item;
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "Document No.");
-        if SalesLine.FindLast then;
+        if SalesLine.FindLast() then;
         "Line No." := SalesLine."Line No." + 10000;
         LineQuantity := 1;
         Clear(VATProductPostingGroupDescription);

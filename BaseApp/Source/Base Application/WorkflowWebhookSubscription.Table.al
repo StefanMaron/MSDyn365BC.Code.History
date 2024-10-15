@@ -105,12 +105,12 @@ table 469 "Workflow Webhook Subscription"
             WorkflowWebhookSubscriptionPreviousRec.SetRange(Enabled, true);
             WorkflowWebhookSubscriptionPreviousRec.SetCurrentKey("Created Date");
             WorkflowWebhookSubscriptionPreviousRec.SetAscending("Created Date", false);
-            if WorkflowWebhookSubscriptionPreviousRec.FindFirst then
+            if WorkflowWebhookSubscriptionPreviousRec.FindFirst() then
                 // will be creating new workflow so disable previous one
                 DisableWorkflow(WorkflowWebhookSubscriptionPreviousRec."WF Definition Id")
             else begin
                 WorkflowWebhookSubBuffer.SetRange("Client Id", "Client Id");
-                if WorkflowWebhookSubBuffer.FindSet then begin
+                if WorkflowWebhookSubBuffer.FindSet() then begin
                     repeat
                         DisableWorkflow(WorkflowWebhookSubBuffer."WF Definition Id");
                     until WorkflowWebhookSubBuffer.Next() = 0;
@@ -339,7 +339,7 @@ table 469 "Workflow Webhook Subscription"
     begin
         // get source table id
         PageControlField.SetFilter(PageNo, '%1', SourcePageNo);
-        PageControlField.FindFirst;
+        PageControlField.FindFirst();
         tableNo := PageControlField.TableNo;
         RecRef.Open(tableNo);
 
@@ -350,7 +350,7 @@ table 469 "Workflow Webhook Subscription"
             if Condition.TryGetValue('Name', ConditionName) and Condition.TryGetValue('Value', ConditionValue) then begin
                 // get id of the field from the page in the page's source table
                 PageControlField.SetFilter(ControlName, ConditionName.ToString);
-                if not PageControlField.FindFirst then
+                if not PageControlField.FindFirst() then
                     SendAndLogError(GetLastErrorText, StrSubstNo(NoControlOnPageErr, ConditionName.ToString, GetPageName(SourcePageNo)));
 
                 FieldId := PageControlField.FieldNo;
@@ -402,7 +402,7 @@ table 469 "Workflow Webhook Subscription"
     begin
         AllObj.SetFilter("Object ID", Format(PageId));
         AllObj.SetFilter("Object Type", 'PAGE');
-        AllObj.FindFirst;
+        AllObj.FindFirst();
         exit(AllObj."Object Name");
     end;
 

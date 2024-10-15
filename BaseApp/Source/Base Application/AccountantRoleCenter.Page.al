@@ -54,14 +54,6 @@ page 9027 "Accountant Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
-            part(Control10; "Product Video Topics")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Assisted Setup.';
-                Visible = false;
-                ApplicationArea = All;
-                ObsoleteTag = '17.0';
-            }
             part(Control100; "Cash Flow Forecast Chart")
             {
                 ApplicationArea = Basic, Suite;
@@ -780,6 +772,14 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "Payment Terms";
                     ToolTip = 'Set up the payment terms that you select from customer cards or sales documents to define when the customer must pay, such as within 14 days.';
                 }
+                action(Deposit)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Deposit';
+                    Image = DepositSlip;
+                    RunObject = Codeunit "Open Deposits Page";
+                    ToolTip = 'Create a new deposit. ';
+                }
                 action("Cash Flow Forecasts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1009,6 +1009,14 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "G/L Registers";
                     ToolTip = 'View auditing details for all general ledger entries. Every time an entry is posted, a register is created in which you can see the first and last number of its entries in order to document when entries were posted.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted deposit header, deposit header lines, deposit comments, and deposit dimensions.';
+                }
                 action("Cost Accounting Registers")
                 {
                     ApplicationArea = CostAccounting;
@@ -1127,6 +1135,15 @@ page 9027 "Accountant Role Center"
                 Caption = 'Payment Journal Entry';
                 RunObject = Page "Payment Journal";
                 ToolTip = 'Pay your vendors by filling the payment journal automatically according to payments due, and potentially export all payment to your bank for automatic processing.';
+            }
+            action(Action1020012)
+            {
+                AccessByPermission = TableData "Gen. Journal Template" = IMD;
+                ApplicationArea = Basic, Suite;
+                Caption = 'Bank Deposit';
+                RunObject = Codeunit "Open Deposit Page";
+                RunPageMode = Create;
+                ToolTip = 'Create a new bank deposit. ';
             }
         }
         area(processing)
@@ -1503,7 +1520,7 @@ page 9027 "Accountant Role Center"
                     Caption = 'Find entries...';
                     Image = Navigate;
                     RunObject = Page Navigate;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 }
             }

@@ -45,7 +45,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
         ProdOrderLine2.Copy(ProdOrderLine);
         ProdOrderLine2.SetRange("Location Code", ProdOrderLine."Location Code");
         ProdOrderLine2.SetRange("Unit of Measure Code", '');
-        if ProdOrderLine2.FindFirst then
+        if ProdOrderLine2.FindFirst() then
             ProdOrderLine2.TestField("Unit of Measure Code");
 
         WhseRqst.Init();

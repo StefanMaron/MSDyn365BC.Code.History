@@ -40,7 +40,7 @@ codeunit 136143 "Service Reservation II"
         // Verify that the Quantity for an existing reservation between Purchase Order and Service Order can be modified and make a new reservation.
 
         // 1. Setup: Create Purchase Order and Service Order. Reserve the Item partially from Service Line.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderAndServiceOrder(ServiceLine);
         ServiceLine.Validate("Needed by Date", LibraryRandom.RandDate(5));  // Update Needed by Date later than WORKDATE. Use Random to calculate Date.
         UpdateServiceLineQuantity(ServiceLine, ServiceLine.Quantity / 2);  // Update Quantity by half.
@@ -66,7 +66,7 @@ codeunit 136143 "Service Reservation II"
         // Verify Reservation Line and Service Line after Reservation with Inventory as supply and Service Order as demand with partial quantity.
 
         // 1. Setup: Create Item, create and post Item Journal Line for Inventory and create Service Order.
-        Initialize;
+        Initialize();
         SetupReservationFromServOrderScenario(ServiceLine);
 
         // 2. Exercise: Reserve the Item from Service Line.
@@ -86,7 +86,7 @@ codeunit 136143 "Service Reservation II"
         // Verify Reservation Line and Service Line after cancelled the Reservation when Inventory as supply and Service Order as demand with partial quantity.
 
         // 1. Setup: Create Item, create and post Item Journal Line for Inventory and create Service Order. Reserve the Item from Service Line
-        Initialize;
+        Initialize();
         SetupReservationFromServOrderScenario(ServiceLine);
         ServiceLine.ShowReservation();
         ReserveFromCurrentLine := false;  // Assign in global variable.
@@ -111,7 +111,7 @@ codeunit 136143 "Service Reservation II"
         // Verify error message when change Item No. on Sales Line which is reserved against Service Order.
 
         // 1. Setup: Create Sales Return Order and Service Order. Reserve Service Order against Sales return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
@@ -142,7 +142,7 @@ codeunit 136143 "Service Reservation II"
         // Verify error message when change Variant Code on Sales Line which is reserved against Service Order.
 
         // 1. Setup: Create Sales Return Order and Service Order. Reserve Service Order against Sales return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
@@ -172,7 +172,7 @@ codeunit 136143 "Service Reservation II"
         // Verify error message when change Location Code on Sales Line which is reserved against Service Order.
 
         // 1. Setup: Create Sales Return Order and Service Order. Reserve Service Order against Sales return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
@@ -202,7 +202,7 @@ codeunit 136143 "Service Reservation II"
         // Verify error message when change Item No. on Service Line which is reserved against Sales Return Order.
 
         // 1. Setup: Create Sales Return Order and Service Order. Reserve Service Order against Sales return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
@@ -232,7 +232,7 @@ codeunit 136143 "Service Reservation II"
         // Verify error message when change Variant Code on Service Line which is reserved against Sales Return Order.
 
         // 1. Setup: Create Sales Return Order and Service Order. Reserve Service Order against Sales return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
@@ -263,7 +263,7 @@ codeunit 136143 "Service Reservation II"
         // Verify error message when change Location Code on Service Line which is reserved against Sales Return Order.
 
         // 1. Setup: Create Sales Return Order and Service Order. Reserve Service Order against Sales return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
@@ -293,7 +293,7 @@ codeunit 136143 "Service Reservation II"
         // Verify error message when change Needed by Date on Service Line which is reserved against Sales Return Order.
 
         // 1. Setup: Create Sales Return Order and Service Order. Reserve Service Order against Sales return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
@@ -319,7 +319,7 @@ codeunit 136143 "Service Reservation II"
         // Verify error message when change Reserve option on Service Line which is reserved against Sales Return Order.
 
         // 1. Setup: Create Sales Return Order and Service Order. Reserve Service Order against Sales return Order.
-        Initialize;
+        Initialize();
         CreateSalesReturnOrder(SalesLine);
         CreateDocumentWithServiceItem(
           ServiceLine, SalesLine."Sell-to Customer No.", SalesLine."No.", SalesLine."Location Code", SalesLine."Variant Code",
@@ -352,7 +352,7 @@ codeunit 136143 "Service Reservation II"
         // Verify Reserved Quantity Service Line after modifying the various field on Supply and Demand after Reservation.
 
         // 1. Setup: Create Release Production Order and Service Order and Reserve Quantity from Production Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
@@ -380,7 +380,7 @@ codeunit 136143 "Service Reservation II"
         // Verify the Reservation entry created by a Purchase Order and Service Order while Reserve type is Optional.
 
         // 1. Setup: Create Purchase Order and Service Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderAndServiceOrder(ServiceLine);
         ServiceLine.Validate("Needed by Date", LibraryRandom.RandDate(10));  // Update Needed by Date later than WORKDATE. Use Random to calculate Date.
         ServiceLine.Validate(Reserve, ServiceLine.Reserve::Optional);
@@ -407,7 +407,7 @@ codeunit 136143 "Service Reservation II"
         // Verify Service Invoice has been posted using Get Shipment Line with Item Reserve Always without any error message .
 
         // Setup: Create Item, create and post Purchase Order and Service Order, create Service Invoice using Get shipment Lines.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithReserveOption(Item.Reserve::Always);  // Assign in global variable.
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -435,7 +435,7 @@ codeunit 136143 "Service Reservation II"
         // [FEATURE] [Date conflict]
         // [SCENARIO 381251] The date conflict is raised when "Planning Delivery Date" in Service Order reserved from Purchase Order is changed
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with "Expected Receipt Date" = 10.01
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo);
@@ -476,7 +476,7 @@ codeunit 136143 "Service Reservation II"
     begin
         // [FEATURE] [Item Tracking] [Service Line] [Service Item Replacement]
         // [SCENARIO 318234] Automatic reservation of serial no.-tracked item on service line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service item group with "Create Service Item" setting = TRUE.
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
@@ -495,7 +495,7 @@ codeunit 136143 "Service Reservation II"
         ItemJournalLine.OpenItemTrackingLines(false);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         LastSerialNo := ItemLedgerEntry."Serial No.";
 
         // [GIVEN] Create sales order for 1 pc. Assign serial no. "S1" and post the order.
@@ -507,7 +507,7 @@ codeunit 136143 "Service Reservation II"
 
         // [GIVEN] A new service item with serial no. "S1" is automatically created.
         ServiceItem.SetRange("Item No.", Item."No.");
-        ServiceItem.FindFirst;
+        ServiceItem.FindFirst();
 
         // [GIVEN] Create service order, select the new service item.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
@@ -522,10 +522,10 @@ codeunit 136143 "Service Reservation II"
 
         // [THEN] Serial no. "S5" is reserved from the inventory for the service line.
         ServiceLine.SetRange("No.", Item."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ReservationEntry.SetSourceFilter(
           DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", true);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Serial No.", LastSerialNo);
 
         LibraryVariableStorage.AssertEmpty;
@@ -536,7 +536,7 @@ codeunit 136143 "Service Reservation II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Reservation II");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryService);
         // Lazy Setup.
         QuantityOnServiceLine := 0;
@@ -546,12 +546,12 @@ codeunit 136143 "Service Reservation II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Reservation II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryService.SetupServiceMgtNoSeries();
         LibrarySales.SetCreditWarningsToNoWarnings;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
         Commit();
@@ -604,7 +604,7 @@ codeunit 136143 "Service Reservation II"
         ItemJournalTemplate.SetRange(Recurring, false);
         LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        LibraryUtility.GenerateGUID;  // To heal the 'Item Journal Batch already existing' issue.
+        LibraryUtility.GenerateGUID();  // To heal the 'Item Journal Batch already existing' issue.
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, ItemNo,
           Quantity);
@@ -704,7 +704,7 @@ codeunit 136143 "Service Reservation II"
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProdOrderLine.Validate(Quantity, 0);  // Set quantity to zero as per test.
         ProdOrderLine.Validate("Due Date", DueDate);
         ProdOrderLine.Modify(true);
@@ -722,10 +722,10 @@ codeunit 136143 "Service Reservation II"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.SetFilter("No.", '<>''''');
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.TestField("No.", ServiceLine."No.");
         ServiceInvoiceLine.TestField(Quantity, ServiceLine.Quantity);
     end;
@@ -737,7 +737,7 @@ codeunit 136143 "Service Reservation II"
         ReservationEntry.SetRange("Source Type", DATABASE::"Service Line");
         ReservationEntry.SetRange("Source Subtype", ServiceLine."Document Type");
         ReservationEntry.SetRange("Source ID", ServiceLine."Document No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Item No.", ServiceLine."No.");
         ReservationEntry.TestField("Location Code", ServiceLine."Location Code");
         ReservationEntry.TestField("Quantity (Base)", ExpectedQuantity);
@@ -806,9 +806,9 @@ codeunit 136143 "Service Reservation II"
     begin
         LibraryVariableStorage.Dequeue(OrderNo);
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
 
         GetServiceShipmentLines.SetRecord(ServiceShipmentLine);
         GetServiceShipmentLines.GetShipmentLines;

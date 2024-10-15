@@ -41,7 +41,7 @@ page 6704 "Booking Mailbox List"
     procedure SetMailboxes(var TempBookingMailbox: Record "Booking Mailbox" temporary)
     begin
         TempBookingMailbox.Reset();
-        if TempBookingMailbox.FindSet then
+        if TempBookingMailbox.FindSet() then
             repeat
                 Init;
                 TransferFields(TempBookingMailbox);

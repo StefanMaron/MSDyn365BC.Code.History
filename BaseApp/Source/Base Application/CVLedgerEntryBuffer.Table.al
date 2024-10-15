@@ -1,4 +1,4 @@
-table 382 "CV Ledger Entry Buffer"
+﻿table 382 "CV Ledger Entry Buffer"
 {
     Caption = 'CV Ledger Entry Buffer';
     ReplicateData = false;
@@ -181,6 +181,12 @@ table 382 "CV Ledger Entry Buffer"
             Caption = 'Pmt. Disc. Given (LCY)';
             DataClassification = SystemMetadata;
         }
+        field(42; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Orig. Pmt. Disc. Possible (LCY)';
+            DataClassification = SystemMetadata;
+        }
         field(43; Positive; Boolean)
         {
             Caption = 'Positive';
@@ -207,6 +213,11 @@ table 382 "CV Ledger Entry Buffer"
         field(47; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
+            DataClassification = SystemMetadata;
+        }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
             DataClassification = SystemMetadata;
         }
         field(49; "Journal Batch Name"; Code[10])
@@ -416,6 +427,14 @@ table 382 "CV Ledger Entry Buffer"
             AutoFormatType = 1;
             Caption = 'Org. Pmt. Disc. Possible (LCY)';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'Replaced by W1 field Orig. Pmt. Disc. Possible(LCY)';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
     }
 
@@ -476,6 +495,7 @@ table 382 "CV Ledger Entry Buffer"
         "Due Date" := VendLedgEntry."Due Date";
         "Pmt. Discount Date" := VendLedgEntry."Pmt. Discount Date";
         "Original Pmt. Disc. Possible" := VendLedgEntry."Original Pmt. Disc. Possible";
+        "Orig. Pmt. Disc. Possible(LCY)" := VendLedgEntry."Orig. Pmt. Disc. Possible(LCY)";
         "Remaining Pmt. Disc. Possible" := VendLedgEntry."Remaining Pmt. Disc. Possible";
         "Pmt. Disc. Given (LCY)" := VendLedgEntry."Pmt. Disc. Rcd.(LCY)";
         Positive := VendLedgEntry.Positive;
@@ -483,6 +503,7 @@ table 382 "CV Ledger Entry Buffer"
         "Closed at Date" := VendLedgEntry."Closed at Date";
         "Closed by Amount" := VendLedgEntry."Closed by Amount";
         "Applies-to ID" := VendLedgEntry."Applies-to ID";
+        "Journal Templ. Name" := VendLedgEntry."Journal Templ. Name";
         "Journal Batch Name" := VendLedgEntry."Journal Batch Name";
         "Reason Code" := VendLedgEntry."Reason Code";
         "Bal. Account Type" := VendLedgEntry."Bal. Account Type";
@@ -507,8 +528,9 @@ table 382 "CV Ledger Entry Buffer"
         "Pmt. Tolerance (LCY)" := VendLedgEntry."Pmt. Tolerance (LCY)";
         "Amount to Apply" := VendLedgEntry."Amount to Apply";
         Prepayment := VendLedgEntry.Prepayment;
-        "Journal Template Name" := VendLedgEntry."Journal Template Name";
-        "Org. Pmt. Disc. Possible (LCY)" := VendLedgEntry."Org. Pmt. Disc. Possible (LCY)";
+#if not CLEAN20
+        "Org. Pmt. Disc. Possible (LCY)" := "Orig. Pmt. Disc. Possible(LCY)";
+#endif
 
         OnAfterCopyFromVendLedgerEntry(Rec, VendLedgEntry);
     end;
@@ -542,6 +564,7 @@ table 382 "CV Ledger Entry Buffer"
         "Closed at Date" := EmplLedgEntry."Closed at Date";
         "Closed by Amount" := EmplLedgEntry."Closed by Amount";
         "Applies-to ID" := EmplLedgEntry."Applies-to ID";
+        "Journal Templ. Name" := EmplLedgEntry."Journal Templ. Name";
         "Journal Batch Name" := EmplLedgEntry."Journal Batch Name";
         "Bal. Account Type" := EmplLedgEntry."Bal. Account Type";
         "Bal. Account No." := EmplLedgEntry."Bal. Account No.";
@@ -555,7 +578,6 @@ table 382 "CV Ledger Entry Buffer"
         "Credit Amount (LCY)" := EmplLedgEntry."Credit Amount (LCY)";
         "No. Series" := EmplLedgEntry."No. Series";
         "Amount to Apply" := EmplLedgEntry."Amount to Apply";
-        "Journal Template Name" := EmplLedgEntry."Journal Template Name";
 
         OnAfterCopyFromEmplLedgerEntry(Rec, EmplLedgEntry);
     end;

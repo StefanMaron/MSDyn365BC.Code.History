@@ -31,12 +31,14 @@ codeunit 393 "Reminder-Issue"
             TestField("Document Date");
             TestField("Due Date");
             TestField("Customer Posting Group");
-            if "Post Additional Fee" or "Post Interest" or "Post Add. Fee per Line" then begin
-                if JournalTemplName = '' then
-                    Error(Text11300);
-                if JournalBatchName = '' then
-                    Error(Text11301);
-            end;
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then
+                if "Post Additional Fee" or "Post Interest" or "Post Add. Fee per Line" then begin
+                    if GenJnlBatch."Journal Template Name" = '' then
+                        Error(MissingJournalFieldErr, GenJnlLine.FieldCaption("Journal Template Name"));
+                    if GenJnlBatch.Name = '' then
+                        Error(MissingJournalFieldErr, GenJnlLine.FieldCaption("Journal Batch Name"));
+                end;
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 Error(
                   DimensionCombinationIsBlockedErr,
@@ -137,11 +139,12 @@ codeunit 393 "Reminder-Issue"
             end;
 
             ReminderCommentLine.CopyComments(
-              ReminderCommentLine.Type::Reminder, ReminderCommentLine.Type::"Issued Reminder", "No.", IssuedReminderHeader."No.");
-            ReminderCommentLine.DeleteComments(ReminderCommentLine.Type::Reminder, "No.");
+                ReminderCommentLine.Type::Reminder.AsInteger(), ReminderCommentLine.Type::"Issued Reminder".AsInteger(),
+                "No.", IssuedReminderHeader."No.");
+            ReminderCommentLine.DeleteComments(ReminderCommentLine.Type::Reminder.AsInteger(), "No.");
 
             ReminderLine.SetRange("Detailed Interest Rates Entry");
-            if ReminderLine.FindSet then
+            if ReminderLine.FindSet() then
                 repeat
                     if (ReminderLine.Type = ReminderLine.Type::"Customer Ledger Entry") and
                        (ReminderLine."Entry No." <> 0) and (not ReminderLine."Detailed Interest Rates Entry")
@@ -169,8 +172,10 @@ codeunit 393 "Reminder-Issue"
         ReminderHeader: Record "Reminder Header";
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedReminderLine: Record "Issued Reminder Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line" temporary;
         GenJnlLine2: Record "Gen. Journal Line";
+        GLSetup: Record "General Ledger Setup";
         SourceCode: Record "Source Code";
         DimMgt: Codeunit DimensionManagement;
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -192,10 +197,7 @@ codeunit 393 "Reminder-Issue"
         EntryNotOverdueErr: Label '%1 %2 in %3 is not overdue.', Comment = '%1 = Document Type, %2 = Document No., %3 = Table name. E.g. Invoice 12313 in Cust. Ledger Entry is not overdue.';
         LineFeeAlreadyIssuedErr: Label 'The Line Fee for %1 %2 on reminder level %3 has already been issued.', Comment = '%1 = Document Type, %2 = Document No. %3 = Reminder Level. E.g. The Line Fee for Invoice 141232 on reminder level 2 has already been issued.';
         MultipleLineFeesSameDocErr: Label 'You cannot issue multiple line fees for the same level for the same document. Error with line fees for %1 %2.', Comment = '%1 = Document Type, %2 = Document No. E.g. You cannot issue multiple line fees for the same level for the same document. Error with line fees for Invoice 1312312.';
-        Text11300: Label 'Please enter a Journal Template Name when posting Additional Fees or Interest.';
-        Text11301: Label 'Please enter a Journal Batch Name when posting Additional Fees or Interest.';
-        JournalTemplName: Code[10];
-        JournalBatchName: Code[10];
+        MissingJournalFieldErr: Label 'Please enter a %1 when posting Additional Fees or Interest.', Comment = '%1 - field caption';
 
     procedure Set(var NewReminderHeader: Record "Reminder Header"; NewReplacePostingDate: Boolean; NewPostingDate: Date)
     begin
@@ -204,11 +206,18 @@ codeunit 393 "Reminder-Issue"
         PostingDate := NewPostingDate;
     end;
 
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by SetGenJnlBatch()', '20.0')]
     procedure SetJournal(NewJournalTemplName: Code[10]; NewJournalBatchName: Code[10])
     begin
-        JournalTemplName := NewJournalTemplName;
-        JournalBatchName := NewJournalBatchName;
+        if GenJnlBatch.Get(NewJournalTemplName, NewJournalBatchName) then;
     end;
+#endif
 
     procedure GetIssuedReminder(var NewIssuedReminderHeader: Record "Issued Reminder Header")
     begin
@@ -223,8 +232,8 @@ codeunit 393 "Reminder-Issue"
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::Reminder;
             GenJnlLine."Document No." := DocNo;
             if "Post Additional Fee" or "Post Interest" or "Post Add. Fee per Line" then begin
-                GenJnlLine."Journal Template Name" := JournalTemplName;
-                GenJnlLine."Journal Batch Name" := JournalBatchName;
+                GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+                GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             end;
             GenJnlLine."Posting Date" := "Posting Date";
             GenJnlLine."Document Date" := "Document Date";
@@ -428,7 +437,7 @@ codeunit 393 "Reminder-Issue"
             SetRange("Document Type", ReminderLine."Applies-to Document Type");
             SetRange("Document No.", ReminderLine."Applies-to Document No.");
             SetRange("Customer No.", ReminderHeader."Customer No.");
-            FindFirst;
+            FindFirst();
             if "Due Date" >= ReminderHeader."Document Date" then
                 Error(
                   EntryNotOverdueErr, FieldCaption("Document No."), ReminderLine."Applies-to Document No.", TableName);
@@ -440,7 +449,7 @@ codeunit 393 "Reminder-Issue"
             SetRange("Applies-To Document No.", ReminderLine."Applies-to Document No.");
             SetRange(Type, Type::"Line Fee");
             SetRange("No. of Reminders", ReminderLine."No. of Reminders");
-            if FindFirst then
+            if FindFirst() then
                 Error(
                   LineFeeAlreadyIssuedErr, ReminderLine."Applies-to Document Type", ReminderLine."Applies-to Document No.",
                   ReminderLine."No. of Reminders");

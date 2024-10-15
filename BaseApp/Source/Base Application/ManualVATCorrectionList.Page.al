@@ -49,7 +49,6 @@ page 11303 "Manual VAT Correction List"
     var
         CorrStatementLineNo: Integer;
 
-    [Scope('OnPrem')]
     procedure SetCorrStatementLineNo(LineNo: Integer)
     begin
         CorrStatementLineNo := LineNo;

@@ -369,7 +369,7 @@ page 161 "Purchase Statistics"
         PurchLine.CalcVATAmountLines(0, Rec, TempPurchLine, TempVATAmountLine);
         TempVATAmountLine.ModifyAll(Modified, false);
 
-        if TempNonDeductVATAmountLineBuffer.FindSet then begin
+        if TempNonDeductVATAmountLineBuffer.FindSet() then begin
             repeat
                 TempVATAmountLine := TempNonDeductVATAmountLineBuffer;
                 TempVATAmountLine.Find;
@@ -389,7 +389,7 @@ page 161 "Purchase Statistics"
     begin
         PurchLine.SetFilter("Non Deductible VAT %", '>%1', 0);
         PurchLine.SetFilter("VAT Calculation Type", '<>%1', PurchLine."VAT Calculation Type"::"Reverse Charge VAT");
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 if not TempNonDeductVATAmountLineBuffer.Get(
                   PurchLine."VAT Identifier", PurchLine."VAT Calculation Type",
@@ -415,7 +415,7 @@ page 161 "Purchase Statistics"
 
     local procedure ApplyNonDeductVATToTotals(var TempNonDeductVATAmountLineBuffer: Record "VAT Amount Line" temporary)
     begin
-        if TempNonDeductVATAmountLineBuffer.FindSet then
+        if TempNonDeductVATAmountLineBuffer.FindSet() then
             repeat
                 TotalPurchLine.Amount += TempNonDeductVATAmountLineBuffer."VAT Amount";
                 VATAmount -= TempNonDeductVATAmountLineBuffer."VAT Amount";

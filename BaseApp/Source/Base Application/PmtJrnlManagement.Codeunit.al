@@ -25,7 +25,7 @@ codeunit 2000000 PmtJrnlManagement
         JnlSelected := true;
 
         PaymentJnlTemplate.Reset();
-        if not PaymentJnlTemplate.FindSet then begin
+        if not PaymentJnlTemplate.FindSet() then begin
             PaymentJnlTemplate.Init();
             PaymentJnlTemplate.Name := Text000;
             PaymentJnlTemplate.Description := Text001;
@@ -62,7 +62,7 @@ codeunit 2000000 PmtJrnlManagement
         PaymentJnlTemplate.Get(CurrenJnlTemplateName);
         PaymJnlBatch.SetRange("Journal Template Name", CurrenJnlTemplateName);
         if not PaymJnlBatch.Get(CurrenJnlTemplateName, CurrentJnlBatchName) then begin
-            if not PaymJnlBatch.FindLast then begin
+            if not PaymJnlBatch.FindLast() then begin
                 PaymJnlBatch.Init();
                 PaymJnlBatch."Journal Template Name" := CurrenJnlTemplateName;
                 PaymJnlBatch.Name := Text000;
@@ -91,17 +91,17 @@ codeunit 2000000 PmtJrnlManagement
         end;
         PaymJnlBatch.FilterGroup(0);
 
-        if not PaymJnlBatch.FindFirst then begin
-            if not PaymentJnlTemplate.FindFirst then
+        if not PaymJnlBatch.FindFirst() then begin
+            if not PaymentJnlTemplate.FindFirst() then
                 TemplateSelection(PaymJnlLine, JnlSelected);
-            if PaymentJnlTemplate.FindFirst then
+            if PaymentJnlTemplate.FindFirst() then
                 CheckTemplateName(PaymentJnlTemplate.Name, PaymJnlBatch.Name);
         end;
-        PaymJnlBatch.FindFirst;
+        PaymJnlBatch.FindFirst();
         JnlSelected := true;
         if PaymJnlBatch.GetFilter("Journal Template Name") <> '' then
             PaymentJnlTemplate.SetRange(Name, PaymJnlBatch.GetFilter("Journal Template Name"));
-        if PaymentJnlTemplate.FindSet then begin
+        if PaymentJnlTemplate.FindSet() then begin
             PaymentJnlTemplate2 := PaymentJnlTemplate;
             if PaymentJnlTemplate.Next <> 0 then
                 JnlSelected := PAGE.RunModal(0, PaymentJnlTemplate) = ACTION::LookupOK
@@ -146,7 +146,7 @@ codeunit 2000000 PmtJrnlManagement
         PaymentJnlLine.FilterGroup(2);
         PaymentJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
         PaymentJnlLine.FilterGroup(0);
-        if PaymentJnlLine.FindFirst then;
+        if PaymentJnlLine.FindFirst() then;
     end;
 
     procedure LookupName(CurrenJnlTemplateName: Code[10]; CurrentJnlBatchName: Code[10]; var NewJnlBatchName: Text[10]): Boolean
@@ -279,14 +279,14 @@ codeunit 2000000 PmtJrnlManagement
                     begin
                         CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
                         CustLedgEntry.SetRange("Customer No.", "Account No.");
-                        if CustLedgEntry.FindLast then;
+                        if CustLedgEntry.FindLast() then;
                         PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
                     end;
                 "Account Type"::Vendor:
                     begin
                         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
                         VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                        if VendLedgEntry.FindLast then;
+                        if VendLedgEntry.FindLast() then;
                         PAGE.Run(PAGE::"Vendor Ledger Entries", VendLedgEntry);
                     end;
             end;
@@ -357,7 +357,7 @@ codeunit 2000000 PmtJrnlManagement
                         CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                         CustLedgEntry.SetRange("Customer No.", "Account No.");
                         CustLedgEntry.SetRange(Open, true);
-                        if CustLedgEntry.FindLast then begin
+                        if CustLedgEntry.FindLast() then begin
                             if CustLedgEntry."Currency Code" = "Currency Code" then
                                 CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", -"Pmt. Disc. Possible")
                             else begin
@@ -380,7 +380,7 @@ codeunit 2000000 PmtJrnlManagement
                         VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                         VendLedgEntry.SetRange("Vendor No.", "Account No.");
                         VendLedgEntry.SetRange(Open, true);
-                        if VendLedgEntry.FindLast then begin
+                        if VendLedgEntry.FindLast() then begin
                             if VendLedgEntry."Currency Code" = "Currency Code" then
                                 VendLedgEntry.Validate("Remaining Pmt. Disc. Possible", -"Pmt. Disc. Possible")
                             else begin
@@ -414,7 +414,7 @@ codeunit 2000000 PmtJrnlManagement
                         CustLedgEntry.SetRange("Customer No.", "Account No.");
                         CustLedgEntry.SetRange("Entry No.", "Ledger Entry No.");
                         CustLedgEntry.SetRange(Open, true);
-                        if CustLedgEntry.FindLast then begin
+                        if CustLedgEntry.FindLast() then begin
                             CustLedgEntry.Validate("Amount to Apply", -"Original Remaining Amount");
                             CustLedgEntry.Validate("Applies-to ID", "Applies-to ID");
                             CustLedgEntry.Modify(true);
@@ -428,7 +428,7 @@ codeunit 2000000 PmtJrnlManagement
                         VendLedgEntry.SetRange("Vendor No.", "Account No.");
                         VendLedgEntry.SetRange("Entry No.", "Ledger Entry No.");
                         VendLedgEntry.SetRange(Open, true);
-                        if VendLedgEntry.FindLast then begin
+                        if VendLedgEntry.FindLast() then begin
                             VendLedgEntry.Validate("Amount to Apply", -"Original Remaining Amount");
                             VendLedgEntry.Validate("Applies-to ID", "Applies-to ID");
                             VendLedgEntry.Modify(true);

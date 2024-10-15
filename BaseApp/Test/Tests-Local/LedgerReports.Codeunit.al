@@ -104,7 +104,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure SalesLedgerReportTest()
     begin
-        Initialize;
+        Initialize();
 
         RunSalesLedgerReportTest(false);
     end;
@@ -114,7 +114,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure SalesLedgerReportInLcyTest()
     begin
-        Initialize;
+        Initialize();
 
         RunSalesLedgerReportTest(true);
     end;
@@ -124,7 +124,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure PurchaseLedgerReportTest()
     begin
-        Initialize;
+        Initialize();
 
         RunPurchaseLedgerReportTest(false);
     end;
@@ -134,7 +134,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure PurchaseLedgerReportLcyTest()
     begin
-        Initialize;
+        Initialize();
 
         RunPurchaseLedgerReportTest(true);
     end;
@@ -144,7 +144,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure GenJournalLedgerReportTest()
     begin
-        Initialize;
+        Initialize();
 
         RunGenJournalLedgerReportTest(false);
     end;
@@ -154,7 +154,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure GenJournalLedgerReportLcyTest()
     begin
-        Initialize;
+        Initialize();
 
         RunGenJournalLedgerReportTest(true);
     end;
@@ -164,7 +164,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure CentralizationLedgerReportTest()
     begin
-        Initialize;
+        Initialize();
 
         RunCentralizationLedgerReportTest(false);
     end;
@@ -174,7 +174,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure CentralizationLedgerReportWithDetailsTest()
     begin
-        Initialize;
+        Initialize();
 
         RunCentralizationLedgerReportTest(true);
     end;
@@ -184,7 +184,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure FinancialLedgerReportTest()
     begin
-        Initialize;
+        Initialize();
 
         RunFinancialLedgerReportTest(false);
     end;
@@ -194,7 +194,7 @@ codeunit 144044 "Ledger Reports"
     [Scope('OnPrem')]
     procedure FinancialLedgerReportLcyTest()
     begin
-        Initialize;
+        Initialize();
 
         RunFinancialLedgerReportTest(true);
     end;
@@ -208,7 +208,7 @@ codeunit 144044 "Ledger Reports"
         TemplateName: array[2] of Code[10];
     begin
         // [SCENARIO 378797] Run Purchase Ledger Report with different Journal Templates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create G/L Entry with "Journal Template Name" = "N1"
         // [GIVEN] Create G/L Entry with "Journal Template Name" = "N2"
@@ -234,7 +234,7 @@ codeunit 144044 "Ledger Reports"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 310256] Purchase Ledger report prints correct page number for every page group.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two G/L entries.
         TemplateName[1] := CreateGLEntryWithGenJnlTemplate;
@@ -313,10 +313,10 @@ codeunit 144044 "Ledger Reports"
         VATEntry.SetRange("Document No.", PostedSalesDocumentNo);
         Assert.AreEqual(1, VATEntry.Count, 'Expected to find 1 VAT Entry.');
         SalesSetup.Get();
-        GenJournalTemplate.Get(SalesSetup."Journal Templ. Sales Invoice");
+        GenJournalTemplate.Get(SalesSetup."S. Invoice Template Name");
         GenJournalTemplate.SetRecFilter;
         // Excersise report
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue('<1D>');
         LibraryVariableStorage.Enqueue(UseLocalCurrency); // Use local currency
         Commit();
@@ -388,7 +388,7 @@ codeunit 144044 "Ledger Reports"
         Assert.AreEqual(1, VATEntry.Count, 'Expected to find 1 VAT Entry.');
 
         // Excersise report
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue('<1D>');
         LibraryVariableStorage.Enqueue(UseLocalCurrency); // Use local currency
         Commit();
@@ -463,20 +463,20 @@ codeunit 144044 "Ledger Reports"
         VendorLedgerEntry.CalcFields(Amount);
         CreateAndPostGenJnlLine(VendorLedgerEntry."Vendor No.", GenJnlLine."Account Type"::Vendor, VendorLedgerEntry.Amount * -1);
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         // Fake Credit memo VAT Entry.
         VATEntry.Init();
         NegativeCounter := NegativeCounter - 1;
         VATEntry."Entry No." := NegativeCounter;
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry.Amount := 10;
-        VATEntry."Journal Template Name" := GenJournalTemplate.Name;
+        VATEntry."Journal Templ. Name" := GenJournalTemplate.Name;
         VATEntry."Document Type" := VATEntry."Document Type"::"Credit Memo";
         VATEntry."Document No." := PostedSalesDocumentNo;
         VATEntry.Insert();
 
         // Excersise report
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(UseLocalCurrency); // Use local currency
         Commit();
         REPORT.Run(REPORT::"General Ledger", true, false);
@@ -567,7 +567,7 @@ codeunit 144044 "Ledger Reports"
           FirstAmount);
 
         // Excersise report
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(PostingDate); // Posting Date
         LibraryVariableStorage.Enqueue(ShowGLDetails); // Show GL details
         Commit();
@@ -686,7 +686,7 @@ codeunit 144044 "Ledger Reports"
           DebitAmounts[2], '', '', "General Posting Type"::" ");
 
         // Excersise report
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(UseLcy); // Use Lcy
         Commit();
         REPORT.Run(REPORT::"Financial Ledger", true, false);
@@ -803,7 +803,7 @@ codeunit 144044 "Ledger Reports"
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, DocumentType, CreateVendor(GenPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
 
-        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
         PurchHeader.Modify();
 
         CreatePurchaseLine(PurchLine,
@@ -902,14 +902,14 @@ codeunit 144044 "Ledger Reports"
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
     end;
 
     local procedure FindVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VendLedgerEntry.SetRange("Document Type", DocumentType);
         VendLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendLedgerEntry.FindLast;
+        VendLedgerEntry.FindLast();
     end;
 
     local procedure CreateAndPostReceivalForInvoice(InvoiceNo: Code[20]) PaymentNo: Code[20]
@@ -959,12 +959,12 @@ codeunit 144044 "Ledger Reports"
     begin
         NegativeCounter := NegativeCounter - 1;
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := NegativeCounter;
             "Posting Date" := PostingDate;
             Description := 'Minimal GL Entry';
             "Source Code" := SourceCode;
-            "Journal Template Name" := GenJournalTemplateName;
+            "Journal Templ. Name" := GenJournalTemplateName;
             "G/L Account No." := GLAccountNo;
             "Credit Amount" := CreditAmount;
             "Debit Amount" := DebitAmount;
@@ -1003,14 +1003,14 @@ codeunit 144044 "Ledger Reports"
         GenJournalTemplate.Type := GenJournalTemplate.Type::Purchases;
         GenJournalTemplate.Modify();
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "Posting Date" := WorkDate;
-            "Journal Template Name" := GenJournalTemplate.Name;
-            "G/L Account No." := LibraryUtility.GenerateGUID;
+            "Journal Templ. Name" := GenJournalTemplate.Name;
+            "G/L Account No." := LibraryUtility.GenerateGUID();
             Amount := LibraryRandom.RandDec(100, 2);
             "Debit Amount" := Amount;
-            Insert;
+            Insert();
         end;
         exit(GenJournalTemplate.Name);
     end;

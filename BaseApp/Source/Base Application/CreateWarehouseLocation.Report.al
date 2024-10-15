@@ -72,7 +72,7 @@ report 5756 "Create Warehouse Location"
                                     Bin.Get(LocCode, AdjBinCode)
                                 else begin
                                     Bin.SetRange(Code, AdjBinCode);
-                                    Bin.FindFirst;
+                                    Bin.FindFirst();
                                     LocCode := Bin."Location Code";
                                 end;
                         end;
@@ -297,7 +297,7 @@ report 5756 "Create Warehouse Location"
 
         WhseActivHeader.SetCurrentKey("Location Code");
         WhseActivHeader.SetRange("Location Code", Location.Code);
-        if WhseActivHeader.FindFirst then
+        if WhseActivHeader.FindFirst() then
             Error(
               Text007,
               Location.Code,

@@ -151,7 +151,7 @@ page 400 "Purchase Invoice Statistics"
         VendLedgEntry.SetRange("Document No.", "No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
         VendLedgEntry.SetRange("Vendor No.", "Pay-to Vendor No.");
-        if VendLedgEntry.FindFirst then
+        if VendLedgEntry.FindFirst() then
             AmountLCY := VendLedgEntry."Purchase (LCY)";
 
         if not Vend.Get("Pay-to Vendor No.") then
@@ -160,7 +160,7 @@ page 400 "Purchase Invoice Statistics"
 
         PurchInvLine.CalcVATAmountLines(Rec, TempVATAmountLine);
 
-        if TempNonDeductVATAmountLine.FindSet then begin
+        if TempNonDeductVATAmountLine.FindSet() then begin
             repeat
                 TempVATAmountLine := TempNonDeductVATAmountLine;
                 if TempVATAmountLine.Find then
@@ -229,7 +229,7 @@ page 400 "Purchase Invoice Statistics"
 
     local procedure ApplyNonDeductVATToTotals(var TempNonDeductVATAmountLine: Record "VAT Amount Line" temporary)
     begin
-        if TempNonDeductVATAmountLine.FindSet then
+        if TempNonDeductVATAmountLine.FindSet() then
             repeat
                 VendAmount += TempNonDeductVATAmountLine."VAT Amount";
                 VATAmount -= TempNonDeductVATAmountLine."VAT Amount";

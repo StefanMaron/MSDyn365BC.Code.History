@@ -19,15 +19,14 @@ codeunit 144002 "Sales/Purchase Application"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         WrongApplDateErr: Label 'When using workdate for applying/unapplying, the workdate must not be before the latest posting date';
-        EmptyJnlTemplateErr: Label 'Please enter a Journal Template Name';
-        EmptyJnlBatchErr: Label 'Please enter a Journal Batch Name';
+        EmptyJnlTemplateErr: Label 'Journal Template Name must have a value';
         InvalidErr: Label 'Invalid error: ''''%1''''.';
 
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales/Purchase Application");
         LibrarySetupStorage.Restore();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -143,15 +142,6 @@ codeunit 144002 "Sales/Purchase Application"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyCustomerEntriesHandler,PostApplicationWithJnlTemplBatchSettingsHandler')]
-    [Scope('OnPrem')]
-    procedure SalesApplyWithEmptyJnlBatchName()
-    begin
-        asserterror SalesApplicationWithJnlTemplateBatchSettings(FindGenJournalTemplate, '');
-        Assert.ExpectedError(EmptyJnlBatchErr);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure PurchApplyWithUseWorkDate()
     var
@@ -252,15 +242,6 @@ codeunit 144002 "Sales/Purchase Application"
     begin
         asserterror PurchApplicationWithJnlTemplateBatchSettings('', '');
         Assert.ExpectedError(EmptyJnlTemplateErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('ApplyVendorEntriesHandler,PostApplicationWithJnlTemplBatchSettingsHandler')]
-    [Scope('OnPrem')]
-    procedure PurchApplyWithEmptyJnlBatchName()
-    begin
-        asserterror PurchApplicationWithJnlTemplateBatchSettings(FindGenJournalTemplate, '');
-        Assert.ExpectedError(EmptyJnlBatchErr);
     end;
 
     [Test]
@@ -422,7 +403,7 @@ codeunit 144002 "Sales/Purchase Application"
         NoSeries: Record "No. Series";
         ErrorText: Text;
     begin
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         GenJournalTemplate.Init();
         GenJournalTemplate.Validate(Name, 'NewName');
         GenJournalTemplate.Validate(Recurring, true);
@@ -452,7 +433,7 @@ codeunit 144002 "Sales/Purchase Application"
         Initialize();
 
         // [GIVEN] Edited "Purchases & Payables Setup". Set "Copy Line Descr. to G/L Entry" to True
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Copy Line Descr. to G/L Entry", true);
         PurchasesPayablesSetup.Modify(true);
 
@@ -542,7 +523,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         UpdateUseWorkdateInGLSetup(UseWorkDate);
         PostTwoSalesGenJnlLines(GenJnlLine);
         LibraryVariableStorage.Enqueue(ApplicationDate);
@@ -554,7 +535,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         UpdateUseWorkdateInGLSetup(UseWorkDate);
         PostTwoSalesGenJnlLines(GenJnlLine);
         ApplyAndPostCustomerEntry(GenJnlLine."Document Type", GenJnlLine."Document No.");
@@ -565,7 +546,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(JnlTemplateName);
         LibraryVariableStorage.Enqueue(JnlBatchName);
         PostTwoSalesGenJnlLines(GenJnlLine);
@@ -576,7 +557,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         // Post and apply
         UpdateUseWorkdateInGLSetup(false);
         PostTwoSalesGenJnlLines(GenJnlLine);
@@ -593,7 +574,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         UpdateUseWorkdateInGLSetup(UseWorkDate);
         PostTwoPurchGenJnlLines(GenJnlLine);
         LibraryVariableStorage.Enqueue(ApplicationDate);
@@ -605,7 +586,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         UpdateUseWorkdateInGLSetup(UseWorkDate);
         PostTwoPurchGenJnlLines(GenJnlLine);
         ApplyAndPostVendorEntry(GenJnlLine."Document Type", GenJnlLine."Document No.");
@@ -616,7 +597,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(JnlTemplateName);
         LibraryVariableStorage.Enqueue(JnlBatchName);
         PostTwoPurchGenJnlLines(GenJnlLine);
@@ -627,7 +608,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Apply
         UpdateUseWorkdateInGLSetup(false);
@@ -836,7 +817,7 @@ codeunit 144002 "Sales/Purchase Application"
         with DtldCustLedgEntry do begin
             SetRange("Entry Type", "Entry Type"::Application);
             SetRange("Document No.", DocNo);
-            FindLast;
+            FindLast();
             TestField("Posting Date", ApplicationDate);
         end;
     end;
@@ -848,7 +829,7 @@ codeunit 144002 "Sales/Purchase Application"
         with DtldVendLedgEntry do begin
             SetRange("Entry Type", "Entry Type"::Application);
             SetRange("Document No.", DocNo);
-            FindLast;
+            FindLast();
             TestField("Posting Date", ApplicationDate);
         end;
     end;

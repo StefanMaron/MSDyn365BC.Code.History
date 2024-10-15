@@ -197,6 +197,7 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the item''s shipment method.';
                 }
+#if not CLEAN18
                 field("Partner ID"; "Partner ID")
                 {
                     ApplicationArea = BasicEU;
@@ -206,6 +207,7 @@
                     ObsoleteReason = 'Merged to W1';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Location Code"; "Location Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -303,7 +305,7 @@
                     end;
 
                     GetItemEntries.SetIntrastatJnlLine(Rec);
-                    GetItemEntries.RunModal;
+                    GetItemEntries.RunModal();
                     Clear(GetItemEntries);
                 end;
             }

@@ -160,17 +160,7 @@ report 2000005 "File SEPA Payments"
                         ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name or path of the file that will be exported.';
-#if CLEAN17
                         Visible = false;
-#else
-                        Visible = FileNameVisible;
-
-                        trigger OnAssistEdit()
-                        begin
-                            if RBMgt.IsLocalFileSystemAccessible then
-                                FileName := RBMgt.SaveFileDialog(SaveAsTxt, FileName, XmlFileNameTxt);
-                        end;
-#endif
                     }
                 }
             }
@@ -183,9 +173,6 @@ report 2000005 "File SEPA Payments"
         trigger OnInit()
         begin
             IncludeDimTextEnable := true;
-#if not CLEAN17
-            FileNameVisible := RBMgt.IsLocalFileSystemAccessible();
-#endif
         end;
 
         trigger OnOpenPage()
@@ -252,7 +239,6 @@ report 2000005 "File SEPA Payments"
         ConsolidatedPmtJnlLine: Record "Payment Journal Line";
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
-        GenJnlLine: Record "Gen. Journal Line";
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         BankAcc: Record "Bank Account";
@@ -266,13 +252,9 @@ report 2000005 "File SEPA Payments"
         XMLDomDoc: DotNet XmlDocument;
         CstmrCdtTrfInitnNode: DotNet XmlNode;
         PmtInfNode: DotNet XmlNode;
-        ExecutionDate: Date;
-        AutomaticPosting: Boolean;
         ConsolidatedPmtMessage: Text[140];
-        FileName: Text;
         Text002: Label 'Journal %1 is not a general journal.';
         ServerFileName: Text;
-        IncludeDimText: Text[250];
         MessageId: Text[35];
         FullFileName: Text;
         PaymentInformationCounter: Integer;
@@ -282,12 +264,13 @@ report 2000005 "File SEPA Payments"
         IncludeDimTextEnable: Boolean;
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
         DefaultFileNameTxt: Label 'Export.xml';
-#if not CLEAN17
-        SaveAsTxt: Label 'Save As';
-        XmlFileNameTxt: Label 'XML Files (*.xml)|*.xml|All Files|*.*';
-        [InDataSet]
-        FileNameVisible: Boolean;
-#endif
+
+	protected var
+        GenJnlLine: Record "Gen. Journal Line";
+        AutomaticPosting: Boolean;
+        IncludeDimText: Text[250];
+        ExecutionDate: Date;
+        FileName: Text;
 
     local procedure PostPmtLines(var PmtJnlLine: Record "Payment Journal Line")
     var
@@ -318,7 +301,7 @@ report 2000005 "File SEPA Payments"
 
         PaymentJournalPost.SetParameters(GenJnlLine, AutomaticPosting, REPORT::"File SEPA Payments", BalancingPostingDate);
         PaymentJournalPost.SetTableView(PaymentJournalLine);
-        PaymentJournalPost.RunModal;
+        PaymentJournalPost.RunModal();
     end;
 
     local procedure StartGroupHeader(XMLNodeCurr: DotNet XmlNode)

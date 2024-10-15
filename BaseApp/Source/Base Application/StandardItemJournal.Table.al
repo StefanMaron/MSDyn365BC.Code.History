@@ -75,7 +75,7 @@ table 752 "Standard Item Journal"
         LastItemJnlLine.SetRange("Journal Template Name", StdItemJnl."Journal Template Name");
         LastItemJnlLine.SetRange("Journal Batch Name", JnlBatchName);
 
-        if LastItemJnlLine.FindLast then;
+        if LastItemJnlLine.FindLast() then;
     end;
 
     procedure CreateItemJnlFromStdJnl(StdItemJnl: Record "Standard Item Journal"; JnlBatchName: Code[10])

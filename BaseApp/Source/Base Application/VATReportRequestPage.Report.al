@@ -161,16 +161,16 @@ report 742 "VAT Report Request Page"
             VATStatementName: Record "VAT Statement Name";
         begin
             CopyFilters("VAT Report Header");
-            FindFirst;
+            FindFirst();
 
             if VATStatementTemplate.Count = 1 then begin
-                VATStatementTemplate.FindFirst;
+                VATStatementTemplate.FindFirst();
                 "Statement Template Name" := VATStatementTemplate.Name;
                 Modify;
 
                 VATStatementName.SetRange("Statement Template Name", VATStatementTemplate.Name);
                 if VATStatementName.Count = 1 then begin
-                    VATStatementName.FindFirst;
+                    VATStatementName.FindFirst();
                     "Statement Name" := VATStatementName.Name;
                     Modify;
                 end;

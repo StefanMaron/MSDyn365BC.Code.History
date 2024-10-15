@@ -880,7 +880,7 @@ codeunit 136145 "Service Contracts II"
         // [FEATURE] [FCY] [Rounding]
         // [SCENARIO 379879] Total amount is correct without rounding variance in Service Invoice with multiple lines for Prepaid Service Contract
 
-        Initialize;
+        Initialize();
         SavedWorkDate := WorkDate;
 
         // [GIVEN] Prepaid Service Contract with FCY. Exchange Rate equal 100/64.8824
@@ -1474,7 +1474,7 @@ codeunit 136145 "Service Contracts II"
         AnnualAmount: Decimal;
     begin
         // [SCENARIO 392187] Run report "Update Service Contract Prices" on signed Service Contract with Invoice Period = None.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Signed Service Contract with Invoice Period = "None".
         CreateServiceContractWithLine(
@@ -1505,7 +1505,7 @@ codeunit 136145 "Service Contracts II"
         AnnualAmount: Decimal;
     begin
         // [SCENARIO 392187] Run report "Update Service Contract Prices" on signed Service Contract with Invoice Period = Half Year.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Signed Service Contract with Invoice Period = "Half Year".
         CreateServiceContractWithLine(
@@ -1561,9 +1561,9 @@ codeunit 136145 "Service Contracts II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Contracts II");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1571,11 +1571,11 @@ codeunit 136145 "Service Contracts II"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         // Setup demonstration data
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Contracts II");
@@ -1932,14 +1932,14 @@ codeunit 136145 "Service Contracts II"
     begin
         ServiceContractHeader.SetRange("Contract Type", ContractType);
         ServiceContractHeader.SetRange("Contract No.", ContractNo);
-        ServiceContractHeader.FindLast;
+        ServiceContractHeader.FindLast();
     end;
 
     local procedure FindServiceDocumentHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; ContractNo: Code[20])
     begin
         ServiceHeader.SetRange("Document Type", DocumentType);
         ServiceHeader.SetRange("Contract No.", ContractNo);
-        ServiceHeader.FindLast;
+        ServiceHeader.FindLast();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; ContractNo: Code[20])
@@ -2071,7 +2071,7 @@ codeunit 136145 "Service Contracts II"
     begin
         Commit();  // Required to avoid Test Failure.
         CreateContractInvoices.SetHideDialog(true);
-        CreateContractInvoices.Run;
+        CreateContractInvoices.Run();
     end;
 
     local procedure RunCreateContractServiceOrders()
@@ -2080,7 +2080,7 @@ codeunit 136145 "Service Contracts II"
     begin
         Commit();  // Required to avoid Test Failure.
         CreateContractServiceOrders.SetHideDialog(true);
-        CreateContractServiceOrders.Run;
+        CreateContractServiceOrders.Run();
     end;
 
     local procedure RunCreateContractServiceOrdersWithDates(StartDate: Date; EndDate: Date)
@@ -2091,7 +2091,7 @@ codeunit 136145 "Service Contracts II"
         Commit();  // Required to avoid Test Failure.
         Clear(CreateContractServiceOrders);
         CreateContractServiceOrders.InitializeRequest(StartDate, EndDate, CreateServOrders::"Create Service Order");
-        CreateContractServiceOrders.Run;
+        CreateContractServiceOrders.Run();
     end;
 
     local procedure RunUpdateContractPricesReport(ServiceContractHeader: Record "Service Contract Header"; PriceChangePercent: Decimal)
@@ -2102,7 +2102,7 @@ codeunit 136145 "Service Contracts II"
         UpdateContractPrices.SetTableView(ServiceContractHeader);
         UpdateContractPrices.InitializeRequest(WorkDate, PriceChangePercent, PerformUpdate::"Update Contract Prices");
         UpdateContractPrices.UseRequestPage(false);
-        UpdateContractPrices.Run;
+        UpdateContractPrices.Run();
     end;
 
     local procedure ScenarioWithNewServLineWhenStartingDateAfterNextInvPeriodStart(var ServContractHeader: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line"; Prepaid: Boolean; ContractExpirationDate: Date; var InvoiceDate: Date)
@@ -2328,13 +2328,13 @@ codeunit 136145 "Service Contracts II"
         ServLedgerEntry.SetRange("Service Item No. (Serviced)", ServItemNo);
         FindServiceLedgerEntries(ServLedgerEntry, ContractNo);
         FromServLedgEntryNo := ServLedgerEntry."Entry No.";
-        ServLedgerEntry.FindLast;
+        ServLedgerEntry.FindLast();
         ServiceLine.SetRange("Appl.-to Service Entry", FromServLedgEntryNo, ServLedgerEntry."Entry No.");
         Assert.RecordCount(ServiceLine, NoOfLines);
         ServiceLine.CalcSums(Amount);
-        ServiceLine.TestField(Amount, ExpectedAmount);
+        Assert.AreNearlyEqual(ExpectedAmount, ServiceLine.Amount, 0.01, '');
         ServiceLine.CalcSums("Line Amount");
-        ServiceLine.TestField("Line Amount", ExpectedAmount);
+        Assert.AreNearlyEqual(ExpectedAmount, ServiceLine."Line Amount", 0.01, '');
     end;
 
     local procedure VerifyFirstServiceLineForServiceContractLine(ContractNo: Code[20]; ServItemNo: Code[20]; GLAccNo: Code[20]; PostingDate: Date; StartingDate: Date; EndingDate: Date; ExpectedAmount: Decimal)

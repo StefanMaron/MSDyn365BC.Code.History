@@ -1,8 +1,9 @@
-codeunit 134006 "ERM Apply Unapply Customer"
+﻿codeunit 134006 "ERM Apply Unapply Customer"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -47,7 +48,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Check that Detailed Ledger Unapplied field is set to TRUE and Customer Ledger Entry and G/L entry have correct
         // Remaining Amount and Additional Currency amount after Apply and Unapply Ledger Entry as well.
-        Initialize;
+        Initialize();
         ApplyUnapplyCustEntries(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandInt(500));
     end;
@@ -60,7 +61,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Check that Detailed Ledger Unapplied field is set to TRUE and Customer Ledger Entry and G/L entry have correct
         // Remaining Amount and Additional Currency amount for Credit Memo and Refund after Apply and Unapply Ledger Entry as well.
-        Initialize;
+        Initialize();
         ApplyUnapplyCustEntries(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandInt(500));
     end;
@@ -90,7 +91,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Check that Detailed Customer Ledger Entry and G/L entry have Amount Zero and Additional Currency amount after
         // Apply, Unapply and again Apply Unapplied Ledger Entry as well.
-        Initialize;
+        Initialize();
         ApplyUnapplyApplyCustEntries(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandInt(500));
     end;
@@ -103,7 +104,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Check that Detailed Customer Ledger Entry and G/L entry have Amount Zero and Additional Currency amount for Credit Memo
         // and Refund Entries after Apply, Unapply and again Apply Unapplied Ledger Entry as well.
-        Initialize;
+        Initialize();
         ApplyUnapplyApplyCustEntries(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandInt(500));
     end;
@@ -146,7 +147,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Invoice from Customer Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromCustLedgerEntry(GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -158,7 +159,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Payment from Customer Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromCustLedgerEntry(GenJournalLine."Document Type"::Payment, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -170,7 +171,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Credit Memo from Customer Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromCustLedgerEntry(GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -182,7 +183,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Refund from Customer Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromCustLedgerEntry(GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -217,7 +218,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Invoice from Detailed Customer Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromDtldCustLedgerEntry(GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -229,7 +230,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Payment from Detailed Customer Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromDtldCustLedgerEntry(GenJournalLine."Document Type"::Payment, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -241,7 +242,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Credit Memo from Detailed Customer Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromDtldCustLedgerEntry(GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -253,7 +254,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Refund from Detailed Customer Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromDtldCustLedgerEntry(GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -292,7 +293,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Invoice from Customer Ledger Entry and Check that Detailed Ledger Unapplied field is set to TRUE and G/L entry have
         // correct Additional Currency amount.
-        Initialize;
+        Initialize();
         UnapplyCustEntries(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandInt(500));
     end;
@@ -305,7 +306,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Unapply Credit Memo from Customer Ledger Entry and Check that Detailed Ledger Unapplied field is set to TRUE and G/L entry have
         // correct Additional Currency amount.
-        Initialize;
+        Initialize();
         UnapplyCustEntries(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandInt(500));
     end;
@@ -337,7 +338,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Unapply Error on Customer Ledger Entry when do the Unapply again on Unapplied Entries.
-        Initialize;
+        Initialize();
         ApplyAndUnapplyLedgerEntry(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -349,7 +350,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Unapply Error on Customer Ledger Entry when do the Unapply again on Unapplied Entries for Credit Memo.
-        Initialize;
+        Initialize();
         ApplyAndUnapplyLedgerEntry(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
@@ -378,7 +379,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Unapply Error on Detailed Customer Ledger Entry when do the Unapply again on Unapplied Entries.
-        Initialize;
+        Initialize();
         ApplyAndUnapplyDetldEntry(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -390,7 +391,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Unapply Error on Detailed Customer Ledger Entry when do the Unapply again on Unapplied Entries for Credit Memo.
-        Initialize;
+        Initialize();
         ApplyAndUnapplyDetldEntry(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
@@ -407,7 +408,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Exercise: Find Detailed Ledger Entry and Try to Unapply.
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         asserterror CustEntryApplyPostedEntries.UnApplyDtldCustLedgEntry(DetailedCustLedgEntry);
 
         // Verify: Verify Unapply Error on Detailed Customer Ledger Entry.
@@ -425,7 +426,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Detailed Customer Ledger Entry after Creating and Post Sales Invoice and Apply with Payment.
-        Initialize;
+        Initialize();
         CreateAndApplySales(
           SalesLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -438,7 +439,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Detailed Customer Ledger Entry after Creating and Post Sales Credit Memo and Apply with Refund.
-        Initialize;
+        Initialize();
         CreateAndApplySales(
           SalesLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
@@ -464,7 +465,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Detailed Customer Ledger Entry after Creating and Post Sales Invoice and Apply then Unapply with Payment.
-        Initialize;
+        Initialize();
         CreateAndApplyUnapplySales(
           SalesLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -477,7 +478,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Detailed Customer Ledger Entry after Creating and Post Sales Credit Memo and Apply then Unapply with Refund.
-        Initialize;
+        Initialize();
         CreateAndApplyUnapplySales(
           SalesLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
@@ -504,7 +505,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Test that correct Source Code updated on Detailed Customer Ledger Entry after Unapply Payment from Customer Ledger Entry.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         ApplyUnapplyAndCheckSourceCode(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -517,7 +518,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Test that correct Source Code updated on Detailed Customer Ledger Entry after Unapply Refund from Customer Ledger Entry.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         ApplyUnapplyAndCheckSourceCode(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
@@ -550,7 +551,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Check that Payment cannot be Unapplied after Exchange Rate has been changed.
         // Use Random Nunber Generator for Amount.
-        Initialize;
+        Initialize();
         ChangeExchRateUnapply(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandInt(500));
     end;
@@ -563,13 +564,14 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Check that Refund cannot be Unapplied after Exchange Rate has been changed.
         // Use Random Nunber Generator for Amount.
-        Initialize;
+        Initialize();
         ChangeExchRateUnapply(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandInt(500));
     end;
 
     local procedure ChangeExchRateUnapply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
@@ -586,7 +588,9 @@ codeunit 134006 "ERM Apply Unapply Customer"
           DetailedCustLedgEntry, GenJournalLine."Document No.", DocumentType, DetailedCustLedgEntry."Entry Type"::Application);
 
         // Exercise: Unapply Payment/Refund from Customer Ledger Entry.
-        asserterror CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, GenJournalLine."Document No.", PostingDate);
+        ApplyUnapplyParameters."Document No." := GenJournalLine."Document No.";
+        ApplyUnapplyParameters."Posting Date" := PostingDate;
+        asserterror CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Verify error on Unapply after Exchange Rate has been changed.
         Assert.ExpectedError(StrSubstNo(UapplyExchangeRateErr, WorkDate));
@@ -599,7 +603,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Payment Discount Entry for Customer after Apply Payment with Invoice.
-        Initialize;
+        Initialize();
         ApplyPaymentDiscount(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -611,7 +615,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Payment Discount Entry for Customer after Apply Refund with Credit Memo.
-        Initialize;
+        Initialize();
         ApplyPaymentDiscount(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
@@ -635,7 +639,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Payment Discount Entry for Customer after Apply and Unapply Payment with Invoice.
-        Initialize;
+        Initialize();
         ApplyUnapplyPaymentDiscount(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -647,7 +651,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Payment Discount Entry for Customer after Apply and Unapply Refund with Credit Memo.
-        Initialize;
+        Initialize();
         ApplyUnapplyPaymentDiscount(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
@@ -675,7 +679,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Check Document No can be change when Unapply Payment from Customer Ledger Entry.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         ChangeDocumentNoAndUnapply(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -688,13 +692,14 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Check Document No can be change when Unapply Refund from Customer Ledger Entry.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         ChangeDocumentNoAndUnapply(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure ChangeDocumentNoAndUnapply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
@@ -709,8 +714,9 @@ codeunit 134006 "ERM Apply Unapply Customer"
         DocumentNo := GenJournalLine."Account No.";
 
         // Exercise: Change Document No and Unapply Payment/Refund from Customer Ledger Entry.
-        CustEntryApplyPostedEntries.PostUnApplyCustomer(
-          DetailedCustLedgEntry, GenJournalLine."Account No.", GenJournalLine."Posting Date");
+        ApplyUnapplyParameters."Document No." := GenJournalLine."Account No.";
+        ApplyUnapplyParameters."Posting Date" := GenJournalLine."Posting Date";
+        CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Verify Detailed Customer Ledger Entry with updated Document No exist after Unapply.
         Assert.IsTrue(
@@ -734,7 +740,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Check Remaining Amount on Customer Ledger Entry after Creating and Posting Sales Invoice without Currency and Apply with Partial Payment.
 
         // Setup: Create and Post Sales Invoice, Create a Customer Payment and apply it to posted Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         CreateAndModifySalesLine(SalesHeader, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
@@ -770,7 +776,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Check Remaining Amount on Customer Ledger Entry after Creating and Posting Sales Invoice with Currency and Apply with Partial Payment.
 
         // Setup: Create and Post Sales Invoice with Currency, Create a Customer Payment without Currency and apply it to posted Invoice after modifying Payment Amount.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithCurrency(CreateCurrency));
         ModifyCurrency(SalesHeader."Currency Code", LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
         Amount := CreateAndModifySalesLine(SalesHeader, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
@@ -807,7 +813,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Check General Ledger, Customer Ledger and Detailed Customer ledger entries after Posting Sales Order with Currency and Payment method with a balance account.
 
         // Setup: Modify General Ledger setup for Appln. Rounding Precision and Create Customer with Currency and with Payment method with a balance account.
-        Initialize;
+        Initialize();
         LibraryERM.SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
         CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount);  // Taken Zero value for Currency Application Rounding Precision.
 
@@ -831,7 +837,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         DocumentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount);
 
         // Exercise: Create and post Sales Order.
@@ -860,7 +866,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Check General Ledger, Customer Ledger and Detailed Customer ledger entries after posting Sales documents with Currency and Apply to Oldest Application Method.
 
         // Setup: Modify General Ledger setup for Appln. Rounding Precision and Create Customer with Currency and with Apply to Oldest Application Method, Create and post Sales Invoice with Random Quantity and Unit Price.
-        Initialize;
+        Initialize();
         LibraryERM.SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
         LibraryERM.FindPaymentMethod(PaymentMethod);
         CreateAndModifyCustomer(Customer, Customer."Application Method"::"Apply to Oldest", PaymentMethod.Code);
@@ -894,7 +900,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Verify Amount To Apply on Customer Ledger Entries after Invoking Apply Customer Entries for Invoice.
 
         // Setup: Post Invoice and Payment for Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         DocumentNo := CreateAndPostSalesInvoiceAndPayment(Customer."No.", GenJournalLine); // Do not invoke set applies to ID action
 
@@ -916,7 +922,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Verify Amount To Apply on Customer Ledger Entries after Invoking Apply Customer Entries for Payment.
 
         // Setup: Post Invoice and Payment for Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostSalesInvoiceAndPayment(Customer."No.", GenJournalLine); // Do not invoke set applies to ID action
 
@@ -943,7 +949,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Verify Applied Amount on Apply Entries Page when applying entries in different currencies
 
         // Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         SelectGenJournalBatch(GenJournalBatch, false);
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
@@ -975,7 +981,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     procedure CheckDiscountValueWithPmtDiscExclVATWithBalAccTypeVAT()
     begin
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type having VAT.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountWithSalesSetup);
     end;
 
@@ -984,7 +990,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     procedure CheckDiscountValueWithPmtDiscExclVATWithOutBalAccTypeVAT()
     begin
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type does not having VAT.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountNo);
     end;
 
@@ -993,7 +999,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     procedure CheckDiscountValueWithOutPmtDiscExclVATWithBalAccTypeVAT()
     begin
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type having VAT.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountWithSalesSetup);
     end;
 
@@ -1002,7 +1008,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     procedure CheckDiscountValueWithOutPmtDiscExclVATWithOutBalAccTypeVAT()
     begin
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type does not having VAT.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountNo);
     end;
 
@@ -1019,7 +1025,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is true while Bal VAT. Amount is not equal to zero.
 
         // Setup: Create customer and Create Gen Journal Line with Bal Account No.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(true);
         CreateCustomerWithPaymentTerm(Customer);
@@ -1039,7 +1045,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     procedure ApplyUnapplySalesInvoicesWithDimVals()
     begin
         // Verify that Dimension Set ID and Global Dimension values are correct after unapply of Customer Ledger Entries with different Dimension Set IDs.
-        Initialize;
+        Initialize();
         ApplyUnapplyCustEntriesWithMiscDimSetIDs(LibraryRandom.RandIntInRange(3, 10));
     end;
 
@@ -1104,7 +1110,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // Verify that "Applies To Doc. No." can be validated with "Credit Memo" for Refund journal line.
 
         // Setup: Post credit memo and create empty refund line without customer and amount.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJnlBatch, false);
         LibrarySales.CreateCustomer(Customer);
         CreateGeneralJournalLines(
@@ -1138,7 +1144,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // [FEATURE] [Reverse Charge VAT] [Adjust For Payment Discount]
         // [SCENARIO 229786] There are no VAT and G/L Entries created when unapplies the entry without discount but with Reverse Charge and "Adjust For Payment Discount"
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         EmptyDocumentType := GenJnlLine."Document Type"::" ";
 
@@ -1157,7 +1163,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // [WHEN] Unapply the empty document application
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LibraryERM.FindCustomerLedgerEntry(CustLedgEntry, EmptyDocumentType, GenJnlLine."Document No.");
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgEntry);
 
@@ -1189,7 +1195,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // [SCENARIO] Apply / Unapply Payment in additional currency to Invoice in foreigh currency with certain exchange rates
 
         // [GIVEN] No VAT setup, Foreign Currency and Additional Currency.
-        Initialize;
+        Initialize();
         SetupSpecificExchRates(ForeignCurrencyCode, AdditionalCurrencyCode, InvoiceDate);
         CreateCustomerAndItem(CustomerNo, ItemNo, ForeignCurrencyCode);
         LibraryERM.SetAddReportingCurrency(AdditionalCurrencyCode);
@@ -1234,10 +1240,10 @@ codeunit 134006 "ERM Apply Unapply Customer"
         i: Integer;
     begin
         // [SCENARIO 121881] Verify balance by dimensions = 0 after Apply/Unapply several Payments to Invoices with different dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Last "G/L Entry" = LastGLEntryNo
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastGLEntryNo := GLEntry."Entry No.";
 
         // [GIVEN] Customer with possible discount
@@ -1315,7 +1321,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // [FEATURE] [UT] [Selection Filter Management]
         // [SCENARIO 379971] When select filter for customers with sort descending, filter must shows selection result
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer record with descending order
         Customer.Ascending(false);
@@ -1341,7 +1347,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // [FEATURE] [UT] [Selection Filter Management]
         // [SCENARIO 379971] When select filter for customers with sort ascending, filter must shows selection result
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer record with ascending order
 
@@ -1359,6 +1365,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     [Scope('OnPrem')]
     procedure ErrorMessageOnApplyWithoutAplliesToID()
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         DummyGenJournalLine: Record "Gen. Journal Line";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
@@ -1368,7 +1375,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // [SCENARIO 380040] During application, if there is no "Applies-to ID", then "The application could not be posted, because no entry
         // [SCENARIO] has been selected to be applied / for none of the open entries the "Applies-to ID" has been specfied." error message should appear
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer CCC
         // [GIVEN] Gen. Journal Batch GJB with two lines
@@ -1383,13 +1390,15 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocNo);
 
         // [WHEN] Apply Payment to Invoice
-        asserterror CustEntryApplyPostedEntries.Apply(
-            CustLedgerEntry, DocNo, WorkDate, DummyGenJournalLine."Journal Template Name", DummyGenJournalLine."Journal Batch Name");
+        ApplyUnapplyParameters."Document No." := DocNo;
+        ApplyUnapplyParameters."Posting Date" := WorkDate();
+        asserterror CustEntryApplyPostedEntries.Apply(CustLedgerEntry, ApplyUnapplyParameters);
 
         // [THEN] The following message appears: Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.
         Assert.ExpectedError(NoEntriesAppliedErr);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1407,7 +1416,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // [FEATURE] [FCY] [Adjust Exchange Rate]
         // [SCENARIO 304391] "Remaining Amt. (LCY)" should match "Adjusted Currency Factor" after Unapply of the entry being adjusted on the later date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
         PostingDate[1] := WorkDate;
@@ -1448,6 +1457,69 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // [THEN] This invoice is balanced to its adjusted exchange rate
         VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
     end;
+#endif
+
+    [Test]
+    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyEntryWithLaterExchRateAdjustment()
+    var
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        ERMApplyUnapplyCustomer: Codeunit "ERM Apply Unapply Customer";
+        Amount: array[2] of Decimal;
+        PostingDate: array[3] of Date;
+        CurrencyCode: Code[10];
+        Rate: Decimal;
+    begin
+        // [FEATURE] [FCY] [Adjust Exchange Rate]
+        // [SCENARIO 304391] "Remaining Amt. (LCY)" should match "Adjusted Currency Factor" after Unapply of the entry being adjusted on the later date.
+        Initialize;
+        BindSubscription(ERMApplyUnapplyCustomer);
+
+        // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
+        PostingDate[1] := WorkDate;
+        PostingDate[2] := PostingDate[1] + 1;
+        PostingDate[3] := PostingDate[2] + 1;
+        Rate := LibraryRandom.RandDec(10, 2);
+        CurrencyCode := CreateCurrencyAndExchangeRate(Rate, 1, PostingDate[1]);
+        CreateExchangeRate(CurrencyCode, Rate * 1.2, 1, PostingDate[2]);
+        CreateExchangeRate(CurrencyCode, Rate * 0.85, 1, PostingDate[3]);
+
+        // [GIVEN] Invoice of 100 USD posted on 01.01, where "Document No." is 'INV001'
+        LibrarySales.CreateCustomer(Customer);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        Amount[1] := LibraryRandom.RandDecInRange(10000, 20000, 2);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[1], GenJournalBatch, PostingDate[1],
+          GenJournalLine[1]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[1]);
+
+        // [GIVEN] Payment of 150 USD posted on 15.01, applied to Invoice
+        Amount[2] := Round(-Amount[1] * 1.5, 0.01);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[2], GenJournalBatch, PostingDate[2],
+          GenJournalLine[2]."Document Type"::Payment, Customer."No.", CurrencyCode, Amount[2]);
+        ApplyAndPostCustomerEntry(
+          GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.", Amount[1],
+          GenJournalLine[1]."Document Type", GenJournalLine[2]."Document Type");
+
+        // [GIVEN] Payment has been adjusted by "Adjust Exchange Rate" on 31.01
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
+
+        // [WHEN] Unapply Invoice and Payment on 15.01
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[1]."Document Type", GenJournalLine[1]."Document No.");
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+        UnbindSubscription(ERMApplyUnapplyCustomer);
+
+        // [THEN] This Payment is balanced to its adjusted exchange rate
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[1]."Document No.", GenJournalLine[1]."Document Type");
+
+        // [THEN] This invoice is balanced to its adjusted exchange rate
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -1464,7 +1536,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // [FEATURE] [Reverse Charge VAT] [Adjust For Payment Discount] [ACY]
         // [SCENARIO 348963] Payment applied to the invoice with reverse charge VAT and payment discount gives zero Add.Curr Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Adjustment for Payment Discount is turned on
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -1499,12 +1571,13 @@ codeunit 134006 "ERM Apply Unapply Customer"
         // [THEN] Amount and "Additional-Currency Amount" = 0 in reverse charge VAT Entry created for the payment
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         VATEntry.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
         VATEntry.TestField(Amount, 0);
         VATEntry.TestField("Additional-Currency Amount", 0);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1520,7 +1593,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // [FEATURE] [FCY] [Adjust Exchange Rate]
         // [SCENARIO 360284] Two Invoices are correctly unapplied from the Payment after running Currency Adjustment for the later date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Currency Code with Exchange Rate "ER1" for 01.01
         CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDec(10, 2), 1, WorkDate);
@@ -1564,6 +1637,76 @@ codeunit 134006 "ERM Apply Unapply Customer"
         CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[2]."Document Type", GenJournalLine[2]."Document No.");
         CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+
+        // [THEN] Invoices and Payment are balanced to its adjusted exchange rate
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[1]."Document No.", GenJournalLine[1]."Document Type");
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[3]."Document No.", GenJournalLine[3]."Document Type");
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyMultipleEntrisAfterExchRateAdjustment()
+    var
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        ERMApplyUnapplyCustomer: Codeunit "ERM Apply Unapply Customer";
+        Amount: array[3] of Decimal;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [FCY] [Adjust Exchange Rate]
+        // [SCENARIO 360284] Two Invoices are correctly unapplied from the Payment after running Currency Adjustment for the later date
+        Initialize;
+        BindSubscription(ERMApplyUnapplyCustomer);
+
+        // [GIVEN] Create Currency Code with Exchange Rate "ER1" for 01.01
+        CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDec(10, 2), 1, WorkDate);
+
+        // [GIVEN] Invoice "INV001" of 100 USD posted on 01.01
+        LibrarySales.CreateCustomer(Customer);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        Amount[1] := LibraryRandom.RandDecInRange(10000, 20000, 2);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[1], GenJournalBatch, WorkDate,
+          GenJournalLine[1]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[1]);
+
+        // [GIVEN] Invoice "INV001" of 200 USD posted on 02.01
+        Amount[2] := LibraryRandom.RandDecInRange(10000, 20000, 2);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[2], GenJournalBatch, WorkDate + 1,
+          GenJournalLine[2]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[2]);
+
+        // [GIVEN] Payment of 300 USD posted on 05.01
+        Amount[3] := -Amount[1] - Amount[2];
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[3], GenJournalBatch, WorkDate + 4,
+          GenJournalLine[3]."Document Type"::Payment, Customer."No.", CurrencyCode, Amount[3]);
+
+        // [GIVEN] Payment applied to Invoices
+        ApplyAndPostCustomerEntry(
+          GenJournalLine[1]."Document No.", GenJournalLine[3]."Document No.", Amount[1],
+          GenJournalLine[1]."Document Type", GenJournalLine[3]."Document Type");
+        ApplyAndPostCustomerEntry(
+          GenJournalLine[2]."Document No.", GenJournalLine[3]."Document No.", Amount[2],
+          GenJournalLine[2]."Document Type", GenJournalLine[3]."Document Type");
+
+        // [GIVEN] Created Exchange Rate "ER2" for 03.01
+        CreateExchangeRate(CurrencyCode, LibraryRandom.RandDec(10, 2), 1, WorkDate + 2);
+
+        // [GIVEN] Payment has been adjusted by "ER2"
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate + 3, WorkDate + 3);
+
+        // [WHEN] Unapply Invoices from Payment
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[1]."Document Type", GenJournalLine[1]."Document No.");
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[2]."Document Type", GenJournalLine[2]."Document No.");
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+        UnbindSubscription(ERMApplyUnapplyCustomer);
 
         // [THEN] Invoices and Payment are balanced to its adjusted exchange rate
         VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[1]."Document No.", GenJournalLine[1]."Document Type");
@@ -1852,11 +1995,13 @@ codeunit 134006 "ERM Apply Unapply Customer"
         Assert.RecordCount(TempCustLedgerEntry, 1);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchangeRates()
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         Currency: Record Currency;
         Customer: Record Customer;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1934,8 +2079,105 @@ codeunit 134006 "ERM Apply Unapply Customer"
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
         DetailedCustLedgEntry.FindLast();
 
-        CustEntryApplyPostedEntries.PostUnApplyCustomer(
-          DetailedCustLedgEntry, CustLedgerEntryPayment."Document No.", CustLedgerEntryPayment."Posting Date");
+        ApplyUnapplyParameters."Document No." := CustLedgerEntryPayment."Document No.";
+        ApplyUnapplyParameters."Posting Date" := CustLedgerEntryPayment."Posting Date";
+        CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, ApplyUnapplyParameters);
+
+        CustLedgerEntryPayment.Find();
+        CustLedgerEntryPayment.TestField(Open, true);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchRates()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryPayment: Record "Cust. Ledger Entry";
+        CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        ERMApplyUnapplyCustomer: Codeunit "ERM Apply Unapply Customer";
+    begin
+        // [FEATURE] [Adjust Exchange Rate] [FCY] [Unapply] [Apply]
+        // [SCENARIO 399430] Stan can Unapply customer's payment that is applied to multiple invoices with different currency rates and multiple currency rate adjustment.
+        Initialize();
+        BindSubscription(ERMApplyUnapplyCustomer);
+
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 8, 2020), 0.12901, 0.12901);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 9, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 10, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 11, 2020), 0.12905, 0.12905);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 12, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 1, 2021), 0.12903, 0.12903);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+
+        SelectGenJournalBatch(GenJournalBatch, false);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(19, 8, 2020),
+          GenJournalLine."Document Type"::Invoice, Customer."No.", Currency.Code, 400);
+
+        LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, DMY2Date(30, 9, 2020), DMY2Date(30, 9, 2020));
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Customer."No.", Currency.Code, 850);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Customer."No.", Currency.Code, 250);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(17, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Customer."No.", Currency.Code, 244140);
+
+        LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, DMY2Date(30, 11, 2020), DMY2Date(30, 11, 2020));
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(7, 1, 2021),
+          GenJournalLine."Document Type"::Payment, Customer."No.", Currency.Code, -77280);
+
+        CustLedgerEntryPayment.SetRange("Customer No.", Customer."No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryPayment, CustLedgerEntryPayment."Document Type"::Payment, GenJournalLine."Document No.");
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryPayment);
+
+        CustLedgerEntryInvoice.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntryInvoice.SetRange("Document Type", CustLedgerEntryInvoice."Document Type"::Invoice);
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryInvoice);
+
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntryPayment);
+
+        LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, DMY2Date(31, 12, 2020), DMY2Date(31, 12, 2020));
+
+        Commit();
+
+        CustLedgerEntryPayment.Find();
+        CustLedgerEntryPayment.TestField(Open, false);
+
+        DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Payment);
+        DetailedCustLedgEntry.SetRange("Document No.", CustLedgerEntryPayment."Document No.");
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.FindLast();
+
+        ApplyUnapplyParameters."Document No." := CustLedgerEntryPayment."Document No.";
+        ApplyUnapplyParameters."Posting Date" := CustLedgerEntryPayment."Posting Date";
+        CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, ApplyUnapplyParameters);
+
+        UnbindSubscription(ERMApplyUnapplyCustomer);
 
         CustLedgerEntryPayment.Find();
         CustLedgerEntryPayment.TestField(Open, true);
@@ -1996,9 +2238,9 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply Unapply Customer");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
@@ -2006,18 +2248,21 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Customer");
 
         LibrarySales.SetInvoiceRounding(false);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         isInitialized := true;
+        Commit();
+
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
 
-        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Customer");
     end;
 
@@ -2443,7 +2688,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         // Use Random Number Generator for Exchange Rate.
         CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.GetAddReportingCurrency);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         LibraryERM.CreateExchRate(CurrencyExchangeRate, LibraryERM.GetAddReportingCurrency, PostingDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(100));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
@@ -2507,7 +2752,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
-        exit(DetailedCustLedgEntry.FindSet);
+        exit(DetailedCustLedgEntry.FindSet());
     end;
 
     local procedure FindNoVATPostingSetup(VATBusPostingGroup: Code[20]): Code[20]
@@ -2518,7 +2763,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
             SetRange("VAT %", 0);
             SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            FindFirst;
+            FindFirst();
             if "Sales VAT Account" = '' then
                 Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
             if "Purchase VAT Account" = '' then
@@ -2533,7 +2778,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetFilter("Bal. Account No.", '<>''''');
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         exit(PaymentMethod.Code);
     end;
 
@@ -2541,7 +2786,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         CustLedgerEntry.SetRange(Open, false);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure GetPaymentDiscountAmount(GenJournalLine: Record "Gen. Journal Line"; DiscountPercentage: Decimal; PmtDiscExclVAT: Boolean): Decimal
@@ -2661,7 +2906,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         Result := 0;
         with GLEntry do begin
             SetRange("Dimension Set ID", DimSetID);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Result += Amount;
                 until Next = 0;
@@ -2762,7 +3007,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         with CustLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
-            FindFirst;
+            FindFirst();
             CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             TestField("Remaining Amt. (LCY)", Round("Remaining Amount" / "Adjusted Currency Factor", 0.01));
         end;
@@ -2953,7 +3198,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     begin
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     i += 1;
                     Validate("Applying Entry", true);
@@ -2990,7 +3235,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         with GLEntry do begin
             SetCurrentKey("Transaction No.");
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             SetRange("Transaction No.", "Transaction No.");
             Assert.RecordCount(GLEntry, DimSetArrLen + 1);
             FindSet();
@@ -3013,7 +3258,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Unapplied, true);
-            FindLast;
+            FindLast();
             exit("Transaction No.");
         end;
     end;
@@ -3043,7 +3288,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
           GenJournalLine, GenJournalBatch, 1, CustomerNo,
           GenJournalLine."Document Type"::Payment, TotalDiscountedAmount);
         BankAccount.SetRange(Blocked, false);
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         with GenJournalLine do begin
             Validate("Account Type", "Account Type"::"Bank Account");
             Validate("Account No.", BankAccount."No.");
@@ -3154,6 +3399,15 @@ codeunit 134006 "ERM Apply Unapply Customer"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Exch. Rate Adjmt. Run Handler", 'OnBeforeRunCustExchRateAdjustment', '', false, false)]
+    local procedure RunCustExchRateAdjustment(GenJnlLine: Record "Gen. Journal Line"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var IsHandled: Boolean)
+    var
+        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
+    begin
+        ExchRateAdjmtProcess.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
+        IsHandled := true;
     end;
 }
 

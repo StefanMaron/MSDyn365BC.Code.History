@@ -380,6 +380,14 @@ table 254 "VAT Entry"
             Caption = 'Base Before Pmt. Disc.';
             Editable = false;
         }
+        field(78; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
+        field(79; "Journal Batch Name"; Code[10])
+        {
+            Caption = 'Journal Batch Name';
+        }
         field(81; "Realized Amount"; Decimal)
         {
             AutoFormatType = 1;
@@ -403,15 +411,24 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'Add.-Curr. Realized Base';
             Editable = false;
-        }	
+        }
         field(85; "G/L Acc. No."; Code[20])
         {
             Caption = 'G/L Account No.';
             TableRelation = "G/L Account";
-        }        field(11300; "Journal Template Name"; Code[10])
+        }
+        field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
             TableRelation = "Gen. Journal Template";
+            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(11309; "Base Before Pmt. Disc. (Old)"; Decimal)
         {
@@ -454,7 +471,7 @@ table 254 "VAT Entry"
         {
             SumIndexFields = Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Remaining Unrealized Amount", "Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Amount", "Add.-Curr. Rem. Unreal. Base";
         }
-        key(Key3; "Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date")
+        key(Key3; "Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date")
         {
             SumIndexFields = Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Remaining Unrealized Amount", "Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Amount", "Add.-Curr. Rem. Unreal. Base", "Base Before Pmt. Disc.", "Non Ded. VAT Amount", "Non Ded. Source Curr. VAT Amt.";
         }
@@ -606,15 +623,9 @@ table 254 "VAT Entry"
     procedure CopyFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
         CopyPostingGroupsFromGenJnlLine(GenJnlLine);
-        "Posting Date" := GenJnlLine."Posting Date";
-        "Document Date" := GenJnlLine."Document Date";
-        "Document No." := GenJnlLine."Document No.";
-        "External Document No." := GenJnlLine."External Document No.";
-        "Document Type" := GenJnlLine."Document Type";
+        CopyPostingDataFromGenJnlLine(GenJnlLine);
         Type := GenJnlLine."Gen. Posting Type";
         "VAT Calculation Type" := GenJnlLine."VAT Calculation Type";
-        "Source Code" := GenJnlLine."Source Code";
-        "Reason Code" := GenJnlLine."Reason Code";
         "Ship-to/Order Address Code" := GenJnlLine."Ship-to/Order Address Code";
         "EU 3-Party Trade" := GenJnlLine."EU 3-Party Trade";
         "User ID" := UserId;
@@ -626,6 +637,19 @@ table 254 "VAT Entry"
         "Enterprise No." := GenJnlLine."Enterprise No.";
 
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
+    end;
+
+    procedure CopyPostingDataFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
+    begin
+        "Posting Date" := GenJnlLine."Posting Date";
+        "Document Type" := GenJnlLine."Document Type";
+        "Document Date" := GenJnlLine."Document Date";
+        "Document No." := GenJnlLine."Document No.";
+        "External Document No." := GenJnlLine."External Document No.";
+        "Source Code" := GenJnlLine."Source Code";
+        "Reason Code" := GenJnlLine."Reason Code";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
+        "Journal Batch Name" := GenJnlLine."Journal Batch Name";
     end;
 
     local procedure CopyPostingGroupsFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")

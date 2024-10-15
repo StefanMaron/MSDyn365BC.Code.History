@@ -33,7 +33,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         FilterGLAccount.SetFilter("No.", '%1|%2', GLAccNo, BalGLAccNo);
         ChecklistRevenueAndVAT.SetTableView(FilterGLAccount);
         ChecklistRevenueAndVAT.Language := 1031;
-        ChecklistRevenueAndVAT.Run;
+        ChecklistRevenueAndVAT.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account__No__', GLAccNo);

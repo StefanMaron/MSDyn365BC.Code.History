@@ -160,17 +160,7 @@ report 2000006 "File Non Euro SEPA Payments"
                         ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name of the file, including the drive and folder, to which you want to print the report.';
-#if CLEAN17
                         Visible = false;
-#else
-                        Visible = FileNameVisible;
-
-                        trigger OnAssistEdit()
-                        begin
-                            if RBMgt.IsLocalFileSystemAccessible then
-                                FileName := RBMgt.SaveFileDialog(SaveAsTxt, FileName, XmlFileNameTxt);
-                        end;
-#endif
                     }
                 }
             }
@@ -183,9 +173,6 @@ report 2000006 "File Non Euro SEPA Payments"
         trigger OnInit()
         begin
             IncludeDimTextEnable := true;
-#if not CLEAN17
-            FileNameVisible := RBMgt.IsLocalFileSystemAccessible();
-#endif
         end;
 
         trigger OnOpenPage()
@@ -251,7 +238,6 @@ report 2000006 "File Non Euro SEPA Payments"
         ConsolidatedPmtJnlLine: Record "Payment Journal Line";
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
-        GenJnlLine: Record "Gen. Journal Line";
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         BankAcc: Record "Bank Account";
@@ -265,13 +251,9 @@ report 2000006 "File Non Euro SEPA Payments"
         XMLDomDoc: DotNet XmlDocument;
         CstmrCdtTrfInitnNode: DotNet XmlNode;
         PmtInfNode: DotNet XmlNode;
-        ExecutionDate: Date;
-        AutomaticPosting: Boolean;
         ConsolidatedPmtMessage: Text[140];
-        FileName: Text;
         Text002: Label 'Journal %1 is not a general journal.';
         SaveToFileName: Text[250];
-        IncludeDimText: Text[250];
         MessageId: Text[35];
         PaymentInformationCounter: Integer;
         Text003: Label 'File name must be specified.';
@@ -281,13 +263,14 @@ report 2000006 "File Non Euro SEPA Payments"
         NumberOfTransactions: Integer;
         [InDataSet]
         IncludeDimTextEnable: Boolean;
-#if not CLEAN17
-        XmlFileNameTxt: Label 'XML Files (*.xml)|*.xml|All Files|*.*';
-        SaveAsTxt: Label 'Save As';
-        [InDataSet]
-        FileNameVisible: Boolean;
-#endif
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
+
+	protected var
+        GenJnlLine: Record "Gen. Journal Line";
+        AutomaticPosting: Boolean;
+        ExecutionDate: Date;
+        IncludeDimText: Text[250];
+        FileName: Text;
 
     local procedure PostPmtLines(var PmtJnlLine: Record "Payment Journal Line")
     var
@@ -315,7 +298,7 @@ report 2000006 "File Non Euro SEPA Payments"
 
         PaymentJournalPost.SetParameters(GenJnlLine, AutomaticPosting, Report::"File Non Euro SEPA Payments", BalancingPostingDate);
         PaymentJournalPost.SetTableView(PaymentJournalLine);
-        PaymentJournalPost.RunModal;
+        PaymentJournalPost.RunModal();
     end;
 
     local procedure StartGroupHeader(XMLNodeCurr: DotNet XmlNode)

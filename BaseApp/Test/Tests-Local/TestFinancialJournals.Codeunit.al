@@ -47,7 +47,7 @@ codeunit 144024 "Test Financial Journals"
           FinancialJournalPage, BalanceLastStatement, DocumentType::Payment, 'T6001', AccountType::Customer, '10000', 0);
 
         DocumentNo := FinancialJournalPage."Document No.".Value;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(DocumentNo);
 
         FinancialJournalPage."Apply Entries".Invoke;
@@ -59,7 +59,7 @@ codeunit 144024 "Test Financial Journals"
         // Verify
         GLRegisters.OpenView;
         GLRegisters.First;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(DocumentNo);
         LibraryVariableStorage.Enqueue(BalanceLastStatement);
 
@@ -84,7 +84,7 @@ codeunit 144024 "Test Financial Journals"
         SetupFinancialJournalPage(
           FinancialJournalPage, BalanceLastStatement, DocumentType::" ", 'T7001', AccountType::"G/L Account", '57000', 100000);
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(FinancialJournalPage."Document No.".Value);
 
         // Try to post
@@ -177,7 +177,7 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage.Amount.SetValue(100000);
         FinancialJournalPage."Bal. Account Type".SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(FinancialJournalPage."Document No.".Value);
 
         // Try to post
@@ -207,7 +207,7 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage.Amount.SetValue(-900000);
         FinancialJournalPage."Bal. Account Type".SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(FinancialJournalPage."Document No.".Value);
 
         // Try to post
@@ -478,11 +478,11 @@ codeunit 144024 "Test Financial Journals"
         ReplacePaymentTerms(
           PmtTerms, 'NEW', '<1M>', '<' + Format(LibraryRandom.RandInt(20)) + 'D>', LibraryRandom.RandInt(200) / 10);
         ModifyGenJnlBatchNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.SavePurchasesSetup();
@@ -541,10 +541,10 @@ codeunit 144024 "Test Financial Journals"
             Validate("Posted Invoice Nos.", StdPostedInvoiceNoSeriesCode);
             Validate("Posted Credit Memo Nos.", StdPostedCrMemoNoSeriesCode);
             Validate(
-              "Journal Templ. Sales Invoice",
+              "S. Invoice Template Name",
               CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Sales, TemplatePostedInvoiceNoSeriesCode));
             Validate(
-              "Journal Templ. Sales Cr. Memo",
+              "S. Cr. Memo Template Name",
               CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Sales, TemplatePostedCrMemoNoSeriesCode));
             Modify(true);
         end;
@@ -560,10 +560,10 @@ codeunit 144024 "Test Financial Journals"
             Validate("Posted Invoice Nos.", StdPostedInvoiceNoSeriesCode);
             Validate("Posted Credit Memo Nos.", StdPostedCrMemoNoSeriesCode);
             Validate(
-              "Journal Templ. Purch. Invoice",
+              "P. Invoice Template Name",
               CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Purchases, TemplatePostedInvoiceNoSeriesCode));
             Validate(
-              "Journal Templ. Purch. Cr. Memo",
+              "P. Cr. Memo Template Name",
               CreateGenJournalTemplateWithPostingSeriesNo(GenJournalTemplate.Type::Purchases, TemplatePostedCrMemoNoSeriesCode));
             Modify(true);
         end;

@@ -15,7 +15,7 @@ codeunit 2000003 "Check International Payments"
             CheckPaymJnlLine.ShowErrorLog;
         end;
 
-        if FindSet then
+        if FindSet() then
             repeat
                 CheckDomesticPmt.CheckOwnBankAccount(Rec);
                 CheckBenBankAccountNumber(Rec);

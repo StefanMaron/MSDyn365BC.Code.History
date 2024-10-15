@@ -25,6 +25,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 var
                     ExportType: Option Receipt,Shipment;
                 begin
+                    OnBeforeOnPostDataItemIntrastatJnlLine(TempIntrastatJnlLine);
 #if CLEAN19
                     IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
 #else
@@ -419,6 +420,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
 #if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
     [Scope('OnPrem')]
     procedure InitializeRequest(NewClientFileName: Text; NewThirdPartyVatRegNo: Text[30]; NewNihil: Boolean; NewCounterparty: Boolean)
     begin
@@ -470,6 +472,11 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateXMLDocument(var EnterpriseNo: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostDataItemIntrastatJnlLine(var TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary)
     begin
     end;
 }

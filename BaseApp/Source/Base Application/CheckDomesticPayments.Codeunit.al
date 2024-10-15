@@ -14,7 +14,7 @@ codeunit 2000002 "Check Domestic Payments"
             CheckPaymJnlLine.ShowErrorLog;
         end;
 
-        if FindSet then
+        if FindSet() then
             repeat
                 CheckOwnBankAccount(Rec);
                 CheckBenBankAccountNumber(Rec);

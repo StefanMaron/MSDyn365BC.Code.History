@@ -72,7 +72,7 @@ report 5190 "Delete Interaction Log Entries"
             PurchHeader.SetRange("Document Type", DocumentType);
             PurchHeader.SetRange("No.", "Document No.");
             PurchHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-            if PurchHeader.FindFirst then begin
+            if PurchHeader.FindFirst() then begin
                 PurchHeaderArchive."Interaction Exist" := false;
                 PurchHeaderArchive.Modify();
             end else
@@ -90,7 +90,7 @@ report 5190 "Delete Interaction Log Entries"
             SalesHeader.SetRange("Document Type", DocumentType);
             SalesHeader.SetRange("No.", "Document No.");
             SalesHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-            if SalesHeader.FindFirst then begin
+            if SalesHeader.FindFirst() then begin
                 SalesHeaderArchive."Interaction Exist" := false;
                 SalesHeaderArchive.Modify();
             end else

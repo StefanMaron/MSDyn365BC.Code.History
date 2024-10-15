@@ -1,5 +1,6 @@
 codeunit 134086 "ERM Update Currency - Purchase"
 {
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -17,6 +18,8 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        ERMUpdateCurrencyPurchase: Codeunit "ERM Update Currency - Purchase";
         isInitialized: Boolean;
         PostingDateMessageText: Text[1024];
         UnknownError: Label 'Unknown error.';
@@ -39,7 +42,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // Check that Direct Unit Cost and Line Amount of Purchase Line get updated as per Currency Exchange Rates.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Purchase Credit Memo and new Currency with Exchange rate.
         CreatePurchaseDocument(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::"Credit Memo");
@@ -61,7 +64,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // Currency Exchange Rates.
 
         // 1. Setup: Create Purchase Credit Memo and new Currency with Exchange rate.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::"Credit Memo");
 
         // 2. Exercise: Create New Currency with Exchange Rate and Validate Purchase Header.
@@ -83,7 +86,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
     begin
         // Check While changing Posting Date, Application generates a message to update Exchange Rate.
 
-        Initialize;
+        Initialize();
         CreateDocumentExchangeRate(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::"Credit Memo");
 
         // 3. Verify: Message occurs while changing Posting Date.
@@ -100,7 +103,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
     begin
         // Check after changing Posting Date, Direct Unit Cost and Line Amount of Purchase Line get updated as per new Exchange Rate.
 
-        Initialize;
+        Initialize();
         CreateDocumentExchangeRate(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::"Credit Memo");
         UpdatePurchaseLines(PurchaseHeader."Document Type", PurchaseHeader."No.");
 
@@ -119,7 +122,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // Check after changing Currency in Purchase Quote, Currency Factor get updated.
 
         // 1. Setup: Create Purchase Quote and new Currency with Exchange rate.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::Quote);
 
         // 2. Exercise: Create new Currency with Exchange rate and update Purchase Header.
@@ -142,7 +145,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // per new Currency.
 
         // 1. Setup: Create Purchase Quote and new Currency with Exchange rate.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::Quote);
 
         // 2. Exercise: Create new Currency with Exchange rate and update Purchase Header.
@@ -163,7 +166,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         PurchHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         CreateOrderWithLCY(PurchHeader);
         ValidateVendWithFCYOnOrder(CurrencyExchangeRate, PurchHeader);
@@ -218,7 +221,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create new Currency, Vendor, Purchase Document and update with Currency.
         Vendor.Get(CreateVendorUpdateCurrency(CurrencyExchangeRate));
@@ -239,7 +242,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // Check Vendor get updated with Currency Code.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create new Currency and update Customer.
         VendorNo := CreateVendorUpdateCurrency(CurrencyExchangeRate);
@@ -258,7 +261,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // Check Purchase Header Deleted.
 
         // 1. Setup: Create Purchase Header.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
 
         // 2. Exercise: Delete Purchase Header.
@@ -281,7 +284,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // Check after Posting Purchase Credit Memo, Currency flow in Vendor Ledger Entry.
 
         // 1. Setup: Create Purchase Credit Memo and new Currency with Exchange rate.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::"Credit Memo");
         UpdateVendorCreditMemoNo(PurchaseHeader);
 
@@ -300,7 +303,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Check after Posting Purchase Invoice, Currency flow in Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         PostDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, false, true);
 
         // 3. Verify: Verify Currency flow in Vendor Ledger Entry.
@@ -314,7 +317,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Check after Posting Purchase Order, Currency flow in Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         PostDocumentWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Order, true, true);
 
         // 3. Verify: Verify Currency flow in Vendor Ledger Entry.
@@ -333,6 +336,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Ship, Invoice);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -341,24 +345,53 @@ codeunit 134086 "ERM Update Currency - Purchase"
         GenJournalLine: Record "Gen. Journal Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         VendorNo: Code[20];
-        DocNo: Code[20];
+    begin
+        // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry and
+        // Detailed Vendor Ledger Entry created with Correct Amount.
+
+        // 1. Setup: Create and Post General Journal Line for Vendor, make Currency with Exchange Rate and modify.
+        Initialize();
+        VendorNo := CreateVendorUpdateCurrency(CurrencyExchangeRate);
+        CreateAndPostGenJournalLine(GenJournalLine, VendorNo, CurrencyExchangeRate);
+        UpdateExchangeRate(CurrencyExchangeRate);
+
+        // 2. Exercise: Run Adjust Exchange Rate batch job.
+        RunAdjustExchangeRates(CurrencyExchangeRate);
+
+        // 3. Verify: Verify G/L Entry and Detailed Vendor Ledger Entry made for correct Amount after running
+        // Adjust Exchange Rate Batch Job
+        VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate);
+        VerifyDetailedVendorLedgEntry(GenJournalLine, CurrencyExchangeRate);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ExchRateAdjustmentWithVendor()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        VendorNo: Code[20];
     begin
         // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry and
         // Detailed Vendor Ledger Entry created with Correct Amount.
 
         // 1. Setup: Create and Post General Journal Line for Vendor, make Currency with Exchange Rate and modify.
         Initialize;
+        BindSubscription(ERMUpdateCurrencyPurchase);
         VendorNo := CreateVendorUpdateCurrency(CurrencyExchangeRate);
         CreateAndPostGenJournalLine(GenJournalLine, VendorNo, CurrencyExchangeRate);
         UpdateExchangeRate(CurrencyExchangeRate);
 
-        // 2. Exercise: Run Adjust Exchange Rate batch job.
-        RunAdjustExchangeRates(DocNo, CurrencyExchangeRate);
+        // 2. Exercise: Run Exch. Rate Adjustment batch job.
+        RunExchRateAdjustment(CurrencyExchangeRate);
+        UnbindSubscription(ERMUpdateCurrencyPurchase);
 
         // 3. Verify: Verify G/L Entry and Detailed Vendor Ledger Entry made for correct Amount after running
         // Adjust Exchange Rate Batch Job
-        VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate, DocNo);
-        VerifyDetailedVendorLedgEntry(GenJournalLine, CurrencyExchangeRate, DocNo);
+        VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate);
+        VerifyDetailedVendorLedgEntry(GenJournalLine, CurrencyExchangeRate);
     end;
 
     [Test]
@@ -555,7 +588,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         BankAccountNo: Code[20];
     begin
         // 1. Setup: Create Currency, Bank Account, Vendor and General Journal Lines and Post.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
         BankAccountNo := CreateBankAccount(CurrencyExchangeRate."Currency Code");
         CreateGeneralLines(GenJournalLine, CreateVendor(CurrencyExchangeRate."Currency Code"));
@@ -583,7 +616,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
     begin
         // [FEATURE] [UI] [Journal] [Application]
         // [SCENARIO 230918] Stan fill "Applies-to Doc. No." of Gen. Journal Line with a Posted Document Number. When a confirm message about a Currency Code update appears, it contains correct Currency Codes.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Currency Code" = "C1"
         CreatePurchaseDocument(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::Invoice);
@@ -623,35 +656,55 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // Lazy Setup.
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         isInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
     end;
 
-    [Normal]
-    local procedure RunAdjustExchangeRates(var DocNo: Code[20]; CurrencyExchangeRate: Record "Currency Exchange Rate")
+#if not CLEAN20
+    local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate")
     var
         Currency: Record Currency;
-        GenJnlBatch: Record "Gen. Journal Batch";
         AdjustExchangeRates: Report "Adjust Exchange Rates";
     begin
         // Using Random Number Generator for Document No.
         Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
         Clear(AdjustExchangeRates);
         AdjustExchangeRates.SetTableView(Currency);
-        DocNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
         AdjustExchangeRates.InitializeRequest2(
           CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
-          '', true, false, GenJnlBatch."Journal Template Name", GenJnlBatch.Name);
+          CurrencyExchangeRate."Currency Code", true, false);
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
+    end;
+#endif
+
+    local procedure RunExchRateAdjustment(CurrencyExchangeRate: Record "Currency Exchange Rate")
+    var
+        Currency: Record Currency;
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
+    begin
+        Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
+        Clear(ExchRateAdjustment);
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.InitializeRequest2(
+          CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
+          CurrencyExchangeRate."Currency Code", true, false);
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.Run();
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Enum "Purchase Document Type")
@@ -846,7 +899,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
           WorkDate, false, 0, false, WorkDate, VendorNo, true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo, BankPmtType);
         SuggestVendorPayments.UseRequestPage(false);
         Commit();
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure UpdateCurrencyOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10])
@@ -950,7 +1003,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         VerifyVendorLedgerEntry(PurchCrMemoHdr."No.", CurrencyCode);
     end;
 
@@ -959,7 +1012,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyVendorLedgerEntry(PurchInvHeader."No.", CurrencyCode);
     end;
 
@@ -968,21 +1021,21 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Order No.", OrderNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyVendorLedgerEntry(PurchInvHeader."No.", CurrencyCode);
     end;
 
     [Normal]
-    local procedure VerifyGLEntryAdjustExchange(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate"; DocNo: Code[20])
+    local procedure VerifyGLEntryAdjustExchange(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate")
     var
         GLEntry: Record "G/L Entry";
         Currency: Record Currency;
     begin
         Currency.Get(CurrencyExchangeRate."Currency Code");
         Currency.InitRoundingPrecision;
-        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Document No.", CurrencyExchangeRate."Currency Code");
         GLEntry.SetFilter(Amount, '<0');
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(
           Amount, Round(
             GenJournalLine.Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" /
@@ -994,19 +1047,19 @@ codeunit 134086 "ERM Update Currency - Purchase"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Currency Code", CurrencyCode);
     end;
 
-    local procedure VerifyDetailedVendorLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate"; DocNo: Code[20])
+    local procedure VerifyDetailedVendorLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate")
     var
         Currency: Record Currency;
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         Currency.Get(CurrencyExchangeRate."Currency Code");
         Currency.InitRoundingPrecision;
-        DetailedVendorLedgEntry.SetRange("Document No.", DocNo);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.SetRange("Document No.", CurrencyExchangeRate."Currency Code");
+        DetailedVendorLedgEntry.FindFirst();
         DetailedVendorLedgEntry.TestField(
           "Amount (LCY)", Round(
             GenJournalLine.Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" /
@@ -1020,7 +1073,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(No, "No.",
               StrSubstNo(IncorrectValueErr, "No.", FieldCaption("No.")));
             Assert.AreEqual(CurrencyCode, "Currency Code",
@@ -1070,6 +1123,15 @@ codeunit 134086 "ERM Update Currency - Purchase"
     begin
         Reply := true;
         LibraryVariableStorage.Enqueue(Question);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Exch. Rate Adjmt. Run Handler", 'OnBeforeRunVendExchRateAdjustment', '', false, false)]
+    local procedure RunCustExchRateAdjustment(GenJnlLine: Record "Gen. Journal Line"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var IsHandled: Boolean)
+    var
+        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
+    begin
+        ExchRateAdjmtProcess.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
+        IsHandled := true;
     end;
 }
 

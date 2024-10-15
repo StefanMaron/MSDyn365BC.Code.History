@@ -16,7 +16,7 @@ codeunit 7500 "Item Attribute Management"
         AttributeValueIDFilter: Text;
         CurrentItemFilter: Text;
     begin
-        if not FilterItemAttributesBuffer.FindSet then
+        if not FilterItemAttributesBuffer.FindSet() then
             exit;
 
         ItemFilter := '<>*';
@@ -26,7 +26,7 @@ codeunit 7500 "Item Attribute Management"
 
         repeat
             ItemAttribute.SetRange(Name, FilterItemAttributesBuffer.Attribute);
-            if ItemAttribute.FindFirst then begin
+            if ItemAttribute.FindFirst() then begin
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", ItemAttribute.ID);
                 AttributeValueIDFilter := GetItemAttributeValueFilter(FilterItemAttributesBuffer, ItemAttribute);
                 if AttributeValueIDFilter = '' then
@@ -47,14 +47,14 @@ codeunit 7500 "Item Attribute Management"
         ItemAttribute: Record "Item Attribute";
         AttributeValueIDFilter: Text;
     begin
-        if not FilterItemAttributesBuffer.FindSet then
+        if not FilterItemAttributesBuffer.FindSet() then
             exit;
 
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
 
         repeat
             ItemAttribute.SetRange(Name, FilterItemAttributesBuffer.Attribute);
-            if ItemAttribute.FindFirst then begin
+            if ItemAttribute.FindFirst() then begin
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", ItemAttribute.ID);
                 AttributeValueIDFilter := GetItemAttributeValueFilter(FilterItemAttributesBuffer, ItemAttribute);
                 if AttributeValueIDFilter = '' then begin
@@ -76,7 +76,7 @@ codeunit 7500 "Item Attribute Management"
         ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
         ItemAttributeValue.SetValueFilter(ItemAttribute, FilterItemAttributesBuffer.Value);
 
-        if not ItemAttributeValue.FindSet then
+        if not ItemAttributeValue.FindSet() then
             exit;
 
         repeat
@@ -91,7 +91,7 @@ codeunit 7500 "Item Attribute Management"
         ItemAttributeValueMapping.SetFilter("No.", PreviousItemNoFilter);
         ItemAttributeValueMapping.SetFilter("Item Attribute Value ID", AttributeValueIDFilter);
 
-        if not ItemAttributeValueMapping.FindSet then
+        if not ItemAttributeValueMapping.FindSet() then
             exit;
 
         repeat
@@ -113,8 +113,8 @@ codeunit 7500 "Item Attribute Management"
             exit;
         end;
 
-        if not TempFilteredItem.FindSet then begin
-            if ItemAttributeValueMapping.FindSet then
+        if not TempFilteredItem.FindSet() then begin
+            if ItemAttributeValueMapping.FindSet() then
                 repeat
                     Item.Get(ItemAttributeValueMapping."No.");
                     TempFilteredItem.TransferFields(Item);
@@ -139,7 +139,7 @@ codeunit 7500 "Item Attribute Management"
         ItemNo: Text;
         FilterRangeStarted: Boolean;
     begin
-        if not TempFilteredItem.FindSet then begin
+        if not TempFilteredItem.FindSet() then begin
             FilterText := '<>*';
             exit;
         end;
@@ -223,7 +223,7 @@ codeunit 7500 "Item Attribute Management"
 
     local procedure GenerateAttributeDifference(var TempFirstItemAttributeValue: Record "Item Attribute Value" temporary; var TempSecondItemAttributeValue: Record "Item Attribute Value" temporary; var TempResultingItemAttributeValue: Record "Item Attribute Value" temporary)
     begin
-        if TempFirstItemAttributeValue.FindFirst then
+        if TempFirstItemAttributeValue.FindFirst() then
             repeat
                 if not TempSecondItemAttributeValue.Get(TempFirstItemAttributeValue."Attribute ID", TempFirstItemAttributeValue.ID) then begin
                     TempResultingItemAttributeValue.TransferFields(TempFirstItemAttributeValue);
@@ -244,7 +244,7 @@ codeunit 7500 "Item Attribute Management"
     begin
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", Item."No.");
-        if TempItemAttributeValueToRemove.FindFirst then begin
+        if TempItemAttributeValueToRemove.FindFirst() then begin
             repeat
                 if ItemAttributeValuesToRemoveTxt <> '' then
                     ItemAttributeValuesToRemoveTxt += StrSubstNo('|%1', TempItemAttributeValueToRemove."Attribute ID")
@@ -260,7 +260,7 @@ codeunit 7500 "Item Attribute Management"
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
-        if TempItemAttributeValueToInsert.FindFirst then
+        if TempItemAttributeValueToInsert.FindFirst() then
             repeat
                 ItemAttributeValueMapping."Table ID" := DATABASE::Item;
                 ItemAttributeValueMapping."No." := Item."No.";
@@ -298,18 +298,18 @@ codeunit 7500 "Item Attribute Management"
         ItemAttributeValue: Record "Item Attribute Value";
     begin
         Item.SetRange("Item Category Code", CategoryCode);
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 DeleteItemAttributeValueMappingWithTriggerOption(Item, TempItemAttributeValueToRemove, false);
             until Item.Next() = 0;
 
         ItemCategory.SetRange("Parent Category", CategoryCode);
-        if ItemCategory.FindSet then
+        if ItemCategory.FindSet() then
             repeat
                 DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValueToRemove, ItemCategory.Code);
             until ItemCategory.Next() = 0;
 
-        if TempItemAttributeValueToRemove.FindSet then
+        if TempItemAttributeValueToRemove.FindSet() then
             repeat
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", TempItemAttributeValueToRemove."Attribute ID");
                 ItemAttributeValueMapping.SetRange("Item Attribute Value ID", TempItemAttributeValueToRemove.ID);
@@ -325,13 +325,13 @@ codeunit 7500 "Item Attribute Management"
         ItemCategory: Record "Item Category";
     begin
         Item.SetRange("Item Category Code", CategoryCode);
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 InsertItemAttributeValueMapping(Item, TempItemAttributeValueToInsert);
             until Item.Next() = 0;
 
         ItemCategory.SetRange("Parent Category", CategoryCode);
-        if ItemCategory.FindSet then
+        if ItemCategory.FindSet() then
             repeat
                 InsertCategoryItemsAttributeValueMapping(TempItemAttributeValueToInsert, ItemCategory.Code);
             until ItemCategory.Next() = 0;
@@ -343,13 +343,13 @@ codeunit 7500 "Item Attribute Management"
         ItemCategory: Record "Item Category";
     begin
         Item.SetRange("Item Category Code", CategoryCode);
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 InsertBufferedItemAttributeValueMapping(Item, TempItemAttributeValueToInsert, TempInsertedItemAttributeValueMapping);
             until Item.Next() = 0;
 
         ItemCategory.SetRange("Parent Category", CategoryCode);
-        if ItemCategory.FindSet then
+        if ItemCategory.FindSet() then
             repeat
                 InsertCategoryItemsBufferedAttributeValueMapping(
                   TempItemAttributeValueToInsert, TempInsertedItemAttributeValueMapping, ItemCategory.Code);
@@ -360,7 +360,7 @@ codeunit 7500 "Item Attribute Management"
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
-        if TempItemAttributeValueToInsert.FindFirst then
+        if TempItemAttributeValueToInsert.FindFirst() then
             repeat
                 ItemAttributeValueMapping."Table ID" := DATABASE::Item;
                 ItemAttributeValueMapping."No." := Item."No.";
@@ -383,12 +383,12 @@ codeunit 7500 "Item Attribute Management"
         IsHandled: Boolean;
     begin
         Item.SetRange("Item Category Code", CategoryCode);
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
                 ItemAttributeValueMapping.SetRange("No.", Item."No.");
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeID);
-                if ItemAttributeValueMapping.FindFirst then
+                if ItemAttributeValueMapping.FindFirst() then
                     exit(true);
             until Item.Next() = 0;
 
@@ -397,7 +397,7 @@ codeunit 7500 "Item Attribute Management"
         if IsHandled then
             exit;
         ItemCategory.SetRange("Parent Category", CategoryCode);
-        if ItemCategory.FindSet then
+        if ItemCategory.FindSet() then
             repeat
                 if SearchCategoryItemsForAttribute(ItemCategory.Code, AttributeID) then
                     exit(true);

@@ -28,7 +28,7 @@ codeunit 144011 "Intrastat Reports BE"
         i: Integer;
     begin
         // [SCENARIO 272795] When Stan runs "Intrastat - Forms" report on more than 100 "Intrastat Jnl Line" records, the report is successfully executed.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 100 or more Intrastat Jnl Lines.
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -67,7 +67,7 @@ codeunit 144011 "Intrastat Reports BE"
         TariffNumber: Record "Tariff Number";
     begin
         TariffNumber.Init();
-        TariffNumber.Validate("No.", LibraryUtility.GenerateGUID);
+        TariffNumber.Validate("No.", LibraryUtility.GenerateGUID());
         TariffNumber.Insert(true);
         exit(TariffNumber."No.");
     end;
@@ -76,7 +76,7 @@ codeunit 144011 "Intrastat Reports BE"
     var
         "Area": Record "Area";
     begin
-        Area.FindFirst;
+        Area.FindFirst();
         exit(Area.Code);
     end;
 
@@ -85,7 +85,7 @@ codeunit 144011 "Intrastat Reports BE"
         CountryRegion: Record "Country/Region";
     begin
         CountryRegion.SetFilter("Intrastat Code", '<>%1', '');
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         exit(CountryRegion.Code);
     end;
 
@@ -93,7 +93,7 @@ codeunit 144011 "Intrastat Reports BE"
     var
         TransactionSpecification: Record "Transaction Specification";
     begin
-        TransactionSpecification.FindFirst;
+        TransactionSpecification.FindFirst();
         exit(TransactionSpecification.Code);
     end;
 
@@ -101,7 +101,7 @@ codeunit 144011 "Intrastat Reports BE"
     var
         TransactionType: Record "Transaction Type";
     begin
-        TransactionType.FindFirst;
+        TransactionType.FindFirst();
         exit(TransactionType.Code);
     end;
 
@@ -109,7 +109,7 @@ codeunit 144011 "Intrastat Reports BE"
     var
         TransportMethod: Record "Transport Method";
     begin
-        TransportMethod.FindFirst;
+        TransportMethod.FindFirst();
         exit(TransportMethod.Code);
     end;
 
@@ -147,7 +147,7 @@ codeunit 144011 "Intrastat Reports BE"
 
         Commit();
         IntrastatForm.SetTableView(IntrastatJnlLine);
-        IntrastatForm.Run;
+        IntrastatForm.Run();
     end;
 
     [RequestPageHandler]

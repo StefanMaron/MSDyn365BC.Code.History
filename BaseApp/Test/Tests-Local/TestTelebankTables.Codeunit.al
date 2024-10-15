@@ -183,7 +183,7 @@ codeunit 144018 "Test Telebank Tables"
         CreatePaymentJournalLine(PaymJnlBatch, PaymentJnlLine);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateBankAccount(BankAccount);
-        DimValue.FindFirst;
+        DimValue.FindFirst();
         DefaultDimension.Init();
         DefaultDimension."Table ID" := DATABASE::Vendor;
         DefaultDimension."No." := Vendor."No.";
@@ -405,7 +405,7 @@ codeunit 144018 "Test Telebank Tables"
             "Journal Batch Name" := PaymJnlBatch.Name;
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            if FindLast then;
+            if FindLast() then;
             "Line No." += 10000;
             Init;
             Insert;
@@ -439,7 +439,7 @@ codeunit 144018 "Test Telebank Tables"
             "Journal Batch Name" := DomiciliationJournalBatch.Name;
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            if FindLast then;
+            if FindLast() then;
             "Line No." += 10000;
             Init;
             Insert;
@@ -454,7 +454,7 @@ codeunit 144018 "Test Telebank Tables"
         PaymentJnlLine.TestField("Dimension Set ID");
         DimensionManagement.GetDimensionSet(TempDimSetEntry, PaymentJnlLine."Dimension Set ID");
         Assert.AreEqual(1, TempDimSetEntry.Count, '');
-        TempDimSetEntry.FindFirst;
+        TempDimSetEntry.FindFirst();
         Assert.AreEqual(DefaultDimension."Dimension Code", TempDimSetEntry."Dimension Code", '');
         Assert.AreEqual(DefaultDimension."Dimension Value Code", TempDimSetEntry."Dimension Value Code", '');
     end;

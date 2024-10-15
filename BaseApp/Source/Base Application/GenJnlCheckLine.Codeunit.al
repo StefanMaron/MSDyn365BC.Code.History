@@ -1,4 +1,4 @@
-﻿codeunit 11 "Gen. Jnl.-Check Line"
+codeunit 11 "Gen. Jnl.-Check Line"
 {
     Permissions = TableData "General Posting Setup" = rimd;
     TableNo = "Gen. Journal Line";
@@ -25,6 +25,7 @@
         SpecifyGenPostingTypeErr: Label 'Posting to Account %1 must either be of type Purchase or Sale (see %2), because there are specified values in one of the following fields: %3, %4 , %5, or %6', comment = '%1 an G/L Account number;%2 = Gen. Posting Type; %3 = Gen. Bus. Posting Group; %4 = Gen. Prod. Posting Group; %5 = VAT Bus. Posting Group, %6 = VAT Prod. Posting Group';
         GLSetup: Record "General Ledger Setup";
         GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
         CostAccSetup: Record "Cost Accounting Setup";
         TempErrorMessage: Record "Error Message" temporary;
         DimMgt: Codeunit DimensionManagement;
@@ -67,7 +68,7 @@
             CheckDates(GenJnlLine);
             ValidateSalesPersonPurchaserCode(GenJnlLine);
 
-            LogTestField(GenJnlLine, FieldNo("Document No."));
+            TestField("Document No.", ErrorInfo.Create());
 
             if ("Account Type" in
                 ["Account Type"::Customer,
@@ -80,19 +81,22 @@
                  "Bal. Account Type"::"Fixed Asset",
                  "Bal. Account Type"::"IC Partner"])
             then
-                LogError(
-                    GenJnlLine,
-                    StrSubstNo(
+                Error(
+                    ErrorInfo.Create(
+                        StrSubstNo(
                         Text002,
-                        FieldCaption("Account Type"), FieldCaption("Bal. Account Type")));
+                        FieldCaption("Account Type"), FieldCaption("Bal. Account Type")),
+                    true,
+                    GenJnlLine,
+                    GenJnlLine.FieldNo("Account Type")));
 
             if "Bal. Account No." = '' then
-                LogTestField(GenJnlLine, FieldNo("Account No."));
+                TestField("Account No.", ErrorInfo.Create());
 
             CheckZeroAmount(GenJnlLine);
 
             if ((Amount < 0) xor ("Amount (LCY)" < 0)) and (Amount <> 0) and ("Amount (LCY)" <> 0) then
-                LogFieldError(GenJnlLine, FieldNo("Amount (LCY)"), StrSubstNo(Text003, FieldCaption(Amount)));
+                FieldError("Amount (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
 
             if ("Account Type" = "Account Type"::"G/L Account") and
                ("Bal. Account Type" = "Bal. Account Type"::"G/L Account")
@@ -103,11 +107,14 @@
                 ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]) and
                ("Currency Code" <> '')
             then
-                LogError(
-                    GenJnlLine,
-                    StrSubstNo(
-                        Text004,
-                        FieldCaption("Currency Code"), FieldCaption("Recurring Method"), "Recurring Method"));
+                Error(
+                    ErrorInfo.Create(
+                        StrSubstNo(
+                            Text004,
+                            FieldCaption("Currency Code"), FieldCaption("Recurring Method"), "Recurring Method"),
+                        true,
+                        GenJnlLine,
+                        FieldNo("Recurring Method")));
 
             if "Account No." <> '' then
                 CheckAccountNo(GenJnlLine);
@@ -117,7 +124,7 @@
 
             if "IC Partner G/L Acc. No." <> '' then
                 if ICGLAcount.Get("IC Partner G/L Acc. No.") then
-                    ICGLAcount.TestField(Blocked, false);
+                    ICGLAcount.TestField(Blocked, false, ErrorInfo.Create());
 
             if (("Account Type" = "Account Type"::"G/L Account") and
                 ("Bal. Account Type" = "Bal. Account Type"::"G/L Account")) or
@@ -126,20 +133,20 @@
                  (("Document Type" = "Document Type"::"Credit Memo") and
                   CalcPmtDiscOnCrMemos("Payment Terms Code"))))
             then begin
-                LogTestField(GenJnlLine, FieldNo("Pmt. Discount Date"), 0D);
-                LogTestField(GenJnlLine, FieldNo("Payment Discount %"), 0);
+                TestField("Pmt. Discount Date", 0D, ErrorInfo.Create());
+                TestField("Payment Discount %", 0, ErrorInfo.Create());
             end;
 
             if (("Account Type" = "Account Type"::"G/L Account") and
                 ("Bal. Account Type" = "Bal. Account Type"::"G/L Account")) or
                ("Applies-to Doc. No." <> '')
             then
-                LogTestField(GenJnlLine, FieldNo("Applies-to ID"), '');
+                TestField("Applies-to ID", '', ErrorInfo.Create());
 
             if ("Account Type" <> "Account Type"::"Bank Account") and
                ("Bal. Account Type" <> "Bal. Account Type"::"Bank Account")
             then
-                LogTestField(GenJnlLine, FieldNo("Bank Payment Type"), "Bank Payment Type"::" ");
+                TestField("Bank Payment Type", "Bank Payment Type"::" ", ErrorInfo.Create());
 
             if ("Account Type" = "Account Type"::"Fixed Asset") or
                ("Bal. Account Type" = "Bal. Account Type"::"Fixed Asset")
@@ -149,8 +156,8 @@
             if ("Account Type" <> "Account Type"::"Fixed Asset") and
                ("Bal. Account Type" <> "Bal. Account Type"::"Fixed Asset")
             then begin
-                LogTestField(GenJnlLine, FieldNo("Depreciation Book Code"), '');
-                LogTestField(GenJnlLine, FieldNo("FA Posting Type"), 0);
+                TestField("Depreciation Book Code", '', ErrorInfo.Create());
+                TestField("FA Posting Type", 0, ErrorInfo.Create());
             end;
 
             if not OverrideDimErr then
@@ -182,8 +189,10 @@
     end;
 
     procedure DateNotAllowed(PostingDate: Date): Boolean
+    var
+        SetupRecordID: RecordID;
     begin
-        exit(DateNotAllowed(PostingDate, ''));
+        exit(IsDateNotAllowed(PostingDate, SetupRecordID));
     end;
 
     procedure DateNotAllowed(PostingDate: Date; TemplateName: Code[20]): Boolean
@@ -193,14 +202,40 @@
         exit(IsDateNotAllowed(PostingDate, SetupRecordID, TemplateName));
     end;
 
+    procedure IsDateNotAllowed(PostingDate: Date; var SetupRecordID: RecordID) DateIsNotAllowed: Boolean
+    var
+        UserSetupManagement: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeIsDateNotAllowed(PostingDate, SetupRecordID, GenJnlBatch, DateIsNotAllowed, IsHandled);
+        if IsHandled then
+            exit;
+
+        DateIsNotAllowed := not UserSetupManagement.IsPostingDateValidWithSetup(PostingDate, SetupRecordID);
+        OnAfterDateNoAllowed(PostingDate, DateIsNotAllowed);
+        exit(DateIsNotAllowed);
+    end;
+
     procedure IsDateNotAllowed(PostingDate: Date; var SetupRecordID: RecordID; TemplateName: Code[20]) DateIsNotAllowed: Boolean
     var
         UserSetupManagement: Codeunit "User Setup Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsDateNotAllowed(PostingDate, SetupRecordID, GenJnlBatch, DateIsNotAllowed, IsHandled);
+        if IsHandled then
+            exit;
+
         DateIsNotAllowed :=
           not UserSetupManagement.IsPostingDateValidWithGenJnlTemplateWithSetup(PostingDate, TemplateName, SetupRecordID);
         OnAfterDateNoAllowed(PostingDate, DateIsNotAllowed);
         exit(DateIsNotAllowed);
+    end;
+
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
     end;
 
     procedure SetSkipFiscalYearCheck(NewValue: Boolean)
@@ -215,7 +250,7 @@
         RaiseError := GenJnlLine.Amount > 0;
         OnBeforeErrorIfPositiveAmt(GenJnlLine, RaiseError);
         if RaiseError then
-            LogFieldError(GenJnlLine, GenJnlLine.FieldNo(Amount), Text008);
+            GenJnlLine.FieldError(Amount, ErrorInfo.Create(Text008, true));
     end;
 
     procedure ErrorIfNegativeAmt(GenJnlLine: Record "Gen. Journal Line")
@@ -225,7 +260,7 @@
         RaiseError := GenJnlLine.Amount < 0;
         OnBeforeErrorIfNegativeAmt(GenJnlLine, RaiseError);
         if RaiseError then
-            LogFieldError(GenJnlLine, GenJnlLine.FieldNo(Amount), Text007);
+            GenJnlLine.FieldError(Amount, ErrorInfo.Create(Text007, true));
     end;
 
     procedure SetOverDimErr()
@@ -240,12 +275,12 @@
         IsHandled: Boolean;
     begin
         with GenJnlLine do begin
-            LogTestField(GenJnlLine, FieldNo("Posting Date"));
+            TestField("Posting Date", ErrorInfo.Create());
             if "Posting Date" <> NormalDate("Posting Date") then begin
                 if ("Account Type" <> "Account Type"::"G/L Account") or
                    ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account")
                 then
-                    LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Posting Date"), Text000);
+                    FieldError("Posting Date", ErrorInfo.Create(Text000, true));
                 if not SkipFiscalYearCheck then begin
                     IsHandled := false;
                     OnBeforeCheckPostingDateInFiscalYear(GenJnlLine, IsHandled);
@@ -254,23 +289,25 @@
                 end;
             end;
 
-            LogTestField(GenJnlLine, FieldNo("Journal Template Name"));
+            if GLSetup."Journal Templ. Name Mandatory" then
+                TestField("Journal Template Name", ErrorInfo.Create());
             OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
             if not DateCheckDone then
                 if DateNotAllowed("Posting Date", "Journal Template Name") then
-                    LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Posting Date"), Text001);
+                    FieldError("Posting Date", ErrorInfo.Create(Text001, true));
 
             if "Document Date" <> 0D then
                 if ("Document Date" <> NormalDate("Document Date")) and
                    (("Account Type" <> "Account Type"::"G/L Account") or
                     ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account"))
                 then
-                    LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Document Date"), Text000);
+                    GenJnlLine.FieldError("Document Date", ErrorInfo.Create(Text000, true));
         end;
     end;
 
     local procedure CheckAccountNo(GenJnlLine: Record "Gen. Journal Line")
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
         ICPartner: Record "IC Partner";
         CheckDone: Boolean;
     begin
@@ -286,12 +323,15 @@
                             ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')) and
                             ("Gen. Posting Type" = "Gen. Posting Type"::" "))
                         then
-                            LogError(
-                                GenJnlLine,
-                                StrSubstNo(
-                                    SpecifyGenPostingTypeErr, "Account No.", FieldCaption("Gen. Posting Type"),
-                                    FieldCaption("Gen. Bus. Posting Group"), FieldCaption("Gen. Prod. Posting Group"),
-                                    FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group")));
+                            Error(
+                                ErrorInfo.Create(
+                                    StrSubstNo(
+                                        SpecifyGenPostingTypeErr, "Account No.", FieldCaption("Gen. Posting Type"),
+                                        FieldCaption("Gen. Bus. Posting Group"), FieldCaption("Gen. Prod. Posting Group"),
+                                        FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group")),
+                                    true,
+                                    GenJnlLine,
+                                    GenJnlLine.FieldNo("Gen. Posting Type")));
 
                         CheckGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine);
 
@@ -299,27 +339,33 @@
                            ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                         then begin
                             if "VAT Amount" + "VAT Base Amount" <> Amount then
-                                LogError(
-                                    GenJnlLine,
-                                    StrSubstNo(
-                                        Text005, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
-                                        FieldCaption(Amount)));
+                                Error(
+                                    ErrorInfo.Create(
+                                        StrSubstNo(
+                                            Text005, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
+                                            FieldCaption(Amount)),
+                                        true,
+                                        GenJnlLine,
+                                        GenJnlLine.FieldNo("VAT Amount")));
                             if "Currency Code" <> '' then
                                 if "VAT Amount (LCY)" + "VAT Base Amount (LCY)" <> "Amount (LCY)" then
-                                    LogError(
-                                        GenJnlLine,
-                                        StrSubstNo(
-                                            Text005, FieldCaption("VAT Amount (LCY)"),
-                                            FieldCaption("VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")));
+                                    Error(
+                                        ErrorInfo.Create(
+                                            StrSubstNo(
+                                                Text005, FieldCaption("VAT Amount (LCY)"),
+                                                FieldCaption("VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")),
+                                            true,
+                                            GenJnlLine,
+                                            GenJnlLine.FieldNo("VAT Amount (LCY)")));
                         end;
                     end;
                 "Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee:
                     begin
-                        LogTestField(GenJnlLine, FieldNo("Gen. Posting Type"), 0);
-                        LogTestField(GenJnlLine, FieldNo("Gen. Bus. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Gen. Prod. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("VAT Bus. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("VAT Prod. Posting Group"), '');
+                        TestField("Gen. Posting Type", 0, ErrorInfo.Create());
+                        TestField("Gen. Bus. Posting Group", '', ErrorInfo.Create());
+                        TestField("Gen. Prod. Posting Group", '', ErrorInfo.Create());
+                        TestField("VAT Bus. Posting Group", '', ErrorInfo.Create());
+                        TestField("VAT Prod. Posting Group", '', ErrorInfo.Create());
 
                         CheckAccountType(GenJnlLine);
 
@@ -328,30 +374,32 @@
                         if not "System-Created Entry" and
                            (((Amount < 0) xor ("Sales/Purch. (LCY)" < 0)) and (Amount <> 0) and ("Sales/Purch. (LCY)" <> 0))
                         then
-                            LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Sales/Purch. (LCY)"), StrSubstNo(Text003, FieldCaption(Amount)));
+                            FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
                         CheckICPartner("Account Type", "Account No.", "Document Type");
                     end;
                 "Account Type"::"Bank Account":
                     begin
-                        LogTestField(GenJnlLine, FieldNo("Gen. Posting Type"), 0);
-                        LogTestField(GenJnlLine, FieldNo("Gen. Bus. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Gen. Prod. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("VAT Bus. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("VAT Prod. Posting Group"), '');
+                        TestField("Gen. Posting Type", 0, ErrorInfo.Create());
+                        TestField("Gen. Bus. Posting Group", '', ErrorInfo.Create());
+                        TestField("Gen. Prod. Posting Group", '', ErrorInfo.Create());
+                        TestField("VAT Bus. Posting Group", '', ErrorInfo.Create());
+                        TestField("VAT Prod. Posting Group", '', ErrorInfo.Create());
                         CheckJobNoIsEmpty(GenJnlLine);
                         if (Amount < 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") then
-                            LogTestField(GenJnlLine, FieldNo("Check Printed"), true);
+                            TestField("Check Printed", true, ErrorInfo.Create());
                         CheckElectronicPaymentFields(GenJnlLine);
                     end;
                 "Account Type"::"IC Partner":
                     begin
                         ICPartner.Get("Account No.");
                         ICPartner.CheckICPartner;
-                        if "Journal Template Name" <> '' then
+                        if "Journal Template Name" <> '' then begin
+                            GenJournalTemplate.Get("Journal Template Name");
                             if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
-                                LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Account Type"), '');
+                                FieldError("Account Type", ErrorInfo.Create());
+                        end;
                     end;
             end;
 
@@ -375,7 +423,7 @@
                             ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')) and
                            not ApplicationAreaMgmt.IsSalesTaxEnabled
                         then
-                            LogTestField(GenJnlLine, FieldNo("Bal. Gen. Posting Type"));
+                            TestField("Bal. Gen. Posting Type", ErrorInfo.Create());
 
                         CheckBalGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine);
 
@@ -383,47 +431,53 @@
                            ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                         then begin
                             if "Bal. VAT Amount" + "Bal. VAT Base Amount" <> -Amount then
-                                LogError(
-                                    GenJnlLine,
-                                    StrSubstNo(
-                                        Text006, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
-                                        FieldCaption(Amount)));
+                                Error(
+                                    ErrorInfo.Create(
+                                        StrSubstNo(
+                                            Text006, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
+                                            FieldCaption(Amount)),
+                                        true,
+                                        GenJnlLine,
+                                        FieldNo("Bal. VAT Amount")));
                             if "Currency Code" <> '' then
                                 if "Bal. VAT Amount (LCY)" + "Bal. VAT Base Amount (LCY)" <> -"Amount (LCY)" then
-                                    LogError(
+                                    Error(
+                                        ErrorInfo.Create(
+                                            StrSubstNo(
+                                                Text006, FieldCaption("Bal. VAT Amount (LCY)"),
+                                                FieldCaption("Bal. VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")),
+                                                                true,
                                         GenJnlLine,
-                                        StrSubstNo(
-                                            Text006, FieldCaption("Bal. VAT Amount (LCY)"),
-                                            FieldCaption("Bal. VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")));
+                                        FieldNo("Bal. VAT Amount (LCY)")));
                         end;
                     end;
                 "Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::Employee:
                     begin
-                        LogTestField(GenJnlLine, FieldNo("Bal. Gen. Posting Type"), 0);
-                        LogTestField(GenJnlLine, FieldNo("Bal. Gen. Bus. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Bal. Gen. Prod. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Bal. VAT Bus. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Bal. VAT Prod. Posting Group"), '');
+                        TestField("Bal. Gen. Posting Type", 0, ErrorInfo.Create());
+                        TestField("Bal. Gen. Bus. Posting Group", '', ErrorInfo.Create());
+                        TestField("Bal. Gen. Prod. Posting Group", '', ErrorInfo.Create());
+                        TestField("Bal. VAT Bus. Posting Group", '', ErrorInfo.Create());
+                        TestField("Bal. VAT Prod. Posting Group", '', ErrorInfo.Create());
 
                         CheckBalAccountType(GenJnlLine);
 
                         CheckBalDocType(GenJnlLine);
 
                         if ((Amount > 0) xor ("Sales/Purch. (LCY)" < 0)) and (Amount <> 0) and ("Sales/Purch. (LCY)" <> 0) then
-                            LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Sales/Purch. (LCY)"), StrSubstNo(Text009, FieldCaption(Amount)));
+                            FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text009, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
                         CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type");
                     end;
                 "Bal. Account Type"::"Bank Account":
                     begin
-                        LogTestField(GenJnlLine, FieldNo("Bal. Gen. Posting Type"), 0);
-                        LogTestField(GenJnlLine, FieldNo("Bal. Gen. Bus. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Bal. Gen. Prod. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Bal. VAT Bus. Posting Group"), '');
-                        LogTestField(GenJnlLine, FieldNo("Bal. VAT Prod. Posting Group"), '');
+                        TestField("Bal. Gen. Posting Type", 0, ErrorInfo.Create());
+                        TestField("Bal. Gen. Bus. Posting Group", '', ErrorInfo.Create());
+                        TestField("Bal. Gen. Prod. Posting Group", '', ErrorInfo.Create());
+                        TestField("Bal. VAT Bus. Posting Group", '', ErrorInfo.Create());
+                        TestField("Bal. VAT Prod. Posting Group", '', ErrorInfo.Create());
                         if (Amount > 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") then
-                            LogTestField(GenJnlLine, FieldNo("Check Printed"), true);
+                            TestField("Check Printed", true, ErrorInfo.Create());
                         CheckElectronicPaymentFields(GenJnlLine);
                     end;
                 "Bal. Account Type"::"IC Partner":
@@ -431,7 +485,7 @@
                         ICPartner.Get("Bal. Account No.");
                         ICPartner.CheckICPartner;
                         if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
-                            LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Bal. Account Type"), '');
+                            FieldError("Bal. Account Type", ErrorInfo.Create());
                     end;
             end;
 
@@ -451,8 +505,8 @@
             if ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment") or
                ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment-IAT")
             then begin
-                LogTestField(GenJnlLine, FieldNo("Exported to Payment File"), true);
-                LogTestField(GenJnlLine, FieldNo("Check Transmitted"), true);
+                TestField("Exported to Payment File", true, ErrorInfo.Create());
+                TestField("Check Transmitted", true, ErrorInfo.Create());
             end;
     end;
 
@@ -465,7 +519,7 @@
         if IsHandled then
             exit;
 
-        LogTestField(GenJnlLine, GenJnlLine.FieldNo("Job No."), '');
+        GenJnlLine.TestField("Job No.", '', ErrorInfo.Create());
     end;
 
     procedure CheckSalesDocNoIsNotUsed(var GenJournalLine: Record "Gen. Journal Line")
@@ -481,7 +535,11 @@
         OldCustLedgEntry.SetRange("Document No.", GenJournalLine."Document No.");
         OldCustLedgEntry.SetRange("Document Type", GenJournalLine."Document Type");
         if not OldCustLedgEntry.IsEmpty() then
-            LogError(GenJournalLine, StrSubstNo(SalesDocAlreadyExistsErr, GenJournalLine."Document Type", GenJournalLine."Document No."));
+            Error(
+                ErrorInfo.Create(
+                    StrSubstNo(SalesDocAlreadyExistsErr, GenJournalLine."Document Type", GenJournalLine."Document No."),
+                    true,
+                    GenJournalLine));
     end;
 
     procedure CheckPurchDocNoIsNotUsed(var GenJournalLine: Record "Gen. Journal Line")
@@ -497,7 +555,11 @@
         OldVendLedgEntry.SetRange("Document No.", GenJournalLine."Document No.");
         OldVendLedgEntry.SetRange("Document Type", GenJournalLine."Document Type");
         if not OldVendLedgEntry.IsEmpty() then
-            LogError(GenJournalLine, StrSubstNo(PurchDocAlreadyExistsErr, GenJournalLine."Document Type", GenJournalLine."Document No."));
+            Error(
+                ErrorInfo.Create(
+                    StrSubstNo(PurchDocAlreadyExistsErr, GenJournalLine."Document Type", GenJournalLine."Document No."),
+                    true,
+                    GenJournalLine));
     end;
 
     procedure CheckDocType(GenJnlLine: Record "Gen. Journal Line")
@@ -515,7 +577,7 @@
                 if ("Account Type" = "Account Type"::Employee) and not
                    ("Document Type" in ["Document Type"::Payment, "Document Type"::" "])
                 then
-                    LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Document Type"), EmployeeAccountDocTypeErr);
+                    FieldError("Document Type", ErrorInfo.Create(EmployeeAccountDocTypeErr, true));
 
                 IsPayment := "Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"];
                 if IsPayment xor (("Account Type" = "Account Type"::Customer) xor IsVendorPaymentToCrMemo(GenJnlLine)) then
@@ -540,7 +602,7 @@
                 if ("Bal. Account Type" = "Bal. Account Type"::Employee) and not
                    ("Document Type" in ["Document Type"::Payment, "Document Type"::" "])
                 then
-                    LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Document Type"), EmployeeBalancingDocTypeErr);
+                    FieldError("Document Type", ErrorInfo.Create(EmployeeBalancingDocTypeErr, true));
 
                 IsPayment := "Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"];
                 if IsPayment = ("Bal. Account Type" = "Bal. Account Type"::Customer) then
@@ -627,7 +689,7 @@
             exit;
 
         if GenJnlLine.NeedCheckZeroAmount and not (GenJnlLine.IsRecurring and IsBatchMode) then
-            LogTestField(GenJnlLine, GenJnlLine.FieldNo(Amount));
+            GenJnlLine.TestField(Amount, ErrorInfo.Create());
     end;
 
     procedure IsVendorPaymentToCrMemo(GenJournalLine: Record "Gen. Journal Line") Result: Boolean
@@ -660,13 +722,17 @@
 
         with GenJournalLine do
             if "Line No." <> 0 then
-                LogError(
-                    GenJournalLine,
-                    StrSubstNo(
-                        ErrorTemplate,
-                        TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                        ErrorText));
-        LogError(GenJournalLine, ErrorText);
+                Error(
+                    ErrorInfo.Create(
+                        StrSubstNo(
+                            ErrorTemplate,
+                            TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
+                            ErrorText),
+                        true,
+                        GenJournalLine));
+
+        Error(
+            ErrorInfo.Create(ErrorText, true, GenJournalLine));
     end;
 
     procedure SetBatchMode(NewBatchMode: Boolean)
@@ -688,7 +754,7 @@
             if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") and
                VATPostingSetup."Adjust for Payment Discount"
             then
-                LogTestField(GenJnlLine, FieldNo("Gen. Prod. Posting Group"));
+                TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
         end;
     end;
 
@@ -706,7 +772,7 @@
             if VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") and
                VATPostingSetup."Adjust for Payment Discount"
             then
-                LogTestField(GenJnlLine, FieldNo("Bal. Gen. Prod. Posting Group"));
+                TestField("Bal. Gen. Prod. Posting Group", ErrorInfo.Create());
         end;
     end;
 
@@ -724,12 +790,14 @@
            ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) and
             (GenJnlLine."Bal. Gen. Posting Type" = GenJnlLine."Bal. Gen. Posting Type"::Sale))
         then
-            LogError(
-                GenJnlLine,
-                StrSubstNo(
-                    Text010,
-                    GenJnlLine.FieldCaption("Account Type"), GenJnlLine."Account Type",
-                    GenJnlLine.FieldCaption("Bal. Gen. Posting Type"), GenJnlLine."Bal. Gen. Posting Type"));
+            Error(
+                ErrorInfo.Create(
+                    StrSubstNo(
+                        Text010,
+                        GenJnlLine.FieldCaption("Account Type"), GenJnlLine."Account Type",
+                        GenJnlLine.FieldCaption("Bal. Gen. Posting Type"), GenJnlLine."Bal. Gen. Posting Type"),
+                    true,
+                    GenJnlLine));
     end;
 
     local procedure CheckBalAccountType(GenJnlLine: Record "Gen. Journal Line")
@@ -746,14 +814,18 @@
            ((GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor) and
             (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Sale))
         then
-            LogError(
-                GenJnlLine,
-                StrSubstNo(
-                    Text010,
-                    GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine."Bal. Account Type",
-                    GenJnlLine.FieldCaption("Gen. Posting Type"), GenJnlLine."Gen. Posting Type"));
+            Error(
+                ErrorInfo.Create(
+                    StrSubstNo(
+                        Text010,
+                        GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine."Bal. Account Type",
+                        GenJnlLine.FieldCaption("Gen. Posting Type"), GenJnlLine."Gen. Posting Type"),
+                    true,
+                    GenJnlLine));
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced with TestField(..., ErrorInfo.Create())', '20.0')]
     procedure LogTestField(SourceVariant: Variant; FieldNo: Integer)
     var
         RecRef: RecordRef;
@@ -773,6 +845,7 @@
             FldRef.TestField();
     end;
 
+    [Obsolete('Replaced with TestField(..., ErrorInfo.Create())', '20.0')]
     procedure LogTestField(SourceVariant: Variant; FieldNo: Integer; ExpectedValue: Variant)
     var
         RecRef: RecordRef;
@@ -792,6 +865,7 @@
             FldRef.TestField(ExpectedValue);
     end;
 
+    [Obsolete('Replaced with Error(..., ErrorInfo.Create())', '20.0')]
     procedure LogError(SourceVariant: Variant; ErrorMessage: Text)
     begin
         if LogErrorMode then
@@ -800,6 +874,7 @@
             Error(ErrorMessage);
     end;
 
+    [Obsolete('Replaced with FieldError(..., ErrorInfo.Create())', '20.0')]
     procedure LogFieldError(SourceVariant: Variant; FieldNo: Integer; ErrorMessage: Text)
     var
         RecRef: RecordRef;
@@ -812,6 +887,7 @@
         else
             FldRef.FieldError(ErrorMessage);
     end;
+#endif
 
     procedure SetLogErrorMode(NewLogErrorMode: Boolean)
     begin
@@ -829,7 +905,7 @@
         if IsHandled then
             exit;
 
-        LogTestField(GenJnlLine, GenJnlLine.FieldNo("Applies-to Doc. No."), '');
+        GenJnlLine.TestField("Applies-to Doc. No.", '', ErrorInfo.Create());
     end;
 
     [IntegrationEvent(true, false)]
@@ -854,6 +930,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDateNotAllowed(GenJnlLine: Record "Gen. Journal Line"; var DateCheckDone: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsDateNotAllowed(PostingDate: Date; SetupRecordID: RecordId; GenJnlBatch: Record "Gen. Journal Batch"; var DateIsNotAllowed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -957,9 +1038,12 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Will be removed due to calling procedure obsoletion', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLogTestField(SourceVariant: Variant; FieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

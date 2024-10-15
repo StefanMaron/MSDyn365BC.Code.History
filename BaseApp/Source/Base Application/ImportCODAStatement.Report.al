@@ -44,7 +44,7 @@ report 2000030 "Import CODA Statement"
         CodaMgmt.InitCodaImport(BankAccNo);
         FirstTime := true;
         InLines := false;
-        if CodBankStmtSrcLine.FindLast then
+        if CodBankStmtSrcLine.FindLast() then
             TempStatementNo := IncStr(CodBankStmtSrcLine."Statement No.");
         if TempStatementNo = '' then
             TempStatementNo := CopyStr(BankAccNo, 1, 18) + '/1';

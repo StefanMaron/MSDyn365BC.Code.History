@@ -217,7 +217,7 @@ table 2000041 "CODA Statement Line"
                                 CustLedgEntry.SetRange("Customer No.", xRec."Account No.");
                                 CustLedgEntry.SetRange(Open, true);
                                 CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                                if CustLedgEntry.FindSet then
+                                if CustLedgEntry.FindSet() then
                                     repeat
                                         CustLedgEntry.Validate("Applies-to ID", '');
                                         CustLedgEntry.Validate("Amount to Apply", 0);
@@ -230,7 +230,7 @@ table 2000041 "CODA Statement Line"
                                 VendLedgEntry.SetRange("Vendor No.", xRec."Account No.");
                                 VendLedgEntry.SetRange(Open, true);
                                 VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                                if VendLedgEntry.FindSet then
+                                if VendLedgEntry.FindSet() then
                                     repeat
                                         VendLedgEntry.Validate("Applies-to ID", '');
                                         VendLedgEntry.Validate("Amount to Apply", 0);
@@ -416,7 +416,6 @@ table 2000041 "CODA Statement Line"
         Cust: Record Customer;
         Vend: Record Vendor;
 
-    [Scope('OnPrem')]
     procedure UpdateStatus()
     var
         CODAStmtLine: Record "CODA Statement Line";
@@ -471,7 +470,7 @@ table 2000041 "CODA Statement Line"
             CODAStmtLine.SetRange("Statement No.", "Statement No.");
             CODAStmtLine.SetRange(ID, ID);
             CODAStmtLine.SetRange("Attached to Line No.", "Statement Line No.");
-            if CODAStmtLine.FindSet then
+            if CODAStmtLine.FindSet() then
                 repeat
                     // If partially applied, then first undo
                     if CODAStmtLine."System-Created Entry" and
@@ -506,7 +505,7 @@ table 2000041 "CODA Statement Line"
             CODAStmtLine2.SetRange("Statement No.", CODAStmtLine."Statement No.");
             CODAStmtLine2.SetRange(ID, CODAStmtLine.ID);
             CODAStmtLine2.SetRange("Attached to Line No.", CODAStmtLine."Statement Line No.");
-            if CODAStmtLine2.FindSet then
+            if CODAStmtLine2.FindSet() then
                 repeat
                     if CODAStmtLine2."Application Status" = "Application Status"::Applied then
                         CODAStmtLine."Unapplied Amount" :=

@@ -44,7 +44,7 @@ codeunit 144004 Domicilations
         LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
 
         Commit();
-        DomiciliationJournalLine.FindFirst;
+        DomiciliationJournalLine.FindFirst();
         DomiciliationJnlManagement.CreateDomiciliations(DomiciliationJournalLine);
 
         Assert.IsTrue(FileMgt.ServerFileExists(FileName + '.tmp'), DomFileNotExistsErr);
@@ -89,7 +89,7 @@ codeunit 144004 Domicilations
 
         Assert.IsFalse(
           DomiciliationJournalLine.IsEmpty, StrSubstNo(DomLineDoesNotExistErr, DomiciliationJournalLine.TableCaption));
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         FileDomiciliations(GenJournalBatch);
         VerifyDomiciliationNo(0, 0);
     end;
@@ -236,7 +236,7 @@ codeunit 144004 Domicilations
         DomiciliationJnlManagement.TemplateSelection(DomiciliationJournalLine, JnlSelected);
         DomiciliationJnlManagement.OpenJournal(CurrentJnlBatchName, DomiciliationJournalLine);
 
-        DomiciliationJournalTemplate.FindFirst;
+        DomiciliationJournalTemplate.FindFirst();
         DomiciliationJournalLine."Journal Template Name" := DomiciliationJournalTemplate.Name;
         DomiciliationJournalLine."Journal Batch Name" := CurrentJnlBatchName;
 
@@ -248,7 +248,7 @@ codeunit 144004 Domicilations
         Customer: Record Customer;
     begin
         Customer.SetFilter("Domiciliation No.", '<>''''');
-        Customer.FindFirst;
+        Customer.FindFirst();
         exit(Customer."Domiciliation No.");
     end;
 
@@ -304,7 +304,7 @@ codeunit 144004 Domicilations
         BankAccount: Record "Bank Account";
     begin
         BankExportImportSetup.Init();
-        BankExportImportSetup.Code := LibraryUtility.GenerateGUID;
+        BankExportImportSetup.Code := LibraryUtility.GenerateGUID();
         BankExportImportSetup."Processing Codeunit ID" := ProcessingCodeunitID;
         BankExportImportSetup.Insert();
 
@@ -321,9 +321,9 @@ codeunit 144004 Domicilations
           DomiciliationJournalLine,
           DomiciliationJournalBatch."Journal Template Name", DomiciliationJournalBatch.Name);
         with DomiciliationJournalLine do begin
-            "Customer No." := LibrarySales.CreateCustomerNo;
+            "Customer No." := LibrarySales.CreateCustomerNo();
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := LibraryUtility.GenerateGUID;
+            "Applies-to Doc. No." := LibraryUtility.GenerateGUID();
             Status := NewStatus;
             Modify;
         end;
@@ -377,7 +377,7 @@ codeunit 144004 Domicilations
         DomiciliationJournalLine: Record "Domiciliation Journal Line";
         FileName: Text;
     begin
-        FileName := TemporaryPath + LibraryUtility.GenerateGUID;
+        FileName := TemporaryPath + LibraryUtility.GenerateGUID();
 
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
@@ -386,7 +386,7 @@ codeunit 144004 Domicilations
         LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
 
         Commit();
-        DomiciliationJournalLine.FindFirst;
+        DomiciliationJournalLine.FindFirst();
         DomiciliationJnlManagement.CreateDomiciliations(DomiciliationJournalLine);
 
         FileMgt.DeleteServerFile(FileName + '.tmp');
@@ -401,7 +401,7 @@ codeunit 144004 Domicilations
         Customer.SetFilter("No.", CustomerNoFilter);
         SuggestDomicilations.SetTableView(Customer);
         SuggestDomicilations.SetJournal(DomiciliationJournalLine);
-        SuggestDomicilations.RunModal;
+        SuggestDomicilations.RunModal();
     end;
 
     local procedure VerifyDimensionSetIDs(var GenJournalBatch: Record "Gen. Journal Batch"; var DimSetID: array[2] of Integer)
@@ -433,7 +433,7 @@ codeunit 144004 Domicilations
     local procedure VerifyDomJnlLineValues(var DomiciliationJournalLine: Record "Domiciliation Journal Line"; DomiciliationJournalLine2: Record "Domiciliation Journal Line"; ExpectedStatus: Option)
     begin
         with DomiciliationJournalLine do begin
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(DomiciliationJournalLine2."Customer No.", "Customer No.", FieldCaption("Customer No."));
             Assert.AreEqual(DomiciliationJournalLine2."Applies-to Doc. Type", "Applies-to Doc. Type", FieldCaption("Applies-to Doc. Type"));
             Assert.AreEqual(DomiciliationJournalLine2."Applies-to Doc. No.", "Applies-to Doc. No.", FieldCaption("Applies-to Doc. No."));

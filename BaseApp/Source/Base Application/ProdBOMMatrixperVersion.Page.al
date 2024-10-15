@@ -64,7 +64,7 @@ page 99000812 "Prod. BOM Matrix per Version"
                 begin
                     Clear(MatrixForm);
                     MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrSetLength, ProdBOM, ShowLevel);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

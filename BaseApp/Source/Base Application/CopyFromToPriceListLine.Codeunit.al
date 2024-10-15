@@ -24,8 +24,8 @@ Codeunit 7009 CopyFromToPriceListLine
 #if not CLEAN19
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var SalesPrice: Record "Sales Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigSalesPrice: Record "Sales Price";
     begin
@@ -91,8 +91,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var SalesLineDiscount: Record "Sales Line Discount"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigSalesLineDiscount: Record "Sales Line Discount";
     begin
@@ -193,8 +193,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyTo(var TempSalesPrice: Record "Sales Price" temporary; var PriceListLine: Record "Price List Line") Copied: Boolean;
+#pragma warning restore AS0072
     begin
         TempSalesPrice.Reset();
         TempSalesPrice.DeleteAll();
@@ -237,8 +237,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyTo(var TempSalesLineDiscount: Record "Sales Line Discount" temporary; var PriceListLine: Record "Price List Line") Copied: Boolean;
+#pragma warning restore AS0072
     begin
         TempSalesLineDiscount.Reset();
         TempSalesLineDiscount.DeleteAll();
@@ -292,8 +292,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var JobItemPrice: Record "Job Item Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigJobItemPrice: Record "Job Item Price";
     begin
@@ -366,8 +366,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var JobGLAccountPrice: Record "Job G/L Account Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigJobGLAccountPrice: Record "Job G/L Account Price";
     begin
@@ -440,8 +440,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var JobResourcePrice: Record "Job Resource Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigJobResourcePrice: Record "Job Resource Price";
     begin
@@ -534,8 +534,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var ResourceCost: Record "Resource Cost"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigResourceCost: Record "Resource Cost";
         TempResourceCost: Record "Resource Cost" temporary;
@@ -662,8 +662,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var ResourcePrice: Record "Resource Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigResourcePrice: Record "Resource Price";
     begin
@@ -718,8 +718,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var PurchasePrice: Record "Purchase Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigPurchasePrice: Record "Purchase Price";
     begin
@@ -783,8 +783,8 @@ Codeunit 7009 CopyFromToPriceListLine
 
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     procedure CopyFrom(var PurchaseLineDiscount: Record "Purchase Line Discount"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     var
         OrigPurchaseLineDiscount: Record "Purchase Line Discount";
     begin
@@ -958,88 +958,88 @@ Codeunit 7009 CopyFromToPriceListLine
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromPurchLineDiscount(PurchaseLineDiscount: Record "Purchase Line Discount"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromPurchasePrice(PurchasePrice: Record "Purchase Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromResourceCost(ResourceCost: Record "Resource Cost"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromResourcePrice(ResourcePrice: Record "Resource Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromJobItemPrice(var JobItemPrice: Record "Job Item Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromJobResourcePrice(var JobResourcePrice: Record "Job Resource Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromSalesPrice(var SalesPrice: Record "Sales Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyToSalesPrice(var SalesPrice: Record "Sales Price"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyFromSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
-#pragma warning restore AS0072
     local procedure OnCopyToSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; var PriceListLine: Record "Price List Line")
+#pragma warning restore AS0072
     begin
     end;
 #endif

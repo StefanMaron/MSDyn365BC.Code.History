@@ -1,4 +1,4 @@
-﻿codeunit 900 "Assembly-Post"
+codeunit 900 "Assembly-Post"
 {
     Permissions = TableData "Posted Assembly Header" = im,
                   TableData "Posted Assembly Line" = im,
@@ -81,7 +81,7 @@
             TestField("Document Type");
             TestField("Posting Date");
             PostingDate := "Posting Date";
-            if GenJnlCheckLine.DateNotAllowed("Posting Date", '') then
+            if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                 FieldError("Posting Date", Text001);
             TestField("Item No.");
             CheckDim(AssemblyHeader);
@@ -332,7 +332,7 @@
         AssemblyHeader.LockTable();
         if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast then;
+            if GLEntry.FindLast() then;
         end;
     end;
 
@@ -735,7 +735,7 @@
             SetCurrentKey("Item No.", Positive);
             SetRange(Positive, true);
             SetRange(Open, true);
-            FindFirst;
+            FindFirst();
             exit("Entry No.");
         end;
     end;
@@ -1198,7 +1198,7 @@
             Insert();
 
             CopyCommentLines(
-              AsmCommentLine."Document Type"::"Posted Assembly", "Document Type".AsInteger(),
+              AsmCommentLine."Document Type"::"Posted Assembly", "Document Type",
               PostedAsmHeader."No.", "No.");
 
             RestoreItemTracking(TempItemLedgEntry, "No.", 0, DATABASE::"Assembly Header", "Document Type".AsInteger(), "Due Date", 0D);

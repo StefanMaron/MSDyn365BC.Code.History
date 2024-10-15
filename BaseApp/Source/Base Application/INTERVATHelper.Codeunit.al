@@ -10,7 +10,6 @@ codeunit 11308 "INTERVAT Helper"
         Text002: Label 'The email address "%1" is invalid.';
         XMLDOMMgt: Codeunit "XML DOM Management";
 
-    [Scope('OnPrem')]
     procedure AddElementDeclarant(XMLCurrNode: DotNet XmlNode; SequenceNumber: Integer)
     var
         CompanyInformation: Record "Company Information";
@@ -49,7 +48,6 @@ codeunit 11308 "INTERVAT Helper"
         XMLDOMMgt.AddAttribute(ParentNode, 'DeclarantReference', DeclarantReference);
     end;
 
-    [Scope('OnPrem')]
     procedure GetDeclarantReference(SequenceNumber: Integer): Text[250]
     var
         CompanyInformation: Record "Company Information";
@@ -68,7 +66,6 @@ codeunit 11308 "INTERVAT Helper"
         exit(DelChr(InputString, '=', DelChr(InputString, '=', '0123456789')));
     end;
 
-    [Scope('OnPrem')]
     procedure AddProcessingInstruction(var XMLDocOut: DotNet XmlDocument; XMLFirstNode: DotNet XmlNode)
     var
         ProcessingInstruction: DotNet XmlProcessingInstruction;
@@ -77,7 +74,6 @@ codeunit 11308 "INTERVAT Helper"
         XMLDocOut.InsertBefore(ProcessingInstruction, XMLFirstNode);
     end;
 
-    [Scope('OnPrem')]
     procedure IsValidEMailAddress(EMailAddress: Text[80]): Boolean
     var
         i: Integer;
@@ -108,7 +104,6 @@ codeunit 11308 "INTERVAT Helper"
         exit(Char in ['0' .. '9', 'A' .. 'Z', 'a' .. 'z']);
     end;
 
-    [Scope('OnPrem')]
     procedure GetValidPhoneNumber(Phone: Text[30]): Text[21]
     begin
         if Phone[1] = '+' then
@@ -117,7 +112,6 @@ codeunit 11308 "INTERVAT Helper"
         exit(RemoveNonNumericCharacters(Phone));
     end;
 
-    [Scope('OnPrem')]
     procedure AddElementPeriod(XMLCurrNode: DotNet XmlNode; ChoicePeriodType: Option Month,Quarter; Period: Integer; Year: Integer; PeriodName: Text[30])
     var
         XMLNewChild: DotNet XmlNode;
@@ -136,13 +130,11 @@ codeunit 11308 "INTERVAT Helper"
         XMLDOMMgt.AddElement(XMLCurrNode, 'Year', Format(Year), XMLCurrNode.NamespaceURI, XMLNewChild);
     end;
 
-    [Scope('OnPrem')]
     procedure GetXMLAmountRepresentation(Amount: Decimal): Text[100]
     begin
         exit(Format(Amount, 0, '<Precision,2:2><Standard Format,2>'));
     end;
 
-    [Scope('OnPrem')]
     procedure GetCpyInfoCountryRegionCode(): Code[10]
     var
         CompanyInformation: Record "Company Information";
@@ -151,7 +143,6 @@ codeunit 11308 "INTERVAT Helper"
         exit(CompanyInformation."Country/Region Code");
     end;
 
-    [Scope('OnPrem')]
     procedure VerifyCpyInfoEmailExists()
     var
         CompanyInformation: Record "Company Information";

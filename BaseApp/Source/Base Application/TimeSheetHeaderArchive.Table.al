@@ -138,10 +138,10 @@ table 954 "Time Sheet Header Archive"
 
         TimeSheetMgt.FilterTimeSheetsArchive(Rec, FilterFieldNo);
         SetFilter("Starting Date", '%1..', WorkDate);
-        if not FindFirst then begin
+        if not FindFirst() then begin
             SetRange("Starting Date");
             SetRange("Ending Date");
-            FindLast;
+            FindLast();
         end;
         exit("No.");
     end;

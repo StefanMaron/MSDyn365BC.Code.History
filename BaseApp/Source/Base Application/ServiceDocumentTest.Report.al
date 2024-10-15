@@ -1030,7 +1030,7 @@ report 5915 "Service Document - Test"
                 ServiceLine.Reset();
                 ServiceLine.SetRange("Document Type", "Document Type");
                 ServiceLine.SetRange("Document No.", "No.");
-                if ServiceLine.FindFirst then;
+                if ServiceLine.FindFirst() then;
 
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                     AddError(DimMgt.GetDimCombErr);
@@ -1051,7 +1051,7 @@ report 5915 "Service Document - Test"
                 ServiceHeader.Copy("Service Header");
                 ServiceHeader.FilterGroup := 2;
                 ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
-                if ServiceHeader.FindFirst then begin
+                if ServiceHeader.FindFirst() then begin
                     case true of
                         ShipReceiveOnNextPostReq and InvOnNextPostReq:
                             ShipInvText := Text000;
@@ -1370,7 +1370,7 @@ report 5915 "Service Document - Test"
         DimTxtArrLength := 0;
         for i := 1 to ArrayLen(DimTxtArr) do
             DimTxtArr[i] := '';
-        if not DimSetEntry.FindSet then
+        if not DimSetEntry.FindSet() then
             exit;
         Separation := '; ';
         repeat
@@ -1482,7 +1482,7 @@ report 5915 "Service Document - Test"
                         ServiceLine2.SetRange("Document Type", "Document Type");
                         ServiceLine2.SetRange("Document No.", "No.");
                         ServiceLine2.SetFilter("Qty. to Ship", '>0');
-                        if ServiceLine2.FindFirst then
+                        if ServiceLine2.FindFirst() then
                             ShipQtyExist := true;
                     end;
                     if Cust."Privacy Blocked" then

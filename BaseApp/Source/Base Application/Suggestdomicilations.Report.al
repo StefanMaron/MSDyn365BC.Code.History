@@ -37,7 +37,7 @@ report 2000039 "Suggest domicilations"
                 DomJnlLine.LockTable();
                 DomJnlLine.SetRange("Journal Template Name", DomJnlBatch."Journal Template Name");
                 DomJnlLine.SetRange("Journal Batch Name", DomJnlBatch.Name);
-                if DomJnlLine.FindLast then;
+                if DomJnlLine.FindLast() then;
 
                 Window.Open(Text005);
             end;
@@ -179,7 +179,7 @@ report 2000039 "Suggest domicilations"
             CustLedgEntry.SetRange("Due Date", 0D, DueDate);
             CustLedgEntry.SetFilter("Currency Code", CurrencyFilter);
             CustLedgEntry.SetRange("On Hold", '');
-            if CustLedgEntry.FindSet then
+            if CustLedgEntry.FindSet() then
                 repeat
                     SetDomJnlLine;
                 until CustLedgEntry.Next() = 0;
@@ -191,7 +191,7 @@ report 2000039 "Suggest domicilations"
                 CustLedgEntry.SetRange("Pmt. Discount Date", PmtDiscDueDate, DueDate);
                 CustLedgEntry.SetFilter("Original Pmt. Disc. Possible", '>0');
                 CustLedgEntry.SetRange("On Hold", '');
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         SetDomJnlLine;
                     until CustLedgEntry.Next() = 0;
@@ -204,7 +204,7 @@ report 2000039 "Suggest domicilations"
                 CustLedgEntry.SetRange("Pmt. Discount Date");
                 CustLedgEntry.SetRange("Original Pmt. Disc. Possible");
                 CustLedgEntry.SetRange("On Hold", '');
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         SetDomJnlLine;
                     until CustLedgEntry.Next() = 0;
@@ -263,12 +263,12 @@ report 2000039 "Suggest domicilations"
         CurrencyFilter := '';
         with Currency do begin
             SetRange("ISO Code", Text006);
-            if FindSet then
+            if FindSet() then
                 repeat
                     CurrencyFilter := CurrencyFilter + '|' + Code;
                 until Next() = 0;
             SetRange("ISO Code", Text007);
-            if FindSet then
+            if FindSet() then
                 repeat
                     CurrencyFilter := CurrencyFilter + '|' + Code;
                 until Next() = 0;

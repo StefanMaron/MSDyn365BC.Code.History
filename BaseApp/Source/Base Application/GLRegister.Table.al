@@ -1,4 +1,4 @@
-table 45 "G/L Register"
+﻿table 45 "G/L Register"
 {
     Caption = 'G/L Register';
     LookupPageID = "G/L Registers";
@@ -67,10 +67,22 @@ table 45 "G/L Register"
         {
             Caption = 'Creation Time';
         }
+        field(12; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
             TableRelation = "Gen. Journal Template";
+            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
     }
 
@@ -114,7 +126,7 @@ table 45 "G/L Register"
         "From Entry No." := FromEntryNo;
         "From VAT Entry No." := FromVATEntryNo;
         "Journal Batch Name" := BatchName;
-        "Journal Template Name" := TemplateName;
+        "Journal Templ. Name" := TemplateName;
     end;
 
 

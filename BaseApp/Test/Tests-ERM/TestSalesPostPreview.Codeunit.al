@@ -46,7 +46,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Posting preview of Sales Invoice opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -79,7 +79,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Posting preview of Sales Order opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -117,7 +117,7 @@ codeunit 134763 "Test Sales Post Preview"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Run posting preview engine with success
-        Initialize;
+        Initialize();
         // [GIVEN] the valid Sales Invoice with one line
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -150,7 +150,7 @@ codeunit 134763 "Test Sales Post Preview"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Run posting preview engine if context is missing
-        Initialize;
+        Initialize();
 
         // [WHEN] Run TryPreview() without context
         Commit();
@@ -181,7 +181,7 @@ codeunit 134763 "Test Sales Post Preview"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Run posting preview engine if error occurs
-        Initialize;
+        Initialize();
         // [GIVEN] the valid Sales Invoice with one line, where amount is negative
         AmountToVerify := -LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -221,7 +221,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Preview action on Sales Invoice page runs posting preview engine
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -252,7 +252,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Preview action on Sales Invoice List page runs posting preview engine
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -283,7 +283,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Preview action on Sales Order page runs posting preview engine
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -314,7 +314,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Preview action on Sales Order List page runs posting preview engine
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -345,7 +345,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Preview action on Sales Return Order page runs posting preview engine
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -376,7 +376,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Preview action on Sales Return Order List page runs posting preview engine
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -407,7 +407,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Preview action on Sales Credit Memo page runs posting preview engine
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -438,7 +438,7 @@ codeunit 134763 "Test Sales Post Preview"
         ExpectedQuantity: Decimal;
     begin
         // [SCENARIO] Preview action on Sales Credit Memo Lists page runs posting preview engine
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -467,9 +467,9 @@ codeunit 134763 "Test Sales Post Preview"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] Preview action on Sales Order page runs posting preview engine
-        Initialize;
+        Initialize();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateSalesOrderWithPrepayment(SalesHeader);
 
         SalesOrder.Trap;
@@ -495,7 +495,7 @@ codeunit 134763 "Test Sales Post Preview"
         SalesOrder: TestPage "Sales Order";
     begin
         // [SCENARIO] Preview action on Sales Order page runs posting preview engine
-        Initialize;
+        Initialize();
 
         CreateSalesOrderWithPrepayment(SalesHeader);
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -531,7 +531,7 @@ codeunit 134763 "Test Sales Post Preview"
         ActualErrorMessage: Text;
     begin
         // [SCENARIO] Preview action on Sales Invoice should work even if Invoice is under Approval Workflow.
-        Initialize;
+        Initialize();
         AmountToVerify := LibraryRandom.RandInt(500);
         ExpectedQuantity := LibraryRandom.RandInt(10);
 
@@ -573,7 +573,7 @@ codeunit 134763 "Test Sales Post Preview"
     begin
         // [SCENARIO 376432] Preview action should work for partial shipped Sales Order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Calc. Inv. Discount" is enabled in Sales & Receivables Setup
         LibrarySales.SetCalcInvDiscount(true);
@@ -606,7 +606,7 @@ codeunit 134763 "Test Sales Post Preview"
         ItemNo: Code[20];
     begin
         // [SCENARIO 378536] Preview action can be opened for Sales Order with FIFO Item, if was before posted partially several times.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup: Automatic Cost Posting = TRUE, Expected Cost Posting = TRUE
         LibraryInventory.SetAutomaticCostPosting(true);
@@ -644,7 +644,7 @@ codeunit 134763 "Test Sales Post Preview"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO 221818] Preview posting does not hide actual error when posting sales document for blocked customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Customer "X" has Blocked = " "
         LibrarySales.CreateCustomer(Customer);
@@ -679,7 +679,7 @@ codeunit 134763 "Test Sales Post Preview"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO 221818] Preview posting does not hide actual error when posting sales document for Privacy Blocked customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Customer "X" is PrivacyBlocked
         LibrarySales.CreateCustomer(Customer);
@@ -769,32 +769,29 @@ codeunit 134763 "Test Sales Post Preview"
     [Scope('OnPrem')]
     procedure PmtDiscToleranceConsidersOnPostingPreview()
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         ApplyingCustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
         InvNo: Code[20];
         PmtNo: Code[20];
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
         // [FEATURE] [Payment Discount] [Payment Discount Tolerance]
         // [SCENARIO 277573] Payment Discount Tolerance considers when preview application of payment to invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted payment and invoice with possible payment discount tolerance
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(Format(LibraryRandom.RandIntInRange(3, 10)) + 'D');
         PostPaidInvWithPmtDiscTol(InvNo, PmtNo);
         FindEntriesAndSetAppliesToID(ApplyingCustLedgerEntry, CustLedgerEntry, InvNo, PmtNo);
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         Commit();
         LibraryVariableStorage.Enqueue(DATABASE::"Detailed Cust. Ledg. Entry");
 
         // [WHEN] Preview application of payment to invoice
-        asserterror CustEntryApplyPostedEntries.PreviewApply(
-            ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Document No.",
-            CustEntryApplyPostedEntries.GetApplicationDate(ApplyingCustLedgerEntry),
-            TemplateName, BatchName);
+        ApplyUnapplyParameters."Document No." := ApplyingCustLedgerEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := CustEntryApplyPostedEntries.GetApplicationDate(ApplyingCustLedgerEntry);
+        asserterror CustEntryApplyPostedEntries.PreviewApply(ApplyingCustLedgerEntry, ApplyUnapplyParameters);
 
         // [THEN] Three entries expected in "G/L Posting Preview" page for table "Detailed Customer Ledger Entry"
         // [THEN] Payment Discount Tolerance and two applications (invoice -> payment and payment -> invoice)
@@ -817,7 +814,7 @@ codeunit 134763 "Test Sales Post Preview"
     begin
         // [FEATURE] [Assemble-to-Order] [Assembly]
         // [SCENARIO 309585] Can't post-preview released Sales Order with ATO Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created an Item with "Assembly Policy"="Assemble-to-Order" and its Assembly List
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
@@ -854,7 +851,7 @@ codeunit 134763 "Test Sales Post Preview"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 328755] Invoice Cust. Ledger Entry is Closed in Posting Preview when Sales Invoice has "Payment Method Code" with Bal. Account No. filled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice has "Payment Method Code" with Bal. Account No. filled.
         LibraryInventory.CreatePaymentMethod(PaymentMethod);
@@ -1121,6 +1118,8 @@ codeunit 134763 "Test Sales Post Preview"
         SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryERM.CreateNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.SaveGeneralLedgerSetup();
@@ -1141,7 +1140,7 @@ codeunit 134763 "Test Sales Post Preview"
 
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, Customer."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
@@ -1227,7 +1226,7 @@ codeunit 134763 "Test Sales Post Preview"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Ship", 1); // specific value needed for test
             Modify(true);
         end;

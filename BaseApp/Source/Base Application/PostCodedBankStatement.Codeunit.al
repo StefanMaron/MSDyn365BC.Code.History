@@ -1,4 +1,4 @@
-﻿codeunit 2000042 "Post Coded Bank Statement"
+codeunit 2000042 "Post Coded Bank Statement"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm,
@@ -72,15 +72,15 @@
             CodedBankStmtLine.Reset();
 
             SetFilter("Application Status", '%1|%2', "Application Status"::Applied, "Application Status"::"Partly applied");
-            FindFirst;
+            FindFirst();
             GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Financial);
             GenJnlTemplate.SetRange("Bal. Account Type", GenJnlTemplate."Bal. Account Type"::"Bank Account");
             GenJnlTemplate.SetRange("Bal. Account No.", "Bank Account No.");
-            if not GenJnlTemplate.FindFirst then
+            if not GenJnlTemplate.FindFirst() then
                 Error(Text002, "Bank Account No.");
             GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
             GenJnlManagement.OpenJnl(BatchName, GenJnlLine);
-            OnCodeOnBeforeTransferCodBankStmtLines(CodedBankStmtLine);
+            OnCodeOnBeforeTransferCodBankStmtLines(CodedBankStmtLine, CodBankStmtLine);
             TransferCodBankStmtLines;
         end
     end;
@@ -97,7 +97,7 @@
           '#1#################################\\' +
           Text003);
 
-        if GenJnlLine.FindLast then;
+        if GenJnlLine.FindLast() then;
         LineNo := GenJnlLine."Line No.";
         with CodBankStmtLine do begin
             TotLines := Count;
@@ -177,7 +177,7 @@
                         CodBankStmtLine.SetRange("Statement No.", "Statement No.");
                         CodBankStmtLine.SetRange(ID, ID);
                         CodBankStmtLine.SetRange("Attached to Line No.", "Statement Line No.");
-                        if CodBankStmtLine.FindSet then
+                        if CodBankStmtLine.FindSet() then
                             repeat
                                 CodBankStmtLine."Unapplied Amount" := 0;
                                 CodBankStmtLine."Application Status" := "Application Status"::"Indirectly applied";
@@ -190,7 +190,7 @@
                     CodBankStmtLine.SetRange("Statement No.", "Statement No.");
                     CodBankStmtLine.SetRange(ID, ID);
                     CodBankStmtLine.SetRange("Attached to Line No.", "Statement Line No.");
-                    if CodBankStmtLine.FindSet then begin
+                    if CodBankStmtLine.FindSet() then begin
                         UnappliedAmtInclPartial := "Unapplied Amount";
                         repeat
                             ProcessCodBankStmtLine(CodBankStmtLine);
@@ -460,7 +460,7 @@
                 CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
             CustLedgEntry.SetRange("Document No.", DocNo);
             OnDecodeCustLedgEntryOnBeforePost(CustLedgEntry, CodBankStmtLine, DocNo);
-            if CustLedgEntry.FindFirst then
+            if CustLedgEntry.FindFirst() then
                 PostCustLedgEntry;
         end
     end;
@@ -481,17 +481,17 @@
             end;
             if "Bank Account No. Other Party" <> '' then begin
                 CustBankAcc.SetRange(IBAN, "Bank Account No. Other Party");
-                if not CustBankAcc.FindFirst then begin
+                if not CustBankAcc.FindFirst() then begin
                     CustBankAcc.SetRange(IBAN);
                     if StrLen("Bank Account No. Other Party") <= MaxStrLen(CustBankAcc."Bank Account No.") then
                         CustBankAcc.SetRange("Bank Account No.", "Bank Account No. Other Party");
-                    if not CustBankAcc.FindFirst then begin
+                    if not CustBankAcc.FindFirst() then begin
                         BankAccNo := // try format xxx-xxxxxxx-xx
                           CopyStr("Bank Account No. Other Party", 1, 3) +
                           '-' + CopyStr("Bank Account No. Other Party", 4, 7) +
                           '-' + CopyStr("Bank Account No. Other Party", 11, 2);
                         CustBankAcc.SetRange("Bank Account No.", BankAccNo);
-                        if not CustBankAcc.FindFirst then
+                        if not CustBankAcc.FindFirst() then
                             if CodedTrans."Account Type" = CodedTrans."Account Type"::Customer then
                                 CustBankAcc."Customer No." := CodedTrans."Account No.";
                     end;
@@ -513,7 +513,7 @@
                 CustLedgEntry2.SetRange("Customer No.", Cust."No.");
                 CustLedgEntry2.SetRange(Open, true);
                 CustLedgEntry2.SetRange(Positive, "Statement Amount" > 0);
-                if CustLedgEntry2.FindSet then
+                if CustLedgEntry2.FindSet() then
                     repeat
                         CustLedgEntry2.CalcFields("Remaining Amount");
                         if CustLedgEntry2."Remaining Amount" = "Statement Amount" then begin
@@ -590,7 +590,7 @@
 
             VendLedgEntry.SetRange(Description, Message);
             OnDecodeVendLedgEntryOnAfterVendLedgEntrySetFilters(VendLedgEntry, CodBankStmtLine, Message);
-            if VendLedgEntry.FindFirst then
+            if VendLedgEntry.FindFirst() then
                 PostVendLedgEntry;
         end
     end;
@@ -604,17 +604,17 @@
         with CodBankStmtLine do
             if "Bank Account No. Other Party" <> '' then begin
                 VendBankAcc.SetRange(IBAN, "Bank Account No. Other Party");
-                if not VendBankAcc.FindFirst then begin
+                if not VendBankAcc.FindFirst() then begin
                     VendBankAcc.SetRange(IBAN);
                     if StrLen("Bank Account No. Other Party") <= MaxStrLen(VendBankAcc."Bank Account No.") then
                         VendBankAcc.SetRange("Bank Account No.", "Bank Account No. Other Party");
-                    if not VendBankAcc.FindFirst then begin
+                    if not VendBankAcc.FindFirst() then begin
                         BankAccNo := // try format xxx-xxxxxxx-xx
                           CopyStr("Bank Account No. Other Party", 1, 3) +
                           '-' + CopyStr("Bank Account No. Other Party", 4, 7) +
                           '-' + CopyStr("Bank Account No. Other Party", 11, 2);
                         VendBankAcc.SetRange("Bank Account No.", BankAccNo);
-                        if not VendBankAcc.FindFirst then
+                        if not VendBankAcc.FindFirst() then
                             if CodedTrans."Account Type" = CodedTrans."Account Type"::Vendor then
                                 VendBankAcc."Vendor No." := CodedTrans."Account No.";
                     end;
@@ -636,7 +636,7 @@
                 VendLedgEntry2.SetRange("Vendor No.", Vend."No.");
                 VendLedgEntry2.SetRange(Open, true);
                 VendLedgEntry2.SetRange(Positive, "Statement Amount" > 0);
-                if VendLedgEntry2.FindSet then
+                if VendLedgEntry2.FindSet() then
                     repeat
                         VendLedgEntry2.CalcFields("Remaining Amount");
                         if VendLedgEntry2."Remaining Amount" = "Statement Amount" then begin
@@ -797,7 +797,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnBeforeTransferCodBankStmtLines(var CODAStatementLine: Record "CODA Statement Line")
+    local procedure OnCodeOnBeforeTransferCodBankStmtLines(var CODAStatementLine: Record "CODA Statement Line"; var CODAStatementLine2: Record "CODA Statement Line")
     begin
     end;
 

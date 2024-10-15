@@ -102,7 +102,7 @@ codeunit 144005 "ERM Annual Listing"
         CountryCode: Code[10];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate);
         CountryCode :=
           InitInfoAndPostLinesInPeriod(
@@ -134,7 +134,7 @@ codeunit 144005 "ERM Annual Listing"
         FileName: Text;
     begin
         // [SCENARIO 391947] Foreign Customer with only posted Credit Memo is not exported with 'Annual Listing - Disk'.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo.
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -159,7 +159,7 @@ codeunit 144005 "ERM Annual Listing"
         FileName: Text;
     begin
         // [SCENARIO 264378] Report Annual Listing - Disk does not export invoice which amount less than Minimum Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post invoice with amount X
         LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
@@ -186,7 +186,7 @@ codeunit 144005 "ERM Annual Listing"
         CrMemoAmount: Decimal;
     begin
         // [SCENARIO 391947] Report Annual Listing - Disk does not export credit memos with amount less than Minimum Amount and without applied Sales Invoice from previous year.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post credit memo with amount X
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -215,7 +215,7 @@ codeunit 144005 "ERM Annual Listing"
         CrMemoAmount: Decimal;
     begin
         // [SCENARIO 391947] Report Annual Listing - Disk does not export Invoice and Credit Memo if sum of their amounts is less than Minimum Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with amount = 500 and VAT = 10% and Posting Date = 31.12.2023.
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -488,7 +488,7 @@ codeunit 144005 "ERM Annual Listing"
         FileName: Text;
     begin
         // [SCENARIO 264378] Report Annual Listing - Disk exports invoice which amount is greater than Minimum Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post invoice with amount 100
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -543,7 +543,7 @@ codeunit 144005 "ERM Annual Listing"
         IncludeCountry: Option All,Specific;
     begin
         // [SCENARIO 346489] Report Annual Listing - Disk exports Invoice for local Customer with "Enterprise No." without prefixes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a Customer with "Enterprise No." without prefixes
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -699,7 +699,7 @@ codeunit 144005 "ERM Annual Listing"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocumentWithAmount(CustomerNo: Code[20]; DocumentType: Option; PostingDate: Date; Amount: Decimal) PostedDocNo: Code[20]
+    local procedure CreateAndPostSalesDocumentWithAmount(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; PostingDate: Date; Amount: Decimal) PostedDocNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -721,7 +721,7 @@ codeunit 144005 "ERM Annual Listing"
     begin
         with VATRegistrationNoFormat do begin
             SetRange("Country/Region Code", CountryCode);
-            if FindLast then;
+            if FindLast() then;
             "Country/Region Code" := CountryCode;
             "Line No." += 10000;
             Format := FormatText;
@@ -753,7 +753,7 @@ codeunit 144005 "ERM Annual Listing"
         VatRegNoFormat: Record "VAT Registration No. Format";
     begin
         VatRegNoFormat.SetRange("Country/Region Code", CountryCode);
-        if VatRegNoFormat.FindFirst then
+        if VatRegNoFormat.FindFirst() then
             Result := VatRegNoFormat.Format
         else
             Error(VatRegNoFormatNotFoundErr);
@@ -778,7 +778,7 @@ codeunit 144005 "ERM Annual Listing"
     begin
         with SalesInvoiceHeader do begin
             SetRange("Sell-to Customer No.", CustomerNo);
-            FindLast;
+            FindLast();
             CalcFields(Amount);
             exit(Amount);
         end;
@@ -790,7 +790,7 @@ codeunit 144005 "ERM Annual Listing"
     begin
         with SalesCrMemoHeader do begin
             SetRange("Sell-to Customer No.", CustomerNo);
-            FindLast;
+            FindLast();
             CalcFields(Amount);
             exit(Amount);
         end;

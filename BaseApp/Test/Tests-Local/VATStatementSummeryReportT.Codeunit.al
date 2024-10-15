@@ -104,8 +104,8 @@ codeunit 144049 "VAT Statement Summery Report T"
         VATStatementMonth: Date;
     begin
         VATStatementMonth := CalcDate('<-CM>', WorkDate);
-        VATStatementTemplate.FindFirst;
-        VATStatementName.FindFirst;
+        VATStatementTemplate.FindFirst();
+        VATStatementName.FindFirst();
         with VATStatementLine do begin
             SetRange("Line No.", 9990000);
             DeleteAll();
@@ -166,11 +166,11 @@ codeunit 144049 "VAT Statement Summery Report T"
     var
         ReportStartDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         ReportStartDate := PrepareDeclarationSummaryReport;
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(ReportStartDate);
         LibraryVariableStorage.Enqueue(3);
         LibraryVariableStorage.Enqueue(UseLogicalControl);

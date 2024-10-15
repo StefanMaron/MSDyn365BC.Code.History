@@ -192,7 +192,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         // [SCENARIO 232996] Information from Bank Account represented in exported "File Domestic Payments" from Payment Journal
         // Test to verify that Payment Journal exports lines without errors when Batch name contains digits
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account with length of "No." = max length of field.
         BankAccountNo := CreateBankAccountMod97Compliant;
@@ -226,7 +226,7 @@ codeunit 144003 "ERM Payment Journal"
         // Test case for bug 59011.
 
         // Setup
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccountMod97Compliant;
         InitExportBatchesScenario(
           TemplateName, BatchNameDigits, BatchNameNoDigits, ExpProtCodeDomestic, ExpProtCodeInternational, false, BankAccountNo);
@@ -252,7 +252,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         // [SCENARIO 232996] Information from Bank Account represented in exported "File International Payments" from Payment Journal
         // Test to verify that Payment Journal exports lines without errors when Batch name contains digits
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account with length of "No." = max length of field.
         BankAccountNo := CreateBankAccountMod97Compliant;
@@ -286,7 +286,7 @@ codeunit 144003 "ERM Payment Journal"
         // Test case for bug 59011.
 
         // Setup
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccountMod97Compliant;
         InitExportBatchesScenario(TemplateName, BatchNameDigits, BatchNameNoDigits, ExpProtCodeDomestic,
           ExpProtCodeInternational, true, BankAccountNo);
@@ -307,7 +307,7 @@ codeunit 144003 "ERM Payment Journal"
         PurchaseHeader: Record "Purchase Header";
         PaymentJournalLine: Record "Payment Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         SuggestVendorPayments(PurchaseHeader."Buy-from Vendor No.");
@@ -329,7 +329,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         // [FEATURE] [Dimension] [Suggest Vendor Payments EB]
         // [SCENARIO 375587] Default Dimension for Vendor table is used when run "Suggest Vendor Payments EB" report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Purchase Invoice
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
@@ -348,7 +348,7 @@ codeunit 144003 "ERM Payment Journal"
 
         // [THEN] Payment line is created with dimension "Shortcut Dimension 8 Code" value = "Y"
         FilterEBPaymentJournalLine(PaymentJournalLine, PurchaseHeader."Buy-from Vendor No.", PaymentJournalLine.Status::Created);
-        PaymentJournalLine.FindFirst;
+        PaymentJournalLine.FindFirst();
         DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, PaymentJournalLine."Dimension Set ID");
         Assert.AreEqual(
@@ -371,12 +371,12 @@ codeunit 144003 "ERM Payment Journal"
         // [FEATURE] [Message]
         // [SCENARIO 259025] When the vendor has positive balance and nothing is suggested, and there are vendor ledger entries with the same DocumentNo and DocumentType,
         // [SCENARIO 259025] there should be no warning message related to already existing open entries in the payment journal.
-        Initialize;
+        Initialize();
         PaymentJournalLine.DeleteAll();
 
         // [GIVEN] Vendor "V" with overall positive balance and two Vendor Ledger Entries with the same "Document No." and "Document Type".
-        VendorNo := LibraryPurchase.CreateVendorNo;
-        DocumentNo := LibraryUtility.GenerateGUID;
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        DocumentNo := LibraryUtility.GenerateGUID();
         MockVendorLedgerEntry(VendorNo, DocumentNo, WorkDate, LibraryRandom.RandDecInRange(100, 1000, 2));
         MockVendorLedgerEntry(VendorNo, DocumentNo, WorkDate, LibraryRandom.RandDecInRange(100, 1000, 2));
 
@@ -530,7 +530,7 @@ codeunit 144003 "ERM Payment Journal"
         // [FEATURE] [UT] [Payment Reference]
         // [SCENARIO 362612] A "Vendor Invoice No." copies to the "Payment Message" of the "Payment Journal Line"
 
-        Initialize;
+        Initialize();
 
         CreateVendorWithBankAccount(Vendor, true);
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);
@@ -540,7 +540,7 @@ codeunit 144003 "ERM Payment Journal"
         CreateGenJnlLine(
           GenJnlLine, GenJnlLine."Account Type"::Vendor, Vendor."No.",
           GenJnlLine."Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
-        GenJnlLine.Validate("Payment Reference", LibraryUtility.GenerateGUID);
+        GenJnlLine.Validate("Payment Reference", LibraryUtility.GenerateGUID());
         GenJnlLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
@@ -643,7 +643,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Journal");
         LibraryReportDataset.Reset();
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -684,7 +684,7 @@ codeunit 144003 "ERM Payment Journal"
         FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         GenJnlBatch.Get(TemplateName, BatchName);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
-        GenJnlBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo;
+        GenJnlBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo();
         GenJnlBatch.Modify();
 
         if UseExpProtCodeInternational then
@@ -739,7 +739,7 @@ codeunit 144003 "ERM Payment Journal"
         CrMemoAmount: Decimal;
         BankAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithBankAccount(Vendor, false);
 
@@ -772,7 +772,7 @@ codeunit 144003 "ERM Payment Journal"
         CrMemoAmount: Decimal;
         BankAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerWithBankAccount(Customer);
 
@@ -811,7 +811,7 @@ codeunit 144003 "ERM Payment Journal"
         CrMemoAmount: Decimal;
         BankAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerWithBankAccount(Customer);
         CreateVendorWithBankAccount(Vendor, true);
@@ -851,7 +851,7 @@ codeunit 144003 "ERM Payment Journal"
         InvoiceAmount: Decimal;
         BankAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateVendorWithBankAccount(Vendor, true);
 
@@ -885,7 +885,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         PaymentJournalLine.SetRange("Journal Template Name", TemplateName);
         PaymentJournalLine.SetRange("Journal Batch Name", BatchName);
-        PaymentJournalLine.FindFirst;
+        PaymentJournalLine.FindFirst();
         Commit();
 
         ExportProtocol.Get(ExportProtocolCode);
@@ -912,7 +912,7 @@ codeunit 144003 "ERM Payment Journal"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Integer; AccountNo: Code[20]; DocumentType: Integer; Amount: Decimal; var DocumentNo: Code[20]; BankAccountNo: Code[20])
+    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; var DocumentNo: Code[20]; BankAccountNo: Code[20])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         TemplateName: Code[10];
@@ -1131,7 +1131,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         with VendorBankAccount do begin
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -1142,7 +1142,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         with CustomerBankAccount do begin
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -1200,7 +1200,7 @@ codeunit 144003 "ERM Payment Journal"
         ExportProtocol.Get(ExportProtocolCode);
         PaymentJournalPost.SetParameters(GenJnlLine, false, ExportProtocol."Export Object ID", WorkDate);
         PaymentJournalPost.SetTableView(PaymentJnlLine);
-        PaymentJournalPost.RunModal;
+        PaymentJournalPost.RunModal();
     end;
 
     local procedure FindCrMemoGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; CrMemoNo: Code[20])
@@ -1210,7 +1210,7 @@ codeunit 144003 "ERM Payment Journal"
             SetRange("Journal Batch Name", GenJournalBatch.Name);
             SetRange("Applies-to Doc. Type", "Applies-to Doc. Type"::"Credit Memo");
             SetRange("Applies-to Doc. No.", CrMemoNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1231,7 +1231,7 @@ codeunit 144003 "ERM Payment Journal"
         FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         GenJnlBatch.Get(TemplateName, BatchName);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
-        GenJnlBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo;
+        GenJnlBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo();
         GenJnlBatch.Modify();
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
 
@@ -1439,7 +1439,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         PmtJnlLine.SetRange("Journal Template Name", TemplateName);
         PmtJnlLine.SetRange("Journal Batch Name", BatchName);
-        if PmtJnlLine.FindSet then
+        if PmtJnlLine.FindSet() then
             repeat
                 Count += 1;
                 Assert.AreEqual(Status, PmtJnlLine.Status, WrongStatusOfLineErr);
@@ -1503,7 +1503,7 @@ codeunit 144003 "ERM Payment Journal"
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalBatch.Name);
             SetRange("Account Type", "Account Type"::Customer);
-            FindFirst;
+            FindFirst();
             TestField("Document Type", "Document Type"::Refund);
         end;
     end;
@@ -1517,7 +1517,7 @@ codeunit 144003 "ERM Payment Journal"
             SetRange("Journal Batch Name", GenJournalBatch.Name);
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", AccountNo);
-            FindFirst;
+            FindFirst();
             TestField("Applies-to ID", ApplyToID);
         end;
     end;
@@ -1531,7 +1531,7 @@ codeunit 144003 "ERM Payment Journal"
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
         GenJnlLine.SetRange("Account No.", AccountNo);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlLine.TestField("Dimension Set ID");
         DimMgt.GetDimensionSet(TempDimSetEntry, GenJnlLine."Dimension Set ID");
         Assert.AreEqual(1, TempDimSetEntry.Count, IncorrectNumberOfDimErr);

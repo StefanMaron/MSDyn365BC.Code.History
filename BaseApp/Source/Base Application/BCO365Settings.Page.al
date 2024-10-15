@@ -11,7 +11,6 @@ page 2315 "BC O365 Settings"
             group(Control14)
             {
                 ShowCaption = false;
-                Visible = GraphMailVisible;
                 part(GraphMailPage; "BC O365 Graph Mail Settings")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
@@ -19,18 +18,27 @@ page 2315 "BC O365 Settings"
                     UpdatePropagation = Both;
                 }
             }
+#if not CLEAN20
             group(Control15)
             {
                 ShowCaption = false;
-                Visible = SmtpMailVisible;
-                part(SmtpMailPage; "BC O365 Email Account Settings")
+                Visible = false;
+                ObsoleteReason = 'Empty group';
+                ObsoleteState = Pending;
+                ObsoleteTag = '20.0';
+
+                part(SmtpMailPage; "Email Scenarios FactBox") // Original part has been removed, Email Scenarios Factbox as dummy and part is not visible
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
                     Caption = 'Email account';
                     UpdatePropagation = Both;
-                    Visible = SmtpMailVisible;
+                    Visible = false;
+                    ObsoleteReason = 'Part has been removed.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
             }
+#endif
             part("Email settings"; "BC O365 Email Settings Part")
             {
                 ApplicationArea = Basic, Suite, Invoicing;
@@ -109,11 +117,6 @@ page 2315 "BC O365 Settings"
     {
     }
 
-    trigger OnAfterGetCurrRecord()
-    begin
-        SetMailProviderVisibility;
-    end;
-
     trigger OnInit()
     var
         TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
@@ -122,8 +125,6 @@ page 2315 "BC O365 Settings"
         PaymentServicesVisible := not TempPaymentServiceSetup.IsEmpty;
 
         QuickBooksVisible := O365SalesManagement.GetQuickBooksVisible;
-
-        SetMailProviderVisibility;
     end;
 
     var
@@ -131,20 +132,5 @@ page 2315 "BC O365 Settings"
         PaymentServicesVisible: Boolean;
         ExportInvoicesLbl: Label 'Send invoice overview';
         QuickBooksVisible: Boolean;
-        GraphMailVisible: Boolean;
-        SmtpMailVisible: Boolean;
-
-    local procedure SetMailProviderVisibility()
-    var
-        O365SetupEmail: Codeunit "O365 Setup Email";
-        GraphMail: Codeunit "Graph Mail";
-        EmailFeature: Codeunit "Email Feature";
-    begin
-        if EmailFeature.IsEnabled() then
-            SmtpMailVisible := false
-        else
-            SmtpMailVisible := (O365SetupEmail.SMTPEmailIsSetUp and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration);
-        GraphMailVisible := not SmtpMailVisible;
-    end;
 }
 

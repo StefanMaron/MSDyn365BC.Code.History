@@ -131,7 +131,12 @@ report 90 "Import Consolidation from DB"
                 Window.Update(2, '');
 
                 Clear(BusUnitConsolidate);
-                BusUnitConsolidate.SetDocNo(GLDocNo, SelectJnlLine."Journal Template Name", SelectJnlLine."Journal Batch Name");
+                BusUnitConsolidate.SetDocNo(GLDocNo);
+                if GLSetup."Journal Templ. Name Mandatory" then begin
+                    GenJnlBatch."Journal Template Name" := GenJnlLineReq."Journal Template Name";
+                    GenJnlBatch.Name := GenJnlLineReq."Journal Batch Name";
+                    BusUnitConsolidate.SetGenJnlBatch(GenJnlBatch);
+                end;
 
                 TestField("Company Name");
                 "G/L Entry".ChangeCompany("Company Name");
@@ -205,7 +210,7 @@ report 90 "Import Consolidation from DB"
                             ApplicationArea = Suite;
                             Caption = 'Starting Date';
                             ClosingDates = true;
-                            ToolTip = 'Specifies the date from which the report or batch job processes information.';
+                            ToolTip = 'Specifies the starting date.';
                         }
                         field(EndingDate; ConsolidEndDate)
                         {
@@ -236,6 +241,43 @@ report 90 "Import Consolidation from DB"
                         ApplicationArea = Suite;
                         Caption = 'Document No.';
                         ToolTip = 'Specifies the G/L document number.';
+                        Visible = not IsJournalTemplNameVisible;
+                    }
+                    field(JournalTemplateName; GenJnlLineReq."Journal Template Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Template Name';
+                        TableRelation = "Gen. Journal Template";
+                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnValidate()
+                        begin
+                            GenJnlLineReq."Journal Batch Name" := '';
+                        end;
+                    }
+                    field(JournalBatchName; GenJnlLineReq."Journal Batch Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Batch Name';
+                        Lookup = true;
+                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
+                        begin
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            end;
+                        end;
                     }
                     field(ParentCurrencyCode; ParentCurrencyCode)
                     {
@@ -243,44 +285,30 @@ report 90 "Import Consolidation from DB"
                         Caption = 'Parent Currency Code';
                         ToolTip = 'Specifies the parent currency code.';
                     }
-                    field("SelectJnlLine.""Journal Template Name"""; SelectJnlLine."Journal Template Name")
+#if not CLEAN20
+                    field("SelectJnlLine.""Journal Template Name"""; GenJnlLineReq."Journal Template Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Template Name';
                         TableRelation = "Gen. Journal Template";
                         ToolTip = 'Specifies the name of the journal template that is used for the posting.';
-
-                        trigger OnValidate()
-                        begin
-                            SelectJnlLine."Journal Batch Name" := '';
-                        end;
+                        Visible = false;
+                        ObsoleteReason = 'Replaced by control JournalTemplateName';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '20.0';
                     }
-                    field("SelectJnlLine.""Journal Batch Name"""; SelectJnlLine."Journal Batch Name")
+                    field("SelectJnlLine.""Journal Batch Name"""; GenJnlLineReq."Journal Batch Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Batch Name';
                         Lookup = true;
                         ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
-
-                        trigger OnLookup(var Text: Text): Boolean
-                        begin
-                            SelectJnlLine.TestField("Journal Template Name");
-                            GenJournalTempl.Get(SelectJnlLine."Journal Template Name");
-                            GenJnlBatch.SetRange("Journal Template Name", SelectJnlLine."Journal Template Name");
-                            GenJnlBatch."Journal Template Name" := SelectJnlLine."Journal Template Name";
-                            GenJnlBatch.Name := SelectJnlLine."Journal Batch Name";
-                            if PAGE.RunModal(0, GenJnlBatch) = ACTION::LookupOK then
-                                SelectJnlLine."Journal Batch Name" := GenJnlBatch.Name;
-                        end;
-
-                        trigger OnValidate()
-                        begin
-                            if SelectJnlLine."Journal Batch Name" <> '' then begin
-                                SelectJnlLine.TestField("Journal Template Name");
-                                GenJnlBatch.Get(SelectJnlLine."Journal Template Name", SelectJnlLine."Journal Batch Name");
-                            end;
-                        end;
+                        Visible = false;
+                        ObsoleteReason = 'Replaced by control JournalTemplateName';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '20.0';
                     }
+#endif
                 }
             }
         }
@@ -296,10 +324,10 @@ report 90 "Import Consolidation from DB"
             if ConsolidEndDate = 0D then
                 ConsolidEndDate := WorkDate;
 
-            if ParentCurrencyCode = '' then begin
-                GLSetup.Get();
+            GLSetup.Get();
+            if ParentCurrencyCode = '' then
                 ParentCurrencyCode := GLSetup."LCY Code";
-            end;
+            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         end;
     }
 
@@ -317,15 +345,17 @@ report 90 "Import Consolidation from DB"
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Import Consolidation from DB", '', ColumnDim, Text020);
-        if SelectJnlLine."Journal Template Name" = '' then
-            Error(Text11300);
-        if SelectJnlLine."Journal Batch Name" = '' then
-            Error(Text11301);
-        Clear(NoSeriesMgt);
-        Clear(GLDocNo);
-        GenJnlBatch.Get(SelectJnlLine."Journal Template Name", SelectJnlLine."Journal Batch Name");
-        GenJnlBatch.TestField("No. Series");
-        GLDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate, true);
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if GenJnlLineReq."Journal Template Name" = '' then
+                Error(Text11300Err);
+            if GenJnlLineReq."Journal Batch Name" = '' then
+                Error(Text11301Err);
+            Clear(NoSeriesMgt);
+            Clear(GLDocNo);
+            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+            GenJnlBatch.TestField("No. Series");
+            GLDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate(), true);
+        end;
     end;
 
     var
@@ -349,8 +379,7 @@ report 90 "Import Consolidation from DB"
         TempDimVal: Record "Dimension Value" temporary;
         GLSetup: Record "General Ledger Setup";
         DimSelectionBuf: Record "Dimension Selection Buffer";
-        SelectJnlLine: Record "Gen. Journal Line";
-        GenJournalTempl: Record "Gen. Journal Template";
+        GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         BusUnitConsolidate: Codeunit Consolidate;
@@ -362,12 +391,13 @@ report 90 "Import Consolidation from DB"
         ParentCurrencyCode: Code[10];
         SubsidCurrencyCode: Code[10];
         AdditionalCurrencyCode: Code[10];
-        Text032: Label 'The %1 is later than the %2 in company %3.';
+        IsJournalTemplNameVisible: Boolean;
+        Text032Err: Label 'The %1 is later than the %2 in company %3.';
         GLEntryNo: Integer;
         ConsPeriodSubsidiaryQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year of one or more of the subsidiaries.\Do you want to proceed with the consolidation?', Comment = '%1 and %2 - request page values';
         ConsPeriodCompanyQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year %3 .. %4 of the consolidated company %5.\Do you want to proceed with the consolidation?', Comment = '%1, %2, %3, %4 - request page values, %5 - company name';
-        Text11300: Label 'Please enter a Journal Template Name.';
-        Text11301: Label 'Please enter a Journal Batch Name.';
+        Text11300Err: Label 'Please enter a Journal Template Name.';
+        Text11301Err: Label 'Please enter a Journal Batch Name.';
 
     local procedure CheckClosingPostings(GLAccNo: Code[20]; StartDate: Date; EndDate: Date)
     var
@@ -494,7 +524,7 @@ report 90 "Import Consolidation from DB"
                 TestField("Ending Date");
                 if "Starting Date" > "Ending Date" then
                     Error(
-                      Text032, FieldCaption("Starting Date"),
+                      Text032Err, FieldCaption("Starting Date"),
                       FieldCaption("Ending Date"), "Company Name");
             end;
     end;

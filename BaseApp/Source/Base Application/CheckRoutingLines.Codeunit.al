@@ -201,7 +201,7 @@ codeunit 99000752 "Check Routing Lines"
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange("Version Code", VersionCode);
         RoutingLine.SetFilter("Previous Operation No.", '%1', '');
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         exit(RoutingLine."Operation No.");
     end;
 
@@ -212,7 +212,7 @@ codeunit 99000752 "Check Routing Lines"
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange("Version Code", VersionCode);
         RoutingLine.SetFilter("Next Operation No.", '%1', '');
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         exit(RoutingLine."Operation No.");
     end;
 
@@ -384,7 +384,7 @@ codeunit 99000752 "Check Routing Lines"
         RtngLine.SetRange("Routing No.", RtngHeader."No.");
         RtngLine.SetRange("Version Code", VersionCode);
         RtngLine.SetRange("No.", '');
-        if RtngLine.FindFirst then
+        if RtngLine.FindFirst() then
             Error(Text008, RtngLine."Operation No.");
         RtngLine.SetRange("No.");
 

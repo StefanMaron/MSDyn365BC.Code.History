@@ -323,6 +323,13 @@ page 49 "Purchase Quote"
                     Importance = Promoted;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
+                field("Payment Method Code"; "Payment Method Code")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
+                }
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -359,11 +366,23 @@ page 49 "Purchase Quote"
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    Visible = IsJournalTemplateNameVisible;
+                }
+#if not CLEAN20
                 field("Journal Template Name"; "Journal Template Name")
                 {
                     ApplicationArea = BasicBE;
                     ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
+#endif
                 field("Shipment Method Code"; "Shipment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -886,7 +905,7 @@ page 49 "Purchase Quote"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -988,8 +1007,7 @@ page 49 "Purchase Quote"
                     var
                         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
                     begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+                        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
                         DocPrint.PrintPurchHeader(Rec);
                     end;
@@ -1337,7 +1355,7 @@ page 49 "Purchase Quote"
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
-        StdVendPurchCode: Record "Standard Vendor Purchase Code";
+        GLSetup: Record "General Ledger Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
@@ -1357,6 +1375,10 @@ page 49 "Purchase Quote"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplateNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -1367,6 +1389,9 @@ page 49 "Purchase Quote"
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplateNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
 
         OnAfterActivateFields();
     end;

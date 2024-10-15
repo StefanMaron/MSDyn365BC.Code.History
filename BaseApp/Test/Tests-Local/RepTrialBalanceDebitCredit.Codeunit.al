@@ -53,7 +53,7 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
         I: Integer;
         RowIndex: Integer;
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(UseAmtsInAddCurr); // Use local currency
         LibraryVariableStorage.Enqueue(Format(StartDate)); // start date
         LibraryVariableStorage.Enqueue(Format(EndDate)); // end date
@@ -67,10 +67,10 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
         GLAccount.SetFilter("Date Filter", DateFilter);
         for I := 1 to 2 do begin
             if I = 1 then begin
-                GLAccount.FindFirst;
+                GLAccount.FindFirst();
                 LibraryReportDataset.GetNextRow;
             end else begin
-                GLAccount.FindLast;
+                GLAccount.FindLast();
                 LibraryReportDataset.GetLastRow;
             end;
 
@@ -90,7 +90,7 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
 
         // Find the record containing Account No 7, INCOME STATEMENT
         GLAccount.SetFilter("No.", '7');
-        if not GLAccount.FindFirst then
+        if not GLAccount.FindFirst() then
             exit;
 
         GLAccount.SetRange("Date Filter", 0D, ClosingDate(StartDate - 1));

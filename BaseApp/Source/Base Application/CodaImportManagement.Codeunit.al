@@ -452,7 +452,7 @@ codeunit 2000040 "Coda Import Management"
         with CodBankStmtSrcLine do begin
             SetFilter("Bank Account No.", CodedBankStmtSrcLine."Bank Account No.");
             SetFilter("Statement No.", xStatementNo);
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     Rename("Bank Account No.", StatementNo, "Line No.");
                 until FindFirst = false;

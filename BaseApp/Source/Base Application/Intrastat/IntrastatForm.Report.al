@@ -384,7 +384,7 @@ report 501 "Intrastat - Form"
                             PrevIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
                             PrevIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
                             PrevIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
-                            PrevIntrastatJnlLine.FindFirst;
+                            PrevIntrastatJnlLine.FindFirst();
                         end;
 
                         SubTotalWeight := SubTotalWeight + Round("Total Weight", 1);
@@ -458,7 +458,7 @@ report 501 "Intrastat - Form"
                           Type, "Country/Region Code", "Tariff No.", "Transaction Type",
                           "Transport Method", "Transaction Specification", Area);
                         IJL.CopyFilters("Intrastat Jnl. Line");
-                        if IJL.FindSet then
+                        if IJL.FindSet() then
                             repeat
                                 Clear(IJL2);
                                 IJL2.SetCurrentKey(

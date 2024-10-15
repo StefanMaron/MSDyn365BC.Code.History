@@ -1,4 +1,4 @@
-table 846 "Cash Flow Worksheet Line"
+﻿table 846 "Cash Flow Worksheet Line"
 {
     Caption = 'Cash Flow Worksheet Line';
 
@@ -167,13 +167,13 @@ table 846 "Cash Flow Worksheet Line"
                     "Source Type"::Receivables:
                         begin
                             CustLedgEntry.SetRange("Document No.", "Source No.");
-                            if CustLedgEntry.FindFirst then
+                            if CustLedgEntry.FindFirst() then
                                 "Dimension Set ID" := CustLedgEntry."Dimension Set ID";
                         end;
                     "Source Type"::Payables:
                         begin
                             VendLedgEntry.SetRange("Document No.", "Source No.");
-                            if VendLedgEntry.FindFirst then
+                            if VendLedgEntry.FindFirst() then
                                 "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
                         end;
                     "Source Type"::"Fixed Assets Disposal",
@@ -279,16 +279,12 @@ table 846 "Cash Flow Worksheet Line"
 
     procedure MoveDefualtDimToJnlLineDim(TableID: Integer; No: Code[20]; var DimensionSetID: Integer)
     var
-        TableID2: array[10] of Integer;
-        No2: array[10] of Code[20];
         Dimension: Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        TableID2[1] := TableID;
-        No2[1] := No;
+        DimMgt.AddDimSource(DefaultDimSource, TableID, No);
         Dimension := '';
-        DimensionSetID :=
-          DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID2, No2, '', Dimension, Dimension, 0, 0);
+        DimensionSetID := DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, '', Dimension, Dimension, 0, 0);
     end;
 
     procedure CalculateCFAmountAndCFDate()

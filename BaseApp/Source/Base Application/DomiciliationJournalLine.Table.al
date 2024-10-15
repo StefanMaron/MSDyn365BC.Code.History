@@ -253,18 +253,18 @@ table 2000022 "Domiciliation Journal Line"
                 if "Applies-to Doc. No." <> '' then begin
                     CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                     CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                    if CustLedgEntry.FindFirst then;
+                    if CustLedgEntry.FindFirst() then;
                     CustLedgEntry.SetRange("Document Type");
                     CustLedgEntry.SetRange("Document No.");
                 end else
                     if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                        if CustLedgEntry.FindFirst then;
+                        if CustLedgEntry.FindFirst() then;
                         CustLedgEntry.SetRange("Document Type");
                     end else
                         if Amount <> 0 then begin
                             CustLedgEntry.SetRange(Positive, Amount < 0);
-                            if CustLedgEntry.FindFirst then;
+                            if CustLedgEntry.FindFirst() then;
                             CustLedgEntry.SetRange(Positive);
                         end;
                 ApplyCustLedgEntries.SetTableView(CustLedgEntry);
@@ -285,7 +285,7 @@ table 2000022 "Domiciliation Journal Line"
                     CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                     CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     CustLedgEntry.SetRange("Customer No.", "Customer No.");
-                    if not CustLedgEntry.FindFirst then
+                    if not CustLedgEntry.FindFirst() then
                         Error(Text003, "Applies-to Doc. Type", "Applies-to Doc. No.");
                     CustUpdatePayment;
                 end;

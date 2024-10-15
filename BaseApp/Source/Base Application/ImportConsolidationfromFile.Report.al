@@ -1,4 +1,4 @@
-report 92 "Import Consolidation from File"
+﻿report 92 "Import Consolidation from File"
 {
     Caption = 'Import Consolidation from File';
     ProcessingOnly = true;
@@ -111,14 +111,6 @@ report 92 "Import Consolidation from File"
         {
         }
 
-#if not CLEAN17
-        trigger OnInit()
-        var
-            ClientTypeMgt: Codeunit "Client Type Management";
-        begin
-            OnWebClient := ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop];
-        end;
-#endif
     }
 
     labels
@@ -132,29 +124,19 @@ report 92 "Import Consolidation from File"
               '', '', BusUnit."Company Name",
               SubsidCurrencyCode, AdditionalCurrencyCode, ParentCurrencyCode,
               0, ConsolidStartDate, ConsolidEndDate);
+        GLSetup.Get();
         Consolidate.UpdateGLEntryDimSetID;
-        Consolidate.SetDocNo('', JnlTemplName, JnlBatchName);
+        Consolidate.SetDocNo(GLDocNo);
+        if GLSetup."Journal Templ. Name Mandatory" then
+            Consolidate.SetGenJnlBatch(GenJnlBatch);
         Consolidate.Run(BusUnit);
     end;
 
     trigger OnPreReport()
     var
         BusUnit2: Record "Business Unit";
-        GLSetup: Record "General Ledger Setup";
-#if not CLEAN17
-        FileManagement: Codeunit "File Management";
-#endif
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-#if not CLEAN17
-        if not OnWebClient then begin
-            if FileName = '' then
-                Error(Text000);
-
-            ServerFileName := FileManagement.UploadFileSilent(FilePath);
-        end;
-#endif
-
         if GLDocNo = '' then
             Error(Text015);
 
@@ -234,9 +216,6 @@ report 92 "Import Consolidation from File"
     end;
 
     var
-#if not CLEAN17
-        Text000: Label 'Enter the file name.';
-#endif
         Text001: Label 'The file to be imported has an unknown format.';
         Text002: Label 'The %1 in the file to be imported (%2) does not match the %1 in the %3 (%4).';
         Text005: Label 'The business unit %1 %2 is not unique.\\';
@@ -249,6 +228,8 @@ report 92 "Import Consolidation from File"
         Text027: Label 'Reading File...';
         Text031: Label 'Import from File';
         BusUnit: Record "Business Unit";
+        GLSetup: Record "General Ledger Setup";
+        GenJnlBatch: Record "Gen. Journal Batch";
         Consolidate: Codeunit Consolidate;
         Window: Dialog;
         GLEntryFile: File;
@@ -269,21 +250,30 @@ report 92 "Import Consolidation from File"
         FormatVersion: Code[10];
         Text036: Label 'Imported checksum (%1) does not equal the calculated checksum (%2). The file may be corrupt.';
         ServerFileName: Text;
-        JnlTemplName: Code[10];
-        JnlBatchName: Code[10];
-#if not CLEAN17
-        [InDataSet]
-        OnWebClient: Boolean;
-#endif
         FileFormatQst: Label 'The entered %1, %2, does not equal the %1 on this %3, %4.\Do you want to continue?', Comment = '%1 - field caption, %2 - field value, %3 - table captoin, %4 - field value';
 
+    procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewGLDocNo: Code[20])
+    begin
+        FileFormat := NewFileFormat;
+        FilePath := NewFilePath;
+        FileName := GetFileName(FilePath);
+        GLDocNo := NewGLDocNo;
+    end;
+
+#if not CLEAN20
     procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
     begin
         FileFormat := NewFileFormat;
         FilePath := NewFilePath;
         FileName := GetFileName(FilePath);
-        JnlTemplName := NewJnlTemplName;
-        JnlBatchName := NewJnlBatchName;
+        GenJnlBatch."Journal Template Name" := NewJnlTemplName;
+        GenJnlBatch.Name := NewJnlBatchName;
+    end;
+#endif
+
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
     end;
 
     local procedure GetFileName(FilePath: Text): Text

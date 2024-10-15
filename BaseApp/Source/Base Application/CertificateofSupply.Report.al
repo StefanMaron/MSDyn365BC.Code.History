@@ -164,7 +164,7 @@ report 780 "Certificate of Supply"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not TempServiceShipmentLine.FindSet then
+                            if not TempServiceShipmentLine.FindSet() then
                                 CurrReport.Break
                         end else
                             if TempServiceShipmentLine.Next() = 0 then
@@ -214,7 +214,7 @@ report 780 "Certificate of Supply"
                         "Document Type"::"Sales Shipment":
                             begin
                                 CopyFilter("Document No.", SalesShipmentHeader."No.");
-                                if SalesShipmentHeader.FindSet then
+                                if SalesShipmentHeader.FindSet() then
                                     repeat
                                         CertificateOfSupply2.InitFromSales(SalesShipmentHeader);
                                         CertificateOfSupply2.SetRequired(SalesShipmentHeader."No.");
@@ -223,7 +223,7 @@ report 780 "Certificate of Supply"
                         "Document Type"::"Service Shipment":
                             begin
                                 CopyFilter("Document No.", ServiceShipmentHeader."No.");
-                                if ServiceShipmentHeader.FindSet then
+                                if ServiceShipmentHeader.FindSet() then
                                     repeat
                                         CertificateOfSupply2.InitFromService(ServiceShipmentHeader);
                                         CertificateOfSupply2.SetRequired(ServiceShipmentHeader."No.")
@@ -232,7 +232,7 @@ report 780 "Certificate of Supply"
                         "Document Type"::"Return Shipment":
                             begin
                                 CopyFilter("Document No.", ReturnShipmentHeader."No.");
-                                if ReturnShipmentHeader.FindFirst then
+                                if ReturnShipmentHeader.FindFirst() then
                                     repeat
                                         CertificateOfSupply2.InitFromPurchase(ReturnShipmentHeader);
                                         CertificateOfSupply2.SetRequired(ReturnShipmentHeader."No.")
@@ -421,7 +421,7 @@ report 780 "Certificate of Supply"
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeaderNo);
-        if SalesShipmentLine.FindSet then
+        if SalesShipmentLine.FindSet() then
             repeat
                 TempServiceShipmentLine."Line No." := SalesShipmentLine."Line No.";
                 TempServiceShipmentLine."No." := SalesShipmentLine."No.";
@@ -438,7 +438,7 @@ report 780 "Certificate of Supply"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeaderNo);
-        if ServiceShipmentLine.FindSet then
+        if ServiceShipmentLine.FindSet() then
             repeat
                 TempServiceShipmentLine := ServiceShipmentLine;
                 TempServiceShipmentLine.Insert();
@@ -450,7 +450,7 @@ report 780 "Certificate of Supply"
         ReturnShipmentLine: Record "Return Shipment Line";
     begin
         ReturnShipmentLine.SetRange("Document No.", ReturnShipmentHeaderNo);
-        if ReturnShipmentLine.FindSet then
+        if ReturnShipmentLine.FindSet() then
             repeat
                 TempServiceShipmentLine."Line No." := ReturnShipmentLine."Line No.";
                 TempServiceShipmentLine."No." := ReturnShipmentLine."No.";

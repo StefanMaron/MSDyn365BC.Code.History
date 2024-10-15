@@ -75,7 +75,7 @@ page 766 "Acc. Sched. Chart SubPage"
                         AccountSchedulesChartSetup."Base X-Axis on"::Period:
                             if IsMeasure then begin
                                 AccSchedChartMatrix.SetFilters(AccountSchedulesChartSetup);
-                                AccSchedChartMatrix.RunModal;
+                                AccSchedChartMatrix.RunModal();
                             end;
                         AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
                         AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
@@ -85,7 +85,7 @@ page 766 "Acc. Sched. Chart SubPage"
                                 else
                                     AccSchedChartLine.SetViewAsMeasure(false);
                                 AccSchedChartLine.SetTableView(AccSchedChartSetupLine);
-                                AccSchedChartLine.RunModal;
+                                AccSchedChartLine.RunModal();
                             end;
                     end;
 

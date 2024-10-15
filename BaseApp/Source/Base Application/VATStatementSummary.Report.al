@@ -504,7 +504,7 @@ report 11311 "VAT Statement Summary"
             AccountingPeriod.Reset();
             AccountingPeriod.SetRange("Starting Date", Calender."Period Start");
             AccountingPeriod.SetRange(Name, Calender."Period Name");
-            if AccountingPeriod.FindFirst then
+            if AccountingPeriod.FindFirst() then
                 DateName[i] := AccountingPeriod.Name;
 
             if Date2DMY(Calender."Period End", 2) = 12 then

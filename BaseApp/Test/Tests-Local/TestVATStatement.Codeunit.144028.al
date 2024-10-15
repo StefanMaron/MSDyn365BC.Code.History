@@ -31,7 +31,7 @@ codeunit 144028 "Test VAT Statement"
         SumOfEntries: Decimal;
         ExpectedValue: Decimal;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Statement Line of Amount type with non-zero ColumnValue in 'VAT Statement Preview' page
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Amount);
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
@@ -56,7 +56,7 @@ codeunit 144028 "Test VAT Statement"
         SumOfEntries: Decimal;
         ExpectedValue: Decimal;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Statement Line of Base type with non-zero ColumnValue in 'VAT Statement Preview' page
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
@@ -83,13 +83,13 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.022] 'Correction Value' gets value adding 'Manual VAT Correction' through UI
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Statement Line with non-zero ColumnValue
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
         CreateVATStmt(VATEntry, VATStatementLine);
         // [GIVEN] Find a VAT Statement Line with Type 'VAT Entry Totaling'
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
         // [GIVEN] Run Manual VAT Correction action
         ManualVATCorrectionListPage.Trap;
@@ -117,13 +117,13 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.025] Adding new Correction in drilldown page for 'Row Totaling' line
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Statement Line with non-zero ColumnValue
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
         CreateVATStmt(VATEntry, VATStatementLine);
         // [GIVEN] Find a VAT Statement Line with Type 'Row Totaling'
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"Row Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
         // [GIVEN] Run Manual VAT Correction action
         ManualVATCorrectionListPage.Trap;
@@ -149,13 +149,13 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.020] 'Correction Value' DrillDown when VAT Statement Line.Type is 'Account Totaling'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Added a manual VAT correction on VAT Statement Line with Type 'Account Totaling'
         CreateVATEntry(VATEntry, 0);
         CreateVATStmt(VATEntry, VATStatementLine);
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"Account Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         ExpectedCorrValue := AddManualVATCorrection(VATStatementLine, false);
         // [GIVEN]  Open VAT Statement Preview page
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
@@ -184,7 +184,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.020] 'Correction Value' DrillDown when VAT Statement Line.Type is 'VAT Entries Totaling'
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement Line with non-zero ColumnValue
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
@@ -192,7 +192,7 @@ codeunit 144028 "Test VAT Statement"
         // [GIVEN] Added multiple manual VAT corrections
         AddManualVATCorrection(VATStatementLine, false);
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         ExpectedCorrValue := CalcManVATCorrAmount(VATStatementLine, false);
         // [GIVEN] Open VAT Statement Preview page
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
@@ -223,14 +223,14 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.020] 'Correction Value' DrillDown when VAT Statement Line.Type is 'Description'
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement Line with non-zero ColumnValue
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
         CreateVATStmt(VATEntry, VATStatementLine);
         // [GIVEN] Find a VAT Statement Line with Type 'Description'
         VATStatementLine.SetRange(Type, VATStatementLine.Type::Description);
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         // [GIVEN] Added a manual VAT correction
         ExpectedCorrValue := AddManualVATCorrection(VATStatementLine, false);
         // [GIVEN] Open VAT Statement Preview page
@@ -264,7 +264,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.015] VAT Statement Line 'Correction Value' reflects Date Filter 'Before Period'
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement Line with non-zero Column Amount
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
@@ -274,7 +274,7 @@ codeunit 144028 "Test VAT Statement"
         // [GIVEN] Manual VAT Correction B with Posting Date = WORKDATE + 1M
         AddManualVATCorrection(VATStatementLine, false);
         ManualVATCorrection.SetRange("Posting Date", WorkDate);
-        ManualVATCorrection.FindFirst;
+        ManualVATCorrection.FindFirst();
         ExpectedCorrValue := ManualVATCorrection.Amount;
         // [GIVEN] Date Filter set to ..WORKDATE
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
@@ -308,7 +308,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.015] VAT Statement Line 'Correction Value' reflects Date Filter 'Within Period'
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement Line with non-zero Column Amount
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
@@ -318,7 +318,7 @@ codeunit 144028 "Test VAT Statement"
         // [GIVEN] Manual VAT Correction B with Posting Date = WORKDATE + 1M
         AddManualVATCorrection(VATStatementLine, false);
         ManualVATCorrection.SetFilter("Posting Date", '>%1', WorkDate);
-        ManualVATCorrection.FindLast;
+        ManualVATCorrection.FindLast();
         ExpectedCorrValue := ManualVATCorrection.Amount;
         // [GIVEN] Date Filter set to exclude entry A
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
@@ -350,14 +350,14 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.021] 'Correction Value' DrillDown when VAT Statement Line.Type is 'Row Totaling'
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement Line with non-zero ColumnValue
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
         CreateVATStmt(VATEntry, VATStatementLine);
         // [GIVEN] Added a manual VAT correction on VAT Statement Line with Type 'Row Totaling' alone
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"Row Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         ExpectedCorrValue := AddManualVATCorrection(VATStatementLine, false);
         // [GIVEN] Open VAT Statement Preview page
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
@@ -386,7 +386,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.021] 'Correction Value' DrillDown when VAT Statement Line.Type is 'Row Totaling' summed up
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 of 4 VAT Statement Lines are within with 'Row Totaling' filter
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
@@ -395,11 +395,11 @@ codeunit 144028 "Test VAT Statement"
         ExpectedCorrValue := AddManualVATCorrection(VATStatementLine, false);
         // [GIVEN] Exclude amounts out of Row Totaling filter
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"Account Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         ExpectedCorrValue -= CalcManVATCorrAmount(VATStatementLine, false);
         // [GIVEN] Open VAT Statement Preview page
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"Row Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
 
         // [WHEN] Drill Down on CorrectionValue
@@ -424,14 +424,14 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.023] 'Total Amount' takes 'Correction Value' into account
-        Initialize;
+        Initialize();
         // [GIVEN] Find a VAT Statement Line with Type = VAT Entries Totaling, where ColumnValue is not 0
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
         ExpectedColumnValue := VATEntry.Base;
 
         CreateVATStmt(VATEntry, VATStatementLine);
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         VATStatementLine.SetRange("Line No.", VATStatementLine."Line No.");
         // [GIVEN] Added a manual VAT correction
         ExpectedCorrValue := AddManualVATCorrection(VATStatementLine, false);
@@ -457,7 +457,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.030] 'Correction Value' shows ACY Amount
-        Initialize;
+        Initialize();
         // [GIVEN] Additional Reporting Currency is set on General Ledger Setup
         CreateAddnlReportingCurrency;
 
@@ -468,7 +468,7 @@ codeunit 144028 "Test VAT Statement"
         CreateVATStmt(VATEntry, VATStatementLine);
         // [GIVEN] Added a manual VAT correction
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         VATStatementLine.SetRange("Line No.", VATStatementLine."Line No.");
         ExpectedCorrValue := AddManualVATCorrection(VATStatementLine, true);
 
@@ -495,7 +495,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.010] VAT Statement Line 'Correction Value' shows negative VAT Correction Amount
-        Initialize;
+        Initialize();
         // [GIVEN] Have two VAT Statement Lines with Type = VAT Entries Totaling
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
         CreateVATStmt(VATEntry, VATStatementLine);
@@ -528,12 +528,12 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO STMT.023] Zero 'Total Amount' and 'Correction Value'
-        Initialize;
+        Initialize();
         // [GIVEN]  Find a VAT Statement Line with Type = VAT Entries Totaling, where ColumnValue is 0
         CreateVATEntry(VATEntry, 0);
         CreateVATStmt(VATEntry, VATStatementLine);
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
 
         // [WHEN] Open VAT Statement Preview page
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
@@ -576,7 +576,7 @@ codeunit 144028 "Test VAT Statement"
         LibraryERM.CreateVATStatementName(VATStatementName, VATStatementTemplate.Name);
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementTemplate.Name, VATStatementName.Name);
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(VATStatementTemplate.Name);
 
         VATStatement.OpenEdit;
@@ -595,7 +595,7 @@ codeunit 144028 "Test VAT Statement"
         TextValue: Text;
         BooleanValue: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPageWithSelection(
@@ -637,7 +637,7 @@ codeunit 144028 "Test VAT Statement"
         TextValue: Text;
         BooleanValue: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPageWithSelection(
@@ -662,7 +662,7 @@ codeunit 144028 "Test VAT Statement"
         VATEntriesPage: TestPage "VAT Entries";
         TextValue: Text;
     begin
-        Initialize;
+        Initialize();
 
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPageWithSelection(
@@ -687,7 +687,7 @@ codeunit 144028 "Test VAT Statement"
         TextValue: Text;
         ExpectedValue: Text;
     begin
-        Initialize;
+        Initialize();
 
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPageWithSelection(
@@ -715,9 +715,9 @@ codeunit 144028 "Test VAT Statement"
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
-        Initialize;
+        Initialize();
 
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         LibraryVariableStorage.Enqueue(false); // ShowAmtInACY
 
         Commit();
@@ -742,7 +742,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO REP.010] VAT Correction Amount in 'Detailed Report' (TC157005)
-        Initialize;
+        Initialize();
         ShowAmtInACY := false;
         // [GIVEN] VAT Statement Line Row A has Amount = X
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
@@ -771,7 +771,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [MANVATCORR]
         // [SCENARIO REP.011] VAT Correction Amount in 'Detailed Report' in ACY
-        Initialize;
+        Initialize();
 
         // [GIVEN] Additional Reporting Currency is set on General Ledger Setup
         CreateAddnlReportingCurrency;
@@ -801,7 +801,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [Non Deductible VAT]
         // [SCENARIO 251548] VAT Base should not contain Non Deductible VAT in VAT Statement if "Incl. Non Deductible VAT" is set to FALSE in VAT Statement Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry with "Base" 1010 (including 10 of non deductible VAT), "VAT Amount" 110 and "Non Ded. VAT Amount" 10
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
@@ -813,7 +813,7 @@ codeunit 144028 "Test VAT Statement"
         CreateVATStmt(VATEntry, VATStatementLine);
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
         VATStatementLine.SetRange("Amount Type", VATStatementLine."Amount Type"::Base);
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         VATStatementPreviewLine.OpenView;
         VATStatementPreviewLine.GotoRecord(VATStatementLine);
 
@@ -832,7 +832,7 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [Non Deductible VAT]
         // [SCENARIO 251548] VAT Base should contain Non Deductible VAT in VAT Statement if "Incl. Non Deductible VAT" is set to TRUE in VAT Statement Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry with "Base" 1010 (including 10 of non deductible VAT), "VAT Amount" 110 and "Non Ded. VAT Amount" 10
         CreateVATEntry(VATEntry, LibraryRandom.RandDec(1000, 2));
@@ -844,7 +844,7 @@ codeunit 144028 "Test VAT Statement"
         CreateVATStmt(VATEntry, VATStatementLine);
         VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
         VATStatementLine.SetRange("Amount Type", VATStatementLine."Amount Type"::Base);
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         VATStatementLine.Validate("Incl. Non Deductible VAT", true);
         VATStatementLine.Modify(true);
         VATStatementPreviewLine.OpenView;
@@ -861,11 +861,11 @@ codeunit 144028 "Test VAT Statement"
         VATEntry.SetFilter("VAT Bus. Posting Group", '<>%1', '');
         VATEntry.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATStatementLine.SetRange("VAT Bus. Posting Group", VATEntry."VAT Bus. Posting Group");
         VATStatementLine.SetRange("VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
         VATStatementLine.SetRange("Amount Type", AmountType);
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
     end;
 
     [Test]
@@ -878,13 +878,13 @@ codeunit 144028 "Test VAT Statement"
     begin
         // [FEATURE] [UI] [VAT Statement Preview Line]
         // [SCENARIO 202302] Column "Correction Value" of "VAT Statement Preview Line" has to contains opposite amount if "Print with" = "Opposite Sign"
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement Line with "Print with" = "Opposite Sign" and correction = 100
         VATStatementLine.Init();
         VATStatementLine."Line No." := LibraryUtility.GetNewRecNo(VATStatementLine, VATStatementLine.FieldNo("Line No."));
-        VATStatementLine."Statement Name" := LibraryUtility.GenerateGUID;
-        VATStatementLine."Statement Template Name" := LibraryUtility.GenerateGUID;
+        VATStatementLine."Statement Name" := LibraryUtility.GenerateGUID();
+        VATStatementLine."Statement Template Name" := LibraryUtility.GenerateGUID();
         VATStatementLine."Print with" := VATStatementLine."Print with"::"Opposite Sign";
         VATStatementLine.Insert();
         ExpectedResult := -AddManualVATCorrToSingleLine(VATStatementLine, false);
@@ -936,7 +936,7 @@ codeunit 144028 "Test VAT Statement"
     local procedure AddManualVATCorrToFirstLine(VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line"; ShowAmtInACY: Boolean): Decimal
     begin
         CreateVATStmt(VATEntry, VATStatementLine);
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         VATStatementLine.SetRange("Line No.", VATStatementLine."Line No.");
         exit(AddManualVATCorrection(VATStatementLine, ShowAmtInACY));
     end;
@@ -968,7 +968,7 @@ codeunit 144028 "Test VAT Statement"
             SetRange("Statement Template Name", VATStatementLine."Statement Template Name");
             SetRange("Statement Name", VATStatementLine."Statement Name");
             SetRange("Statement Line No.", VATStatementLine."Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     Result += GetVATCorrAmount(ManualVATCorrection, UseAmtsInAddCurr, VATStatementLine."Calculate with");
                 until Next = 0;
@@ -1076,7 +1076,7 @@ codeunit 144028 "Test VAT Statement"
             "Entry No." := -1;
             "Posting Date" := WorkDate;
             Type := Type::Sale;
-            "VAT Bus. Posting Group" := LibraryUtility.GenerateGUID;
+            "VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
             "VAT Prod. Posting Group" := "VAT Bus. Posting Group";
             Base := VATBase;
             Amount := VATBase * 0.2;
@@ -1091,11 +1091,11 @@ codeunit 144028 "Test VAT Statement"
         VATStatementTemplate: Record "VAT Statement Template";
         VATStatementName: Record "VAT Statement Name";
     begin
-        VATStatementTemplate.FindFirst;
+        VATStatementTemplate.FindFirst();
 
         VATStatementName.Init();
         VATStatementName."Statement Template Name" := VATStatementTemplate.Name;
-        VATStatementName.Name := LibraryUtility.GenerateGUID;
+        VATStatementName.Name := LibraryUtility.GenerateGUID();
         VATStatementName.Insert();
 
         with VATStatementLine do begin
@@ -1128,7 +1128,7 @@ codeunit 144028 "Test VAT Statement"
             "Row No." := Format("Line No.");
             Type := LineType;
             if Type = Type::"Account Totaling" then begin
-                GLEntry.FindLast;
+                GLEntry.FindLast();
                 "Account Totaling" := GLEntry."G/L Account No.";
             end;
             "Row Totaling" := RowTotaling;

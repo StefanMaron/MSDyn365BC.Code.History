@@ -58,7 +58,7 @@ report 2000021 "File Domiciliations"
                     SetRange("Bank Account No.", '');
                     if Count > 0 then
                         if Confirm(Text008, true) then begin
-                            if FindSet then
+                            if FindSet() then
                                 repeat
                                     Validate("Bank Account No.", BankNo);
                                     Modify;
@@ -78,7 +78,7 @@ report 2000021 "File Domiciliations"
                     with DomJnlLine do begin
                         Reset;
                         CopyFilters("Domiciliation Journal Line");
-                        FindFirst;
+                        FindFirst();
                         if Count <> "Domiciliation Journal Line".Count then
                             Error(Text010);
                     end;
@@ -267,12 +267,12 @@ report 2000021 "File Domiciliations"
                 GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
                 LastGenJnlLine.Copy(GenJnlLine);
-                if LastGenJnlLine.FindLast then;
+                if LastGenJnlLine.FindLast() then;
 
                 DomJnlLine.Copy("Domiciliation Journal Line");
                 DomJnlLine.SetCurrentKey("Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
                 DomJnlLine.SetRange(Status, DomJnlLine.Status::Processed);
-                if DomJnlLine.FindSet then begin
+                if DomJnlLine.FindSet() then begin
                     DocumentNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", DomJnlLine."Posting Date", false);
                     repeat
                         SetGenJnlLine(DomJnlLine);
@@ -297,7 +297,7 @@ report 2000021 "File Domiciliations"
                     DomJnlLine.Reset();
                     DomJnlLine.SetRange("Journal Template Name", "Domiciliation Journal Line"."Journal Template Name");
                     DomJnlLine.SetRange("Journal Batch Name", DomJnlBatchName);
-                    if DomJnlLine.FindLast then
+                    if DomJnlLine.FindLast() then
                         LineNo := DomJnlLine."Line No."
                     else
                         LineNo := 0;
@@ -307,7 +307,7 @@ report 2000021 "File Domiciliations"
                     DomJnlLine.SetRange("Journal Template Name", "Domiciliation Journal Line"."Journal Template Name");
                     DomJnlLine.SetRange("Journal Batch Name", "Domiciliation Journal Line"."Journal Batch Name");
                     DomJnlLine.SetRange(Status, DomJnlLine.Status::" ", DomJnlLine.Status::Marked);
-                    if DomJnlLine.FindSet then
+                    if DomJnlLine.FindSet() then
                         repeat
                             LineNo := LineNo + 10000;
                             DomicilJnlLine2 := DomJnlLine;
@@ -395,16 +395,7 @@ report 2000021 "File Domiciliations"
                         ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name of the domiciliation file that you want to submit.';
-#if CLEAN17
                         Visible = false;
-#else
-                        Visible = FileNameVisible;
-
-                        trigger OnAssistEdit()
-                        begin
-                            FileName := FileMgt.SaveFileDialog(Text012, FileName, '');
-                        end;
-#endif
                     }
                 }
             }
@@ -413,12 +404,6 @@ report 2000021 "File Domiciliations"
         actions
         {
         }
-#if not CLEAN17
-        trigger OnInit()
-        begin
-            FileNameVisible := RBMgt.IsLocalFileSystemAccessible;
-        end;
-#endif
 
     }
 
@@ -492,9 +477,6 @@ report 2000021 "File Domiciliations"
         Text009: Label 'There are no domiciliation records.';
         Text010: Label 'There are domiciliation lines with different posting dates.';
         Text011: Label 'EUR';
-#if not CLEAN17
-        Text012: Label 'Export to text file';
-#endif
         CompanyInfo: Record "Company Information";
         EBSetup: Record "Electronic Banking Setup";
         Cust: Record Customer;
@@ -512,9 +494,6 @@ report 2000021 "File Domiciliations"
         FormatAddress: Codeunit "Format Address";
         EnterpriseNoCheck: Codeunit VATLogicalTests;
         NoSeriesMgt: Codeunit NoSeriesManagement;
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-#endif
         RBMgt: Codeunit "File Management";
         ClientTypeManagement: Codeunit "Client Type Management";
         xFile: File;
@@ -544,10 +523,6 @@ report 2000021 "File Domiciliations"
         TotalDomNoDecimal: array[2] of Decimal;
         AmtFactor: Decimal;
         AutomaticPosting: Boolean;
-#if not CLEAN17
-        [InDataSet]
-        FileNameVisible: Boolean;
-#endif
         FromFile: Text[250];
         ReceiptDateCaptionLbl: Label 'Receipt Date';
         EmptyStringCaptionLbl: Label '......  /  ......  /  ......';

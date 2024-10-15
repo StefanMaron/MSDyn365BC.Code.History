@@ -22,7 +22,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             SetFilter("Document Exchange Status", StrSubstNo('%1|%2',
                 "Document Exchange Status"::"Sent to Document Exchange Service",
                 "Document Exchange Status"::"Pending Connection to Recipient"));
-            if FindSet then
+            if FindSet() then
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchInvoiceStatus(SalesInvoiceHeader);
                     Commit();
@@ -38,7 +38,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             SetFilter("Document Exchange Status", StrSubstNo('%1|%2',
                 "Document Exchange Status"::"Sent to Document Exchange Service",
                 "Document Exchange Status"::"Pending Connection to Recipient"));
-            if FindSet then
+            if FindSet() then
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchCrMemoStatus(SalesCrMemoHeader);
                     Commit();
@@ -54,7 +54,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             SetFilter("Document Exchange Status", StrSubstNo('%1|%2',
                 "Document Exchange Status"::"Sent to Document Exchange Service",
                 "Document Exchange Status"::"Pending Connection to Recipient"));
-            if FindSet then
+            if FindSet() then
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchServiceInvoiceStatus(ServiceInvoiceHeader);
                     Commit();
@@ -70,7 +70,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             SetFilter("Document Exchange Status", StrSubstNo('%1|%2',
                 "Document Exchange Status"::"Sent to Document Exchange Service",
                 "Document Exchange Status"::"Pending Connection to Recipient"));
-            if FindSet then
+            if FindSet() then
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchServiceCrMemoStatus(ServiceCrMemoHeader);
                     Commit();

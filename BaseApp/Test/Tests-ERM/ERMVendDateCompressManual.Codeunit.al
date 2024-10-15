@@ -27,7 +27,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
     begin
         // Check that Entry Posted outside the Date Compression Period is not present in Vendor Ledger Entries after
         // Running Date Compression by Week. Take One Week Difference between Entries.
-        Initialize;
+        Initialize();
         VendorDateCompression(DateComprRegister."Period Length"::Week, '<1W>');
     end;
 
@@ -39,7 +39,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
     begin
         // Check that entry Posted outside the Date Compression Period is not present in Compressed Vendor Ledger Entries after
         // Running Date Compression by Month. Take One Month Difference between Entries.
-        Initialize;
+        Initialize();
         VendorDateCompression(DateComprRegister."Period Length"::Month, '<1M>');
     end;
 
@@ -78,9 +78,9 @@ codeunit 134035 "ERM Vend Date Compress Manual"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Vend Date Compress Manual");
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         IsInitialized := true;
         Commit();
@@ -131,15 +131,20 @@ codeunit 134035 "ERM Vend Date Compress Manual"
     local procedure DateCompressForVendor(GenJournalLine: Record "Gen. Journal Line"; StartingDate: Date; PeriodLength: Option)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressVendorLedger: Report "Date Compress Vendor Ledger";
     begin
         // Run the Date Compress Vendor Ledger Report. Take End Date a Day before Last Posted Entry's Posting Date.
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+        DateComprRetainFields."Retain Document No." := false;
+        DateComprRetainFields."Retain Buy-from Vendor No." := false;
+        DateComprRetainFields."Retain Purchaser Code" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
         DateCompressVendorLedger.SetTableView(VendorLedgerEntry);
         DateCompressVendorLedger.InitializeRequest(
-          StartingDate, CalcDate('<-1D>', GenJournalLine."Posting Date"), PeriodLength, '', false, false, false, '', false);
+          StartingDate, CalcDate('<-1D>', GenJournalLine."Posting Date"), PeriodLength, '', DateComprRetainFields, '', false);
         DateCompressVendorLedger.UseRequestPage(false);
-        DateCompressVendorLedger.Run;
+        DateCompressVendorLedger.Run();
     end;
 
     local procedure VerifyVendorLedgerEntry(LastPostingDate: Date)
@@ -147,7 +152,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VendorLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         VendorLedgerEntry.FindSet();
         repeat

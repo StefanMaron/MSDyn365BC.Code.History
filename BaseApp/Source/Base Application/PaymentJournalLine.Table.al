@@ -373,23 +373,23 @@ table 2000001 "Payment Journal Line"
                             if "Applies-to Doc. No." <> '' then begin
                                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                                if CustLedgEntry.FindFirst then;
+                                if CustLedgEntry.FindFirst() then;
                                 CustLedgEntry.SetRange("Document Type");
                                 CustLedgEntry.SetRange("Document No.");
                             end else
                                 if "Applies-to ID" <> '' then begin
                                     CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                                    if CustLedgEntry.FindFirst then;
+                                    if CustLedgEntry.FindFirst() then;
                                     CustLedgEntry.SetRange("Applies-to ID");
                                 end else
                                     if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                                         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                                        if CustLedgEntry.FindFirst then;
+                                        if CustLedgEntry.FindFirst() then;
                                         CustLedgEntry.SetRange("Document Type");
                                     end else
                                         if Amount <> 0 then begin
                                             CustLedgEntry.SetRange(Positive, Amount < 0);
-                                            if CustLedgEntry.FindFirst then;
+                                            if CustLedgEntry.FindFirst() then;
                                             CustLedgEntry.SetRange(Positive);
                                         end;
                             if CustLedgEntry.IsEmpty() then begin
@@ -416,23 +416,23 @@ table 2000001 "Payment Journal Line"
                             if "Applies-to Doc. No." <> '' then begin
                                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                                if VendLedgEntry.FindFirst then;
+                                if VendLedgEntry.FindFirst() then;
                                 VendLedgEntry.SetRange("Document Type");
                                 VendLedgEntry.SetRange("Document No.");
                             end else
                                 if "Applies-to ID" <> '' then begin
                                     VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                                    if VendLedgEntry.FindFirst then;
+                                    if VendLedgEntry.FindFirst() then;
                                     VendLedgEntry.SetRange("Applies-to ID");
                                 end else
                                     if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                                         VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                                        if VendLedgEntry.FindFirst then;
+                                        if VendLedgEntry.FindFirst() then;
                                         VendLedgEntry.SetRange("Document Type");
                                     end else
                                         if Amount <> 0 then begin
                                             VendLedgEntry.SetRange(Positive, Amount < 0);
-                                            if VendLedgEntry.FindFirst then;
+                                            if VendLedgEntry.FindFirst() then;
                                             VendLedgEntry.SetRange(Positive);
                                         end;
                             if VendLedgEntry.IsEmpty() then begin
@@ -465,7 +465,7 @@ table 2000001 "Payment Journal Line"
                                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                                 CustLedgEntry.SetRange("Customer No.", "Account No.");
-                                if not CustLedgEntry.FindFirst then
+                                if not CustLedgEntry.FindFirst() then
                                     Error(Text003, "Applies-to Doc. Type", "Applies-to Doc. No.");
                                 CustUpdatePayment;
                             end;
@@ -476,7 +476,7 @@ table 2000001 "Payment Journal Line"
                                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                                 VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                                if not VendLedgEntry.FindFirst then
+                                if not VendLedgEntry.FindFirst() then
                                     Error(Text004, "Applies-to Doc. Type", "Applies-to Doc. No.");
                                 VendUpdatePayment;
                             end;
@@ -733,7 +733,6 @@ table 2000001 "Payment Journal Line"
         Text011: Label 'This vendor ledger entry was already partially paid.';
         Text012: Label 'This customer ledger entry was already partially paid.';
 
-    [Scope('OnPrem')]
     procedure InitCurrencyCode()
     var
         GLSetup: Record "General Ledger Setup";
@@ -751,7 +750,6 @@ table 2000001 "Payment Journal Line"
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetISOCurrencyCode(): Code[3]
     begin
         if "Currency Code" <> Currency.Code then
@@ -759,7 +757,6 @@ table 2000001 "Payment Journal Line"
         exit(Currency."ISO Code");
     end;
 
-    [Scope('OnPrem')]
     procedure VendUpdatePayment()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -835,7 +832,6 @@ table 2000001 "Payment Journal Line"
         OnAfterVendUpdatePayment(Rec, VendLedgEntry);
     end;
 
-    [Scope('OnPrem')]
     procedure CustUpdatePayment()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -902,7 +898,6 @@ table 2000001 "Payment Journal Line"
         OnAfterCustUpdatePayment(Rec, CustLedgEntry);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
     var
         TableID: array[10] of Integer;
@@ -921,26 +916,22 @@ table 2000001 "Payment Journal Line"
             TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateShortcutDimCode(FieldNo: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateShortcutDimValues(FieldNo, ShortcutDimCode, "Dimension Set ID");
     end;
 
-    [Scope('OnPrem')]
     procedure LookupShortcutDimCode(FieldNo: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNo, ShortcutDimCode);
         DimMgt.ValidateShortcutDimValues(FieldNo, ShortcutDimCode, "Dimension Set ID");
     end;
 
-    [Scope('OnPrem')]
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
-    [Scope('OnPrem')]
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
@@ -971,7 +962,6 @@ table 2000001 "Payment Journal Line"
         GenJnlLine."Currency Code" := "Currency Code";
     end;
 
-    [Scope('OnPrem')]
     procedure DeletePaymentFileErrors()
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -985,7 +975,7 @@ table 2000001 "Payment Journal Line"
 
     local procedure PopulateAmountFromGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"): Boolean
     begin
-        if GenJournalLine.FindSet then begin
+        if GenJournalLine.FindSet() then begin
             if CurrFieldNo = FieldNo("Applies-to Doc. No.") then
                 exit(false);
             repeat

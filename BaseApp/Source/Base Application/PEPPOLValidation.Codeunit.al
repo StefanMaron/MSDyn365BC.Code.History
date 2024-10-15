@@ -97,7 +97,7 @@ codeunit 1620 "PEPPOL Validation"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     CheckSalesDocumentLine(SalesLine)
                 until Next() = 0;
@@ -141,7 +141,7 @@ codeunit 1620 "PEPPOL Validation"
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         CheckSalesDocument(SalesHeader);
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if SalesInvoiceLine.FindSet then
+        if SalesInvoiceLine.FindSet() then
             repeat
                 SalesLine.TransferFields(SalesInvoiceLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::Invoice;
@@ -159,7 +159,7 @@ codeunit 1620 "PEPPOL Validation"
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
         CheckSalesDocument(SalesHeader);
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        if SalesCrMemoLine.FindSet then
+        if SalesCrMemoLine.FindSet() then
             repeat
                 SalesLine.TransferFields(SalesCrMemoLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::"Credit Memo";
@@ -177,7 +177,7 @@ codeunit 1620 "PEPPOL Validation"
         SalesHeader."Shipment Date" := SalesHeader."Posting Date";
         CheckSalesDocument(SalesHeader);
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        if ServiceLine.FindSet then
+        if ServiceLine.FindSet() then
             repeat
                 PEPPOLManagement.TransferLineToSalesLine(ServiceLine, SalesLine);
                 CheckSalesDocumentLine(SalesLine);
@@ -195,7 +195,7 @@ codeunit 1620 "PEPPOL Validation"
         SalesHeader."Shipment Date" := SalesHeader."Posting Date";
         CheckSalesDocument(SalesHeader);
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        if ServiceInvoiceLine.FindSet then
+        if ServiceInvoiceLine.FindSet() then
             repeat
                 PEPPOLManagement.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::Invoice;
@@ -214,7 +214,7 @@ codeunit 1620 "PEPPOL Validation"
         SalesHeader."Shipment Date" := SalesHeader."Posting Date";
         CheckSalesDocument(SalesHeader);
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        if ServiceCrMemoLine.FindSet then
+        if ServiceCrMemoLine.FindSet() then
             repeat
                 PEPPOLManagement.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::"Credit Memo";

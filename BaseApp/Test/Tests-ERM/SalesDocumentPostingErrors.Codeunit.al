@@ -21,11 +21,13 @@ codeunit 132501 "Sales Document Posting Errors"
         IsInitialized: Boolean;
         NothingToPostErr: Label 'There is nothing to post.';
         DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
+        CheckSalesLineMsg: Label 'Check sales document line.';
 
         // Expected error messages (from code unit 80).
         SalesReturnRcptHeaderConflictErr: Label 'Cannot post the sales return because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Return Receipt No.';
         SalesShptHeaderConflictErr: Label 'Cannot post the sales shipment because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Shipping No.';
         SalesInvHeaderConflictErr: Label 'Cannot post the sales invoice because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Posting No.';
+        SetupBlockedErr: Label 'Setup is blocked in %1 for %2 %3 and %4 %5.', Comment = '%1 - General/VAT Posting Setup, %2 %3 %4 %5 - posting groups.';
 
     [Test]
     [Scope('OnPrem')]
@@ -38,7 +40,7 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesInvoicePage: TestPage "Sales Invoice";
     begin
         // [SCENARIO] Posting of document, where "Posting Date" is out of the allowed period, set in G/L Setup
-        Initialize;
+        Initialize();
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
         LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
         // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
@@ -53,7 +55,7 @@ codeunit 132501 "Sales Document Posting Errors"
         // [THEN] "Posting Date is not within your range of allowed posting dates."
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.FindFirst;
+        TempErrorMessage.FindFirst();
         TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
         // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckAndUpdate '
         Assert.ExpectedMessage('"Sales-Post"(CodeUnit 80).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
@@ -91,7 +93,7 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesInvoicePage: TestPage "Sales Invoice";
     begin
         // [SCENARIO] Posting of document, where "Posting Date" is out of the allowed period, set in User Setup.
-        Initialize;
+        Initialize();
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "User Setup"
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         UserSetup."Allow Posting To" := WorkDate - 1;
@@ -108,8 +110,10 @@ codeunit 132501 "Sales Document Posting Errors"
         // [THEN] "Posting Date is not within your range of allowed posting dates."
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.FindFirst;
+        TempErrorMessage.FindFirst();
         TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckAndUpdate '
+        Assert.ExpectedMessage('"Sales-Post"(CodeUnit 80).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
         // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'Posting Date',
         TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
         TempErrorMessage.TestField("Context Field Number", SalesHeader.FieldNo("Posting Date"));
@@ -135,6 +139,192 @@ codeunit 132501 "Sales Document Posting Errors"
 
     [Test]
     [Scope('OnPrem')]
+    procedure T011_GenPostingSetupIsBlocked()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        // [SCENARIO] Posting of document, where "General Posting Setup" is blocked
+        Initialize();
+        UnblockAllSetups();
+
+        // [GIVEN] Invoice '1001', where "Gen. Bus. Posting Group" is 'GB',"Gen. Bus. Posting Group" is 'GP'
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        // [GIVEN] General Posting Setup for 'GB' and 'GP' is blocked
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Blocked := true;
+        GeneralPostingSetup.Modify();
+
+        // [WHEN] Post Invoice '1001'
+        LibraryErrorMessage.TrapErrorMessages;
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] "Error Message" page is open, where is one error:
+        // [THEN] "Setup is blocked in general posting setup for GB and GP."
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 1);
+        TempErrorMessage.FindFirst();
+        TempErrorMessage.TestField(Description,
+            StrSubstNo(
+                SetupBlockedErr, GeneralPostingSetup.TableCaption(),
+                GeneralPostingSetup.FieldCaption("Gen. Bus. Posting Group"), GeneralPostingSetup."Gen. Bus. Posting Group",
+                GeneralPostingSetup.FieldCaption("Gen. Prod. Posting Group"), GeneralPostingSetup."Gen. Prod. Posting Group"));
+        // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckBlockedPostingGroups '
+        Assert.ExpectedMessage('"Sales-Post"(CodeUnit 80).CheckBlockedPostingGroups ', TempErrorMessage.GetErrorCallStack());
+        // [THEN] "Context" is 'Sales Line: Invoice, 1001, 10000', "Field Name" is 'Gen. Prod. Posting Group',
+        TempErrorMessage.TestField("Context Record ID", SalesLine.RecordId);
+        TempErrorMessage.TestField("Context Table Number", DATABASE::"Sales Line");
+        TempErrorMessage.TestField("Context Field Number", SalesLine.FieldNo("Gen. Prod. Posting Group"));
+        // [THEN] "Source" is 'General Posting Setup', "Field Name" is 'Blocked'
+        TempErrorMessage.TestField("Record ID", GeneralPostingSetup.RecordId);
+        TempErrorMessage.TestField("Table Number", DATABASE::"General Posting Setup");
+        TempErrorMessage.TestField("Field Number", GeneralPostingSetup.FieldNo(Blocked));
+        UnblockAllSetups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T012_VATPostingSetupIsBlocked()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        // [SCENARIO] Posting of document, where "VAT Posting Setup" is blocked
+        Initialize();
+        UnblockAllSetups();
+
+        // [GIVEN] Invoice '1001', where "VAT Bus. Posting Group" is 'VB',"VAT Bus. Posting Group" is 'VP'
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        // [GIVEN] VAT Posting Setup for 'VB' and 'VP' is blocked
+        VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+        VATPostingSetup.Blocked := true;
+        VATPostingSetup.Modify();
+
+        // [WHEN] Post Invoice '1001'
+        LibraryErrorMessage.TrapErrorMessages;
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] "Error Message" page is open, where is one error:
+        // [THEN] "Setup is blocked in VAT posting setup for VB and VP."
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 1);
+        TempErrorMessage.FindFirst();
+        TempErrorMessage.TestField(Description,
+            StrSubstNo(
+                SetupBlockedErr, VATPostingSetup.TableCaption(),
+                VATPostingSetup.FieldCaption("VAT Bus. Posting Group"), VATPostingSetup."VAT Bus. Posting Group",
+                VATPostingSetup.FieldCaption("VAT Prod. Posting Group"), VATPostingSetup."VAT Prod. Posting Group"));
+        // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckBlockedPostingGroups '
+        Assert.ExpectedMessage('"Sales-Post"(CodeUnit 80).CheckBlockedPostingGroups ', TempErrorMessage.GetErrorCallStack());
+        // [THEN] "Context" is 'Sales Line: Invoice, 1001, 10000', "Field Name" is 'VAT Prod. Posting Group',
+        TempErrorMessage.TestField("Context Record ID", SalesLine.RecordId);
+        TempErrorMessage.TestField("Context Table Number", DATABASE::"Sales Line");
+        TempErrorMessage.TestField("Context Field Number", SalesLine.FieldNo("VAT Prod. Posting Group"));
+        // [THEN] "Source" is 'VAT Posting Setup', "Field Name" is 'Blocked'
+        TempErrorMessage.TestField("Record ID", VATPostingSetup.RecordId);
+        TempErrorMessage.TestField("Table Number", DATABASE::"VAT Posting Setup");
+        TempErrorMessage.TestField("Field Number", VATPostingSetup.FieldNo(Blocked));
+        UnblockAllSetups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T013_TwoLinesWithBlockedPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GLAccount: array[2] of Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        Customer: Record Customer;
+        TempErrorMessage: Record "Error Message" temporary;
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [SCENARIO] Posting of document with 2 lines, where "VAT Posting Setup" and "Gen. Posting Setup" are blocked
+        Initialize();
+        UnblockAllSetups();
+        // [GIVEN] Enabled posting setup notification
+        InstructionMgt.CreateMissingMyNotificationsWithDefaultState(PostingSetupManagement.GetPostingSetupNotificationID());
+
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] G/L Account 'AV', where VAT Prod Posting Group 'V-NEW', that is not used in setup
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        GeneralPostingSetup.SetRange("Gen. Bus. Posting Group", Customer."Gen. Bus. Posting Group");
+        GeneralPostingSetup.FindFirst();
+        GLAccount[1]."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        GLAccount[1]."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        GLAccount[1].Modify();
+        // [GIVEN] G/L Account 'AG', where Gen. Prod Posting Group 'G-NEW', that is not used in setup
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.FindFirst();
+        GLAccount[2]."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        GLAccount[2]."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
+        GLAccount[2].Modify();
+
+        // [GIVEN] Order '1001', with two lines:
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        // [GIVEN] 1st line for G/L Account 'AV', where VAT Prod Posting Group 'V-NEW'
+        LibrarySales.CreateSalesLine(
+            SalesLine[1], SalesHeader, "Sales Line Type"::"G/L Account", GLAccount[1]."No.", 1);
+        // [GIVEN] 2nd line for G/L Account 'AG', where Gen. Prod Posting Group 'G-NEW'
+        LibrarySales.CreateSalesLine(
+            SalesLine[2], SalesHeader, "Sales Line Type"::"G/L Account", GLAccount[2]."No.", 1);
+
+        // [WHEN] Post Order '1001'
+        LibraryErrorMessage.TrapErrorMessages;
+        SalesHeaderToPost(SalesHeader);
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] "Error Message" page is open, where are two errors:
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 2);
+        // [THEN] 1st line, where "Context" is 'Sales Line: Order, 1001, 10000', "Field Name" is 'VAT Prod. Posting Group',
+        Assert.IsTrue(TempErrorMessage.FindFirst(), 'must be the 1st error line');
+        TempErrorMessage.TestField("Context Record ID", SalesLine[1].RecordId);
+        TempErrorMessage.TestField("Context Table Number", DATABASE::"Sales Line");
+        TempErrorMessage.TestField("Context Field Number", SalesLine[1].FieldNo("VAT Prod. Posting Group"));
+        // [THEN] "Source" is 'VAT Posting Setup', "Field Name" is 'Blocked'
+        VATPostingSetup.Get(SalesLine[1]."VAT Bus. Posting Group", SalesLine[1]."VAT Prod. Posting Group");
+        TempErrorMessage.TestField("Record ID", VATPostingSetup.RecordId);
+        TempErrorMessage.TestField("Table Number", DATABASE::"VAT Posting Setup");
+        TempErrorMessage.TestField("Field Number", VATPostingSetup.FieldNo(Blocked));
+        TempErrorMessage.TestField("Additional Information", CheckSalesLineMsg);
+        TempErrorMessage.TestField("Support Url", GetLink(ForwardLinkMgt.GetHelpCodeForFinanceSetupVAT()));
+        // [THEN] 2nd line, where "Context" is 'Sales Line: Order, 1001, 20000', "Field Name" is 'Gen. Prod. Posting Group',
+        Assert.IsTrue(TempErrorMessage.Next() = 1, 'must be the 2nd error line');
+        TempErrorMessage.TestField("Context Record ID", SalesLine[2].RecordId);
+        TempErrorMessage.TestField("Context Table Number", DATABASE::"Sales Line");
+        TempErrorMessage.TestField("Context Field Number", SalesLine[2].FieldNo("Gen. Prod. Posting Group"));
+        // [THEN] "Source" is General Posting Setup', "Field Name" is 'Blocked', "Support Link" is 'FinancePostingGroups'
+        GeneralPostingSetup.Get(SalesLine[2]."Gen. Bus. Posting Group", SalesLine[2]."Gen. Prod. Posting Group");
+        TempErrorMessage.TestField("Record ID", GeneralPostingSetup.RecordId);
+        TempErrorMessage.TestField("Table Number", DATABASE::"General Posting Setup");
+        TempErrorMessage.TestField("Field Number", GeneralPostingSetup.FieldNo(Blocked));
+        TempErrorMessage.TestField("Additional Information", CheckSalesLineMsg);
+        TempErrorMessage.TestField("Support Url", GetLink(ForwardLinkMgt.GetHelpCodeForFinancePostingGroups()));
+        UnblockAllSetups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure T1002_PostingDateIsInNotAllowedPeriodInGenJnlTemplate()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -146,16 +336,16 @@ codeunit 132501 "Sales Document Posting Errors"
     begin
         // [FEATURE] [Country:BE]
         // [SCENARIO] Posting of document, where "Posting Date" is out of the allowed period, set in Gen. Journal Template.
-        Initialize;
-        // [GIVEN] "Allow Posting To" is 31.12.2018 in "Journal Template", where Type is 'Sales'
+        Initialize();
+        // [GIVEN] "Allow Posting Date To" is 31.12.2018 in "Journal Template", where Type is 'Sales'
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Sales);
-        GenJournalTemplate.FindFirst;
-        OriginalAllowPostingTo := GenJournalTemplate."Allow Posting To";
-        GenJournalTemplate."Allow Posting To" := WorkDate - 1;
+        GenJournalTemplate.FindFirst();
+        OriginalAllowPostingTo := GenJournalTemplate."Allow Posting Date To";
+        GenJournalTemplate."Allow Posting Date To" := WorkDate() - 1;
         GenJournalTemplate.Modify();
         // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader.TestField("Posting Date", WorkDate);
+        SalesHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
         LibraryErrorMessage.TrapErrorMessages;
@@ -165,20 +355,20 @@ codeunit 132501 "Sales Document Posting Errors"
         // [THEN] "Posting Date is not within your range of allowed posting dates."
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.FindFirst;
+        TempErrorMessage.FindFirst();
         TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
         // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'Posting Date',
         TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
         TempErrorMessage.TestField("Context Field Number", SalesHeader.FieldNo("Posting Date"));
         // [THEN]  "Source" is 'Gen. Journal Template', "Field Name" is 'Allow Posting From'
         TempErrorMessage.TestField("Record ID", GenJournalTemplate.RecordId);
-        TempErrorMessage.TestField("Field Number", GenJournalTemplate.FieldNo("Allow Posting From"));
+        TempErrorMessage.TestField("Field Number", GenJournalTemplate.FieldNo("Allow Posting Date From"));
         // [WHEN] DrillDown on "Source"
-        GeneralJournalTemplates.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
+        GeneralJournalTemplates.Trap();
+        LibraryErrorMessage.DrillDownOnSource();
         // [THEN] opens "General Journal Templates" page.
-        GeneralJournalTemplates."Allow Posting To".AssertEquals(WorkDate - 1);
-        GeneralJournalTemplates.Close;
+        GeneralJournalTemplates."Allow Posting Date To".AssertEquals(WorkDate() - 1);
+        GeneralJournalTemplates.Close();
 
         // [WHEN] DrillDown on "Description"
         SalesInvoicePage.Trap;
@@ -189,7 +379,7 @@ codeunit 132501 "Sales Document Posting Errors"
         // Teardown.
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Sales);
         GenJournalTemplate.FindFirst();
-        GenJournalTemplate."Allow Posting To" := OriginalAllowPostingTo;
+        GenJournalTemplate."Allow Posting Date To" := OriginalAllowPostingTo;
         GenJournalTemplate.Modify();
     end;
 
@@ -202,7 +392,7 @@ codeunit 132501 "Sales Document Posting Errors"
     begin
         // [FEATURE] [Preview]
         // [SCENARIO] Failed posting preview opens "Error Messages" page that contains two lines: one logged and one directly thrown error.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
         LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
@@ -219,7 +409,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 2);
         // [THEN] Second line, where Description is 'There is nothing to post', Context is 'Sales Header: Order, 1002'
-        TempErrorMessage.FindLast;
+        TempErrorMessage.FindLast();
         TempErrorMessage.TestField(Description, NothingToPostErr);
         TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
     end;
@@ -237,13 +427,13 @@ codeunit 132501 "Sales Document Posting Errors"
     begin
         // [FEATURE] [Batch Posting]
         // [SCENARIO] Batch posting of two documents (in the current session) opens "Error Messages" page that contains two lines per document.
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(false);
 
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
         LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
         // [GIVEN] Order '1002', where "Posting Date" is 01.01.2019, and nothing to post
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, CustomerNo);
         SalesHeaderToPost(SalesHeader[1]);
         // [GIVEN] Invoice '1003', where "Posting Date" is 01.01.2019
@@ -293,7 +483,7 @@ codeunit 132501 "Sales Document Posting Errors"
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
         // [SCENARIO] Batch posting of two documents (in background) verifies "Error Messages" that contains two lines per first document and one line for second document
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -301,7 +491,7 @@ codeunit 132501 "Sales Document Posting Errors"
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
         LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
         // [GIVEN] Invoice '1002', where "Posting Date" is 01.01.2019, and no mandatory dimension
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader[1], CustomerNo);
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
@@ -360,7 +550,7 @@ codeunit 132501 "Sales Document Posting Errors"
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
         // [SCENARIO] Batch posting of document (in background) verifies "Error Messages" page that contains two lines for Job Queue Entry
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -368,7 +558,7 @@ codeunit 132501 "Sales Document Posting Errors"
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
         LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
         // [GIVEN] Invoice '1002', where "Posting Date" is 01.01.2019, and no mandatory dimension
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader[1], CustomerNo);
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
@@ -583,7 +773,7 @@ codeunit 132501 "Sales Document Posting Errors"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Document Posting Errors");
         LibraryErrorMessage.Clear;
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales Document Posting Errors");
@@ -593,6 +783,14 @@ codeunit 132501 "Sales Document Posting Errors"
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Document Posting Errors");
+    end;
+
+    local procedure GetLink(LinkCode: code[30]): Text[250];
+    var
+        NamedForwardLink: Record "Named Forward Link";
+    begin
+        if NamedForwardLink.Get(LinkCode) then
+            exit(NamedForwardLink.Link);
     end;
 
     local procedure PreviewSalesDocument(SalesHeader: Record "Sales Header")
@@ -612,21 +810,13 @@ codeunit 132501 "Sales Document Posting Errors"
         Commit();
     end;
 
-    local procedure GetNoSeriesLine(noSeries: Code[20]; var noSeriesLine: Record "No. Series Line")
+    local procedure UnblockAllSetups()
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
-        NoSeriesMgt.SetNoSeriesLineFilter(noSeriesLine, noSeries, WorkDate());
-        noSeriesLine.FindFirst();
-    end;
-
-    local procedure SetNoSeriesLineLastNoUsed(noSeries: Code[20]; no: Code[20])
-    var
-        NoSeriesLine: Record "No. Series Line";
-    begin
-        GetNoSeriesLine(noSeries, NoSeriesLine);
-        NoSeriesLine."Last No. Used" := no;
-        NoSeriesLine.Modify();
+        GeneralPostingSetup.ModifyAll(Blocked, false);
+        VATPostingSetup.ModifyAll(Blocked, false);
     end;
 
     [ConfirmHandler]

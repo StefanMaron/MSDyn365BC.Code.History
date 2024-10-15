@@ -112,7 +112,7 @@ codeunit 99000769 "Production BOM-Check"
                             Item.TestField("Routing No.");
                             RtngLine.SetRange("Routing No.", Item."Routing No.");
                             RtngLine.SetRange("Routing Link Code", ProdBOMComponent."Routing Link Code");
-                            if not RtngLine.FindFirst then
+                            if not RtngLine.FindFirst() then
                                 Error(
                                   Text003,
                                   RtngLine.TableCaption,
@@ -139,7 +139,7 @@ codeunit 99000769 "Production BOM-Check"
         ProdBOMLine.SetRange("Version Code", VersionCode);
         ProdBOMLine.SetFilter(Type, '<>%1', ProdBOMLine.Type::" ");
         ProdBOMLine.SetRange("No.", '');
-        if ProdBOMLine.FindFirst then
+        if ProdBOMLine.FindFirst() then
             ProdBOMLine.FieldError("No.");
 
         OnAfterProdBomLineCheck(ProdBOMLine, VersionCode);

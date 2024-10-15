@@ -1,4 +1,4 @@
-codeunit 408 DimensionManagement
+﻿codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -83,8 +83,6 @@ codeunit 408 DimensionManagement
     end;
 
     procedure SetSourceCode(TableID: Integer; RecordVar: Variant)
-    var
-        RecRef: RecordRef;
     begin
         SetSourceCode(TableID);
 
@@ -117,7 +115,7 @@ codeunit 408 DimensionManagement
         TempDimSetEntry.DeleteAll();
         with DimSetEntry do begin
             SetRange("Dimension Set ID", DimSetID);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempDimSetEntry := DimSetEntry;
                     TempDimSetEntry.Insert();
@@ -136,7 +134,7 @@ codeunit 408 DimensionManagement
         DimSetEntry.FilterGroup(0);
         DimSetEntries.SetTableView(DimSetEntry);
         DimSetEntries.SetFormCaption(NewCaption);
-        DimSetEntries.RunModal;
+        DimSetEntries.RunModal();
     end;
 
     procedure EditDimensionSet(DimSetID: Integer; NewCaption: Text[250]): Integer
@@ -197,7 +195,7 @@ codeunit 408 DimensionManagement
     begin
         EditReclasDimensions.SetDimensionIDs(DimSetID, NewDimSetID);
         EditReclasDimensions.SetFormCaption(NewCaption);
-        EditReclasDimensions.RunModal;
+        EditReclasDimensions.RunModal();
         EditReclasDimensions.GetDimensionIDs(DimSetID, NewDimSetID);
         UpdateGlobalDimFromDimSetID(DimSetID, GlobalDimVal1, GlobalDimVal2);
         UpdateGlobalDimFromDimSetID(NewDimSetID, NewGlobalDimVal1, NewGlobalDimVal2);
@@ -225,7 +223,7 @@ codeunit 408 DimensionManagement
         for i := 1 to 10 do
             if DimensionSetIDArr[i] <> 0 then begin
                 DimSetEntry.SetRange("Dimension Set ID", DimensionSetIDArr[i]);
-                if DimSetEntry.FindSet then
+                if DimSetEntry.FindSet() then
                     repeat
                         if TempDimSetEntry.Get(0, DimSetEntry."Dimension Code") then
                             TempDimSetEntry.Delete();
@@ -259,7 +257,7 @@ codeunit 408 DimensionManagement
         GetDimensionSet(TempDimSetEntry, DimSetID);
         GetDimensionSet(TempDimSetEntryNew, NewParentDimSetID);
         GetDimensionSet(TempDimSetEntryDeleted, OldParentDimSetID);
-        if TempDimSetEntryDeleted.FindSet then
+        if TempDimSetEntryDeleted.FindSet() then
             repeat
                 if TempDimSetEntryNew.Get(NewParentDimSetID, TempDimSetEntryDeleted."Dimension Code") then begin
                     if TempDimSetEntryNew."Dimension Value Code" = TempDimSetEntryDeleted."Dimension Value Code" then
@@ -268,13 +266,13 @@ codeunit 408 DimensionManagement
                 end;
             until TempDimSetEntryDeleted.Next() = 0;
 
-        if TempDimSetEntryDeleted.FindSet then
+        if TempDimSetEntryDeleted.FindSet() then
             repeat
                 if TempDimSetEntry.Get(DimSetID, TempDimSetEntryDeleted."Dimension Code") then
                     TempDimSetEntry.Delete();
             until TempDimSetEntryDeleted.Next() = 0;
 
-        if TempDimSetEntryNew.FindSet then
+        if TempDimSetEntryNew.FindSet() then
             repeat
                 if TempDimSetEntry.Get(DimSetID, TempDimSetEntryNew."Dimension Code") then begin
                     if TempDimSetEntry."Dimension Value Code" <> TempDimSetEntryNew."Dimension Value Code" then begin
@@ -332,14 +330,9 @@ codeunit 408 DimensionManagement
     begin
         DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
-                TempDimBuf.Init();
-                TempDimBuf."Table ID" := DATABASE::"Dimension Buffer";
-                TempDimBuf."Entry No." := 0;
-                TempDimBuf."Dimension Code" := DimSetEntry."Dimension Code";
-                TempDimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                TempDimBuf.Insert();
+                InsertTempDimBufEntry(TempDimBuf, Database::"Dimension Buffer", 0, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
             until DimSetEntry.Next() = 0;
     end;
 
@@ -376,7 +369,7 @@ codeunit 408 DimensionManagement
         CollectDefaultDimsToCheck(TableID, No, TempDefaultDim);
         with TempDefaultDim do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     DimSetEntry.SetRange("Dimension Code", "Dimension Code");
                     IsHandled := false;
@@ -393,10 +386,10 @@ codeunit 408 DimensionManagement
                                     then
                                         LogError(RecordId, FieldNo("Value Posting"), GetSameCodeWrongDimErr(TempDefaultDim), '');
                                 end else
-                                    if DimSetEntry.FindFirst then
+                                    if DimSetEntry.FindFirst() then
                                         LogError(RecordId, FieldNo("Value Posting"), GetSameCodeBlankDimErr(TempDefaultDim), '');
                             "Value Posting"::"No Code":
-                                if DimSetEntry.FindFirst then
+                                if DimSetEntry.FindFirst() then
                                     LogError(RecordId, FieldNo("Value Posting"), GetNoCodeFilledDimErr(TempDefaultDim), '');
                         end;
                         if DimValuePerAccount.Get("Table ID", "No.", "Dimension Code", DimSetEntry."Dimension Value Code") then
@@ -420,15 +413,10 @@ codeunit 408 DimensionManagement
         TempDimBuf: Record "Dimension Buffer" temporary;
         i: Integer;
     begin
-        if DimBuffer.FindSet then begin
+        if DimBuffer.FindSet() then begin
             i := 1;
             repeat
-                TempDimBuf.Init();
-                TempDimBuf."Table ID" := DATABASE::"Dimension Buffer";
-                TempDimBuf."Entry No." := i;
-                TempDimBuf."Dimension Code" := DimBuffer."Dimension Code";
-                TempDimBuf."Dimension Value Code" := DimBuffer."Dimension Value Code";
-                TempDimBuf.Insert();
+                InsertTempDimBufEntry(TempDimBuf, Database::"Dimension Buffer", i, DimBuffer."Dimension Code", DimBuffer."Dimension Value Code");
                 i := i + 1;
             until DimBuffer.Next() = 0;
         end;
@@ -455,7 +443,7 @@ codeunit 408 DimensionManagement
         if TempDimCombEmpty then
             exit(true);
 
-        if not TempDimBuf.FindSet then
+        if not TempDimBuf.FindSet() then
             exit(true);
 
         repeat
@@ -466,7 +454,7 @@ codeunit 408 DimensionManagement
         LastErrorID := GetLastDimErrorID;
         DimComb.SetFilter("Dimension 1 Code", DimFilter);
         DimComb.SetFilter("Dimension 2 Code", DimFilter);
-        if DimComb.FindSet then
+        if DimComb.FindSet() then
             repeat
                 if DimComb."Combination Restriction" = DimComb."Combination Restriction"::Blocked then
                     LogError(
@@ -474,11 +462,11 @@ codeunit 408 DimensionManagement
                       StrSubstNo(Text000, DimComb."Dimension 1 Code", DimComb."Dimension 2 Code"), '')
                 else begin
                     TempDimBuf.SetRange("Dimension Code", DimComb."Dimension 1 Code");
-                    TempDimBuf.FindFirst;
+                    TempDimBuf.FindFirst();
                     CurrentDimCode := TempDimBuf."Dimension Code";
                     CurrentDimValCode := TempDimBuf."Dimension Value Code";
                     TempDimBuf.SetRange("Dimension Code", DimComb."Dimension 2 Code");
-                    TempDimBuf.FindFirst;
+                    TempDimBuf.FindFirst();
                     CheckDimValueComb(
                       TempDimBuf."Dimension Code", TempDimBuf."Dimension Value Code",
                       CurrentDimCode, CurrentDimValCode);
@@ -523,10 +511,10 @@ codeunit 408 DimensionManagement
                 NoFilter[1] := No[i];
                 for j := 1 to 2 do begin
                     DefaultDim.SetRange("No.", NoFilter[j]);
-                    if DefaultDim.FindSet then
+                    if DefaultDim.FindSet() then
                         repeat
                             TempDefaultDim.SetRange("Dimension Code", DefaultDim."Dimension Code");
-                            if not TempDefaultDim.FindFirst then begin
+                            if not TempDefaultDim.FindFirst() then begin
                                 TempDefaultDim := DefaultDim;
                                 TempDefaultDim.Insert();
                             end else begin
@@ -682,6 +670,8 @@ codeunit 408 DimensionManagement
             GlobalDim2Code := '';
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by procedures GetDefaultDimID() with DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]', '20.0')]
     procedure GetDefaultDimID(TableID: array[10] of Integer; No: array[10] of Code[20]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer): Integer
     var
         DimVal: Record "Dimension Value";
@@ -702,14 +692,9 @@ codeunit 408 DimensionManagement
         GetGLSetup(GLSetupShortcutDimCode);
         if InheritFromDimSetID > 0 then
             GetDimensionSet(TempDimSetEntry0, InheritFromDimSetID);
-        if TempDimSetEntry0.FindSet then
+        if TempDimSetEntry0.FindSet() then
             repeat
-                TempDimBuf.Init();
-                TempDimBuf."Table ID" := InheritFromTableNo;
-                TempDimBuf."Entry No." := 0;
-                TempDimBuf."Dimension Code" := TempDimSetEntry0."Dimension Code";
-                TempDimBuf."Dimension Value Code" := TempDimSetEntry0."Dimension Value Code";
-                TempDimBuf.Insert();
+                InsertTempDimBufEntry(TempDimBuf, InheritFromTableNo, 0, TempDimSetEntry0."Dimension Code", TempDimSetEntry0."Dimension Value Code");
             until TempDimSetEntry0.Next() = 0;
 
         NoFilter[2] := '';
@@ -723,33 +708,22 @@ codeunit 408 DimensionManagement
                     NoFilter[1] := No[i];
                     for j := 1 to 2 do begin
                         DefaultDim.SetRange("No.", NoFilter[j]);
-                        if DefaultDim.FindSet then
+                        if DefaultDim.FindSet() then
                             repeat
                                 if DefaultDim."Dimension Value Code" <> '' then begin
                                     TempDimBuf.SetRange("Dimension Code", DefaultDim."Dimension Code");
-                                    if not TempDimBuf.FindFirst then begin
-                                        TempDimBuf.Init();
-                                        TempDimBuf."Table ID" := DefaultDim."Table ID";
-                                        TempDimBuf."Entry No." := 0;
-                                        TempDimBuf."Dimension Code" := DefaultDim."Dimension Code";
-                                        TempDimBuf."Dimension Value Code" := DefaultDim."Dimension Value Code";
-                                        TempDimBuf.Insert();
-                                    end else
+                                    if not TempDimBuf.FindFirst() then
+                                        InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code")
+                                    else
                                         if DefaultDimPriority1.Get(SourceCode, DefaultDim."Table ID") then
                                             if DefaultDimPriority2.Get(SourceCode, TempDimBuf."Table ID") then begin
                                                 if DefaultDimPriority1.Priority < DefaultDimPriority2.Priority then begin
                                                     TempDimBuf.Delete();
-                                                    TempDimBuf."Table ID" := DefaultDim."Table ID";
-                                                    TempDimBuf."Entry No." := 0;
-                                                    TempDimBuf."Dimension Value Code" := DefaultDim."Dimension Value Code";
-                                                    TempDimBuf.Insert();
+                                                    InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code");
                                                 end;
                                             end else begin
                                                 TempDimBuf.Delete();
-                                                TempDimBuf."Table ID" := DefaultDim."Table ID";
-                                                TempDimBuf."Entry No." := 0;
-                                                TempDimBuf."Dimension Value Code" := DefaultDim."Dimension Value Code";
-                                                TempDimBuf.Insert();
+                                                InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code");
                                             end;
                                     if GLSetupShortcutDimCode[1] = TempDimBuf."Dimension Code" then
                                         GlobalDim1Code := TempDimBuf."Dimension Value Code";
@@ -764,7 +738,105 @@ codeunit 408 DimensionManagement
         OnGetDefaultDimIDOnBeforeFindNewDimSetID(TempDimBuf, TableID, No, GlobalDim1Code, GlobalDim2Code);
 
         TempDimBuf.Reset();
-        if TempDimBuf.FindSet then begin
+        if TempDimBuf.FindSet() then begin
+            repeat
+                DimVal.Get(TempDimBuf."Dimension Code", TempDimBuf."Dimension Value Code");
+                TempDimSetEntry."Dimension Code" := TempDimBuf."Dimension Code";
+                TempDimSetEntry."Dimension Value Code" := TempDimBuf."Dimension Value Code";
+                TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
+                OnGetDefaultDimIDOnBeforeTempDimSetEntryInsert(TempDimSetEntry, TempDimBuf, SourceCode);
+                TempDimSetEntry.Insert();
+            until TempDimBuf.Next() = 0;
+            NewDimSetID := GetDimensionSetID(TempDimSetEntry);
+        end;
+        exit(NewDimSetID);
+    end;
+#endif
+
+    procedure GetDefaultDimID(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer): Integer
+    var
+        DimVal: Record "Dimension Value";
+        DefaultDimPriority1: Record "Default Dimension Priority";
+        DefaultDimPriority2: Record "Default Dimension Priority";
+        DefaultDim: Record "Default Dimension";
+        TempDimBuf: Record "Dimension Buffer" temporary;
+        TempDimSetEntry: Record "Dimension Set Entry" temporary;
+        TempDimSetEntry0: Record "Dimension Set Entry" temporary;
+        i: Integer;
+        j: Integer;
+        NoFilter: array[2] of Code[20];
+        NewDimSetID: Integer;
+        IsHandled: Boolean;
+        TableIds: List of [Integer];
+        Nos: List of [Code[20]];
+        TableId: Integer;
+        No: Code[20];
+        DimSource: Dictionary of [Integer, Code[20]];
+    begin
+#if not CLEAN20
+        RunEventOnBeforeGetDefaultDimID(DefaultDimSource, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo, DimVal);
+#endif
+        OnBeforeGetDefaultDimIDProcedure(DefaultDimSource, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo, DimVal);
+
+        GetGLSetup(GLSetupShortcutDimCode);
+        if InheritFromDimSetID > 0 then
+            GetDimensionSet(TempDimSetEntry0, InheritFromDimSetID);
+        if TempDimSetEntry0.FindSet() then
+            repeat
+                InsertTempDimBufEntry(TempDimBuf, InheritFromTableNo, 0, TempDimSetEntry0."Dimension Code", TempDimSetEntry0."Dimension Value Code");
+            until TempDimSetEntry0.Next() = 0;
+
+        NoFilter[2] := '';
+        for i := 1 to DefaultDimSource.Count do begin
+            DimSource := DefaultDimSource.Get(i);
+            TableIds := DimSource.Keys;
+            Nos := DimSource.Values;
+            TableId := TableIds.Get(1);
+            No := Nos.Get(1);
+            if (TableId <> 0) and (No <> '') then begin
+                IsHandled := false;
+                OnGetDefaultDimOnBeforeCreate(
+                  TempDimBuf, TableId, No, GLSetupShortcutDimCode, GlobalDim1Code, GlobalDim2Code, IsHandled, SourceCode);
+                if not IsHandled then begin
+                    DefaultDim.SetRange("Table ID", TableId);
+                    NoFilter[1] := No;
+                    for j := 1 to 2 do begin
+                        DefaultDim.SetRange("No.", NoFilter[j]);
+                        if DefaultDim.FindSet() then
+                            repeat
+                                if DefaultDim."Dimension Value Code" <> '' then begin
+                                    TempDimBuf.SetRange("Dimension Code", DefaultDim."Dimension Code");
+                                    if not TempDimBuf.FindFirst() then
+                                        InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code")
+                                    else
+                                        if DefaultDimPriority1.Get(SourceCode, DefaultDim."Table ID") then
+                                            if DefaultDimPriority2.Get(SourceCode, TempDimBuf."Table ID") then begin
+                                                if DefaultDimPriority1.Priority < DefaultDimPriority2.Priority then begin
+                                                    TempDimBuf.Delete();
+                                                    InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code");
+                                                end;
+                                            end else begin
+                                                TempDimBuf.Delete();
+                                                InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code");
+                                            end;
+                                    if GLSetupShortcutDimCode[1] = TempDimBuf."Dimension Code" then
+                                        GlobalDim1Code := TempDimBuf."Dimension Value Code";
+                                    if GLSetupShortcutDimCode[2] = TempDimBuf."Dimension Code" then
+                                        GlobalDim2Code := TempDimBuf."Dimension Value Code";
+                                end;
+                            until DefaultDim.Next() = 0;
+                    end;
+                end;
+            end;
+        end;
+
+#if not CLEAN20
+        RunEventOnGetDefaultDimIDOnBeforeFindNewDimSetID(TempDimBuf, DefaultDimSource, GlobalDim1Code, GlobalDim2Code);
+#endif
+        OnGetDefaultDimIDOnBeforeFindNewDimSetIDProcedure(TempDimBuf, DefaultDimSource, GlobalDim1Code, GlobalDim2Code);
+
+        TempDimBuf.Reset();
+        if TempDimBuf.FindSet() then begin
             repeat
                 DimVal.Get(TempDimBuf."Dimension Code", TempDimBuf."Dimension Value Code");
                 TempDimSetEntry."Dimension Code" := TempDimBuf."Dimension Code";
@@ -778,6 +850,8 @@ codeunit 408 DimensionManagement
         exit(NewDimSetID);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by procedures GetRecDefaultDimID() with DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]', '20.0')]
     procedure GetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; TableID: array[10] of Integer; No: array[10] of Code[20]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer): Integer
     var
         DefaultDimID: Integer;
@@ -787,6 +861,23 @@ codeunit 408 DimensionManagement
         OnAfterGetRecDefaultDimID(
           RecVariant, CurrFieldNo, TableID, No, SourceCode, InheritFromDimSetID, InheritFromTableNo,
           GlobalDim1Code, GlobalDim2Code, DefaultDimID);
+        exit(DefaultDimID);
+    end;
+#endif
+
+    procedure GetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer): Integer
+    var
+        DefaultDimID: Integer;
+    begin
+#if not CLEAN20
+        RunEventOnGetRecDefaultDimID(RecVariant, CurrFieldNo, DefaultDimSource, SourceCode, InheritFromDimSetID, InheritFromTableNo);
+#endif
+        OnBeforeGetRecDefaultDimID(RecVariant, CurrFieldNo, DefaultDimSource, SourceCode, InheritFromDimSetID, InheritFromTableNo);
+        DefaultDimID := GetDefaultDimID(DefaultDimSource, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo);
+#if not CLEAN20
+        RunEventOnAfterGetRecDefaultDimID(RecVariant, CurrFieldNo, DefaultDimSource, SourceCode, InheritFromDimSetID, InheritFromTableNo, GlobalDim1Code, GlobalDim2Code, DefaultDimID);
+#endif
+        OnAfterGetRecDefaultDimIDProcedure(RecVariant, CurrFieldNo, DefaultDimSource, SourceCode, InheritFromDimSetID, InheritFromTableNo, GlobalDim1Code, GlobalDim2Code, DefaultDimID);
         exit(DefaultDimID);
     end;
 
@@ -858,24 +949,68 @@ codeunit 408 DimensionManagement
         end;
     end;
 
-    procedure TypeToTableID3(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)") TableId: Integer
+#if not CLEAN20
+    [Obsolete('Replaced by procedures SalesLineTypeToTableID() or PurchLineTypeToTableID()', '20.0')]
+    procedure TypeToTableID3(LineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)") TableId: Integer
     begin
-        case Type of
-            Type::" ":
+        TableId := SalesLineTypeToTableID("Sales Line Type".FromInteger(LineType));
+
+        OnAfterTypeToTableID3(LineType, TableId);
+    end;
+#endif
+
+    procedure SalesLineTypeToTableID(LineType: Enum "Sales Line Type") TableId: Integer
+    begin
+        case LineType of
+            "Sales Line Type"::" ":
                 exit(0);
-            Type::"G/L Account":
+            "Sales Line Type"::"G/L Account":
                 exit(DATABASE::"G/L Account");
-            Type::Item:
+            "Sales Line Type"::Item:
                 exit(DATABASE::Item);
-            Type::Resource:
+            "Sales Line Type"::Resource:
                 exit(DATABASE::Resource);
-            Type::"Fixed Asset":
+            "Sales Line Type"::"Fixed Asset":
                 exit(DATABASE::"Fixed Asset");
-            Type::"Charge (Item)":
+            "Sales Line Type"::"Charge (Item)":
                 exit(DATABASE::"Item Charge");
         end;
 
-        OnAfterTypeToTableID3(Type, TableId);
+        OnAfterSalesLineTypeToTableID(LineType, TableId);
+    end;
+
+    procedure PurchLineTypeToTableID(LineType: Enum "Purchase Line Type") TableId: Integer
+    begin
+        case LineType of
+            "Sales Line Type"::" ":
+                exit(0);
+            "Sales Line Type"::"G/L Account":
+                exit(DATABASE::"G/L Account");
+            "Sales Line Type"::Item:
+                exit(DATABASE::Item);
+            "Sales Line Type"::Resource:
+                exit(DATABASE::Resource);
+            "Sales Line Type"::"Fixed Asset":
+                exit(DATABASE::"Fixed Asset");
+            "Sales Line Type"::"Charge (Item)":
+                exit(DATABASE::"Item Charge");
+        end;
+
+        OnAfterPurchLineTypeToTableID(LineType, TableId);
+    end;
+
+    procedure ReqLineTypeToTableID(LineType: Enum "Requisition Line Type") TableId: Integer
+    begin
+        case LineType of
+            "Requisition Line Type"::" ":
+                exit(0);
+            "Requisition Line Type"::"G/L Account":
+                exit(DATABASE::"G/L Account");
+            "Requisition Line Type"::Item:
+                exit(DATABASE::Item);
+        end;
+
+        OnAfterReqLineTypeToTableID(LineType, TableId);
     end;
 
     procedure TypeToTableID4(Type: Option " ",Item,Resource) TableId: Integer
@@ -978,9 +1113,9 @@ codeunit 408 DimensionManagement
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         if ShortcutDimCode <> '' then begin
             DimVal.SetRange(Code, ShortcutDimCode);
-            if not DimVal.FindFirst then begin
+            if not DimVal.FindFirst() then begin
                 DimVal.SetFilter(Code, StrSubstNo('%1*', ShortcutDimCode));
-                if DimVal.FindFirst then
+                if DimVal.FindFirst() then
                     ShortcutDimCode := DimVal.Code
                 else
                     Error(
@@ -1061,7 +1196,7 @@ codeunit 408 DimensionManagement
         TempDimBuf: Record "Dimension Buffer" temporary;
         i: Integer;
     begin
-        if DimBuffer.FindSet then begin
+        if DimBuffer.FindSet() then begin
             i := 1;
             repeat
                 if (not CheckDimValue(
@@ -1104,14 +1239,14 @@ codeunit 408 DimensionManagement
                 NoFilter[1] := No[i];
                 for j := 1 to 2 do begin
                     DefaultDim.SetRange("No.", NoFilter[j]);
-                    if DefaultDim.FindSet then begin
+                    if DefaultDim.FindSet() then begin
                         repeat
                             TempDimBuf.SetRange("Dimension Code", DefaultDim."Dimension Code");
                             case DefaultDim."Value Posting" of
                                 DefaultDim."Value Posting"::"Code Mandatory":
                                     if (not TempDimBuf.FindFirst) or (TempDimBuf."Dimension Value Code" = '') then begin
                                         LogError(
-                                          DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetMissedMandatoryDimErr(DefaultDim), '');
+                                            DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetMissedMandatoryDimErr(DefaultDim), '');
                                         exit(false);
                                     end;
                                 DefaultDim."Value Posting"::"Same Code":
@@ -1120,19 +1255,19 @@ codeunit 408 DimensionManagement
                                            (DefaultDim."Dimension Value Code" <> TempDimBuf."Dimension Value Code")
                                         then begin
                                             LogError(
-                                              DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeWrongDimErr(DefaultDim), '');
+                                                DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeWrongDimErr(DefaultDim), '');
                                             exit(false);
                                         end
                                     end else
-                                        if TempDimBuf.FindFirst then begin
+                                        if TempDimBuf.FindFirst() then begin
                                             LogError(
-                                              DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeBlankDimErr(DefaultDim), '');
+                                                DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeBlankDimErr(DefaultDim), '');
                                             exit(false);
                                         end;
                                 DefaultDim."Value Posting"::"No Code":
-                                    if TempDimBuf.FindFirst then begin
+                                    if TempDimBuf.FindFirst() then begin
                                         LogError(
-                                          DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetNoCodeFilledDimErr(DefaultDim), '');
+                                            DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetNoCodeFilledDimErr(DefaultDim), '');
                                         exit(false);
                                     end;
                             end;
@@ -1175,7 +1310,7 @@ codeunit 408 DimensionManagement
         TempDimSetIDField.SetRange(RelationTableNo, DATABASE::"Dimension Set Entry");
         FillNormalFieldBuffer(TempDimSetIDField);
         OnBeforeSetupObjectNoList(TempDimField);
-        if TempDimField.FindSet then
+        if TempDimField.FindSet() then
             repeat
                 TempDimSetIDField.SetRange(TableNo, TempDimField.TableNo);
                 if TempDimSetIDField.IsEmpty() then
@@ -1191,6 +1326,7 @@ codeunit 408 DimensionManagement
         DefaultDimInsertTempObject(TempAllObjWithCaption, DATABASE::"Service Item Group");
         DefaultDimInsertTempObject(TempAllObjWithCaption, DATABASE::"Service Item");
         DefaultDimInsertTempObject(TempAllObjWithCaption, DATABASE::"Service Contract Template");
+        DefaultDimInsertTempObject(TempAllObjWithCaption, Database::Location);
 
         OnAfterDefaultDimObjectNoWithoutGlobalDimsList(TempAllObjWithCaption);
     end;
@@ -1237,7 +1373,7 @@ codeunit 408 DimensionManagement
         TempDimField.SetRange(Len, 20);
         FillNormalFieldBuffer(TempDimField);
         TempDimField.Reset();
-        if TempDimSetIDField.FindSet then
+        if TempDimSetIDField.FindSet() then
             repeat
                 TempDimField.SetRange(TableNo, TempDimSetIDField.TableNo);
                 if not TempDimField.IsEmpty() then begin
@@ -1249,7 +1385,7 @@ codeunit 408 DimensionManagement
         TempDimField.Reset();
         TempDimField.SetFilter(ObsoleteState, '<>%1', TempDimField.ObsoleteState::Removed);
         TempDimField.SetFilter(FieldName, '*Global Dim.*');
-        if TempDimField.FindSet then
+        if TempDimField.FindSet() then
             repeat
                 if LastTableNo <> TempDimField.TableNo then begin
                     LastTableNo := TempDimField.TableNo;
@@ -1280,7 +1416,7 @@ codeunit 408 DimensionManagement
         Field.SetRange(Class, Field.Class::Normal);
         Field.SetRange(Type, Field.Type::Code);
         Field.SetRange(Len, 20);
-        if Field.FindFirst then
+        if Field.FindFirst() then
             exit(true);
     end;
 
@@ -1291,7 +1427,7 @@ codeunit 408 DimensionManagement
         Field.CopyFilters(TempField);
         Field.SetRange(Class, Field.Class::Normal);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 if not IsObsolete(Field.TableNo) then begin
                     TempField := Field;
@@ -1395,7 +1531,7 @@ codeunit 408 DimensionManagement
         LastErrorID := GetLastDimErrorID;
         DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 if not CheckDim(DimSetEntry."Dimension Code") or
                    not CheckDimValue(DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")
@@ -1450,7 +1586,7 @@ codeunit 408 DimensionManagement
         ICDimValue: Code[20];
     begin
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 ICDim := ConvertDimtoICDim(DimSetEntry."Dimension Code");
                 ICDimValue := ConvertDimValuetoICDimVal(DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
@@ -1518,7 +1654,7 @@ codeunit 408 DimensionManagement
 
     procedure CopyICJnlDimToICJnlDim(var FromInOutBoxLineDim: Record "IC Inbox/Outbox Jnl. Line Dim."; var ToInOutBoxlineDim: Record "IC Inbox/Outbox Jnl. Line Dim.")
     begin
-        if FromInOutBoxLineDim.FindSet then
+        if FromInOutBoxLineDim.FindSet() then
             repeat
                 ToInOutBoxlineDim := FromInOutBoxLineDim;
                 ToInOutBoxlineDim.Insert();
@@ -1533,7 +1669,7 @@ codeunit 408 DimensionManagement
         ICDimValue: Code[20];
     begin
         DimSetEntry.SetRange("Dimension Set ID", DimSetEntryID);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 ICDim := ConvertDimtoICDim(DimSetEntry."Dimension Code");
                 ICDimValue := ConvertDimValuetoICDimVal(DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
@@ -1555,7 +1691,7 @@ codeunit 408 DimensionManagement
     begin
         with FromSourceICDocDim do begin
             SetICDocDimFilters(FromSourceICDocDim, "Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     ToSourceICDocDim := FromSourceICDocDim;
                     ToSourceICDocDim."Table ID" := ToTableID;
@@ -1569,7 +1705,7 @@ codeunit 408 DimensionManagement
     begin
         with FromSourceICDocDim do begin
             SetICDocDimFilters(FromSourceICDocDim, "Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     ToSourceICDocDim := FromSourceICDocDim;
                     ToSourceICDocDim."Table ID" := ToTableID;
@@ -1802,7 +1938,7 @@ codeunit 408 DimensionManagement
             until DefaultDim.Next() = 0;
 
         TempJobTaskDimBuffer.Reset();
-        if TempJobTaskDimBuffer.FindSet then
+        if TempJobTaskDimBuffer.FindSet() then
             repeat
                 if not JobTaskDim.Get(JobNo, JobTaskNo, TempJobTaskDimBuffer."Dimension Code") then begin
                     JobTaskDim.Init();
@@ -1875,7 +2011,7 @@ codeunit 408 DimensionManagement
         JobTaskDimension.Reset();
         JobTaskDimension.SetRange("Job No.", JobNo);
         JobTaskDimension.SetRange("Job Task No.", JobTaskNo);
-        if JobTaskDimension.FindSet then
+        if JobTaskDimension.FindSet() then
             repeat
                 if not JobTaskDimension2.Get(NewJobNo, NewJobTaskNo, JobTaskDimension."Dimension Code") then begin
                     JobTaskDimension2.Init();
@@ -1893,7 +2029,7 @@ codeunit 408 DimensionManagement
         JobTaskDimension2.Reset();
         JobTaskDimension2.SetRange("Job No.", NewJobNo);
         JobTaskDimension2.SetRange("Job Task No.", NewJobTaskNo);
-        if JobTaskDimension2.FindSet then
+        if JobTaskDimension2.FindSet() then
             repeat
                 if not JobTaskDimension.Get(JobNo, JobTaskNo, JobTaskDimension2."Dimension Code") then
                     JobTaskDimension2.Delete(true);
@@ -1904,8 +2040,8 @@ codeunit 408 DimensionManagement
     var
         ObjectTranslation: Record "Object Translation";
     begin
-        if DimSetEntry.FindSet then;
-        if PostedDimSetEntry.FindSet then;
+        if DimSetEntry.FindSet() then;
+        if PostedDimSetEntry.FindSet() then;
         repeat
             case true of
                 DimSetEntry."Dimension Code" > PostedDimSetEntry."Dimension Code":
@@ -1998,7 +2134,7 @@ codeunit 408 DimensionManagement
     begin
         OnBeforeCopyDimBufToDimSetEntry(DimValue);
         with FromDimBuf do
-            if FindSet then
+            if FindSet() then
                 repeat
                     DimValue.Get("Dimension Code", "Dimension Value Code");
                     DimSetEntry."Dimension Code" := "Dimension Code";
@@ -2014,7 +2150,7 @@ codeunit 408 DimensionManagement
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
         OnBeforeCreateDimSetIDFromDimBuf(DimValue);
-        if DimBuf.FindSet then
+        if DimBuf.FindSet() then
             repeat
                 DimValue.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
                 CreateDimSetEntryFromDimValue(DimValue, TempDimSetEntry);
@@ -2024,97 +2160,99 @@ codeunit 408 DimensionManagement
 
     procedure CreateDimForPurchLineWithHigherPriorities(PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var DimensionSetID: Integer; var DimValue1: Code[20]; var DimValue2: Code[20]; SourceCode: Code[10]; PriorityTableID: Integer)
     var
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        HighPriorityTableID: array[10] of Integer;
-        HighPriorityNo: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        HighPriorityDefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        TableID[1] := DATABASE::Job;
-        TableID[2] := TypeToTableID3(PurchaseLine.Type.AsInteger());
-        No[1] := PurchaseLine."Job No.";
-        No[2] := PurchaseLine."No.";
+        AddDimSource(DefaultDimSource, Database::Job, PurchaseLine."Job No.");
+        AddDimSource(DefaultDimSource, PurchLineTypeToTableID(PurchaseLine.Type), PurchaseLine."No.");
 
-        OnBeforeGetTableIDsForHigherPriorities(DATABASE::"Purchase Line", PurchaseLine, CurrFieldNo, TableID, No);
+#if not CLEAN20
+        RunEventOnBeforeGetTableIDsForHigherPriorities(DATABASE::"Purchase Line", PurchaseLine, CurrFieldNo, DefaultDimSource);
+#endif
+        OnBeforeGetTableIDsForHigherPrioritiesProcedure(DATABASE::"Purchase Line", PurchaseLine, CurrFieldNo, DefaultDimSource);
         if GetTableIDsForHigherPriorities(
-             TableID, No, HighPriorityTableID, HighPriorityNo, SourceCode, PriorityTableID)
+             DefaultDimSource, HighPriorityDefaultDimSource, SourceCode, PriorityTableID)
         then
             DimensionSetID :=
               GetRecDefaultDimID(
-                PurchaseLine, CurrFieldNo, HighPriorityTableID, HighPriorityNo, SourceCode, DimValue1, DimValue2, 0, 0);
+                PurchaseLine, CurrFieldNo, HighPriorityDefaultDimSource, SourceCode, DimValue1, DimValue2, 0, 0);
     end;
 
     procedure CreateDimForSalesLineWithHigherPriorities(SalesLine: Record "Sales Line"; CurrFieldNo: Integer; var DimensionSetID: Integer; var DimValue1: Code[20]; var DimValue2: Code[20]; SourceCode: Code[10]; PriorityTableID: Integer)
     var
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        HighPriorityTableID: array[10] of Integer;
-        HighPriorityNo: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        HighPriorityDefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        TableID[1] := DATABASE::Job;
-        TableID[2] := TypeToTableID3(SalesLine.Type.AsInteger());
-        No[1] := SalesLine."Job No.";
-        No[2] := SalesLine."No.";
+        AddDimSource(DefaultDimSource, Database::Job, SalesLine."Job No.");
+        AddDimSource(DefaultDimSource, SalesLineTypeToTableID(SalesLine.Type), SalesLine."No.");
 
-        OnBeforeGetTableIDsForHigherPriorities(DATABASE::"Sales Line", SalesLine, CurrFieldNo, TableID, No);
+#if not CLEAN20
+        RunEventOnBeforeGetTableIDsForHigherPriorities(DATABASE::"Sales Line", SalesLine, CurrFieldNo, DefaultDimSource);
+#endif
+        OnBeforeGetTableIDsForHigherPrioritiesProcedure(DATABASE::"Sales Line", SalesLine, CurrFieldNo, DefaultDimSource);
         if GetTableIDsForHigherPriorities(
-             TableID, No, HighPriorityTableID, HighPriorityNo, SourceCode, PriorityTableID)
+             DefaultDimSource, HighPriorityDefaultDimSource, SourceCode, PriorityTableID)
         then
             DimensionSetID :=
               GetRecDefaultDimID(
-                SalesLine, CurrFieldNo, HighPriorityTableID, HighPriorityNo, SourceCode, DimValue1, DimValue2, 0, 0);
+                SalesLine, CurrFieldNo, HighPriorityDefaultDimSource, SourceCode, DimValue1, DimValue2, 0, 0);
     end;
 
     procedure CreateDimForJobJournalLineWithHigherPriorities(JobJournalLine: Record "Job Journal Line"; CurrFieldNo: Integer; var DimensionSetID: Integer; var DimValue1: Code[20]; var DimValue2: Code[20]; SourceCode: Code[10]; PriorityTableID: Integer)
     var
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        HighPriorityTableID: array[10] of Integer;
-        HighPriorityNo: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        HighPriorityDefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        TableID[1] := DATABASE::Job;
-        TableID[2] := TypeToTableID2(JobJournalLine.Type.AsInteger());
-        TableID[3] := DATABASE::"Resource Group";
-        No[1] := JobJournalLine."Job No.";
-        No[2] := JobJournalLine."No.";
-        No[3] := JobJournalLine."Resource Group No.";
+        AddDimSource(DefaultDimSource, Database::Job, JobJournalLine."Job No.");
+        AddDimSource(DefaultDimSource, TypeToTableID2(JobJournalLine.Type.AsInteger()), JobJournalLine."No.");
+        AddDimSource(DefaultDimSource, Database::"Resource Group", JobJournalLine."Resource Group No.");
 
-        OnBeforeGetTableIDsForHigherPriorities(DATABASE::"Job Journal Line", JobJournalLine, CurrFieldNo, TableID, No);
+#if not CLEAN20
+        RunEventOnBeforeGetTableIDsForHigherPriorities(DATABASE::"Job Journal Line", JobJournalLine, CurrFieldNo, DefaultDimSource);
+#endif
+        OnBeforeGetTableIDsForHigherPrioritiesProcedure(DATABASE::"Job Journal Line", JobJournalLine, CurrFieldNo, DefaultDimSource);
+
         if GetTableIDsForHigherPriorities(
-             TableID, No, HighPriorityTableID, HighPriorityNo, SourceCode, PriorityTableID)
+             DefaultDimSource, HighPriorityDefaultDimSource, SourceCode, PriorityTableID)
         then
             DimensionSetID :=
               GetRecDefaultDimID(
-                JobJournalLine, CurrFieldNo, HighPriorityTableID, HighPriorityNo, SourceCode, DimValue1, DimValue2, 0, 0);
+                JobJournalLine, CurrFieldNo, HighPriorityDefaultDimSource, SourceCode, DimValue1, DimValue2, 0, 0);
 
-        OnAfterCreateDimForJobJournalLineWithHigherPriorities(JobJournalLine, CurrFieldNo, DimensionSetID, DimValue1, DimValue2, SourceCode, PriorityTableID, TableID, No, HighPriorityTableID, HighPriorityNo);
+#if not CLEAN20
+        RunEventOnAfterCreateDimForJobJournalLineWithHigherPriorities(JobJournalLine, CurrFieldNo, DimensionSetID, DimValue1, DimValue2, SourceCode, PriorityTableID, DefaultDimSource, HighPriorityDefaultDimSource);
+#endif
+        OnAfterCreateDimForJobJournalLineWithHigherPrioritiesProcedure(JobJournalLine, CurrFieldNo, DimensionSetID, DimValue1, DimValue2, SourceCode, PriorityTableID, DefaultDimSource, HighPriorityDefaultDimSource);
     end;
 
-    local procedure GetTableIDsForHigherPriorities(TableID: array[10] of Integer; No: array[10] of Code[20]; var HighPriorityTableID: array[10] of Integer; var HighPriorityNo: array[10] of Code[20]; SourceCode: Code[10]; PriorityTableID: Integer) Result: Boolean
+    local procedure GetTableIDsForHigherPriorities(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var HighPriorityDefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourceCode: Code[10]; PriorityTableID: Integer) Result: Boolean
     var
         DefaultDimensionPriority: Record "Default Dimension Priority";
         InitialPriority: Integer;
         i: Integer;
         j: Integer;
+        TableID: Integer;
+        DimSource: Dictionary of [Integer, Code[20]];
     begin
-        Clear(HighPriorityTableID);
-        Clear(HighPriorityNo);
+        Clear(HighPriorityDefaultDimSource);
         if DefaultDimensionPriority.Get(SourceCode, PriorityTableID) then
             InitialPriority := DefaultDimensionPriority.Priority;
         DefaultDimensionPriority.SetRange("Source Code", SourceCode);
         DefaultDimensionPriority.SetFilter(Priority, '<=%1', InitialPriority);
         i := 1;
-        for j := 1 to ArrayLen(TableID) do begin
-            if TableID[j] = 0 then
+        for j := 1 to DefaultDimSource.Count do begin
+            DimSource := DefaultDimSource.Get(j);
+            TableID := DimSource.Keys.Get(1);
+            if TableID = 0 then
                 break;
             DefaultDimensionPriority.Priority := 0;
-            DefaultDimensionPriority.SetRange("Table ID", TableID[j]);
+            DefaultDimensionPriority.SetRange("Table ID", TableID);
             if ((InitialPriority = 0) or DefaultDimensionPriority.FindFirst) and
                ((DefaultDimensionPriority.Priority < InitialPriority) or
-                ((DefaultDimensionPriority.Priority = InitialPriority) and (TableID[j] < PriorityTableID)))
+                ((DefaultDimensionPriority.Priority = InitialPriority) and (TableID < PriorityTableID)))
             then begin
                 Result := true;
-                HighPriorityTableID[i] := TableID[j];
-                HighPriorityNo[i] := No[j];
+                AddDimSource(HighPriorityDefaultDimSource, TableID, DimSource.Values.Get(1));
                 i += 1;
             end;
         end;
@@ -2128,7 +2266,7 @@ codeunit 408 DimensionManagement
         DimSetEntry.SetCurrentKey("Dimension Code", "Dimension Value Code", "Dimension Set ID");
         DimSetEntry.SetFilter("Dimension Code", '%1', DimCode);
         DimSetEntry.SetFilter("Dimension Value Code", DimValueFilter);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 AddDimSetIDtoTempEntry(TempDimSetEntryBuffer, DimSetEntry."Dimension Set ID");
             until DimSetEntry.Next() = 0;
@@ -2148,7 +2286,7 @@ codeunit 408 DimensionManagement
         for i := 1 to 2 do begin
             if i = 2 then
                 DimSetEntry.SetFilter("Dimension Code", '%1', DimCode);
-            if DimSetEntry.FindSet then begin
+            if DimSetEntry.FindSet() then begin
                 PrevDimSetID := 0;
                 repeat
                     if DimSetEntry."Dimension Set ID" <> PrevDimSetID then begin
@@ -2159,7 +2297,7 @@ codeunit 408 DimensionManagement
             end;
         end;
         TempDimSetEntry.SetFilter("Dimension Value ID", '%1', 1);
-        if TempDimSetEntry.FindSet then
+        if TempDimSetEntry.FindSet() then
             repeat
                 AddDimSetIDtoTempEntry(TempDimSetEntryBuffer, TempDimSetEntry."Dimension Set ID");
             until TempDimSetEntry.Next() = 0;
@@ -2168,7 +2306,7 @@ codeunit 408 DimensionManagement
     procedure GetDimSetFilter() DimSetFilter: Text
     begin
         TempDimSetEntryBuffer.SetFilter("Dimension Value ID", '%1', DimSetFilterCtr);
-        if TempDimSetEntryBuffer.FindSet then begin
+        if TempDimSetEntryBuffer.FindSet() then begin
             DimSetFilter := Format(TempDimSetEntryBuffer."Dimension Set ID");
             if TempDimSetEntryBuffer.Next <> 0 then
                 repeat
@@ -2222,7 +2360,6 @@ codeunit 408 DimensionManagement
                 CostAccMgt.UpdateCostTypeFromDefaultDimension(DefaultDimension, GLAcc, CallingTrigger);
     end;
 
-    [Scope('OnPrem')]
     procedure TypeToTableID2000001(Type: Option " ",Customer,Vendor): Integer
     begin
         case Type of
@@ -2235,7 +2372,6 @@ codeunit 408 DimensionManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure UpdatePmtJnlLineDim(PaymentJnlLine: Record "Payment Journal Line"; LineNo: Integer; BatchName: Code[10])
     var
         SavedDimensionSetID: Integer;
@@ -2263,7 +2399,7 @@ codeunit 408 DimensionManagement
         with JobTaskDimension do begin
             SetRange("Job No.", JobNo);
             SetRange("Job Task No.", JobTaskNo);
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     DimValue.Get("Dimension Code", "Dimension Value Code");
                     TempDimSetEntry."Dimension Code" := "Dimension Code";
@@ -2337,7 +2473,7 @@ codeunit 408 DimensionManagement
     begin
         Dimension.SetFilter("Consolidation Code", DimFilter);
         ConsolidatedDimFilter += DimFilter;
-        if Dimension.FindSet then
+        if Dimension.FindSet() then
             repeat
                 ConsolidatedDimFilter += '|' + Dimension.Code;
             until Dimension.Next() = 0;
@@ -2419,7 +2555,7 @@ codeunit 408 DimensionManagement
         AddTempDimValueFromTotaling(TempDimensionValue, CheckStr, DimensionCode, DimValueFilter);
 
         OnParseDimParamOnBeforeTempDimensionValueFindSet(TempDimensionValue);
-        if TempDimensionValue.FindSet then
+        if TempDimensionValue.FindSet() then
             repeat
                 ResultTxt += TempDimensionValue.Code + '|'
             until TempDimensionValue.Next() = 0;
@@ -2436,7 +2572,7 @@ codeunit 408 DimensionManagement
         CheckStr += '(' + Totaling + ')';
         DimensionValue.SetRange("Dimension Code", DimensionCode);
         DimensionValue.SetFilter(Code, Totaling);
-        if DimensionValue.FindSet then
+        if DimensionValue.FindSet() then
             repeat
                 if DimensionValue.Totaling <> '' then
                     AddTempDimValueFromTotaling(TempDimensionValue, CheckStr, DimensionCode, DimensionValue.Totaling)
@@ -2608,6 +2744,179 @@ codeunit 408 DimensionManagement
             Error(NoAllowedValuesSelectedErr);
     end;
 
+    local procedure InsertTempDimBufEntry(var TempDimBuf: Record "Dimension Buffer" temporary; TableId: Integer; EntryNo: Integer; DimCode: Code[20]; DimValueCode: Code[20])
+    begin
+        TempDimBuf.Init();
+        TempDimBuf."Table ID" := TableId;
+        TempDimBuf."Entry No." := EntryNo;
+        TempDimBuf."Dimension Code" := DimCode;
+        TempDimBuf."Dimension Value Code" := DimValueCode;
+        TempDimBuf.Insert();
+    end;
+
+    procedure AddDimSource(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableId: Integer; No: Code[20])
+    var
+        DimSource: Dictionary of [Integer, Code[20]];
+    begin
+        DimSource.Add(TableId, No);
+        DefaultDimSource.Add(DimSource);
+    end;
+
+    procedure AddDimSource(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableId: Integer; No: Code[20]; FirstPos: Boolean)
+    var
+        DimSource: Dictionary of [Integer, Code[20]];
+    begin
+        DimSource.Add(TableId, No);
+        if FirstPos then
+            DefaultDimSource.Insert(1, DimSource)
+        else
+            DefaultDimSource.Add(DimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDimArrayFromDefaultDimSources(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var ListPostiion: Integer)
+    var
+        i: Integer;
+        DimSource: Dictionary of [Integer, Code[20]];
+    begin
+        DefaultDimSource2 := DefaultDimSource;
+        i := 1;
+        while (i <= ArrayLen(TableID)) and (i <= DefaultDimSource.Count) do begin
+            DimSource := DefaultDimSource.Get(i);
+            TableID[i] := DimSource.Keys.Get(1);
+            No[i] := DimSource.Values.Get(1);
+            i += 1;
+        end;
+        if i = 1 then
+            ListPostiion := i
+        else
+            ListPostiion := i - 1;
+    end;
+
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20]; ListPosition: Integer)
+    var
+        i: Integer;
+        TempTableID: Integer;
+        TempNo: Code[20];
+        DimSource: Dictionary of [Integer, Code[20]];
+    begin
+        Clear(DefaultDimSource);
+        for i := 1 to ArrayLen(TableID) do
+            if TableID[i] <> 0 then
+                AddDimSource(DefaultDimSource, TableID[i], No[i]);
+
+        for i := ListPosition to DefaultDimSource2.Count do begin
+            DimSource := DefaultDimSource2.Get(i);
+            TempTableID := DimSource.Keys.Get(1);
+            TempNo := DimSource.Values.Get(1);
+            if TempTableID <> 0 then
+                AddDimSource(DefaultDimSource, TempTableID, TempNo);
+        end;
+    end;
+
+    local procedure RunEventOnGetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var SourceCode: Code[20]; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer)
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]];
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        ListPosition: Integer;
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Codeunit::DimensionManagement) then
+            exit;
+
+        CreateDimArrayFromDefaultDimSources(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+        OnGetRecDefaultDimID(RecVariant, CurrFieldNo, TableID, No, SourceCode, InheritFromDimSetID, InheritFromTableNo);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+    end;
+
+    local procedure RunEventOnAfterGetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var SourceCode: Code[20]; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var DefaultDimID: Integer)
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]];
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        ListPosition: Integer;
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Codeunit::DimensionManagement) then
+            exit;
+
+        CreateDimArrayFromDefaultDimSources(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+        OnAfterGetRecDefaultDimID(RecVariant, CurrFieldNo, TableID, No, SourceCode, InheritFromDimSetID, InheritFromTableNo, GlobalDim1Code, GlobalDim2Code, DefaultDimID);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+    end;
+
+    local procedure RunEventOnBeforeGetDefaultDimID(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer; var DimVal: Record "Dimension Value")
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]];
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        ListPosition: Integer;
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Codeunit::DimensionManagement) then
+            exit;
+
+        CreateDimArrayFromDefaultDimSources(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+        OnBeforeGetDefaultDimID(TableID, No, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo, DimVal);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+    end;
+
+    local procedure RunEventOnGetDefaultDimIDOnBeforeFindNewDimSetID(var TempDimBuf: Record "Dimension Buffer" temporary; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]];
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        ListPosition: Integer;
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Codeunit::DimensionManagement) then
+            exit;
+
+        CreateDimArrayFromDefaultDimSources(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+        OnGetDefaultDimIDOnBeforeFindNewDimSetID(TempDimBuf, TableID, No, GlobalDim1Code, GlobalDim2Code);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+    end;
+
+    local procedure RunEventOnBeforeGetTableIDsForHigherPriorities(TableNo: Integer; RecVar: Variant; var FieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]];
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        ListPosition: Integer;
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Codeunit::DimensionManagement) then
+            exit;
+
+        CreateDimArrayFromDefaultDimSources(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+        OnBeforeGetTableIDsForHigherPriorities(TableNo, RecVar, FieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+    end;
+
+    local procedure RunEventOnAfterCreateDimForJobJournalLineWithHigherPriorities(JobJournalLine: Record "Job Journal Line"; CurrFieldNo: Integer; var DimensionSetID: Integer; var DimValue1: Code[20]; var DimValue2: Code[20]; SourceCode: Code[10]; PriorityTableID: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var HighPriorityDefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        DefaultDimSource2: List of [Dictionary of [Integer, Code[20]]];
+        DefaultDimSource3: List of [Dictionary of [Integer, Code[20]]];
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        HighPriorityTableID: array[10] of Integer;
+        HighPriorityNo: array[10] of Code[20];
+        ListPosition: Integer;
+        ListPosition2: Integer;
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Codeunit::DimensionManagement) then
+            exit;
+
+        CreateDimArrayFromDefaultDimSources(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+        CreateDimArrayFromDefaultDimSources(HighPriorityDefaultDimSource, DefaultDimSource3, HighPriorityTableID, HighPriorityNo, ListPosition2);
+        OnAfterCreateDimForJobJournalLineWithHigherPriorities(JobJournalLine, CurrFieldNo, DimensionSetID, DimValue1, DimValue2, SourceCode, PriorityTableID, TableID, No, HighPriorityTableID, HighPriorityNo);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, DefaultDimSource2, TableID, No, ListPosition);
+        CreateDefaultDimSourcesFromDimArray(HighPriorityDefaultDimSource, DefaultDimSource3, HighPriorityTableID, HighPriorityNo, ListPosition2);
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDimValuePosting(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDefaultDim: Record "Default Dimension" temporary)
     begin
@@ -2633,8 +2942,16 @@ codeunit 408 DimensionManagement
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterCreateDimForJobJournalLineWithHigherPrioritiesProcedure() event', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimForJobJournalLineWithHigherPriorities(JobJournalLine: Record "Job Journal Line"; CurrFieldNo: Integer; var DimensionSetID: Integer; var DimValue1: Code[20]; var DimValue2: Code[20]; SourceCode: Code[10]; PriorityTableID: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var HighPriorityTableID: array[10] of Integer; var HighPriorityNo: array[10] of Code[20])
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimForJobJournalLineWithHigherPrioritiesProcedure(JobJournalLine: Record "Job Journal Line"; CurrFieldNo: Integer; var DimensionSetID: Integer; var DimValue1: Code[20]; var DimValue2: Code[20]; SourceCode: Code[10]; PriorityTableID: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var HighPriorityDefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
@@ -2648,10 +2965,13 @@ codeunit 408 DimensionManagement
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterGetRecDefaultDimIDProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var SourceCode: Code[20]; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var DefaultDimSetID: Integer)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupObjectNoList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
@@ -2768,10 +3088,13 @@ codeunit 408 DimensionManagement
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnBeforeGetDefaultDimIDProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultDimID(var TableID: array[10] of Integer; var No: array[10] of Code[20]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer; var DimVal: Record "Dimension Value")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDimensionSet(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary; var DimSetID: Integer; var IsHandled: Boolean)
@@ -2793,8 +3116,16 @@ codeunit 408 DimensionManagement
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnBeforeGetTableIDsForHigherPrioritiesProcedure() event', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTableIDsForHigherPriorities(TableNo: Integer; RecVar: Variant; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTableIDsForHigherPrioritiesProcedure(TableNo: Integer; RecVar: Variant; var FieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
@@ -2843,10 +3174,13 @@ codeunit 408 DimensionManagement
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnGetRecDefaultDimID()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var SourceCode: Code[20]; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnParseDimParamOnBeforeTempDimensionValueFindSet(var DimensionValue: Record "Dimension Value")
@@ -2873,10 +3207,13 @@ codeunit 408 DimensionManagement
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnGetDefaultDimIDOnBeforeFindNewDimSetIDProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetDefaultDimIDOnBeforeFindNewDimSetID(var TempDimensionBuffer: Record "Dimension Buffer" temporary; TableID: array[10] of Integer; No: array[10] of Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateJobTaskDimOnBeforConfirm(DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
@@ -2893,8 +3230,26 @@ codeunit 408 DimensionManagement
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by events OnAfterSalesLineTypeToTableID() or OnAfterPurchLineTypeToTableID()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterTypeToTableID3(Type: Integer; var TableId: Integer)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesLineTypeToTableID(Type: Enum "Sales Line Type"; var TableId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchLineTypeToTableID(Type: Enum "Purchase Line Type"; var TableId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReqLineTypeToTableID(Type: Enum "Requisition Line Type"; var TableId: Integer)
     begin
     end;
 
@@ -2940,6 +3295,26 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDimSetFromJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]; var NewDimSetID: Integer; var IsHandled: Boolean; var DimValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var SourceCode: Code[20]; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecDefaultDimIDProcedure(RecVariant: Variant; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var SourceCode: Code[20]; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var DefaultDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultDimIDProcedure(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourceCode: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer; var DimVal: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultDimIDOnBeforeFindNewDimSetIDProcedure(var TempDimensionBuffer: Record "Dimension Buffer" temporary; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
     begin
     end;
 }

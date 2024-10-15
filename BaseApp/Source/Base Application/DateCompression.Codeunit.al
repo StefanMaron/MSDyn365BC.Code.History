@@ -145,22 +145,14 @@ codeunit 9040 "Date Compression"
 
     local procedure RunDateCompressGeneralLedger(DateComprSettingsBuffer: Record "Date Compr. Settings Buffer")
     var
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressGeneralLedger: Report "Date Compress General Ledger";
-        RetainDocumentType: Boolean;
-        RetainDocumentNo: Boolean;
-        RetainJobNo: Boolean;
-        RetainBusinessUnitCode: Boolean;
-        RetainQuantity: Boolean;
-        RetainJnlTemplate: Boolean;
     begin
         SetSelectedDimensions(3 /*ObjectType::Report*/, Report::"Date Compress General Ledger", DateComprSettingsBuffer."Retain Dimensions");
 
-        RetainDocumentType := false;
-        RetainDocumentNo := false;
-        RetainJobNo := false;
-        RetainBusinessUnitCode := true;
-        RetainQuantity := false;
-        RetainJnlTemplate := true;
+        Clear(DateComprRetainFields);
+        DateComprRetainFields."Retain Business Unit Code" := true;
+        DateComprRetainFields."Retain Journal Template Name" := true;
 
         DateCompressGeneralLedger.UseRequestPage(false);
         DateCompressGeneralLedger.InitializeRequest(
@@ -168,13 +160,9 @@ codeunit 9040 "Date Compression"
             DateComprSettingsBuffer."Ending Date",
             DateComprSettingsBuffer."Period Length".AsInteger(),
             DateComprSettingsBuffer.Description,
-            RetainDocumentType,
-            RetainDocumentNo,
-            RetainJobNo,
-            RetainBusinessUnitCode,
-            RetainQuantity,
+            DateComprRetainFields,
             DateComprSettingsBuffer."Retain Dimensions",
-            RetainJnlTemplate);
+            true);
         DateCompressGeneralLedger.SetSkipAnalysisViewUpdateCheck();
         DateCompressGeneralLedger.Run();
     end;
@@ -182,46 +170,30 @@ codeunit 9040 "Date Compression"
 
     local procedure RunDateCompressVATEntries(DateComprSettingsBuffer: Record "Date Compr. Settings Buffer")
     var
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressVATEntries: Report "Date Compress VAT Entries";
-        RetainDocumentNo: Boolean;
-        RetainBilltoPaytoNo: Boolean;
-        RetainEU3PartyTrade: Boolean;
-        RetainCountryRegionCode: Boolean;
-        RetainInternalRefNo: Boolean;
-        RetainJnlTemplate: Boolean;
     begin
-        RetainDocumentNo := false;
-        RetainBilltoPaytoNo := false;
-        RetainEU3PartyTrade := false;
-        RetainCountryRegionCode := false;
-        RetainInternalRefNo := false;
-        RetainJnlTemplate := true;
+        Clear(DateComprRetainFields);
+        DateComprRetainFields."Retain Journal Template Name" := true;
 
         DateCompressVATEntries.UseRequestPage(false);
         DateCompressVATEntries.InitializeRequest(
             DateComprSettingsBuffer."Starting Date",
             DateComprSettingsBuffer."Ending Date",
             DateComprSettingsBuffer."Period Length".AsInteger(),
-            RetainDocumentNo,
-            RetainBilltoPaytoNo,
-            RetainEU3PartyTrade,
-            RetainCountryRegionCode,
-            RetainInternalRefNo,
-            RetainJnlTemplate);
+            DateComprRetainFields,
+            true);
     end;
 
     local procedure RunDateCompressBankAccLedger(DateComprSettingsBuffer: Record "Date Compr. Settings Buffer")
     var
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressBankAccLedger: Report "Date Compress Bank Acc. Ledger";
-        RetainDocumentNo: Boolean;
-        RetainOurContactCode: Boolean;
-        RetainJnlTemplate: Boolean;
     begin
         SetSelectedDimensions(3 /*ObjectType::Report*/, Report::"Date Compress Bank Acc. Ledger", DateComprSettingsBuffer."Retain Dimensions");
 
-        RetainDocumentNo := false;
-        RetainOurContactCode := false;
-        RetainJnlTemplate := true;
+        Clear(DateComprRetainFields);
+        DateComprRetainFields."Retain Journal Template Name" := true;
 
         DateCompressBankAccLedger.UseRequestPage(false);
         DateCompressBankAccLedger.InitializeRequest(
@@ -229,10 +201,9 @@ codeunit 9040 "Date Compression"
             DateComprSettingsBuffer."Ending Date",
             DateComprSettingsBuffer."Period Length".AsInteger(),
             DateComprSettingsBuffer.Description,
-            RetainDocumentNo,
-            RetainOurContactCode,
+            DateComprRetainFields,
             DateComprSettingsBuffer."Retain Dimensions",
-            RetainJnlTemplate);
+            true);
         DateCompressBankAccLedger.Run();
 
         RunDeleteCheckLedgerEntries(DateComprSettingsBuffer);
@@ -271,18 +242,13 @@ codeunit 9040 "Date Compression"
 
     local procedure RunDateCompressCustomerLedger(DateComprSettingsBuffer: Record "Date Compr. Settings Buffer")
     var
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressCustomerLedger: Report "Date Compress Customer Ledger";
-        RetainDocumentNo: Boolean;
-        RetainSelltoCustomerNo: Boolean;
-        RetainSalespersonCode: Boolean;
-        RetainJnlTemplate: Boolean;
     begin
         SetSelectedDimensions(3 /*ObjectType::Report*/, Report::"Date Compress Customer Ledger", DateComprSettingsBuffer."Retain Dimensions");
 
-        RetainDocumentNo := false;
-        RetainSelltoCustomerNo := false;
-        RetainSalespersonCode := false;
-        RetainJnlTemplate := true;
+        Clear(DateComprRetainFields);
+        DateComprRetainFields."Retain Journal Template Name" := true;
 
         DateCompressCustomerLedger.UseRequestPage(false);
         DateCompressCustomerLedger.InitializeRequest(
@@ -290,28 +256,21 @@ codeunit 9040 "Date Compression"
             DateComprSettingsBuffer."Ending Date",
             DateComprSettingsBuffer."Period Length".AsInteger(),
             DateComprSettingsBuffer.Description,
-            RetainDocumentNo,
-            RetainSelltoCustomerNo,
-            RetainSalespersonCode,
+            DateComprRetainFields,
             DateComprSettingsBuffer."Retain Dimensions",
-            RetainJnlTemplate);
+            true);
         DateCompressCustomerLedger.Run();
     end;
 
     local procedure RunDateCompressVendorLedger(DateComprSettingsBuffer: Record "Date Compr. Settings Buffer")
     var
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressVendorLedger: Report "Date Compress Vendor Ledger";
-        RetainDocumentNo: Boolean;
-        RetainBuyfromVendorNo: Boolean;
-        RetainPurchaserCode: Boolean;
-        RetainJnlTemplate: Boolean;
     begin
         SetSelectedDimensions(3 /*ObjectType::Report*/, Report::"Date Compress Vendor Ledger", DateComprSettingsBuffer."Retain Dimensions");
 
-        RetainDocumentNo := false;
-        RetainBuyfromVendorNo := false;
-        RetainPurchaserCode := false;
-        RetainJnlTemplate := true;
+        Clear(DateComprRetainFields);
+        DateComprRetainFields."Retain Journal Template Name" := true;
 
         DateCompressVendorLedger.UseRequestPage(false);
         DateCompressVendorLedger.InitializeRequest(
@@ -319,11 +278,9 @@ codeunit 9040 "Date Compression"
             DateComprSettingsBuffer."Ending Date",
             DateComprSettingsBuffer."Period Length".AsInteger(),
             DateComprSettingsBuffer.Description,
-            RetainDocumentNo,
-            RetainBuyfromVendorNo,
-            RetainPurchaserCode,
+            DateComprRetainFields,
             DateComprSettingsBuffer."Retain Dimensions",
-            RetainJnlTemplate);
+            true);
         DateCompressVendorLedger.Run();
     end;
 

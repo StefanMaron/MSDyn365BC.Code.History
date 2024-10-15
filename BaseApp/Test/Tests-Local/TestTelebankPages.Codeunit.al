@@ -135,7 +135,7 @@ codeunit 144022 "Test Telebank Pages"
         ExportProtocol."Export Object Type" := ExportProtocol."Export Object Type"::Report;
         ExportProtocol.Insert();
         Commit();
-        Vendor.FindFirst;
+        Vendor.FindFirst();
         EBPaymentJournal.OpenEdit;
         EBPaymentJournal.CurrentJnlBatchName.Lookup;
         EBPaymentJournal.CurrentJnlBatchName.SetValue(PaymJournalBatch.Name);
@@ -186,7 +186,7 @@ codeunit 144022 "Test Telebank Pages"
 
         // Exercise
         EBPaymentJournalBatches.SetTableView(PaymJournalBatch);
-        EBPaymentJournalBatches.RunModal;
+        EBPaymentJournalBatches.RunModal();
 
         // Verify: Page 2000003 opens - caught by page handler.
         Assert.AreEqual(
@@ -214,7 +214,7 @@ codeunit 144022 "Test Telebank Pages"
 
         // Exercise
         DomiciliationJournalBatches.SetTableView(DomiciliationJournalBatch);
-        DomiciliationJournalBatches.RunModal;
+        DomiciliationJournalBatches.RunModal();
 
         // Verify: Page 2000021 opens - caught by page handler.
         Assert.AreEqual(
@@ -302,7 +302,7 @@ codeunit 144022 "Test Telebank Pages"
         LibraryPaymentJournalBE.CreateDomBatch(DomiciliationJournalTemplate, DomiciliationJournalBatch);
         LibraryPaymentJournalBE.InitDomJournalLine(DomiciliationJournalTemplate, DomiciliationJournalBatch, DomiciliationJournalLine);
         Commit();
-        Customer.FindFirst;
+        Customer.FindFirst();
         BankAccount.FindSet();
         DomiciliationJournal.OpenEdit;
         DomiciliationJournal.CurrentJnlBatchName.Lookup;

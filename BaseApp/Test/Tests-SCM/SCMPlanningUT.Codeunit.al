@@ -128,7 +128,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Item] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation can be updated on Item if the resulting replenishment time is non-negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X".
         LibraryInventory.CreateItem(Item);
@@ -150,7 +150,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Item] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation cannot be updated on Item if the resulting replenishment time is negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X".
         LibraryInventory.CreateItem(Item);
@@ -173,7 +173,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Stockkeeping Unit] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation can be updated on Stockkeeping Unit if the resulting replenishment time is non-negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Stockkeeping Unit "X".
         LibraryWarehouse.CreateLocation(Location);
@@ -197,7 +197,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Stockkeeping Unit] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation cannot be updated on Stockkeeping Unit if the resulting replenishment time is negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Stockkeeping Unit "X".
         LibraryWarehouse.CreateLocation(Location);
@@ -220,7 +220,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Item Vendor] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation can be updated on Item Vendor if the resulting replenishment time is non-negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Vendor "X".
         LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
@@ -242,7 +242,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Item Vendor] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation cannot be updated on Item Vendor if the resulting replenishment time is negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Vendor "X".
         LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
@@ -264,7 +264,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Vendor] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation can be updated on Vendor if the resulting replenishment time is non-negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "X".
         LibraryPurchase.CreateVendor(Vendor);
@@ -286,7 +286,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Vendor] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation cannot be updated on Vendor if the resulting replenishment time is negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "X".
         LibraryPurchase.CreateVendor(Vendor);
@@ -309,7 +309,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Purchase] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation can be updated on Purchase Header if the resulting replenishment time is non-negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Header "X".
         MockPurchaseOrder(PurchaseHeader, PurchaseLine);
@@ -332,7 +332,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Purchase] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation cannot be updated on Purchase Header if the resulting replenishment time is negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Header "X".
         MockPurchaseOrder(PurchaseHeader, PurchaseLine);
@@ -355,7 +355,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Purchase] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation can be updated on Purchase Line if the resulting replenishment time is non-negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Line "X".
         MockPurchaseOrder(PurchaseHeader, PurchaseLine);
@@ -378,7 +378,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Purchase] [Lead Time Calculation]
         // [SCENARIO 202530] Lead Time Calculation cannot be updated on Purchase Line if the resulting replenishment time is negative.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Line "X".
         MockPurchaseOrder(PurchaseHeader, PurchaseLine);
@@ -399,9 +399,9 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 235022] You cannot create Manufacturer with blank Code.
-        Initialize;
+        Initialize();
 
-        Manufacturers.OpenNew;
+        Manufacturers.OpenNew();
         asserterror Manufacturers.Code.SetValue('');
 
         Assert.ExpectedErrorCode('TestValidation');
@@ -420,7 +420,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Sales Order Planning] [Shipment Date] [UT]
         // [SCENARIO 289838] Expected Delivery Date on sales order planning line is equal to Shipment Date for a sales line reserved from inventory.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" is in stock.
         LibraryInventory.CreateItem(Item);
@@ -501,7 +501,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 300072] "Planned Order Nos.", "Components at Location" and "Default Safety Lead Time" settings in Manufacturing Setup are related to planning process and are available with Essential user experience.
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.CreateLocation(Location);
         Evaluate(SafetyLeadTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
@@ -523,7 +523,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // [FEATURE] [Item] [Item Type] [Planning Component] [UT]
         // [SCENARIO 303068] Planning Component table cannot have Item of Non-Inventory type with Location Code populated
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateNonInventoryTypeItem(Item);
@@ -616,8 +616,8 @@ codeunit 137801 "SCM - Planning UT"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM - Planning UT");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         LibraryApplicationArea.EnableEssentialSetup;
 
@@ -626,7 +626,7 @@ codeunit 137801 "SCM - Planning UT"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM - Planning UT");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         IsInitialized := true;
@@ -721,7 +721,7 @@ codeunit 137801 "SCM - Planning UT"
             "Document Type" := PurchaseHeader."Document Type";
             "Document No." := PurchaseHeader."No.";
             Type := Type::Item;
-            "No." := LibraryInventory.CreateItemNo;
+            "No." := LibraryInventory.CreateItemNo();
             Insert;
         end;
     end;
@@ -779,7 +779,7 @@ codeunit 137801 "SCM - Planning UT"
     begin
         // Will open Planning Worksheet for Requisuition Line.
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWorksheetTemplateName);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RecRef.GetTable(RequisitionLine);
         CalcItemAvailability.ShowDocument(RecRef.RecordId);
     end;

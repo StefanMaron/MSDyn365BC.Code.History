@@ -39,7 +39,7 @@ codeunit 144000 "Non-Deductible VAT"
     [Scope('OnPrem')]
     procedure ReverseChargeVATWithLCY()
     begin
-        Initialize;
+        Initialize();
         ReverseChargeVAT(''); // pass '' for currency code
     end;
 
@@ -49,7 +49,7 @@ codeunit 144000 "Non-Deductible VAT"
     var
         OldUnrealVAT: Boolean;
     begin
-        Initialize;
+        Initialize();
         OldUnrealVAT := UpdUnrealVATInGenLedgSetup(true);
 
         ReverseChargeVAT('');
@@ -64,7 +64,7 @@ codeunit 144000 "Non-Deductible VAT"
         CurrencyCode: Code[10];
         OldACYCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         OldACYCode := UpdACYInGenLedgSetup(CurrencyCode);
 
@@ -81,7 +81,7 @@ codeunit 144000 "Non-Deductible VAT"
         OldACYCode: Code[10];
         OldUnrealVAT: Boolean;
     begin
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         OldACYCode := UpdACYInGenLedgSetup(CurrencyCode);
         OldUnrealVAT := UpdUnrealVATInGenLedgSetup(true);
@@ -101,7 +101,7 @@ codeunit 144000 "Non-Deductible VAT"
         InvNo: Code[20];
         NonDedVATPct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
         NonDedVATPct := 0;
@@ -185,7 +185,7 @@ codeunit 144000 "Non-Deductible VAT"
         // -      "NonDeductible VAT Amount"   "NonDeductible VAT Amount"
         VATEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(1, VATEntry.Count, '');
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreEqual(AmountWithoutVAT + NonDeductibleVATAmount, VATEntry.Base, '');
         Assert.AreEqual(VATAmount - NonDeductibleVATAmount, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount, VATEntry."Non Ded. VAT Amount", '');
@@ -194,7 +194,7 @@ codeunit 144000 "Non-Deductible VAT"
         // Verify Vendor Ledger Entries
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(1, VendorLedgerEntry.Count, '');
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreEqual(PurchaseHeader."Buy-from Vendor No.", VendorLedgerEntry."Vendor No.", '');
         Assert.AreEqual(-AmountWithoutVAT, VendorLedgerEntry."Purchase (LCY)", '');
     end;
@@ -274,7 +274,7 @@ codeunit 144000 "Non-Deductible VAT"
         // -      "NonDeductible VAT Amount"   "NonDeductible VAT Amount"
         VATEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(1, VATEntry.Count, '');
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreEqual(AmountWithoutVAT + NonDeductibleVATAmount, VATEntry.Base, '');
         Assert.AreEqual(VATAmount - NonDeductibleVATAmount, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount, VATEntry."Non Ded. VAT Amount", '');
@@ -282,7 +282,7 @@ codeunit 144000 "Non-Deductible VAT"
 
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(1, VendorLedgerEntry.Count, '');
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreEqual(PurchaseHeader."Buy-from Vendor No.", VendorLedgerEntry."Vendor No.", '');
         Assert.AreEqual(-AmountWithoutVAT, VendorLedgerEntry."Purchase (LCY)", '');
     end;
@@ -713,7 +713,7 @@ codeunit 144000 "Non-Deductible VAT"
         // -      "NonDeductible VAT Amount"   "NonDeductible VAT Amount"
         VATEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(1, VATEntry.Count, '');
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreEqual(-(AmountWithoutVAT + NonDeductibleVATAmount), VATEntry.Base, '');
         Assert.AreEqual(-(VATAmount - NonDeductibleVATAmount), VATEntry.Amount, '');
         Assert.AreEqual(-NonDeductibleVATAmount, VATEntry."Non Ded. VAT Amount", '');
@@ -721,7 +721,7 @@ codeunit 144000 "Non-Deductible VAT"
         // Verify Vendor Ledger Entries
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(1, VendorLedgerEntry.Count, '');
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreEqual(PurchaseHeader."Buy-from Vendor No.", VendorLedgerEntry."Vendor No.", '');
         Assert.AreEqual(AmountWithoutVAT, VendorLedgerEntry."Purchase (LCY)", '');
     end;
@@ -953,7 +953,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Reverse Charge VAT]
         // [SCENARIO 374936] If Purchase Invoice has Reverce Charge VAT Calculation Type, its "Amount Including VAT" should equals "Amount"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
         // [GIVEN] Purchase Invoice Line for G/L Account with 19% Reverse Charge VAT and "Direct unit Cost" = 1000
@@ -964,7 +964,7 @@ codeunit 144000 "Non-Deductible VAT"
 
         // [THEN] In posted invoice "Amount Including VAT" equals to "Amount"
         PurchInvLine.SetFilter("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField("Amount Including VAT", PurchInvLine.Amount);
         // [THEN] In invoice line "Outstanding Amount" equals to "Amount"
         PurchaseLine.TestField("Outstanding Amount", PurchInvLine.Amount);
@@ -991,7 +991,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Normal VAT] [Statistics] [Purchase Invoice]
         // [SCENARIO 375454] While creating Purchase Invoice, Non Deductible VAT should be shown in statistics as will be posted.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] VATPostingGroup with 10% Normal VAT
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1075,7 +1075,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Normal VAT] [Statistics] [Posted Purchase Invoice]
         // [SCENARIO 375454] Non Deductible VAT should be shown in In Posted Purchase Invoice Statistics as it was posted.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] VATPostingGroup with 10% Normal VAT
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1151,7 +1151,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Purchase] [Statistics]
         // [SCENARIO 377239] Statistics for posted Purchase Invoice must be shown even if Purchase Invoice includes the line with only the "Description" filled in
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] The 1st line of Purchase Invoice having only the "Description" filled in
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -1186,7 +1186,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Purchase] [Statistics]
         // [SCENARIO 377347] If Non Deductible VAT % is specified in Purchase Line, then manual change of VAT Amount in pre-posting Statistics should not be allowed
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] 1st Purchase Invoice Line with 90 % Non Deductible VAT
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -1229,7 +1229,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Reverse Charge VAT] [Item]
         // [SCENARIO 380267] VAT Entry has summarized "Non Ded. VAT Amount" after posting mutliple Item line Purchase Invoice with Reverse Charge VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Reverse Charge VAT setup and VAT% = 21.
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
@@ -1276,7 +1276,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Normal VAT] [Statistics] [Purchase Invoice]
         // [SCENARIO 381042] Show Statistics for Purchase Invoice when another Invoice has Non-Deductible VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with "Non Deductible VAT" = 0, VAT% = 21, "Amount Excl. VAT" = 100.
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1322,7 +1322,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Normal VAT] [Statistics] [Purchase Invoice]
         // [SCENARIO 381271] Show Statistics for Purchase Invoice where 2 lines with Non-Deductible VAT generate 2 VAT Amount lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with "Non Deductible VAT" = 50%, VAT% = 21 , "Amount Excl. VAT" = 100.
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1371,7 +1371,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Normal VAT] [Statistics] [Purchase Invoice]
         // [SCENARIO 381271] Show Statistics for Posted Purchase Invoice where 2 lines with Non-Deductible VAT generate 2 VAT Amount lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Non Deductible VAT" = 50%, VAT% = 21, "Amount Excl. VAT" = 100.
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1419,7 +1419,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [VAT Settlement] [Reverse Charge VAT]
         // [SCENARIO 376014] Calc and Post VAT Settlement for several "Reverse Charge" Non Deductible VAT Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "X" with Reverse Charge 20% and Non Deductible VAT 40%
         CreateVATSetupWithGLAccount(
@@ -1475,7 +1475,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [VAT Settlement] [Reverse Charge VAT]
         // [SCENARIO 207663] Calc and Post VAT Settlement for "Normal" and "Reverse Charge" Non Deductible VAT Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "X" with "Normal" VAT Posting Setup with VAT% = 20
         // [GIVEN] G/L Account "Y" with "Reverse Charge" VAT Posting Setup with VAT% = 20 and Non Deductible VAT 40%
@@ -1543,7 +1543,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [VAT Settlement] [Reverse Charge VAT]
         // [SCENARIO 207663] Calc and Post VAT Settlement for "Reverse Charge" Non Deductible and "Normal" VAT Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "X" with "Reverse Charge" VAT Posting Setup with VAT% = 20, Non Deductible VAT 40%
         // [GIVEN] G/L Account "Y" with "Normal" VAT Posting Setup with VAT% = 20
@@ -1609,7 +1609,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Additional Currency] [Report] [VAT Statement]
         // [SCENARIO 219115] VATEntry."Non Ded. Source Curr. VAT Amt." = 0 in case of blanked ACY and posted LCY purchase invoice.
         // [SCENARIO 251548] VAT Statement "Include Non Deductible VAT" = TRUE shows full VAT amount (TFS 251548).
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Additional Reporting Currency" = ""
         LibraryERM.SetAddReportingCurrency('');
@@ -1656,7 +1656,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Additional Currency] [Currency] [Report] [VAT Statement]
         // [SCENARIO 219115] VATEntry."Non Ded. Source Curr. VAT Amt." = 0 in case of blanked ACY and posted FCY purchase invoice.
         // [SCENARIO 251548] VAT Statement "Include Non Deductible VAT" = TRUE shows full VAT amount (TFS 251548).
-        Initialize;
+        Initialize();
         LibraryPurchase.SetInvoiceRounding(false);
 
         // [GIVEN] GLSetup."Additional Reporting Currency" = ""
@@ -1707,7 +1707,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Additional Currency] [Report] [VAT Statement]
         // [SCENARIO 219115] VATEntry."Non Ded. Source Curr. VAT Amt." <> 0 in case of ACY and posted LCY purchase invoice.
         // [SCENARIO 251548] VAT Statement "Include Non Deductible VAT" = TRUE shows full VAT amount (TFS 251548).
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Additional Reporting Currency" = "ACY" (LCY to ACY currency factor = 10)
         LibraryERM.SetAddReportingCurrency(LibraryERM.CreateCurrencyWithRandomExchRates);
@@ -1763,7 +1763,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Additional Currency] [Currency] [Report] [VAT Statement]
         // [SCENARIO 219115] VATEntry."Non Ded. Source Curr. VAT Amt." <> 0 in case of ACY and posted FCY purchase invoice (ACY <> FCY).
         // [SCENARIO 251548] VAT Statement "Include Non Deductible VAT" = TRUE shows full VAT amount (TFS 251548).
-        Initialize;
+        Initialize();
         LibraryPurchase.SetInvoiceRounding(false);
 
         // [GIVEN] GLSetup."Additional Reporting Currency" = "ACY" (LCY to ACY currency factor = 10)
@@ -1826,7 +1826,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Additional Currency] [Currency] [Report] [VAT Statement]
         // [SCENARIO 219115] VATEntry."Non Ded. Source Curr. VAT Amt." <> 0 in case of ACY and posted FCY purchase invoice (ACY = FCY).
         // [SCENARIO 251548] VAT Statement "Include Non Deductible VAT" = TRUE shows full VAT amount (TFS 251548).
-        Initialize;
+        Initialize();
         LibraryPurchase.SetInvoiceRounding(false);
 
         // [GIVEN] GLSetup."Additional Reporting Currency" = "ACY" (LCY to ACY currency factor = 10)
@@ -1880,7 +1880,7 @@ codeunit 144000 "Non-Deductible VAT"
         DocNo: Code[20];
     begin
         // [SCENARIO 269930] Deffered G/L Entries must contain correct amounts after posting Purchase Invoice with Deferrals and Non Deductible VAT.
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT %" = 21
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1956,7 +1956,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Purchase] [Document Totals] [Reverse Charge VAT] [UT]
         // [SCENARIO 313336] PurchaseDeltaUpdateTotals calculates "Amount Including VAT" and VATAmount correctly when both lines "VAT Calculation Type" <> "Reverse Charge VAT".
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo);
         MockPurchaseLine(OldPurchaseLine, PurchaseHeader, OldPurchaseLine."VAT Calculation Type"::"Normal VAT", 10, 200);
@@ -1985,7 +1985,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Purchase] [Document Totals] [Reverse Charge VAT] [UT]
         // [SCENARIO 313336] PurchaseDeltaUpdateTotals calculates "Amount Including VAT" and VATAmount correctly when both lines "VAT Calculation Type" = "Reverse Charge VAT".
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo);
         MockPurchaseLine(OldPurchaseLine, PurchaseHeader, OldPurchaseLine."VAT Calculation Type"::"Reverse Charge VAT", 10, 200);
@@ -2014,7 +2014,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Purchase] [Document Totals] [Reverse Charge VAT] [UT]
         // [SCENARIO 313336] PurchaseDeltaUpdateTotals calculates "Amount Including VAT" and VATAmount correctly when new line uses "VAT Calculation Type" = "Reverse Charge VAT", old one doesn't.
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo);
         MockPurchaseLine(OldPurchaseLine, PurchaseHeader, OldPurchaseLine."VAT Calculation Type"::"Normal VAT", 10, 200);
@@ -2043,7 +2043,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         // [FEATURE] [Purchase] [Document Totals] [Reverse Charge VAT] [UT]
         // [SCENARIO 313336] PurchaseDeltaUpdateTotals calculates "Amount Including VAT" and VATAmount correctly when old line uses "VAT Calculation Type" = "Reverse Charge VAT", new one doesn't.
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo);
         MockPurchaseLine(OldPurchaseLine, PurchaseHeader, OldPurchaseLine."VAT Calculation Type"::"Reverse Charge VAT", 10, 200);
@@ -2234,7 +2234,7 @@ codeunit 144000 "Non-Deductible VAT"
         // [FEATURE] [Reverse Charge VAT] [Purchase] [Invoice]
         // [SCENARIO 397975] "VAT %" = 0 on purchase line with "VAT Calculation Type" = "Reverse Charge VAT"
         Initialize();
-        VATIdentifier := LibraryUtility.GenerateGUID;
+        VATIdentifier := LibraryUtility.GenerateGUID();
         UpdateVATTolerancePercentOnGLSetup(5);
 
         CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -2431,8 +2431,8 @@ codeunit 144000 "Non-Deductible VAT"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Non-Deductible VAT");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -2465,7 +2465,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATCalculationType, LibraryRandom.RandIntInRange(10, 30));
-        VATPostingSetup."Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo;
+        VATPostingSetup."Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo();
         VATPostingSetup.Modify();
     end;
 
@@ -2650,7 +2650,7 @@ codeunit 144000 "Non-Deductible VAT"
           VATType,
           PurchaseHeader."VAT Bus. Posting Group",
           LibraryRandom.RandInt(30),
-          LibraryUtility.GenerateGUID);
+          LibraryUtility.GenerateGUID());
 
         CreatePurchaseLineWithVATPostingSetup(PurchaseLine, PurchaseHeader, VATPostingSetup);
     end;
@@ -2733,7 +2733,7 @@ codeunit 144000 "Non-Deductible VAT"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateSalesHeaderWithVATBaseDisc(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeaderWithVATBaseDisc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         Customer: Record Customer;
@@ -2854,7 +2854,7 @@ codeunit 144000 "Non-Deductible VAT"
         CreateCopyVATPostingSetup(VATPostingSetup2, VATPostingSetup);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type, PurchaseLine."No.", 1);
         PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup2."VAT Prod. Posting Group");
@@ -2981,7 +2981,7 @@ codeunit 144000 "Non-Deductible VAT"
         CalcAndPostVATSettlement.InitializeRequest2(false);
         Commit();
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
-        CalcAndPostVATSettlement.Run;
+        CalcAndPostVATSettlement.Run();
 
         exit(GLAccount."No.");
     end;
@@ -3023,7 +3023,7 @@ codeunit 144000 "Non-Deductible VAT"
             SetRange(Type, Type::Purchase);
             SetRange("Document No.", DocumentNo);
             SetRange("Bill-to/Pay-to No.", VendorNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3072,7 +3072,7 @@ codeunit 144000 "Non-Deductible VAT"
             SetFilter("VAT Bus. Posting Group", VATBusPostGroupCode);
             SetFilter("VAT Prod. Posting Group", '<>%1', '');
             SetRange("VAT %", 0);
-            FindFirst;
+            FindFirst();
             exit("VAT Prod. Posting Group");
         end;
     end;
@@ -3099,7 +3099,7 @@ codeunit 144000 "Non-Deductible VAT"
         VATNDAmountACY: Decimal;
     begin
         PurchInvHeader.SetRange("No.", InvNo);
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
         if PurchInvHeader."Currency Code" = '' then begin
             Amount := PurchLine.Amount;
             AmountACY := 0;
@@ -3130,7 +3130,7 @@ codeunit 144000 "Non-Deductible VAT"
             SetRange("G/L Account No.", GLAccNo);
             SetRange("Gen. Bus. Posting Group", GenBusPostGroupCode);
             SetRange("Gen. Prod. Posting Group", GenProdPostGroupCode);
-            FindFirst;
+            FindFirst();
             TestField(Amount, ExpectedAmount);
             TestField("Additional-Currency Amount", ExpectedAmountACY);
         end;
@@ -3142,7 +3142,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, 0);
     end;
 
@@ -3152,7 +3152,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         with GLEntry do begin
             SetRange("G/L Account No.", GLAccNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;
     end;

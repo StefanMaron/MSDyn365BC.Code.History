@@ -256,7 +256,7 @@ page 511 "Change Exchange Rate"
 
             SetRange("Currency Code", CurrencyCode3);
             SetRange("Starting Date", 0D, Date3);
-            FindLast;
+            FindLast();
             CurrencyCode := "Currency Code";
             CurrentExchRate := "Exchange Rate Amount";
             RefExchRate := "Relational Exch. Rate Amount";
@@ -264,7 +264,7 @@ page 511 "Change Exchange Rate"
             Fix := "Fix Exchange Rate Amount";
             SetRange("Currency Code", RefCurrencyCode);
             SetRange("Starting Date", 0D, Date3);
-            if FindLast then begin
+            if FindLast() then begin
                 CurrencyCode2 := "Currency Code";
                 CurrentExchRate2 := "Exchange Rate Amount";
                 RefExchRate2 := "Relational Exch. Rate Amount";

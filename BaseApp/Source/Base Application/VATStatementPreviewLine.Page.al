@@ -69,7 +69,7 @@ page 475 "VAT Statement Preview Line"
                         case Type of
                             Type::"Account Totaling":
                                 begin
-                                    GLEntry.SetCurrentKey("Journal Template Name", "G/L Account No.", "Posting Date", "Document Type");
+                                    GLEntry.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
                                     GLEntry.SetFilter("G/L Account No.", "Account Totaling");
                                     CopyFilter("Date Filter", GLEntry."Posting Date");
                                     if "Document Type" = "Document Type"::"All except Credit Memo" then
@@ -83,7 +83,7 @@ page 475 "VAT Statement Preview Line"
                                 begin
                                     VATEntry.Reset();
                                     VATEntry.SetCurrentKey(
-                                      "Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
+                                      "Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
                                     VATEntry.SetRange(Type, "Gen. Posting Type");
                                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
@@ -221,7 +221,7 @@ page 475 "VAT Statement Preview Line"
         end;
         ManualVATCorrection.FilterGroup(0);
         ManualVATCorrectionListPage.SetTableView(ManualVATCorrection);
-        ManualVATCorrectionListPage.Run;
+        ManualVATCorrectionListPage.Run();
     end;
 
     local procedure MarkLinesManVATCorrections(VATStatementLine: Record "VAT Statement Line"; var ManualVATCorrection: Record "Manual VAT Correction")
@@ -230,7 +230,7 @@ page 475 "VAT Statement Preview Line"
         ManualVATCorrection.SetRange("Statement Name", VATStatementLine."Statement Name");
         ManualVATCorrection.SetRange("Statement Line No.", VATStatementLine."Line No.");
         ApplyDateFilter(ManualVATCorrection);
-        if ManualVATCorrection.FindSet then
+        if ManualVATCorrection.FindSet() then
             repeat
                 ManualVATCorrection.Mark(true);
             until ManualVATCorrection.Next() = 0;
@@ -245,7 +245,7 @@ page 475 "VAT Statement Preview Line"
             VATStatementLine.SetRange("Statement Template Name", VATStatementLine."Statement Template Name");
             VATStatementLine.SetRange("Statement Name", VATStatementLine."Statement Name");
             VATStatementLine.SetFilter("Row No.", VATStatementLine."Row Totaling");
-            if VATStatementLine.FindSet then
+            if VATStatementLine.FindSet() then
                 repeat
                     MarkManVATCorrections(VATStatementLine, ManualVATCorrection);
                 until VATStatementLine.Next() = 0;

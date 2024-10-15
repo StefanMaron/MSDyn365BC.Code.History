@@ -18,7 +18,7 @@ report 1002 "Post Inventory Cost to G/L"
         dataitem(PageLoop; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-            column(PostedCaption; StrSubstNo(Text002, SelectStr(PostMethod + 1, Text012)))
+            column(PostedCaption; StrSubstNo(PostedPostingTypeTxt, SelectStr(PostMethod + 1, PostingTypeTxt)))
             {
             }
             column(CompanyName; COMPANYPROPERTY.DisplayName)
@@ -244,7 +244,7 @@ report 1002 "Post Inventory Cost to G/L"
                         if GuiAllowed then
                             Window.Update(1, "Item No.");
                         if not Item.Get("Item No.") then
-                            Item.Description := Text005;
+                            Item.Description := ItemNoLongerExistTxt;
                     end;
 
                     trigger OnPostDataItem()
@@ -260,10 +260,10 @@ report 1002 "Post Inventory Cost to G/L"
                     var
                         GLEntry: Record "G/L Entry";
                     begin
-                        Window.Open(Text003);
+                        Window.Open(ProcessingItemsTxt);
                         if Post then begin
                             GLEntry.LockTable();
-                            if GLEntry.FindLast then;
+                            if GLEntry.FindLast() then;
                         end;
 
                         OnAfterOnPreDataItem(PostValueEntryToGL, CompanyName());
@@ -369,14 +369,27 @@ report 1002 "Post Inventory Cost to G/L"
                         SetRange(Number, 1, TempCapValueEntry.Count);
 
                         TempCapValueEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.");
-                        if TempCapValueEntry.FindSet and GuiAllowed then
-                            Window.Open(Text99000000);
+                        if TempCapValueEntry.FindSet() and GuiAllowed then
+                            Window.Open(ProcessingProdOrdersTxt);
                     end;
                 }
 
                 trigger OnPreDataItem()
                 begin
                     GLSetup.Get();
+                    if not GLSetup."Journal Templ. Name Mandatory" then
+                        case PostMethod of
+                            PostMethod::"per Posting Group":
+                                if DocNo = '' then
+                                    Error(
+                                      EnterWhenPostingErr,
+                                      ItemValueEntry.FieldCaption("Document No."), SelectStr(PostMethod + 1, PostingTypeTxt));
+                            PostMethod::"per Entry":
+                                if DocNo <> '' then
+                                    Error(
+                                      DoNotEnterWhenPostingErr,
+                                      ItemValueEntry.FieldCaption("Document No."), SelectStr(PostMethod + 1, PostingTypeTxt));
+                        end;
                 end;
             }
             dataitem(InvtPostingBufferLoop; "Integer")
@@ -418,7 +431,7 @@ report 1002 "Post Inventory Cost to G/L"
                     DimSetEntry: Record "Dimension Set Entry";
                 begin
                     if Number = 1 then begin
-                        if not InvtPostBuf.FindSet then
+                        if not InvtPostBuf.FindSet() then
                             CurrReport.Break();
                     end else
                         if InvtPostBuf.Next() = 0 then
@@ -531,7 +544,7 @@ report 1002 "Post Inventory Cost to G/L"
                 trigger OnPreDataItem()
                 begin
                     TempValueEntry.SetCurrentKey("Item No.");
-                    if not TempValueEntry.FindSet then
+                    if not TempValueEntry.FindSet() then
                         CurrReport.Break();
 
                     SetRange("Item No.", TempValueEntry."Item No.");
@@ -569,48 +582,47 @@ report 1002 "Post Inventory Cost to G/L"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document No.';
                         ToolTip = 'Specifies the number of the document that is processed by the report or batch job.';
+                        Visible = not IsJournalTemplNameMandatory;
                     }
                     field(Post; Post)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Post';
-                        ToolTip = 'Specifies that the costs will be posted when you run the batch job.';
+                        ToolTip = 'Specifies that the inventory value will be posted to the general ledger when you run the batch job.';
                     }
-                    field(JnlTemplateName; GenJnlLine."Journal Template Name")
+                    field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Template Name';
                         TableRelation = "Gen. Journal Template";
                         ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameMandatory;
 
                         trigger OnValidate()
                         begin
-                            GenJnlLine."Journal Batch Name" := '';
+                            GenJnlLineReq."Journal Batch Name" := '';
                         end;
                     }
-                    field(JnlBatchName; GenJnlLine."Journal Batch Name")
+                    field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Batch Name';
                         Lookup = true;
                         ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameMandatory;
 
                         trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
                         begin
-                            GenJnlLine.TestField("Journal Template Name");
-                            GenJournalTemplate.Get(GenJnlLine."Journal Template Name");
-                            GenJnlBatch.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
-                            GenJnlBatch."Journal Template Name" := GenJnlLine."Journal Template Name";
-                            GenJnlBatch.Name := GenJnlLine."Journal Batch Name";
-                            if PAGE.RunModal(0, GenJnlBatch) = ACTION::LookupOK then
-                                GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
                         end;
 
                         trigger OnValidate()
                         begin
-                            if GenJnlLine."Journal Batch Name" <> '' then begin
-                                GenJnlLine.TestField("Journal Template Name");
-                                GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                             end;
                         end;
                     }
@@ -621,6 +633,16 @@ report 1002 "Post Inventory Cost to G/L"
         actions
         {
         }
+
+        trigger OnOpenPage()
+        begin
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                IsJournalTemplNameMandatory := true;
+                GenJnlLineReq."Journal Template Name" := GLSetup."Apply Jnl. Template Name";
+                GenJnlLineReq."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
+            end;
+        end;
     }
 
     labels
@@ -645,25 +667,30 @@ report 1002 "Post Inventory Cost to G/L"
     begin
         OnBeforePreReport(Item, ItemValueEntry, PostValueEntryToGL);
 
-        if GenJnlLine."Journal Template Name" = '' then
-            Error(Text11300);
-        if GenJnlLine."Journal Batch Name" = '' then
-            Error(Text11301);
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if GenJnlLineReq."Journal Template Name" = '' then
+                Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
+            if GenJnlLineReq."Journal Batch Name" = '' then
+                Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
 
-        Clear(NoSeriesMgt);
-        Clear(DocNo);
-        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
-        GenJnlBatch.TestField("No. Series");
-        DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
+            Clear(NoSeriesMgt);
+            Clear(DocNo);
+            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+            GenJnlBatch.TestField("No. Series");
+            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
+        end;
+
         ValueEntryFilter := PostValueEntryToGL.GetFilters;
         InvtSetup.Get();
     end;
 
     var
-        Text002: Label 'Posted %1';
-        Text003: Label 'Processing items  #1##########';
-        Text005: Label 'The item no. no longer exists.';
-        Text99000000: Label 'Processing production order  #1##########';
+        EnterWhenPostingErr: Label 'Please enter a %1 when posting %2.', Comment = '%1 - field caption, %2 - posting type';
+        DoNotEnterWhenPostingErr: Label 'Do not enter a %1 when posting %2.', Comment = '%1 - field caption, %2 - posting type';
+        PostedPostingTypeTxt: Label 'Posted %1', Comment = '%1 - posting type';
+        ProcessingItemsTxt: Label 'Processing items  #1##########';
+        ItemNoLongerExistTxt: Label 'The item no. no longer exists.';
+        ProcessingProdOrdersTxt: Label 'Processing production order  #1##########';
         Item: Record Item;
         GLSetup: Record "General Ledger Setup";
         InvtSetup: Record "Inventory Setup";
@@ -672,16 +699,15 @@ report 1002 "Post Inventory Cost to G/L"
         TempValueEntry: Record "Value Entry" temporary;
         ItemValueEntry: Record "Value Entry";
         CapValueEntry: Record "Value Entry";
-        GenJournalTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
-        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlLineReq: Record "Gen. Journal Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         InvtPostToGL: Codeunit "Inventory Posting To G/L";
         Window: Dialog;
         DocNo: Code[20];
         GenPostingSetupTxt: Text[250];
         ValueEntryFilter: Text;
-        DimText: Text[120];
+        DimText: Text[250];
         PostMethod: Option "per Posting Group","per Entry";
         COGSAmt: Decimal;
         InvtAdjmtAmt: Decimal;
@@ -703,7 +729,7 @@ report 1002 "Post Inventory Cost to G/L"
         TotalInvtAmt: Decimal;
         CostAmt: Decimal;
         Post: Boolean;
-        Text012: Label 'per Posting Group,per Entry';
+        PostingTypeTxt: Label 'per Posting Group,per Entry';
         PostMethodInt: Integer;
         PageNoCaptionLbl: Label 'Page';
         PostInvCosttoGLCaptionLbl: Label 'Post Inventory Cost to G/L';
@@ -736,10 +762,11 @@ report 1002 "Post Inventory Cost to G/L"
         SkippedItemsCaptionLbl: Label 'Skipped Items';
         PrevCapValueEntryOrderNo: Code[20];
         TotalValueEntriesPostedToGL: Integer;
+        [InDataSet]
+        IsJournalTemplNameMandatory: Boolean;
         StatisticsMsg: Label '%1 value entries have been posted to the general ledger.', Comment = '10 value entries have been posted to the general ledger.';
         NothingToPostMsg: Label 'There is nothing to post to the general ledger.';
-        Text11300: Label 'Please enter a Journal Template Name.';
-        Text11301: Label 'Please enter a Journal Batch Name.';
+        MissingJournalFieldErr: Label 'Please enter a %1 when posting inventory cost to G/L.', Comment = '%1 - field caption';
 
 #if not CLEAN18
     [Obsolete('Replaced by W1 InitializeRequest() and SetGenJnlBatch().', '18.0')]
@@ -760,17 +787,17 @@ report 1002 "Post Inventory Cost to G/L"
 
     procedure SetGenJnlBatch(NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
     begin
-        GenJnlLine."Journal Template Name" := NewJnlTemplName;
-        GenJnlLine."Journal Batch Name" := NewJnlBatchName;
+        GenJnlLineReq."Journal Template Name" := NewJnlTemplName;
+        GenJnlLineReq."Journal Batch Name" := NewJnlBatchName;
     end;
 
     local procedure GetDimText(var DimSetEntry: Record "Dimension Set Entry")
     var
-        OldDimText: Text[75];
+        OldDimText: Text[250];
     begin
         DimText := '';
 
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 OldDimText := DimText;
                 if DimText = '' then
@@ -789,7 +816,8 @@ report 1002 "Post Inventory Cost to G/L"
     local procedure PostEntryToGL(ValueEntry: Record "Value Entry")
     begin
         InvtPostToGL.Initialize(PostMethod = PostMethod::"per Posting Group");
-        InvtPostToGL.SetGenJnlBatch(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+        if GLSetup."Journal Templ. Name Mandatory" then
+            InvtPostToGL.SetGenJnlBatch(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
         InvtPostToGL.Run(ValueEntry);
         TotalValueEntriesPostedToGL += 1;
     end;

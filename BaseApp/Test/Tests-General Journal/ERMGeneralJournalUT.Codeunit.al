@@ -44,7 +44,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
@@ -67,7 +67,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount2: Record "G/L Account";
         AdHocDescription: Code[50];
     begin
-        Initialize;
+        Initialize();
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLAccount(GLAccount2);
@@ -91,7 +91,7 @@ codeunit 134920 "ERM General Journal UT"
         Customer2: Record Customer;
         AdHocDescription: Code[50];
     begin
-        Initialize;
+        Initialize();
         // Setup
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomer(Customer2);
@@ -115,7 +115,7 @@ codeunit 134920 "ERM General Journal UT"
         Vendor2: Record Vendor;
         AdHocDescription: Code[50];
     begin
-        Initialize;
+        Initialize();
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendor(Vendor2);
@@ -139,7 +139,7 @@ codeunit 134920 "ERM General Journal UT"
         BankAccount2: Record "Bank Account";
         AdHocDescription: Code[50];
     begin
-        Initialize;
+        Initialize();
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryERM.CreateBankAccount(BankAccount2);
@@ -163,7 +163,7 @@ codeunit 134920 "ERM General Journal UT"
         FixedAsset2: Record "Fixed Asset";
         AdHocDescription: Code[50];
     begin
-        Initialize;
+        Initialize();
         // Setup
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset2);
@@ -189,7 +189,7 @@ codeunit 134920 "ERM General Journal UT"
         ICPartner2: Record "IC Partner";
         AdHocDescription: Code[50];
     begin
-        Initialize;
+        Initialize();
         // Setup
         LibraryERM.CreateICPartner(ICPartner);
         LibraryERM.CreateICPartner(ICPartner2);
@@ -217,7 +217,7 @@ codeunit 134920 "ERM General Journal UT"
         GLAccount: Record "G/L Account";
         AdHocDescription: Code[50];
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", '',
@@ -239,7 +239,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", '',
@@ -259,7 +259,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
@@ -280,7 +280,7 @@ codeunit 134920 "ERM General Journal UT"
         Customer: Record Customer;
     begin
         // [SCENARIO 372248] Description field is updated in a Gen. Journal Line when Account Type is changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with VAT Registration No.
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
@@ -290,7 +290,7 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, Customer."No.",
           GenJournalLine."Account Type"::"G/L Account", '', '');
         // [GIVEN] Description field has non-empty value.
-        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
 
         // [WHEN] Account Type is changed to Vendor.
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Vendor);
@@ -309,7 +309,7 @@ codeunit 134920 "ERM General Journal UT"
         Customer: Record Customer;
     begin
         // [SCENARIO 372248] Description field is updated in a Gen. Journal Line when Account No is changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with VAT Registration No.
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
@@ -319,7 +319,7 @@ codeunit 134920 "ERM General Journal UT"
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, Customer."No.",
           GenJournalLine."Account Type"::"G/L Account", '', '');
         // [GIVEN] Description has not empty value.
-        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
 
         // [WHEN] Account No. is changed to empty.
         GenJournalLine.Validate("Account No.", '');
@@ -335,7 +335,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         FindOpenCustLedgEntryAndSetExtDoc(CustLedgEntry);
@@ -358,7 +358,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         FindOpenVendLedgEntry(VendLedgEntry);
@@ -382,7 +382,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         FindOpenCustLedgEntryAndSetExtDoc(CustLedgEntry);
@@ -407,7 +407,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         FindOpenVendLedgEntry(VendLedgEntry);
@@ -433,7 +433,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalBatch: Record "Gen. Journal Batch";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankExportImportSetup.Init();
@@ -463,7 +463,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalBatch: Record "Gen. Journal Batch";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankExportImportSetup.Init();
@@ -490,7 +490,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
@@ -516,7 +516,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         OldDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
@@ -547,7 +547,7 @@ codeunit 134920 "ERM General Journal UT"
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
@@ -588,7 +588,7 @@ codeunit 134920 "ERM General Journal UT"
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Gen. Journal Lines with Bal. Account and the same Document Nos
         LibraryERM.CreateGLAccount(GLAccount);
@@ -629,7 +629,7 @@ codeunit 134920 "ERM General Journal UT"
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
@@ -673,7 +673,7 @@ codeunit 134920 "ERM General Journal UT"
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
@@ -713,7 +713,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine: Record "Gen. Journal Line";
         NoSeriesCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
@@ -741,7 +741,7 @@ codeunit 134920 "ERM General Journal UT"
         OldDocNo: Code[20];
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -770,7 +770,7 @@ codeunit 134920 "ERM General Journal UT"
         NewDocNo: Code[20];
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -801,7 +801,7 @@ codeunit 134920 "ERM General Journal UT"
         OldDocNo: Code[20];
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -830,7 +830,7 @@ codeunit 134920 "ERM General Journal UT"
         NewDocNo: Code[20];
         EntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -864,7 +864,7 @@ codeunit 134920 "ERM General Journal UT"
         AppliesToDocNo: Code[20];
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -902,7 +902,7 @@ codeunit 134920 "ERM General Journal UT"
         AppliesToDocNo: Code[20];
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -954,7 +954,7 @@ codeunit 134920 "ERM General Journal UT"
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
@@ -999,7 +999,7 @@ codeunit 134920 "ERM General Journal UT"
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1047,7 +1047,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // Test create several General Journal Lines and deletes second line. Then test runs Renumber Document No
         // and checks Vendor Ledger Entries for last line also have new "Applies-to ID" field.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -1085,7 +1085,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 377410] Applying "Customer No." and Description are corespond to actual Customer when "Bal. Account Type" = Customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "A" with Name = "B"
         CreateCustomerWithName(Customer);
@@ -1111,7 +1111,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 377410] Applying "Customer No." and Description are corespond to actual Customer when "Bal. Account Type" = G/L Account
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "A" with Name = "B"
         CreateCustomerWithName(Customer);
@@ -1137,7 +1137,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 377410] Applying "Vendor No." and Description are corespond to actual Vendor when "Bal. Account Type" = Customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "A" with Name = "B"
         CreateVendorWithName(Vendor);
@@ -1163,7 +1163,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 377410] Applying "Vendor No." and Description are corespond to actual Vendor when "Bal. Account Type" = G/L Account
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "A" with Name = "B"
         CreateVendorWithName(Vendor);
@@ -1188,7 +1188,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO 378200] "Document No." should be incremented by "Increment-by No." of No. Series Line if it is set up
 
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithDocNo(GenJournalLine, 'X00013');
 
@@ -1208,7 +1208,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO 378200] "Document No." should be incremented by 1 if "Increment-by No." of No. Series Line is not set up
 
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithDocNo(GenJournalLine, 'X00013');
 
@@ -1232,7 +1232,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO 378200] "Document No." should be incremented by 1 if "Increment-by No." of No. Series Line is 1 or less
 
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithDocNo(GenJournalLine, 'X00013');
 
@@ -1253,7 +1253,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO 378200] "Document No." should be incremented by 1 if No. Series is not specified
 
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithDocNo(GenJournalLine, 'X00013');
 
@@ -1276,7 +1276,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 407085] "Recipient Bank Account" is filled in on Invoice Gen. Jnl. Line when Account No has Customer with "Preferred Bank Account Code"
-        Initialize;
+        Initialize();
         CreateCustomerWithBankAccount(Customer);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, Customer."No.",
@@ -1294,7 +1294,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 407085] "Recipient Bank Account" is filled in on Invoice Gen. Jnl. Line when Bal. Account No has Customer with "Preferred Bank Account Code"
-        Initialize;
+        Initialize();
         CreateCustomerWithBankAccount(Customer);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", '',
@@ -1312,7 +1312,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 407085] "Recipient Bank Account" is filled in on Invoice Gen. Jnl. Line when Account No has Vendor with "Preferred Bank Account Code"
-        Initialize;
+        Initialize();
         CreateVendorWithBankAccount(Vendor);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, Vendor."No.",
@@ -1330,7 +1330,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 407085] "Recipient Bank Account" is filled in on Invoice Gen. Jnl. Line when Bal. Account No has Vendor with "Preferred Bank Account Code"
-        Initialize;
+        Initialize();
         CreateVendorWithBankAccount(Vendor);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", '',
@@ -1348,7 +1348,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 378439] "Recipient Bank Account" should be filled on Payment Gen. Jnl. Line when Account No has Customer with "Preferred Bank Account Code"
-        Initialize;
+        Initialize();
         CreateCustomerWithBankAccount(Customer);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, Customer."No.",
@@ -1366,7 +1366,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 378439] "Recipient Bank Account" should be filled on Payment Gen. Jnl. Line when Account No has Vendor with "Preferred Bank Account Code"
-        Initialize;
+        Initialize();
         CreateVendorWithBankAccount(Vendor);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, Vendor."No.",
@@ -1387,7 +1387,7 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [Renumbering]
         // [SCENARIO 379388] If renumbering several General Journal Line where "Document No" is blank, then "Applies-to Doc No" is not renumbered
 
-        Initialize;
+        Initialize();
 
         CreateVendorWithBankAccount(Vendor);
         CreateGenJournalLine(GenJournalLine[1], GenJournalLine[1]."Document Type"::" ",
@@ -1420,7 +1420,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO 379147] User runs "Renumber Document Numbers" action for Gen. Journal Line which refers to printed Check. "No Check Lines were renumbered." message appears and Document number is not changed.
 
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
@@ -1444,7 +1444,7 @@ codeunit 134920 "ERM General Journal UT"
         DocNo: Code[20];
     begin
         // Verify modify is not allowed when line has been scheduled in the job queue
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
@@ -1473,7 +1473,7 @@ codeunit 134920 "ERM General Journal UT"
         DocNo: Code[20];
     begin
         // Verify delete is not allowed when line has been scheduled in the job queue
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
@@ -1501,7 +1501,7 @@ codeunit 134920 "ERM General Journal UT"
         DocNo: Code[20];
     begin
         // Verify renumber is not allowed when line has been scheduled in the job queue
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
@@ -1529,7 +1529,7 @@ codeunit 134920 "ERM General Journal UT"
         DocNo: Code[20];
     begin
         // Verify modify is not allowed when line has been scheduled in the job queue
-        Initialize;
+        Initialize();
 
         CreateGenJournalLineWithVendEntry(
           GenJournalLine, LibraryERM.CreateNoSeriesCode, LibraryPurchase.CreateVendorNo, LibraryERM.CreateGLAccountNo);
@@ -1565,10 +1565,10 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [Renumbering]
         // [SCENARIO 380534] After renumbering, Gen. Journal Lines having Bal. Account should have unique Document Nos
 
-        Initialize;
+        Initialize();
 
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        BalGLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        BalGLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
         NoSeriesCode := LibraryERM.CreateNoSeriesCode;
         GenJournalBatch."No. Series" := NoSeriesCode;
@@ -1610,7 +1610,7 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [UT]
         // [SCENARIO 381241] When calling "Get Vendor Ledger Entry", "Amount" of Gen. Journal Line should be calculated according to found Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry having -("Remaining Amount" - "Remaining Pmt. Disc. Possible") = -100 and "Document No." = AAA
         CreateVendLedgEntry(VendLedgEntry, LibraryPurchase.CreateVendorNo, '');
@@ -1642,7 +1642,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts]
         // [SCENARIO 224180] Fields Debit Amount/Credit Amount/Amount visibility depending on "Show Amount" setting
-        Initialize;
+        Initialize();
 
         // By default General journal (PAG 39) opens up in simple mode where debit and credit are always shown
         // regardless of the general ledger setup settings.
@@ -1696,7 +1696,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Payment]
         // [SCENARIO 232464] Amount columns visibility on Payment Journal page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -1722,7 +1722,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Payment]
         // [SCENARIO 232464] Amount columns visibility on Payment Journal page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -1748,7 +1748,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Payment]
         // [SCENARIO 232464] Amount columns visibility on Payment Journal page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -1820,7 +1820,7 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [General Journal Batch]
         // [SCENARIO 271027] Stan cannot specify "Bal. Account No." in Gen. Journal Batch with type Recurring
 
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Recurring, true);
         GenJournalTemplate.Modify(true);
@@ -1842,11 +1842,11 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [General Journal Batch]
         // [SCENARIO 271027] Stan can specify "Bal. Account No." in Gen. Journal Batch
 
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        GLAccNo := LibraryERM.CreateGLAccountNo();
         GenJournalBatch.Validate("Bal. Account No.", GLAccNo);
         GenJournalBatch.TestField("Bal. Account No.", GLAccNo);
     end;
@@ -1861,7 +1861,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Currency Code] [Gen. Journal Line] [Bal. Account No.]
         // [SCENARIO 266335] When validate "Bal. Account No" = LCY Bank Account in new Gen. Journal Line with <non-blank> Account then "Currency Code" is not changed in Gen. Journal Line
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
 
         // [GIVEN] Bank Account "B" with <blank> Currency Code
@@ -1892,7 +1892,7 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [Currency Code] [Gen. Journal Line] [Bal. Account No.]
         // [SCENARIO 266335] Currency Code is not cleared in Gen. Journal Line when clear Bal. Account No. in Gen. Journal Line
         // [SCENARIO 266335] having Bal. Account = LCY Bank Account and Currency Code = FCY
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
 
         // [GIVEN] Bank Account "B" with "Currency Code" = <blank>
@@ -1919,7 +1919,7 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [Currency Code] [Gen. Journal Line] [Bal. Account No.]
         // [SCENARIO 266335] Currency Code is cleared in Gen. Journal Line when clear Bal. Account No. in Gen. Journal Line
         // [SCENARIO 266335] having Bal. Account = FCY Bank Account "B" and Currency Code = "B" Currency Code
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
 
         // [GIVEN] Bank Account "B" with "Currency Code" = "EUR"
@@ -1946,7 +1946,7 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [Currency Code] [Gen. Journal Line] [Bal. Account No.]
         // [SCENARIO 266335] Currency Code is not cleared in Gen. Journal Line when validate Bal. Account No. = LCY Bank Account in Gen. Journal Line
         // [SCENARIO 266335] having Bal. Account = LCY Bank Account and Currency Code = FCY
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
 
         // [GIVEN] Bank Account "B1" with "Currency Code" = <blank>
@@ -1976,7 +1976,7 @@ codeunit 134920 "ERM General Journal UT"
         // [FEATURE] [Currency Code] [Gen. Journal Line] [Bal. Account No.]
         // [SCENARIO 266335] Currency Code is cleared in Gen. Journal Line when validate Bal. Account No. = LCY Bank Account in Gen. Journal Line
         // [SCENARIO 266335] having Bal. Account = FCY Bank Account "B" and Currency Code = "B" Currency Code
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
 
         // [GIVEN] Bank Account "B1" with "Currency Code" = "EUR"
@@ -2035,7 +2035,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Job G/L]
         // [SCENARIO 275827] Amount columns visibility on Job G/L Journal page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2062,7 +2062,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Job G/L]
         // [SCENARIO 275827] Amount columns visibility on Job G/L Journal page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2089,7 +2089,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Job G/L]
         // [SCENARIO 275827] Amount columns visibility on Job G/L Journal page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2114,7 +2114,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Chart of Accounts]
         // [SCENARIO 275827] Amount columns visibility on Chart of Accounts page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2135,7 +2135,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Chart of Accounts]
         // [SCENARIO 275827] Amount columns visibility on Chart of Accounts page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2156,7 +2156,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Chart of Accounts]
         // [SCENARIO 275827] Amount columns visibility on Chart of Accounts page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2177,7 +2177,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [General Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on General Ledger Entries page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2198,7 +2198,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [General Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on General Ledger Entries page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2219,7 +2219,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [General Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on General Ledger Entries page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2240,7 +2240,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Customer Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Customer Ledger Entries page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2261,7 +2261,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Customer Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Customer Ledger Entries page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2282,7 +2282,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Customer Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Customer Ledger Entries page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2305,7 +2305,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Sales]
         // [SCENARIO 275827] Verifying amount columns visibility on Sales Journal page opened in "Show More Columns" mode and General Ledger Setup having the setting Show Amount = "All Amounts".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2338,7 +2338,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Sales]
         // [SCENARIO 275827] Verifying amount columns visibility on Sales Journal page opened in "Show More Columns" mode and General Ledger Setup having the setting Show Amount = "Debit/Credit Only".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2371,7 +2371,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Sales]
         // [SCENARIO 275827] Verifying amount columns visibility on Sales Journal page opened in "Show More Columns" mode and General Ledger Setup having the setting Show Amount = "Amount Only".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2404,7 +2404,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Sales]
         // [SCENARIO 275827] Verifying amount columns visibility on Sales Journal page opened in default mode "Show Fewer Columns" and General Ledger Setup having the setting Show Amount = "All Amounts".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2431,7 +2431,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Sales]
         // [SCENARIO 275827] Verifying amount columns visibility on Sales Journal page opened in default mode "Show Fewer Columns" and General Ledger Setup having the setting Show Amount = "Debit/Credit Only".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2458,7 +2458,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Sales]
         // [SCENARIO 275827] Verifying amount columns visibility on Sales Journal page opened in default mode "Show Fewer Columns" and General Ledger Setup having the setting Show Amount = "Amount Only".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2485,7 +2485,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Purchase]
         // [SCENARIO 275827] Verifying amount columns visibility on Purchase Journal page opened in "Show More Columns" mode and General Ledger Setup having the setting Show Amount = "All Amounts".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2518,7 +2518,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Purchase]
         // [SCENARIO 275827] Verifying amount columns visibility on Purchase Journal page opened in "Show More Columns" mode and General Ledger Setup having the setting Show Amount = "Debit/Credit Only".
-        Initialize;
+        Initialize();
 
         // Setting the Purchase Journal to "Show More Columns" mode for this test since by default the mode is set to "Show Fewer Columns".
         GenJnlManagement.SetJournalSimplePageModePreference(false, PAGE::"Purchase Journal");
@@ -2551,7 +2551,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Purchase]
         // [SCENARIO 275827] Verifying amount columns visibility on Purchase Journal page opened in "Show More Columns" mode and General Ledger Setup having the setting Show Amount = "Amount Only".
-        Initialize;
+        Initialize();
 
         // Setting the Purchase Journal to "Show More Columns" mode for this test since by default the mode is set to "Show Fewer Columns".
         GenJnlManagement.SetJournalSimplePageModePreference(false, PAGE::"Purchase Journal");
@@ -2584,7 +2584,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Purchase]
         // [SCENARIO 275827] Verifying amount columns visibility on Purchase Journal page opened in default mode "Show Fewer Columns" and General Ledger Setup having the setting Show Amount = "All Amounts".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2611,7 +2611,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Purchase]
         // [SCENARIO 275827] Verifying amount columns visibility on Purchase Journal page opened in default mode "Show Fewer Columns" and General Ledger Setup having the setting Show Amount = "Debit/Credit Only".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2638,7 +2638,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Purchase]
         // [SCENARIO 275827] Verifying amount columns visibility on Purchase Journal page opened in default mode "Show Fewer Columns" and General Ledger Setup having the setting Show Amount = "Amount Only".
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2665,7 +2665,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Cash Receipt]
         // [SCENARIO 275827] Amount columns visibility on Cash Receipt Journal page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2692,7 +2692,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Cash Receipt]
         // [SCENARIO 275827] Amount columns visibility on Cash Receipt Journal page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2719,7 +2719,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Cash Receipt]
         // [SCENARIO 275827] Amount columns visibility on Cash Receipt Journal page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2746,7 +2746,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Recurring General]
         // [SCENARIO 275827] Amount columns visibility on Recurring General Journal page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2773,7 +2773,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Recurring General]
         // [SCENARIO 275827] Amount columns visibility on Recurring General Journal page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2800,7 +2800,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Recurring General]
         // [SCENARIO 275827] Amount columns visibility on Recurring General Journal page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2825,7 +2825,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Vendor Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Vendor Ledger Entries page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2846,7 +2846,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Vendor Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Vendor Ledger Entries page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2867,7 +2867,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Vendor Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Vendor Ledger Entries page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2888,7 +2888,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Apply Bank Acc Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Apply Bank Acc. Ledger Entries page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2909,7 +2909,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Apply Bank Acc Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Apply Bank Acc. Ledger Entries page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2930,7 +2930,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Apply Bank Acc Ledger Entries]
         // [SCENARIO 275827] Amount columns visibility on Apply Bank Acc. Ledger Entries page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -2951,7 +2951,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Detailed Cust Ledg Entries]
         // [SCENARIO 275827] Amount columns visibility on Detailed Cust. Ledg. Entries page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -2972,7 +2972,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Detailed Cust Ledg Entries]
         // [SCENARIO 275827] Amount columns visibility on Detailed Cust. Ledg. Entries page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -2993,7 +2993,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Detailed Cust Ledg Entries]
         // [SCENARIO 275827] Amount columns visibility on Detailed Cust. Ledg. Entries page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -3014,7 +3014,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Detailed Vendor Ledg Entries]
         // [SCENARIO 275827] Amount columns visibility on Detailed Vendor. Ledg Entries page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -3035,7 +3035,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Detailed Vendor Ledg Entries]
         // [SCENARIO 275827] Amount columns visibility on Detailed Vendor Ledg. Entries page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -3056,7 +3056,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Detailed Vendor Ledg Entries]
         // [SCENARIO 275827] Amount columns visibility on Detailed Vendor Ledg. Entries page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -3077,7 +3077,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Applied Vendor Entries]
         // [SCENARIO 275827] Amount columns visibility on Applied Vendor Entries page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -3098,7 +3098,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Applied Vendor Entries]
         // [SCENARIO 275827] Amount columns visibility on Applied Vendor Entries page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -3119,7 +3119,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Applied Vendor Entries]
         // [SCENARIO 275827] Amount columns visibility on Applied Vendor Entries page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -3140,7 +3140,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Applied Customer Entries]
         // [SCENARIO 275827] Amount columns visibility on Applied Customer Entries page for Show Amount = "All Amounts" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
@@ -3161,7 +3161,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Applied Customer Entries]
         // [SCENARIO 275827] Amount columns visibility on Applied Customer Entries page for Show Amount = "Debit/Credit Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
@@ -3182,7 +3182,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Show Amounts] [Applied Customer Entries]
         // [SCENARIO 275827] Amount columns visibility on Applied Customer Entries page for Show Amount = "Amount Only" in General Ledger Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
         SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
@@ -3205,7 +3205,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO] [Ensures that dimension shortcut codes are never shown if general journal page is open in 'Simple Mode']
         // [FEATURE] [UI] [Dimension] [General Journal]
-        Initialize;
+        Initialize();
 
         // [GIVEN] General ledger setup has shortcut dim codes
         SetAllShortCutDimOnGLSetup;
@@ -3233,7 +3233,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO] [Ensures that dimension shortcut codes are shown if general journal page is open in classic mode]
         // [FEATURE] [UI] [Dimension] [General Journal]
-        Initialize;
+        Initialize();
 
         // By default General journal (PAG 39) opens up in simple mode where NO shortcut dim codes are shown
         // regardless of the general ledger setup settings.
@@ -3268,7 +3268,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO] [Ensures that dimension shortcut codes are never shown if sales journal page is open in 'Simple Mode']
         // [FEATURE] [UI] [Dimension] [Sales Journal]
-        Initialize;
+        Initialize();
 
         // [GIVEN] General ledger setup has shortcut dim codes
         SetAllShortCutDimOnGLSetup;
@@ -3294,7 +3294,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO] [Ensures that dimension shortcut codes are shown if sales journal page is open in classic mode]
         // [FEATURE] [UI] [Dimension] [Sales Journal]
-        Initialize;
+        Initialize();
 
         // By default Sales journal (PAG 253) opens up in simple mode where NO shortcut dim codes are shown
         // regardless of the general ledger setup settings.
@@ -3328,7 +3328,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO] [Ensures that dimension shortcut codes are never shown if purchase journal page is open in 'Simple Mode']
         // [FEATURE] [UI] [Dimension] [Purchase Journal]
-        Initialize;
+        Initialize();
 
         // [GIVEN] General ledger setup has shortcut dim codes
         SetAllShortCutDimOnGLSetup;
@@ -3354,7 +3354,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [SCENARIO] [Ensures that dimension shortcut codes are shown if purchase journal page is open in classic mode]
         // [FEATURE] [UI] [Dimension] [Purchase Journal]
-        Initialize;
+        Initialize();
 
         // By default Purchase journal (PAG 254) opens up in simple mode where NO shortcut dim codes are shown
         // regardless of the general ledger setup settings.
@@ -3391,14 +3391,14 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournal: TestPage "General Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         GeneralJournal.Trap;
@@ -3441,7 +3441,7 @@ codeunit 134920 "ERM General Journal UT"
         SalesJournal: TestPage "Sales Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Sales);
         GenJournalTemplate.Modify();
@@ -3450,7 +3450,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         SalesJournal.Trap;
@@ -3493,7 +3493,7 @@ codeunit 134920 "ERM General Journal UT"
         PurchaseJournal: TestPage "Purchase Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Purchases);
         GenJournalTemplate.Modify();
@@ -3502,7 +3502,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         PurchaseJournal.Trap;
@@ -3545,7 +3545,7 @@ codeunit 134920 "ERM General Journal UT"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts");
         GenJournalTemplate.Modify();
@@ -3554,7 +3554,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         CashReceiptJournal.Trap;
@@ -3597,7 +3597,7 @@ codeunit 134920 "ERM General Journal UT"
         ICGeneralJournal: TestPage "IC General Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Intercompany);
         GenJournalTemplate.Modify();
@@ -3606,7 +3606,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         ICGeneralJournal.Trap;
@@ -3649,7 +3649,7 @@ codeunit 134920 "ERM General Journal UT"
         JobGLJournal: TestPage "Job G/L Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Jobs);
         GenJournalTemplate.Modify();
@@ -3658,7 +3658,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         JobGLJournal.Trap;
@@ -3701,7 +3701,7 @@ codeunit 134920 "ERM General Journal UT"
         PaymentJournal: TestPage "Payment Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.Modify();
@@ -3710,7 +3710,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         PaymentJournal.Trap;
@@ -3753,7 +3753,7 @@ codeunit 134920 "ERM General Journal UT"
         RecurringGeneralJournal: TestPage "Recurring General Journal";
     begin
         // [SCENARIO] [Ensures that column and action have correct visibility]
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::General);
         GenJournalTemplate.Modify();
@@ -3762,7 +3762,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         RecurringGeneralJournal.Trap;
@@ -3805,7 +3805,7 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournal: TestPage "General Journal";
     begin
         // Verify journal lines are scheduled and correct messages are shown
-        Initialize;
+        Initialize();
         LibraryVariableStorageCounter.Clear;
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
@@ -3847,7 +3847,7 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournal: TestPage "General Journal";
     begin
         // Verify journal lines are scheduled and correct messages are shown
-        Initialize;
+        Initialize();
         LibraryVariableStorageCounter.Clear;
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
@@ -3891,7 +3891,7 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournalBatches: TestPage "General Journal Batches";
     begin
         // Verify journal lines are scheduled and correct messages are shown
-        Initialize;
+        Initialize();
         LibraryVariableStorageCounter.Clear;
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
@@ -3942,7 +3942,7 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournalBatches: TestPage "General Journal Batches";
     begin
         // Verify journal lines are scheduled and correct messages are shown
-        Initialize;
+        Initialize();
         LibraryVariableStorageCounter.Clear;
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
@@ -3993,7 +3993,7 @@ codeunit 134920 "ERM General Journal UT"
         // 2. Batch name should reflect correct batch.
 
         // Initialize
-        Initialize;
+        Initialize();
 
         // Setup
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
@@ -4028,7 +4028,7 @@ codeunit 134920 "ERM General Journal UT"
         // 3. Verify that batch name is assigned properly
 
         // Initialize
-        Initialize;
+        Initialize();
 
         // Setup
         // Delete all lines
@@ -4079,7 +4079,7 @@ codeunit 134920 "ERM General Journal UT"
         // 2. All the G/L lines are filtered by document number from step 1.
 
         // Initialize
-        Initialize;
+        Initialize();
         // Setup
         // Delete all lines
         GenJournalLine.DeleteAll();
@@ -4127,7 +4127,7 @@ codeunit 134920 "ERM General Journal UT"
         // 1. Verify that document number changes to next available document number.
 
         // Initialize
-        Initialize;
+        Initialize();
 
         // Setup
         // Delete all lines
@@ -4165,9 +4165,9 @@ codeunit 134920 "ERM General Journal UT"
         // 2. Verify that posting date for GL line is changed when posting date on the header is modified.
 
         // Initialize
-        Initialize;
+        Initialize();
         // Setup
-        DocNoToSet := LibraryUtility.GenerateGUID;
+        DocNoToSet := LibraryUtility.GenerateGUID();
         CurrentPostingDate := LibraryRandom.RandDate(10);
 
         CreateGenJournalLineWithDocNo(GenJournalLine, DocNoToSet);
@@ -4198,7 +4198,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Invoice] [Payment Terms] [Due Date]
         // [SCENARIO 285181] "Due Date" on Gen. Journal Line of "Document Type" = Invoice, Payment Terms Code = '' is based on "Document Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Customer
         LibrarySales.CreateCustomer(Customer);
@@ -4226,7 +4226,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Credit Memo] [Payment Terms] [Due Date]
         // [SCENARIO 285181] "Due Date" on Gen. Journal Line of "Document Type" = "Credit Memo", Payment Terms Code = '' is based on "Document Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Customer
         LibrarySales.CreateCustomer(Customer);
@@ -4255,7 +4255,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277086] "General Journal" Page opened with a certain GenJournalLine must switch CurrentJnlBatchName Filter to the GenJournalLine."Journal Batch Name"
-        Initialize;
+        Initialize();
         GenJournalTemplate.DeleteAll();
         GenJournalBatch.DeleteAll();
 
@@ -4286,7 +4286,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [General Journal] [UT]
         // [SCENARIO 277086] GenJournalLine.IsOpenedFromBatch must return TRUE when the record is already selected
-        Initialize;
+        Initialize();
         GenJournalTemplate.DeleteAll();
         GenJournalBatch.DeleteAll();
 
@@ -4306,7 +4306,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [General Journal] [UT]
         // [SCENARIO 277086] GenJournalLine.IsOpenedFromBatch must return TRUE when there are filters exists, but no record selected
-        Initialize;
+        Initialize();
         GenJournalTemplate.DeleteAll();
 
         CreateGenJournalLineTemplate(GenJournalLine, GenJournalBatch);
@@ -4326,7 +4326,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [General Journal] [UT]
         // [SCENARIO 277086] GenJournalLine.IsOpenedFromBatch must return FALSE when there are no filters and no record selected
-        Initialize;
+        Initialize();
 
         Assert.IsFalse(GenJournalLine.IsOpenedFromBatch, 'GenJournalLine.IsOpenedFromBatch must return FALSE');
     end;
@@ -4386,10 +4386,10 @@ codeunit 134920 "ERM General Journal UT"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 407085] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated for "Document Type" = " "
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         with GenJnlLine do
             CreateGenJournalLine(
               GenJnlLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo,
@@ -4409,10 +4409,10 @@ codeunit 134920 "ERM General Journal UT"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 407085] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated for "Document Type" = "Credit Memo"
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         with GenJnlLine do
             CreateGenJournalLine(
               GenJnlLine, "Document Type"::"Credit Memo", "Account Type"::"G/L Account",
@@ -4432,10 +4432,10 @@ codeunit 134920 "ERM General Journal UT"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 407085] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated for "Document Type" = " "
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         with GenJnlLine do
             CreateGenJournalLine(
               GenJnlLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo,
@@ -4455,10 +4455,10 @@ codeunit 134920 "ERM General Journal UT"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 407085] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated for "Document Type" = "Credit Memo"
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         with GenJnlLine do
             CreateGenJournalLine(
               GenJnlLine, "Document Type"::"Credit Memo", "Account Type"::"G/L Account",
@@ -4479,7 +4479,7 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournal: TestPage "General Journal";
     begin
         // [SCENARIO 307215] Document No is reset to blank value when changing to empty batch with not-defined "No Series."
-        Initialize;
+        Initialize();
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"General Journal");
 
         // [GIVEN] Gen. Journal Template "GENERAL"
@@ -4493,7 +4493,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         // [GIVEN] Empty Gen. Journal Batch "GENERAL","BATCH02" with blank "No. Series"
@@ -4525,7 +4525,7 @@ codeunit 134920 "ERM General Journal UT"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 307215] Document No is reset to blank value when changing to empty batch with not-defined "No Series." and Document No. previously changed on page
-        Initialize;
+        Initialize();
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"General Journal");
 
         // [GIVEN] Gen. Journal Template "GENERAL"
@@ -4539,7 +4539,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 0);
-        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
 
         // [GIVEN] Empty Gen. Journal Batch "GENERAL","BATCH02" with blank "No. Series"
@@ -4551,7 +4551,7 @@ codeunit 134920 "ERM General Journal UT"
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
 
         // [GIVEN] "Document No." set to "TEST01" on the page
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         GeneralJournal."<Document No. Simple Page>".SetValue(DocumentNo);
         Assert.AreEqual(DocumentNo, GeneralJournal."<Document No. Simple Page>".Value, 'New Document No. was not set');
 
@@ -4574,7 +4574,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Payment Journal] [UI] [Dimensions]
         // [SCENARIO 312850] Shortcut dimension columns are visible on Payment Journal page when opened from batch
-        Initialize;
+        Initialize();
         GenJournalBatch.DeleteAll();
         GenJournalTemplate.DeleteAll();
 
@@ -4606,7 +4606,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [General Journal] [UI]
         // [SCENARIO 304797] "Number of Journal Lines" in the General Journal page
-        Initialize;
+        Initialize();
 
         // [GIVEN] General journal batch "GJB"
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -4639,7 +4639,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 346835] Stan can set "Blank" type as document type on General Journal Page
-        Initialize;
+        Initialize();
 
         GenJournalTemplate.DeleteAll();
         GenJournalBatch.DeleteAll();
@@ -4680,7 +4680,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Purchase Journal] [UI]
         // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
-        Initialize;
+        Initialize();
 
         GenJournalTemplate.DeleteAll();
         GenJournalBatch.DeleteAll();
@@ -4725,7 +4725,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         // [FEATURE] [Purchase Journal] [UI]
         // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
-        Initialize;
+        Initialize();
 
         GenJournalTemplate.DeleteAll();
         GenJournalBatch.DeleteAll();
@@ -4774,7 +4774,7 @@ codeunit 134920 "ERM General Journal UT"
         ResponseText: text;
     begin
         // [SCENARIO 357907] Create Gen. Journal batch with Web Service or Excel add-in 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Template = "GJT"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -5150,14 +5150,14 @@ codeunit 134920 "ERM General Journal UT"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateLocalData;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
 
@@ -5393,7 +5393,7 @@ codeunit 134920 "ERM General Journal UT"
 
     local procedure CreateVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; AppliesToID: Code[50])
     begin
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         VendLedgEntry.Init();
         VendLedgEntry."Entry No." += 1;
         VendLedgEntry."Vendor No." := VendorNo;
@@ -5404,7 +5404,7 @@ codeunit 134920 "ERM General Journal UT"
 
     local procedure CreateCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; AppliesToID: Code[50])
     begin
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         CustLedgEntry.Init();
         CustLedgEntry."Entry No." += 1;
         CustLedgEntry."Customer No." := CustomerNo;
@@ -5416,14 +5416,14 @@ codeunit 134920 "ERM General Journal UT"
     local procedure CreateCustomerWithName(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Name, LibraryUtility.GenerateGUID);
+        Customer.Validate(Name, LibraryUtility.GenerateGUID());
         Customer.Modify(true);
     end;
 
     local procedure CreateVendorWithName(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate(Name, LibraryUtility.GenerateGUID);
+        Vendor.Validate(Name, LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
     end;
 
@@ -5471,7 +5471,7 @@ codeunit 134920 "ERM General Journal UT"
         Index: Integer;
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         for Index := 1 to ArrayLen(GenJournalBatch) do
             with GenJournalLine[Index] do begin
                 LibraryERM.CreateGenJournalBatch(GenJournalBatch[Index], GenJournalTemplate.Name);
@@ -5516,7 +5516,7 @@ codeunit 134920 "ERM General Journal UT"
     local procedure FindOpenCustLedgEntryAndSetExtDoc(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
         CustLedgEntry.SetRange(Open, true);
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
         CustLedgEntry."External Document No." :=
           LibraryUtility.GenerateRandomCode(CustLedgEntry.FieldNo("External Document No."), DATABASE::"Cust. Ledger Entry");
         CustLedgEntry.Modify();
@@ -5526,7 +5526,7 @@ codeunit 134920 "ERM General Journal UT"
     begin
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.SetFilter("External Document No.", '<>%1', '');
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
     end;
 
     local procedure RunGenJnlApplyAction(GenJournalLine: Record "Gen. Journal Line"; ExpectedApplyingAccountNo: Code[20]; ExpectedApplyingDescription: Text)
@@ -5587,7 +5587,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
         NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, GenJnlBatch."No. Series", GenJournalLine."Posting Date");
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         NoSeriesLine.Validate("Increment-by No.", IncrementByNo);
         NoSeriesLine.Modify(true);
 

@@ -237,7 +237,7 @@ page 7121 "Purchase Analysis Lines"
                     begin
                         CurrPage.SetSelectionFilter(AnalysisLine);
                         RenAnalysisLines.Init(AnalysisLine);
-                        RenAnalysisLines.RunModal;
+                        RenAnalysisLines.RunModal();
                     end;
                 }
             }

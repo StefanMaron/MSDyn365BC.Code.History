@@ -25,7 +25,7 @@ report 11301 "Purchase Ledger"
                 dataitem("G/L Entry"; "G/L Entry")
                 {
                     DataItemLinkReference = PeriodLoop;
-                    DataItemTableView = SORTING("Journal Template Name", "Document No.", "Posting Date");
+                    DataItemTableView = SORTING("Journal Templ. Name", "Document No.", "Posting Date");
                     column(ReportFilter; ReportFilter)
                     {
                     }
@@ -167,9 +167,9 @@ report 11301 "Purchase Ledger"
                         then
                             CurrReport.Skip();
 
-                        if OldName <> "Journal Template Name" then begin
+                        if OldName <> "Journal Templ. Name" then begin
                             OldDate := 0D;
-                            OldName := "Journal Template Name";
+                            OldName := "Journal Templ. Name";
                         end;
 
                         if OldDate <> "Posting Date" then begin
@@ -226,7 +226,7 @@ report 11301 "Purchase Ledger"
 
                     trigger OnPreDataItem()
                     begin
-                        "G/L Entry".SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                        "G/L Entry".SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                         "G/L Entry".SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
                     end;
                 }
@@ -238,8 +238,8 @@ report 11301 "Purchase Ledger"
                     var
                         GLEntry: Record "G/L Entry";
                     begin
-                        GLEntry.SetCurrentKey("Journal Template Name", "Posting Date", "Document No.");
-                        GLEntry.SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                        GLEntry.SetCurrentKey("Journal Templ. Name", "Posting Date", "Document No.");
+                        GLEntry.SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                         GLEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
 
                         if GLEntry.IsEmpty() then
@@ -280,7 +280,7 @@ report 11301 "Purchase Ledger"
                     dataitem("<G/L Entry2>"; "G/L Entry")
                     {
                         DataItemLinkReference = "Gen. Journal Template";
-                        DataItemTableView = SORTING("Journal Template Name", "G/L Account No.", "Posting Date", "Document Type");
+                        DataItemTableView = SORTING("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
                         column(GLEntry2GLAccountNo; "G/L Account No.")
                         {
                         }
@@ -352,7 +352,7 @@ report 11301 "Purchase Ledger"
                     dataitem("VAT Entry"; "VAT Entry")
                     {
                         DataItemLinkReference = "Gen. Journal Template";
-                        DataItemTableView = SORTING("Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
+                        DataItemTableView = SORTING("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
 
                         trigger OnAfterGetRecord()
                         begin
@@ -376,7 +376,7 @@ report 11301 "Purchase Ledger"
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                            SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                             "G/L Entry".CopyFilter("Posting Date", "Posting Date");
 
                             VATSumBuffer.DeleteAll();

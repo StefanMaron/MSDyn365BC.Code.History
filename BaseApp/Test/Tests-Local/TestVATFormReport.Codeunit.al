@@ -35,7 +35,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         // [FEATURE] MANVATCORR
         // [SCENARIO REP.030] VAT Correction Amount in 'Form/Intervat Declaration'
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Statement Line Row '01' has Amount = 0
         StartDate := CalcDate('<1Y>', WorkDate);
         // [GIVEN] Added Manual VAT Correction. Amount = X
@@ -114,7 +114,7 @@ codeunit 144021 "Test VAT - Form Report"
         StartDate: Date;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate);
         xmlFileName := LibraryReportDataset.GetFileName;
 
@@ -139,7 +139,7 @@ codeunit 144021 "Test VAT - Form Report"
         StartDate: Date;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate);
         xmlFileName := LibraryReportDataset.GetFileName;
 
@@ -162,7 +162,7 @@ codeunit 144021 "Test VAT - Form Report"
         StartDate: Date;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate);
         xmlFileName := LibraryReportDataset.GetFileName;
 
@@ -188,7 +188,7 @@ codeunit 144021 "Test VAT - Form Report"
         // [FEATURE] [Intervat]
         // [SCENARIO 213197] If "Is Correction" is set to TRUE in "VAT - Form" Report's Request Page, then ReplacedVATDeclaration should be added to InterVAT file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] In the Request Page of "VAT - Form" Report, "Is Correction" = TRUE, "Previous Sequence No." = 11
         // [WHEN] Export to XML by Report 11307 VAT - Form
@@ -220,7 +220,7 @@ codeunit 144021 "Test VAT - Form Report"
         // [FEATURE] [Intervat]
         // [SCENARIO 213197] If "Is Correction" is set to FALSE in "VAT - Form" Report's Request Page, then ReplacedVATDeclaration should not be added to InterVAT file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] In the Request Page of "VAT - Form" Report, "Is Correction" = FALSE
         // [WHEN] Export to XML by Report 11307 VAT - Form
@@ -242,7 +242,7 @@ codeunit 144021 "Test VAT - Form Report"
         ManualVATCorrection: Record "Manual VAT Correction";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test VAT - Form Report");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ManualVATCorrection.DeleteAll();
 
         if isInitialized then
@@ -296,7 +296,7 @@ codeunit 144021 "Test VAT - Form Report"
         periodnodeName: Text;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate);
 
         // Create customer, an item and post an invoice to that customer for the item
@@ -358,7 +358,7 @@ codeunit 144021 "Test VAT - Form Report"
         Commit();
 
         VATForm.SetFileName(FileName);
-        VATForm.Run;
+        VATForm.Run();
     end;
 
     [RequestPageHandler]

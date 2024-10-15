@@ -30,6 +30,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         UndoShipment: Label 'Do you want to undo the selected shipment line(s)?';
         UndoConsumption: Label 'Do you want to undo consumption of the selected shipment line(s)?';
         InvValueZeroErr: Label '%1 must be equal to ''%2''';
+        BlockedSetupErr: Label 'Blocked must be equal to ''No''  in General Posting Setup';
 
     [Test]
     [Scope('OnPrem')]
@@ -40,7 +41,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ItemNo: Code[20];
     begin
         // [SCENARIO 360566] Revaluation of Item with "Inventory Value Zero" = Yes is not allowed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item "X" With 'Inventory Value Zero'=Yes
         ItemNo := CreateItemWithInventoryValueZero(true);
@@ -68,7 +69,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Item Ledger Entry after running Adjust Cost Item Entries.
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         CreateServiceDocumentAndUpdateServiceLine(
@@ -107,14 +108,14 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry after running Post Inventory Cost To G/L batch job using Post Method 'Per Entry'.
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Inventory Cost To G/L batch job.
-        PostInventoryCostToGL(PostMethod::"per Entry", PurchaseLine."No.", '', '');
+        PostInventoryCostToGL(PostMethod::"per Entry", PurchaseLine."No.", '');
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyValueEntryCost(PurchaseLine."No.");
@@ -126,21 +127,18 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     var
         PurchaseLine: Record "Purchase Line";
         PostMethod: Option "per Posting Group","per Entry";
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
         // Verify Value Entry after running Post Invt Cost To G/L batch job using Post Method 'Per Posting Group'.
 
         // Setup: Update Sales and Receivables, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Inventory Cost To G/L batch job.
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        PostInventoryCostToGL(PostMethod::"per Posting Group", PurchaseLine."No.", TemplateName, BatchName);
+        PostInventoryCostToGL(PostMethod::"per Posting Group", PurchaseLine."No.", PurchaseLine."No.");
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyValueEntryCost(PurchaseLine."No.");
@@ -156,14 +154,14 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry after running Post Inventory Cost To G/L - Test batch job using Post Method 'Per Entry'.
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Invt. Cost To G/L - Test batch job.
-        LibraryCosting.PostInvtCostToGLTest(PostMethod::"per Entry", PurchaseLine."No.", '', '', false, false);
+        LibraryCosting.PostInvtCostToGLTest(PostMethod::"per Entry", PurchaseLine."No.", '', false, false);
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyValueEntryCost(PurchaseLine."No.");
@@ -175,21 +173,18 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     var
         PurchaseLine: Record "Purchase Line";
         PostMethod: Option "per Posting Group","per Entry";
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
         // Verify Value Entry after running Post Inventory Cost To G/L - Test batch job using Post Method 'Per Posting Group'.
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Invt. Cost To G/L - Test batch job.
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        LibraryCosting.PostInvtCostToGLTest(PostMethod::"per Posting Group", PurchaseLine."No.", TemplateName, BatchName, false, false);
+        LibraryCosting.PostInvtCostToGLTest(PostMethod::"per Posting Group", PurchaseLine."No.", PurchaseLine."No.", false, false);
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyValueEntryCost(PurchaseLine."No.");
@@ -205,14 +200,14 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Warning after running Post Inventory Cost To G/L - Test batch job Using Expected Cost Posting To G/L True.
 
         // Setup: Update Sales and Receivables Setup, Ship a Service Order, Receive a Purchase Order and Receive and Invoice another Purchase Order.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(false);
         CreateServiceAndPurchaseOrder(PurchaseLine);
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Invt. Cost To G/L - Test batch job.
-        PostInventoryCostToGL(PostMethod::"per Entry", PurchaseLine."No.", '', '');
+        PostInventoryCostToGL(PostMethod::"per Entry", PurchaseLine."No.", '');
 
         // Verify: Verify Confirmation Warning and message, Verifyication done in 'ConfirmHandler' and 'MessageHandler'.
     end;
@@ -230,7 +225,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Item Category Code on Item Ledger Entry and Value Entry for Average costing after running Adjust Cost Item Entries.
 
         // Setup: Update Inventory Setup, Ship a Service Order.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(true);
         LibraryInventory.CreateItemCategory(ItemCategory);
@@ -261,7 +256,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Error message while running Adjust Cost Item Entries batch job with both Item No. Filter and Item Category Filter.
 
         // Setup: Update Inventory Setup, Ship a Service Order.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(true);
         LibraryInventory.CreateItemCategory(ItemCategory);
@@ -293,7 +288,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Variant Code and Valued Quantity on Value Entry for Standard costing after running Adjust Cost Item Entries.
 
         // Setup: Update Inventory Setup, Ship a Service Order and Receive and Invoice a Purchase Order with Variant Code and Standard Item.
-        Initialize;
+        Initialize();
 
         UpdateInventorySetup(true);
         LibraryInventory.CreateItemCategory(ItemCategory);
@@ -336,7 +331,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Chage Item, Adjustment and Valued By Average Cost field in Value Entry after running Adjust Cost Item Entries.
 
         // Setup: Ship a Service Order and Receive a Purchase Order and Post Purchase Invoice using Item Charge Assignment.
-        Initialize;
+        Initialize();
         CreateServiceDocumentAndUpdateServiceLine(
           ServiceLine, CreateItem('', Item."Costing Method"::Average), CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -359,7 +354,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify: Verify Adjustment entry for Valued By Average Cost Item Charge in  Value Entry.
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Valued Quantity", PurchaseLine.Quantity);
         VerifyValueByAverageValueEntry(PurchaseLine."No.", -ServiceLine.Quantity, true);  // Using TRUE for Valued By Average Cost.
     end;
@@ -379,7 +374,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry for applied and Invoiced Sales Order after running Adjust Cost Item Entries.
 
         // Setup: Create and Post Purchase Order. Create, apply and Post Sales Order. Create and Post Purchase Invoice for Charge Item.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // True for Invoice and Random value for Quantity.
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."No.", true);
         CreateAndPostSalesDocument(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity, ItemLedgerEntry."Entry No.", true);
@@ -410,7 +405,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry for applied but not Invoiced Sales Order.
 
         // Setup: Create and post Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // True for Invoice and Random value for Quantity.
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."No.", true);
 
@@ -438,7 +433,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry after posting Revaluation Journal and running Adjust Cost Item Entries.
 
         // Setup: Create and Post Purchase Order. Create, apply and Post Sales Order. Create and Post Revaluation Journal.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), 10 + LibraryRandom.RandDec(10, 2), true);  // True for Invoice and Random value for Quantity.
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."No.", true);
@@ -472,7 +467,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry after posting Revaluation Journal for remaining Quantity and running Adjust Cost Item Entries.
 
         // Setup: Create and Post Item Journal for Positive Adjustment. Create, apply and Post Negative Adjustment. Create and Post Revaluation Journal. Use Random values for Quantity and Unit Cost.
-        Initialize;
+        Initialize();
         UnitCost := LibraryRandom.RandDec(100, 2);
 
         // Create and Post Item Journal Line for Positive/Negative Adjustment.
@@ -524,7 +519,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry for Rounding after running Adjust Cost Item Entries.
 
         // Setup: Create and Post Purchase Order. Create, apply and Post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrderWithLineAmount(PurchaseLine);
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."No.", true);
         CreateAndPostSalesOrderWithMultiLine(PurchaseLine."No.", PurchaseLine.Quantity, ItemLedgerEntry."Entry No.");
@@ -554,7 +549,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry for unapplied Invoiced Sales Order after running Adjust Cost Item Entries.
 
         // Setup: Create and Post Purchase Order. Create and Post Sales Order. Create and post Purchase Invoice for Charge Item.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), 10 + LibraryRandom.RandDec(10, 2), true);  // True for Invoice and Random value for Quantity.
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."No.", true);
@@ -592,7 +587,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry after creating Transfer Order,posting Revaluation Journal and running Adjust Cost Item Entries.
 
         // Setup: Create and Post Item Journal for Positive Adjustment. Create and Post Transfer Order. Create and Post Revaluation Journal. Use Random values for Quantity and Unit Cost.
-        Initialize;
+        Initialize();
         UnitCost := LibraryRandom.RandDec(100, 2);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateAndPostItemJournal(
@@ -636,7 +631,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Value Entry for fixed application after running Adjust Cost Item Entries.
 
         // Setup: Create and Post Purchase Order. Create, apply and Post Sales Order and Sales Return Order. Create and Post Purchase Invoice for Charge Item.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // True for Invoice and Random value for Quantity.
         FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."No.", true);
         CreateAndPostSalesDocument(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity, ItemLedgerEntry."Entry No.", true);
@@ -661,7 +656,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     procedure UnitCostUsingCalcInvDisc()
     begin
         // Check the Item cost when CalcInvDiscount is true and InventoryValueZero is false.
-        Initialize;
+        Initialize();
         AdjustCostItemEntries(true, false);
     end;
 
@@ -670,7 +665,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     procedure UnitCostUsingCalcInvDiscAndSetInvValueZero()
     begin
         // Check the Item cost when CalcInvDiscount is true and InventoryValueZero is true.
-        Initialize;
+        Initialize();
         AdjustCostItemEntries(true, false);
         AdjustCostItemEntries(true, true);
     end;
@@ -680,7 +675,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     procedure UnitCostUsingSetInvValueZero()
     begin
         // Check the Item cost when CalcInvDiscount is false and InventoryValueZero is true.
-        Initialize;
+        Initialize();
         AdjustCostItemEntries(true, true);
         AdjustCostItemEntries(false, true);
     end;
@@ -699,7 +694,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         // Exercise: Run Adjust Cost Item Entries.
         LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');
@@ -725,7 +720,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order.
 
         // Setup: Create Item, create and post Purchase Order, create Service Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(
           PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostPurchaseDocument(PurchaseLine, true);
@@ -785,7 +780,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Credit Memo Statistics after posting Service Credit Memo and running Adjust Cost Item Entries.
 
         // Setup: Create Item, create and post Purchase Order, Service Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(
           PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostPurchaseDocument(PurchaseLine, true);
@@ -812,7 +807,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order When Line Discount is defined for Item.
 
         // Setup: Create Item with Sales Line Discount, create and post Purchase Order, create Service Order.
-        Initialize;
+        Initialize();
         CreateItemWithSalesLineDiscount(SalesLineDiscount);
         CreateAndPostPurchaseDocument(PurchaseLine, SalesLineDiscount.Code, LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
         CreateServiceDocumentAndUpdateServiceLine(
@@ -838,7 +833,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Revaluation Journal When Line Discount is defined for Item.
 
         // Setup: Create Item with Sales Line Discount, create and post Purchase Order, Service Order and Revaluation Journal.
-        Initialize;
+        Initialize();
         CreateItemWithSalesLineDiscount(SalesLineDiscount);
         CreateAndPostPurchaseDocument(PurchaseLine, SalesLineDiscount.Code, LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
         CreateServiceDocumentAndUpdateServiceLine(
@@ -865,7 +860,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Credit Memo Statistics after posting Service Credit Memo When Line Discount is defined for Item..
 
         // Setup: Create Item with Sales Line Discount, create and post Purchase Order, Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateItemWithSalesLineDiscount(SalesLineDiscount);
         CreateAndPostPurchaseDocument(PurchaseLine, SalesLineDiscount.Code, LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
 
@@ -891,7 +886,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on Services Order Statistics after posting Service Order as Ship.
 
         // Setup: Create Item, create and post Purchase Order, Create Service Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
         CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
 
@@ -918,7 +913,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on Services Order Statistics after posting Service Order as Ship and running Adjust Cost Item Entries.
 
         // Setup: Create Item, create and post Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         DirectUnitCost := PurchaseLine."Direct Unit Cost";
         PostPartialPurchLineWithUpdate(PurchaseLine);
@@ -947,7 +942,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order using Get Service Shipment Lines.
 
         // Setup: Create Item, create and post Purchase Order, create Service Invoice using Get Shipment Lines.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
         CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostServiceOrder(ServiceLine, false, false);
@@ -975,7 +970,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on Services Order Statistics after posting Service Order as ship and consume.
 
         // Setup: Create Item, create and post Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
         CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
@@ -1015,7 +1010,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ServiceLine: Record "Service Line";
     begin
         // Setup: Create Item, create and post Purchase Order, Service Order and undo Shipment Line.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), Quantity + LibraryRandom.RandInt(10), true);  // Use TRUE for Invoice and Random value for Quantity.
         CreateServiceDocumentAndUpdateServiceLine(
@@ -1046,7 +1041,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order and Purchase Order with Charge Assignment.
 
         // Setup: Create and post Purchase Order with charge Assignment, create Service Order.
-        Initialize;
+        Initialize();
         PostChargeOnPurchaseDocument(PurchaseLine);
         CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
 
@@ -1069,7 +1064,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Credit Memo Statistics after posting Service Credit Memo and Purchase Order with Charge Assignment.
 
         // Setup: Create and post Purchase Order with charge Assignment.
-        Initialize;
+        Initialize();
         PostChargeOnPurchaseDocument(PurchaseLine);
 
         // Exercise: Create and post Service Credit Memo.
@@ -1092,7 +1087,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on on posted Services Invoice Statistics after posting Service Invoice using Get Service Shipment Lines and Purchase Order with Charge Assignment.
 
         // Setup: Create and post Purchase Order with charge Assignment, create Service Invoice using Get Shipment Lines.
-        Initialize;
+        Initialize();
         PostChargeOnPurchaseDocument(PurchaseLine);
         CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer, LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostServiceOrder(ServiceLine, false, false);
@@ -1120,7 +1115,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order and Purchase Invoice with Charge Assignment, running Adjust Cost Item Entries.
 
         // Setup: Create and post Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(
           PurchaseLine, CreateVendor, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
         PostPurchaseDocument(PurchaseLine, false);
@@ -1152,7 +1147,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         // [FEATURE] [Adjust Cost Item Entries] [In-Transit Location]
         // [SCENARIO 379431] Cost Adjustment should process non-transfer Item Ledger Entries on Transit Location.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Location with "Use As In-Transit" flag unchecked.
@@ -1191,7 +1186,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         // [FEATURE] [Post Inventory To G/L Test] [UT]
         // [SCENARIO 210793] Invt. Post to G/L Test Buffer filled by "Post Inventory To G/L" batch job should contain either Gen. Product Posting Group code or Inventory Posting Group, but not both. Otherwise, a posting error may not be identified properly
-        Initialize;
+        Initialize();
 
         // [GIVEN] General posting setup with "Gen. Bus. Posting Group" = '' and "Gen. Prod. Posting Group" = "X".
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
@@ -1212,17 +1207,63 @@ codeunit 137285 "SCM Inventory Batch Jobs"
             // [THEN] The first one has "Gen. Prod. Posting Group" = "X", and blank Inventory Posting Group and Location Code.
             Reset;
             SetRange("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
-            FindFirst;
+            FindFirst();
             TestField("Invt. Posting Group Code", '');
             TestField("Location Code", '');
 
             // [THEN] The second one has "Inventory Posting Group" = "Y" and Location Code = "Z", and blank "Gen. Prod. Posting Group".
             Reset;
             SetRange("Invt. Posting Group Code", InventoryPostingGroup.Code);
-            FindFirst;
+            FindFirst();
             TestField("Location Code", ValueEntry."Location Code");
             TestField("Gen. Prod. Posting Group", '');
         end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingBlankGroupsInInvPostBufferFilledByPostInventoryToGL()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        Location: Record Location;
+        ValueEntry: Record "Value Entry";
+        InventoryPostingToGL: Codeunit "Inventory Posting To G/L";
+    begin
+        // [FEATURE] [Post Inventory To G/L] [Blocked] [UT]
+        // [SCENARIO 403129] Blank Gen Posting Setup leads to an error during Inventory Posting To G/L
+        Initialize();
+
+        // [GIVEN] General posting setup with "Gen. Bus. Posting Group" = '' and "Gen. Prod. Posting Group" = "X".
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, '', GenProductPostingGroup.Code);
+
+        // [GIVEN] Inventory Posting Group "Y".
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+
+        // [GIVEN] Value Entry for capacity with "Gen. Prod. Posting Group" = "X", "Inventory Posting Group" = "Y" and Location Code = "Z".
+        MockValueEntry(ValueEntry, GenProductPostingGroup.Code, InventoryPostingGroup.Code);
+        // [GIVEN] Exists InventoryPostingSetup for "Z","Y", where is not blank
+        Location.Code := ValueEntry."Location Code";
+        Location.Insert();
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, ValueEntry."Location Code", InventoryPostingGroup.Code);
+        InventoryPostingSetup."Inventory Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup.Modify();
+
+        // [GIVEN] GeneralPostingSetup is blank
+        GeneralPostingSetup.Get(ValueEntry."Gen. Bus. Posting Group", ValueEntry."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Blocked := true;
+        GeneralPostingSetup.Modify();
+
+        // [WHEN] Run Post Inventory to G/L on the Value Entry.
+        ValueEntry.SetRange("Entry No.", ValueEntry."Entry No.");
+        InventoryPostingToGL.SetRunOnlyCheck(true, true, false);
+        asserterror InventoryPostingToGL.BufferInvtPosting(ValueEntry);
+
+        // [THEN] Error: 'Blocked must be equal to No in General Posting Setup'
+        Assert.ExpectedError(BlockedSetupErr);
     end;
 
     local procedure Initialize()
@@ -1230,19 +1271,19 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Batch Jobs");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Batch Jobs");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -1426,7 +1467,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        LibraryUtility.GenerateGUID;  // To rectify Item Journal Batch error.
+        LibraryUtility.GenerateGUID();  // To rectify Item Journal Batch error.
     end;
 
     local procedure CreateItemJournalForRevaluation(ItemNo: Code[20])
@@ -1445,7 +1486,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           false);
         ItemJournalLine.SetRange("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", ItemJournalLine."Unit Cost (Calculated)" + LibraryRandom.RandDec(10, 2));  // Use Random value for Unit Cost Revalued.
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -1585,9 +1626,9 @@ codeunit 137285 "SCM Inventory Batch Jobs"
             "Entry Type" := "Entry Type"::"Direct Cost";
             "Gen. Prod. Posting Group" := GenProdPostingGroupCode;
             "Inventory Posting Group" := InventoryPostingGroupCode;
-            "Location Code" := LibraryUtility.GenerateGUID;
+            "Location Code" := LibraryUtility.GenerateGUID();
             Type := Type::"Work Center";
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Valued Quantity" := LibraryRandom.RandInt(10);
             "Cost per Unit" := LibraryRandom.RandDec(10, 2);
             "Cost Amount (Actual)" := "Valued Quantity" * "Cost per Unit";
@@ -1597,18 +1638,10 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
     local procedure GetPostInvtToGLTestBuffer(var TempInvtPostToGLTestBuffer: Record "Invt. Post to G/L Test Buffer" temporary; var ValueEntry: Record "Value Entry")
     var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
         InventoryPostingToGL: Codeunit "Inventory Posting To G/L";
     begin
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
-        GenJournalBatch.Modify(true);
-
         InventoryPostingToGL.SetRunOnlyCheck(false, true, true);
         InventoryPostingToGL.BufferInvtPosting(ValueEntry);
-        InventoryPostingToGL.SetGenJnlBatch(GenJournalTemplate.Name, GenJournalBatch.Name);
         InventoryPostingToGL.PostInvtPostBufPerEntry(ValueEntry);
         InventoryPostingToGL.GetTempInvtPostToGLTestBuf(TempInvtPostToGLTestBuffer);
     end;
@@ -1620,7 +1653,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange(Adjustment, Adjustment);
         ValueEntry.SetRange("Location Code", LocationCode);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Open: Boolean)
@@ -1628,20 +1661,20 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Open, Open);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindPurchaseReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20]; ItemNo: Code[20])
     begin
         PurchRcptLine.SetRange("Order No.", OrderNo);
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindServiceShipmentLine(var ServiceShipmentLine: Record "Service Shipment Line"; OrderNo: Code[20])
     begin
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
     end;
 
     local procedure PostChargeOnPurchaseDocument(var PurchaseLine: Record "Purchase Line")
@@ -1662,15 +1695,14 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostPurchaseDocument(PurchaseLine, true);
     end;
 
-    local procedure PostInventoryCostToGL(PostMethod: Option; ItemNo: Code[20]; TemplateName: Code[10]; BatchName: Code[10])
+    local procedure PostInventoryCostToGL(PostMethod: Option; ItemNo: Code[20]; DocumentNo: Code[20])
     var
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInventoryCostToGL: Report "Post Inventory Cost to G/L";
     begin
         Commit();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
-        PostInventoryCostToGL.SetGenJnlBatch(TemplateName, BatchName);
-        PostInventoryCostToGL.InitializeRequest(PostMethod, '', true);
+        PostInventoryCostToGL.InitializeRequest(PostMethod, DocumentNo, true);
         PostInventoryCostToGL.SetTableView(PostValueEntryToGL);
         PostInventoryCostToGL.UseRequestPage(false);
     end;
@@ -1686,7 +1718,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Using Random value for Direct Unit Cost.
         PurchaseLine.Modify(true);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -1759,7 +1791,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Purchase);
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Actual)", CostAmountActual);
     end;
 
@@ -1813,7 +1845,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         ServiceInvHeader.SetRange("Order No.", OrderNo);
         ServiceInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvHeader.FindFirst;
+        ServiceInvHeader.FindFirst();
         ServiceInvStatistics.Trap;
         PostedServiceInvoice.OpenView;
         PostedServiceInvoice.GotoRecord(ServiceInvHeader);
@@ -1832,7 +1864,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ServiceCreditMemoStatistics: TestPage "Service Credit Memo Statistics";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceDocNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceCreditMemoStatistics.Trap;
         PostedServiceCreditMemo.OpenView;
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
@@ -1874,9 +1906,9 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     begin
         LibraryVariableStorage.Dequeue(OrderNo);
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
 
         GetServiceShipmentLines.SetRecord(ServiceShipmentLine);
         GetServiceShipmentLines.GetShipmentLines;

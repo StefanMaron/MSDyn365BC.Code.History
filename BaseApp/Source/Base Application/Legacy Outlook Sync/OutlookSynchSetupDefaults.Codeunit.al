@@ -111,7 +111,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
             Reset;
             SetRange("Synch. Entity Code", OutlookSynchEntity.Code);
             SetRange("Element No.", 0);
-            if FindLast then begin
+            if FindLast() then begin
                 InsertOSynchTableRelationFilter("Record GUID", "Table No.", 1, OutlookSynchFilter.Type::FIELD, "Master Table No.", 5051, '');
                 InsertOSynchTableRelationFilter("Record GUID", "Table No.", 5050, OutlookSynchFilter.Type::CONST, 0, 0, '0');
                 "Table Relation" := OutlookSynchSetupMgt.ComposeFilterExpression("Record GUID", 1);
@@ -298,7 +298,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
             Reset;
             SetRange("Synch. Entity Code", OutlookSynchEntity.Code);
             SetRange("Element No.", OutlookSynchEntityElement."Element No.");
-            if FindLast then begin
+            if FindLast() then begin
                 OutlookSynchEntityElement.CalcFields("Master Table No.");
                 InsertOSynchTableRelationFilter("Record GUID", "Table No.", 1, OutlookSynchFilter.Type::FIELD, "Master Table No.", 5, '');
                 "Table Relation" := OutlookSynchSetupMgt.ComposeFilterExpression("Record GUID", 1);
@@ -364,7 +364,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
             InsertOutlookSynchEntityElement(OutlookSynchEntity.Code, 5199, 'Recipients');
             Reset;
             SetRange("Synch. Entity Code", OutlookSynchEntity.Code);
-            if FindLast then begin
+            if FindLast() then begin
                 CalcFields("Master Table No.");
                 InsertOSynchTableRelationFilter("Record GUID", "Table No.", 1, OutlookSynchFilter.Type::FIELD, "Master Table No.", 1, '');
                 InsertOSynchTableRelationFilter("Record GUID", "Table No.", 7, OutlookSynchFilter.Type::CONST, "Master Table No.", 0, '1');
@@ -408,7 +408,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
             Reset;
             SetRange("Synch. Entity Code", OutlookSynchEntityElement."Synch. Entity Code");
             SetRange("Element No.", OutlookSynchEntityElement."Element No.");
-            if FindLast then begin
+            if FindLast() then begin
                 InsertOOptionCorrelation("Synch. Entity Code", "Element No.", "Line No.", 'olResponseNone', 0, 0);
                 InsertOOptionCorrelation("Synch. Entity Code", "Element No.", "Line No.", 'olResponseAccepted', 1, 3);
                 InsertOOptionCorrelation("Synch. Entity Code", "Element No.", "Line No.", 'olResponseDeclined', 2, 4);
@@ -607,7 +607,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
         OutlookSynchEntityElement.Reset();
         OutlookSynchEntityElement.SetRange("Synch. Entity Code", DependEntityElemCode);
         OutlookSynchEntityElement.SetRange("Outlook Collection", DependEntityElemOCollection);
-        if OutlookSynchEntityElement.FindFirst then begin
+        if OutlookSynchEntityElement.FindFirst() then begin
             InsertODependency(
               OutlookSynchEntityElement."Synch. Entity Code", OutlookSynchEntityElement."Element No.", OutlookSynchEntity1.Code);
             OutlookSynchDependency.Get(
@@ -638,7 +638,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
             Reset;
             SetRange("Synch. Entity Code", EntityCode);
             SetRange("Element No.", ElementNo);
-            if FindLast then begin
+            if FindLast() then begin
                 OutlookSynchEntityElement.CalcFields("Master Table No.");
                 InsertOSynchTableRelationFilter("Record GUID", "Table No.", 1, OutlookSynchFilter.Type::FIELD, "Master Table No.", 5, '');
                 InsertOSynchConditionFilter("Record GUID", OutlookSynchEntityElement."Table No.", 4, OutlookSynchFilter.Type::CONST, 0, 0, Value);
@@ -658,7 +658,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
             Reset;
             SetRange("Synch. Entity Code", OutlookSynchEntityCode);
             SetRange("Element No.", 0);
-            if FindLast then begin
+            if FindLast() then begin
                 InsertOSynchTableRelationFilter(
                   "Record GUID", "Table No.", FieldId, OutlookSynchFilter.Type::FIELD, "Master Table No.", MasterFieldId, '');
                 "Table Relation" := OutlookSynchSetupMgt.ComposeFilterExpression("Record GUID", 1);
@@ -685,7 +685,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
         with OutlookSynchEntityElement do begin
             Reset;
             SetRange("Synch. Entity Code", OutlookSynchEntityCode);
-            if FindLast then begin
+            if FindLast() then begin
                 CalcFields("Master Table No.");
                 InsertOSynchTableRelationFilter(
                   "Record GUID", "Table No.", 1, OutlookSynchFilter.Type::FIELD, "Master Table No.", 1, '');

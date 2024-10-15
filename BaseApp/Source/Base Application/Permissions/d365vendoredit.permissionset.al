@@ -64,7 +64,6 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Return Shipment Line" = rm,
                   tabledata "Service Item" = r,
                   tabledata "Ship-to Address" = RIMD,
-                  tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Standard Purchase Code" = RIMD,
                   tabledata "Standard Purchase Line" = RIMD,
                   tabledata "Standard Vendor Purchase Code" = RIMD,

@@ -487,7 +487,7 @@ page 2000001 "EB Payment Journal"
                     trigger OnAction()
                     begin
                         SuggestPayments.SetJournal(Rec);
-                        SuggestPayments.RunModal;
+                        SuggestPayments.RunModal();
                         Clear(SuggestPayments);
                     end;
                 }
@@ -561,6 +561,7 @@ page 2000001 "EB Payment Journal"
     var
         JnlSelected: Boolean;
         OpenedFromBatch: Boolean;
+        IsHandled: Boolean;
     begin
         OpenedFromBatch := ("Journal Batch Name" <> '') and ("Journal Template Name" = '');
         EnablePaymentExportErrors := false;
@@ -570,12 +571,16 @@ page 2000001 "EB Payment Journal"
             PmtJrnlMgt.OpenJournal(CurrentJnlBatchName, Rec);
             exit;
         end;
-        PmtJrnlMgt.TemplateSelection(Rec, JnlSelected);
-        if not JnlSelected then
-            Error('');
+
+        IsHandled := false;
+        OnOpenPageOnBeforeTemplateSelection(Rec, PmtJrnlMgt, CurrentJnlBatchName, IsHandled);
+        if not IsHandled then begin
+            PmtJrnlMgt.TemplateSelection(Rec, JnlSelected);
+            if not JnlSelected then
+                Error('');
+        end;
         PmtJrnlMgt.OpenJournal(CurrentJnlBatchName, Rec);
-        Clear(ExportProtocolCode);
-        Clear(BankAccountCodeFilter);
+        ClearVariables();
     end;
 
     var
@@ -591,8 +596,6 @@ page 2000001 "EB Payment Journal"
         ShowTotalAmount: Boolean;
         DoLookup: Boolean;
         ShortcutDimCode: array[8] of Code[20];
-        ExportProtocolCode: Code[20];
-        BankAccountCodeFilter: Code[1024];
         Text001: Label 'Please set an Export Protocol filter on the payment journal.';
         Text002: Label 'Payment lines have been validated successfully.';
         [InDataSet]
@@ -602,6 +605,10 @@ page 2000001 "EB Payment Journal"
         EnablePaymentExportErrors: Boolean;
         EnableCheckPaymentLines: Boolean;
 
+    protected var
+        ExportProtocolCode: Code[20];
+        BankAccountCodeFilter: Code[1024];
+
     local procedure UpdateAmount()
     begin
         PmtJrnlMgt.CalculateTotals(Rec, xRec, Balance, TotalBalance, ShowAmount, ShowTotalAmount);
@@ -609,7 +616,6 @@ page 2000001 "EB Payment Journal"
         TotalBalanceVisible := ShowTotalAmount;
     end;
 
-    [Scope('OnPrem')]
     procedure GetExportProtocol()
     begin
         if ExportProtocolCode = '' then
@@ -638,6 +644,29 @@ page 2000001 "EB Payment Journal"
         SetFilter("Export Protocol Code", ExportProtocolCode);
         FilterGroup(0);
         CurrPage.Update(false);
+    end;
+
+    local procedure ClearVariables()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeClearVariables(Rec, BankAccountCodeFilter, ExportProtocolCode, IsHandled);
+        if IsHandled then
+            exit;
+
+        Clear(ExportProtocolCode);
+        Clear(BankAccountCodeFilter);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeTemplateSelection(var PaymentJournalLine: Record "Payment Journal Line"; var PmtJrnlMgt: Codeunit PmtJrnlManagement; var CurrentJnlBatchName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearVariables(var PaymentJournalLine: Record "Payment Journal Line"; var BankAccountCodeFilter: Code[1024]; var ExportProtocolCode: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -49,10 +49,10 @@ codeunit 5355 "CRM Notes Synch Job"
             IntegrationTableSynch.BeginIntegrationSynchJobLoging(TABLECONNECTIONTYPE::CRM, CODEUNIT::"CRM Notes Synch Job", JobLogEntryNo, DATABASE::"Sales Header");
 
         CRMAnnotationCoupling.SetCurrentKey("CRM Created On");
-        if CRMAnnotationCoupling.FindLast then
+        if CRMAnnotationCoupling.FindLast() then
             CreatedAfterDateTime := CRMAnnotationCoupling."CRM Created On";
         CRMAnnotationCoupling.SetCurrentKey("CRM Modified On");
-        if CRMAnnotationCoupling.FindLast then
+        if CRMAnnotationCoupling.FindLast() then
             ModifiedAfterDateTime := CRMAnnotationCoupling."CRM Modified On";
 
         InsertCounter := CreateAnnotationsForCreatedNotes;
@@ -146,7 +146,7 @@ codeunit 5355 "CRM Notes Synch Job"
         TempCRMAnnotationBuffer: Record "CRM Annotation Buffer" temporary;
     begin
         CRMAnnotationBuffer.SetRange("Related Table ID", DATABASE::"Sales Header");
-        if not CRMAnnotationBuffer.FindSet then
+        if not CRMAnnotationBuffer.FindSet() then
             exit;
 
         repeat
@@ -154,7 +154,7 @@ codeunit 5355 "CRM Notes Synch Job"
             TempCRMAnnotationBuffer.Insert();
         until CRMAnnotationBuffer.Next() = 0;
 
-        if TempCRMAnnotationBuffer.FindSet then
+        if TempCRMAnnotationBuffer.FindSet() then
             repeat
                 CreatedAnnotations += ProcessCRMAnnotationBufferEntry(TempCRMAnnotationBuffer);
             until TempCRMAnnotationBuffer.Next() = 0;
@@ -168,7 +168,7 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMAnnotation.SetRange(ObjectTypeCode, CRMAnnotation.ObjectTypeCode::salesorder);
         if CreatedAfterDateTime <> 0DT then
             CRMAnnotation.SetFilter(CreatedOn, StrSubstNo('>%1', CreatedAfterDateTime));
-        if CRMAnnotation.FindSet then
+        if CRMAnnotation.FindSet() then
             repeat
                 CreatedNotes += CreateAndCoupleNote(CRMAnnotation);
             until CRMAnnotation.Next() = 0;
@@ -182,7 +182,7 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMAnnotation.SetRange(ObjectTypeCode, CRMAnnotation.ObjectTypeCode::salesorder);
         if ModifiedAfterDateTime <> 0DT then
             CRMAnnotation.SetFilter(ModifiedOn, StrSubstNo('>%1', ModifiedAfterDateTime));
-        if CRMAnnotation.FindSet then
+        if CRMAnnotation.FindSet() then
             repeat
                 ModifiedNotes += ModifyNote(CRMAnnotation);
             until CRMAnnotation.Next() = 0;

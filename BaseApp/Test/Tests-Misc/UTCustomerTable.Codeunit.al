@@ -35,7 +35,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Customer1."No.") / 2);
@@ -57,7 +57,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Customer1."No.") / 2 - 1);
@@ -79,7 +79,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Customer1."No.") / 2 - 2);
@@ -101,7 +101,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Customer1.Name) / 2);
@@ -123,7 +123,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Customer1.Name) / 2);
@@ -145,7 +145,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Customer1.Name) / 2);
@@ -164,7 +164,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -182,7 +182,7 @@ codeunit 134825 "UT Customer Table"
         Customer: Record Customer;
         RandomText: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -200,7 +200,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -217,7 +217,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -234,7 +234,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomerFromName(Customer, CustomerNameWithFilterCharsTxt);
@@ -250,7 +250,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         // Offset the random
         LibraryUtility.GenerateRandomText(1);
 
@@ -270,10 +270,10 @@ codeunit 134825 "UT Customer Table"
         Customer: Record Customer;
         NoneExixtingCustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        NoneExixtingCustomerNo := LibrarySales.CreateCustomerNo;
+        NoneExixtingCustomerNo := LibrarySales.CreateCustomerNo();
         Customer.Get(NoneExixtingCustomerNo);
         Customer.Delete();
 
@@ -289,7 +289,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -305,7 +305,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -321,7 +321,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -337,7 +337,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -353,7 +353,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -369,7 +369,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -389,7 +389,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Customer1."No.") / 2 - 3);
@@ -421,7 +421,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Customer1."No.") / 2 - 3);
@@ -445,8 +445,8 @@ codeunit 134825 "UT Customer Table"
     begin
         // [FEATURE] [Contact] [Marketing Setup]
         // [SCENARIO 231916] When "Bus. Relation Code" is empty in Marketing Setup and random text is inserted into Customer Contact field then "Primary Contact No." and Contact fields are not cleared.
-        Initialize;
-        ExpectedPrimaryContactNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        ExpectedPrimaryContactNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "Bus. Relation Code" = '' in Marketing Setup
         MarketingSetup.Validate("Bus. Rel. Code for Customers", '');
@@ -477,7 +477,7 @@ codeunit 134825 "UT Customer Table"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 235731] The error is shown when trying to delete Customer with outstanding Sales Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice for Customer "C"
         // [WHEN] Trying to delete "C"
@@ -491,7 +491,7 @@ codeunit 134825 "UT Customer Table"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 235731] The error is shown when trying to delete Customer with outstanding Sales Quote.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote for Customer "C"
         // [WHEN] Trying to delete "C"
@@ -505,7 +505,7 @@ codeunit 134825 "UT Customer Table"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 235731] The error is shown when trying to delete Customer with outstanding Sales Credit Memo.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo for Customer "C"
         // [WHEN] Trying to delete "C"
@@ -519,7 +519,7 @@ codeunit 134825 "UT Customer Table"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 235731] The error is shown when trying to delete Customer with outstanding Sales Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order for Customer "C"
         // [WHEN] Trying to delete "C"
@@ -533,7 +533,7 @@ codeunit 134825 "UT Customer Table"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO 235731] The error is shown when trying to delete Customer with outstanding Sales Return Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order for Customer "C"
         // [WHEN] Trying to delete "C"
@@ -547,7 +547,7 @@ codeunit 134825 "UT Customer Table"
     begin
         // [FEATURE] [Sales] [Blanket Order]
         // [SCENARIO 235731] The error is shown when trying to delete Customer with outstanding Sales Blanket Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Blanket Order for Customer "C"
         // [WHEN] Trying to delete "C"
@@ -562,7 +562,7 @@ codeunit 134825 "UT Customer Table"
         Customer: Record Customer;
     begin
         // [SCENARIO 321935] The error is shown when trying to enter letters in the Phone No. field.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created a Customer
         LibrarySales.CreateCustomer(Customer);
@@ -586,7 +586,7 @@ codeunit 134825 "UT Customer Table"
         RandomText1: Text[100];
         RandomText2: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         RandomText1 := 'aaa';
         RandomText2 := 'AAA';
@@ -749,13 +749,16 @@ codeunit 134825 "UT Customer Table"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Customer Table");
         Customer.DeleteAll();
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT Customer Table");
 
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         isInitialized := true;
@@ -814,13 +817,7 @@ codeunit 134825 "UT Customer Table"
     local procedure UpdateSalesReceivablesSetupNoS()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Sales);
-        GenJournalTemplate.Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode);
-        GenJournalTemplate.Modify(true);
-
         with SalesReceivablesSetup do begin
             Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -831,8 +828,6 @@ codeunit 134825 "UT Customer Table"
             Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Journal Templ. Sales Invoice", GenJournalTemplate.Name);
-            Validate("Journal Templ. Sales Cr. Memo", GenJournalTemplate.Name);
             Modify(true);
         end;
     end;

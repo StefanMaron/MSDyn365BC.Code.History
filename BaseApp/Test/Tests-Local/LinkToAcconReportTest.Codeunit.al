@@ -56,11 +56,11 @@ codeunit 144047 LinkToAcconReportTest
         // Run the report
         ServerFilename := FileMgt.ServerTempFileName('TXT');
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false);
 
         LinkToAccon.InitializeRequest(ServerFilename);
-        LinkToAccon.Run;
+        LinkToAccon.Run();
 
         // Validate
         // * File is created
@@ -136,11 +136,11 @@ codeunit 144047 LinkToAcconReportTest
         // Run the report
         ServerFilename := FileMgt.ServerTempFileName('TXT');
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(true);
 
         LinkToAccon.InitializeRequest(ServerFilename);
-        LinkToAccon.Run;
+        LinkToAccon.Run();
 
         // Validate
         // * File is created

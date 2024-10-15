@@ -89,7 +89,7 @@ table 9009 "Permission Set Buffer"
         Reset();
         DeleteAll();
 
-        if AggregatePermissionSet.FindSet then
+        if AggregatePermissionSet.FindSet() then
             repeat
                 // do not show permission sets for hidden extensions                
                 if StrPos(UpperCase(AggregatePermissionSet."App Name"), UpperCase('_Exclude_')) <> 1 then begin

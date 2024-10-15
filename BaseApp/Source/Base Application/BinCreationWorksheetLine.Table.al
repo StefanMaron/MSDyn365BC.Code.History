@@ -360,7 +360,7 @@ table 7338 "Bin Creation Worksheet Line"
                     Commit();
                 end;
             1:
-                BinCreateWkshTemplate.FindFirst;
+                BinCreateWkshTemplate.FindFirst();
             else
                 WkshSelected := PAGE.RunModal(0, BinCreateWkshTemplate) = ACTION::LookupOK;
         end;
@@ -427,9 +427,9 @@ table 7338 "Bin Creation Worksheet Line"
         if not BinCreateWkshName.Find('-') then begin
             for BinCreateWkshTemplate.Type := BinCreateWkshTemplate.Type::Bin to BinCreateWkshTemplate.Type::"Bin Content" do begin
                 BinCreateWkshTemplate.SetRange(Type, BinCreateWkshTemplate.Type);
-                if not BinCreateWkshTemplate.FindFirst then
+                if not BinCreateWkshTemplate.FindFirst() then
                     TemplateSelection(0, BinCreateWkshTemplate.Type, BinCreateWkshLine, JnlSelected);
-                if BinCreateWkshTemplate.FindFirst then
+                if BinCreateWkshTemplate.FindFirst() then
                     CheckTemplateName(BinCreateWkshTemplate.Name, BinCreateWkshName.Name, BinCreateWkshName."Location Code");
             end;
             if BinCreateWkshName.Find('-') then;
@@ -451,7 +451,7 @@ table 7338 "Bin Creation Worksheet Line"
             exit;
 
         BinCreateWkshName.SetRange(Name);
-        if not BinCreateWkshName.FindFirst then begin
+        if not BinCreateWkshName.FindFirst() then begin
             BinCreateWkshName.Init();
             BinCreateWkshName."Worksheet Template Name" := CurrentWkshTemplateName;
             BinCreateWkshName.SetupNewName;

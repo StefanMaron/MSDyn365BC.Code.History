@@ -15,8 +15,9 @@ report 1085 "Job Post WIP to G/L"
 
             trigger OnAfterGetRecord()
             begin
-                JobCalculateWIP.CalcGLWIP("No.", JustReverse, DocNo, PostingDate, ReplacePostDate,
-                  GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                if GLSetup."Journal Templ. Name Mandatory" then
+                    JobCalculateWIP.SetGenJnlBatch(GenJnlBatch);
+                JobCalculateWIP.CalcGLWIP("No.", JustReverse, DocNo, PostingDate, ReplacePostDate);
             end;
         }
     }
@@ -55,40 +56,38 @@ report 1085 "Job Post WIP to G/L"
                         Caption = 'Use Reversal Date';
                         ToolTip = 'Specifies if you want to use the reversal date as the posting date for both the reversal of the previous WIP calculation and the posting date for the new WIP calculation. This is useful when you want to calculate and post the historical WIP for a period that is already closed. You can reverse the old postings and post the new calculation in an open period by choosing a reversal date in the open period.';
                     }
-                    field(JnlTemplateName; GenJnlLine."Journal Template Name")
+                    field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Journal Template Name';
                         TableRelation = "Gen. Journal Template";
                         ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
 
                         trigger OnValidate()
                         begin
-                            GenJnlLine."Journal Batch Name" := '';
+                            GenJnlLineReq."Journal Batch Name" := '';
                         end;
                     }
-                    field(JnlBatchName; GenJnlLine."Journal Batch Name")
+                    field(JnlBatchName; GenJnlLineReq."Journal Batch Name")
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Journal Batch Name';
                         ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
 
                         trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
                         begin
-                            GenJnlLine.TestField("Journal Template Name");
-                            GenJnlTemplate.Get(GenJnlLine."Journal Template Name");
-                            GenJnlBatch.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
-                            GenJnlBatch."Journal Template Name" := GenJnlLine."Journal Template Name";
-                            GenJnlBatch.Name := GenJnlLine."Journal Batch Name";
-                            if PAGE.RunModal(0, GenJnlBatch) = ACTION::LookupOK then
-                                GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
                         end;
 
                         trigger OnValidate()
                         begin
-                            if GenJnlLine."Journal Batch Name" <> '' then begin
-                                GenJnlLine.TestField("Journal Template Name");
-                                GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                             end;
                         end;
                     }
@@ -104,6 +103,14 @@ report 1085 "Job Post WIP to G/L"
         var
             NewNoSeriesCode: Code[20];
         begin
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                IsJournalTemplNameVisible := true;
+                GLSetup.TestField("Job WIP Jnl. Template Name");
+                GLSetup.TestField("Job WIP Jnl. Batch Name");
+                GenJnlBatch.Get(GLSetup."Job WIP Jnl. Template Name", GLSetup."Job WIP Jnl. Batch Name");
+            end;
+
             if PostingDate = 0D then
                 PostingDate := WorkDate;
             DocNo := '';
@@ -142,20 +149,18 @@ report 1085 "Job Post WIP to G/L"
         if PostingDate = 0D then
             PostingDate := WorkDate;
 
-        if GenJnlLine."Journal Template Name" = '' then
-            Error(Text11300, GenJnlLine.FieldCaption("Journal Template Name"));
-        if GenJnlLine."Journal Batch Name" = '' then
-            Error(Text11300, GenJnlLine.FieldCaption("Journal Batch Name"));
-        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
-        GenJnlBatch.TestField("No. Series");
-        DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, true);
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            GenJnlBatch.TestField("No. Series");
+            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, true);
+        end;
+
         JobCalculateBatches.BatchError(PostingDate, DocNo);
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         JobsSetup: Record "Jobs Setup";
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
         JobCalculateWIP: Codeunit "Job Calculate WIP";
         JobCalculateBatches: Codeunit "Job Calculate Batches";
@@ -165,7 +170,7 @@ report 1085 "Job Post WIP to G/L"
         JustReverse: Boolean;
         WIPSuccessfullyPostedMsg: Label 'WIP was successfully posted to G/L.';
         ReplacePostDate: Boolean;
-        Text11300: Label 'You must specify %1.';
+        IsJournalTemplNameVisible: Boolean;
 
     procedure InitializeRequest(NewDocNo: Code[20])
     begin

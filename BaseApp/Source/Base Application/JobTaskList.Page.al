@@ -108,7 +108,7 @@ page 1004 "Job Task List"
                         begin
                             CurrPage.SetSelectionFilter(JobTask);
                             JobTaskDimensionsMultiple.SetMultiJobTask(JobTask);
-                            JobTaskDimensionsMultiple.RunModal;
+                            JobTaskDimensionsMultiple.RunModal();
                         end;
                     }
                 }
@@ -154,7 +154,7 @@ page 1004 "Job Task List"
                 begin
                     if Job.Get("Job No.") then begin
                         CopyJobTasks.SetToJob(Job);
-                        CopyJobTasks.RunModal;
+                        CopyJobTasks.RunModal();
                     end;
                 end;
             }
@@ -175,7 +175,7 @@ page 1004 "Job Task List"
                 begin
                     if Job.Get("Job No.") then begin
                         CopyJobTasks.SetFromJob(Job);
-                        CopyJobTasks.RunModal;
+                        CopyJobTasks.RunModal();
                     end;
                 end;
             }

@@ -74,15 +74,15 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM WIP Costing Addnl Currency");
         // Initialize setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM WIP Costing Addnl Currency");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         isInitialized := true;
         Commit();
@@ -200,7 +200,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         // Update Residual Gains Account and Residual Losses Account for the selected Currency.
         Currency.Validate("Residual Gains Account", SelectGLAccountNo);
         Currency.Validate("Residual Losses Account", SelectGLAccountNo);
@@ -213,7 +213,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     begin
         // Select Account from General Ledger Account of type Posting.
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         exit(GLAccount."No.");
     end;
 
@@ -227,22 +227,22 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     begin
         Item.Get(ItemNo);
         InventoryPostingSetup.SetRange("Invt. Posting Group Code", Item."Inventory Posting Group");
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
 
         // Select Quantity posted from Consumption Journal.
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
 
         // Select Inventory Account and Check Amounts for Inventory Account.
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."Inventory Account");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         CheckGLEntryAmnt(GLEntry, ItemNo, ItemLedgerEntry.Quantity);
         CheckGLEntryAddnlCurrencyAmnt(CurrencyAmntRoundingPrecision, CurrencyExchangeRate, GLEntry);
 
         // Select WIP Account Check Amounts for WIP Account.
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."WIP Account");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         CheckGLEntryAmnt(GLEntry, ItemNo, Abs(ItemLedgerEntry.Quantity));
         CheckGLEntryAddnlCurrencyAmnt(CurrencyAmntRoundingPrecision, CurrencyExchangeRate, GLEntry);
     end;
@@ -280,16 +280,12 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     [ReportHandler]
     [Scope('OnPrem')]
     procedure AdjustAddnlCurrReportHandler(var AdjustAddReportingCurrency: Report "Adjust Add. Reporting Currency")
-    var
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
-        // Report Handler: Update request form with random template and batch, Retained Earnings Account and run the
+        // Report Handler: Update request form with random Document No, Retained Earnings Account and run the
         // Adjust Additional Reporting Currency report.
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        AdjustAddReportingCurrency.InitializeRequest(SelectGLAccountNo, TemplateName, BatchName);
+        AdjustAddReportingCurrency.InitializeRequest(Format(LibraryRandom.RandInt(100)), SelectGLAccountNo);
         AdjustAddReportingCurrency.UseRequestPage(false);
-        AdjustAddReportingCurrency.Run;
+        AdjustAddReportingCurrency.Run();
     end;
 }
 

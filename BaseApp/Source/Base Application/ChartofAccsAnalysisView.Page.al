@@ -232,7 +232,7 @@ page 569 "Chart of Accs. (Analysis View)"
                         begin
                             CurrPage.SetSelectionFilter(GLAcc);
                             DefaultDimMultiple.SetMultiRecord(GLAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

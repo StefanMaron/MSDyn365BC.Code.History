@@ -385,7 +385,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
         Buffer.SetRange(Year, Buffer2.Year);
         Buffer.SetRange("Month/Quarter", Buffer2."Month/Quarter");
 
-        if Buffer.FindFirst then begin
+        if Buffer.FindFirst() then begin
             Buffer.Amount := Buffer.Amount + Buffer2.Amount;
             if Buffer.Amount = 0 then
                 Buffer.Delete
@@ -584,7 +584,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
         else
             VATVIESCorrection.SetRange("Period Type", VATVIESCorrection."Period Type"::Quarter);
 
-        if VATVIESCorrection.FindFirst then
+        if VATVIESCorrection.FindFirst() then
             if not Confirm(Text012, true, ChoiceForValidation, Vquarter, Vyear) then
                 Error('');
     end;

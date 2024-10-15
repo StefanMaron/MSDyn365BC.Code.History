@@ -105,16 +105,36 @@ page 101 "General Journal Templates"
                                 Error(Text002);
                     end;
                 }
+                field("Allow Posting Date From"; "Allow Posting Date From")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the earliest date when posting to the journal template is allowed.';
+                }
+                field("Allow Posting Date To"; "Allow Posting Date To")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last date when posting to the journal template is allowed.';
+                }
+#if not CLEAN20
                 field("Allow Posting From"; "Allow Posting From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest date when posting to the journal template is allowed.';
+                    ObsoleteReason = 'Replaced by Allow Posting Date From';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Allow Posting To"; "Allow Posting To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date when posting to the journal template is allowed.';
+                    ObsoleteReason = 'Replaced by Allow Posting Date To';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
+#endif
                 field("Page ID"; "Page ID")
                 {
                     ApplicationArea = Suite;

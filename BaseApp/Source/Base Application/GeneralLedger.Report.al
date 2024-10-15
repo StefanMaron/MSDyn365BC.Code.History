@@ -46,7 +46,7 @@ report 11302 "General Ledger"
                 dataitem("G/L Entry"; "G/L Entry")
                 {
                     DataItemLinkReference = PeriodLoop;
-                    DataItemTableView = SORTING("Journal Template Name", "Posting Date", "Document No.");
+                    DataItemTableView = SORTING("Journal Templ. Name", "Posting Date", "Document No.");
                     column(ReportFilter_GLEntry; ReportFilter)
                     {
                     }
@@ -185,9 +185,9 @@ report 11302 "General Ledger"
                         then
                             CurrReport.Skip();
 
-                        if OldName <> "Journal Template Name" then begin
+                        if OldName <> "Journal Templ. Name" then begin
                             OldDate := 0D;
-                            OldName := "Journal Template Name";
+                            OldName := "Journal Templ. Name";
                         end;
 
                         if OldDate <> "Posting Date" then begin
@@ -247,7 +247,7 @@ report 11302 "General Ledger"
                                     if VATDetail.Next <> 0 then
                                         MultipleVATEntries := MultipleVATEntries + 1;
                                 end else
-                                    if VATDetail.FindSet then
+                                    if VATDetail.FindSet() then
                                         MultipleVATEntries := MultipleVATEntries + 1;
                             end;
                         end;
@@ -255,7 +255,7 @@ report 11302 "General Ledger"
 
                     trigger OnPreDataItem()
                     begin
-                        "G/L Entry".SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                        "G/L Entry".SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                         "G/L Entry".SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
                     end;
                 }
@@ -267,8 +267,8 @@ report 11302 "General Ledger"
                     var
                         GLEntry: Record "G/L Entry";
                     begin
-                        GLEntry.SetCurrentKey("Journal Template Name", "Posting Date", "Document No.");
-                        GLEntry.SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                        GLEntry.SetCurrentKey("Journal Templ. Name", "Posting Date", "Document No.");
+                        GLEntry.SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                         GLEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
 
                         if GLEntry.IsEmpty() then
@@ -294,7 +294,7 @@ report 11302 "General Ledger"
                     dataitem("<G/L Entry2>"; "G/L Entry")
                     {
                         DataItemLinkReference = "Gen. Journal Template";
-                        DataItemTableView = SORTING("Journal Template Name", "G/L Account No.", "Posting Date", "Document Type");
+                        DataItemTableView = SORTING("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
                         column(GLAccNo_GLEntry2; "G/L Account No.")
                         {
                         }
@@ -366,7 +366,7 @@ report 11302 "General Ledger"
                     dataitem("VAT Entry"; "VAT Entry")
                     {
                         DataItemLinkReference = "Gen. Journal Template";
-                        DataItemTableView = SORTING("Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
+                        DataItemTableView = SORTING("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
                         column(UseAmtsInAddCurrVATSum; UseAmtsInAddCurr)
                         {
                         }
@@ -434,7 +434,7 @@ report 11302 "General Ledger"
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange("Journal Template Name", "Gen. Journal Template".Name);
+                            SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                             "G/L Entry".CopyFilter("Posting Date", "Posting Date");
 
                             VATSumBuffer.DeleteAll();

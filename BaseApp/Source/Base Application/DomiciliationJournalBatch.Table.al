@@ -70,10 +70,10 @@ table 2000021 "Domiciliation Journal Batch"
     begin
         DomiciliationJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         DomiciliationJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        if DomiciliationJnlLine.FindFirst then
+        if DomiciliationJnlLine.FindFirst() then
             repeat
                 DomiciliationJnlLine.Rename("Journal Template Name", Name, DomiciliationJnlLine."Line No.");
-            until not DomiciliationJnlLine.FindFirst;
+            until not DomiciliationJnlLine.FindFirst();
     end;
 
     var

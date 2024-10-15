@@ -20,7 +20,6 @@ codeunit 2190 "O365 Sales Web Service"
         InvoiceCreatedTypeTxt: Label 'InvoiceSent', Locked = true;
         InvoicePaidTypeTxt: Label 'InvoicePaid', Locked = true;
         InvoiceDraftTypeTxt: Label 'NewInvoice', Locked = true;
-        InvoiceOverdueTypeTxt: Label 'InvoiceOverdue', Locked = true;
         InvoiceInactivityTypeTxt: Label 'InvoiceInactivity', Locked = true;
         InvoiceEmailFailedTypeTxt: Label 'InvoiceEmailFailed', Locked = true;
         EstimateSentTypeTxt: Label 'EstimateSent', Locked = true;
@@ -76,9 +75,7 @@ codeunit 2190 "O365 Sales Web Service"
         ActivityLog: Record "Activity Log";
         O365SalesGraph: Record "O365 Sales Graph";
         O365SalesEvent: Record "O365 Sales Event";
-        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         OutStr: OutStream;
-        ContactGraphId: Text[250];
         ConnectionId: Text;
     begin
         if not O365SalesEvent.IsEventTypeEnabled(O365SalesEvent.Type::"Invoice Overdue") then
@@ -90,8 +87,6 @@ codeunit 2190 "O365 Sales Web Service"
         if SalesInvoiceHeader."Due Date" > Today then
             exit;
 
-        ContactGraphId := GetGraphIdForContactFromInvoice(SalesInvoiceHeader);
-
         ConnectionId := Format(CreateGuid);
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
@@ -99,7 +94,6 @@ codeunit 2190 "O365 Sales Web Service"
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
-        InitializeO365SalesGraphForDocuments(O365SalesGraph, InvoiceOverdueTypeTxt, Format(SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader)), ContactGraphId);
         O365SalesGraph.Details.CreateOutStream(OutStr, TEXTENCODING::UTF8);
         if not GetOverdueDetails(InvoiceNo, OutStr) then
             exit;
@@ -774,46 +768,6 @@ codeunit 2190 "O365 Sales Web Service"
         Error(MissingEndpointErr);
     end;
 
-    local procedure GetGraphIdForContactFromInvoice(SalesInvoiceHeader: Record "Sales Invoice Header"): Text[250]
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        ContactBusinessRelation: Record "Contact Business Relation";
-        GraphContactId: Text[250];
-    begin
-        Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
-
-        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        ContactBusinessRelation.SetRange("No.", Customer."No.");
-        if ContactBusinessRelation.FindFirst then
-            if Contact.Get(ContactBusinessRelation."Contact No.") then
-                if GraphIntegrationRecord.FindIDFromRecordID(Contact.RecordId, GraphContactId) then
-                    exit(GraphContactId);
-
-        exit('');
-    end;
-
-    local procedure GetGraphIdForContactFromSalesDoc(SalesHeader: Record "Sales Header"): Text[250]
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        ContactBusinessRelation: Record "Contact Business Relation";
-        GraphContactId: Text[250];
-    begin
-        Customer.Get(SalesHeader."Sell-to Customer No.");
-
-        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        ContactBusinessRelation.SetRange("No.", Customer."No.");
-        if ContactBusinessRelation.FindFirst then
-            if Contact.Get(ContactBusinessRelation."Contact No.") then
-                if GraphIntegrationRecord.FindIDFromRecordID(Contact.RecordId, GraphContactId) then
-                    exit(GraphContactId);
-
-        exit('');
-    end;
-
     local procedure GetIdsIfValidInvoice(InvoiceNo: Code[20]; var ContactGraphId: Text[250]; var ConnectionId: Text; var SalesInvoiceHeaderId: Text[60]): Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -822,7 +776,7 @@ codeunit 2190 "O365 Sales Web Service"
         if not SalesInvoiceHeader.Get(InvoiceNo) then
             exit(false);
 
-        ContactGraphId := GetGraphIdForContactFromInvoice(SalesInvoiceHeader);
+        Clear(ContactGraphId);
         ConnectionId := Format(CreateGuid);
         SalesInvoiceHeaderId := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
 
@@ -839,7 +793,7 @@ codeunit 2190 "O365 Sales Web Service"
         if IsNullGuid(SalesHeader.SystemId) then
             exit(false);
 
-        ContactGraphId := GetGraphIdForContactFromSalesDoc(SalesHeader);
+        Clear(ContactGraphId);
         ConnectionId := Format(CreateGuid);
         SalesHeaderId := Format(SalesHeader.SystemId);
 
@@ -855,14 +809,14 @@ codeunit 2190 "O365 Sales Web Service"
 
     local procedure InitializeO365SalesGraphForKPIs(var O365SalesGraph: Record "O365 Sales Graph"; Type: Text[60])
     begin
-        O365SalesGraph.Initialize;
+        O365SalesGraph.Initialize();
         O365SalesGraph.Type := Type;
         O365SalesGraph.Kind := KpiKindTxt;
     end;
 
     local procedure InitializeO365SalesGraph(var O365SalesGraph: Record "O365 Sales Graph"; Type: Text[60])
     begin
-        O365SalesGraph.Initialize;
+        O365SalesGraph.Initialize();
         O365SalesGraph.Type := Type;
         O365SalesGraph.Kind := ActivityKindTxt;
         O365SalesGraph.SetEmployeeIdToCurrentUser;

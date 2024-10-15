@@ -28,7 +28,6 @@ codeunit 11300 VATLogicalTests
         Text11319: Label 'OK';
         Text11320: Label '13. There is/are row(s) with negative amounts';
 
-    [Scope('OnPrem')]
     procedure CheckNo(No: Text[20]): Boolean
     var
         Vatno: Text[20];
@@ -44,7 +43,6 @@ codeunit 11300 VATLogicalTests
         exit(WorkVatNo = Ctrl);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckForErrors(NoOfPeriods: Integer; Row: array[99, 12] of Decimal; Errormargin: Decimal; December: Integer; var Control: array[14] of Text[250]; var CheckList: array[14, 12] of Text[30])
     var
         i: Integer;
@@ -102,7 +100,6 @@ codeunit 11300 VATLogicalTests
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckEnterpriseNoFormat(EnterpriseNo: Text[50]): Boolean
     begin
         EnterpriseNo := UpperCase(DelChr(EnterpriseNo, '=', '0123456789,?;.:/-_ '));
@@ -111,7 +108,6 @@ codeunit 11300 VATLogicalTests
         exit(true);
     end;
 
-    [Scope('OnPrem')]
     procedure Test(TestNo: Integer; LogicalTest: Boolean; Period: Integer; var MyCheckList: array[14, 12] of Text[30])
     begin
         if LogicalTest then
