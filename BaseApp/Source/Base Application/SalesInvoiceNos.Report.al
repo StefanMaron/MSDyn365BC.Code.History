@@ -3,6 +3,9 @@ report 124 "Sales Invoice Nos."
     DefaultLayout = RDLC;
     RDLCLayout = './SalesInvoiceNos.rdlc';
     Caption = 'Sales Invoice Nos.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Infrequently used report.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

@@ -752,6 +752,9 @@ table 5505 "Sales Quote Entity Buffer"
         if IsNullGuid("Customer Id") then
             exit(false);
 
+        if not GraphIntContact.IsUpdateContactIdEnabled() then
+            exit(false);
+
         Customer.SetRange(Id, "Customer Id");
         if not Customer.FindFirst then
             exit(false);
