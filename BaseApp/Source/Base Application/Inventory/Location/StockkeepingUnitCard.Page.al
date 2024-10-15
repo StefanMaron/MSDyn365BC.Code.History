@@ -33,6 +33,10 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Planning;
                     Importance = Promoted;
                     ToolTip = 'Specifies the item number to which the SKU applies.';
+                    trigger OnValidate()
+                    begin
+                        EnableControls();
+                    end;
                 }
                 field(Description; Rec.Description)
                 {
