@@ -178,7 +178,6 @@ page 624 "Unapply Vendor Entries"
 
                 trigger OnAction()
                 var
-                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
                     ConfirmManagement: Codeunit "Confirm Management";
                 begin
@@ -207,7 +206,6 @@ page 624 "Unapply Vendor Entries"
 
                 trigger OnAction()
                 var
-                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
                 begin
                     if Rec.IsEmpty() then
@@ -248,6 +246,7 @@ page 624 "Unapply Vendor Entries"
     protected var
         DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";
         Vend: Record Vendor;
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         DocNo: Code[20];
         PostingDate: Date;
         VendLedgEntryNo: Integer;

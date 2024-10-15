@@ -62,6 +62,7 @@
         BOMLineNoAndProdOrderBOMLineNoMustNotMatchErr: Label 'BOM Line No. and Prod. Order BOM Line No. must not match.';
         ItemFiltersLbl: Label '%1|%2', Comment = '%1 = Item, %2 = Item 2';
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1 = Quantity, %2 = Minimum Order Quanity, %3 = Requisition Line';
+        MPSOrderErr: Label '%1 must be true', Comment = '%1 = MPS Order';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -4671,6 +4672,58 @@
                 RequisitionLine.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure MPSTrueWhenCalcRegnPlanForSafetyStockItemAndOrderWithinDueDate()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        SafetyStockQty: Decimal;
+        OldCombinedMPSMRPCalculation: Boolean;
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [SCENARIO 502028] A basic item is planned with MRP when just a safety stock demand is available and
+        // with MPS as soon as a second demand is available from a sales order.
+        Initialize();
+
+        // [GIVEN] Set "Combined MPS/MRP Calculation" as false in Manufacturing Setup
+        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);
+
+        // [GIVEN] Generate and save Safety Stock Quantity in a Variable.
+        SafetyStockQty := LibraryRandom.RandIntInRange(5, 5);
+
+        // [GIVEN] Create Safety Stock Item with Lot-for-Lot Reordering Policy.
+        CreateSafetyStockItem(Item, SafetyStockQty);
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create Sales Lines with Item
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 1));
+
+
+        // [WHEN] Run Regenerative plan report
+        StartDate := DMY2Date(01, 01, Date2DMY(WorkDate(), 3));
+        EndDate := DMY2Date(31, 12, Date2DMY(WorkDate(), 3));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartDate, EndDate);
+
+        // [WHEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindLast();
+
+        // [THEN] Verify: MPS is true
+        Assert.IsTrue(
+            RequisitionLine."MPS Order",
+            StrSubstNo(MPSOrderErr, RequisitionLine.FieldCaption("MPS Order")));
+
+        // Teardown
+        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -4872,7 +4925,11 @@
         Item.Modify(true);
     end;
 
-    local procedure CreateSKU(Item: Record Item; LocationCode: Code[10]; RepSystem: Enum "Replenishment System"; ReordPolicy: Enum "Reordering Policy"; FromLocation: Code[10]; IncludeInventory: Boolean; ReschedulingPeriod: Text; SafetyLeadTime: Text)
+    local procedure CreateSKU(Item: Record Item; LocationCode: Code[10]; RepSystem: Enum "Replenishment System"; ReordPolicy: Enum "Reordering Policy";
+                                                                                        FromLocation: Code[10];
+                                                                                        IncludeInventory: Boolean;
+                                                                                        ReschedulingPeriod: Text;
+                                                                                        SafetyLeadTime: Text)
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
@@ -4897,7 +4954,10 @@
         end;
     end;
 
-    local procedure CreateSKUForLocationWithReplenishmentSystemAndReorderingPolicy(ItemNo: Code[20]; LocationCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System"; TransferFromCode: Code[10]; ReorderingPolicy: Enum "Reordering Policy"; ReorderQuantity: Decimal; SafetyStockQuantity: Decimal)
+    local procedure CreateSKUForLocationWithReplenishmentSystemAndReorderingPolicy(ItemNo: Code[20]; LocationCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System"; TransferFromCode: Code[10];
+                                                                                                                                                      ReorderingPolicy: Enum "Reordering Policy";
+                                                                                                                                                      ReorderQuantity: Decimal;
+                                                                                                                                                      SafetyStockQuantity: Decimal)
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
@@ -4910,7 +4970,9 @@
         StockkeepingUnit.Modify(true);
     end;
 
-    local procedure CreateItemWithReorderPoint(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReorderPoint: Decimal; MaximumInventory: Decimal)
+    local procedure CreateItemWithReorderPoint(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System";
+                                                                                            ReorderPoint: Decimal;
+                                                                                            MaximumInventory: Decimal)
     begin
         CreateItem(Item, ReorderingPolicy, ReplenishmentSystem);
         Item.Validate("Reorder Point", ReorderPoint);
@@ -4918,7 +4980,9 @@
         Item.Modify(true);
     end;
 
-    local procedure CreateItemWithReorderPointAndQuantity(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; ReorderPoint: Decimal; ReorderQuantity: Decimal)
+    local procedure CreateItemWithReorderPointAndQuantity(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System";
+                                                                                                       ReorderPoint: Decimal;
+                                                                                                       ReorderQuantity: Decimal)
     begin
         CreateItem(Item, ReorderingPolicy, ReplenishmentSystem);
         Item.Validate("Reorder Point", ReorderPoint);
@@ -5659,7 +5723,9 @@
         NewDate := CalcDate('<' + Format(Month) + 'M>', WorkDate());
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Status: Enum "Production Order Status"; Quantity: Decimal; NewDueDate: Boolean; DueDate: Date)
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Status: Enum "Production Order Status"; Quantity: Decimal;
+                                                                                                                                  NewDueDate: Boolean;
+                                                                                                                                  DueDate: Date)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
         if NewDueDate then begin
@@ -5786,11 +5852,12 @@
         RequisitionLine.Modify(true);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20];
+                                                                                                                                                             Quantity: Decimal)
     begin
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
-          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
+ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
     end;
 
     local procedure AreSameMessages(Message: Text[1024]; Message2: Text[1024]): Boolean
@@ -5955,7 +6022,9 @@
         Assert.RecordCount(TransferLine, NoOfLines);
     end;
 
-    local procedure UpdateRequisitionLine(var RequisitionLine: Record "Requisition Line"; ReqLineType: Enum "Requisition Line Type"; ItemNo: Code[20]; UoM: Code[10]; Quantity: Decimal)
+    local procedure UpdateRequisitionLine(var RequisitionLine: Record "Requisition Line"; ReqLineType: Enum "Requisition Line Type"; ItemNo: Code[20];
+                                                                                                           UoM: Code[10];
+                                                                                                           Quantity: Decimal)
     begin
         RequisitionLine.Validate(Type, ReqLineType);
         RequisitionLine.Validate("No.", ItemNo);
@@ -6245,7 +6314,7 @@
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         Item.Init();
-        Item."No." := Format(LibraryRandom.RandText(4));
+        Item."No." := LibraryUtility.GenerateRandomCode20(Item.FieldNo("No."), DATABASE::Item);
         Item.Insert(true);
 
         LibraryInventory.CreateItemUnitOfMeasure(
@@ -6307,7 +6376,7 @@
         var UnitOfMeasure: Record "Unit of Measure";
         var ItemUnitOfMeasure: Record "Item Unit of Measure";
         ReplenishmentSystem: Enum "Replenishment System";
-        ReorderPolicy: Enum "Reordering Policy")
+                                 ReorderPolicy: Enum "Reordering Policy")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -6367,6 +6436,14 @@
         Item.Validate("Minimum Order Quantity", LibraryRandom.RandIntInRange(50, 50));
         Item.Validate("Order Multiple", LibraryRandom.RandIntInRange(10, 10));
         Evaluate(Item."Lot Accumulation Period", '5D');
+        Item.Modify(true);
+    end;
+
+    local procedure CreateSafetyStockItem(var Item: Record Item; SafetyStockQty: Decimal)
+    begin
+        CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::Purchase);
+        Item.Validate("Safety Stock Quantity", SafetyStockQty);
+        Item.Validate("Include Inventory", true);
         Item.Modify(true);
     end;
 
