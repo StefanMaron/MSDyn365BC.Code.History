@@ -412,10 +412,10 @@
                                 "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
                                     CalculateSalesTax; // NAVCZ
                             end;
-                            NextVATEntryNo := NextVATEntryNo + 1;
+                            NextVATEntryNo := GetSettlementVATEntryNo(PostSettlement);
 
                             // Close current VAT entries
-                            if PostSettlement then begin
+                            if PostSettlement and (NextVATEntryNo <> 0) then begin
                                 VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
                                 VATEntry.ModifyAll("VAT Settlement No.", CopyStr(DocNo, 1, MaxStrLen(VATEntry."VAT Settlement No."))); // NAVCZ
                                 VATEntry.ModifyAll(Closed, true);
@@ -955,6 +955,22 @@
         GenJnlLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         GenJnlLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+    end;
+
+    local procedure GetSettlementVATEntryNo(PostVATSettlement: Boolean): Integer
+    var
+        NextAvailableVATEntryNo: Integer;
+        LastPostedVATEntryNo: Integer;
+    begin
+        if PostVATSettlement then begin
+            NextAvailableVATEntryNo := GenJnlPostLine.GetNextVATEntryNo();
+            if NextAvailableVATEntryNo <> 0 then
+                LastPostedVATEntryNo := NextAvailableVATEntryNo - 1;
+            exit(LastPostedVATEntryNo);
+        end;
+
+        NextVATEntryNo += 1;
+        exit(NextVATEntryNo);
     end;
 
     [IntegrationEvent(false, false)]

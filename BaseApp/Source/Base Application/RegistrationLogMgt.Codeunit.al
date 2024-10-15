@@ -8,7 +8,7 @@ codeunit 11798 "Registration Log Mgt."
     var
         ServiceConditionsURLTxt: Label 'http://wwwinfo.mfcr.cz/ares/ares_podminky.html.cz', Locked = true;
         ValidRegNoQst: Label 'The  registration number is valid. Do you want to update information on the card?';
-        InvalidRegNoMsg: Label 'We didn''t find a match for this number. Verify that you entered the correct number.';
+        InvalidRegNoMsg: Label 'We didn''t find a match for this VAT registration number. Please verify that you specified the right number.';
         NotVerifiedRegNoMsg: Label 'We couldn''t verify the registration number. Try again later.';
         DescriptionLbl: Label 'Reg. No. Validation Service Setup';
 

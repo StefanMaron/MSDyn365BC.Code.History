@@ -18,9 +18,13 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
         VATDiffErrorOnGenJnlLine: Label 'The %1 must not be more than %2.';
         VerificationType: Option "VAT Base","VAT Diff. Positive","VAT Diff. Negative",Posting;
+        DocumentType: Enum "Gen. Journal Document Type";
+        AccountType: Enum "Gen. Journal Account Type";
+        VATCalculationType: Enum "Tax Calculation Type";
         ExpectedMessage: Label 'Do you want to update the Allow VAT Difference field on all Gen. Journal Batches?';
         VATAmountError: Label '%1 must be %2 in \\%3 %4=%5.';
         VATEntryFieldErr: Label 'Wrong "VAT Entry" field "%1" value.';
@@ -306,6 +310,92 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         VerifyVATEntryExists(Vendor."Country/Region Code", Vendor."VAT Registration No.");
     end;
 
+    [Test]
+    procedure VATAmountLCYOnGenJnlLineWhenCurrencyAndSpecificAmount()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        GLAccountNo: Code[20];
+        CurrencyCode: Code[10];
+        VATRate: Decimal;
+        Amount: Decimal;
+        RelationalExchRateAmount: Decimal;
+    begin
+        // [SCENARIO 400663] VAT Amount (LCY) and VAT Base Amount (LCY) of General Journal Line when Currency is set and Currency Exch. Rate and Gen. Jnl. Line Amount have specific values.
+        Initialize();
+
+        // [GIVEN] Currency "C" with Relational Exch. Rate Amount = 25.657.
+        RelationalExchRateAmount := 25.657;
+        CurrencyCode := CreateCurrencyWithRelationalExchRate(RelationalExchRateAmount);
+
+        // [GIVEN] VAT Posting Setup with VAT Rate = 25%.
+        // [GIVEN] G/L Account "G" with VAT Bus./Prod. Posting Groups from VAT Posting Setup.
+        VATRate := 25.0;
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", VATRate);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [WHEN] Create General Journal Line with G/L Account "G", Currency "C" and Amount = 1111.11.
+        Amount := 1111.11;
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType::" ",
+            AccountType::"G/L Account", GLAccountNo, AccountType::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+
+        // [THEN] VAT Amount (LCY) = 5701.55; VAT Base Amount (LCY) = 22806.20; Amount (LCY) = 28507.75.
+        GenJournalLine.TestField("VAT Amount (LCY)", 5701.55);
+        GenJournalLine.TestField("VAT Base Amount (LCY)", 22806.20);
+        GenJournalLine.TestField("Amount (LCY)", 28507.75);
+    end;
+
+    [Test]
+    procedure AmountOnVATEntryWhenGenJnlLinePostedWithCurrencyAndSpecificAmount()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+        GLAccount: Record "G/L Account";
+        GLAccountNo: Code[20];
+        CurrencyCode: Code[10];
+        VATRate: Decimal;
+        Amount: Decimal;
+        RelationalExchRateAmount: Decimal;
+    begin
+        // [SCENARIO 400663] Amount and Base of VAT Entry after General Journal Line with Currency and specific Currency Exch. Rate and Amount is posted.
+        Initialize();
+
+        // [GIVEN] Currency "C" with Relational Exch. Rate Amount = 25.657.
+        RelationalExchRateAmount := 25.657;
+        CurrencyCode := CreateCurrencyWithRelationalExchRate(RelationalExchRateAmount);
+
+        // [GIVEN] VAT Posting Setup with VAT Rate = 25%.
+        // [GIVEN] G/L Account "G" with VAT Bus./Prod. Posting Groups from VAT Posting Setup.
+        VATRate := 25.0;
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", VATRate);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [GIVEN] General Journal Line with G/L Account "G", Currency "C" and Amount = 1111.11.
+        Amount := 1111.11;
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType::" ",
+            AccountType::"G/L Account", GLAccountNo, AccountType::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Post General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] VAT Entry with Amount  = 5701.55 and Base = 22806.20 was created.
+        FindVATEntry(VATEntry, DocumentType::" ", GenJournalLine."Document No.");
+        VATEntry.TestField(Amount, 5701.55);
+        VATEntry.TestField(Base, 22806.20);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -335,6 +425,21 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
+        exit(Currency.Code);
+    end;
+
+    local procedure CreateCurrencyWithRelationalExchRate(RelationalExchRateAmount: Decimal): Code[10]
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1.0, 1.0);
+
+        CurrencyExchangeRate.Get(Currency.Code, WorkDate());
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchRateAmount);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalExchRateAmount);
+        CurrencyExchangeRate.Modify(true);
         exit(Currency.Code);
     end;
 
@@ -491,6 +596,13 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
             SetRange("Vendor No.", VendorNo);
             FindFirst;
         end;
+    end;
+
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
+    begin
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
     end;
 
     local procedure GetVATAmountACY(DocumentNo: Code[20]; CurrencyCode: Code[10]): Decimal

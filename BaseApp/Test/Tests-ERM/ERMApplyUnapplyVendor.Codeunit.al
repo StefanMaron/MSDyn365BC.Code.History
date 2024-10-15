@@ -1284,6 +1284,95 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         VATEntry.TestField("Additional-Currency Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,AdjustExchangeRatesReportHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchangeRates()
+    var
+        Currency: Record Currency;
+        Vendor: Record Vendor;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntryPayment: Record "Vendor Ledger Entry";
+        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
+    begin
+        // [FEATURE] [Adjust Exchange Rate] [FCY] [Unapply] [Apply]
+        // [SCENARIO 399430] Stan can Unapply vendor's payment that is applied to multiple invoices with different currency rates and multiple currency rate adjustment.
+        Initialize();
+
+        PrepareCurrency(Currency, 0);
+
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 8, 2020), 0.12901, 0.12901);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 9, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 10, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 11, 2020), 0.12905, 0.12905);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 12, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 1, 2021), 0.12903, 0.12903);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
+
+        SelectGenJournalBatch(GenJournalBatch);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(19, 8, 2020),
+          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -400);
+
+        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(30, 9, 2020), DMY2Date(30, 9, 2020));
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -850);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -250);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(17, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -244140);
+
+        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(30, 11, 2020), DMY2Date(30, 11, 2020));
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(7, 1, 2021),
+          GenJournalLine."Document Type"::Payment, Vendor."No.", Currency.Code, 77280);
+
+        VendorLedgerEntryPayment.SetRange("Vendor No.", Vendor."No.");
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryPayment, VendorLedgerEntryPayment."Document Type"::Payment, GenJournalLine."Document No.");
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryPayment);
+
+        VendorLedgerEntryInvoice.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntryInvoice.SetRange("Document Type", VendorLedgerEntryInvoice."Document Type"::Invoice);
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryInvoice);
+
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntryPayment);
+
+        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(31, 12, 2020), DMY2Date(31, 12, 2020));
+
+        Commit();
+
+        VendorLedgerEntryPayment.Find();
+        VendorLedgerEntryPayment.TestField(Open, false);
+
+        DetailedVendorLedgEntry.SetRange("Document Type", DetailedVendorLedgEntry."Document Type"::Payment);
+        DetailedVendorLedgEntry.SetRange("Document No.", VendorLedgerEntryPayment."Document No.");
+        DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
+        DetailedVendorLedgEntry.FindLast();
+
+        VendEntryApplyPostedEntries.PostUnApplyVendor(
+          DetailedVendorLedgEntry, VendorLedgerEntryPayment."Document No.", VendorLedgerEntryPayment."Posting Date");
+
+        VendorLedgerEntryPayment.Find();
+        VendorLedgerEntryPayment.TestField(Open, true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

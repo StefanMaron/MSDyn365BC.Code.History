@@ -5507,6 +5507,7 @@
                 "VAT Date" := GenJnlLine."Posting Date";
             "Original Document VAT Date" := GenJnlLine."Original Document VAT Date";
             // NAVCZ
+            "Document Date" := GenJnlLine."Document Date";
             "Document No." := GenJnlLine."Document No.";
             "User ID" := UserId;
             "Transaction No." := NextTransactionNo;
