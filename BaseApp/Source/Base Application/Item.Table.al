@@ -6,7 +6,8 @@
     LookupPageID = "Item Lookup";
     Permissions = TableData "Service Item" = rm,
                   TableData "Service Item Component" = rm,
-                  TableData "Bin Content" = d;
+                  TableData "Bin Content" = d,
+                  TableData "Planning Assignment" = d;
 
     fields
     {
@@ -3954,6 +3955,9 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
+        if "No." = '' then
+            exit;
+
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "No.");

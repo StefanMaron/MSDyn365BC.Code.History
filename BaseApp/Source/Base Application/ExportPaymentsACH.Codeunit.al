@@ -235,7 +235,7 @@ codeunit 10090 "Export Payments (ACH)"
         EFTRecepientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
         AcctType: Text[1];
         AcctNo: Code[20];
-        AcctName: Text[16];
+        AcctName: Text[22];
         BankAcctNo: Text[30];
         TransitNo: Text[20];
         DetailRec: Text[250];
@@ -306,15 +306,15 @@ codeunit 10090 "Export Payments (ACH)"
             AddNumToPrnString(DetailRec, 6, 1, 1);            // Record Type Code
             AddTransactionCodeToDetailRec(DetailRec, DemandCredit, CustBankAcct, VendorBankAcct, AcctType);
             AddToPrnString(DetailRec, TransitNo, 4, 9, Justification::Right, ' ');                      // Receiving DFI ID
-            AddToPrnString(DetailRec, DelChr(BankAcctNo, '=', ' '), 13, 17, Justification::Left, ' ');    // DFI Account Number
-            AddAmtToPrnString(DetailRec, PaymentAmount, 30, 10);                                      // Amount
+            AddToPrnString(DetailRec, DelChr(BankAcctNo, '=', ' '), 13, 17, Justification::Left, ' ');  // DFI Account Number
+            AddAmtToPrnString(DetailRec, PaymentAmount, 30, 10);                                        // Amount
             AddToPrnString(DetailRec, AcctNo, 40, 15, Justification::Left, ' ');                        // Cust/Vendor ID Number
-            AddNumToPrnString(DetailRec, 0, 55, 4);                                                   // Addenda Record Indicator
-            AddToPrnString(DetailRec, AcctName, 59, 16, Justification::Left, ' ');                      // Cust/Vendor Name
-            AddToPrnString(DetailRec, '  ', 75, 2, Justification::Left, ' ');                           // Reserved
-            AddToPrnString(DetailRec, AcctType, 77, 2, Justification::Left, ' ');                       // Account Type (C or V)
-            AddNumToPrnString(DetailRec, 0, 79, 1);                                                   // Addenda Record Indicator
-            AddToPrnString(DetailRec, GenerateTraceNoCode(TraceNo), 80, 15, Justification::Left, ' ');  // Trace Number
+            AddNumToPrnString(DetailRec, 0, 55, 4);                                                     // Addenda Record Indicator
+            AddToPrnString(DetailRec, AcctName, 59, 22, Justification::Left, ' ');                      // Cust/Vendor Name
+            AddToPrnString(DetailRec, '  ', 81, 2, Justification::Left, ' ');                           // Reserved
+            AddToPrnString(DetailRec, AcctType, 83, 2, Justification::Left, ' ');                       // Account Type (C or V)
+            AddNumToPrnString(DetailRec, 0, 85, 1);                                                     // Addenda Record Indicator
+            AddToPrnString(DetailRec, GenerateTraceNoCode(TraceNo), 86, 15, Justification::Left, ' ');  // Trace Number
 
             ExportPrnString(DetailRec);
             EntryAddendaCount := EntryAddendaCount + 1;

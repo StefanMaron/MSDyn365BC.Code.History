@@ -145,4 +145,36 @@ table 6515 "Package No. Information"
 
         exit('');
     end;
+
+    procedure ShowCard(PackageNo: Code[50]; TrackingSpecification: Record "Tracking Specification")
+    var
+        PackageNoInfoNew: Record "Package No. Information";
+        PackageNoInfoCard: Page "Package No. Information Card";
+    begin
+        Clear(PackageNoInfoCard);
+        PackageNoInfoCard.Init(TrackingSpecification);
+
+        PackageNoInfoNew.SetRange("Item No.", TrackingSpecification."Item No.");
+        PackageNoInfoNew.SetRange("Variant Code", TrackingSpecification."Variant Code");
+        PackageNoInfoNew.SetRange("Package No.", PackageNo);
+
+        PackageNoInfoCard.SetTableView(PackageNoInfoNew);
+        PackageNoInfoCard.Run();
+    end;
+
+    procedure ShowCard(PackageNo: Code[50]; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    var
+        PackageNoInfoNew: Record "Package No. Information";
+        PackageNoInfoCard: Page "Package No. Information Card";
+    begin
+        Clear(PackageNoInfoCard);
+        PackageNoInfoCard.InitWhse(WhseItemTrackingLine);
+
+        PackageNoInfoNew.SetRange("Item No.", WhseItemTrackingLine."Item No.");
+        PackageNoInfoNew.SetRange("Variant Code", WhseItemTrackingLine."Variant Code");
+        PackageNoInfoNew.SetRange("Package No.", PackageNo);
+
+        PackageNoInfoCard.SetTableView(PackageNoInfoNew);
+        PackageNoInfoCard.Run();
+    end;
 }

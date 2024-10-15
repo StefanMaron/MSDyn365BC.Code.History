@@ -131,5 +131,21 @@ table 6504 "Serial No. Information"
         SerialNoInfoForm.SetTableView(SerialNoInfoNew);
         SerialNoInfoForm.Run();
     end;
+
+    procedure ShowCard(SerialNo: Code[50]; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    var
+        SerialNoInfoNew: Record "Serial No. Information";
+        SerialNoInfoForm: Page "Serial No. Information Card";
+    begin
+        Clear(SerialNoInfoForm);
+        SerialNoInfoForm.InitWhse(WhseItemTrackingLine);
+
+        SerialNoInfoNew.SetRange("Item No.", WhseItemTrackingLine."Item No.");
+        SerialNoInfoNew.SetRange("Variant Code", WhseItemTrackingLine."Variant Code");
+        SerialNoInfoNew.SetRange("Serial No.", SerialNo);
+
+        SerialNoInfoForm.SetTableView(SerialNoInfoNew);
+        SerialNoInfoForm.Run();
+    end;
 }
 
