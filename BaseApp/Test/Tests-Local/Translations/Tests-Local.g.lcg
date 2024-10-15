@@ -302,6 +302,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM FR Feature Bugs - NamedType SalesShipmentNo)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1244189908 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM INTRASTAT - NamedType AdvChecklistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1244189908 - NamedType 2417151949" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CISD must have a value in %1: Primary Key=. It cannot be zero or empty]]></Val>
@@ -309,15 +318,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM INTRASTAT - NamedType CompanyInformationCISDErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1244189908 - NamedType 1587012001" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A destination file must be specified.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM INTRASTAT - NamedType DestinationFileErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1244189908 - NamedType 1892039125" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -367,7 +367,7 @@
   </Item>
   <Item ItemId=";Codeunit 1244189908 - NamedType 2264226231" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Reported must be equal to 'No'  in Intrastat Jnl. Batch]]></Val>
+      <Val><![CDATA[This batch is already marked as reported. If you want to export an XML file for another obligation level, clear the Reported field in the Intrastat journal batch]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -435,15 +435,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM INTRASTAT - NamedType TransactionSpecificationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1244189908 - NamedType 3418094688" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1%2.XML]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM INTRASTAT - NamedType XMLPathTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1970047989 - NamedType 1390641737" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -59,14 +59,20 @@ codeunit 144032 "ERM INTRASTAT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        FileMgt: Codeunit "File Management";
+        ObligationLevel: Option ,"1","2","3","4","5";
+        IsInitialized: Boolean;
         CompanyInformationCISDErr: Label 'CISD must have a value in %1: Primary Key=. It cannot be zero or empty';
-        DestinationFileErr: Label 'A destination file must be specified.';
         EnvelopeIdTxt: Label 'envelopeId';
         FlowCodeLetterATxt: Label 'A';
         FlowCodeLetterDTxt: Label 'D';
         FlowCodeTxt: Label 'flowCode';
         FormatTxt: Label '########';
-        IntrastatJournalBatchReportedErr: Label 'Reported must be equal to ''No''  in Intrastat Jnl. Batch';
+        IntrastatJournalBatchReportedErr: Label 'This batch is already marked as reported. If you want to export an XML file for another obligation level, clear the Reported field in the Intrastat journal batch';
         IntrastatJournalLineQuantityErr: Label '%1 must be positive in %2';
         IntrastatJournalLineStatisticalErr: Label '%1 must be positive in %2';
         NothingToExportErr: Label 'There is nothing to export';
@@ -74,9 +80,7 @@ codeunit 144032 "ERM INTRASTAT"
         SuccessfullyExportedMsg: Label 'The journal lines were successfully exported';
         TotalWeightTxt: Label 'IntrastatJnlLineTotalWeight';
         TransactionSpecificationErr: Label '%1 must have a value in %2';
-        XMLPathTxt: Label '%1%2.XML';
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryXMLRead: Codeunit "Library - XML Read";
+        AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
@@ -299,185 +303,199 @@ codeunit 144032 "ERM INTRASTAT"
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
     procedure ReceiptExportDEBDTI()
     var
         CompanyInformation: Record "Company Information";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         PurchaseHeader: Record "Purchase Header";
         PurchRcptLine: Record "Purch. Rcpt. Line";
-        OldCISD: Code[10];
     begin
-        // Verify generated XML file for Type Receipt and confirmation message when XML file is successfully exported.
+        // [SCENARIO 425804] Verify generated XML file for Type Receipt and confirmation message when XML file is successfully exported.
+        Initialize();
 
-        // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
-        CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        // [GIVEN] Intrastat Journal Line with Type "Receipt" and Transaction Specification 11 (Receipt).
+        UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
+        CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDecInRange(10, 20, 2));
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '11');
 
-        // Exercise.
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
         RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
 
-        // Verify: Verify Company Information - CISD, Flow Code as A and Get Party ID on generated XML file.
-        VerifyXMLFile(IntrastatJnlLine."Journal Batch Name", CompanyInformation.CISD, FlowCodeLetterATxt, CompanyInformation.GetPartyID);
+        // [THEN] Verify Company Information - CISD, Flow Code as A and Get Party ID on generated XML file.
+        VerifyXMLFile(IntrastatJnlLine."Journal Batch Name", CompanyInformation.CISD, FlowCodeLetterATxt, CompanyInformation.GetPartyID());
 
-        // TearDown.
-        UpdateCISDOnCompanyInformation(CompanyInformation, OldCISD)
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure CISDExportDEBDTIError()
     var
         CompanyInformation: Record "Company Information";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         PurchaseHeader: Record "Purchase Header";
         PurchRcptLine: Record "Purch. Rcpt. Line";
-        OldCISD: Code[10];
     begin
-        // Verify Company Information - CISD mandatory fields behavior for DEB DTI +export Error.
+        // [SCENARIO] Verify Company Information - CISD mandatory fields behavior for DEB DTI +export Error.
+        Initialize();
 
-        // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, '');
+        // [GIVEN] Intrastat Journal Line. Company Information has blank CISD.
+        UpdateCISDOnCompanyInformation(CompanyInformation, '');
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
 
-        // Exercise.
+        // [WHEN] Run Export DEB DTI report.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
         asserterror RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
 
-        // Verify: Verify error message.
+        // [THEN] Error "CISD must have a value in Company Information" is thrown.
         Assert.ExpectedError(StrSubstNo(CompanyInformationCISDErr, CompanyInformation.TableCaption));
 
-        // TearDown.
-        UpdateCISDOnCompanyInformation(CompanyInformation, OldCISD)
+        LibraryVariableStorage.DequeueText();   // xml file name
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure TransactionSpecificationExportDEBDTIError()
     var
-        CompanyInformation: Record "Company Information";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         PurchaseHeader: Record "Purchase Header";
         PurchRcptLine: Record "Purch. Rcpt. Line";
-        OldCISD: Code[10];
     begin
-        // Verify Intrastat Journal Line - Transaction Specification mandatory fields behavior for DEB DTI +export Error.
+        // [SCENARIO] Verify Intrastat Journal Line - Transaction Specification mandatory fields behavior for DEB DTI +export Error.
+        Initialize();
 
-        // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
+        // [GIVEN] Intrastat Journal Line with Type "Receipt" and blank Transaction Specification.
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
-        UpdateTransactionSpecificationBlankIntrastatJnlLine(IntrastatJnlLine);
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '');
 
-        // Exercise.
+        // [WHEN] Run Export DEB DTI report with Obligation Level 2.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"2");
         asserterror RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
 
-        // Verify: Verify error message.
+        // [THEN] Verify error message.
         Assert.ExpectedError(
-          StrSubstNo(TransactionSpecificationErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption));
+            StrSubstNo(TransactionSpecificationErr, IntrastatJnlLine.FieldCaption("Transaction Specification"), IntrastatJnlLine.TableCaption));
 
-        // TearDown.
-        UpdateCISDOnCompanyInformation(CompanyInformation, OldCISD)
+        LibraryVariableStorage.DequeueText();   // xml file name
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure QuantityExportDEBDTIError()
+    procedure QuantityExportDEBDTIWithObligationLevel1()
     var
-        CompanyInformation: Record "Company Information";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         PurchaseHeader: Record "Purchase Header";
         PurchRcptLine: Record "Purch. Rcpt. Line";
-        OldCISD: Code[10];
     begin
-        // Verify Intrastat Journal Line - Quantity mandatory fields behavior for DEB DTI +export Error.
+        // [SCENARIO 425804] Check Quantity field of Intrastat Journal Line when Export DEB DTI report is run with Obligation Level 1.
+        Initialize();
 
-        // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
-        CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        // [GIVEN] Intrastat Journal Line with Quantity = 0, Type "Receipt" and Transaction Specification 11 (Receipt).
+        CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
-        UpdateAmountAndQuantityOnIntrastatJnlLine(IntrastatJnlLine, LibraryRandom.RandDec(10, 2), 0);  // Random value for Amount and Quantity - 0.
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '11');
+        UpdateAmountAndQuantityOnIntrastatJnlLine(IntrastatJnlLine, LibraryRandom.RandDec(10, 2), 0);  // Quantity = 0.
 
-        // Exercise.
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
         asserterror RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
 
-        // Verify: Verify error message.
+        // [THEN] Error "Quantity must be positive" is thrown.
         Assert.ExpectedError(
-          StrSubstNo(IntrastatJournalLineQuantityErr, IntrastatJnlLine.FieldCaption(Quantity), IntrastatJnlLine.TableCaption));
+            StrSubstNo(IntrastatJournalLineQuantityErr, IntrastatJnlLine.FieldCaption(Quantity), IntrastatJnlLine.TableCaption));
+        Assert.ExpectedErrorCode('TestWrapped:CSide');
 
-        // TearDown.
-        UpdateCISDOnCompanyInformation(CompanyInformation, OldCISD)
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure AmountExportDEBDTIError()
-    var
-        CompanyInformation: Record "Company Information";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        PurchaseHeader: Record "Purchase Header";
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        OldCISD: Code[10];
-    begin
-        // Verify Intrastat Journal Line - Amount mandatory fields behavior for DEB DTI +export Error.
-
-        // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);  // GUILD value for Company Information - CISD.
-        CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
-        RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
-        UpdateAmountAndQuantityOnIntrastatJnlLine(IntrastatJnlLine, 0, LibraryRandom.RandDec(10, 2));  // Amount - 0 and Random value for Quantity.
-
-        // Exercise.
-        asserterror RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
-
-        // Verify: Verify error message.
-        Assert.ExpectedError(
-          StrSubstNo(IntrastatJournalLineStatisticalErr, IntrastatJnlLine.FieldCaption("Statistical Value"), IntrastatJnlLine.TableCaption));
-
-        // TearDown.
-        UpdateCISDOnCompanyInformation(CompanyInformation, OldCISD)
-    end;
-
-    [Test]
-    [HandlerFunctions('ExportDEBDTIRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure BlankIntrastatJournalLineExportDEBDTIError()
-    var
-        CompanyInformation: Record "Company Information";
-        IntrastatJournal: TestPage "Intrastat Journal";
-        OldCISD: Code[10];
-    begin
-        // Verify Intrastat Journal Line mandatory behavior for DEB DTI +export Error.
-
-        // Setup: Update Company Information for CISD.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);  // Enqueue value for handler - ExportDEBDTIRequestPageHandler.
-
-        // Exercise.
-        IntrastatJournal.OpenEdit;
-        asserterror IntrastatJournal."Export DEB DTI+".Invoke;  // Opens handler - ExportDEBDTIRequestPageHandler.
-
-        // Verify: Verify error message.
-        Assert.ExpectedError(NothingToExportErr);
-
-        // TearDown.
-        UpdateCISDOnCompanyInformation(CompanyInformation, OldCISD)
+        LibraryVariableStorage.DequeueText();   // xml file name
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
+    procedure QuantityExportDEBDTIWithObligationLevel4()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        SalesHeader: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        // [SCENARIO 425804] Check Quantity field of Intrastat Journal Line when Export DEB DTI report is run with Obligation Level 4.
+        Initialize();
+
+        // [GIVEN] Intrastat Journal Line with Quantity = 0, Type "Shipment" and Transaction Specification 21 (Shipment).
+        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDecInRange(10, 20, 2));
+        RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '21');
+        UpdateAmountAndQuantityOnIntrastatJnlLine(IntrastatJnlLine, LibraryRandom.RandDecInRange(10, 20, 2), 0);  // Quantity = 0.
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 4.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"4");
+        RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
+
+        // [THEN] No error is thrown. XML file is created.
+        Assert.IsTrue(File.Exists(LibraryVariableStorage.DequeueText()), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
+    procedure AmountExportDEBDTIError()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        // [SCENARIO] Verify Intrastat Journal Line - Amount mandatory fields behavior for DEB DTI +export Error.
+        Initialize();
+
+        // [GIVEN] Intrastat Journal Line with Type "Receipt", Transaction Specification "11" and Amount = 0.
+        CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '11');
+        UpdateAmountAndQuantityOnIntrastatJnlLine(IntrastatJnlLine, 0, LibraryRandom.RandDec(10, 2));  // Amount = 0 and Random value for Quantity.
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
+        asserterror RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
+
+        // [THEN] Error "Statistical Value must be positive" is thrown.
+        Assert.ExpectedError(
+            StrSubstNo(IntrastatJournalLineStatisticalErr, IntrastatJnlLine.FieldCaption("Statistical Value"), IntrastatJnlLine.TableCaption));
+
+        LibraryVariableStorage.DequeueText();   // xml file name
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportDEBDTIRequestPageHandler')]
+    procedure BlankIntrastatJournalLineExportDEBDTIError()
+    var
+        IntrastatJournal: TestPage "Intrastat Journal";
+    begin
+        // [SCENARIO] Verify Intrastat Journal Line mandatory behavior for DEB DTI +export Error.
+        Initialize();
+
+        // [GIVEN] No Intrastat Journal lines are created.
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 2.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"2");
+        IntrastatJournal.OpenEdit();
+        asserterror IntrastatJournal."Export DEB DTI+".Invoke;  // Opens handler - ExportDEBDTIRequestPageHandler.
+
+        // [THEN] Error "There is nothing to export" is thrown.
+        Assert.ExpectedError(NothingToExportErr);
+
+        LibraryVariableStorage.DequeueText();   // xml file name
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
     procedure ShipmentExportDEBDTI()
     var
         CompanyInformation: Record "Company Information";
@@ -485,56 +503,55 @@ codeunit 144032 "ERM INTRASTAT"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         SalesHeader: Record "Sales Header";
         SalesShipmentLine: Record "Sales Shipment Line";
-        OldCISD: Code[10];
     begin
-        // Verify generated XML file for type shipment and confirmation message when XML file is successfully exported.
+        // [SCENARIO 425804] Verify generated XML file for type shipment and confirmation message when XML file is successfully exported.
+        Initialize();
 
-        // Setup: Create and Post Sales Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
-        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        // [GIVEN] Intrastat Journal Line with Type "Shipment" and Transaction Specification 21 (Shipment).
+        UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
+        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDecInRange(10, 20, 2));
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '21');
 
-        // Exercise.
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
         RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
 
-        // Verify: Verify Intrastat Journal Batch - Reported as True after running the Report -DEB DTI +export. Verify Company Information - CISD, Flow Code as D and Get Party ID on XML file.
+        // [THEN] Verify Intrastat Journal Batch - Reported as True after running the Report -DEB DTI +export. Verify Company Information - CISD, Flow Code as D and Get Party ID on XML file.
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField(Reported, true);
         VerifyXMLFile(IntrastatJnlLine."Journal Batch Name", CompanyInformation.CISD, FlowCodeLetterDTxt, CompanyInformation.GetPartyID);
 
-        // TearDown.
-        UpdateCISDOnCompanyInformation(CompanyInformation, OldCISD)
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure IntrastatJournalBatchReportedExportDEBDTIError()
     var
-        CompanyInformation: Record "Company Information";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         SalesHeader: Record "Sales Header";
         SalesShipmentLine: Record "Sales Shipment Line";
-        OldCISD: Code[10];
     begin
-        // Verify Intrastat Journal Batch - Reported as No mandatory fields behavior for DEB DTI +export Error.
+        // [SCENARIO 425804] Run Export DEB DTI report when Intrastat Journal Batch has Reported = true.
+        Initialize();
 
-        // Setup: Create and Post Sales Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
-        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+        // [GIVEN] Intrastat Journal Line with Type "Shipment" and Transaction Specification "21".
+        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDecInRange(10, 20, 2));
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '21');
         UpdateReportedTrueOnIntrastatJnlBatch(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
 
-        // Exercise.
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
         asserterror RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
 
-        // Verify: Verify error message.
+        // [THEN] Error "This batch is already marked as reported" is thrown.
         Assert.ExpectedError(IntrastatJournalBatchReportedErr);
+        Assert.ExpectedErrorCode('Dialog');
 
-        // TearDown.
-        UpdateCISDOnCompanyInformation(CompanyInformation, OldCISD)
+        LibraryVariableStorage.DequeueText();   // xml file name
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -580,20 +597,366 @@ codeunit 144032 "ERM INTRASTAT"
         IntrastatJnlLine.TestField(Amount, Round(SalesLine1.Amount, 1) + Round(SalesLine2.Amount, 1));
     end;
 
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
+    procedure ExportDEBDTIObligationLevel1WhenTransactionSpecification_11_19()
+    var
+        TransactionSpecifications: List of [Code[10]];
+        IntrastatJnlBatchName: Code[10];
+        NumberOfLines: Integer;
+    begin
+        // [SCENARIO 425804] Run Export DEB DTI report (Obligation Level 1) for Intrastat Journal Lines with Type "Receipt" and Transaction Specification 11 and 19.
+        Initialize();
+
+        // [GIVEN] Two Intrastat Journal Lines with Type "Receipt" and Transaction Specification 11 and 19.
+        NumberOfLines := 2;
+        TransactionSpecifications.AddRange('11', '19');
+        IntrastatJnlBatchName := CreateMultipleReceiptIntrastatJnlLines(TransactionSpecifications, NumberOfLines);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
+        RunExportDEBDTIReport(IntrastatJnlBatchName);
+
+        // [THEN] Two lines were exported to xml file. Each XML node "Item" contains the following nodes:
+        // [THEN] itemNumber, CN8Code, MSConsDestCode, countryOfOriginCode, netMass, invoicedAmount, statisticalProcedureCode, natureOfTransactionACode, modeOfTransportCode, regionCode.
+        VerifyExtendedItemNodesInXMLFile(LibraryVariableStorage.DequeueText(), TransactionSpecifications, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
+    procedure ExportDEBDTIObligationLevel1WhenTransactionSpecification_21_29()
+    var
+        TransactionSpecifications: List of [Code[10]];
+        IntrastatJnlBatchName: Code[10];
+        NumberOfLines: Integer;
+    begin
+        // [SCENARIO 425804] Run Export DEB DTI report (Obligation Level 1) for Intrastat Journal Lines with Type "Shipment" and Transaction Specification 21 and 29.
+        Initialize();
+
+        // [GIVEN] Two Intrastat Journal Lines with Type "Shipment" and Transaction Specification 21 and 29.
+        NumberOfLines := 2;
+        TransactionSpecifications.AddRange('21', '29');
+        IntrastatJnlBatchName := CreateMultipleShipmentIntrastatJnlLines(TransactionSpecifications, NumberOfLines);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
+        RunExportDEBDTIReport(IntrastatJnlBatchName);
+
+        // [THEN] Two lines were exported to xml file. Each XML node "Item" contains the following nodes:
+        // [THEN] itemNumber, CN8Code, MSConsDestCode, countryOfOriginCode, netMass, invoicedAmount, partnerId, statisticalProcedureCode, natureOfTransactionACode, modeOfTransportCode, regionCode.
+        VerifyExtendedItemNodesInXMLFile(LibraryVariableStorage.DequeueText(), TransactionSpecifications, NumberOfLines);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
+    procedure ExportDEBDTIObligationLevel1WhenTransactionSpecification_25_26_31()
+    var
+        TransactionSpecifications: List of [Code[10]];
+        IntrastatJnlBatchName: Code[10];
+        NumberOfLines: Integer;
+    begin
+        // [SCENARIO 425804] Run Export DEB DTI report (Obligation Level 1) for Intrastat Journal Lines with Type "Shipment" and Transaction Specification 25, 26 and 31.
+        Initialize();
+
+        // [GIVEN] Three Intrastat Journal Lines with Type "Shipment" and Transaction Specification 25, 26 and 31.
+        NumberOfLines := 3;
+        TransactionSpecifications.AddRange('25', '26', '31');
+        IntrastatJnlBatchName := CreateMultipleShipmentIntrastatJnlLines(TransactionSpecifications, NumberOfLines);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
+        asserterror RunExportDEBDTIReport(IntrastatJnlBatchName);
+
+        // [THEN] No lines were exported, xml file was not created. Error "There is nothing to export" is thrown.
+        Assert.ExpectedError(NothingToExportErr);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.IsFalse(File.Exists(LibraryVariableStorage.DequeueText()), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
+    procedure ExportDEBDTIObligationLevel4WhenTransactionSpecification_11_19()
+    var
+        TransactionSpecifications: List of [Code[10]];
+        IntrastatJnlBatchName: Code[10];
+        NumberOfLines: Integer;
+    begin
+        // [SCENARIO 425804] Run Export DEB DTI report (Obligation Level 4) for Intrastat Journal Lines with Type "Receipt" and Transaction Specification 11 and 19.
+        Initialize();
+
+        // [GIVEN] Two Intrastat Journal Lines with Type "Receipt" and Transaction Specification 11 and 19.
+        NumberOfLines := 2;
+        TransactionSpecifications.AddRange('11', '19');
+        IntrastatJnlBatchName := CreateMultipleReceiptIntrastatJnlLines(TransactionSpecifications, NumberOfLines);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 4.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"4");
+        asserterror RunExportDEBDTIReport(IntrastatJnlBatchName);
+
+        // [THEN] No lines were exported, xml file was not created. Error "There is nothing to export" is thrown.
+        Assert.ExpectedError(NothingToExportErr);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.IsFalse(File.Exists(LibraryVariableStorage.DequeueText()), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
+    procedure ExportDEBDTIObligationLevel4WhenTransactionSpecification_21_25_26_29_31()
+    var
+        TransactionSpecifications: List of [Code[10]];
+        IntrastatJnlBatchName: Code[10];
+        NumberOfLines: Integer;
+    begin
+        // [SCENARIO 425804] Run Export DEB DTI report (Obligation Level 4) for Intrastat Journal Lines with Type "Shipment" and Transaction Specification 21, 25, 26, 29, 31.
+        Initialize();
+
+        // [GIVEN] Five Intrastat Journal Lines with Type "Shipment" and Transaction Specification 21, 25, 26, 29, 31.
+        NumberOfLines := 5;
+        TransactionSpecifications.AddRange('21', '25', '26', '29', '31');
+        IntrastatJnlBatchName := CreateMultipleShipmentIntrastatJnlLines(TransactionSpecifications, NumberOfLines);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 4.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"4");
+        RunExportDEBDTIReport(IntrastatJnlBatchName);
+
+        // [THEN] Four lines were exported to xml file - line with Transaction Specification 29 was not exported.
+        // [THEN] Each XML node "Item" contains the following nodes: itemNumber, invoicedAmount, partnerId, statisticalProcedureCode.
+        TransactionSpecifications.Remove('29');
+        VerifySimpleItemNodesInXMLFile(LibraryVariableStorage.DequeueText(), TransactionSpecifications, NumberOfLines - 1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
+    procedure ExportDEBDTIObligationLevel5WhenTransactionSpecification_11_19()
+    var
+        TransactionSpecifications: List of [Code[10]];
+        IntrastatJnlBatchName: Code[10];
+        NumberOfLines: Integer;
+    begin
+        // [SCENARIO 425804] Run Export DEB DTI report (Obligation Level 5) for Intrastat Journal Lines with Type "Receipt" and Transaction Specification 11 and 19.
+        Initialize();
+
+        // [GIVEN] Two Intrastat Journal Lines with Type "Receipt" and Transaction Specification 11 and 19.
+        NumberOfLines := 2;
+        TransactionSpecifications.AddRange('11', '19');
+        IntrastatJnlBatchName := CreateMultipleReceiptIntrastatJnlLines(TransactionSpecifications, NumberOfLines);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 5.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"5");
+        asserterror RunExportDEBDTIReport(IntrastatJnlBatchName);
+
+        // [THEN] No lines were exported, xml file was not created. Error "There is nothing to export" is thrown.
+        Assert.ExpectedError(NothingToExportErr);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.IsFalse(File.Exists(LibraryVariableStorage.DequeueText()), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
+    procedure ExportDEBDTIObligationLevel5WhenTransactionSpecification_21_29()
+    var
+        TransactionSpecifications: List of [Code[10]];
+        IntrastatJnlBatchName: Code[10];
+        NumberOfLines: Integer;
+    begin
+        // [SCENARIO 425804] Run Export DEB DTI report (Obligation Level 5) for Intrastat Journal Lines with Type "Shipment" and Transaction Specification 21 and 29.
+        Initialize();
+
+        // [GIVEN] Two Intrastat Journal Lines with Type "Shipment" and Transaction Specification 21 and 29.
+        NumberOfLines := 2;
+        TransactionSpecifications.AddRange('21', '29');
+        IntrastatJnlBatchName := CreateMultipleShipmentIntrastatJnlLines(TransactionSpecifications, NumberOfLines);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 5.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"5");
+        RunExportDEBDTIReport(IntrastatJnlBatchName);
+
+        // [THEN] Two lines were exported to xml file. Each XML node "Item" contains the following nodes:
+        // [THEN] itemNumber, CN8Code, MSConsDestCode, countryOfOriginCode, netMass, invoicedAmount, partnerId, statisticalProcedureCode, natureOfTransactionACode, modeOfTransportCode, regionCode.
+        VerifyExtendedItemNodesInXMLFile(LibraryVariableStorage.DequeueText(), TransactionSpecifications, NumberOfLines);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
+    procedure ExportDEBDTIObligationLevel5WhenTransactionSpecification_25_26_31()
+    var
+        TransactionSpecifications: List of [Code[10]];
+        IntrastatJnlBatchName: Code[10];
+        NumberOfLines: Integer;
+    begin
+        // [SCENARIO 425804] Run Export DEB DTI report (Obligation Level 5) for Intrastat Journal Lines with Type "Shipment" and Transaction Specification 25, 26 and 31.
+        Initialize();
+
+        // [GIVEN] Three Intrastat Journal Lines with Type "Shipment" and Transaction Specification 25, 26 and 31.
+        NumberOfLines := 3;
+        TransactionSpecifications.AddRange('25', '26', '31');
+        IntrastatJnlBatchName := CreateMultipleShipmentIntrastatJnlLines(TransactionSpecifications, NumberOfLines);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 5.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"5");
+        RunExportDEBDTIReport(IntrastatJnlBatchName);
+
+        // [THEN] Three lines were exported to xml file.
+        // [THEN] Each XML node "Item" contains the following nodes: itemNumber, invoicedAmount, partnerId, statisticalProcedureCode.
+        VerifySimpleItemNodesInXMLFile(LibraryVariableStorage.DequeueText(), TransactionSpecifications, NumberOfLines);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
+    procedure ExportDEBDTIBlankAreaWhenAdvIntrastatChecklistHasRuleOnArea()
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        SalesHeader: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        // [FEATURE] [Advanced Intrastat Checklist]
+        // [SCENARIO 425804] Run Export DEB DTI report for Intrastat Jnl Line with blank "Area" when Adv. Intrastat Checklist has rule on "Area" field of "Export DEB DTI" report.
+        Initialize();
+
+        // [GIVEN] Enabled Advanced Intrastat Checklist. Checklist has one line with Report "Export DEB DTI" and Field Name "Area".
+        EnableAdvIntrastatChecklist();
+        AdvancedIntrastatChecklist.DeleteAll();
+        CreateAdvIntrastatChecklistRule(Report::"Export DEB DTI", IntrastatJnlLine.FieldNo("Area"), '');
+
+        // [GIVEN] Intrastat Journal Line with blank Area field.
+        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDecInRange(10, 20, 2));
+        RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
+        IntrastatJnlLine.Validate("Area", '');
+        IntrastatJnlLine.Modify(true);
+
+        // [WHEN] Run Export DEB DTI report.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"2");
+        asserterror RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
+
+        // [THEN] Error "There are one or more errors. For details, see the journal error FactBox." was thrown.
+        // [THEN] Error "Area in Intrastat Journal Line must not be blank" was shown in the Error Messages factbox of Intrastat Journal.
+        Assert.ExpectedError(AdvChecklistErr);
+        Assert.ExpectedErrorCode('Dialog');
+        VerifyIntrastatJnlLineSingleError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Area"));
+
+        LibraryVariableStorage.DequeueText();   // xml file name
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler')]
+    procedure ExportDEBDTIShipmentBlankPartnerVATIDWhenAdvIntrastatChecklistHasRuleOnPartnerVATIDFilterShipment()
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        SalesHeader: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        // [FEATURE] [Advanced Intrastat Checklist]
+        // [SCENARIO 425804] Run Export DEB DTI report for Intrastat Jnl Line with Type "Shipment" and blank "Partner VAT ID" when Adv. Intrastat Checklist has rule on "Partner VAT ID" of "Export DEB DTI" report with filter on Shipment.
+        Initialize();
+
+        // [GIVEN] Enabled Advanced Intrastat Checklist. Checklist has one line with Report "Export DEB DTI" and Field Name "Partner VAT ID" with Filter "Type: Shipment".
+        EnableAdvIntrastatChecklist();
+        AdvancedIntrastatChecklist.DeleteAll();
+        CreateAdvIntrastatChecklistRule(Report::"Export DEB DTI", IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type:Shipment');
+
+        // [GIVEN] Intrastat Journal Line with Type "Shipment" and blank Partner VAT ID field.
+        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDecInRange(10, 20, 2));
+        RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '21');
+        IntrastatJnlLine.Validate("Partner VAT ID", '');
+        IntrastatJnlLine.Modify(true);
+
+        // [WHEN] Run Export DEB DTI report.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
+        asserterror RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
+
+        // [THEN] Error "There are one or more errors. For details, see the journal error FactBox." was thrown.
+        // [THEN] Error "Partner VAT ID in Intrastat Journal Line must not be blank" was shown in the Error Messages factbox of Intrastat Journal.
+        Assert.ExpectedError(AdvChecklistErr);
+        Assert.ExpectedErrorCode('Dialog');
+        VerifyIntrastatJnlLineSingleError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Partner VAT ID"));
+
+        LibraryVariableStorage.DequeueText();   // xml file name
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
+    procedure ExportDEBDTIReceiptBlankPartnerVATIDWhenAdvIntrastatChecklistHasRuleOnPartnerVATIDFilterShipment()
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        // [FEATURE] [Advanced Intrastat Checklist]
+        // [SCENARIO 425804] Run Export DEB DTI report for Intrastat Jnl Line with Type "Receipt" and blank "Partner VAT ID" when Adv. Intrastat Checklist has rule on "Partner VAT ID" of "Export DEB DTI" report with filter on Shipment.
+        Initialize();
+
+        // [GIVEN] Enabled Advanced Intrastat Checklist. Checklist has one line with Report "Export DEB DTI" and Field Name "Partner VAT ID" with Filter "Type: Shipment".
+        EnableAdvIntrastatChecklist();
+        AdvancedIntrastatChecklist.DeleteAll();
+        CreateAdvIntrastatChecklistRule(Report::"Export DEB DTI", IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type:Shipment');
+
+        // [GIVEN] Intrastat Journal Line with Type "Receipt", Transaction Specification 11 (Receipt) and blank Partner VAT ID field.
+        CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDecInRange(10, 20, 2));
+        RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
+        UpdateTransactionSpecificationOnIntrastatJnlLine(IntrastatJnlLine, '11');
+        IntrastatJnlLine.Validate("Partner VAT ID", '');
+        IntrastatJnlLine.Modify(true);
+
+        // [WHEN] Run Export DEB DTI report with Obligation Level 1.
+        LibraryVariableStorage.Enqueue(ObligationLevel::"1");
+        RunExportDEBDTIReport(IntrastatJnlLine."Journal Batch Name");
+
+        // [THEN] No errors were thrown. XML file was created.
+        Assert.IsTrue(File.Exists(LibraryVariableStorage.DequeueText()), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM INTRASTAT");
-        LibraryVariableStorage.Clear;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM INTRASTAT");
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
+
         IntrastatJnlTemplate.DeleteAll();
         IntrastatJnlLine.DeleteAll();
+        ItemLedgerEntry.SetRange("Posting Date", WorkDate());
+        ItemLedgerEntry.DeleteAll();
+
+        if IsInitialized then
+            exit;
+
+        UpdateCISDOnCompanyInformation();
+        LibrarySetupStorage.SaveCompanyInformation();
+        LibrarySetupStorage.Save(Database::"Intrastat Setup");
+
+        IsInitialized := true;
     end;
 
-    local procedure UpdateTransactionSpecificationBlankIntrastatJnlLine(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure UpdateTransactionSpecificationOnIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; TransactionSpecification: Code[10])
     begin
-        IntrastatJnlLine.Validate("Transaction Specification", '');
+        IntrastatJnlLine.Validate("Transaction Specification", TransactionSpecification);
         IntrastatJnlLine.Modify(true);
     end;
 
@@ -722,6 +1085,123 @@ codeunit 144032 "ERM INTRASTAT"
         exit(Vendor."No.");
     end;
 
+    local procedure CreateMultipleShipmentIntrastatJnlLines(TransactionSpecifications: List of [Code[10]]; NumberOfLines: Integer) IntrastatJnlBatchName: Code[10]
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNumbers: List of [Code[20]];
+        i: Integer;
+    begin
+        for i := 1 to NumberOfLines do begin
+            LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDecInRange(10, 20, 2));
+            ItemNumbers.Add(SalesLine."No.");
+            SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+            SalesLine.Modify(true);
+            LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        end;
+
+        RunGetItemLedgerEntriesReport(IntrastatJnlLine, WorkDate(), false);
+        IntrastatJnlBatchName := IntrastatJnlLine."Journal Batch Name";
+
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        for i := 1 to NumberOfLines do begin
+            IntrastatJnlLine.SetRange("Item No.", ItemNumbers.Get(i));
+            IntrastatJnlLine.FindFirst();
+            UpdateExportFieldsOnIntrastatJnlLine(IntrastatJnlLine, TransactionSpecifications.Get(i));
+        end;
+    end;
+
+    local procedure CreateMultipleReceiptIntrastatJnlLines(TransactionSpecifications: List of [Code[10]]; NumberOfLines: Integer) IntrastatJnlBatchName: Code[10]
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemNumbers: List of [Code[20]];
+        i: Integer;
+    begin
+        for i := 1 to NumberOfLines do begin
+            LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDecInRange(10, 20, 2));
+            ItemNumbers.Add(PurchaseLine."No.");
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+            PurchaseLine.Modify(true);
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        end;
+
+        RunGetItemLedgerEntriesReport(IntrastatJnlLine, WorkDate(), false);
+        IntrastatJnlBatchName := IntrastatJnlLine."Journal Batch Name";
+
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        for i := 1 to NumberOfLines do begin
+            IntrastatJnlLine.SetRange("Item No.", ItemNumbers.Get(i));
+            IntrastatJnlLine.FindFirst();
+            UpdateExportFieldsOnIntrastatJnlLine(IntrastatJnlLine, TransactionSpecifications.Get(i));
+        end;
+    end;
+
+    local procedure CreateEntryExitPoint(): Code[10]
+    var
+        EntryExitPoint: Record "Entry/Exit Point";
+    begin
+        EntryExitPoint.Init();
+        EntryExitPoint.Validate(Code, LibraryUtility.GenerateGUID());
+        EntryExitPoint.Validate(Description, LibraryUtility.GenerateGUID());
+        EntryExitPoint.Insert(true);
+        exit(EntryExitPoint.Code);
+    end;
+
+    local procedure CreateArea(): Code[10]
+    var
+        AreaRec: Record "Area";
+    begin
+        AreaRec.Init();
+        AreaRec.Validate(Code, LibraryUtility.GenerateGUID());
+        AreaRec.Validate(Text, LibraryUtility.GenerateGUID());
+        AreaRec.Insert(true);
+        exit(AreaRec.Code);
+    end;
+
+    local procedure CreateTransactionType(): Code[10]
+    var
+        TransactionType: Record "Transaction Type";
+    begin
+        TransactionType.Init();
+        TransactionType.Validate(Code, LibraryUtility.GenerateGUID());
+        TransactionType.Validate(Description, LibraryUtility.GenerateGUID());
+        TransactionType.Insert(true);
+        exit(TransactionType.Code);
+    end;
+
+    local procedure CreateTransportMethod(): Code[10]
+    var
+        TransportMethod: Record "Transport Method";
+    begin
+        TransportMethod.Init();
+        TransportMethod.Validate(Code, LibraryUtility.GenerateGUID());
+        TransportMethod.Validate(Description, LibraryUtility.GenerateGUID());
+        TransportMethod.Insert(true);
+        exit(TransportMethod.Code);
+    end;
+
+    local procedure CreateAdvIntrastatChecklistRule(ReportId: Integer; FieldNo: Integer; FilterExpression: Text)
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        AdvancedIntrastatChecklist.Init();
+        AdvancedIntrastatChecklist.Validate("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
+        AdvancedIntrastatChecklist.Validate("Object Id", ReportId);
+        AdvancedIntrastatChecklist.Validate("Field No.", FieldNo);
+        AdvancedIntrastatChecklist.Validate(
+            "Filter Expression",
+            CopyStr(FilterExpression, 1, MaxStrLen(AdvancedIntrastatChecklist."Filter Expression")));
+        AdvancedIntrastatChecklist.Validate("Reversed Filter Expression", false);
+        AdvancedIntrastatChecklist.Insert(true);
+    end;
+
     local procedure DeleteIntrastatJnlLine(JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentNo: Code[20])
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -731,6 +1211,19 @@ codeunit 144032 "ERM INTRASTAT"
         IntrastatJnlLine.SetFilter("Document No.", '<>%1', DocumentNo);
         if IntrastatJnlLine.FindFirst then
             IntrastatJnlLine.DeleteAll();
+    end;
+
+
+    local procedure EnableAdvIntrastatChecklist()
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+    begin
+        if not IntrastatSetup.Get() then
+            IntrastatSetup.Insert();
+#if not CLEAN19
+        IntrastatSetup."Use Advanced Checklist" := true;
+        IntrastatSetup.Modify;
+#endif
     end;
 
     local procedure FindIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; DocumentNo: Code[20])
@@ -777,12 +1270,11 @@ codeunit 144032 "ERM INTRASTAT"
     var
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
-        LibraryVariableStorage.Enqueue(JournalBatchName);  // Enqueue value for ExportDEBDTIRequestPageHandler.
         Commit();  // Commit required for running report.
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
         IntrastatJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
-        IntrastatJournal."Export DEB DTI+".Invoke;  // Opens handler - ExportDEBDTIRequestPageHandler.
-        IntrastatJournal.Close;
+        IntrastatJournal."Export DEB DTI+".Invoke();  // Opens handler - ExportDEBDTIRequestPageHandler.
+        IntrastatJournal.Close();
     end;
 
     local procedure RunIntrastatFormReport(JnlBatchName: Code[10])
@@ -834,6 +1326,15 @@ codeunit 144032 "ERM INTRASTAT"
         CompanyInformation.Modify(true);
     end;
 
+    local procedure UpdateCISDOnCompanyInformation()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        CompanyInformation.Validate(CISD, LibraryUtility.GenerateGUID());
+        CompanyInformation.Modify(true);
+    end;
+
     local procedure UpdateReportedTrueOnIntrastatJnlBatch(JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -856,6 +1357,17 @@ codeunit 144032 "ERM INTRASTAT"
         IntrastatJnlLine.Modify(true);
     end;
 
+    local procedure UpdateExportFieldsOnIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; TransactionSpecification: Code[10])
+    begin
+        IntrastatJnlLine.Validate("Transaction Specification", TransactionSpecification);
+        IntrastatJnlLine.Validate("Entry/Exit Point", CreateEntryExitPoint());
+        IntrastatJnlLine.Validate("Country/Region of Origin Code", CreateCountryRegion());
+        IntrastatJnlLine.Validate("Transaction Type", CreateTransactionType());
+        IntrastatJnlLine.Validate("Transport Method", CreateTransportMethod());
+        IntrastatJnlLine.Validate("Area", CreateArea());
+        IntrastatJnlLine.Modify(true);
+    end;
+
     local procedure VerifyValuesOnIntrastatJnlLine(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ShipmentMethodCode: Code[10]; ItemNo: Code[20]; CustVATRegistrationNo: Text[20])
     begin
         IntrastatJnlLine.TestField("Item No.", ItemNo);
@@ -865,22 +1377,107 @@ codeunit 144032 "ERM INTRASTAT"
 
     local procedure VerifyXMLFile(XMLFileName: Text[10]; EnvelopeId: Code[10]; FlowCode: Text; PartyID: Code[18])
     begin
-        LibraryXMLRead.Initialize(StrSubstNo(XMLPathTxt, TemporaryPath, XMLFileName));
+        LibraryXMLRead.Initialize(LibraryVariableStorage.DequeueText());
         LibraryXMLRead.VerifyNodeValue(EnvelopeIdTxt, EnvelopeId);
         LibraryXMLRead.VerifyNodeValue(FlowCodeTxt, FlowCode);
         LibraryXMLRead.VerifyNodeValue(PartyIDTxt, PartyID);
     end;
 
+    local procedure VerifyExtendedItemNodesInXMLFile(FileName: Text; TransactionSpecifications: List of [Code[10]]; PartnerIdNodeCount: Integer)
+    var
+        Node: DotNet XmlNode;
+        ItemNodes: List of [Text];
+        NumberOfNodes: Integer;
+        i: Integer;
+    begin
+        NumberOfNodes := TransactionSpecifications.Count;
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        for i := 1 to TransactionSpecifications.Count do
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Declaration/Item/statisticalProcedureCode', TransactionSpecifications.Get(i), i - 1);
+
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/itemNumber', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/CN8/CN8Code', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/MSConsDestCode', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/countryOfOriginCode', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/netMass', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/invoicedAmount', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/partnerId', PartnerIdNodeCount);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/statisticalProcedureCode', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/NatureOfTransaction/natureOfTransactionACode', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/modeOfTransportCode', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/regionCode', NumberOfNodes);
+
+        // check nodes order
+        ItemNodes.AddRange('itemNumber', 'CN8', 'MSConsDestCode', 'countryOfOriginCode', 'netMass', 'invoicedAmount');
+        if PartnerIdNodeCount > 0 then
+            ItemNodes.Add('partnerId');
+        ItemNodes.AddRange('statisticalProcedureCode', 'NatureOfTransaction', 'modeOfTransportCode', 'regionCode');
+
+        LibraryXPathXMLReader.GetNodeByXPath('//Declaration/Item', Node);
+        Assert.AreEqual(ItemNodes.Count, Node.ChildNodes.Count, '');
+        for i := 1 to Node.ChildNodes.Count do
+            Assert.AreEqual(ItemNodes.Get(i), Node.ChildNodes.Item(i - 1).Name, '');
+    end;
+
+    local procedure VerifySimpleItemNodesInXMLFile(FileName: Text; TransactionSpecifications: List of [Code[10]]; PartnerIdNodeCount: Integer)
+    var
+        Node: DotNet XmlNode;
+        ItemNodes: List of [Text];
+        NumberOfNodes: Integer;
+        i: Integer;
+    begin
+        NumberOfNodes := TransactionSpecifications.Count;
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        for i := 1 to TransactionSpecifications.Count do
+            LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Declaration/Item/statisticalProcedureCode', TransactionSpecifications.Get(i), i - 1);
+
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/itemNumber', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Declaration/Item/CN8/CN8Code');
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Declaration/Item/CN8/CN8Code');
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Declaration/Item/MSConsDestCode');
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Declaration/Item/countryOfOriginCode');
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Declaration/Item/netMass');
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/invoicedAmount', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/partnerId', PartnerIdNodeCount);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Declaration/Item/statisticalProcedureCode', NumberOfNodes);
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Declaration/Item/NatureOfTransaction/natureOfTransactionACode');
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Declaration/Item/modeOfTransportCode');
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Declaration/Item/regionCode');
+
+        // check nodes order
+        ItemNodes.AddRange('itemNumber', 'invoicedAmount');
+        if PartnerIdNodeCount > 0 then
+            ItemNodes.Add('partnerId');
+        ItemNodes.Add('statisticalProcedureCode');
+
+        LibraryXPathXMLReader.GetNodeByXPath('//Declaration/Item', Node);
+        Assert.AreEqual(ItemNodes.Count, Node.ChildNodes.Count, '');
+        for i := 1 to Node.ChildNodes.Count do
+            Assert.AreEqual(ItemNodes.Get(i), Node.ChildNodes.Item(i - 1).Name, '');
+    end;
+
+    local procedure VerifyIntrastatJnlLineSingleError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        ErrorMessage: Record "Error Message";
+    begin
+        ErrorMessage.SetRange("Record ID", IntrastatJnlLine.RecordId());
+        Assert.RecordCount(ErrorMessage, 1);
+        ErrorMessage.FindFirst();
+        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
+    end;
+
     [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure ExportDEBDTIRequestPageHandler(var ExportDEBDTI: TestRequestPage "Export DEB DTI")
     var
-        XMLFileName: Variant;
+        XMLFileName: Text;
+        ObligationLevel: Integer;
     begin
-        LibraryVariableStorage.Dequeue(XMLFileName);
-        ExportDEBDTI.FileName.SetValue(StrSubstNo(XMLPathTxt, TemporaryPath, XMLFileName));
-        ExportDEBDTI."Obligation Level".SetValue(LibraryRandom.RandIntInRange(1, 5));
-        ExportDEBDTI.OK.Invoke;
+        ObligationLevel := LibraryVariableStorage.DequeueInteger();
+        XMLFileName := FileMgt.ServerTempFileName('xml');
+        LibraryVariableStorage.Enqueue(XMLFileName);
+        ExportDEBDTI.FileName.SetValue(XMLFileName);
+        ExportDEBDTI."Obligation Level".SetValue(ObligationLevel);
+        ExportDEBDTI.OK().Invoke();
     end;
 
     [RequestPageHandler]
