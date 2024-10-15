@@ -224,6 +224,11 @@ page 5666 "FA Depreciation Books Subform"
                     ToolTip = 'Specifies a temporary fixed depreciation amount.';
                     Visible = false;
                 }
+                field("Default FA Depreciation Book"; Rec."Default FA Depreciation Book")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the depreciation book that is used by default on documents and journals when a fixed asset has more than one depreciation book. A fixed asset can have only one default depreciation book. If a depreciation book is not specified for a fixed asset, the default depreciation book from the fixed asset setup is used.';
+                }
             }
         }
     }
