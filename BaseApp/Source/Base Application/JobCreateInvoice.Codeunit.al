@@ -381,6 +381,11 @@ codeunit 1002 "Job Create-Invoice"
         if PostingDate <> 0D then
             SalesHeader.Validate("Posting Date", PostingDate);
 
+        if Job."External Document No." <> '' then
+            SalesHeader.Validate("External Document No.", Job."External Document No.");
+
+        SalesHeader."Your Reference" := Job."Your Reference";
+
         IsHandled := false;
         OnCreateSalesHeaderOnBeforeUpdateSalesHeader(SalesHeader, Job, IsHandled, JobPlanningLine);
         if not IsHandled then

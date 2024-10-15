@@ -1,4 +1,4 @@
-page 30 "Item Card"
+﻿page 30 "Item Card"
 {
     Caption = 'Item Card';
     PageType = Card;
@@ -650,6 +650,7 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Assembly, Planning;
                     Caption = 'Replenishment System';
+                    Editable = ReplenishmentSystemEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the type of supply order created by the planning system when the item needs to be replenished.';
 
@@ -2190,24 +2191,24 @@ page 30 "Item Card"
                 action(Orders)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Orders';
+                    Caption = 'Purchase Orders';
                     Image = Document;
                     RunObject = Page "Purchase Orders";
                     RunPageLink = Type = CONST(Item),
                                   "No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", Type, "No.");
-                    ToolTip = 'View a list of ongoing orders for the item.';
+                    ToolTip = 'View a list of ongoing purchase orders for the item.';
                 }
                 action("Return Orders")
                 {
-                    ApplicationArea = SalesReturnOrder, PurchReturnOrder;
-                    Caption = 'Return Orders';
+                    ApplicationArea = PurchReturnOrder;
+                    Caption = 'Purchase Return Orders';
                     Image = ReturnOrder;
                     RunObject = Page "Purchase Return Orders";
                     RunPageLink = Type = CONST(Item),
                                   "No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", Type, "No.");
-                    ToolTip = 'Open the list of ongoing return orders for the item.';
+                    ToolTip = 'Open the list of ongoing purchase return orders for the item.';
                 }
             }
             group(Sales)
@@ -2226,7 +2227,7 @@ page 30 "Item Card"
                 action(Action83)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Orders';
+                    Caption = 'Sales Orders';
                     Image = Document;
                     RunObject = Page "Sales Orders";
                     RunPageLink = Type = CONST(Item),
@@ -2236,14 +2237,14 @@ page 30 "Item Card"
                 }
                 action(Action163)
                 {
-                    ApplicationArea = SalesReturnOrder, PurchReturnOrder;
-                    Caption = 'Return Orders';
+                    ApplicationArea = SalesReturnOrder;
+                    Caption = 'Sales Return Orders';
                     Image = ReturnOrder;
                     RunObject = Page "Sales Return Orders";
                     RunPageLink = Type = CONST(Item),
                                   "No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", Type, "No.");
-                    ToolTip = 'Open the list of ongoing return orders for the item.';
+                    ToolTip = 'Open the list of ongoing sales return orders for the item.';
                 }
             }
             group(BillOfMaterials)
@@ -2508,6 +2509,7 @@ page 30 "Item Card"
         CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData("No.");
 
         ItemReplenishmentSystem := "Replenishment System";
+        ReplenishmentSystemEditable := CurrPage.Editable();
     end;
 
     trigger OnAfterGetRecord()
@@ -2659,6 +2661,8 @@ page 30 "Item Card"
         UnitCostEnable: Boolean;
         [InDataSet]
         UnitCostEditable: Boolean;
+        [InDataSet]
+        ReplenishmentSystemEditable: Boolean;
 
     procedure EnableControls()
     var

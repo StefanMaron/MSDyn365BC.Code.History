@@ -121,6 +121,7 @@ codeunit 1305 "Sales-Quote to Invoice"
     local procedure CreateSalesInvoiceLines(SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header"; var SalesQuoteLine: Record "Sales Line")
     var
         SalesInvoiceLine: Record "Sales Line";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         IsHandled: Boolean;
     begin
         with SalesQuoteHeader do begin
@@ -141,6 +142,9 @@ codeunit 1305 "Sales-Quote to Invoice"
                         SalesInvoiceLine.InitQtyToShip;
                         OnBeforeInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
                         SalesInvoiceLine.Insert();
+
+                        SalesLineReserve.TransferSaleLineToSalesLine(SalesQuoteLine, SalesInvoiceLine, SalesQuoteLine."Outstanding Qty. (Base)");
+                        SalesLineReserve.VerifyQuantity(SalesInvoiceLine, SalesQuoteLine);
                         OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
                     end;
                 until SalesQuoteLine.Next() = 0;

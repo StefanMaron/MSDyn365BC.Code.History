@@ -1289,6 +1289,50 @@
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure NoRenumberingForDifferentPrintedDocLine()
+    var
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+        NewDocNo: Code[20];
+        PrintedDocNo: Code[20];
+        FirstLineNo: Integer;
+    begin
+        Initialize();
+
+        // Setup
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGLAccount(GLAccount2);
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
+        SetNewDocNo(GenJournalLine);
+        FirstLineNo := GenJournalLine."Line No.";
+        CreateSingleLineGenJnlDoc(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
+        SetNewDocNo(GenJournalLine);
+        GenJournalLine."Check Printed" := true;
+        GenJournalLine.Modify(false);
+        PrintedDocNo := GenJournalLine."Document No.";
+
+        // Exercise
+        Commit();
+        GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", FirstLineNo);
+        GenJournalLine.RenumberDocumentNo;
+
+        // Verify
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          10000, NewDocNo);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          20000, PrintedDocNo);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure NoModifyWithJobQueueStatusScheduledOrPosting()
     var
