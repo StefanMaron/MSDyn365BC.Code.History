@@ -218,10 +218,16 @@ codeunit 60 "Sales-Calc. Discount"
             SalesLine.Validate("Unit Price", CustInvDisc."Service Charge");
     end;
 
-    local procedure CustInvDiscRecExists(InvDiscCode: Code[20]): Boolean
+    local procedure CustInvDiscRecExists(InvDiscCode: Code[20]) Result: Boolean
     var
         CustInvDisc: Record "Cust. Invoice Disc.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCustInvDiscRecExists(InvDiscCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CustInvDisc.SetRange(Code, InvDiscCode);
         exit(CustInvDisc.FindFirst());
     end;
@@ -374,6 +380,11 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeUpdateSalesLine2(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line"; UpdateHeader: Boolean; CustInvDisc: Record "Cust. Invoice Disc."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustInvDiscRecExists(InvDiscCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

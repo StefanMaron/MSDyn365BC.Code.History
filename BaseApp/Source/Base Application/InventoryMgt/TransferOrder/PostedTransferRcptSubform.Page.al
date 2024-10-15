@@ -29,6 +29,12 @@ page 5746 "Posted Transfer Rcpt. Subform"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the description of the item that is transferred.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description of the item being transferred.';
+                    Visible = false;
+                }
                 field("Transfer-To Bin Code"; Rec."Transfer-To Bin Code")
                 {
                     ApplicationArea = Warehouse;
@@ -154,7 +160,7 @@ page 5746 "Posted Transfer Rcpt. Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

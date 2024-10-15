@@ -1177,9 +1177,19 @@
         exit('MS-466523-PurchaseCreditMemoUpgradeTag-20230323');
     end;
 
+    procedure GetPurchasesPayablesAndSalesReceivablesSetupsUpgradeTag(): Code[250]
+    begin
+        exit('MS-325010-PurchasesPayablesAndSalesReceivablesSetupsUpgrade-20230414');
+    end;
+
     internal procedure GetWorkflowDelegatedAdminSetupTemplateUpgradeTag(): Code[250]
     begin
         exit('MS-473204-GetWorkflowDelegatedAdminSetupTemplateUpgradeTag-20230531');
+    end;
+
+    internal procedure GetReceivedFromCountryCodeUpgradeTag(): Code[250]
+    begin
+        exit('MS-474260-ReceivedFromCountryCode-20230531');
     end;
 }
 

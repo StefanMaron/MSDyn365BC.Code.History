@@ -172,6 +172,8 @@ codeunit 82 "Sales-Post + Print"
         SalesInvHeader.Find();
         SalesInvHeader.SetRecFilter();
 
+        OnPrintInvoiceOnAfterSetSalesInvHeaderFilter(SalesHeader, SalesInvHeader, SendReportAsEmail);
+
         if SendReportAsEmail then
             SalesInvHeader.EmailRecords(true)
         else
@@ -273,6 +275,11 @@ codeunit 82 "Sales-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunSalesPost(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintInvoiceOnAfterSetSalesInvHeaderFilter(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; SendReportAsEmail: Boolean)
     begin
     end;
 }

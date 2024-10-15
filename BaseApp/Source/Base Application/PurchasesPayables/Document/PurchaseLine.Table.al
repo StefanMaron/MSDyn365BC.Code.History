@@ -97,7 +97,10 @@
                 else
                     "Allow Item Charge Assignment" := false;
 
+#if not CLEAN23
                 OnAfterValidateType(Rec, xRec, TempPurchLine);
+#endif
+                OnAfterValidateTypePurchaseLine(Rec, xRec, TempPurchLine);
             end;
         }
         field(6; "No."; Code[20])
@@ -210,7 +213,7 @@
                     Type::" ":
                         CopyFromStandardText();
                     Type::"G/L Account":
-                        CopyFromGLAccount();
+                        CopyFromGLAccount(TempPurchLine);
                     Type::Item:
                         CopyFromItem();
                     Type::Resource:
@@ -257,13 +260,19 @@
 
                 GetDefaultBin();
 
-                if JobTaskIsSet() then begin
-                    CreateTempJobJnlLine(true);
-                    UpdateJobPrices();
-                    UpdateDimensionsFromJobTask();
-                end;
+                IsHandled := false;
+                OnValidateNoOnBeforeJobTaskIsSet(PurchHeader, Rec, xRec, TempPurchLine, IsHandled);
+                if not IsHandled then
+                    if JobTaskIsSet() then begin
+                        CreateTempJobJnlLine(true);
+                        UpdateJobPrices();
+                        UpdateDimensionsFromJobTask();
+                    end;
 
+#if not CLEAN23
                 OnAfterValidateNo(Rec, xRec, TempPurchLine);
+#endif
+                OnAfterValidateNoPurchaseLine(Rec, xRec, TempPurchLine, PurchHeader);                
             end;
         }
         field(7; "Location Code"; Code[10])
@@ -502,7 +511,7 @@
                         then
                             FieldError(Quantity, StrSubstNo(Text004, FieldCaption("Quantity Received")));
                         if ("Quantity (Base)" * "Qty. Received (Base)" < 0) or
-                        ((Abs("Quantity (Base)") < Abs("Qty. Received (Base)")) and ("Receipt No." = ''))
+                        ((Abs("Quantity (Base)") < Abs(CalcQtyReceivedBaseFromPostedReceipt())) and ("Receipt No." = ''))
                         then
                             FieldError("Quantity (Base)", StrSubstNo(Text004, FieldCaption("Qty. Received (Base)")));
                     end;
@@ -4353,7 +4362,7 @@
         OnAfterAssignStdTxtValues(Rec, StandardText);
     end;
 
-    local procedure CopyFromGLAccount()
+    local procedure CopyFromGLAccount(var TempPurchaseLine: Record "Purchase Line" temporary)
     var
         IsHandled: Boolean;
     begin
@@ -4372,8 +4381,8 @@
             "Allow Item Charge Assignment" := false;
             InitDeferralCode();
             "Non Deductible VAT %" := GLAcc."% Non deductible VAT";
-	end;
-        OnAfterAssignGLAccountValues(Rec, GLAcc, PurchHeader, xRec);
+        end;
+        OnAfterAssignGLAccountValues(Rec, GLAcc, PurchHeader, xRec, TempPurchaseLine);
     end;
 
     local procedure CopyFromItem()
@@ -4384,17 +4393,20 @@
     begin
         GetItem(Item);
         GetGLSetup();
-        OnBeforeCopyFromItem(Rec, Item);
-        Item.TestField(Blocked, false);
-        Item.TestField("Gen. Prod. Posting Group");
-        if Item."Purchasing Blocked" then
-            if IsCreditDocType() then
-                SendBlockedItemNotification()
-            else
-                Error(PurchasingBlockedErr, Item."No.");
-        if Item.Type = Item.Type::Inventory then begin
-            Item.TestField("Inventory Posting Group");
-            "Posting Group" := Item."Inventory Posting Group";
+        IsHandled := false;
+        OnBeforeCopyFromItem(Rec, Item, IsHandled);
+        if not IsHandled then begin
+            Item.TestField(Blocked, false);
+            Item.TestField("Gen. Prod. Posting Group");
+            if Item."Purchasing Blocked" then
+                if IsCreditDocType() then
+                    SendBlockedItemNotification()
+                else
+                    Error(PurchasingBlockedErr, Item."No.");
+            if Item.Type = Item.Type::Inventory then begin
+                Item.TestField("Inventory Posting Group");
+                "Posting Group" := Item."Inventory Posting Group";
+            end;
         end;
 
         OnCopyFromItemOnAfterCheck(Rec, Item, CurrFieldNo);
@@ -4769,6 +4781,8 @@
                         end else begin
                             Validate("Direct Unit Cost", BlanketOrderPurchaseLine."Direct Unit Cost");
                             Validate("Line Discount %", BlanketOrderPurchaseLine."Line Discount %");
+
+                            OnUpdateDirectUnitCostByFieldOnAfterSetBlanketOrderPriceFields(PurchHeader, BlanketOrderPurchaseLine, Rec, CalledByFieldNo, CurrFieldNo);
                         end;
                     if (xRec."Direct Unit Cost" <> Rec."Direct Unit Cost") or not (CalledByFieldNo in [FieldNo("Job Task No."), FieldNo("Job No.")]) then
                         Validate("Direct Unit Cost");
@@ -4785,9 +4799,18 @@
     end;
 
     local procedure BlanketOrderIsRelated(var BlanketOrderPurchaseLine: Record "Purchase Line"): Boolean
+    var
+        IsHandled, Result : Boolean;
     begin
+        IsHandled := false;
+        Result := false;
+        OnBeforeBlanketOrderIsRelated(Rec, BlanketOrderPurchaseLine, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if "Blanket Order Line No." = 0 then exit;
         BlanketOrderPurchaseLine.SetLoadFields("Direct Unit Cost", "Line Discount %");
+        OnBlanketOrderIsRelatedOnAfterSetLoadFields(BlanketOrderPurchaseLine);
         if BlanketOrderPurchaseLine.Get("Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.") then
             exit(true);
     end;
@@ -6919,6 +6942,8 @@
     end;
 
     procedure IsInbound(): Boolean
+    var
+        IsInboundDocument: Boolean;
     begin
         case "Document Type" of
             "Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote, "Document Type"::"Blanket Order":
@@ -6927,7 +6952,9 @@
                 exit("Quantity (Base)" < 0);
         end;
 
-        exit(false);
+        IsInboundDocument := false;
+        OnAfterIsInbound(Rec, IsInboundDocument);
+        exit(IsInboundDocument);
     end;
 
     local procedure HandleDedicatedBin(IssueWarning: Boolean)
@@ -7415,6 +7442,8 @@
         "Prepmt. VAT Base Amt." := "Prepayment Amount";
         "Prepmt. Amount Inv. Incl. VAT" := "Prepmt. Amt. Incl. VAT";
         "Prepmt Amt Deducted" := 0;
+
+        OnAfterUpdatePrePaymentAmounts(Rec);
     end;
 
     local procedure SetUnitOfMeasure()
@@ -8742,6 +8771,7 @@
         FixedAsset: Record "Fixed Asset";
         ItemCharge2: Record "Item Charge";
         LookupStateMgr: Codeunit "Lookup State Manager";
+        RecRef: RecordRef;
         RecVariant: Variant;
     begin
         if LookupStateMgr.IsRecordSaved() then begin
@@ -8749,36 +8779,73 @@
                 Rec.Type::Item:
                     begin
                         RecVariant := LookupStateMgr.GetSavedRecord();
-                        Item := RecVariant;
-                        Rec.Validate("No.", Item."No.");
+                        RecRef.GetTable(RecVariant);
+                        if RecRef.Number = Database::Item then begin
+                            Item := RecVariant;
+                            Rec.Validate("No.", Item."No.");
+                        end;
                     end;
                 Rec.Type::"G/L Account":
                     begin
                         RecVariant := LookupStateMgr.GetSavedRecord();
-                        GLAccount := RecVariant;
-                        Rec.Validate("No.", GLAccount."No.");
+                        RecRef.GetTable(RecVariant);
+                        if RecRef.Number = Database::"G/L Account" then begin
+                            GLAccount := RecVariant;
+                            Rec.Validate("No.", GLAccount."No.");
+                        end;
                     end;
                 Rec.Type::Resource:
                     begin
                         RecVariant := LookupStateMgr.GetSavedRecord();
-                        Resource := RecVariant;
-                        Rec.Validate("No.", Resource."No.");
+                        RecRef.GetTable(RecVariant);
+                        if RecRef.Number = Database::Resource then begin
+                            Resource := RecVariant;
+                            Rec.Validate("No.", Resource."No.");
+                        end;
                     end;
                 Rec.Type::"Fixed Asset":
                     begin
                         RecVariant := LookupStateMgr.GetSavedRecord();
-                        FixedAsset := RecVariant;
-                        Rec.Validate("No.", FixedAsset."No.");
+                        RecRef.GetTable(RecVariant);
+                        if RecRef.Number = Database::"Fixed Asset" then begin
+                            FixedAsset := RecVariant;
+                            Rec.Validate("No.", FixedAsset."No.");
+                        end;
                     end;
                 Rec.Type::"Charge (Item)":
                     begin
                         RecVariant := LookupStateMgr.GetSavedRecord();
-                        ItemCharge2 := RecVariant;
-                        Rec.Validate("No.", ItemCharge2."No.");
+                        RecRef.GetTable(RecVariant);
+                        if RecRef.Number = Database::"Item Charge" then begin
+                            ItemCharge2 := RecVariant;
+                            Rec.Validate("No.", ItemCharge2."No.");
+                        end;
                     end;
             end;
             LookupStateMgr.ClearSavedRecord();
         end;
+    end;
+
+    local procedure CalcQtyReceivedBaseFromPostedReceipt(): Decimal
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        QtyReceived: Decimal;
+    begin
+        if Rec."Qty. Received (Base)" = 0 then
+            exit(0);
+
+        PurchRcptLine.SetRange("Order No.", Rec."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", Rec."Line No.");
+        if PurchRcptLine.IsEmpty() then
+            exit(Rec."Qty. Received (Base)");
+
+        PurchRcptLine.FindSet();
+        repeat
+            QtyReceived += PurchRcptLine."Quantity";
+        until PurchRcptLine.Next() = 0;
+
+        Rec."Qty. Received (Base)" := CalcBaseQty(QtyReceived, FieldCaption("Quantity Received"), FieldCaption("Qty. Received (Base)"));
+        exit(Rec."Qty. Received (Base)");
     end;
 
 #if not CLEAN20
@@ -8849,7 +8916,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignGLAccountValues(var PurchLine: Record "Purchase Line"; GLAccount: Record "G/L Account"; PurchHeader: Record "Purchase Header"; xPurchaseLine: Record "Purchase Line")
+    local procedure OnAfterAssignGLAccountValues(var PurchLine: Record "Purchase Line"; GLAccount: Record "G/L Account"; PurchHeader: Record "Purchase Header"; xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
 
@@ -9299,7 +9366,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromItem(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
+    local procedure OnBeforeCopyFromItem(var PurchaseLine: Record "Purchase Line"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 
@@ -10599,15 +10666,32 @@
     begin
     end;
 
+#if not CLEAN23
+    [Obsolete('Pending removal use "OnAfterValidateTypePurchaseLine" instead', '23.0')]
     [IntegrationEvent(false, false)]
     procedure OnAfterValidateType(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateTypePurchaseLine(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
+    begin
+    end;    
+
+
+#if not CLEAN23
+    [Obsolete('Pending removal use "OnAfterValidateNoPurchaseLine" instead', '23.0')]
     [IntegrationEvent(false, false)]
     procedure OnAfterValidateNo(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateNoPurchaseLine(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;    
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAttachToInventoryItemLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
@@ -10621,6 +10705,36 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateJobPlanningLineNoOnBeforeTestFields(var PurchaseLine: Record "Purchase Line"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsInbound(PurchaseLine: Record "Purchase Line"; var IsInboundDocument: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdatePrePaymentAmounts(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBlanketOrderIsRelated(var CurrentPurchaseLine: Record "Purchase Line"; var BlanketOrderPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBlanketOrderIsRelatedOnAfterSetLoadFields(var BlanketOrderPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDirectUnitCostByFieldOnAfterSetBlanketOrderPriceFields(PurchaseHeader: Record "Purchase Header"; BlanketOrderPurchaseLine: Record "Purchase Line"; var CurrentPurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateNoOnBeforeJobTaskIsSet(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; TempPurchaseLine: Record "Purchase Line" temporary; IsHandled: Boolean)
     begin
     end;
 }

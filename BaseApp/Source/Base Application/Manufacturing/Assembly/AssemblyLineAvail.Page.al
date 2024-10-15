@@ -120,17 +120,23 @@ page 909 "Assembly Line Avail."
     }
 
     trigger OnAfterGetRecord()
+    var
+        IsHandled: Boolean;
     begin
-        SetItemFilter(Item);
-        CalcAvailToAssemble(
-          AssemblyHeader,
-          Item,
-          GrossRequirement,
-          ScheduledRcpt,
-          ExpectedInventory,
-          Inventory,
-          EarliestDate,
-          AbleToAssemble);
+        Rec.SetItemFilter(Item);
+
+        IsHandled := false;
+        OnAfterGetRecordOnBeforeCalcAvailToAssemble(Rec, AssemblyHeader, Item, GrossRequirement, ScheduledRcpt, ExpectedInventory, Inventory, EarliestDate, AbleToAssemble, IsHandled);
+        if not IsHandled then
+            Rec.CalcAvailToAssemble(
+              AssemblyHeader,
+              Item,
+              GrossRequirement,
+              ScheduledRcpt,
+              ExpectedInventory,
+              Inventory,
+              EarliestDate,
+              AbleToAssemble);
     end;
 
     trigger OnInit()
@@ -164,6 +170,11 @@ page 909 "Assembly Line Avail."
     procedure SetHeader(AssemblyHeader2: Record "Assembly Header")
     begin
         AssemblyHeader := AssemblyHeader2;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRecordOnBeforeCalcAvailToAssemble(var AssemblyLine: Record "Assembly Line"; var AssemblyHeader: Record "Assembly Header"; var Item: Record Item; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; var ExpectedInventory: Decimal; var AvailableInventory: Decimal; var EarliestDate: Date; var AbleToAssemble: Decimal; var IsHandled: Boolean);
+    begin
     end;
 }
 

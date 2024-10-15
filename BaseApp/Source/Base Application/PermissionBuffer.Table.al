@@ -1,8 +1,17 @@
+#pragma warning disable AS0109
 table 9852 "Permission Buffer"
+#pragma warning restore AS0109
 {
     Caption = 'Permission Buffer';
+#if not CLEAN23
     DataPerCompany = false;
     ReplicateData = false;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Table will be moved to temporary';
+    ObsoleteTag = '23.0';
+#else 
+    TableType = Temporary;
+#endif
 
     fields
     {
@@ -10,8 +19,8 @@ table 9852 "Permission Buffer"
         {
             Caption = 'Source';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Normal,Entitlement';
-            OptionMembers = Normal,Entitlement;
+            OptionCaption = 'Normal,Entitlement,Security Group,Inherent';
+            OptionMembers = Normal,Entitlement,"Security Group",Inherent;
         }
         field(2; "Permission Set"; Code[20])
         {
@@ -68,6 +77,16 @@ table 9852 "Permission Buffer"
         field(9; "App ID"; Guid)
         {
             Caption = 'App ID';
+            DataClassification = SystemMetadata;
+        }
+        field(10; "Security Filter"; TableFilter)
+        {
+            Caption = 'Security Filter';
+            DataClassification = SystemMetadata;
+        }
+        field(11; Order; Integer)
+        {
+            Caption = 'Order';
             DataClassification = SystemMetadata;
         }
     }

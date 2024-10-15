@@ -411,7 +411,13 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     local procedure SetQtysOnRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; Qty: Decimal; QtyBase: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+    	IsHandled := false;
+        OnBeforeSetQtysOnRcptLine(WarehouseReceiptLine, Qty, QtyBase, IsHandled);
+        if IsHandled then
+            exit;
         with WarehouseReceiptLine do begin
             Quantity := Qty;
             "Qty. (Base)" := QtyBase;
@@ -748,6 +754,11 @@ codeunit 5750 "Whse.-Create Source Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseShptLineInsert(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetQtysOnRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; Qty: Decimal; QtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

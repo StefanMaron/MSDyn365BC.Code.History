@@ -105,7 +105,7 @@ report 11301 "Purchase Ledger"
                     column(PurchaseLedgerSummaryCaption2; PurchaseLedgerSummaryCaptionLbl)
                     {
                     }
-                    column(VATDateCaption; DateCaption)
+                    column(VATDateCaption; VATDateCaptionLbl)
                     {
                     }
                     column(DocumentNoCaption; DocumentNoCaptionLbl)
@@ -176,7 +176,11 @@ report 11301 "Purchase Ledger"
                             OldName := "Journal Templ. Name";
                         end;
 
-                        SetOldAndPrnDate("G/L Entry");
+                        if OldDate <> "VAT Reporting Date" then begin
+                            OldDate := "VAT Reporting Date";
+                            PrnDate := "VAT Reporting Date";
+                        end else
+                            PrnDate := 0D;
 
                         if OldDocno <> "Document No." then begin
                             OldDocno := "Document No.";
@@ -227,7 +231,7 @@ report 11301 "Purchase Ledger"
                     trigger OnPreDataItem()
                     begin
                         "G/L Entry".SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
-                        SetGlEntryDateRange("G/L Entry");
+                        "G/L Entry".SetRange("VAT Reporting Date", PeriodStartDate, PeriodEndDate);
                     end;
                 }
                 dataitem(Loop1; "Integer")
@@ -240,7 +244,7 @@ report 11301 "Purchase Ledger"
                     begin
                         GLEntry.SetCurrentKey("Journal Templ. Name", "VAT Reporting Date", "Document No.");
                         GLEntry.SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
-                        SetGlEntryDateRange(GLEntry);
+                        GlEntry.SetRange("VAT Reporting Date", PeriodStartDate, PeriodEndDate);
 
                         if GLEntry.IsEmpty() then
                             CurrReport.Break();
@@ -381,14 +385,7 @@ report 11301 "Purchase Ledger"
                         trigger OnPreDataItem()
                         begin
                             SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
-                            case VATDateType of
-                                VATDateType::"VAT Reporting Date":
-                                    "G/L Entry".CopyFilter("VAT Reporting Date", "VAT Reporting Date");
-                                VATDateType::"Posting Date":
-                                    "G/L Entry".CopyFilter("Posting Date", "Posting Date");
-                                VATDateType::"Document Date":
-                                    "G/L Entry".CopyFilter("Document Date", "Document Date");
-                            end;
+                            "G/L Entry".CopyFilter("VAT Reporting Date", "VAT Reporting Date");
                             VATSumBuffer.DeleteAll();
                         end;
                     }
@@ -587,14 +584,7 @@ report 11301 "Purchase Ledger"
                             SetRange("Statement Template Name", GLSetup."VAT Statement Template Name");
                             SetRange("Statement Name", GLSetup."VAT Statement Name");
 
-                            case VATDateType of
-                                VATDateType::"VAT Reporting Date":
-                                    "G/L Entry".CopyFilter("VAT Reporting Date", "Date Filter");
-                                VATDateType::"Document Date":
-                                    "G/L Entry".CopyFilter("Document Date", "Date Filter");
-                                VATDateType::"Posting Date":
-                                    "G/L Entry".CopyFilter("Posting Date", "Date Filter");
-                            end;
+                            "G/L Entry".CopyFilter("VAT Reporting Date", "Date Filter");
 
                             VATStatementName.Get(GLSetup."VAT Statement Template Name", GLSetup."VAT Statement Name");
                             VATStmt.InitializeRequest(
@@ -643,17 +633,18 @@ report 11301 "Purchase Ledger"
                 group(Options)
                 {
                     Caption = 'Options';
+#if not CLEAN23
                     field(VATDateTypeField; VATDateType)
                     {
                         ApplicationArea = VAT;
                         Caption = 'Period Date Type';
                         ToolTip = 'Specifies the type of date used for the period.';
-
-                        trigger OnValidate()
-                        begin
-                            SetDateCaption();
-                        end;
+                        Visible = false;
+                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '23.0';
                     }
+#endif
                     field(StartDate; StartDate)
                     {
                         ApplicationArea = Basic, Suite;
@@ -717,7 +708,6 @@ report 11301 "Purchase Ledger"
 
     trigger OnPreReport()
     begin
-        SetDateCaption();
         GLSetup.Get();
         GLSetup.TestField("VAT Statement Template Name");
         GLSetup.TestField("VAT Statement Name");
@@ -753,7 +743,6 @@ report 11301 "Purchase Ledger"
         NetAmountLCY: Decimal;
         UseAmtsInAddCurr: Boolean;
         VatAddCurrText: Text[30];
-        DateCaption: Text[30];
         VATPostingDescription: Text[250];
         StartDate: Date;
         NoOfPeriods: Integer;
@@ -762,7 +751,9 @@ report 11301 "Purchase Ledger"
         MultipleVATEntries: Integer;
         OldTransactionNo: Integer;
         GLPostingDescription: Text;
+#if not CLEAN23
         VATDateType: Enum "VAT Date Type";
+#endif
         ExcludeDeferrals: Boolean;
         PageCaptionLbl: Label 'Page';
         PurchaseLedgerCaptionLbl: Label 'Purchase Ledger';
@@ -789,58 +780,11 @@ report 11301 "Purchase Ledger"
         TotalAmountCaptionLbl: Label 'Amount VAT Statement';
         NetAmountLCYCaptionLbl: Label 'Amount G/L Account';
         PurchaseLedgerVATStatementsCaptionLbl: Label 'Purchase Ledger - VAT Statements';
+        VATDateCaptionLbl: Label 'VAT Date';
 
     protected var
         PeriodStartDate: Date;
         PeriodEndDate: Date;
-
-    local procedure SetGlEntryDateRange(var GlEntry: Record "G/L Entry")
-    begin
-        case VATDateType of
-            VATDateType::"VAT Reporting Date":
-                GlEntry.SetRange("VAT Reporting Date", PeriodStartDate, PeriodEndDate);
-            VATDateType::"Posting Date":
-                GlEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
-            VATDateType::"Document Date":
-                GlEntry.SetRange("Document Date", PeriodStartDate, PeriodEndDate);
-        end;
-    end;
-
-    local procedure SetOldAndPrnDate(var GlEntry: Record "G/L Entry")
-    begin
-        case VATDateType of
-            VATDateType::"VAT Reporting Date":
-                if OldDate <> GlEntry."VAT Reporting Date" then begin
-                    OldDate := GlEntry."VAT Reporting Date";
-                    PrnDate := GlEntry."VAT Reporting Date";
-                end else
-                    PrnDate := 0D;
-            VATDateType::"Posting Date":
-                if OldDate <> GlEntry."Posting Date" then begin
-                    OldDate := GlEntry."Posting Date";
-                    PrnDate := GlEntry."Posting Date";
-                end else
-                    PrnDate := 0D;
-            VATDateType::"Document Date":
-                if OldDate <> GlEntry."Document Date" then begin
-                    OldDate := GlEntry."Document Date";
-                    PrnDate := GlEntry."Document Date";
-                end else
-                    PrnDate := 0D;
-        end
-    end;
-
-    local procedure SetDateCaption()
-    begin
-        case VATDateType of
-            VATDateType::"Document Date":
-                DateCaption := 'Document Date';
-            VATDateType::"Posting Date":
-                DateCaption := 'Posting Date';
-            VATDateType::"VAT Reporting Date":
-                DateCaption := 'VAT Date';
-        end;
-    end;
 
 }
 

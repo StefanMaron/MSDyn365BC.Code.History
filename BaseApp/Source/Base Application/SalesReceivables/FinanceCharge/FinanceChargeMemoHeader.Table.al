@@ -245,16 +245,16 @@
 
             trigger OnValidate()
             begin
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
+
                 if CurrFieldNo = FieldNo("Document Date") then
                     if Undo() then begin
                         "Document Date" := xRec."Document Date";
                         exit;
                     end;
                 Validate("Fin. Charge Terms Code");
-
-                GLSetup.Get();
-                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
-                Validate("VAT Reporting Date");
             end;
         }
         field(23; "Due Date"; Date)
@@ -905,7 +905,13 @@
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceCodeSetup.Get();
 #if not CLEAN20
         RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
@@ -1239,6 +1245,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomerPostingGroupChange(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var xFinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; CallingFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean);
     begin
     end;
 }

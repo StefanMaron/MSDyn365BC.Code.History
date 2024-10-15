@@ -725,21 +725,26 @@
                     end;
                 DATABASE::"Transfer Line":
                     begin
-                        if HideValidationDialog then
-                            TransferPostReceipt.SetHideValidationDialog(HideValidationDialog);
-                        TransferPostReceipt.SetWhseRcptHeader(WhseRcptHeader);
-                        TransferPostReceipt.SetSuppressCommit(SuppressCommit or PreviewMode);
-                        TransferPostReceipt.SetPreviewMode(PreviewMode);
-                        TransferPostReceipt.SetCalledBy(Codeunit::"Whse.-Post Receipt");
-                        if PreviewMode then
-                            PostSourceTransferDocument(TransferPostReceipt)
-                        else
-                            case WhseSetup."Receipt Posting Policy" of
-                                WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
-                                    PostTransferErrorsNotProcessed(TransferPostReceipt);
-                                WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
-                                    PostSourceTransferDocument(TransferPostReceipt);
-                            end;
+                        IsHandled := false;
+                        OnPostSourceDocumentOnBeforePostTransferHeader(TransHeader, WhseRcptHeader, SuppressCommit, CounterSourceDocOK, IsHandled);
+                        if not IsHandled then begin
+                            if HideValidationDialog then
+                                TransferPostReceipt.SetHideValidationDialog(HideValidationDialog);
+                            TransferPostReceipt.SetWhseRcptHeader(WhseRcptHeader);
+                            TransferPostReceipt.SetSuppressCommit(SuppressCommit or PreviewMode);
+                            TransferPostReceipt.SetPreviewMode(PreviewMode);
+                            TransferPostReceipt.SetCalledBy(Codeunit::"Whse.-Post Receipt");
+                            if PreviewMode then
+                                PostSourceTransferDocument(TransferPostReceipt)
+                            else
+                                case WhseSetup."Receipt Posting Policy" of
+                                    WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
+                                        PostTransferErrorsNotProcessed(TransferPostReceipt);
+                                    WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
+                                        PostSourceTransferDocument(TransferPostReceipt);
+                                end;
+                        end;
+                        OnPostSourceDocumentOnAfterPostTransferHeader(TransHeader);
                         Clear(TransferPostReceipt);
                     end;
                 else
@@ -1231,9 +1236,9 @@
         TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary;
         TempPostedWhseRcptLine2: Record "Posted Whse. Receipt Line" temporary;
         WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
-        RemQtyToHandleBase: Decimal;
-        IsHandled: Boolean;
+                                      ItemTrackingMgt: Codeunit "Item Tracking Management";
+                                      RemQtyToHandleBase: Decimal;
+                                      IsHandled: Boolean;
     begin
         OnBeforeCreatePutAwayDocProcedure(PostedWhseRcptLine);
 
@@ -1882,6 +1887,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentLinesOnBeforeProcessSalesLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePostTransferHeader(var TransferHeader: Record "Transfer Header"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SuppressCommit: Boolean; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnAfterPostTransferHeader(TransferHeader: Record "Transfer Header")
     begin
     end;
 }

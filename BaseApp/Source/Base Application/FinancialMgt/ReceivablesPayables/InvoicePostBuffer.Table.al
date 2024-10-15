@@ -389,7 +389,9 @@
             "VAT Base Amount (ACY)" := 0;
             "VAT Amount" := 0;
             "VAT Amount (ACY)" := 0;
+#if not CLEAN23
             NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
+#endif
         end;
 
         "Journal Template Name" := SalesLine.GetJnlTemplateName();
@@ -435,7 +437,9 @@
         Amount := "VAT Base Amount";
         "Amount (ACY)" := "VAT Base Amount (ACY)";
         "VAT Base Before Pmt. Disc." := "VAT Base Amount";
+#if not CLEAN23
         NonDeductibleVAT.Calculate(Rec);
+#endif        
     end;
 
     local procedure CalcVATAmount(ValueInclVAT: Boolean; Value: Decimal; VATPercent: Decimal): Decimal
@@ -488,7 +492,9 @@
         "Job No." := PurchLine."Job No.";
         "VAT %" := PurchLine."VAT %";
         "VAT Difference" := PurchLine."VAT Difference";
+#if not CLEAN23
         NonDeductibleVAT.Copy(Rec, PurchLine);
+#endif        
         if Type = Type::"Fixed Asset" then begin
             "FA Posting Date" := PurchLine."FA Posting Date";
             "Depreciation Book Code" := PurchLine."Depreciation Book Code";
@@ -516,7 +522,9 @@
             "VAT Base Amount (ACY)" := 0;
             "VAT Amount" := 0;
             "VAT Amount (ACY)" := 0;
+#if not CLEAN23
             NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
+#endif            
         end;
 
         "Journal Template Name" := PurchLine.GetJnlTemplateName();
@@ -570,7 +578,9 @@
         "VAT Base Amount (ACY)" := -"VAT Base Amount (ACY)";
         "VAT Amount" := -"VAT Amount";
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
+#if not CLEAN23
         NonDeductibleVAT.Reverse(Rec);
+#endif        
     end;
 
     [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
@@ -681,7 +691,9 @@
             "VAT Amount (ACY)" += InvoicePostBuffer."VAT Amount (ACY)";
             "VAT Difference" += InvoicePostBuffer."VAT Difference";
             "VAT Base Amount (ACY)" += InvoicePostBuffer."VAT Base Amount (ACY)";
+#if not CLEAN23
             NonDeductibleVAT.Increment(Rec, InvoicePostBuffer);
+#endif            
             Quantity += InvoicePostBuffer.Quantity;
             "VAT Base Before Pmt. Disc." += InvoicePostBuffer."VAT Base Before Pmt. Disc.";
             "Non Deductible VAT Amt." += InvoicePostBuffer."Non Deductible VAT Amt.";
@@ -771,7 +783,9 @@
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding.Amount, Amount, "Amount (ACY)");
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding."VAT Amount", "VAT Amount", "VAT Amount (ACY)");
         AdjustRoundingFieldsPair(TempInvoicePostBufferRounding."VAT Base Amount", "VAT Base Amount", "VAT Base Amount (ACY)");
+#if not CLEAN23
         NonDeductibleVAT.AdjustRoundingForInvoicePostBufferUpdate(TempInvoicePostBufferRounding, Rec);
+#endif        
         OnAfterAdjustRoundingForUpdate(Rec, TempInvoicePostBufferRounding);
     end;
 
@@ -788,7 +802,9 @@
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding.Amount, Amount);
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding."VAT Amount", "VAT Amount");
         ApplyRoundingValueForFinalPosting(TempInvoicePostBufferRounding."VAT Base Amount", "VAT Base Amount");
+#if not CLEAN23
         NonDeductibleVAT.ApplyRoundingForFinalPostingFromInvoicePostBuffer(TempInvoicePostBufferRounding, Rec);
+#endif        
         OnAfterApplyRoundingForFinalPosting(Rec, TempInvoicePostBufferRounding);
     end;
 
@@ -835,7 +851,9 @@
         GenJnlLine."Source Curr. VAT Amount" := Rec."VAT Amount (ACY)";
         GenJnlLine."VAT Difference" := Rec."VAT Difference";
         GenJnlLine."VAT Base Before Pmt. Disc." := Rec."VAT Base Before Pmt. Disc.";
+#if not CLEAN23
         NonDeductibleVAT.Copy(GenJnlLine, Rec);
+#endif        
 
         OnAfterCopyToGenJnlLine(GenJnlLine, Rec);
     end;
