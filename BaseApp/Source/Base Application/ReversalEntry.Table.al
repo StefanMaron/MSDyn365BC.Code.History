@@ -361,8 +361,7 @@
             if GLEntry.IsEmpty() then
                 Error(CannotReverseDeletedErr, GLEntry.TableCaption, GLAcc.TableCaption);
             if GLEntry.Find('-') then begin
-                if (GLEntry."Journal Batch Name" = '') and not IsVATAllocOnCost then
-                    TestFieldError;
+                CheckGLEntry(IsVATAllocOnCost);
                 repeat
                     CheckGLAcc(GLEntry, BalanceCheckAmount, BalanceCheckAddCurrAmount);
                 until GLEntry.Next() = 0;
@@ -447,6 +446,19 @@
         OnAfterCheckEntries(MaxPostingDate);
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 1);
+    end;
+
+    local procedure CheckGLEntry(IsVATAllocOnCost: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGLEntry(Rec, GLEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (GLEntry."Journal Batch Name" = '') and not IsVATAllocOnCost then
+            TestFieldError;
     end;
 
     local procedure CheckGLAcc(GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAddCurrAmount: Decimal)
@@ -1678,6 +1690,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckGLAcc(var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLEntry(var ReversalEntry: Record "Reversal Entry"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
     begin
     end;
 

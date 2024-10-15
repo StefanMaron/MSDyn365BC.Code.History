@@ -475,7 +475,10 @@
             end;
 
             IsHandled := false;
+#if not CLEAN20
             OnFindBWPickBinOnBeforeFindFromBinContent(FromBinContent, SourceType, TotalQtyPickedBase, IsHandled, TotalQtyToPickBase);
+#endif
+            OnFindBWPickBinOnBeforeFromBinContentFindSet(FromBinContent, SourceType, TotalQtyPickedBase, TotalQtyToPickBase, IsHandled);
             if not IsHandled then
                 if FindSet() then
                     repeat
@@ -1596,6 +1599,7 @@
         // For locations with pick/ship and without directed put-away and pick
         GetItem(ItemNo);
         AvailableQtyBase := WhseAvailMgt.CalcInvtAvailQty(Item, Location, VariantCode, TempWhseActivLine);
+        OnCalcAvailableQtyOnAfterCalcAvailableQtyBase(Item, Location, VariantCode, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, AvailableQtyBase);
 
         if (WhseSource = WhseSource::Shipment) and WhseShptLine."Assemble to Order" then
             WhseSource2 := WhseSource::Assembly
@@ -2270,7 +2274,7 @@
         OnBeforeCalcTotalAvailQtyToPick(
           LocationCode, ItemNo, VariantCode, WhseItemTrackingLine."Lot No.", WhseItemTrackingLine."Serial No.",
           SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo,
-          NeededQtyBase, RespectLocationBins, CalledFromMoveWksh, CalledFromWksh, TempWhseActivLine, IsHandled, TotalAvailQtyBase);
+          NeededQtyBase, RespectLocationBins, CalledFromMoveWksh, CalledFromWksh, TempWhseActivLine, IsHandled, TotalAvailQtyBase, WhseItemTrackingLine);
         if IsHandled then
             exit(TotalAvailQtyBase);
 
@@ -2354,8 +2358,14 @@
             QtyReservedOnPickShip :=
                 WhseAvailMgt.CalcReservQtyOnPicksShipsWithItemTracking(TempWhseActivLine, TempTrackingSpecification, LocationCode, ItemNo, VariantCode);
 
-            LineReservedQty :=
-                WhseAvailMgt.CalcLineReservedQtyOnInvt(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, true, TempWhseActivLine);
+            if WhseItemTrackingLine.TrackingExists() and (QtyReservedOnPickShip > 0) then
+                LineReservedQty :=
+                    WhseAvailMgt.CalcLineReservedQtyOnInvt(
+                      SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, true, WhseItemTrackingSetup, TempWhseActivLine)
+            else
+                LineReservedQty :=
+                    WhseAvailMgt.CalcLineReservedQtyOnInvt(
+                      SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, true, TempWhseActivLine);
 
             AdjustQtyReservedOnPickShip(SubTotal, ReservedQtyOnInventory, QtyReservedOnPickShip, LineReservedQty);
 
@@ -3559,7 +3569,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcTotalAvailQtyToPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; NeededQtyBase: Decimal; RespectLocationBins: Boolean; CalledFromMoveWksh: Boolean; CalledFromWksh: Boolean; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean; var TotalAvailQtyBase: Decimal)
+    local procedure OnBeforeCalcTotalAvailQtyToPick(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; NeededQtyBase: Decimal; RespectLocationBins: Boolean; CalledFromMoveWksh: Boolean; CalledFromWksh: Boolean; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean; var TotalAvailQtyBase: Decimal; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
     end;
 
@@ -3680,6 +3690,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAvailQtyOnFindPickBin2(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; LotNo: Code[50]; SerialNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableQtyOnAfterCalcAvailableQtyBase(Item: Record Item; Location: Record Location; VariantCode: Code[10]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var AvailableQtyBase: Decimal)
     begin
     end;
 
@@ -3817,8 +3832,16 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnFindBWPickBinOnBeforeFromBinContentFindSet with correct param naming', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnFindBWPickBinOnBeforeFindFromBinContent(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean; var TotalQtyToPickBase2: Decimal)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBWPickBinOnBeforeFromBinContentFindSet(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyPickedBase: Decimal; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

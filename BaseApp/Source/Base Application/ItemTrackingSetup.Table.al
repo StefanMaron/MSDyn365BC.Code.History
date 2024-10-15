@@ -284,6 +284,21 @@
         OnAfterCopyTrackingFromRegisteredWhseActivityLine(Rec, RegisteredWhseActivityLine);
     end;
 
+    procedure GetNonWarehouseTrackingRequirements(WhseItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        "Lot No. Required" :=
+            ItemTrackingSetup."Lot No. Required" and
+            not WhseItemTrackingSetup."Lot No. Required" and
+            WhseItemTrackingSetup."Serial No. Required";
+
+        "Serial No. Required" :=
+            ItemTrackingSetup."Serial No. Required" and
+            not WhseItemTrackingSetup."Serial No. Required" and
+            WhseItemTrackingSetup."Lot No. Required";
+
+        OnAfterGetNonWarehouseTrackingRequirements(Rec, WhseItemTrackingSetup, ItemTrackingSetup);
+    end;
+
     procedure SetTrackingFilterForItem(var Item: Record Item)
     begin
         if "Serial No." <> '' then
@@ -430,6 +445,13 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromRegisteredWhseActivityLine(var ItemTrackingSetup: Record "Item Tracking Setup"; RegisteredWhseActivityLine: Record "Registered Whse. Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNonWarehouseTrackingRequirements(var NonWhseItemTrackingSetup: Record "Item Tracking Setup";
+                                                               WhseItemTrackingSetup: Record "Item Tracking Setup";
+                                                               ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

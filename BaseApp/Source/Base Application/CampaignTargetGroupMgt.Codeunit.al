@@ -91,7 +91,14 @@ codeunit 7030 "Campaign Target Group Mgt"
     end;
 
     procedure DeactivateCampaign(var Campaign: Record Campaign; ShowMessage: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeactivateCampaign(Campaign, ShowMessage, IsHandled);
+        if IsHandled then
+            exit;
+
         CampaignTargetGr.LockTable();
 
         CampaignTargetGr.SetCurrentKey("Campaign No.");
@@ -279,6 +286,11 @@ codeunit 7030 "Campaign Target Group Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeActivateCampaign(var Campaign: Record Campaign; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeactivateCampaign(var Campaign: Record Campaign; ShowMessage: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

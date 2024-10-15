@@ -97,6 +97,7 @@ codeunit 1387 "Employee Templ. Mgt."
     begin
         ApplyTemplate(Employee, EmployeeTempl);
         InsertDimensions(Employee."No.", EmployeeTempl.Code, Database::Employee, Database::"Employee Templ.");
+        Employee.Get(Employee."No.");
     end;
 
     [Obsolete('Replaced by ApplyEmployeeTemplate with different set of parameters', '18.0')]

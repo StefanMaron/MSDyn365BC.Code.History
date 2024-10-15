@@ -2306,7 +2306,7 @@ codeunit 137405 "SCM Item Tracking"
         CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
 
         // [GIVEN] Post inventory with serial no. = "S1", lot no. = "L1", expiration date = "EXP-1".
-        MockItemEntryWithSerialAndLot(Item."No.", SerialNos[1], LotNos[1]);
+        MockItemEntryWithSerialAndLot(Item."No.", SerialNos[1], LotNos[1], WorkDate());
 
         // [GIVEN] Item journal line.
         // [GIVEN] Open item tracking and set a line with serial no. = "S1", lot no. = "L1".
@@ -3040,6 +3040,66 @@ codeunit 137405 "SCM Item Tracking"
         LibraryWarehouse.FindWhseActivityLineBySourceDoc(
           WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.TestField(Quantity, 1);
+    end;
+
+    [Test]
+    procedure LotNoInfoExpiredInventoryDoesNotIncludeItemEntriesWithNoExpirationDate()
+    var
+        LotNoInformation: Record "Lot No. Information";
+        LotNoInformationCard: TestPage "Lot No. Information Card";
+        ItemNo: Code[20];
+        LotNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Lot No. Information] [UT]
+        // [SCENARIO 414220] "Expired Inventory" in Lot No. Information does not include item entries without expiration date.
+        Initialize();
+
+        ItemNo := LibraryInventory.CreateItemNo();
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+
+        MockItemEntryWithSerialAndLot(ItemNo, '', LotNo[1], 0D);
+        MockItemEntryWithSerialAndLot(ItemNo, '', LotNo[2], WorkDate() - 1);
+
+        LibraryItemTracking.CreateLotNoInformation(LotNoInformation, ItemNo, '', LotNo[1]);
+        LibraryItemTracking.CreateLotNoInformation(LotNoInformation, ItemNo, '', LotNo[2]);
+
+        LotNoInformationCard.OpenView();
+        LotNoInformationCard.FILTER.SetFilter("Lot No.", LotNo[1]);
+        LotNoInformationCard."Expired Inventory".AssertEquals(0);
+        LotNoInformationCard.FILTER.SetFilter("Lot No.", LotNo[2]);
+        LotNoInformationCard."Expired Inventory".AssertEquals(LotNoInformationCard."Expired Inventory".AsDEcimal());
+        LotNoInformationCard.Close();
+    end;
+
+    [Test]
+    procedure SerialNoInfoExpiredInventoryDoesNotIncludeItemEntriesWithNoExpirationDate()
+    var
+        SerialNoInformation: Record "Serial No. Information";
+        SerialNoInformationCard: TestPage "Serial No. Information Card";
+        ItemNo: Code[20];
+        SerialNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Serial No. Information] [UT]
+        // [SCENARIO 414220] "Expired Inventory" in Serial No. Information does not include item entries without expiration date.
+        Initialize();
+
+        ItemNo := LibraryInventory.CreateItemNo();
+        SerialNo[1] := LibraryUtility.GenerateGUID();
+        SerialNo[2] := LibraryUtility.GenerateGUID();
+
+        MockItemEntryWithSerialAndLot(ItemNo, SerialNo[1], '', 0D);
+        MockItemEntryWithSerialAndLot(ItemNo, SerialNo[2], '', WorkDate() - 1);
+
+        LibraryItemTracking.CreateSerialNoInformation(SerialNoInformation, ItemNo, '', SerialNo[1]);
+        LibraryItemTracking.CreateSerialNoInformation(SerialNoInformation, ItemNo, '', SerialNo[2]);
+
+        SerialNoInformationCard.OpenView();
+        SerialNoInformationCard.FILTER.SetFilter("Serial No.", SerialNo[1]);
+        SerialNoInformationCard."Expired Inventory".AssertEquals(0);
+        SerialNoInformationCard.FILTER.SetFilter("Serial No.", SerialNo[2]);
+        SerialNoInformationCard."Expired Inventory".AssertEquals(SerialNoInformationCard."Expired Inventory".AsDEcimal());
+        SerialNoInformationCard.Close();
     end;
 
     local procedure Initialize()
@@ -3968,7 +4028,7 @@ codeunit 137405 "SCM Item Tracking"
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
     end;
 
-    local procedure MockItemEntryWithSerialAndLot(ItemNo: Code[20]; SerialNo: Code[20]; LotNo: Code[20])
+    local procedure MockItemEntryWithSerialAndLot(ItemNo: Code[20]; SerialNo: Code[20]; LotNo: Code[20]; ExpirationDate: Date)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3982,7 +4042,7 @@ codeunit 137405 "SCM Item Tracking"
             "Remaining Quantity" := Quantity;
             Open := true;
             Positive := true;
-            "Expiration Date" := WorkDate;
+            "Expiration Date" := ExpirationDate;
             Insert;
         end;
     end;

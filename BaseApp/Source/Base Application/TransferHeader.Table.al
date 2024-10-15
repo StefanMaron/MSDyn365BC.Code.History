@@ -286,14 +286,6 @@
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-
-            trigger OnValidate()
-            begin
-                if "Direct Transfer" then begin
-                    Validate("Shipment Date", "Posting Date");
-                    Validate("Receipt Date", "Posting Date");
-                end;
-            end;
         }
         field(21; "Shipment Date"; Date)
         {
@@ -895,6 +887,7 @@
                             TransferLine.Validate("Shipment Date", TransferHeader."Shipment Date");
                             TransferLine.Validate("Receipt Date", TransferHeader."Receipt Date");
                             TransferLine.Validate("Shipping Time", TransferHeader."Shipping Time");
+                            OnUpdateTransLinesOnShippingAgentCodeOnBeforeBlockDynamicTracking(TransferLine, TransferHeader);
                             TransferLine.BlockDynamicTracking(false);
                             TransferLine.DateConflictCheck;
                         end;
@@ -1447,6 +1440,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteOneTransferOrder(var TransHeader2: Record "Transfer Header"; var TransLine2: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateTransLinesOnShippingAgentCodeOnBeforeBlockDynamicTracking(var TransferLine: record "Transfer Line"; var TransferHeader: record "Transfer Header")
     begin
     end;
 

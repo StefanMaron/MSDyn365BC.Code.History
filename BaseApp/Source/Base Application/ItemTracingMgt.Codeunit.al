@@ -465,7 +465,7 @@ codeunit 6520 "Item Tracing Mgt."
         TempTrackEntry."Created by" := ValueEntry."User ID";
         TempTrackEntry."Created on" := ValueEntry."Posting Date";
 
-        OnAfterTransferData(ItemLedgEntry, TempTrackEntry);
+        OnAfterTransferData(ItemLedgEntry, TempTrackEntry, ValueEntry);
     end;
 
     procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text)
@@ -1046,7 +1046,7 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferData(var ItemLedgerEntry: Record "Item Ledger Entry"; var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary)
+    local procedure OnAfterTransferData(var ItemLedgerEntry: Record "Item Ledger Entry"; var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; ValueEntry: Record "Value Entry")
     begin
     end;
 

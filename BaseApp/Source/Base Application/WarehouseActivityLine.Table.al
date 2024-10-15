@@ -184,7 +184,14 @@ table 5767 "Warehouse Activity Line"
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Qty. (Base)");
             end;
@@ -1598,6 +1605,7 @@ table 5767 "Warehouse Activity Line"
             WMSMgt.CalcCubageAndWeight(
               WhseActivLine."Item No.", WhseActivLine."Unit of Measure Code",
               WhseActivLine."Qty. to Handle", WhseActivLine.Cubage, WhseActivLine.Weight);
+        OnCreateNewUOMLineOnBeforeNewWhseActivLineModify(NewWhseActivLine, WhseActivLine);
         WhseActivLine.Modify();
     end;
 
@@ -2694,6 +2702,38 @@ table 5767 "Warehouse Activity Line"
                 UpdateReservation(Rec, false);
     end;
 
+    procedure TestNonSpecificItemTracking()
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        NonWhseItemTrackingSetup: Record "Item Tracking Setup";
+        ItemLedgerEntryType: Enum "Item Ledger Entry Type";
+    begin
+        case "Source Document" of
+            "Source Document"::"Sales Order":
+                ItemLedgerEntryType := ItemLedgerEntryType::Sale;
+            "Source Document"::"Purchase Return Order":
+                ItemLedgerEntryType := ItemLedgerEntryType::Purchase;
+            "Source Document"::"Outbound Transfer":
+                ItemLedgerEntryType := ItemLedgerEntryType::Transfer;
+            "Source Document"::"Prod. Consumption":
+                ItemLedgerEntryType := ItemLedgerEntryType::Consumption;
+            "Source Document"::"Assembly Consumption":
+                ItemLedgerEntryType := ItemLedgerEntryType::"Assembly Consumption";
+            else
+                exit;
+        end;
+
+        GetItem();
+        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+        ItemTrackingMgt.GetItemTrackingSetup(ItemTrackingCode, ItemLedgerEntryType, false, ItemTrackingSetup);
+
+        NonWhseItemTrackingSetup.Code := ItemTrackingCode.Code;
+        NonWhseItemTrackingSetup.GetNonWarehouseTrackingRequirements(WhseItemTrackingSetup, ItemTrackingSetup);
+        
+        TestTrackingIfRequired(NonWhseItemTrackingSetup);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
@@ -3047,12 +3087,22 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; xWarehouseActivityLine: Record "Warehouse Activity Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnChangeUOMCodeOnBeforeRecModify(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewUOMLineOnBeforeNewWhseActivLineInsert(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewUOMLineOnBeforeNewWhseActivLineModify(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 

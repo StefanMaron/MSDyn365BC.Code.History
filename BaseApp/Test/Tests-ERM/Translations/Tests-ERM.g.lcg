@@ -860,6 +860,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Adjust Exchange Rates - NamedType ExpectNoAdjustmentErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1577891935 - NamedType 2181919919" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The transaction will cause G/L entries to be inconsistent. Typical causes for this are mismatched amounts, including amounts in additional currencies, and posting dates.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Adjust Exchange Rates - NamedType InconsistenceTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2205251927 - NamedType 2868768795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Changing dimension will clear dimension totaling columns of Account Schedule Lines using current Analysis Vew. \Do you want to continue?]]></Val>
@@ -1492,11 +1501,11 @@
   </Item>
   <Item ItemId=";Codeunit 2382063891 - NamedType 1302901676" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The job no. %1 was successfully copied to the new job no. %2 with the status Planning.]]></Val>
+      <Val><![CDATA[The job no. %1 was successfully copied to the new job no. %2 with the status %3.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Batch Job II - NamedType JobsCopyMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - The "No." of source job; %2 - The "No." of target job, %3 - job status.]D;]A;(LookupHint=Codeunit ERM Batch Job II - NamedType JobsCopyMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2382063891 - NamedType 1084747160" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8242,7 +8251,7 @@
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 1940579729" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to Parent No. must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to Parent No. must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8251,7 +8260,7 @@
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 4020569621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to Parent No. must have a value]]></Val>
+      <Val><![CDATA[Assign-to Parent No. must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8269,7 +8278,7 @@
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 690388717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to No. must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8278,7 +8287,7 @@
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 4182574153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to No. must have a value]]></Val>
+      <Val><![CDATA[Assign-to must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8413,7 +8422,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 1940579729" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to Parent No. must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to Parent No. must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8422,7 +8431,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 4020569621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to Parent No. must have a value]]></Val>
+      <Val><![CDATA[Assign-to Parent No. must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8440,7 +8449,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 690388717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to No. must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8449,7 +8458,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 4182574153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to No. must have a value]]></Val>
+      <Val><![CDATA[Assign-to must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8458,7 +8467,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 1536869892" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to Type must be equal to '%1']]></Val>
+      <Val><![CDATA[Assign-to Type must be equal to '%1']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8499,15 +8508,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price Lists UI - NamedType AllLinesVerifiedMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1304875132 - NamedType 1654333283" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Product Type must not be (All)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price Lists UI - NamedType AssetTypeMustNotBeAllErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1304875132 - NamedType 2047648732" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8647,7 +8647,7 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 1940579729" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to Parent No. must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to Parent No. must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8656,7 +8656,7 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 4020569621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to Parent No. must have a value]]></Val>
+      <Val><![CDATA[Assign-to Parent No. must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8674,7 +8674,7 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 690388717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to No. must be equal to '']]></Val>
+      <Val><![CDATA[Assign-to must be equal to '']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8683,7 +8683,7 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 4182574153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to No. must have a value]]></Val>
+      <Val><![CDATA[Assign-to must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -8692,7 +8692,7 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 1536869892" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Applies-to Type must be equal to '%1']]></Val>
+      <Val><![CDATA[Assign-to Type must be equal to '%1']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

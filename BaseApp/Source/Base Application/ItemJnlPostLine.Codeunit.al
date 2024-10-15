@@ -422,7 +422,7 @@
                     end;
 
                     IsHandled := false;
-                    OnPostConsumptionOnBeforeCalcRemainingQuantity(ProdOrderComp, ItemJnlLine, NewRemainingQty, QtyToPost, IsHandled);
+                    OnPostConsumptionOnBeforeCalcRemainingQuantity(ProdOrderComp, ItemJnlLine, NewRemainingQty, QtyToPost, IsHandled, RemQtyToPost);
                     if not IsHandled then
                         "Remaining Quantity" := Round("Remaining Qty. (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
 
@@ -1286,7 +1286,7 @@
         OldItemTrackingSetup: Record "Item Tracking Setup";
         xCalledFromInvtPutawayPick: Boolean;
     begin
-        OnBeforeFlushOperation(ProdOrder, ProdOrderLine, ItemJnlLine);
+        OnBeforeFlushOperation(ProdOrder, ProdOrderLine, ItemJnlLine, LastOperation);
 
         if ItemJnlLine."Operation No." = '' then
             exit;
@@ -1389,7 +1389,7 @@
         end else
             QtyToPost := ProdOrderComp.GetNeededQty(CalcBasedOn::"Expected Output", true);
         QtyToPost := UOMMgt.RoundToItemRndPrecision(QtyToPost, CompItem."Rounding Precision");
-        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost);
+        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost, OldItemJnlLine);
         if QtyToPost = 0 then
             exit;
 
@@ -1879,6 +1879,7 @@
                     if ItemApplnEntry.CheckIsCyclicalLoop(AppliesFromItemLedgEntry, OldItemLedgEntry) then
                         AppliedQty := 0;
                 end;
+                OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgEntry, ItemLedgEntry, AppliedQty);
             end;
 
             CheckIsCyclicalLoop(ItemLedgEntry, OldItemLedgEntry, PrevAppliedItemLedgEntry, AppliedQty);
@@ -2478,7 +2479,7 @@
             PhysInvtLedgEntry."Phys Invt Counting Period Type" :=
               "Phys Invt Counting Period Type";
 
-            OnBeforeInsertPhysInvtLedgEntry(PhysInvtLedgEntry, ItemJnlLineOrigin);
+            OnBeforeInsertPhysInvtLedgEntry(PhysInvtLedgEntry, ItemJnlLineOrigin, ItemJnlLine);
             PhysInvtLedgEntry.Insert();
 
             InsertItemReg(0, PhysInvtLedgEntry."Entry No.", 0, 0);
@@ -6107,7 +6108,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPhysInvtLedgEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeInsertPhysInvtLedgEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; LastSplitItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -6257,7 +6258,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFlushOperation(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line");
+    local procedure OnBeforeFlushOperation(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line"; LastOperation: Boolean);
     begin
     end;
 
@@ -6552,6 +6553,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnBeforeCheckApplyEntry(var OldItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -6682,7 +6688,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostFlushedConsumpOnAfterCalcQtyToPost(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; var QtyToPost: Decimal)
+    local procedure OnPostFlushedConsumpOnAfterCalcQtyToPost(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; var QtyToPost: Decimal; var OldItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -7386,7 +7392,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostConsumptionOnBeforeCalcRemainingQuantity(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: Record "Item Journal Line"; var NewRemainingQty: Decimal; var QtyToPost: Decimal; var IsHandled: Boolean)
+    local procedure OnPostConsumptionOnBeforeCalcRemainingQuantity(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: Record "Item Journal Line"; var NewRemainingQty: Decimal; var QtyToPost: Decimal; var IsHandled: Boolean; var RemQtyToPost: Decimal)
     begin
     end;
 

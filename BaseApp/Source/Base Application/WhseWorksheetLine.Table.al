@@ -229,40 +229,12 @@ table 7326 "Whse. Worksheet Line"
                         if not Confirmed then
                             Error(Text003);
 
-                        GetLocation("Location Code");
-                        if Location."Bin Mandatory" then begin
-                            if CurrFieldNo <> FieldNo("Qty. to Handle") then begin
-                                AvailableQty := CalcAvailableQtyBase();
-                                if not Location."Always Create Pick Line" then
-                                    if "Qty. to Handle (Base)" > AvailableQty then begin
-                                        if ("Shipping Advice" = "Shipping Advice"::Complete) or
-                                           (AvailableQty < 0)
-                                        then
-                                            "Qty. to Handle (Base)" := 0
-                                        else
-                                            "Qty. to Handle (Base)" := AvailableQty;
-                                    end;
-                            end
-                        end else begin
-                            AvailableQty := CalcAvailableQtyBase();
-                            if "Qty. to Handle (Base)" > AvailableQty then begin
-                                if ("Shipping Advice" = "Shipping Advice"::Complete) or
-                                   (AvailableQty < 0)
-                                then
-                                    "Qty. to Handle (Base)" := 0
-                                else
-                                    "Qty. to Handle (Base)" := AvailableQty;
-
-                                if (not HideValidationDialog) and (CurrFieldNo = FieldNo("Qty. to Handle")) then
-                                    Error(
-                                      Text004,
-                                      AvailableQty);
-                            end;
-                        end;
+                        UpdatePickQtyToHandleBase();
                     end else
                         if WhseWkshTemplate.Type = WhseWkshTemplate.Type::Movement then
                             if CurrFieldNo <> FieldNo("Qty. to Handle") then begin
                                 AvailableQty := CheckAvailQtytoMove;
+                                OnValidateQtyToHandleOnAfterCalcQtyAvailToMove(Rec, xRec, AvailableQty);
                                 if AvailableQty < 0 then
                                     "Qty. to Handle (Base)" := 0
                                 else
@@ -720,6 +692,7 @@ table 7326 "Whse. Worksheet Line"
     procedure CheckAvailQtytoMove() AvailableQtyToMoveBase: Decimal
     begin
         AvailableQtyToMoveBase := CalcAvailQtyToMove + xRec."Qty. to Handle (Base)";
+        OnAfterCheckAvailQtytoMove(Rec, xRec, AvailableQtyToMoveBase);
     end;
 
     local procedure CalcAvailQtyToMove() QtyAvailToMoveBase: Decimal
@@ -1193,6 +1166,48 @@ table 7326 "Whse. Worksheet Line"
         end;
     end;
 
+    local procedure UpdatePickQtyToHandleBase()
+    var
+        AvailableQty: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdatePickQtyToHandleBase(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetLocation("Location Code");
+        if Location."Bin Mandatory" then begin
+            if CurrFieldNo <> FieldNo("Qty. to Handle") then begin
+                AvailableQty := CalcAvailableQtyBase();
+                if not Location."Always Create Pick Line" then
+                    if "Qty. to Handle (Base)" > AvailableQty then begin
+                        if ("Shipping Advice" = "Shipping Advice"::Complete) or
+                           (AvailableQty < 0)
+                        then
+                            "Qty. to Handle (Base)" := 0
+                        else
+                            "Qty. to Handle (Base)" := AvailableQty;
+                    end;
+            end
+        end else begin
+            AvailableQty := CalcAvailableQtyBase();
+            if "Qty. to Handle (Base)" > AvailableQty then begin
+                if ("Shipping Advice" = "Shipping Advice"::Complete) or
+                   (AvailableQty < 0)
+                then
+                    "Qty. to Handle (Base)" := 0
+                else
+                    "Qty. to Handle (Base)" := AvailableQty;
+
+                if (not HideValidationDialog) and (CurrFieldNo = FieldNo("Qty. to Handle")) then
+                    Error(
+                      Text004,
+                      AvailableQty);
+            end;
+        end;
+    end;
+
     local procedure UpdateMovActivLines()
     var
         WhseActivLine: Record "Warehouse Activity Line";
@@ -1537,6 +1552,11 @@ table 7326 "Whse. Worksheet Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckAvailQtytoMove(var WhseWorksheetLine: Record "Whse. Worksheet Line"; xWhseWorksheetLine: Record "Whse. Worksheet Line"; var QtyAvailToMoveBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetItem(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var Item: Record Item)
     begin
     end;
@@ -1605,6 +1625,11 @@ table 7326 "Whse. Worksheet Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePickQtyToHandleBase(var WhseWorksheetLine: Record "Whse. Worksheet Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQty(var PutAwayWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1641,6 +1666,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSortWhseWkshLinesOnCaseElse(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SortingMethod: Enum "Whse. Activity Sorting Method")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToHandleOnAfterCalcQtyAvailToMove(var WhseWorksheetLine: Record "Whse. Worksheet Line"; xWhseWorksheetLine: Record "Whse. Worksheet Line"; var QtyAvailToMoveBase: Decimal)
     begin
     end;
 }

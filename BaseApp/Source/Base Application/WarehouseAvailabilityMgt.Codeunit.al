@@ -106,7 +106,7 @@ codeunit 7314 "Warehouse Availability Mgt."
                 PositiveReservationEntry.SetRange("Entry No.", ReservEntry."Entry No.");
                 PositiveReservationEntry.SetRange(Positive, true);
                 PositiveReservationEntry.SetRange("Source Type", DATABASE::"Item Ledger Entry");
-                ReservEntry.SetTrackingFilterFromSpecIfNotBlank(TrackingSpecification);
+                PositiveReservationEntry.SetTrackingFilterFromSpecIfNotBlank(TrackingSpecification);
                 if not PositiveReservationEntry.IsEmpty() then begin
                     TransferFields(ReservEntry);
                     if Find then begin

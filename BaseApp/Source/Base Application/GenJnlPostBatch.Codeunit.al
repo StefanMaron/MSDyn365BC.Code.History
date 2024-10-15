@@ -310,6 +310,8 @@
 
             if not SuppressCommit then
                 Commit();
+
+            OnProcessLinesOnBeforeClearPostingCodeunits(GenJnlLine, SuppressCommit);
             Clear(GenJnlCheckLine);
             Clear(GenJnlPostLine);
             ClearMarks;
@@ -1126,7 +1128,14 @@
     end;
 
     local procedure UpdateCurrencyBalanceForRecurringLine(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCurrencyBalanceForRecurringLine(GenJnlLine, CurrencyBalance, LastCurrencyCode, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             if "Recurring Method" <> "Recurring Method"::" " then
                 CalcFields("Allocated Amt. (LCY)");
@@ -1709,6 +1718,7 @@
                 LineNo := LineNo + 1;
             end;
             MakeRecurringTexts(GenJournalLine);
+            OnPostGenJournalLineOnBeforeCheckDocumentNo(GenJournalLine, GLRegNo);
             CheckDocumentNo(GenJournalLine);
             GenJnlLine5.Copy(GenJournalLine);
             PrepareGenJnlLineAddCurr(GenJnlLine5);
@@ -2284,6 +2294,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnProcessLinesOnBeforeClearPostingCodeunits(var GenJournalLine: Record "Gen. Journal Line"; SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsNonZeroAmount(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean)
     begin
     end;
@@ -2314,7 +2329,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCurrencyBalanceForRecurringLine(var GenJnlLine: Record "Gen. Journal Line"; CurrencyBalance: Decimal; LastCurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(var GenJnlLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGenJournalLineOnBeforeCheckDocumentNo(var GenJnlLine: Record "Gen. Journal Line"; GLRegNo: Integer)
     begin
     end;
 

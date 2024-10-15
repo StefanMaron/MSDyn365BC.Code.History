@@ -1,4 +1,4 @@
-codeunit 312 "Cust-Check Cr. Limit"
+﻿codeunit 312 "Cust-Check Cr. Limit"
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -170,7 +170,7 @@ codeunit 312 "Cust-Check Cr. Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateAndSendNotification(RecordId, AdditionalContextId, Heading, NotificationToSend, IsHandled);
+        OnBeforeCreateAndSendNotification(RecordId, AdditionalContextId, Heading, NotificationToSend, IsHandled, CustCheckCreditLimit);
         if IsHandled then
             exit;
 
@@ -264,7 +264,7 @@ codeunit 312 "Cust-Check Cr. Limit"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCreateAndSendNotification(RecordId: RecordID; AdditionalContextId: Guid; Heading: Text[250]; NotificationToSend: Notification; var IsHandled: Boolean);
+    local procedure OnBeforeCreateAndSendNotification(RecordId: RecordID; AdditionalContextId: Guid; Heading: Text[250]; NotificationToSend: Notification; var IsHandled: Boolean; var CustCheckCreditLimit: Page "Check Credit Limit");
     begin
     end;
 

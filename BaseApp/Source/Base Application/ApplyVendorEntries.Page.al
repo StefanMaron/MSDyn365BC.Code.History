@@ -631,6 +631,8 @@ page 233 "Apply Vendor Entries"
             CalcApplnAmount();
         PostingDone := false;
         IsOfficeAddin := OfficeMgt.IsAvailable();
+
+        OnAfterOpenPage(Rec, ApplyingVendLedgEntry);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1432,6 +1434,11 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterExchangeLedgerEntryAmounts(var CalcVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenPage(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var ApplyingVendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
