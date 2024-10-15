@@ -37,7 +37,6 @@ page 105 "New Account Schedule Name"
                     Style = Unfavorable;
                 }
             }
-#pragma warning disable AS0074
 #if not CLEAN22
             group(ColumnLayoutGroup)
             {
@@ -78,7 +77,6 @@ page 105 "New Account Schedule Name"
                 }
             }
 #endif
-#pragma warning restore AS0074
         }
     }
 
@@ -95,7 +93,6 @@ page 105 "New Account Schedule Name"
         CheckAlreadyExists();
     end;
 
-#pragma warning disable AS0074
 #if not CLEAN22
     [Obsolete('Use Set only with the Name parameter now. Column definition is now stored in Financial Report.', '22.0')]
     procedure Set(Name: Code[10]; ColumnLayout: Code[10])
@@ -116,7 +113,6 @@ page 105 "New Account Schedule Name"
     begin
     end;
 #endif
-#pragma warning restore AS0074
 
     local procedure CheckAlreadyExists()
     begin

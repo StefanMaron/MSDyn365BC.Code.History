@@ -88,7 +88,7 @@ table 5079 "Marketing Setup"
         field(28; "Default Salesperson Code"; Code[20])
         {
             Caption = 'Default Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(29; "Default Territory Code"; Code[10])
         {

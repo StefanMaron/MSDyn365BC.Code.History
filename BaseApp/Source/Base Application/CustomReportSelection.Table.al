@@ -190,7 +190,13 @@ table 9657 "Custom Report Selection"
         CustomReportSelection: Record "Custom Report Selection";
         ReportLayoutSelection: Record "Report Layout Selection";
         ShowEmailBodyDefinedError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckEmailBodyUsage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Use for Email Body" then begin
             CustomReportSelection.FilterEmailBodyUsage("Source Type", "Source No.", Usage.AsInteger());
             CustomReportSelection.SetFilter(Sequence, '<>%1', Sequence);
@@ -263,6 +269,7 @@ table 9657 "Custom Report Selection"
                     Validate("Custom Report Layout Code", ReportSelections."Custom Report Layout Code");
                     if ReportSelections."Email Body Layout Type" = ReportSelections."Email Body Layout Type"::"Custom Report Layout" then
                         Validate("Email Body Layout Code", ReportSelections."Email Body Layout Code");
+                    OnCopyFromReportSelectionsOnBeforeInsert(Rec, ReportSelections);
                     Insert();
                     SequenceNo += 1;
                 end;
@@ -480,6 +487,11 @@ table 9657 "Custom Report Selection"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEmailBodyUsage(var CustomReportSelection: Record "Custom Report Selection"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetSendToEmail(Update: Boolean; var Result: Text[250]; var IsHandled: Boolean)
     begin
@@ -492,6 +504,11 @@ table 9657 "Custom Report Selection"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromReportSelections(var CustomReportSelection: Record "Custom Report Selection"; var ReportSelections: Record "Report Selections")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromReportSelectionsOnBeforeInsert(var CustomReportSelection: Record "Custom Report Selection"; ReportSelections: Record "Report Selections")
     begin
     end;
 

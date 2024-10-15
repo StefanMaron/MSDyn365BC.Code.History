@@ -144,6 +144,8 @@ report 1016 "Job Quote"
                     }
                     column(TotalCostLCY; "Total Price (LCY)")
                     {
+                        AutoFormatExpression = CurrencyFormat;
+                        AutoFormatType = 10;
                     }
                     column(TotalCost; "Total Price")
                     {
@@ -188,6 +190,8 @@ report 1016 "Job Quote"
                         if FirstLineHasBeenOutput then
                             Clear(CompanyInfo.Picture);
                         FirstLineHasBeenOutput := true;
+
+                        ConstructCurrencyFormatString();
                     end;
 
                     trigger OnPreDataItem()
@@ -262,6 +266,7 @@ report 1016 "Job Quote"
     begin
         CompanyInfo.Get();
         JobsSetup.Get();
+        ConstructCurrencyFormatString();
     end;
 
     trigger OnPreReport()
@@ -269,6 +274,23 @@ report 1016 "Job Quote"
         JobFilter := Job.GetFilters();
         JobTaskFilter := "Job Planning Line".GetFilters();
         CompanyLogoPosition := JobsSetup."Logo Position on Documents";
+    end;
+
+    local procedure ConstructCurrencyFormatString()
+    var
+        Currency: Record Currency;
+        GLSetup: Record "General Ledger Setup";
+        CurrencySymbol: Text[10];
+        CurrencyLbl: Label '%1<precision, 2:2><standard format, 0>', Comment = '%1=CurrencySymbol';
+    begin
+        if Job."Currency Code" = '' then begin
+            GLSetup.Get();
+            CurrencySymbol := GLSetup.GetCurrencySymbol();
+        end else begin
+            if Currency.Get(Job."Currency Code") then;
+            CurrencySymbol := Currency.GetCurrencySymbol();
+        end;
+        CurrencyFormat := StrSubstNo(CurrencyLbl, CurrencySymbol);
     end;
 
     var
@@ -300,5 +322,6 @@ report 1016 "Job Quote"
         TotalJob: Text[250];
         HeaderJobTaskNo: Text[250];
         HeaderJobTask: Text[250];
+        CurrencyFormat: Text;
 }
 

@@ -1117,10 +1117,22 @@ table 5110 "Purchase Line Archive"
     end;
 
     procedure ShowDeferrals()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDeferrals(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralUtilities.OpenLineScheduleArchive(
             "Deferral Code", "Deferral Document Type"::Purchase.AsInteger(),
             "Document Type".AsInteger(), "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeferrals(PurchaseLineArchive: Record "Purchase Line Archive"; var IsHandled: Boolean)
+    begin
     end;
 }
 
