@@ -100,8 +100,8 @@ codeunit 1173 "Document Attachment Mgmt"
             DocumentAttachment.SetRange("Line No.", LineNo);
         end;
 
-        if RecRef.Number = Database::"VAT Report Header" then begin
-            FieldRef := RecRef.Field(2);
+        if TableHasVATReportConfigCodePrimaryKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
             VATRepConfigType := FieldRef.Value();
             DocumentAttachment.SetRange("VAT Report Config. Code", VATRepConfigType);
         end;
@@ -254,6 +254,18 @@ codeunit 1173 "Document Attachment Mgmt"
         Result := false;
         OnAfterTableHasLineNumberPrimaryKey(TableNo, Result, FieldNo);
         exit(Result);
+    end;
+
+    internal procedure TableHasVATReportConfigCodePrimaryKey(TableNo: Integer; var FieldNo: Integer): Boolean
+    begin
+        if TableNo in
+            [Database::"VAT Report Header"]
+        then begin
+            FieldNo := 2;
+            exit(true);
+        end;
+
+        exit(false);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterDeleteEvent', '', false, false)]

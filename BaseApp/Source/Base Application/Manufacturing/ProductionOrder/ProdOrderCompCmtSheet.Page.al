@@ -2,7 +2,7 @@ page 99000842 "Prod. Order Comp. Cmt. Sheet"
 {
     AutoSplitKey = true;
     Caption = 'Comment List';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     LinksAllowed = false;
     MultipleNewLines = true;
     PageType = List;

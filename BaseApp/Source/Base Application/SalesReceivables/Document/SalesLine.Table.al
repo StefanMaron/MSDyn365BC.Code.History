@@ -198,8 +198,10 @@
                 if ShouldStopValidation then
                     exit;
 
-                if HasTypeToFillMandatoryFields() then
+                if HasTypeToFillMandatoryFields() then begin
                     Quantity := TempSalesLine.Quantity;
+                    "Outstanding Qty. (Base)" := TempSalesLine."Outstanding Qty. (Base)";
+                end;
 
                 "System-Created Entry" := TempSalesLine."System-Created Entry";
                 GetSalesHeader();
@@ -4407,7 +4409,8 @@
                             if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
                                 PriceCalculation.ApplyDiscount();
                                 ApplyPrice(CalledByFieldNo, PriceCalculation);
-                            end;
+                            end else
+                                CalcUnitPriceUsingUOMCoef();
                         end else
                             CopyUnitPriceAndLineDiscountPct(BlanketOrderSalesLine, CalledByFieldNo);
                     OnUpdateUnitPriceByFieldOnAfterFindPrice(SalesHeader, Rec, CalledByFieldNo, CurrFieldNo);
@@ -7271,7 +7274,7 @@
     begin
         Reset();
         SetCurrentKey(
-          "Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Shipment Date");
+"Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Shipment Date");
         SetRange("Document Type", DocumentType);
         SetRange(Type, Type::Item);
         SetRange("No.", ReservationEntry."Item No.");
@@ -8975,6 +8978,32 @@
             else
                 DepreciationBookCode := '';
         end;
+    end;
+
+    local procedure CalcUnitPriceUsingUOMCoef()
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        GetSalesInvoiceLine(SalesInvoiceLine);
+
+        if SalesInvoiceLine."Line No." = 0 then
+            exit;
+
+        "Unit Price" := ("Qty. per Unit of Measure" * SalesInvoiceLine."Unit Price") / SalesInvoiceLine."Qty. per Unit of Measure";
+    end;
+
+    local procedure GetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+    begin
+        CheckApplFromItemLedgEntry(ItemLedgerEntry);
+        ValueEntry.SetLoadFields("Item Ledger Entry No.", "Item Ledger Entry Type", "Document Type", "Document No.", "Document Line No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
+        if ValueEntry.FindFirst() then
+            SalesInvoiceLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.");
     end;
 
     [IntegrationEvent(false, false)]

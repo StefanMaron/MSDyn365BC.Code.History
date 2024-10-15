@@ -60,61 +60,61 @@ codeunit 10085 "A/P Magnetic Media Management"
     end;
 
     var
+        FormBox: Record "IRS 1099 Form-Box";
+        FormatAddress: Codeunit "Format Address";
         Codes: array[4, 30] of Code[10];
         Amounts: array[4, 30] of Decimal;
-        FormatAddress: Codeunit "Format Address";
         Totals: array[4, 30] of Decimal;
-        FormBox: Record "IRS 1099 Form-Box";
         CodeNotSetupErr: Label 'The 1099 code %1 has not been setup in the initialization.', Comment = '%1 = 1099 Code';
         Unknown1099CodeErr: Label 'Invoice %1 on vendor %2 has unknown 1099 code  %3.', Comment = '%1 = Invoice Entry No., %2 = Vendor No., %3 = 1099 Code';
 
-    procedure GetAmt("Code": Code[10]; i: Integer; EndLine: Integer): Decimal
+    procedure GetAmt("Code": Code[10]; FormTypeIndex: Integer; EndLine: Integer): Decimal
     var
-        j: Integer;
+        IRSCodeIndex: Integer;
     begin
-        j := 1;
-        while (Codes[i, j] <> Code) and (j <= EndLine) do
-            j := j + 1;
+        IRSCodeIndex := 1;
+        while (Codes[FormTypeIndex, IRSCodeIndex] <> Code) and (IRSCodeIndex <= EndLine) do
+            IRSCodeIndex := IRSCodeIndex + 1;
 
-        if (Codes[i, j] = Code) and (j <= EndLine) then
-            exit(Amounts[i, j]);
+        if (Codes[FormTypeIndex, IRSCodeIndex] = Code) and (IRSCodeIndex <= EndLine) then
+            exit(Amounts[FormTypeIndex, IRSCodeIndex]);
 
         Error(CodeNotSetupErr, Code);
     end;
 
-    procedure UpdateLines(InvoiceEntry: Record "Vendor Ledger Entry"; i: Integer; EndLine: Integer; "Code": Code[10]; Amount: Decimal): Integer
+    procedure UpdateLines(InvoiceEntry: Record "Vendor Ledger Entry"; FormTypeIndex: Integer; EndLine: Integer; "Code": Code[10]; Amount: Decimal): Integer
     var
-        j: Integer;
+        IRSCodeIndex: Integer;
     begin
-        j := 1;
-        while (Codes[i, j] <> Code) and (j <= EndLine) do
-            j := j + 1;
+        IRSCodeIndex := 1;
+        while (Codes[FormTypeIndex, IRSCodeIndex] <> Code) and (IRSCodeIndex <= EndLine) do
+            IRSCodeIndex := IRSCodeIndex + 1;
 
-        if (Codes[i, j] = Code) and (j <= EndLine) then begin
-            Amounts[i, j] += Amount;
-            Totals[i, j] += Amount;
+        if (Codes[FormTypeIndex, IRSCodeIndex] = Code) and (IRSCodeIndex <= EndLine) then begin
+            Amounts[FormTypeIndex, IRSCodeIndex] += Amount;
+            Totals[FormTypeIndex, IRSCodeIndex] += Amount;
         end else
             Error(Unknown1099CodeErr, InvoiceEntry."Entry No.", InvoiceEntry."Vendor No.", Code);
-        exit(j); // returns code index found
+        exit(IRSCodeIndex); // returns code index found
     end;
 
-    procedure AnyAmount(i: Integer; EndLine: Integer): Boolean
+    procedure AnyAmount(FormTypeIndex: Integer; EndLine: Integer): Boolean
     var
-        j: Integer;
+        IRSCodeIndex: Integer;
     begin
-        for j := 1 to EndLine do
-            if FormBox.Get(Codes[i, j]) then begin
+        for IRSCodeIndex := 1 to EndLine do
+            if FormBox.Get(Codes[FormTypeIndex, IRSCodeIndex]) then begin
                 if FormBox."Minimum Reportable" < 0.0 then
-                    if Amounts[i, j] <> 0.0 then begin
-                        Amounts[i, j] := -Amounts[i, j];
+                    if Amounts[FormTypeIndex, IRSCodeIndex] <> 0.0 then begin
+                        Amounts[FormTypeIndex, IRSCodeIndex] := -Amounts[FormTypeIndex, IRSCodeIndex];
                         exit(true);
                     end;
                 if FormBox."Minimum Reportable" >= 0.0 then
-                    if Amounts[i, j] <> 0 then begin
-                        if Amounts[i, j] >= FormBox."Minimum Reportable" then
+                    if Amounts[FormTypeIndex, IRSCodeIndex] <> 0 then begin
+                        if Amounts[FormTypeIndex, IRSCodeIndex] >= FormBox."Minimum Reportable" then
                             exit(true);
-                        Totals[i, j] := Totals[i, j] - Amounts[i, j];
-                        Amounts[i, j] := 0;
+                        Totals[FormTypeIndex, IRSCodeIndex] := Totals[FormTypeIndex, IRSCodeIndex] - Amounts[FormTypeIndex, IRSCodeIndex];
+                        Amounts[FormTypeIndex, IRSCodeIndex] := 0;
                     end;
             end;
         exit(false);
@@ -195,18 +195,18 @@ codeunit 10085 "A/P Magnetic Media Management"
         Clear(Amounts);
     end;
 
-    procedure AmtCodes(var CodeNos: Text[12]; i: Integer; EndLine: Integer)
+    procedure AmtCodes(var CodeNos: Text[12]; FormTypeIndex: Integer; EndLine: Integer)
     var
         ActualCodePos: array[30] of Integer;
-        j: Integer;
+        IRSCodeIndex: Integer;
     begin
         Clear(CodeNos);
 
-        case i of
+        case FormTypeIndex of
             1:   // MISC
-                for j := 1 to EndLine do
-                    if Amounts[i, j] <> 0.0 then
-                        case j of
+                for IRSCodeIndex := 1 to EndLine do
+                    if Amounts[FormTypeIndex, IRSCodeIndex] <> 0.0 then
+                        case IRSCodeIndex of
                             9:
                                 IncrCodeNos(CodeNos, ActualCodePos, 'A', 10); // Crop Insurance Proceeds
                             10:
@@ -220,19 +220,18 @@ codeunit 10085 "A/P Magnetic Media Management"
                             15:
                                 IncrCodeNos(CodeNos, ActualCodePos, 'E', 14); // 409A Income
                             else
-                                IncrCodeNos(CodeNos, ActualCodePos, Format(j), j);
+                                IncrCodeNos(CodeNos, ActualCodePos, Format(IRSCodeIndex), IRSCodeIndex);
                         end;
             2: // DIV
                 begin
-                    if EndLine > 1 then begin
+                    if EndLine > 1 then
                         // special check for DIV complex amounts
                         if GetTotalOrdinaryDividendsAmt() <> 0 then
                             CodeNos := InsStr(CodeNos, Format(1), 1);
-                    end;
-                    AmtCodesDIV(CodeNos, i, 2, EndLine);
+                    AmtCodesDIV(CodeNos, FormTypeIndex, 2, EndLine);
                 end;
             3: // INT
-                AmtCodesINT(CodeNos, i, 1, EndLine);
+                AmtCodesINT(CodeNos, FormTypeIndex, 1, EndLine);
             4: // NEC
                 CodeNos := '1';
         end;
@@ -286,16 +285,16 @@ codeunit 10085 "A/P Magnetic Media Management"
                 end;
     end;
 
-    procedure GetTotal("Code": Code[10]; i: Integer; EndLine: Integer): Decimal
+    procedure GetTotal("Code": Code[10]; FormTypeIndex: Integer; EndLine: Integer): Decimal
     var
-        j: Integer;
+        IRSCodeIndex: Integer;
     begin
-        j := 1;
-        while (Codes[i, j] <> Code) and (j <= EndLine) do
-            j := j + 1;
+        IRSCodeIndex := 1;
+        while (Codes[FormTypeIndex, IRSCodeIndex] <> Code) and (IRSCodeIndex <= EndLine) do
+            IRSCodeIndex := IRSCodeIndex + 1;
 
-        if (Codes[i, j] = Code) and (j <= EndLine) then
-            exit(Totals[i, j]);
+        if (Codes[FormTypeIndex, IRSCodeIndex] = Code) and (IRSCodeIndex <= EndLine) then
+            exit(Totals[FormTypeIndex, IRSCodeIndex]);
 
         Error(CodeNotSetupErr, Code);
     end;
@@ -305,10 +304,10 @@ codeunit 10085 "A/P Magnetic Media Management"
         Clear(Totals);
     end;
 
-    procedure DirectSalesCheck(j: Integer): Boolean
+    procedure DirectSalesCheck(IRSCodeIndex: Integer): Boolean
     begin
-        if FormBox.Get(Codes[1, j]) then
-            if Amounts[1, j] >= FormBox."Minimum Reportable" then
+        if FormBox.Get(Codes[1, IRSCodeIndex]) then
+            if Amounts[1, IRSCodeIndex] >= FormBox."Minimum Reportable" then
                 exit(true)
             else
                 exit(false);
