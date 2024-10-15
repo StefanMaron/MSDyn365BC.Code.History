@@ -508,6 +508,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         PageSalesHeader: Record "Sales Header";
         ApiSalesHeader: Record "Sales Header";
         Customer: Record Customer;
+        TempRecordField: Record Field;
         LibrarySales: Codeunit "Library - Sales";
         SalesInvoice: TestPage "Sales Invoice";
         ApiRecordRef: RecordRef;
@@ -557,6 +558,19 @@ codeunit 135510 "Sales Invoice E2E Test"
             LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, ApiSalesHeader.FieldNo("Shipment Date"), DATABASE::"Sales Header");
             LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, ApiSalesHeader.FieldNo("Posting Date"), DATABASE::"Sales Header");
             LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, ApiSalesHeader.FieldNo("Order Date"), DATABASE::"Sales Header");
+            // The "VAT Date" field is in the Base Application for CZ but it's already obsolete and replaced by "VAT Date CZL" in Core Localization Pack for Czech
+            // When it will be mark as ObsoleteState::Removed then it can be removed from this test
+            TempRecordField.Reset();
+            TempRecordField.SetRange(TableNo, Database::"Sales Header");
+            TempRecordField.SetRange(FieldName, 'VAT Date');
+            if TempRecordField.FindFirst() then begin
+                TempRecordField.TestField(ObsoleteState, TempRecordField.ObsoleteState::Pending);
+                LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, TempRecordField."No.", Database::"Sales Header");
+            end;
+            // The "VAT Date CZL" field is in the Core Localization Pack for Czech
+            TempRecordField.SetRange(FieldName, 'VAT Date CZL');
+            if TempRecordField.FindFirst() then
+                LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, TempRecordField."No.", Database::"Sales Header");
         end;
 
         PageSalesHeader.Get(PageSalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value);

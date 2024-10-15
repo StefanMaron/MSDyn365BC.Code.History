@@ -177,6 +177,7 @@
         CannotAssignInvoicedErr: Label 'You cannot assign item charges to the %1 %2 = %3,%4 = %5, %6 = %7, because it has been invoiced.', Comment = '%1 = Purchase Line, %2/%3 = Document Type, %4/%5 - Document No.,%6/%7 = Line No.';
         PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         GLEntry: Record "G/L Entry";
         TempPurchLineGlobal: Record "Purchase Line" temporary;
         JobPurchLine: Record "Purchase Line";
@@ -4503,7 +4504,7 @@
         with TempPrepmtDeductLCYPurchLine do
             if PurchLine."Prepayment %" = 100 then
                 if Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.") then
-                    exit("Prepmt Amt to Deduct" + "Inv. Discount Amount" - "Line Amount");
+                    exit("Prepmt Amt to Deduct" + "Inv. Disc. Amount to Invoice" - "Line Amount");
         exit(0);
     end;
 
@@ -5042,9 +5043,11 @@
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
+        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') then
+            PurchLine.TestField("Unit of Measure Code");
+
         if PurchLine."Qty. per Unit of Measure" = 0 then
             if (PurchLine.Type = PurchLine.Type::Item) and
-               (PurchLine."Unit of Measure Code" <> '') and
                ItemUnitOfMeasure.Get(PurchLine."No.", PurchLine."Unit of Measure Code")
             then
                 PurchLine."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure"
@@ -5658,7 +5661,7 @@
                              StrSubstNo(PostedInvoiceFromSameTransactionQst, PurchInvHeader."No.", "No."), true)
                         then
                             Error('');
-                    if "Your Reference" <> '' then begin
+                    if ("Your Reference" <> '') and (StrLen("Your Reference") <= MaxStrLen(PurchInvHeader."Order No.")) then begin
                         PurchInvHeader.Reset;
                         PurchInvHeader.SetRange("Order No.", "Your Reference");
                         PurchInvHeader.SetRange("Buy-from Vendor No.", "Buy-from Vendor No.");

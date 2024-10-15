@@ -173,6 +173,8 @@ codeunit 5986 "Serv-Amounts Mgt."
     procedure DivideAmount(QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line")
     var
         ChargeableQty: Decimal;
+        LineAmountExpected: Decimal;
+        LineDiscountAmountExpected: Decimal;
     begin
         if RoundingLineInserted and (RoundingLineNo = ServiceLine."Line No.") then
             exit;
@@ -209,14 +211,15 @@ codeunit 5986 "Serv-Amounts Mgt."
                         ChargeableQty := CalcChargeableQty;
                 end;
 
-                "Line Amount" :=
-                  Round(
-                    ChargeableQty * "Unit Price",
-                    Currency."Amount Rounding Precision");
+                LineAmountExpected := Round(ChargeableQty * "Unit Price", Currency."Amount Rounding Precision");
+                if AmountsDifferByMoreThanRoundingPrecision(LineAmountExpected, "Line Amount", Currency."Amount Rounding Precision") then
+                    "Line Amount" := LineAmountExpected;
 
-                if ServLineQty <> Quantity then
-                    "Line Discount Amount" :=
-                      Round("Line Amount" * "Line Discount %" / 100, Currency."Amount Rounding Precision");
+                if ServLineQty <> Quantity then begin
+                    LineDiscountAmountExpected := Round("Line Amount" * "Line Discount %" / 100, Currency."Amount Rounding Precision");
+                    if AmountsDifferByMoreThanRoundingPrecision(LineDiscountAmountExpected, "Line Discount Amount", Currency."Amount Rounding Precision") then
+                        "Line Discount Amount" := LineDiscountAmountExpected;
+                end;
 
                 "Line Amount" := "Line Amount" - "Line Discount Amount";
 
@@ -726,6 +729,11 @@ codeunit 5986 "Serv-Amounts Mgt."
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
+    end;
+
+    procedure AmountsDifferByMoreThanRoundingPrecision(Amount1: Decimal; Amount2: Decimal; RoundingPrecision: Decimal): Boolean
+    begin
+        exit((Abs(Amount1 - Amount2)) > RoundingPrecision);
     end;
 
     [IntegrationEvent(false, false)]

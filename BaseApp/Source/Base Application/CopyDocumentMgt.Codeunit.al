@@ -1450,9 +1450,11 @@ codeunit 6620 "Copy Document Mgt."
                 end;
                 ToSalesLine.Validate("Unit Cost (LCY)", FromSalesLine."Unit Cost (LCY)");
             end;
-            if VATPostingSetup.Get(ToSalesLine."VAT Bus. Posting Group", ToSalesLine."VAT Prod. Posting Group") then
+            if VATPostingSetup.Get(ToSalesLine."VAT Bus. Posting Group", ToSalesLine."VAT Prod. Posting Group") then begin
                 ToSalesLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
-
+                ToSalesLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
+            end;
+            
             ToSalesLine.UpdateWithWarehouseShip;
             if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine."No." <> '') then begin
                 GetItem(ToSalesLine."No.");

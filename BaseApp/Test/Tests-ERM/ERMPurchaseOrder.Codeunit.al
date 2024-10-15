@@ -5460,6 +5460,25 @@ codeunit 134327 "ERM Purchase Order"
         Assert.ExpectedError(StrSubstNo(DisposedErr, DepreciationCalc.FAName(FixedAsset, FADeprBook."Depreciation Book Code")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyInvNoToPmtRefExistsInPurchPayablesSetup()
+    var
+        PurchasesPayablesSetup: TestPage "Purchases & Payables Setup";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 362612] A "Copy Inv. No. To Pmt. Ref." field is visible in the Purchases & Payables Setup page
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        PurchasesPayablesSetup.OpenEdit();
+        Assert.IsTrue(PurchasesPayablesSetup."Copy Inv. No. To Pmt. Ref.".Visible, 'A field is not visible');
+        PurchasesPayablesSetup.Close();
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
