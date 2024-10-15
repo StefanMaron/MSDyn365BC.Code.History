@@ -1,13 +1,16 @@
-﻿$ErrorActionPreference = "SilentlyContinue"
+﻿param (
+    [string]$country = 'w1'
+)
 
-Set-Alias sz "C:\Program Files\7-Zip\7z.exe"
+$ErrorActionPreference = "SilentlyContinue"
 
 [System.Collections.ArrayList]$Versions = @()
-Get-BCArtifactUrl -select All -Type OnPrem | % {
-    $Url = $_
-    $TempString = $Url.Substring(41)
-    [version]$Version = $TempString.Substring(0, $TempString.IndexOf('/'))
-    $country = $TempString.Substring($TempString.IndexOf('/') + 1)
+# Get-BCArtifactUrl -select All -Type OnPrem -country $country -after ([DateTime]::Today.AddDays(-1)) | % {
+Get-BCArtifactUrl -select All -Type OnPrem -country $country | % {
+    [System.Uri]$Url = $_
+    $TempString = $Url.AbsolutePath
+    [version]$Version = $TempString.Split('/')[2]
+    $country = $TempString.Split('/')[3]
 
     [hashtable]$objectProperty = @{}
     $objectProperty.Add('Version', $Version)
@@ -22,57 +25,79 @@ Get-BCArtifactUrl -select All -Type OnPrem | % {
 
 $Versions | Sort-Object -Property Country, Version | % {
     [version]$Version = $_.Version
-    $country = $_.Country
+    $country = $_.Country.Trim()
+    Write-Host ($($country)-$($version.ToString()))
+    
+    git fetch --all
 
-    $CommitDoesNotExist = (git log --all --grep="$($country)-$($version.ToString())") -eq $null
+    $LastCommit = git log --all --grep="^$($country)-$($version.ToString())$"
 
-    if ($CommitDoesNotExist) {
+    if ($LastCommit.Length -eq 0) {
         Write-Host "###############################################"
         Write-Host "Processing $($country) - $($Version.ToString())"
         Write-Host "###############################################"
-
-
-        $LatestCommitIDOfBranchEmpty = git log -n 1 --pretty=format:"%h" "empty"
+        
+        $LatestCommitIDOfBranchEmpty = git log -n 1 --pretty=format:"%h" "master"
         if ($LatestCommitIDOfBranchEmpty -eq $null) {
-            $LatestCommitIDOfBranchEmpty = git log -n 1 --pretty=format:"%h" "origin/empty"
+            $LatestCommitIDOfBranchEmpty = git log -n 1 --pretty=format:"%h" "origin/master"
         }
 
         if ($Version.Major -gt 15 -and $Version.Build -gt 5) {
-            $CommitIDLastCUFromPreviousMajor = git log --all --grep="$($country)-$($version.Major - 1).5" --pretty=format:"%h"
+            $CommitIDLastCUFromPreviousMajor = git log --all -n 1 --grep="^$($country)-$($version.Major - 1).5" --pretty=format:"%h"
         }
         else {
             $CommitIDLastCUFromPreviousMajor = $null
         }
 
-        $BranchAlreadyExists = ((git branch --list -r "*$($country)-$($Version.Major)*") -ne $null) -or ((git branch --list "*$($country)-$($Version.Major)*") -ne $null)
+        $BranchAlreadyExists = ((git branch --list -r "origin/$($country)-$($Version.Major)") -ne $null) -or ((git branch --list "$($country)-$($Version.Major)") -ne $null)
 
         if ($BranchAlreadyExists) {
-            git checkout "$($country)-$($Version.Major)"
+            git switch "$($country)-$($Version.Major)"
         }
         else {
             if ($CommitIDLastCUFromPreviousMajor -ne $null) {
-                git checkout -b "$($country)-$($Version.Major)" $CommitIDLastCUFromPreviousMajor
+                git switch -c "$($country)-$($Version.Major)" $CommitIDLastCUFromPreviousMajor
             }
             else {
-                git checkout -b "$($country)-$($Version.Major)" $LatestCommitIDOfBranchEmpty                
+                git switch -c "$($country)-$($Version.Major)" $LatestCommitIDOfBranchEmpty                
             }
         }
         
-        $Paths = Download-Artifacts -artifactUrl $_.URL -includePlatform
-        $TargetPathOfVersion = $Paths[0]
+        if ($country -eq 'w1'){
+            $Paths = Download-Artifacts -artifactUrl $_.URL -includePlatform
+            $LocalizationPath = $Paths[0]
+            $PlatformPath = $Paths[1]
+        }
+        else {
+            $Paths = Download-Artifacts -artifactUrl $_.URL
+            $LocalizationPath = $Paths
+            $PlatformPath = ''
+        }
 
-        if (-not (Test-Path (Join-Path $TargetPathOfVersion 'Applications'))) {
-            $TargetPathOfVersion = $Paths[1]
+        #Localization folder
+        
+        $TargetPathOfVersion = (Join-Path $LocalizationPath (Get-ChildItem -Path $LocalizationPath -filter "Applications")[0].Name)
+
+        if (-not (Test-Path $TargetPathOfVersion)) {
+            #Platform Folder
+            $TargetPathOfVersion = (Join-Path $PlatformPath (Get-ChildItem -Path $PlatformPath -filter "Applications")[0].Name)
         }
         
-        & "$PSScriptRoot\UpdateALRepo.ps1" -SourcePath (Join-Path $TargetPathOfVersion Applications) -RepoPath (Split-Path $PSScriptRoot -Parent)
-        & "$PSScriptRoot\BuildTestsWorkSpace.ps1"
+        & "scripts/UpdateALRepo.ps1" -SourcePath $TargetPathOfVersion -RepoPath (Split-Path $PSScriptRoot -Parent) -Version $version -Localization $country
+        & "scripts/BuildTestsWorkSpace.ps1"
+        
+        Get-ChildItem -Recurse -Filter "*.xlf" | Remove-Item
 
+        "$($country)-$($version.ToString())" > version.txt
+
+        git config user.email "stefanmaron@outlook.de"
+        git config user.name "Stefan Maron"
         git add -A | out-null
         git commit -a -m "$($country)-$($version.ToString())" | out-null
         git gc | out-null
+        git push --set-upstream origin "$($country)-$($Version.Major)"
         
-        Remove-Item $Paths[0] -Recurse
+        Flush-ContainerHelperCache -keepDays 0 -ErrorAction SilentlyContinue
 
         Write-Host "$($country)-$($version.ToString())"
     }
