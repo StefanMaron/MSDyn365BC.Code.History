@@ -1128,7 +1128,7 @@
                         then
                             VATAmountLine.InsertNewLine(
                               "Prepayment VAT Identifier", "Prepmt. VAT Calc. Type", "Prepayment Tax Group Code", "Prepayment Tax Area Code",
-                              false, "Prepayment VAT %", NewAmount >= 0, true);
+                              false, "Prepayment VAT %", NewAmount >= 0, true, 0);
 
                         VATAmountLine."Line Amount" := VATAmountLine."Line Amount" + NewAmount;
                         NewPrepmtVATDiffAmt := PrepmtVATDiffAmount(SalesLine, DocumentType);

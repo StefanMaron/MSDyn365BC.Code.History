@@ -1105,6 +1105,7 @@ codeunit 99000813 "Carry Out Action"
         TempRecRef: RecordRef;
         RecRef: RecordRef;
         PurchaseOrderNoFilter: Text;
+        IsHandled: Boolean;
     begin
         if not PrintOrder then
             exit;
@@ -1118,6 +1119,11 @@ codeunit 99000813 "Carry Out Action"
             PurchaseHeader.Get(TempPurchaseHeader."Document Type", TempPurchaseHeader."No.");
             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, PurchaseHeader);
         until TempPurchaseHeader.Next() = 0;
+
+        IsHandled := false;
+        OnBeforePrintMultiplePurchaseDocs(TempPurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         TempRecRef.GetTable(TempPurchaseHeader);
         RecRef.GetTable(PurchaseHeader);
@@ -2017,6 +2023,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCarryOutTransOrder(SplitTransferOrders: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintMultiplePurchaseDocs(var TempPurchaseHeader: Record "Purchase Header" temporary; var IsHandled: Boolean)
     begin
     end;
 }

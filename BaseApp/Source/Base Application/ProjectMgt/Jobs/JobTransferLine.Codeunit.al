@@ -563,7 +563,14 @@
         Item: Record Item;
         JobTask: Record "Job Task";
         UOMMgt: Codeunit "Unit of Measure Management";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         Factor: Decimal;
+        NonDeductibleVATAmount: Decimal;
+        NonDeductibleBaseAmount: Decimal;
+        NonDeductibleVATAmtPerUnit: Decimal;
+        NondeductibleVATAmtPerUnitLCY: Decimal;
+        NDVATAmountRounding: Decimal;
+        NDVATBaseRounding: Decimal;
         TaxToBeExpensedLCY: Decimal;
         IsHandled: Boolean;
     begin
@@ -606,9 +613,12 @@
                 JobJnlLine."External Document No." := PurchHeader."Vendor Invoice No.";
             end;
 
+            NonDeductibleVAT.Calculate(NonDeductibleBaseAmount, NonDeductibleVATAmount, NonDeductibleVATAmtPerUnit, NonDeductibleVATAmtPerUnitLCY, NDVATAmountRounding, NDVATBaseRounding, PurchHeader, PurchLine);
             GetCurrencyRounding(JobJnlLine."Currency Code");
 
             JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure";
+            if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then
+                JobJnlLine."Unit Cost (LCY)" += Abs(NonDeductibleVATAmtPerUnitLCY);
             OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(JobJnlLine, PurchLine);
 
             TaxToBeExpensedLCY := 0;
@@ -616,8 +626,11 @@
                 if Item."Inventory Value Zero" then
                     JobJnlLine."Unit Cost (LCY)" := 0
                 else
-                    if Item."Costing Method" = Item."Costing Method"::Standard then
+                    if Item."Costing Method" = Item."Costing Method"::Standard then begin
                         JobJnlLine."Unit Cost (LCY)" := Item."Standard Cost";
+                        if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then
+                            JobJnlLine."Unit Cost (LCY)" += NonDeductibleVATAmtPerUnitLCY;
+                    end;
             end else begin
                 TaxToBeExpensedLCY := "Tax To Be Expensed";
                 if (JobJnlLine.Quantity <> 0) and (TaxToBeExpensedLCY <> 0) then

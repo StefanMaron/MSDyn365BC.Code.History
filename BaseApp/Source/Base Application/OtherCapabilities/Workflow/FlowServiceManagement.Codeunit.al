@@ -1,7 +1,8 @@
 codeunit 6400 "Flow Service Management"
 {
     // // Manages access to Microsoft Power Automate (previously called Microsoft Flow) service API
-
+    InherentEntitlements = X;
+    InherentPermissions = X;
     Permissions = TableData "Flow Service Configuration" = r;
 
     trigger OnRun()
@@ -106,17 +107,31 @@ codeunit 6400 "Flow Service Management"
         exit(GenericErr);
     end;
 
-    procedure GetFlowEnvironmentID() FlowEnvironmentId: Text
+    procedure CanApproveForAll(): Boolean
     var
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
     begin
+        exit(FlowUserEnvironmentConfig.WritePermission());
+    end;
+
+    procedure GetFlowEnvironmentID() FlowEnvironmentId: Text
+    var
+        FlowUserEnvironmentConfig: Record "Flow User Environment Config";
+        EmptyGuid: Guid;
+    begin
+        // Check if a user has a specific environment configured
         if FlowUserEnvironmentConfig.Get(UserSecurityId()) then
             FlowEnvironmentId := FlowUserEnvironmentConfig."Environment ID"
-        else begin
-            SetSelectedFlowEnvironmentIDToDefault();
-            if FlowUserEnvironmentConfig.Get(UserSecurityId()) then
+        else
+            // If not, check if the default environment is configured
+            if FlowUserEnvironmentConfig.Get(EmptyGuid) then
                 FlowEnvironmentId := FlowUserEnvironmentConfig."Environment ID"
-        end;
+            else begin
+                // If still not, set the user environment to the first environment in the list
+                SetSelectedFlowEnvironmentIDToDefault();
+                if FlowUserEnvironmentConfig.Get(UserSecurityId()) then
+                    FlowEnvironmentId := FlowUserEnvironmentConfig."Environment ID"
+            end;
     end;
 
     procedure GetFlowTemplatePageSize(): Text
@@ -206,17 +221,18 @@ codeunit 6400 "Flow Service Management"
     procedure GetSelectedFlowEnvironmentName() FlowEnvironmentName: Text
     var
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
+        EmptyGuid: Guid;
     begin
         FlowEnvironmentName := '';
         if not HasUserSelectedFlowEnvironment() then
             exit;
+        // Check if a user has a specific environment configured
         if FlowUserEnvironmentConfig.Get(UserSecurityId()) then
             FlowEnvironmentName := FlowUserEnvironmentConfig."Environment Display Name"
-        else begin
-            SetSelectedFlowEnvironmentIDToDefault();
-            if FlowUserEnvironmentConfig.Get(UserSecurityId()) then
+        else
+            // If not, check if the default environment is configured
+            if FlowUserEnvironmentConfig.Get(EmptyGuid) then
                 FlowEnvironmentName := FlowUserEnvironmentConfig."Environment Display Name"
-        end;
     end;
 
     [NonDebuggable]
@@ -313,6 +329,23 @@ codeunit 6400 "Flow Service Management"
         FlowUserEnvironmentConfig.Insert();
     end;
 
+    procedure SaveFlowEnvironmentSelectionForAll(var TempFlowUserEnvironmentBuffer: Record "Flow User Environment Buffer" temporary)
+    var
+        FlowUserEnvironmentConfig: Record "Flow User Environment Config";
+        EmptyGuid: Guid;
+    begin
+        // Remove all previous selections
+        FlowUserEnvironmentConfig.Reset();
+        FlowUserEnvironmentConfig.DeleteAll();
+
+        // Add new selection for all users
+        FlowUserEnvironmentConfig.Init();
+        FlowUserEnvironmentConfig."User Security ID" := EmptyGuid;
+        FlowUserEnvironmentConfig."Environment ID" := TempFlowUserEnvironmentBuffer."Environment ID";
+        FlowUserEnvironmentConfig."Environment Display Name" := TempFlowUserEnvironmentBuffer."Environment Display Name";
+        FlowUserEnvironmentConfig.Insert();
+    end;
+
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetSelectedFlowEnvironmentIDToDefault()
@@ -345,11 +378,12 @@ codeunit 6400 "Flow Service Management"
     procedure HasUserSelectedFlowEnvironment(): Boolean
     var
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
+        EmptyGuid: Guid;
     begin
-        exit(FlowUserEnvironmentConfig.Get(UserSecurityId()));
+        exit(FlowUserEnvironmentConfig.Get(UserSecurityId()) OR FlowUserEnvironmentConfig.Get(EmptyGuid));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetPowerPlatformEnvironmentId', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetPowerPlatformEnvironmentId', '', true, true)]
     local procedure GetEnvironmentId(Scenario: Text; var EnvironmentId: Text)
     begin
         EnvironmentId := '';

@@ -121,8 +121,10 @@ codeunit 5360 "CDS Int. Table Couple"
         foreach TableFilter in FilterList do begin
             if TableFilter <> '' then
                 LocalRecordRef.SetView(TableFilter);
-            if CRMIntegrationManagement.FindCoupledToCRMField(LocalRecordRef, CoupledToCRMFieldRef) then
+            if CRMIntegrationManagement.FindCoupledToCRMField(LocalRecordRef, CoupledToCRMFieldRef) then begin
+                CoupledToCRMFieldRef.CalcField();
                 CoupledToCRMFieldRef.SetRange(false);
+            end;
             if LocalRecordRef.FindSet() then
                 repeat
                     if GuiAllowed() then begin

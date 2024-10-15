@@ -18,7 +18,7 @@ codeunit 134771 "New Document from CustomerCard"
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         RefMode: Option Manual,Automatic,"Always Ask";
-        ContactEmailNotCarriedErr: Label 'Contact E-Mail is not carried over to the document';
+        RecurringSalesLineNotProposedErr: Label 'Blocked recurring sales lines should not be proposed for Sales Orders.';
 
     local procedure Initialize()
     var
@@ -598,31 +598,34 @@ codeunit 134771 "New Document from CustomerCard"
 
     [Test]
     [Scope('OnPrem')]
-    procedure NewSalesOrderFromCustomerWithContact()
+    procedure ForNewSalesOrderForCustomerRecurringSalesLinesShouldNotProposed()
     var
+        Item: Record Item;
         Customer: Record Customer;
-        Contact: Record Contact;
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
         CustomerCard: TestPage "Customer Card";
         SalesOrder: TestPage "Sales Order";
     begin
-        // [SCENARIO 460343] Email address primary contact not copied to sales order
-
-        // [GIVEN] Initialize Setup, Create customer, and contact
+        // [SCENARIO 466364] The "Blocked" option in the Recurring Sales Lines does not work as expected.
         Initialize();
-        CreateCustomerWithContactWithEmail(Customer, Contact, LibraryUtility.GenerateRandomEmail);
 
-        // [GIVEN] Open Customer Card
+        // [GIVEN] Create customer, item, and recurring sales line for the customer
+        CreateCustomer(Customer);
+        CreateItemWithRecurringSalesLineForCustomer(Customer, Item, StandardCustomerSalesCode);
+
+        // [THEN] Set blocked to true and update recurring sales lines
+        StandardCustomerSalesCode."Insert Rec. Lines On Orders" := RefMode::Automatic;
+        StandardCustomerSalesCode.Blocked := true;
+        StandardCustomerSalesCode.Modify();
+
+        // [WHEN] Opening the customer card and then creating a new sales order.
         CustomerCard.OpenEdit;
         CustomerCard.GotoRecord(Customer);
-
-        // [WHEN] Invoke NewSalesOrder action
         SalesOrder.Trap;
         CustomerCard.NewSalesOrder.Invoke;
-        if SalesOrder."Sell-to E-Mail".Value = '' then
-            SalesOrder."Sell-to E-Mail".Activate();
 
-        // [VERIFY] Verify: Contact E-Mail is copied to Sales Order document
-        Assert.AreEqual(Contact."E-Mail", SalesOrder."Sell-to E-Mail".Value, ContactEmailNotCarriedErr);
+        // [VERIFY] Verify: The sales lines should not have the recurring sales line filled out.
+        VerifyRecurringSalesLineNotFilledOut(Item);
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
@@ -636,26 +639,6 @@ codeunit 134771 "New Document from CustomerCard"
         Customer.Validate("Post Code", PostCode.Code);
         Customer.Contact := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Contact)), 1, MaxStrLen(Customer.Contact));
         Customer.Modify(true);
-    end;
-
-    local procedure CreateCustomerWithContactWithEmail(var Customer: Record Customer; var Contact: Record Contact; Email: Text)
-    var
-        ContactBusinessRelation: Record "Contact Business Relation";
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        ContactBusinessRelation.SetRange("No.", Customer."No.");
-        ContactBusinessRelation.FindFirst();
-        Contact.Init();
-        Contact.Get(ContactBusinessRelation."Contact No.");
-        Contact."No." := LibraryUtility.GenerateRandomCode(Contact.FieldNo("No."), Database::Contact);
-        Contact.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Contact.Name)), 1, MaxStrLen(Contact.Name));
-        Contact.Type := Contact.Type::Person;
-        Contact.Validate("E-Mail", Email);
-        Contact.Insert(true);
-        Customer.Validate("Primary Contact No.", Contact."No.");
-        Customer."E-Mail" := LibraryUtility.GenerateRandomEmail();
-        Customer.Modify();
     end;
 
     local procedure VerifySalesInvoicePage(Customer: Record Customer; SalesInvoice: TestPage "Sales Invoice")
@@ -700,6 +683,14 @@ codeunit 134771 "New Document from CustomerCard"
         Assert.AreEqual(customer."No.", SalesLine."Sell-to Customer No.", 'Customer No. was not filled out in sales line.');
         Assert.AreEqual(item."No.", SalesLine."No.", 'Item No. was not filled out in sales line.');
         Assert.AreEqual(item.Description, SalesLine.Description, 'Item Description was not filled out in sales line.');
+    end;
+
+    local procedure VerifyRecurringSalesLineNotFilledOut(Item: Record Item)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("No.", Item."No.");
+        Assert.IsFalse(SalesLine.FindFirst(), RecurringSalesLineNotProposedErr);
     end;
 }
 

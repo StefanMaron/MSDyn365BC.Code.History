@@ -80,6 +80,15 @@ table 412 "IC Dimension Value"
         FeatureTelemetry.LogUptake('0000ILB', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
     end;
 
+    trigger OnDelete()
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        DimensionValue.SetRange("Map-to IC Dimension Value Code", Rec."Code");
+        if not DimensionValue.IsEmpty() then
+            DimensionValue.ModifyAll("Map-to IC Dimension Value Code", '');
+    end;
+
     var
         ICDimension: Record "IC Dimension";
 

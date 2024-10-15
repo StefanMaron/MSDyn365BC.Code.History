@@ -3771,13 +3771,13 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="PostingDate">
+          <Textbox Name="VATDate">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=First(Fields!PostingDate.Value)</Value>
+                    <Value>=First(Fields!VATDate.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
                       <Format>d</Format>
@@ -4045,6 +4045,9 @@ End Function
         </Field>
         <Field Name="PostingDate">
           <DataField>PostingDate</DataField>
+        </Field>
+        <Field Name="VATDate">
+          <DataField>VATDate</DataField>
         </Field>
         <Field Name="DocNo">
           <DataField>DocNo</DataField>

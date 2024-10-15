@@ -139,6 +139,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         FastlinkEditAccountExtraParamsTok: Label 'providerAccountId=%1&flow=edit&callback=%2', Locked = true;
         BankAccountNameDisplayLbl: Label '%1 - %2', Locked = true;
         LabelDateExprTok: Label '<%1D>', Locked = true;
+        UserRequestingTransactionsTelemetryTxt: Label 'User requesting transactions for provider account id %1, from %2 to %3.', Locked = true;
 
     procedure SetValuesToDefault(var MSYodleeBankServiceSetup: Record "MS - Yodlee Bank Service Setup");
     var
@@ -963,6 +964,8 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         if BankFeedTextList.Count() > 0 then
             BankFeedTextList.RemoveRange(1, BankFeedTextList.Count());
 
+        Session.LogMessage('0000JWP', StrSubstNo(UserRequestingTransactionsTelemetryTxt, OnlineBankAccountId, FromDate, ToDate), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', YodleeTelemetryCategoryTok);
+
         PaginationLink := ExecuteWebServiceRequest(
             YodleeAPIStrings.GetTransactionSearchURL(OnlineBankAccountId, FromDate, ToDate),
             YodleeAPIStrings.GetTransactionSearchRequestMethod(),
@@ -1569,6 +1572,8 @@ codeunit 1450 "MS - Yodlee Service Mgt."
             BankFeedTextList.Add(BankFeedText);
             FeatureTelemetry.LogUsage('0000GY1', 'Yodlee', 'Bank Statement Imported');
             Session.LogMessage('000083Y', BankFeedText, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', YodleeTelemetryCategoryTok);
+            if BankFeedText = '{}' then
+                Session.LogMessage('0000JWQ', BankFeedText, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', YodleeTelemetryCategoryTok);
             if GLBTraceLogEnabled then
                 ActivityLog.LogActivity(MSYodleeBankServiceSetup.RecordId(), ActivityLog.Status::Success, YodleeResponseTxt, 'gettransactions', BankFeedText);
         END;
