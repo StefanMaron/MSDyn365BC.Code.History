@@ -3125,37 +3125,33 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [WHEN] "Create Corrective Credit Memo" is invoked
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
 
-        // [THEN] 1st line has Type = "" and Description = Invoice No. PSIN:
+        // [THEN] 1st lines has Type = "" and Description = Inv. No. PSIN - Shpt. No. SLDN1:
         SalesLine[1].Reset();
         SalesLine[1].SetRange("Document Type", SalesHeader."Document Type");
         SalesLine[1].SetRange("Document No.", SalesHeader."No.");
         SalesLine[1].FindFirst();
         VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", DocumentNo);
-
-        // [THEN] 2nd lines has Type = "" and Description = Inv. No. PSIN - Shpt. No. SLDN1:
-        SalesLine[1].Next();
-        VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", DocumentNo);
         Assert.IsTrue(StrPos(SalesLine[1].Description, ShipmentNo[1]) > 0, SalesLine[1].FieldCaption(Description));
 
-        // [THEN] 3rd lines has Type = "" and Description = Shipment No. SLDN1:
+        // [THEN] 2nd lines has Type = "" and Description = Shipment No. SLDN1:
         SalesLine[1].Next();
         VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", ShipmentNo[1]);
 
-        // [THEN] 4th line has Type = "Item" and "No."= Item2
+        // [THEN] 3rd line has Type = "Item" and "No."= Item2
         SalesLine[1].Next();
         SalesLine[1].TestField(Type, SalesLine[1].Type::Item);
         SalesLine[1].TestField("No.", Item[2]."No.");
 
-        // [THEN] 5th lines has Type = "" and Description = Inv. No. PSIN - Shpt. No. SLDN2:
+        // [THEN] 4th lines has Type = "" and Description = Inv. No. PSIN - Shpt. No. SLDN2:
         SalesLine[1].Next();
         VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", DocumentNo);
         Assert.IsTrue(StrPos(SalesLine[1].Description, ShipmentNo[2]) > 0, SalesLine[1].FieldCaption(Description));
 
-        // [THEN] 6th lines has Type = "" and Description = Shipment No. SLDN2:
+        // [THEN] 5th lines has Type = "" and Description = Shipment No. SLDN2:
         SalesLine[1].Next();
         VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", ShipmentNo[2]);
 
-        // [THEN] 7th line has Type = "Item" and "No."= Item1
+        // [THEN] 6th line has Type = "Item" and "No."= Item1
         SalesLine[1].Next();
         SalesLine[1].TestField(Type, SalesLine[1].Type::Item);
         SalesLine[1].TestField("No.", Item[1]."No.");
@@ -3181,14 +3177,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
 
         // [THEN] Corrective Credit Memo has a line linked to the extended text
-        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 30000);
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 20000);
         SalesLine.TestField(Type, SalesLine.Type::Item);
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 40000);
+        SalesLine.TestField("Attached to Line No.", 20000);
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 50000);
-        SalesLine.TestField("Attached to Line No.", 30000);
-        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 60000);
         SalesLine.TestField("Attached to Line No.", 0);
-        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 70000);
-        SalesLine.TestField("Attached to Line No.", 30000);
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 60000);
+        SalesLine.TestField("Attached to Line No.", 20000);
     end;
 
     [Test]
@@ -3211,14 +3207,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeader);
 
         // [THEN] Corrective Credit Memo has a line linked to the extended text
-        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 30000);
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 20000);
         PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 30000);
+        PurchaseLine.TestField("Attached to Line No.", 20000);
         PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 40000);
-        PurchaseLine.TestField("Attached to Line No.", 30000);
-        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 50000);
         PurchaseLine.TestField("Attached to Line No.", 0);
-        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 60000);
-        PurchaseLine.TestField("Attached to Line No.", 30000);
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 50000);
+        PurchaseLine.TestField("Attached to Line No.", 20000);
     end;
 
     [Test]
@@ -3297,15 +3293,11 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [WHEN] "Create Corrective Credit Memo" is invoked
         CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeader);
 
-        // [THEN] 1st line has Type = "" and Description = Invoice No. PPIN:
+        // [THEN] 1st lines has Type = "" and Description = Receipt No. PLDN1:
         PurchaseLine[1].Reset();
         PurchaseLine[1].SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine[1].SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine[1].FindFirst();
-        VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", DocumentNo);
-
-        // [THEN] 3rd lines has Type = "" and Description = Receipt No. PLDN1:
-        PurchaseLine[1].Next();
         VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", ReceiptNo[1]);
 
         // [THEN] 2nd lines has Type = "" and Description = Inv. No. PPIN - Shpt. No. PLDN1:
@@ -3313,12 +3305,12 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", DocumentNo);
         Assert.IsTrue(StrPos(PurchaseLine[1].Description, ReceiptNo[1]) > 0, PurchaseLine[1].FieldCaption(Description));
 
-        // [THEN] 4th line has Type = "Item" and "No."= Item2
+        // [THEN] 3rd line has Type = "Item" and "No."= Item2
         PurchaseLine[1].Next();
         PurchaseLine[1].TestField(Type, PurchaseLine[1].Type::Item);
         PurchaseLine[1].TestField("No.", Item[2]."No.");
 
-        // [THEN] 6th lines has Type = "" and Description = Receit No. PLDN2:
+        // [THEN] 4th lines has Type = "" and Description = Receit No. PLDN2:
         PurchaseLine[1].Next();
         VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", ReceiptNo[2]);
 
@@ -3327,7 +3319,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", DocumentNo);
         Assert.IsTrue(StrPos(PurchaseLine[1].Description, ReceiptNo[2]) > 0, PurchaseLine[1].FieldCaption(Description));
 
-        // [THEN] 7th line has Type = "Item" and "No."= Item1
+        // [THEN] 6th line has Type = "Item" and "No."= Item1
         PurchaseLine[1].Next();
         PurchaseLine[1].TestField(Type, PurchaseLine[1].Type::Item);
         PurchaseLine[1].TestField("No.", Item[1]."No.");
