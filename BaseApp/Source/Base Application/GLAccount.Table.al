@@ -826,6 +826,7 @@ table 15 "G/L Account"
         Text1100002: Label 'The account has entries and/or %1. Changing the value of this field may cause ';
         Text1100003: Label 'inconsistencies report 347.';
         NoAccountCategoryMatchErr: Label 'There is no subcategory description for %1 that matches ''%2''.', Comment = '%1=account category value, %2=the user input.';
+        GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
 
     procedure SetupNewGLAcc(OldGLAcc: Record "G/L Account"; BelowOldGLAcc: Boolean)
     var
@@ -936,6 +937,19 @@ table 15 "G/L Account"
         exit(false);
     end;
 
+    procedure CheckGenProdPostingGroup()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGenProdPostingGroup(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Gen. Prod. Posting Group" = '' then
+            Error(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No.");
+    end;
+
     [Scope('OnPrem')]
     procedure InvoiceDiscountAllowed(GLAccNo: Code[20]): Boolean
     var
@@ -968,6 +982,11 @@ table 15 "G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var GLAccount: Record "G/L Account"; var xGLAccount: Record "G/L Account"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGenProdPostingGroup(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 }

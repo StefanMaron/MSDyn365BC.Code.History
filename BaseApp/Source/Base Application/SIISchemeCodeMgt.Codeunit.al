@@ -180,7 +180,140 @@ codeunit 10758 "SII Scheme Code Mgt."
         SIIPurchDocSchemeCode.DeleteAll(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterSalesInvHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostSalesDoc', '', false, false)]
+    local procedure OnBeforePostSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var HideProgressWindow: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        Found: Boolean;
+    begin
+        SIISalesDocumentSchemeCode."Entry Type" := SIISalesDocumentSchemeCode."Entry Type"::Sales;
+        SIISalesDocumentSchemeCode."Document Type" := SalesHeader."Document Type";
+        SIISalesDocumentSchemeCode."Document No." := SalesHeader."No.";
+
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if not SalesLine.FindSet() then
+            exit;
+
+        repeat
+            if (VATPostingSetup."VAT Bus. Posting Group" <> SalesLine."VAT Bus. Posting Group") or
+                (VATPostingSetup."VAT Prod. Posting Group" <> SalesLine."VAT Prod. Posting Group")
+            then begin
+                if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
+                    VATPostingSetup.Init();
+                if (VATPostingSetup."VAT Clause Code" <> '') and
+                    (SalesHeader."Special Scheme Code" <= SalesHeader."Special Scheme Code"::"01 General")
+                then
+                    if VATPostingSetup."VAT Clause Code" <> VATClause.Code then begin
+                        VATClause.Get(VATPostingSetup."VAT Clause Code");
+                        Found :=
+                          VATClause."SII Exemption Code" in [VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21",
+                                                              VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22"]
+                    end;
+                if VATPostingSetup."Sales Special Scheme Code" <> 0 then begin
+                    SalesHeader."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code" - 1;
+                    SIISalesDocumentSchemeCode."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code";
+                    if not SIISalesDocumentSchemeCode.Find() then
+                        SIISalesDocumentSchemeCode.Insert();
+                end;
+            end;
+        until (SalesLine.Next() = 0) or Found;
+        if Found then begin
+            SalesHeader."Special Scheme Code" := SalesHeader."Special Scheme Code"::"02 Export";
+            if SalesDocHasRegimeCodes(SalesHeader) then begin
+                SIISalesDocumentSchemeCode."Special Scheme Code" := SIISalesDocumentSchemeCode."Special Scheme Code"::"02 Export";
+                if not SIISalesDocumentSchemeCode.Find() then
+                    SIISalesDocumentSchemeCode.Insert();
+            end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnBeforePostWithLines', '', false, false)]
+    local procedure OnBeforePostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
+    var
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        Found: Boolean;
+    begin
+        SIISalesDocumentSchemeCode."Entry Type" := SIISalesDocumentSchemeCode."Entry Type"::Service;
+        SIISalesDocumentSchemeCode."Document Type" := PassedServHeader."Document Type";
+        SIISalesDocumentSchemeCode."Document No." := PassedServHeader."No.";
+
+        ServiceLine.SetRange("Document Type", PassedServHeader."Document Type");
+        ServiceLine.SetRange("Document No.", PassedServHeader."No.");
+        if not ServiceLine.FindSet() then
+            exit;
+
+        repeat
+            if (VATPostingSetup."VAT Bus. Posting Group" <> ServiceLine."VAT Bus. Posting Group") or
+                (VATPostingSetup."VAT Prod. Posting Group" <> ServiceLine."VAT Prod. Posting Group")
+            then begin
+                if not VATPostingSetup.Get(ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then
+                    VATPostingSetup.Init();
+                if (VATPostingSetup."VAT Clause Code" <> '') and
+                    (PassedServHeader."Special Scheme Code" <= PassedServHeader."Special Scheme Code"::"01 General")
+                then
+                    if VATPostingSetup."VAT Clause Code" <> VATClause.Code then begin
+                        VATClause.Get(VATPostingSetup."VAT Clause Code");
+                        Found :=
+                          VATClause."SII Exemption Code" in [VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21",
+                                                              VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22"]
+                    end;
+                if VATPostingSetup."Sales Special Scheme Code" <> 0 then begin
+                    PassedServHeader."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code" - 1;
+                    SIISalesDocumentSchemeCode."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code";
+                    if not SIISalesDocumentSchemeCode.Find() then
+                        SIISalesDocumentSchemeCode.Insert();
+                end;
+            end;
+        until (ServiceLine.Next() = 0) or Found;
+        if Found then begin
+            PassedServHeader."Special Scheme Code" := PassedServHeader."Special Scheme Code"::"02 Export";
+            if SalesDocHasRegimeCodes(PassedServHeader) then begin
+                SIISalesDocumentSchemeCode."Special Scheme Code" := SIISalesDocumentSchemeCode."Special Scheme Code"::"02 Export";
+                if not SIISalesDocumentSchemeCode.Find() then
+                    SIISalesDocumentSchemeCode.Insert();
+            end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostPurchaseDoc', '', false, false)]
+    local procedure OnBeforePostPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; CommitIsSupressed: Boolean; var HideProgressWindow: Boolean)
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
+    begin
+        SIIPurchDocSchemeCode."Document Type" := PurchaseHeader."Document Type";
+        SIIPurchDocSchemeCode."Document No." := PurchaseHeader."No.";
+
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if not PurchaseLine.FindSet() then
+            exit;
+
+        repeat
+            if (VATPostingSetup."VAT Bus. Posting Group" <> PurchaseLine."VAT Bus. Posting Group") or
+                (VATPostingSetup."VAT Prod. Posting Group" <> PurchaseLine."VAT Prod. Posting Group")
+            then begin
+                if not VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group") then
+                    VATPostingSetup.Init();
+                if VATPostingSetup."Purch. Special Scheme Code" <> 0 then begin
+                    PurchaseHeader."Special Scheme Code" := VATPostingSetup."Purch. Special Scheme Code" - 1;
+                    SIIPurchDocSchemeCode."Special Scheme Code" := VATPostingSetup."Purch. Special Scheme Code";
+                    if not SIIPurchDocSchemeCode.Find() then
+                        SIIPurchDocSchemeCode.Insert();
+                end;
+            end;
+        until PurchaseLine.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterSalesInvHeaderInsert', '', false, false)]
     local procedure OnAfterSalesInvHeaderInsert(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
     var
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
@@ -190,7 +323,7 @@ codeunit 10758 "SII Scheme Code Mgt."
           SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice", SalesInvHeader."No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterSalesCrMemoHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterSalesCrMemoHeaderInsert', '', false, false)]
     local procedure OnAfterSalesCrMemoHeaderInsert(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
     var
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
@@ -200,7 +333,7 @@ codeunit 10758 "SII Scheme Code Mgt."
           SIISalesDocumentSchemeCode."Document Type"::"Posted Credit Memo", SalesCrMemoHeader."No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5988, 'OnAfterServInvHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Serv-Documents Mgt.", 'OnAfterServInvHeaderInsert', '', false, false)]
     local procedure OnAfterServInvHeaderInsert(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceHeader: Record "Service Header")
     var
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
@@ -210,7 +343,7 @@ codeunit 10758 "SII Scheme Code Mgt."
           SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice", ServiceInvoiceHeader."No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5988, 'OnAfterServCrMemoHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Serv-Documents Mgt.", 'OnAfterServCrMemoHeaderInsert', '', false, false)]
     local procedure OnAfterServCrMemoHeaderInsert(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ServiceHeader: Record "Service Header")
     var
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
@@ -220,7 +353,7 @@ codeunit 10758 "SII Scheme Code Mgt."
           SIISalesDocumentSchemeCode."Document Type"::"Posted Credit Memo", ServiceCrMemoHeader."No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterPurchInvHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPurchInvHeaderInsert', '', false, false)]
     local procedure OnAfterPurchInvHeaderInsert(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchHeader: Record "Purchase Header")
     var
         SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
@@ -228,7 +361,7 @@ codeunit 10758 "SII Scheme Code Mgt."
         MovePurchRegimeCodesToPostedDoc(PurchHeader, SIIPurchDocSchemeCode."Document Type"::"Posted Invoice", PurchInvHeader."No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterPurchCrMemoHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPurchCrMemoHeaderInsert', '', false, false)]
     local procedure OnAfterPurchCrMemoHeaderInsert(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchHeader: Record "Purchase Header"; CommitIsSupressed: Boolean)
     var
         SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";

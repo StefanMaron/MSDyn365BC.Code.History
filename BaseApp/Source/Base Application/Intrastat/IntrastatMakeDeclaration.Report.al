@@ -53,11 +53,15 @@ report 593 "Intrastat - Make Declaration"
                         CurrReport.Skip();
 
                     "Tariff No." := DelChr("Tariff No.");
-                    TestField("Tariff No.");
-                    TestField("Country/Region Code");
-                    TestField("Transaction Type");
-                    TestField("Total Weight");
-                    TestField(Amount);
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Declaration", true)
+                    else begin
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transaction Type");
+                        TestField("Total Weight");
+                        TestField(Amount);
+                    end;
 
                     if "Total Weight" > 9999999999999.0 then
                         Error(Text1100000, FieldCaption("Total Weight"), "Total Weight");
@@ -138,6 +142,7 @@ report 593 "Intrastat - Make Declaration"
             begin
                 TestField(Reported, false);
                 IntraReferenceNo := "Statistics Period" + '000000';
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
 
             trigger OnPreDataItem()
@@ -174,8 +179,6 @@ report 593 "Intrastat - Make Declaration"
         }
 
         trigger OnOpenPage()
-        var
-            IntrastatSetup: Record "Intrastat Setup";
         begin
             if not IntrastatSetup.Get then
                 exit;
@@ -243,6 +246,8 @@ report 593 "Intrastat - Make Declaration"
         IntrastatJnlLine4: Record "Intrastat Jnl. Line";
         Country: Record "Country/Region";
         FileMgt: Codeunit "File Management";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         DataCompression: Codeunit "Data Compression";
         TempZipFile: File;
         IntraFile: File;

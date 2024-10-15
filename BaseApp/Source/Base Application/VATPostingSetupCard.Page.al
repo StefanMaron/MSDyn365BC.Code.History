@@ -89,6 +89,16 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT calculation type for non-taxable goods.';
                 }
+                field("Sales Special Scheme Code"; "Sales Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme codes that are used for VAT reporting for sales. ';
+                }
+                field("Purch. Special Scheme Code"; "Purch. Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme codes that are used for VAT reporting for purchasing.';
+                }
             }
             group(Sales)
             {

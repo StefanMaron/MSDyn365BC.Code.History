@@ -509,6 +509,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType PeriodTextCaptionLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 2868768795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType ClearDimTotalingConfirmTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2784246928 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
@@ -633,6 +642,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType NotApplicableForCF)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2205251927 - NamedType 2868768795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Changing dimension will clear dimension totaling columns of Account Schedule Lines using current Analysis Vew. \Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType ClearDimTotalingConfirmTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 291215066 - NamedType 595438891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9822,15 +9840,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Release - NamedType NothingToPostErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 70905174 - NamedType 3699227408" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Release - NamedType WarehousePartialShippingErrorTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 70905174 - NamedType 880556806" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

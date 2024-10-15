@@ -114,36 +114,6 @@ codeunit 10753 "SII Job Upload Pending Docs."
     end;
 
     [Scope('OnPrem')]
-    procedure OnVendorEntriesApplied(var VendorLedgerEntry: Record "Vendor Ledger Entry")
-    var
-        SIISetup: Record "SII Setup";
-    begin
-        if VendorLedgerEntry.IsTemporary then
-            exit;
-        if not SIISetup.IsEnabled then
-            exit;
-        if VendorLedgerEntry."Document Type" <> VendorLedgerEntry."Document Type"::Payment then
-            exit;
-
-        SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
-    end;
-
-    [Scope('OnPrem')]
-    procedure OnCustomerEntriesApplied(var CustLedgerEntry: Record "Cust. Ledger Entry")
-    var
-        SIISetup: Record "SII Setup";
-    begin
-        if CustLedgerEntry.IsTemporary then
-            exit;
-        if not SIISetup.IsEnabled then
-            exit;
-        if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Payment then
-            exit;
-
-        SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
-    end;
-
-    [Scope('OnPrem')]
     procedure CreateSIIRequestForCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
     var
         SIISetup: Record "SII Setup";
@@ -226,10 +196,10 @@ codeunit 10753 "SII Job Upload Pending Docs."
             if IsTemporary then
                 exit;
 
-            if ("Document Type" <> "Document Type"::Payment) or
+            if (not ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund])) or
                ("Entry Type" <> "Entry Type"::Application) or
                Unapplied or
-               ("Initial Document Type" = "Initial Document Type"::Payment) or
+               ("Initial Document Type" in ["Initial Document Type"::Payment, "Initial Document Type"::Refund]) or
                (not IsVendCashflowBased(DetailedVendorLedgEntry))
             then
                 exit;
@@ -242,11 +212,20 @@ codeunit 10753 "SII Job Upload Pending Docs."
                     exit;
             end;
 
-            SIIDocUploadState.CreateNewVendPmtRequest(
-              "Entry No.",
-              VendorLedgerEntry."Entry No.",
-              VendorLedgerEntry."External Document No.", "Posting Date");
+            case "Document Type" of
+                "Document Type"::Payment:
+                    SIIDocUploadState.CreateNewVendPmtRequest(
+                      "Entry No.",
+                      VendorLedgerEntry."Entry No.",
+                      VendorLedgerEntry."External Document No.", "Posting Date");
+                "Document Type"::Refund:
+                    SIIDocUploadState.CreateNewVendRefundRequest(
+                      "Entry No.",
+                      VendorLedgerEntry."Entry No.",
+                      VendorLedgerEntry."External Document No.", "Posting Date");
+            end;
         end;
+        SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
     end;
 
     [Scope('OnPrem')]
@@ -269,10 +248,10 @@ codeunit 10753 "SII Job Upload Pending Docs."
             if IsTemporary then
                 exit;
 
-            if ("Document Type" <> "Document Type"::Payment) or
+            if (not ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund])) or
                ("Entry Type" <> "Entry Type"::Application) or
                Unapplied or
-               ("Initial Document Type" = "Initial Document Type"::Payment) or
+               ("Initial Document Type" in ["Initial Document Type"::Payment, "Initial Document Type"::Refund]) or
                (not IsCustCashflowBased(DetailedCustLedgEntry))
             then
                 exit;
@@ -288,11 +267,20 @@ codeunit 10753 "SII Job Upload Pending Docs."
             IsHandled := false;
             OnCreateSIIRequestForDtldCustLedgEntryOnBeforeCreateNewCustPmtRequest(DetailedCustLedgEntry, IsHandled);
             if not IsHandled then
-                SIIDocUploadState.CreateNewCustPmtRequest(
-                  "Entry No.",
-                  CustLedgerEntry."Entry No.",
-                  CustLedgerEntry."Document No.", "Posting Date");
+                case "Document Type" of
+                    "Document Type"::Payment:
+                        SIIDocUploadState.CreateNewCustPmtRequest(
+                        "Entry No.",
+                        CustLedgerEntry."Entry No.",
+                        CustLedgerEntry."Document No.", "Posting Date");
+                    "Document Type"::Refund:
+                        SIIDocUploadState.CreateNewCustRefundRequest(
+                        "Entry No.",
+                        CustLedgerEntry."Entry No.",
+                        CustLedgerEntry."Document No.", "Posting Date");
+                end;
         end;
+        SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
     end;
 
     local procedure IsVendCashflowBased(DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"): Boolean

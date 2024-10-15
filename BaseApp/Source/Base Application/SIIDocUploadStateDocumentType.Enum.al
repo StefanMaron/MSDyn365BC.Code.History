@@ -14,4 +14,8 @@ enum 10756 "SII Doc. Upload State Document Type"
     {
         Caption = 'Credit Memo';
     }
+    value(6; Refund)
+    {
+        Caption = 'Refund';
+    }	
 }

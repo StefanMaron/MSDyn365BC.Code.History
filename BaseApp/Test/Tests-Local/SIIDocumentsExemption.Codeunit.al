@@ -584,6 +584,35 @@ codeunit 147525 "SII Documents Exemption"
           XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(SalesLine.Amount), 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleDetalleExentaUnderSingleExentaNodeExistsForSalesInvWithMultipleExemptionCodes()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 391064] Multiple "DetalleExenta" xml nodes exist under the single "Exente" xml node for the sales invoice with multiple exemption codes
+
+        Initialize();
+        // [GIVEN] Sales invoice with two lines
+        // [GIVEN] First one with the "SII Exemption Code" equals "E1", the second with the "SII Exemption Code" equals "E2"
+        PostSalesDocWithMultipleClauses(CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0);
+
+        // [WHEN] Create xml for Posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] One "Exenta" node
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:Exenta', 1);
+
+        // [THEN] Two DetalleExenta nodes. One with "E1", the other one with "E2"
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesExentaTok, 'sii:CausaExencion', 'E1');
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesExentaTok, 'sii:CausaExencion', 'E2');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -598,13 +627,39 @@ codeunit 147525 "SII Documents Exemption"
         IsInitialized := true;
     end;
 
+    local procedure PostSalesDocWithMultipleClauses(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrectionType: Option)
+    var
+        SalesHeader: Record "Sales Header";
+        VATClause: Record "VAT Clause";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Correction Type", CorrectionType);
+        SalesHeader.Modify(true);
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(
+              SalesHeader."VAT Bus. Posting Group", VATClause."SII Exemption Code"::"E1 Exempt on account of Article 20")));
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(
+              SalesHeader."VAT Bus. Posting Group", VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21")));
+        CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
+    end;
+
     local procedure CreateVATPostingSetupWithSIIExemptVATClause(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Integer; VATRate: Decimal)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATClause: Record "VAT Clause";
     begin
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         VATPostingSetup.Get(
-          VATBusinessPostingGroup.Code, LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(VATBusinessPostingGroup.Code));
+          VATBusinessPostingGroup.Code,
+          LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(
+            VATBusinessPostingGroup.Code, VATClause."SII Exemption Code"::"E1 Exempt on account of Article 20"));
         VATPostingSetup.Validate("VAT %", VATRate);
         VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);

@@ -609,22 +609,22 @@ codeunit 10740 "No Taxable Mgt."
 
         NoTaxableEntry.SetRange("EU Service", true);
         NoTaxableEntry.CalcSums(Amount);
-        EUServiceAmount += Abs(NoTaxableEntry.Amount);
+        EUServiceAmount += NoTaxableEntry.Amount;
 
         NoTaxableEntry.SetRange("EU Service", false);
         NoTaxableEntry.SetRange("EU 3-Party Trade", true);
         NoTaxableEntry.CalcSums(Amount);
-        EU3PartyAmount += Abs(NoTaxableEntry.Amount);
+        EU3PartyAmount += NoTaxableEntry.Amount;
 
         NoTaxableEntry.SetRange("EU 3-Party Trade", false);
         if not SplitByDelivery then begin
             NoTaxableEntry.CalcSums(Amount);
-            NormalAmount += Abs(NoTaxableEntry.Amount);
+            NormalAmount += NoTaxableEntry.Amount;
         end else begin
             if NoTaxableEntry.FindSet then
                 repeat
                     NoTaxableNormalAmountSales[MapDeliveryOperationCode(NoTaxableEntry."Delivery Operation Code")] +=
-                      Abs(NoTaxableEntry.Amount);
+                      NoTaxableEntry.Amount;
                 until NoTaxableEntry.Next = 0;
         end;
     end;
@@ -643,11 +643,11 @@ codeunit 10740 "No Taxable Mgt."
         with NoTaxableEntry do begin
             SetRange("EU Service", false);
             CalcSums(Amount);
-            NormalAmount += Abs(Amount);
+            NormalAmount += Amount;
 
             SetRange("EU Service", true);
             CalcSums(Amount);
-            EUServiceAmount += Abs(Amount);
+            EUServiceAmount += Amount;
         end;
     end;
 

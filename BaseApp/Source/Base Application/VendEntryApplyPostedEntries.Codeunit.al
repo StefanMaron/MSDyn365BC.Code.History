@@ -44,7 +44,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     procedure Apply(VendLedgEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date): Boolean
     var
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
-        SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
     begin
         OnBeforeApply(VendLedgEntry, DocumentNo, ApplicationDate);
         with VendLedgEntry do begin
@@ -70,7 +69,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                 DocumentNo := "Document No.";
 
             VendPostApplyVendLedgEntry(VendLedgEntry, DocumentNo, ApplicationDate);
-            SIIJobUploadPendingDocs.OnVendorEntriesApplied(VendLedgEntry);
             exit(true);
         end;
     end;

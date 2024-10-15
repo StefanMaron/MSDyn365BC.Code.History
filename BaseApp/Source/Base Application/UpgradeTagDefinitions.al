@@ -1,5 +1,7 @@
 ﻿codeunit 9998 "Upgrade Tag Definitions"
 {
+    // Tag Structure - MS-[TFSID]-[Description]-[DateChangeWasDoneToSeeHowOldItWas]
+    // Tags must be the same in all branches
 
     trigger OnRun()
     begin
@@ -48,6 +50,7 @@
         PerCompanyUpgradeTags.Add(GetFixAPIPurchaseInvoicesCreatedFromOrders());
         PerCompanyUpgradeTags.Add(GetDeleteSalesOrdersOrphanedRecords());
         PerCompanyUpgradeTags.Add(GetIntrastatJnlLinePartnerIDUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetAdvancedIntrastatBaseDemoDataUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -397,6 +400,11 @@
     procedure GetDeleteSalesOrdersOrphanedRecords(): Code[250];
     begin
         exit('MS-377433-DeleteSalesOrdersOrphanedRecords-20201102');
+    end;
+
+    procedure GetAdvancedIntrastatBaseDemoDataUpgradeTag(): Code[250]
+    begin
+        exit('MS-395476-AdvancedIntrastatChecklistSetup-20210525');
     end;
 }
 
