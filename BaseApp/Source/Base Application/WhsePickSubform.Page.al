@@ -1,4 +1,4 @@
-page 5780 "Whse. Pick Subform"
+﻿page 5780 "Whse. Pick Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -499,7 +499,13 @@ page 5780 "Whse. Pick Subform"
     procedure RegisterActivityYesNo()
     var
         WhseActivLine: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRegisterActivityYesNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseActivLine.Copy(Rec);
         WhseActivLine.FilterGroup(3);
         WhseActivLine.SetRange(Breakbulk);
@@ -514,6 +520,8 @@ page 5780 "Whse. Pick Subform"
         Rec.SetRange(Breakbulk, false);
         Rec.FilterGroup(0);
         CurrPage.Update(false);
+
+        OnAfterRegisterActivityYesNo(Rec);
     end;
 
     local procedure ShowBinContents()
@@ -608,6 +616,16 @@ page 5780 "Whse. Pick Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSerialNoOnAfterValidate(var Rec: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRegisterActivityYesNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRegisterActivityYesNo(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

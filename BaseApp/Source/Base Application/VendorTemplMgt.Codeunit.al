@@ -27,6 +27,7 @@ codeunit 1385 "Vendor Templ. Mgt."
 
         ApplyVendorTemplate(Vendor, VendorTempl);
 
+        OnAfterCreateVendorFromTemplate(Vendor, VendorTempl);
         exit(true);
     end;
 
@@ -52,36 +53,40 @@ codeunit 1385 "Vendor Templ. Mgt."
     end;
 
     local procedure ApplyTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    var
+        VendorRecRef: RecordRef;
+        EmptyVendorRecRef: RecordRef;
+        VendorTemplRecRef: RecordRef;
+        EmptyVendorTemplRecRef: RecordRef;
+        VendorFldRef: FieldRef;
+        EmptyVendorFldRef: FieldRef;
+        VendorTemplFldRef: FieldRef;
+        EmptyVendorTemplFldRef: FieldRef;
+        i: Integer;
+        FieldExclusionList: List of [Integer];
     begin
-        if (VendorTempl.City <> '') and (Vendor.City = '') then
-            Vendor.City := VendorTempl.City;
-        Vendor."Vendor Posting Group" := VendorTempl."Vendor Posting Group";
-        if (VendorTempl."Currency Code" <> '') and (Vendor."Currency Code" = '') then
-            Vendor."Currency Code" := VendorTempl."Currency Code";
-        if (VendorTempl."Language Code" <> '') and (Vendor."Language Code" = '') then
-            Vendor."Language Code" := VendorTempl."Language Code";
-        Vendor."Payment Terms Code" := VendorTempl."Payment Terms Code";
-        Vendor."Fin. Charge Terms Code" := VendorTempl."Fin. Charge Terms Code";
-        Vendor."Invoice Disc. Code" := VendorTempl."Invoice Disc. Code";
-        if (VendorTempl."Country/Region Code" <> '') and (Vendor."Country/Region Code" = '') then
-            Vendor."Country/Region Code" := VendorTempl."Country/Region Code";
-        Vendor."Pay-to Vendor No." := VendorTempl."Pay-to Vendor No.";
-        Vendor."Payment Method Code" := VendorTempl."Payment Method Code";
-        Vendor."Application Method" := VendorTempl."Application Method";
-        Vendor."Prices Including VAT" := VendorTempl."Prices Including VAT";
-        Vendor."Gen. Bus. Posting Group" := VendorTempl."Gen. Bus. Posting Group";
-        if (VendorTempl."Post Code" <> '') and (Vendor."Post Code" = '') then
-            Vendor."Post Code" := VendorTempl."Post Code";
-        if (VendorTempl.County <> '') and (Vendor.County = '') then
-            Vendor.County := VendorTempl.County;
-        Vendor."VAT Bus. Posting Group" := VendorTempl."VAT Bus. Posting Group";
-        Vendor."Block Payment Tolerance" := VendorTempl."Block Payment Tolerance";
-        Vendor."Validate EU Vat Reg. No." := VendorTempl."Validate EU Vat Reg. No.";
-        Vendor.Blocked := VendorTempl.Blocked;
-        Vendor."Document Sending Profile" := VendorTempl."Document Sending Profile";
-        Vendor."Partner Type" := VendorTempl."Partner Type";
-        Vendor."Location Code" := VendorTempl."Location Code";
-        Vendor."Shipment Method Code" := VendorTempl."Shipment Method Code";
+        VendorRecRef.GetTable(Vendor);
+        EmptyVendorRecRef.Open(Database::Vendor);
+        EmptyVendorRecRef.Init();
+        VendorTemplRecRef.GetTable(VendorTempl);
+        EmptyVendorTemplRecRef.Open(Database::"Vendor Templ.");
+        EmptyVendorTemplRecRef.Init();
+
+        FillFieldExclusionList(FieldExclusionList);
+
+        for i := 3 to VendorTemplRecRef.FieldCount do begin
+            VendorTemplFldRef := VendorTemplRecRef.FieldIndex(i);
+            if TemplateFieldCanBeProcessed(VendorTemplFldRef, FieldExclusionList) then begin
+                VendorFldRef := VendorRecRef.Field(VendorTemplFldRef.Number);
+                EmptyVendorFldRef := EmptyVendorRecRef.Field(VendorTemplFldRef.Number);
+                EmptyVendorTemplFldRef := EmptyVendorTemplRecRef.Field(VendorTemplFldRef.Number);
+                if (VendorFldRef.Value = EmptyVendorFldRef.Value) and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value) then
+                    VendorFldRef.Value := VendorTemplFldRef.Value;
+            end;
+        end;
+        VendorRecRef.SetTable(Vendor);
+        if VendorTempl."Invoice Disc. Code" <> '' then
+            Vendor."Invoice Disc. Code" := VendorTempl."Invoice Disc. Code";
         OnApplyTemplateOnBeforeVendorModify(Vendor, VendorTempl);
         Vendor.Modify(true);
     end;
@@ -243,33 +248,15 @@ codeunit 1385 "Vendor Templ. Mgt."
     end;
 
     local procedure InsertTemplateFromVendor(var VendorTempl: Record "Vendor Templ."; Vendor: Record Vendor)
+    var
+        SavedVendorTempl: Record "Vendor Templ.";
     begin
         VendorTempl.Init();
         VendorTempl.Code := GetVendorTemplCode();
-
-        VendorTempl.City := Vendor.City;
-        VendorTempl."Vendor Posting Group" := Vendor."Vendor Posting Group";
-        VendorTempl."Currency Code" := Vendor."Currency Code";
-        VendorTempl."Language Code" := Vendor."Language Code";
-        VendorTempl."Payment Terms Code" := Vendor."Payment Terms Code";
-        VendorTempl."Fin. Charge Terms Code" := Vendor."Fin. Charge Terms Code";
-        VendorTempl."Invoice Disc. Code" := Vendor."Invoice Disc. Code";
-        VendorTempl."Country/Region Code" := Vendor."Country/Region Code";
-        VendorTempl."Pay-to Vendor No." := Vendor."Pay-to Vendor No.";
-        VendorTempl."Payment Method Code" := Vendor."Payment Method Code";
-        VendorTempl."Application Method" := Vendor."Application Method";
-        VendorTempl."Prices Including VAT" := Vendor."Prices Including VAT";
-        VendorTempl."Gen. Bus. Posting Group" := Vendor."Gen. Bus. Posting Group";
-        VendorTempl."Post Code" := Vendor."Post Code";
-        VendorTempl.County := Vendor.County;
-        VendorTempl."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
-        VendorTempl."Block Payment Tolerance" := Vendor."Block Payment Tolerance";
-        VendorTempl."Validate EU Vat Reg. No." := Vendor."Validate EU Vat Reg. No.";
-        VendorTempl.Blocked := Vendor.Blocked;
-        VendorTempl."Document Sending Profile" := Vendor."Document Sending Profile";
-        VendorTempl."Partner Type" := Vendor."Partner Type";
-        VendorTempl."Location Code" := Vendor."Location Code";
-        VendorTempl."Shipment Method Code" := Vendor."Shipment Method Code";
+        SavedVendorTempl := VendorTempl;
+        VendorTempl.TransferFields(Vendor);
+        VendorTempl.Code := SavedVendorTempl.Code;
+        VendorTempl.Description := SavedVendorTempl.Description;
         OnInsertTemplateFromVendorOnBeforeVendorTemplInsert(VendorTempl, Vendor);
         VendorTempl.Insert();
     end;
@@ -330,6 +317,22 @@ codeunit 1385 "Vendor Templ. Mgt."
         NoSeriesManagement.InitSeries(VendorTempl."No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
     end;
 
+    local procedure TemplateFieldCanBeProcessed(TemplateFldRef: FieldRef; FieldExclusionList: List of [Integer]): Boolean
+    begin
+        exit(not (FieldExclusionList.Contains(TemplateFldRef.Number) or (TemplateFldRef.Number > 2000000000)));
+    end;
+
+    local procedure FillFieldExclusionList(var FieldExclusionList: List of [Integer])
+    var
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        FieldExclusionList.Add(VendorTempl.FieldNo("Invoice Disc. Code"));
+        FieldExclusionList.Add(VendorTempl.FieldNo("No. Series"));
+        FieldExclusionList.Add(VendorTempl.FieldNo("Contact Type"));
+
+        OnAfterFillFieldExclusionList(FieldExclusionList);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
     begin
@@ -382,6 +385,16 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnShowTemplates(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateVendorFromTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillFieldExclusionList(var FieldExclusionList: List of [Integer])
     begin
     end;
 
