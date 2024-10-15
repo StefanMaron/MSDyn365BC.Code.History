@@ -4685,6 +4685,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Order - NamedType RecreatePurchaseLinesQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1951354433 - NamedType 3365613626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is disposed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Order - NamedType DisposedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 966482892 - NamedType 1175766552" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Transaction No. %1 and %2 must not be equal.]]></Val>
@@ -8771,6 +8780,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - record ID]D;]A;(LookupHint=Codeunit PEPPOL Management Tests - NamedType NegativeUnitPriceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1507343860 - NamedType 2582613147" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PEPPOL Management Tests - NamedType FieldMustHaveValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1217376489 - NamedType 3084717063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchase %1 %2 already exists for this vendor.]]></Val>
@@ -10236,6 +10254,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Contract No.]D;]A;(LookupHint=Codeunit Service Contracts II - NamedType SignServContractQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1134171456 - NamedType 2468822583" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to sign service contract]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Contracts II - NamedType SignContractConfirmQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1134171456 - NamedType 2481304839" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
