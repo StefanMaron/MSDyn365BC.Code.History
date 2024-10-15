@@ -1158,8 +1158,8 @@ report 1322 "Standard Purchase - Order"
         VendorOrderNoLbl: Label 'Vendor Order No.';
         VendorInvoiceNoLbl: Label 'Vendor Invoice No.';
         UnitPriceLbl: Label 'Unit Price (LCY)';
-        JobNoLbl: Label 'Job No.';
-        JobTaskNoLbl: Label 'Job Task No.';
+        JobNoLbl: Label 'Project No.';
+        JobTaskNoLbl: Label 'Project Task No.';
         PromisedReceiptDateLbl: Label 'Promised Receipt Date';
         RequestedReceiptDateLbl: Label 'Requested Receipt Date';
         ExpectedReceiptDateLbl: Label 'Expected Receipt Date';

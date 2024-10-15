@@ -13,7 +13,7 @@ enum 802 "Online Map Table Selection"
     value(2; "Contact") { Caption = 'Contact'; }
     value(3; "Customer") { Caption = 'Customer'; }
     value(4; "Employee") { Caption = 'Employee'; }
-    value(5; "Job") { Caption = 'Job'; }
+    value(5; "Job") { Caption = 'Project'; }
     value(6; "Location") { Caption = 'Location'; }
     value(7; "Resource") { Caption = 'Resource'; }
     value(8; "Vendor") { Caption = 'Vendor'; }

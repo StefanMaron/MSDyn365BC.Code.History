@@ -34,6 +34,7 @@ codeunit 136108 "Service Posting - Invoice"
         AmountsMustMatchError: Label '%1 must be %2 in %3.';
         PostingDateBlankError: Label 'Enter the posting date.';
         ConfirmCreateEmptyPostedInvMsg: Label 'Deleting this document will cause a gap in the number series for posted invoices. An empty posted invoice %1 will be created', Comment = '%1 - Invoice No.';
+        ReservationEntryNotFoundErr: Label 'Reservation Entry should be deleted.';
 
     [Test]
     [HandlerFunctions('ExpectedCostConfirmHandler,ExpectedCostMsgHandler')]
@@ -2769,6 +2770,85 @@ codeunit 136108 "Service Posting - Invoice"
         // [THEN] The saved request page values are overridden.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ModalEmailEditorHandler,ModalEmailRelationPickerHandler,CancelMailSendingStrMenuHandler')]
+    procedure PostServiceInvoiceAndSendViaMail()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ResourceNo: Code[20];
+    begin
+        // [SCENARIO 466584] When Posted Service Invoice is sent via mail in EMail Related Records system should store data about Customer
+        Initialize();
+
+        // [WHEN] A connector is installed and an account is added
+        InstallConnectorAndAddAccount();
+
+        // [GIVEN] Create Service Invoice with Resource
+        ResourceNo := LibraryResource.CreateResourceNo();
+        CreateServiceInvoiceWithResource(ServiceHeader, ResourceNo);
+
+        // [GIVEN] Post Service Invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        ServiceInvoiceHeader.Get(ServiceHeader."Last Posting No.");
+
+        // [WHEN] Posted Service Invoice is sent to a customer (discarded mail)
+        CustomReportSelectionPrint(ServiceInvoiceHeader, Enum::"Report Selection Usage"::"SM.Invoice", 2);
+
+        // [THEN] Reservation entry should be deleted for Non-Inventory Item and not exist in Reservation Entry table.
+        CheckCustomerAddedToMailRelation(ServiceInvoiceHeader."Customer No.");
+
+        LibraryVariableStorage.Clear();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReservationEntryDeletedAfterPostingNonInventoryServiceInvoice()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemNo: Code[20];
+        CustomerNo: Code[20];
+        ServiceItemNo: Code[20];
+        SerialNo: Code[50];
+    begin
+        // [SCENARIO 498734] No Orphaned surplus entry when doing a Service Credit Memo on a non-inventory item with serial number
+        Initialize();
+
+        // [GIVEN] Create Customer 
+        CustomerNo := CreateCustomer();
+
+        // [GIVEN] Create Service Invoice Header
+        CreateServiceInvoiceHeader(ServiceHeader, CustomerNo);
+
+        // [GIVEN] Create Non-Inventory Item with Service Item
+        CreateNonInventoryItemWithServiceItem(CustomerNo, ItemNo, ServiceItemNo);
+
+        // [GIVEN] Create SerialNo and Enqueue
+        SerialNo := Format(LibraryRandom.RandText(50));
+        LibraryVariableStorage.Enqueue(SerialNo);
+
+        // [GIVEN] Add Service Item in Service Line with new Serial No.
+        CreateServiceLineReplacement(ServiceLine, ServiceHeader, ItemNo, ServiceItemNo);
+
+        // [WHEN] Post Service Invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Find the Reservation Entry 
+        ReservationEntry.SetRange("Item No.", ServiceItemNo);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Source Type", Database::"Service Line");
+        ReservationEntry.SetRange("Source ID", ServiceHeader."No.");
+        ReservationEntry.SetRange("Serial No.", SerialNo);
+
+        // [THEN] Reservation entry should be deleted for Non-Inventory Item and not exist in Reservation Entry table.
+        Assert.IsTrue(ReservationEntry.IsEmpty(), ReservationEntryNotFoundErr);
+
+        LibraryVariableStorage.Clear();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3731,38 +3811,6 @@ codeunit 136108 "Service Posting - Invoice"
         end;
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('ModalEmailEditorHandler,ModalEmailRelationPickerHandler,CancelMailSendingStrMenuHandler')]
-    procedure PostServiceInvoiceAndSendViaMail()
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ResourceNo: Code[20];
-    begin
-        // [SCENARIO 466584] When Posted Service Invoice is sent via mail in EMail Related Records system should store data about Customer
-        Initialize();
-
-        // [WHEN] A connector is installed and an account is added
-        InstallConnectorAndAddAccount();
-
-        // [GIVEN] Create Service Invoice with Resource
-        ResourceNo := LibraryResource.CreateResourceNo();
-        CreateServiceInvoiceWithResource(ServiceHeader, ResourceNo);
-
-        // [GIVEN] Post Service Invoice
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
-        ServiceInvoiceHeader.Get(ServiceHeader."Last Posting No.");
-
-        // [WHEN] Posted Service Invoice is sent to a customer (discarded mail)
-        CustomReportSelectionPrint(ServiceInvoiceHeader, Enum::"Report Selection Usage"::"SM.Invoice", 2);
-
-        // [THEN] 
-        CheckCustomerAddedToMailRelation(ServiceInvoiceHeader."Customer No.");
-
-        LibraryVariableStorage.Clear();
-    end;
-
     local procedure InstallConnectorAndAddAccount()
     var
         ConnectorMock: Codeunit "Connector Mock";
@@ -3792,6 +3840,55 @@ codeunit 136108 "Service Posting - Invoice"
 
         ReportSelections.FindEmailAttachmentUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
         ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), Document, '', '', true, CustomerNo);
+    end;
+
+    local procedure CreateServiceLineReplacement(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ItemNo: Code[20]; ServiceItemNo: Code[20])
+    begin
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
+        ServiceLine.Validate("No.", ItemNo);
+        ServiceLine.Validate("Service Item No.", ServiceItemNo);
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateNonInventoryItemWithServiceItem(CustomerNo: Code[20]; var ItemNo: Code[20]; var ServiceItemNo: Code[20])
+    var
+        ServiceItem: Record "Service Item";
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
+        ServiceItem.Validate("Item No.", Item."No.");
+        ServiceItem.Validate("Serial No.", Format(LibraryRandom.RandText(50)));
+        ServiceItem.Modify(true);
+        ItemNo := Item."No.";
+        ServiceItemNo := ServiceItem."No.";
+    end;
+
+    local procedure CreateCustomer(): Code[20]
+    begin
+        exit(LibrarySales.CreateCustomerNo());
+    end;
+
+    local procedure CreateServiceInvoiceHeader(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20])
+    var
+        ServiceInvoice: TestPage "Service Invoice";
+        ServiceInvoiceNo: Code[20];
+    begin
+        ServiceInvoice.OpenNew();
+        ServiceInvoice."Customer No.".Activate();
+        ServiceInvoiceNo := ServiceInvoice."No.".Value();
+        ServiceInvoice.OK().Invoke();
+        Commit();
+
+        Clear(ServiceInvoice);
+        ServiceInvoice.OpenEdit();
+        ServiceInvoice.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::Invoice));
+        ServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceNo);
+        ServiceInvoice."Customer No.".SetValue(CustomerNo);
+        ServiceInvoice.Close();
+
+        ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, ServiceInvoiceNo);
     end;
 
     [ModalPageHandler]

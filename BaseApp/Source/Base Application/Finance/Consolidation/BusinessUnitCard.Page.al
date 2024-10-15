@@ -133,6 +133,12 @@ page 241 "Business Unit Card"
                         ToolTip = 'Specifies the company name of the Business Central company from which data will be imported.';
                         Editable = false;
                     }
+                    field("Log Requests"; Rec."Log Requests")
+                    {
+                        ApplicationArea = Suite;
+                        ToolTip = 'Specifies if requests should be logged for this Business Unit on the "Consolidation Log Entry" table. This is useful for troubleshooting.';
+                        Visible = false;
+                    }
                 }
                 field("File Format"; Rec."File Format")
                 {

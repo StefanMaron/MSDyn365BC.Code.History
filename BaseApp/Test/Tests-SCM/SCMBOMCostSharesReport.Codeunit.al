@@ -652,6 +652,45 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares.Close();
     end;
 
+    [Test]
+    procedure RolledUpMaterialAndCapacityCostWithRoutingAndNoBOM()
+    var
+        FinalItem: Record Item;
+        InterimItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        BOMBuffer: Record "BOM Buffer";
+        BOMCostShares: TestPage "BOM Cost Shares";
+        TotalLeafsRolledUpCapacityCost: Decimal;
+        QtyPer: Decimal;
+    begin
+        // [FEATURE] [BOM Cost Share]
+        // [SCENARIO 500356] Rolled-up Material Cost and Rolled-up Capacity Cost for a interim production item with no BOM.
+        Initialize();
+        QtyPer := LibraryRandom.RandIntInRange(5, 10);
+
+        LibraryAssembly.CreateItem(InterimItem, InterimItem."Costing Method"::FIFO, InterimItem."Replenishment System"::"Prod. Order", '', '');
+        InterimItem.Validate("Unit Cost", LibraryRandom.RandDecInRange(50, 100, 2));
+        InterimItem.Modify(true);
+        LibraryAssembly.CreateRouting(InterimItem, LibraryRandom.RandInt(2));
+        UpdateRoutingCostValues(InterimItem."Routing No.");
+
+        LibraryAssembly.CreateItem(FinalItem, FinalItem."Costing Method"::FIFO, FinalItem."Replenishment System"::"Prod. Order", '', '');
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, FinalItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, InterimItem."No.", QtyPer);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        FinalItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        FinalItem.Modify(true);
+
+        BOMCostShares.Trap();
+        RunBOMCostSharesPage(FinalItem);
+        TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares, BOMBuffer.Type::"Machine Center");
+        TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares, BOMBuffer.Type::"Work Center");
+        VerifyParentItemMaterialAndCapacityCost(BOMCostShares, InterimItem."No.", InterimItem."Unit Cost" * QtyPer, TotalLeafsRolledUpCapacityCost);
+        BOMCostShares.Close();
+    end;
+
     local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
     var
         RoutingHeader: Record "Routing Header";

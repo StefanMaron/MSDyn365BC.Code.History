@@ -22,7 +22,7 @@ table 7390 "Create Pick Parameters"
         field(3; "Whse. Document"; Option)
         {
             Caption = 'Whse. Document';
-            OptionCaption = 'Pick Worksheet,Shipment,Movement Worksheet,Internal Pick,Production,Assembly,Job';
+            OptionCaption = 'Pick Worksheet,Shipment,Movement Worksheet,Internal Pick,Production,Assembly,Project';
             OptionMembers = "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly,Job;
             DataClassification = SystemMetadata;
         }

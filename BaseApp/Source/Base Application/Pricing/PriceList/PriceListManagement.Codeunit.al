@@ -580,10 +580,16 @@ codeunit 7017 "Price List Management"
             until PriceListLine.Next() = 0;
     end;
 
-    procedure ResolveDuplicatePrices(PriceListHeader: Record "Price List Header"): Boolean
+    procedure ResolveDuplicatePrices(PriceListHeader: Record "Price List Header") Resolved: Boolean
     var
         DuplicatePriceLine: Record "Duplicate Price Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResolveDuplicatePrices(PriceListHeader, Resolved, IsHandled);
+        if IsHandled then
+            exit(Resolved);
+
         if PriceListHeader.Status <> PriceListHeader.Status::Active then
             exit(false);
 
@@ -911,27 +917,31 @@ codeunit 7017 "Price List Management"
     end;
 
     local procedure ImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line"; var PriceListLine: Record "Price List Line"; var InsertedUpdatedLeft: array[3] of Integer) Implemented: Boolean;
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeImplementNewPrice(PriceWorksheetLine);
-
-        Implemented := false;
-        PriceListLine.TransferFields(PriceWorksheetLine);
-        if PriceWorksheetLine."Existing Line" then begin
-            PriceListLine.Status := PriceListLine.Status::Draft;
-            if PriceListLine.Modify(true) then begin
-                InsertedUpdatedLeft[2] += 1;
-                Implemented := true;
+        IsHandled := false;
+        OnBeforeImplementNewPrice(PriceWorksheetLine, Implemented, IsHandled);
+        if not IsHandled then begin
+            Implemented := false;
+            PriceListLine.TransferFields(PriceWorksheetLine);
+            if PriceWorksheetLine."Existing Line" then begin
+                PriceListLine.Status := PriceListLine.Status::Draft;
+                if PriceListLine.Modify(true) then begin
+                    InsertedUpdatedLeft[2] += 1;
+                    Implemented := true;
+                end;
+            end else begin
+                PriceListLine.SetNextLineNo();
+                if PriceListLine.Insert(true) then begin
+                    InsertedUpdatedLeft[1] += 1;
+                    Implemented := true;
+                end;
             end;
-        end else begin
-            PriceListLine.SetNextLineNo();
-            if PriceListLine.Insert(true) then begin
-                InsertedUpdatedLeft[1] += 1;
-                Implemented := true;
+            if Implemented then begin
+                PriceWorksheetLine.Delete();
+                PriceListLine.Mark(true);
             end;
-        end;
-        if Implemented then begin
-            PriceWorksheetLine.Delete();
-            PriceListLine.Mark(true);
         end;
         OnAfterImplementNewPrice(PriceWorksheetLine, PriceListLine, Implemented);
     end;
@@ -1075,7 +1085,7 @@ codeunit 7017 "Price List Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line")
+    local procedure OnBeforeImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line"; var Implemented: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1096,6 +1106,11 @@ codeunit 7017 "Price List Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetAssetFilters(PriceListLine: Record "Price List Line"; var DuplicatePriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResolveDuplicatePrices(PriceListHeader: Record "Price List Header"; var Resolved: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

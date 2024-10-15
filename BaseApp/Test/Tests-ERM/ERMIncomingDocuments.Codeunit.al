@@ -2385,6 +2385,57 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.AreEqual(0, IncomingDocumentAttachment.Count, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure IncomingDocumentForEveryPurchInvoicePostedFromPurchOrder()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PartialQty: array[2] of Decimal;
+        DocNo: array[2] of Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 489204] Stan can post purchase order partially multiple times and see incoming document attached to every purchase invoice
+
+        PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
+        PurchaseHeader.DeleteAll();
+
+        // [GIVEN] Incoming document attached to the purchase order
+        CreateIncomingDocumentWithMainAttachment(IncomingDocument, IncomingDocumentAttachment);
+        LibraryPurchase.CreatePurchaseOrderForVendorNo(PurchaseHeader, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+
+        PartialQty[1] := PurchaseLine."Qty. to Receive" / 2;
+        PartialQty[2] := PurchaseLine."Qty. to Receive" - PartialQty[1];
+
+        // [WHEN] Post purchase order partially two times
+        for i := 1 to ArrayLen(PartialQty) do begin
+            PurchaseLine.Find();
+            PurchaseLine.Validate("Qty. to Receive", PartialQty[i]);
+            PurchaseLine.Modify(true);
+            PurchaseHeader.Find();
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+            PurchaseHeader.Modify(true);
+
+            DocNo[i] := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        end;
+        // [THEN] Two incoming document attached exists, per each posted invoice
+        for i := 1 to ArrayLen(DocNo) do begin
+            Assert.IsTrue(IncomingDocument.PostedDocExists(DocNo[i], PurchaseHeader."Posting Date"), 'Incoming document for posted invoice not found');
+            Assert.RecordCount(IncomingDocumentAttachment, 1);
+            IncomingDocumentAttachment.FindFirst();
+            IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+            Assert.AreEqual(1, IncomingDocumentAttachment.Count, '');
+            IncomingDocumentAttachment.FindFirst();
+            IncomingDocumentAttachment.CalcFields(Content);
+            Assert.IsTrue(IncomingDocumentAttachment.Content.HasValue, '');
+        end;
+    end;
+
     local procedure InsertIncomingDocumentAttachment(IncomingDocument: Record "Incoming Document"): Integer
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";

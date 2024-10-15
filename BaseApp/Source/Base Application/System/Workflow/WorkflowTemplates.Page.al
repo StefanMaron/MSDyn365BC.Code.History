@@ -140,7 +140,7 @@ page 1505 "Workflow Templates"
             Error(QueryClosePageLookupErr);
     end;
 
-    local procedure Initialize()
+    protected procedure Initialize()
     begin
         WorkflowSetup.InitWorkflow();
         Rec.InitBufferForTemplates(Rec);
@@ -152,6 +152,8 @@ page 1505 "Workflow Templates"
         WorkflowSetup: Codeunit "Workflow Setup";
         QueryClosePageLookupErr: Label 'Select a workflow template to continue, or choose Cancel to close the page.';
         DescriptionStyle: Text;
+
+    protected var
         IsLookupMode: Boolean;
 }
 

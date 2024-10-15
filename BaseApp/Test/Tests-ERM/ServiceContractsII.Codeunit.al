@@ -2044,6 +2044,115 @@ codeunit 136145 "Service Contracts II"
         Assert.AreEqual(24, CountofUnpostedServiceLines(ServiceContractHeader), WrongCountErr);
     end;
 
+    [Test]
+    [HandlerFunctions('SelectServiceContractTemplateListHandler,ServiceContractConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateServInvoiceLineFromContractWithLeapYearForMonthWiseCalculation()
+    var
+        Customer: Record Customer;
+        ServiceItem: Record "Service Item";
+        ServiceItemGroup: Record "Service Item Group";
+        ServicePriceGroup: Record "Service Price Group";
+        ServiceContractTemplate: Record "Service Contract Template";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        ServiceContract: TestPage "Service Contract";
+        ContractStartingDate: Date;
+        ContractExpirationDate: Date;
+        DefaultContractValue: Decimal;
+        MonthWiseExpectedAmount: Decimal;
+    begin
+        // [SCENARIO 500869] Service Invoice for Contracts starting in February, Leap Year incorrect calculation breakdown of monthly alloactions
+        Initialize();
+
+        // [GIVEN] Generate and Save Contract Starting date in a Variable.
+        ContractStartingDate := LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 10, 20);
+
+        // [GIVEN] Generate and Save Contract Expiration date in a Variable.
+        ContractExpirationDate := CalcDate('<1Y>', ContractStartingDate);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Service Item Group.
+        LibraryService.CreateServiceItemGroup(ServiceItemGroup);
+
+        // [GIVEN] Create a Service Price Group.
+        LibraryService.CreateServicePriceGroup(ServicePriceGroup);
+
+        // [GIVEN] Generate and save Default Contract Value in a Variable.
+        DefaultContractValue := LibraryRandom.RandDec(1000, 2);
+
+        // [GIVEN] Create a Service Item.
+        CreateServiceItemAndValidateFields(
+            ServiceItem,
+            Customer."No.",
+            ServiceItemGroup.Code,
+            ServicePriceGroup.Code,
+            DefaultContractValue,
+            ContractStartingDate);
+
+        // [GIVEN] Create a Service Contract Header.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(CreateContrUsingTemplateQst);
+        LibraryVariableStorage.Enqueue(CreateServiceContractTemplateInvPeriodYear(ServiceContractTemplate, true));
+        LibraryService.CreateServiceContractHeader(
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
+        Evaluate(ServiceContractHeader."Service Period", StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)));
+
+        // [GIVEN] Update Starting Date and Expiration Date in a Service Contract Header
+        ServiceContractHeader.Validate("Starting Date", ContractStartingDate);
+        ServiceContractHeader."Expiration Date" := ContractExpirationDate;
+        ServiceContractHeader.Modify();
+
+        // [GIVEN] Create a Service Contract Line.
+        CreateServiceContractLineAndValidateFields(
+            ServiceContractLine,
+            ServiceContractHeader,
+            ServiceItem."No.",
+            DefaultContractValue,
+            ContractStartingDate,
+            ContractExpirationDate);
+
+        // [GIVEN] Validate Annual Amount, Invoice Period and "Contract Lines on Invoice" as false in Service Contract Header.
+        ServiceContractHeader.Validate("Annual Amount", DefaultContractValue);
+        ServiceContractHeader.Validate("Invoice Period", ServiceContractHeader."Invoice Period"::Year);
+        ServiceContractHeader.Validate("Contract Lines on Invoice", false);
+        ServiceContractHeader.Modify(true);
+
+        // [GIVEN] Sign Service Contract but do not create invoice
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // [GIVEN] Change WorkDate to next month
+        WorkDate(CalcDate('<CM+1D>', ContractStartingDate));
+
+        // [GIVEN] Open Service Contract page and run Create Service Invoice action.
+        ServiceContract.OpenView();
+        ServiceContract.GoToRecord(ServiceContractHeader);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        ServiceContract.CreateServiceInvoice.Invoke();
+
+        // [GIVEN] Generate different months line amount in the Variable.
+        MonthWiseExpectedAmount := CalcContractLineAmount(DefaultContractValue, ContractStartingDate, ContractExpirationDate);
+
+        // [WHEN] Find first Service Invoice Line.
+        FindFirstServiceLine(ServiceContractHeader, ServiceHeader, ServiceLine);
+
+        // [THEN] Verify Service Line - Line Amount field of full year
+        ServiceLine.CalcSums(ServiceLine."Line Amount");
+        Assert.AreNearlyEqual(MonthWiseExpectedAmount, ServiceLine."Line Amount", 0.01, '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

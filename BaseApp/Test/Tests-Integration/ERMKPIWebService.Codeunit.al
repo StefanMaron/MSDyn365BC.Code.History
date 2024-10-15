@@ -537,6 +537,28 @@ codeunit 134401 "ERM KPI Web Service"
         Assert.IsFalse(AccountingPeriod.CorrespondingAccountingPeriodExists(AccountingPeriod, CalcDate('<+1M+1Y>', WorkDate())), '');
     end;
 
+    [Test]
+    procedure LastUpdatedEntryResetOnDeletingService()
+    var
+        AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
+        LastEntryNoMustBeResetErr: Label 'Last G/L Entry Included must be reset when the web service is unpublished.';
+    begin
+        // [SCENARIO] "Last G/L Entry Included" is reset when the web service is unpublished
+
+        InitSetupData();
+
+        // [GIVEN] Web service data is updated, "Last G/L Entry Included" is greater than 0
+        AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1000;
+        AccSchedKPIWebSrvSetup.Modify();
+
+        // [WHEN] Invoke DeleteWebService
+        AccSchedKPIWebSrvSetup.DeleteWebService();
+
+        // [THEN] "Last G/L Entry Included" is reset to 0
+        AccSchedKPIWebSrvSetup.Get();
+        Assert.AreEqual(0, AccSchedKPIWebSrvSetup."Last G/L Entry Included", LastEntryNoMustBeResetErr);
+    end;
+
     local procedure InitSetupData()
     var
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";

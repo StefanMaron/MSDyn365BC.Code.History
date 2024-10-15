@@ -4,7 +4,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Reports;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
@@ -18,13 +17,8 @@ report 5756 "Create Warehouse Location"
     ProcessingOnly = true;
     UsageCategory = Tasks;
 
-    dataset
-    {
-    }
-
     requestpage
     {
-
         layout
         {
             area(content)
@@ -36,14 +30,14 @@ report 5756 "Create Warehouse Location"
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Location Code';
-                        ToolTip = 'Specifies the location where the warehouse activity takes place. ';
+                        ToolTip = 'Specifies the location where the warehouse activity takes place.';
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
                             Clear(Location);
                             if LocCode <> '' then
                                 Location.Code := LocCode;
-                            if PAGE.RunModal(0, Location) = ACTION::LookupOK then begin
+                            if Page.RunModal(0, Location) = Action::LookupOK then begin
                                 Location.TestField("Bin Mandatory", false);
                                 Location.TestField("Use As In-Transit", false);
                                 Location.TestField("Directed Put-away and Pick", false);
@@ -71,7 +65,7 @@ report 5756 "Create Warehouse Location"
                             if LocCode <> '' then
                                 Bin.SetRange("Location Code", LocCode);
 
-                            if PAGE.RunModal(0, Bin) = ACTION::LookupOK then begin
+                            if Page.RunModal(0, Bin) = Action::LookupOK then begin
                                 if LocCode = '' then
                                     LocCode := Bin."Location Code";
                                 AdjBinCode := Bin.Code;
@@ -93,14 +87,6 @@ report 5756 "Create Warehouse Location"
                 }
             }
         }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
     }
 
     trigger OnPostReport()
@@ -125,147 +111,62 @@ report 5756 "Create Warehouse Location"
 
     trigger OnPreReport()
     var
-        WhseEntry: Record "Warehouse Entry";
+        GroupedItemLedgerEntries: Query "Grouped Item Ledger Entries";
+        ErrorInfo: ErrorInfo;
+        ItemNo: Code[20];
     begin
-        if LocCode = '' then
-            Error(Text001);
-        if AdjBinCode = '' then
-            Error(Text002);
-
-        ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.", Open);
-        if ItemLedgEntry.Find('-') then
-            repeat
-                ItemLedgEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
-                ItemLedgEntry.SetRange(Open, true);
-                ItemLedgEntry.SetRange("Location Code", LocCode);
-                Found := ItemLedgEntry.Find('-');
-                if Found and not HideValidationDialog then
-                    if not Confirm(StrSubstNo('%1 %2 %3 %4 %5 %6 %7 %8',
-                           Text010, Text011, Text012, Text013, Text014,
-                           Text015, StrSubstNo(Text016, LocCode), Text017), false)
-                    then
-                        CurrReport.Quit();
-                ItemLedgEntry.SetRange("Location Code");
-                ItemLedgEntry.SetRange(Open);
-                ItemLedgEntry.Find('+');
-                ItemLedgEntry.SetRange("Item No.");
-            until (ItemLedgEntry.Next() = 0) or Found;
-
-        if not Found then
-            Error(Text018, Location.TableCaption(), Location.FieldCaption(Code), LocCode);
-        Clear(ItemLedgEntry);
-
-        WhseEntry.SetRange("Location Code", LocCode);
-        if not WhseEntry.IsEmpty() then
-            Error(
-              Text019, LocCode, WhseEntry.TableCaption());
+        Check();
 
         TempWhseJnlLine.Reset();
         TempWhseJnlLine.DeleteAll();
-
         LastLineNo := 0;
-
-        ItemLedgEntry.SetCurrentKey(
-            "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.");
-
-        Location.Get(LocCode);
-        Location.TestField("Adjustment Bin Code", '');
-        CheckWhseDocs();
-
+        ItemNo := '';
         Bin.Get(LocCode, AdjBinCode);
 
-        if ItemLedgEntry.Find('-') then begin
-            if not HideValidationDialog then begin
-                Window.Open(StrSubstNo(Text020, ItemLedgEntry."Location Code") + Text003);
-                i := 1;
-                CountItemLedgEntries := ItemLedgEntry.Count;
+        if not HideValidationDialog then
+            Window.Open(StrSubstNo(ProcessingTxt, LocCode) + ItemNoInProgressTxt);
+
+        GroupedItemLedgerEntries.SetRange(Location_Code, LocCode);
+        GroupedItemLedgerEntries.Open();
+        while GroupedItemLedgerEntries.Read() do begin
+            if not HideValidationDialog then
+                if ItemNo <> GroupedItemLedgerEntries.Item_No then begin
+                    Window.Update(100, GroupedItemLedgerEntries.Item_No);
+                    ItemNo := GroupedItemLedgerEntries.Item_No;
+                end;
+
+            if GroupedItemLedgerEntries.Remaining_Quantity < 0 then begin
+                ErrorInfo.ErrorType(ErrorType::Client);
+                ErrorInfo.Verbosity(Verbosity::Error);
+                ErrorInfo.Message(BuildErrorText(GroupedItemLedgerEntries));
+                ErrorInfo.Title(NegativeInventoryErr);
+                Error(ErrorInfo);
             end;
 
-            repeat
-                if not HideValidationDialog then begin
-                    Window.Update(100, i);
-                    Window.Update(102, Round(i / CountItemLedgEntries * 10000, 1));
-                end;
-
-                ItemLedgEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
-                if ItemLedgEntry.Find('-') then begin
-                    ItemLedgEntry.SetRange("Location Code", LocCode);
-                    ItemLedgEntry.SetRange(Open, true);
-                    if ItemLedgEntry.Find('-') then
-                        repeat
-                            ItemLedgEntry.SetRange("Variant Code", ItemLedgEntry."Variant Code");
-                            if ItemLedgEntry.Find('-') then
-                                repeat
-                                    ItemLedgEntry.SetRange("Unit of Measure Code", ItemLedgEntry."Unit of Measure Code");
-                                    if ItemLedgEntry.Find('-') then
-                                        repeat
-                                            ItemLedgEntry.SetRange("Lot No.", ItemLedgEntry."Lot No.");
-                                            if ItemLedgEntry.Find('-') then
-                                                repeat
-                                                    ItemLedgEntry.SetRange("Package No.", ItemLedgEntry."Package No.");
-                                                    if ItemLedgEntry.Find('-') then
-                                                        repeat
-                                                            ItemLedgEntry.SetRange("Serial No.", ItemLedgEntry."Serial No.");
-                                                            ItemLedgEntry.CalcSums(ItemLedgEntry."Remaining Quantity");
-                                                            if ItemLedgEntry."Remaining Quantity" < 0 then
-                                                                Error(
-                                                                  StrSubstNo(Text005, BuildErrorText()) +
-                                                                  StrSubstNo(Text009, ItemsWithNegativeInventory.ObjectId()));
-                                                            if ItemLedgEntry."Remaining Quantity" > 0 then
-                                                                CreateWhseJnlLine();
-                                                            ItemLedgEntry.Find('+');
-                                                            ItemLedgEntry.SetRange("Serial No.");
-                                                        until ItemLedgEntry.Next() = 0;
-                                                    ItemLedgEntry.Find('+');
-                                                    ItemLedgEntry.SetRange("Package No.");
-                                                until ItemLedgEntry.Next() = 0;
-                                            ItemLedgEntry.Find('+');
-                                            ItemLedgEntry.SetRange("Lot No.");
-                                        until ItemLedgEntry.Next() = 0;
-                                    ItemLedgEntry.Find('+');
-                                    ItemLedgEntry.SetRange("Unit of Measure Code")
-                                until ItemLedgEntry.Next() = 0;
-                            ItemLedgEntry.Find('+');
-                            ItemLedgEntry.SetRange("Variant Code");
-                        until ItemLedgEntry.Next() = 0;
-                end;
-
-                ItemLedgEntry.SetRange(Open);
-                ItemLedgEntry.SetRange("Location Code");
-                ItemLedgEntry.Find('+');
-                if not HideValidationDialog then
-                    i := i + ItemLedgEntry.Count;
-                ItemLedgEntry.SetRange("Item No.");
-            until ItemLedgEntry.Next() = 0;
+            if GroupedItemLedgerEntries.Remaining_Quantity > 0 then
+                CreateWhseJnlLine(GroupedItemLedgerEntries);
         end;
     end;
 
     var
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         Item: Record Item;
-        ItemLedgEntry: Record "Item Ledger Entry";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         Location: Record Location;
         Bin: Record Bin;
-        ItemsWithNegativeInventory: Report "Items with Negative Inventory";
         WMSMgt: Codeunit "WMS Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         LocCode: Code[10];
+        AdjBinCode: Code[20];
+        LastLineNo: Integer;
         Text001: Label 'Enter a location code.';
         Text002: Label 'Enter an adjustment bin code.';
-        Text003: Label 'Count #100##### @102@@@@@@@@';
-        AdjBinCode: Code[20];
-        i: Integer;
-        CountItemLedgEntries: Integer;
-        LastLineNo: Integer;
         Text004: Label 'The conversion was successfully completed.';
-        Text005: Label 'Negative inventory was found in the location. You must clear this negative inventory in the program before you can proceed with the conversion.\\%1.\\';
+        NegativeInventoryErr: Label 'Negative inventory was found in the location. You must clear this negative inventory in the program before you can proceed with the conversion.';
         Text006: Label 'Location %1 cannot be converted because at least one %2 is not completely posted yet.\\Post or delete all of them before restarting the conversion batch job.';
         Text007: Label 'Location %1 cannot be converted because at least one %2 is not completely registered yet.\\Register or delete all of them before restarting the conversion batch job.';
         Text008: Label 'Location %1 cannot be converted because at least one %2 exists.\\Delete all of them before restarting the conversion batch job.';
-        Text009: Label 'Run %1 for a report of all negative inventory in the location.';
         Text010: Label 'Inventory exists on this location. By choosing Yes from this warning, you are confirming that you want to enable this location to use Warehouse Management Systems by running a batch job to create warehouse entries for the inventory in this location.\\';
         Text011: Label 'If you want to proceed, you must first ensure that no negative inventory exists in the location. Negative inventory is not allowed in a location that uses warehouse management logic and must be cleared by posting a suitable quantity to inventory. ';
         Text012: Label 'You can perform a check for negative inventory by using the Items with Negative Inventory report.\\';
@@ -276,14 +177,44 @@ report 5756 "Create Warehouse Location"
         Text017: Label '\\Do you really want to proceed?';
         Text018: Label 'There is nothing to convert for %1 %2 ''%3''.';
         Text019: Label 'Location %1 cannot be converted because at least one %2 exists for this location.';
-        Text020: Label 'Location %1 will be converted to a WMS location.\\This might take some time so please be patient.';
-        PrimaryFieldsTxt: Label '%1: %2, %3: %4', Locked = true, Comment = 'Do not translate';
-        AdditionalFieldsTxt: Label '%1, %2: %3', Locked = true, Comment = 'Do not translate';
-
-        Found: Boolean;
+        ProcessingTxt: Label 'Location %1 is being converted to a directed put-away and pick location.\\This might take some time so please be patient.\\', Comment = '%1: Location Code';
+        ItemNoInProgressTxt: Label 'Processing item number #100##################.', Comment = '#100 - Item No.';
+        ErrorInfoTxt: Label '%1: %2', Locked = true, Comment = '%1: FieldCaption, %2: FieldValue';
 
     protected var
         HideValidationDialog: Boolean;
+
+    local procedure Check()
+    var
+        WhseEntry: Record "Warehouse Entry";
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        if LocCode = '' then
+            Error(Text001);
+        if AdjBinCode = '' then
+            Error(Text002);
+
+        ItemLedgEntry.Reset();
+        ItemLedgEntry.SetRange("Location Code", LocCode);
+        ItemLedgEntry.SetRange(Open, true);
+        if not ItemLedgEntry.IsEmpty() then begin
+            if not HideValidationDialog then
+                if not Confirm(StrSubstNo('%1 %2 %3 %4 %5 %6 %7 %8',
+                       Text010, Text011, Text012, Text013, Text014,
+                       Text015, StrSubstNo(Text016, LocCode), Text017), false)
+                then
+                    CurrReport.Quit();
+        end else
+            Error(Text018, Location.TableCaption(), Location.FieldCaption(Code), LocCode);
+
+        WhseEntry.SetRange("Location Code", LocCode);
+        if not WhseEntry.IsEmpty() then
+            Error(Text019, LocCode, WhseEntry.TableCaption());
+
+        Location.Get(LocCode);
+        Location.TestField("Adjustment Bin Code", '');
+        CheckWhseDocs();
+    end;
 
     local procedure CheckWhseDocs()
     var
@@ -322,38 +253,49 @@ report 5756 "Create Warehouse Location"
               WhseWkshLine.TableCaption());
     end;
 
-    local procedure CreateWhseJnlLine()
+    local procedure CreateWhseJnlLine(GroupedItemLedgerEntries: Query "Grouped Item Ledger Entries")
     begin
-        LastLineNo := LastLineNo + 10000;
+        LastLineNo += 10000;
 
         TempWhseJnlLine.Init();
         TempWhseJnlLine."Entry Type" := TempWhseJnlLine."Entry Type"::"Positive Adjmt.";
         TempWhseJnlLine."Line No." := LastLineNo;
-        TempWhseJnlLine."Location Code" := ItemLedgEntry."Location Code";
-        TempWhseJnlLine."Registering Date" := Today;
-        TempWhseJnlLine."Item No." := ItemLedgEntry."Item No.";
-        TempWhseJnlLine.Quantity := Round(ItemLedgEntry."Remaining Quantity" / ItemLedgEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-        TempWhseJnlLine."Qty. (Base)" := ItemLedgEntry."Remaining Quantity";
-        TempWhseJnlLine."Qty. (Absolute)" := Round(Abs(ItemLedgEntry."Remaining Quantity") / ItemLedgEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-        TempWhseJnlLine."Qty. (Absolute, Base)" := Abs(ItemLedgEntry."Remaining Quantity");
-        TempWhseJnlLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(TempWhseJnlLine."User ID"));
-        TempWhseJnlLine."Variant Code" := ItemLedgEntry."Variant Code";
-        if ItemLedgEntry."Unit of Measure Code" = '' then begin
-            Item.Get(ItemLedgEntry."Item No.");
-            ItemLedgEntry."Unit of Measure Code" := Item."Base Unit of Measure";
+        TempWhseJnlLine."Location Code" := GroupedItemLedgerEntries.Location_Code;
+        TempWhseJnlLine."Item No." := GroupedItemLedgerEntries.Item_No;
+        TempWhseJnlLine."Variant Code" := GroupedItemLedgerEntries.Variant_Code;
+
+        TempWhseJnlLine."Unit of Measure Code" := GroupedItemLedgerEntries.Unit_of_Measure_Code;
+        if TempWhseJnlLine."Unit of Measure Code" = '' then begin
+            GetItem(GroupedItemLedgerEntries.Item_No);
+            TempWhseJnlLine."Unit of Measure Code" := Item."Base Unit of Measure";
         end;
-        TempWhseJnlLine."Unit of Measure Code" := ItemLedgEntry."Unit of Measure Code";
-        TempWhseJnlLine."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
-        TempWhseJnlLine.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+        GetItemUnitOfMeasure(GroupedItemLedgerEntries.Item_No, GroupedItemLedgerEntries.Unit_of_Measure_Code);
+
+        TempWhseJnlLine.Quantity := UOMMgt.CalcQtyFromBase(GroupedItemLedgerEntries.Remaining_Quantity, ItemUnitOfMeasure."Qty. per Unit of Measure");
+        TempWhseJnlLine."Qty. (Base)" := GroupedItemLedgerEntries.Remaining_Quantity;
+        TempWhseJnlLine."Qty. (Absolute)" := Abs(TempWhseJnlLine.Quantity);
+        TempWhseJnlLine."Qty. (Absolute, Base)" := Abs(TempWhseJnlLine."Qty. (Base)");
+        TempWhseJnlLine.Cubage := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Cubage;
+        TempWhseJnlLine.Weight := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Weight;
+
+        TempWhseJnlLine."Serial No." := GroupedItemLedgerEntries.Serial_No_;
+        TempWhseJnlLine."Lot No." := GroupedItemLedgerEntries.Lot_No_;
+        TempWhseJnlLine."Package No." := GroupedItemLedgerEntries.Package_No_;
+
         TempWhseJnlLine.Validate("Zone Code", Bin."Zone Code");
         TempWhseJnlLine."Bin Code" := AdjBinCode;
         TempWhseJnlLine."To Bin Code" := AdjBinCode;
-        GetItemUnitOfMeasure(ItemLedgEntry."Item No.", ItemLedgEntry."Unit of Measure Code");
-        TempWhseJnlLine.Cubage := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Cubage;
-        TempWhseJnlLine.Weight := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Weight;
-        OnCreateWhseJnlLineOnBeforeCheck(TempWhseJnlLine, ItemLedgEntry);
         WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 0, 0, false);
+
+        TempWhseJnlLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(TempWhseJnlLine."User ID"));
+        TempWhseJnlLine."Registering Date" := WorkDate();
         TempWhseJnlLine.Insert();
+    end;
+
+    local procedure GetItem(ItemNo: Code[20])
+    begin
+        if Item."No." <> ItemNo then
+            Item.Get(ItemNo);
     end;
 
     local procedure GetItemUnitOfMeasure(ItemNo: Code[20]; UOMCode: Code[10])
@@ -365,29 +307,24 @@ report 5756 "Create Warehouse Location"
                 ItemUnitOfMeasure.Init();
     end;
 
-    local procedure BuildErrorText(): Text
+    local procedure BuildErrorText(GroupedItemLedgerEntries: Query "Grouped Item Ledger Entries"): Text
     var
-        ErrorText: Text;
+        ErrorText: TextBuilder;
     begin
-        ErrorText :=
-            StrSubstNo(
-                PrimaryFieldsTxt, ItemLedgEntry.FieldCaption("Location Code"), ItemLedgEntry."Location Code", ItemLedgEntry.FieldCaption("Item No."), ItemLedgEntry."Item No.");
-        if ItemLedgEntry."Variant Code" <> '' then
-            ErrorText :=
-                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Variant Code"), ItemLedgEntry."Variant Code");
-        if ItemLedgEntry."Unit of Measure Code" <> '' then
-            ErrorText :=
-                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Unit of Measure Code"), ItemLedgEntry."Unit of Measure Code");
-        if ItemLedgEntry."Lot No." <> '' then
-            ErrorText :=
-                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Lot No."), ItemLedgEntry."Lot No.");
-        if ItemLedgEntry."Serial No." <> '' then
-            ErrorText :=
-                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Serial No."), ItemLedgEntry."Serial No.");
-        if ItemLedgEntry."Package No." <> '' then
-            ErrorText :=
-                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Package No."), ItemLedgEntry."Package No.");
-        exit(ErrorText);
+        ErrorText.AppendLine(StrSubstNo(ErrorInfoTxt, GroupedItemLedgerEntries.ColumnCaption(Location_Code), GroupedItemLedgerEntries.Location_Code));
+        ErrorText.AppendLine(StrSubstNo(ErrorInfoTxt, GroupedItemLedgerEntries.ColumnCaption(Item_No), GroupedItemLedgerEntries.Item_No));
+        if GroupedItemLedgerEntries.Variant_Code <> '' then
+            ErrorText.AppendLine(StrSubstNo(ErrorInfoTxt, GroupedItemLedgerEntries.ColumnCaption(Variant_Code), GroupedItemLedgerEntries.Variant_Code));
+        if GroupedItemLedgerEntries.Unit_of_Measure_Code <> '' then
+            ErrorText.AppendLine(StrSubstNo(ErrorInfoTxt, GroupedItemLedgerEntries.ColumnCaption(Unit_of_Measure_Code), GroupedItemLedgerEntries.Unit_of_Measure_Code));
+        if GroupedItemLedgerEntries.Lot_No_ <> '' then
+            ErrorText.AppendLine(StrSubstNo(ErrorInfoTxt, GroupedItemLedgerEntries.ColumnCaption(Lot_No_), GroupedItemLedgerEntries.Lot_No_));
+        if GroupedItemLedgerEntries.Serial_No_ <> '' then
+            ErrorText.AppendLine(StrSubstNo(ErrorInfoTxt, GroupedItemLedgerEntries.ColumnCaption(Serial_No_), GroupedItemLedgerEntries.Serial_No_));
+        if GroupedItemLedgerEntries.Package_No_ <> '' then
+            ErrorText.AppendLine(StrSubstNo(ErrorInfoTxt, GroupedItemLedgerEntries.ColumnCaption(Package_No_), GroupedItemLedgerEntries.Package_No_));
+
+        exit(ErrorText.ToText());
     end;
 
     procedure InitializeRequest(LocationCode: Code[10]; AdjustmentBinCode: Code[20])
@@ -401,9 +338,12 @@ report 5756 "Create Warehouse Location"
         HideValidationDialog := NewHideValidationDialog;
     end;
 
+#if not CLEAN25
+    [Obsolete('This event is obsolete and will be removed in a future version.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCreateWhseJnlLineOnBeforeCheck(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
+#endif
 }
 
