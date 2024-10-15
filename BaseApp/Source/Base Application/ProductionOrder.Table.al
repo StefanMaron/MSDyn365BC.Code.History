@@ -153,7 +153,7 @@ table 5405 "Production Order"
         }
         field(19; Comment; Boolean)
         {
-            CalcFormula = Exist ("Prod. Order Comment Line" WHERE(Status = FIELD(Status),
+            CalcFormula = Exist("Prod. Order Comment Line" WHERE(Status = FIELD(Status),
                                                                   "Prod. Order No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -379,7 +379,7 @@ table 5405 "Production Order"
         field(51; "Expected Operation Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Prod. Order Routing Line"."Expected Operation Cost Amt." WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Routing Line"."Expected Operation Cost Amt." WHERE(Status = FIELD(Status),
                                                                                                "Prod. Order No." = FIELD("No.")));
             Caption = 'Expected Operation Cost Amt.';
             Editable = false;
@@ -388,7 +388,7 @@ table 5405 "Production Order"
         field(52; "Expected Component Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Prod. Order Component"."Cost Amount" WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Component"."Cost Amount" WHERE(Status = FIELD(Status),
                                                                            "Prod. Order No." = FIELD("No."),
                                                                            "Due Date" = FIELD("Date Filter")));
             Caption = 'Expected Component Cost Amt.';
@@ -397,7 +397,7 @@ table 5405 "Production Order"
         }
         field(55; "Actual Time Used"; Decimal)
         {
-            CalcFormula = Sum ("Capacity Ledger Entry".Quantity WHERE("Order Type" = CONST(Production),
+            CalcFormula = Sum("Capacity Ledger Entry".Quantity WHERE("Order Type" = CONST(Production),
                                                                       "Order No." = FIELD("No."),
                                                                       Type = FIELD("Capacity Type Filter"),
                                                                       "No." = FIELD("Capacity No. Filter"),
@@ -409,7 +409,7 @@ table 5405 "Production Order"
         }
         field(56; "Allocated Capacity Need"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Capacity Need"."Needed Time" WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Capacity Need"."Needed Time" WHERE(Status = FIELD(Status),
                                                                                "Prod. Order No." = FIELD("No."),
                                                                                Type = FIELD("Capacity Type Filter"),
                                                                                "No." = FIELD("Capacity No. Filter"),
@@ -423,7 +423,7 @@ table 5405 "Production Order"
         }
         field(57; "Expected Capacity Need"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Capacity Need"."Needed Time" WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Capacity Need"."Needed Time" WHERE(Status = FIELD(Status),
                                                                                "Prod. Order No." = FIELD("No."),
                                                                                Type = FIELD("Capacity Type Filter"),
                                                                                "No." = FIELD("Capacity No. Filter"),
@@ -455,7 +455,7 @@ table 5405 "Production Order"
         }
         field(92; "Expected Material Ovhd. Cost"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Component"."Overhead Amount" WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Component"."Overhead Amount" WHERE(Status = FIELD(Status),
                                                                                "Prod. Order No." = FIELD("No.")));
             Caption = 'Expected Material Ovhd. Cost';
             DecimalPlaces = 2 : 2;
@@ -465,7 +465,7 @@ table 5405 "Production Order"
         field(94; "Expected Capacity Ovhd. Cost"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Prod. Order Routing Line"."Expected Capacity Ovhd. Cost" WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Routing Line"."Expected Capacity Ovhd. Cost" WHERE(Status = FIELD(Status),
                                                                                                "Prod. Order No." = FIELD("No.")));
             Caption = 'Expected Capacity Ovhd. Cost';
             Editable = false;
@@ -511,7 +511,7 @@ table 5405 "Production Order"
         }
         field(7300; "Completely Picked"; Boolean)
         {
-            CalcFormula = Min ("Prod. Order Component"."Completely Picked" WHERE(Status = FIELD(Status),
+            CalcFormula = Min("Prod. Order Component"."Completely Picked" WHERE(Status = FIELD(Status),
                                                                                  "Prod. Order No." = FIELD("No."),
                                                                                  "Supplied-by Line No." = FILTER(0)));
             Caption = 'Completely Picked';
@@ -669,6 +669,8 @@ table 5405 "Production Order"
 
     procedure InitRecord()
     begin
+        OnBeforeInitRecord(Rec);
+
         if "Due Date" = 0D then
             Validate("Due Date", WorkDate);
         if ("Source Type" = "Source Type"::Item) and ("Source No." <> '') then
@@ -680,6 +682,8 @@ table 5405 "Production Order"
         "Starting Date" := "Ending Date";
         "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
         "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
+
+        OnAfterInitRecord(Rec);
     end;
 
     procedure TestNoSeries()
@@ -1295,6 +1299,16 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSourceNoOnSourceTypeEnumExtension(var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRecord(var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRecord(var ProductionOrder: Record "Production Order")
     begin
     end;
 }

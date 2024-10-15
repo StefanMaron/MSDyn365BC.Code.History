@@ -183,6 +183,10 @@ page 123 "VAT Entries Preview"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Edit information on the selected VAT entry.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Use VATEntries page directly to edit, not from VAT Entries Preview.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var

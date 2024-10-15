@@ -100,11 +100,12 @@ page 1350 "Posted Sales Shipment - Update"
     var
         xSalesShipmentHeader: Record "Sales Shipment Header";
 
-    local procedure RecordChanged() IsChanged : Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
         IsChanged :=
           ("Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code") or
           ("Promised Delivery Date" <> xSalesShipmentHeader."Promised Delivery Date") or
+          ("Package Tracking No." <> xSalesShipmentHeader."Package Tracking No.") or
           ("Outbound Whse. Handling Time" <> xSalesShipmentHeader."Outbound Whse. Handling Time") or
           ("Shipping Time" <> xSalesShipmentHeader."Shipping Time") or
           ("Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code");

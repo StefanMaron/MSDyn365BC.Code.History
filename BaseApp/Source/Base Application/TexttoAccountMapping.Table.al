@@ -150,11 +150,15 @@ table 1251 "Text-to-Account Mapping"
                 Validate("Mapping Text", BankAccReconciliationLine."Transaction Text");
 
                 SetSourceTypeFromReconcLine(BankAccReconciliationLine);
-                if "Bal. Source Type" <> "Bal. Source Type"::"G/L Account" then
-                    "Bal. Source No." := BankAccReconciliationLine."Account No."
-                else begin
-                    "Debit Acc. No." := BankAccReconciliationLine."Account No.";
-                    "Credit Acc. No." := BankAccReconciliationLine."Account No.";
+                case "Bal. Source Type" of
+                    "Bal. Source Type"::Customer,
+                    "Bal. Source Type"::Vendor:
+                        "Bal. Source No." := BankAccReconciliationLine."Account No.";
+                    "Bal. Source Type"::"G/L Account":
+                        begin
+                            "Debit Acc. No." := BankAccReconciliationLine."Account No.";
+                            "Credit Acc. No." := BankAccReconciliationLine."Account No.";
+                        end;
                 end;
 
                 if "Mapping Text" <> '' then
@@ -222,6 +226,8 @@ table 1251 "Text-to-Account Mapping"
                 "Bal. Source Type" := "Bal. Source Type"::Customer;
             BankAccReconciliationLine."Account Type"::Vendor:
                 "Bal. Source Type" := "Bal. Source Type"::Vendor;
+            BankAccReconciliationLine."Account Type"::"Bank Account":
+                "Bal. Source Type" := "Bal. Source Type"::"Bank Account";
         end;
     end;
 

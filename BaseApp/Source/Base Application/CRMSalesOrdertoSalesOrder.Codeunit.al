@@ -58,21 +58,27 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMOptionMapping: Record "CRM Option Mapping";
     begin
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMSalesorder.ShippingMethodCodeEnum)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMSalesorder.ShippingMethodCodeEnum) or
+           CRMOptionMapping.FindRecordID(
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMSalesorder.ShippingMethodCode)
         then
             SalesHeader.Validate(
               "Shipping Agent Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMSalesorder.PaymentTermsCodeEnum)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMSalesorder.PaymentTermsCodeEnum) or
+           CRMOptionMapping.FindRecordID(
+             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCode), CRMSalesorder.PaymentTermsCode)
         then
             SalesHeader.Validate(
               "Payment Terms Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Payment Terms Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMSalesorder.FreightTermsCodeEnum)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMSalesorder.FreightTermsCodeEnum) or
+           CRMOptionMapping.FindRecordID(
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCode), CRMSalesorder.FreightTermsCode)
         then
             SalesHeader.Validate(
               "Shipment Method Code",
@@ -184,6 +190,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
+        if Rec.IsTemporary then
+            exit;
+
         if CRMIntegrationManagement.IsCRMIntegrationEnabled then
             if CRMIntegrationRecord.FindIDFromRecordID(Rec.RecordId, CRMSalesorder.SalesOrderId) then begin
                 if not CRMIntegrationManagement.IsWorkingConnection then

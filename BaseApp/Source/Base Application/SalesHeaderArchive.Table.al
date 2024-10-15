@@ -199,7 +199,7 @@ table 5107 "Sales Header Archive"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line Archive" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Comment Line Archive" WHERE("Document Type" = FIELD("Document Type"),
                                                                     "No." = FIELD("No."),
                                                                     "Document Line No." = CONST(0),
                                                                     "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
@@ -243,7 +243,7 @@ table 5107 "Sales Header Archive"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line Archive".Amount WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line Archive".Amount WHERE("Document Type" = FIELD("Document Type"),
                                                                  "Document No." = FIELD("No."),
                                                                  "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
                                                                  "Version No." = FIELD("Version No.")));
@@ -255,7 +255,7 @@ table 5107 "Sales Header Archive"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line Archive"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line Archive"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                                  "Document No." = FIELD("No."),
                                                                                  "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
                                                                                  "Version No." = FIELD("Version No.")));
@@ -601,7 +601,7 @@ table 5107 "Sales Header Archive"
         }
         field(145; "No. of Archived Versions"; Integer)
         {
-            CalcFormula = Max ("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
                                                                           "No." = FIELD("No."),
                                                                           "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
@@ -742,7 +742,7 @@ table 5107 "Sales Header Archive"
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min ("Sales Line Archive"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Sales Line Archive"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
                                                                                "Document No." = FIELD("No."),
                                                                                "Version No." = FIELD("Version No."),
                                                                                "Shipment Date" = FIELD("Date Filter"),
@@ -785,7 +785,7 @@ table 5107 "Sales Header Archive"
         }
         field(5795; "Late Order Shipping"; Boolean)
         {
-            CalcFormula = Exist ("Sales Line Archive" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line Archive" WHERE("Document Type" = FIELD("Document Type"),
                                                             "Sell-to Customer No." = FIELD("Sell-to Customer No."),
                                                             "Document No." = FIELD("No."),
                                                             "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence"),
@@ -817,6 +817,10 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Last Return Receipt No.';
             TableRelation = "Return Receipt Header";
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

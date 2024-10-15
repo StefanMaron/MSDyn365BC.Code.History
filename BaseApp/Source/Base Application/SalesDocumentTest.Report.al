@@ -1586,6 +1586,8 @@ report 202 "Sales Document - Test"
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                     AddError(DimMgt.GetDimValuePostingErr);
 
+                OnAfterCheckSalesDoc("Sales Header", ErrorText, ErrorCounter);
+
                 if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
                     ReverseChargeApplies := SalesPost.CheckIfReverseChargeApplies("Sales Header");
                 DisplayPaymentDiscount := "Payment Discount %" <> 0;
@@ -2343,6 +2345,11 @@ report 202 "Sales Document - Test"
                               StrSubstNo(Text010, Format("Posting Date")))
                     end;
                 end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSalesDoc(SalesHeader: Record "Sales Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -242,6 +242,12 @@ report 208 "Sales - Shipment"
                         column(AsmHeaderExists; AsmHeaderExists)
                         {
                         }
+                        column(CrossReferenceNo_Line; "Cross-Reference No.")
+                        {
+                        }
+                        column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
+                        {
+                        }
                         column(Qty_SalesShptLine; Quantity)
                         {
                         }

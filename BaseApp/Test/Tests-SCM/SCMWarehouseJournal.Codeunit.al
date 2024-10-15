@@ -3287,6 +3287,47 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemJournalLine.TestField(Quantity, Qty);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure QtyPerUOMOnWhseItemTrackingLineFromWhseItemJournal()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Bin: Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        QtyPerUOM: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Unit of Measure]
+        // [SCENARIO 352334] "Qty. per Unit of Measure" is correctly populated on whse. item tracking line opened from whse. item journal.
+        Initialize();
+        QtyPerUOM := LibraryRandom.RandIntInRange(5, 10);
+
+        // [GIVEN] Lot-tracked item with alternate unit of measure "PACK" = 5 pcs.
+        CreateItemWithItemTrackingCode(Item, false, true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPerUOM);
+
+        // [GIVEN] Create warehouse journal line for 1 "PACK".
+        FindBin(Bin, LocationWhite.Code, true);
+        CreateWarehouseJournalLine(WarehouseJournalLine, Bin, WarehouseJournalTemplate.Type::Item, Item."No.", 1, false);
+        WarehouseJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        WarehouseJournalLine.Modify(true);
+
+        // [WHEN] Open whse. item tracking and assign a lot no.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Lot No");
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        WarehouseJournalLine.OpenItemTrackingLines();
+
+        // [THEN] "Qty. per Unit of Measure" on the whse. item tracking line is equal to 5.
+        WhseItemTrackingLine.SetRange("Item No.", Item."No.");
+        WhseItemTrackingLine.FindFirst();
+        WhseItemTrackingLine.TestField("Qty. per Unit of Measure", QtyPerUOM);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

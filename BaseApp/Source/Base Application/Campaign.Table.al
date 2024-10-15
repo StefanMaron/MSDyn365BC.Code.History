@@ -50,7 +50,7 @@ table 5071 Campaign
         }
         field(6; Comment; Boolean)
         {
-            CalcFormula = Exist ("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST(Campaign),
+            CalcFormula = Exist("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST(Campaign),
                                                                   "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -96,7 +96,7 @@ table 5071 Campaign
         }
         field(12; "Target Contacts Contacted"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Count("Interaction Log Entry" WHERE("Campaign No." = FIELD("No."),
                                                                "Campaign Target" = CONST(true),
                                                                Canceled = CONST(false),
                                                                Date = FIELD("Date Filter"),
@@ -107,7 +107,7 @@ table 5071 Campaign
         }
         field(13; "Contacts Responded"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Count("Interaction Log Entry" WHERE("Campaign No." = FIELD("No."),
                                                                "Campaign Response" = CONST(true),
                                                                Canceled = CONST(false),
                                                                Date = FIELD("Date Filter"),
@@ -118,7 +118,7 @@ table 5071 Campaign
         }
         field(14; "Duration (Min.)"; Decimal)
         {
-            CalcFormula = Sum ("Interaction Log Entry"."Duration (Min.)" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Sum("Interaction Log Entry"."Duration (Min.)" WHERE("Campaign No." = FIELD("No."),
                                                                                Canceled = CONST(false),
                                                                                Date = FIELD("Date Filter"),
                                                                                Postponed = CONST(false)));
@@ -130,7 +130,7 @@ table 5071 Campaign
         field(16; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Interaction Log Entry"."Cost (LCY)" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Sum("Interaction Log Entry"."Cost (LCY)" WHERE("Campaign No." = FIELD("No."),
                                                                           Canceled = CONST(false),
                                                                           Date = FIELD("Date Filter"),
                                                                           Postponed = CONST(false)));
@@ -140,7 +140,7 @@ table 5071 Campaign
         }
         field(17; "No. of Opportunities"; Integer)
         {
-            CalcFormula = Count ("Opportunity Entry" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Count("Opportunity Entry" WHERE("Campaign No." = FIELD("No."),
                                                            Active = CONST(true)));
             Caption = 'No. of Opportunities';
             Editable = false;
@@ -149,7 +149,7 @@ table 5071 Campaign
         field(18; "Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Estimated Value (LCY)" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Sum("Opportunity Entry"."Estimated Value (LCY)" WHERE("Campaign No." = FIELD("No."),
                                                                                  Active = CONST(true)));
             Caption = 'Estimated Value (LCY)';
             Editable = false;
@@ -158,7 +158,7 @@ table 5071 Campaign
         field(19; "Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Sum("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE("Campaign No." = FIELD("No."),
                                                                                       Active = CONST(true)));
             Caption = 'Calcd. Current Value (LCY)';
             Editable = false;
@@ -269,7 +269,7 @@ table 5071 Campaign
         }
         field(38; "Opportunity Entry Exists"; Boolean)
         {
-            CalcFormula = Exist ("Opportunity Entry" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Exist("Opportunity Entry" WHERE("Campaign No." = FIELD("No."),
                                                            Active = CONST(true),
                                                            "Salesperson Code" = FIELD("Salesperson Filter"),
                                                            "Contact No." = FIELD("Contact Filter"),
@@ -290,7 +290,7 @@ table 5071 Campaign
         }
         field(39; "Task Entry Exists"; Boolean)
         {
-            CalcFormula = Exist ("To-do" WHERE("Campaign No." = FIELD("No."),
+            CalcFormula = Exist("To-do" WHERE("Campaign No." = FIELD("No."),
                                                "Contact No." = FIELD("Contact Filter"),
                                                "Contact Company No." = FIELD("Contact Company Filter"),
                                                "Salesperson Code" = FIELD("Salesperson Filter"),
@@ -311,7 +311,7 @@ table 5071 Campaign
         }
         field(41; Activated; Boolean)
         {
-            CalcFormula = Exist ("Campaign Target Group" WHERE("Campaign No." = FIELD("No.")));
+            CalcFormula = Exist("Campaign Target Group" WHERE("Campaign No." = FIELD("No.")));
             Caption = 'Activated';
             Editable = false;
             FieldClass = FlowField;
@@ -337,9 +337,6 @@ table 5071 Campaign
     }
 
     trigger OnDelete()
-    var
-        SalesPrice: Record "Sales Price";
-        SalesLineDisc: Record "Sales Line Discount";
     begin
         DimMgt.DeleteDefaultDim(DATABASE::Campaign, "No.");
 
@@ -352,14 +349,6 @@ table 5071 Campaign
         CampaignEntry.DeleteAll();
 
         CampaignMgmt.DeactivateCampaign(Rec, false);
-
-        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
-        SalesPrice.SetRange("Sales Code", "No.");
-        SalesPrice.DeleteAll();
-
-        SalesLineDisc.SetRange("Sales Type", SalesLineDisc."Sales Type"::Campaign);
-        SalesLineDisc.SetRange("Sales Code", "No.");
-        SalesLineDisc.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -381,11 +370,6 @@ table 5071 Campaign
     trigger OnModify()
     begin
         "Last Date Modified" := Today;
-
-        if ("Starting Date" <> xRec."Starting Date") or
-           ("Ending Date" <> xRec."Ending Date")
-        then
-            UpdateDates;
     end;
 
     trigger OnRename()
@@ -432,42 +416,6 @@ table 5071 Campaign
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
-    end;
-
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
-    local procedure UpdateDates()
-    var
-        SalesPrice: Record "Sales Price";
-        SalesLineDisc: Record "Sales Line Discount";
-        SalesPrice2: Record "Sales Price";
-        SalesLineDisc2: Record "Sales Line Discount";
-    begin
-        Modify;
-        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
-        SalesPrice.SetRange("Sales Code", "No.");
-        SalesPrice.LockTable();
-        if SalesPrice.Find('-') then
-            repeat
-                SalesPrice2 := SalesPrice;
-                SalesPrice.Delete();
-                SalesPrice2.Validate("Starting Date", "Starting Date");
-                SalesPrice2.Insert(true);
-                SalesPrice2.Validate("Ending Date", "Ending Date");
-                SalesPrice2.Modify();
-            until SalesPrice.Next = 0;
-
-        SalesLineDisc.SetRange("Sales Type", SalesLineDisc."Sales Type"::Campaign);
-        SalesLineDisc.SetRange("Sales Code", "No.");
-        SalesLineDisc.LockTable();
-        if SalesLineDisc.Find('-') then
-            repeat
-                SalesLineDisc2 := SalesLineDisc;
-                SalesLineDisc.Delete();
-                SalesLineDisc2.Validate("Starting Date", "Starting Date");
-                SalesLineDisc2.Insert(true);
-                SalesLineDisc2.Validate("Ending Date", "Ending Date");
-                SalesLineDisc2.Modify();
-            until SalesLineDisc.Next = 0;
     end;
 
     local procedure SetDefaultSalesperson()

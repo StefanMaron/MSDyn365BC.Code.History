@@ -390,6 +390,12 @@ table 312 "Purchases & Payables Setup"
                 PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
             end;
         }
+        field(7001; "Price List Nos."; Code[20])
+        {
+            Caption = 'Price List Nos.';
+            TableRelation = "No. Series";
+            DataClassification = CustomerContent;
+        }
         field(10500; "Posting Date Check on Posting"; Boolean)
         {
             Caption = 'Posting Date Check on Posting';

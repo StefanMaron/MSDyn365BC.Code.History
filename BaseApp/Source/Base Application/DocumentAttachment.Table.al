@@ -173,6 +173,7 @@ table 1173 "Document Attachment"
         if not "Document Reference ID".HasValue then
             exit;
 
+        OnBeforeExportAttachment(Rec);
         FullFileName := "File Name" + '.' + "File Extension";
         TempBlob.CreateOutStream(DocumentStream);
         "Document Reference ID".ExportStream(DocumentStream);
@@ -345,6 +346,11 @@ table 1173 "Document Attachment"
     local procedure GetNextFileName(FileName: Text[250]; FileIndex: Integer): Text[250]
     begin
         exit(StrSubstNo('%1 (%2)', FileName, FileIndex));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportAttachment(var DocumentAttachment: Record "Document Attachment")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

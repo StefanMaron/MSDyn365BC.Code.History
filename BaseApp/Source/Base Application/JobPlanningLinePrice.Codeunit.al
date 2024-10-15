@@ -133,6 +133,8 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
         Item: Record Item;
         Resource: Record Resource;
     begin
+        PriceCalculationBuffer."Price Calculation Method" := JobPlanningLine."Price Calculation Method";
+        PriceCalculationBuffer."Cost Calculation Method" := JobPlanningLine."Cost Calculation Method";
         PriceCalculationBuffer."Location Code" := JobPlanningLine."Location Code";
         case PriceCalculationBuffer."Asset Type" of
             PriceCalculationBuffer."Asset Type"::Item:
