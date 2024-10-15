@@ -1,4 +1,4 @@
-codeunit 5334 "CRM Setup Defaults"
+﻿codeunit 5334 "CRM Setup Defaults"
 {
 
     trigger OnRun()
@@ -6,7 +6,7 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 
     var
-        IntegrationTablePrefixTok: Label 'Common Data Service', Comment = 'Product name', Locked = true;
+        IntegrationTablePrefixTok: Label 'Dataverse', Comment = 'Product name', Locked = true;
         CustomStatisticsSynchJobDescTxt: Label 'Customer Statistics - %1 synchronization job', Comment = '%1 = CRM product name';
         CustomSalesOrderSynchJobDescTxt: Label 'Sales Order Status - %1 synchronization job', Comment = '%1 = CRM product name';
         CustomSalesOrderNotesSynchJobDescTxt: Label 'Sales Order Notes - %1 synchronization job', Comment = '%1 = CRM product name';
@@ -210,6 +210,7 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 
+        OnResetItemProductMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
 
@@ -294,6 +295,7 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
+        OnResetResourceProductMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
     end;
 
@@ -528,6 +530,8 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 
+        OnResetSalesInvoiceHeaderInvoiceMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
+
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
 
@@ -599,6 +603,8 @@ codeunit 5334 "CRM Setup Defaults"
           CRMInvoicedetail.FieldNo(ExtendedAmount),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        OnResetSalesInvoiceLineInvoiceMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
     end;
 
     [Scope('OnPrem')]
@@ -838,6 +844,8 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
+        OnResetSalesOrderMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
+
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
     end;
 
@@ -896,6 +904,8 @@ codeunit 5334 "CRM Setup Defaults"
           CRMPricelevel.FieldNo(Name),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        OnResetCustomerPriceGroupPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
 
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
@@ -974,6 +984,8 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
+        OnResetSalesPriceProductPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
+
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
 
@@ -1051,6 +1063,8 @@ codeunit 5334 "CRM Setup Defaults"
           CRMPricelevel.FieldNo(EndDate),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        OnResetPriceListHeaderPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
 
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
@@ -1137,6 +1151,8 @@ codeunit 5334 "CRM Setup Defaults"
           CRMProductpricelevel.FieldNo(Amount),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        OnResetPriceListLineProductPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
 
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
@@ -1249,6 +1265,8 @@ codeunit 5334 "CRM Setup Defaults"
           CRMOpportunity.FieldNo(EstimatedCloseDate),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        OnResetOpportunityMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
 
         CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
     end;
@@ -1561,6 +1579,7 @@ codeunit 5334 "CRM Setup Defaults"
         CustomerPriceGroup: Record "Customer Price Group";
         CRMPricelevel: Record "CRM Pricelevel";
         Item: Record Item;
+        PriceListHeader: Record "Price List Header";
         Resource: Record Resource;
         CRMProduct: Record "CRM Product";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -1593,6 +1612,8 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(CRMPricelevel.FieldNo(Name));
             DATABASE::Item:
                 exit(Item.FieldNo("No."));
+            DATABASE::"Price List Header":
+                exit(PriceListHeader.FieldNo(Code));
             DATABASE::Resource:
                 exit(Resource.FieldNo("No."));
             DATABASE::"CRM Product":
@@ -1884,6 +1905,56 @@ codeunit 5334 "CRM Setup Defaults"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResetConfiguration(var CRMConnectionSetup: Record "CRM Connection Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetCustomerPriceGroupPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetItemProductMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetOpportunityMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetPriceListHeaderPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetPriceListLineProductPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetResourceProductMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetSalesInvoiceHeaderInvoiceMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetSalesInvoiceLineInvoiceMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetSalesOrderMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetSalesPriceProductPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
     begin
     end;
 }

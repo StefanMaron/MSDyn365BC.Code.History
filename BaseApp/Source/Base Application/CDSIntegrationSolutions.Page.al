@@ -1,6 +1,6 @@
 page 7204 "CDS Integration Solutions"
 {
-    Caption = 'Common Data Service Integration Solutions', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Dataverse Integration Solutions', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     DeleteAllowed = false;
     ModifyAllowed = false;
     InsertAllowed = false;

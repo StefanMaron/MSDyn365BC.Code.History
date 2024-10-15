@@ -145,6 +145,7 @@ codeunit 40 LogInManagement
                 UserTimeRegister.Init();
                 UserTimeRegister."User ID" := UserId;
                 UserTimeRegister.Date := LogInDate;
+                UserTimeRegister.LockTable();
                 if UserTimeRegister.Find then begin
                     UserTimeRegister.Minutes := UserTimeRegister.Minutes + Minutes;
                     UserTimeRegister.Modify();

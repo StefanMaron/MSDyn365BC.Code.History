@@ -648,6 +648,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         // [FEATURE] [Inventory Pick]
         // [SCENARIO 256471] It should not be allowed to change location code in an inventory pick that has lines
+        Initialize();
 
         // [GIVEN] Locations "L1" and "L2", both require inventory pick
         LibraryInventory.CreateItem(Item);
@@ -683,6 +684,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         // [FEATURE] [Inventory Pick]
         // [SCENARIO 256471] It should be allowed to change location code in an inventory pick that has no lines
+        Initialize();
 
         // [GIVEN] Locations "L1" and "L2", both require inventory pick
         LibraryWarehouse.CreateLocationWMS(Location[1], false, false, true, false, false);

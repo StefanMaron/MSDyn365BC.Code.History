@@ -1,4 +1,4 @@
-codeunit 225 "Gen. Jnl.-Apply"
+﻿codeunit 225 "Gen. Jnl.-Apply"
 {
     TableNo = "Gen. Journal Line";
 
@@ -289,9 +289,11 @@ codeunit 225 "Gen. Jnl.-Apply"
     local procedure ApplyCustomerLedgerEntry(var GenJnlLine: Record "Gen. Journal Line")
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         IsHandled: Boolean;
     begin
         with GenJnlLine do begin
+            GetAppliedCustomerEntries(TempCustLedgEntry, GenJnlLine);
             EntrySelected := SelectCustLedgEntry(GenJnlLine);
             if not EntrySelected then
                 exit;
@@ -306,21 +308,24 @@ codeunit 225 "Gen. Jnl.-Apply"
                 CurrencyCode2 := CustLedgEntry."Currency Code";
                 if Amount = 0 then begin
                     repeat
-                        PaymentToleranceMgt.DelPmtTolApllnDocNo(GenJnlLine, CustLedgEntry."Document No.");
-                        OnApplyCustomerLedgerEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, CustLedgEntry);
-                        CheckAgainstApplnCurrency(CurrencyCode2, CustLedgEntry."Currency Code", AccType::Customer, true);
-                        UpdateCustLedgEntry(CustLedgEntry);
-                        IsHandled := false;
-                        OnBeforeFindCustApply(GenJnlLine, CustLedgEntry, Amount, IsHandled);
-                        if not IsHandled then
-                            if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlCust(GenJnlLine, CustLedgEntry, 0, false) and
-                               (Abs(CustLedgEntry."Amount to Apply") >=
-                                Abs(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible"))
-                            then
-                                Amount := Amount - (CustLedgEntry."Amount to Apply" - CustLedgEntry."Remaining Pmt. Disc. Possible")
-                            else
-                                Amount := Amount - CustLedgEntry."Amount to Apply";
+                        if not TempCustLedgEntry.Get(CustLedgEntry."Entry No.") then begin
+                            PaymentToleranceMgt.DelPmtTolApllnDocNo(GenJnlLine, CustLedgEntry."Document No.");
+                            OnApplyCustomerLedgerEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, CustLedgEntry);
+                            CheckAgainstApplnCurrency(CurrencyCode2, CustLedgEntry."Currency Code", AccType::Customer, true);
+                            UpdateCustLedgEntry(CustLedgEntry);
+                            IsHandled := false;
+                            OnBeforeFindCustApply(GenJnlLine, CustLedgEntry, Amount, IsHandled);
+                            if not IsHandled then
+                                if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlCust(GenJnlLine, CustLedgEntry, 0, false) and
+                                   (Abs(CustLedgEntry."Amount to Apply") >=
+                                    Abs(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible"))
+                                then
+                                    Amount := Amount - (CustLedgEntry."Amount to Apply" - CustLedgEntry."Remaining Pmt. Disc. Possible")
+                                else
+                                    Amount := Amount - CustLedgEntry."Amount to Apply";
+                        end;
                     until CustLedgEntry.Next = 0;
+                    TempCustLedgEntry.DeleteAll();
                     if ("Bal. Account Type" = "Bal. Account Type"::Customer) or ("Bal. Account Type" = "Bal. Account Type"::Vendor) then
                         Amount := -Amount;
                     Validate(Amount);
@@ -341,6 +346,8 @@ codeunit 225 "Gen. Jnl.-Apply"
 
             SetJournalLineFieldsFromApplication;
 
+            OnApplyCustomerLedgerEntryOnBeforeModify(GenJnlLine, CustLedgEntry);
+
             if Modify then;
             if Amount <> 0 then
                 if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
@@ -351,9 +358,11 @@ codeunit 225 "Gen. Jnl.-Apply"
     local procedure ApplyVendorLedgerEntry(var GenJnlLine: Record "Gen. Journal Line")
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
+        TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         IsHandled: Boolean;
     begin
         with GenJnlLine do begin
+            GetAppliedVendorEntries(TempVendorLedgerEntry, GenJnlLine);
             EntrySelected := SelectVendLedgEntry(GenJnlLine);
             if not EntrySelected then
                 exit;
@@ -368,21 +377,24 @@ codeunit 225 "Gen. Jnl.-Apply"
                 CurrencyCode2 := VendLedgEntry."Currency Code";
                 if Amount = 0 then begin
                     repeat
-                        PaymentToleranceMgt.DelPmtTolApllnDocNo(GenJnlLine, VendLedgEntry."Document No.");
-                        OnApplyVendorLedgerEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, VendLedgEntry);
-                        CheckAgainstApplnCurrency(CurrencyCode2, VendLedgEntry."Currency Code", AccType::Vendor, true);
-                        UpdateVendLedgEntry(VendLedgEntry);
-                        IsHandled := false;
-                        OnBeforeFindVendApply(GenJnlLine, VendLedgEntry, Amount, IsHandled);
-                        if not IsHandled then
-                            if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendLedgEntry, 0, false) and
-                               (Abs(VendLedgEntry."Amount to Apply") >=
-                                Abs(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible"))
-                            then
-                                Amount := Amount - (VendLedgEntry."Amount to Apply" - VendLedgEntry."Remaining Pmt. Disc. Possible")
-                            else
-                                Amount := Amount - VendLedgEntry."Amount to Apply";
+                        if not TempVendorLedgerEntry.Get(VendLedgEntry."Entry No.") then begin
+                            PaymentToleranceMgt.DelPmtTolApllnDocNo(GenJnlLine, VendLedgEntry."Document No.");
+                            OnApplyVendorLedgerEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, VendLedgEntry);
+                            CheckAgainstApplnCurrency(CurrencyCode2, VendLedgEntry."Currency Code", AccType::Vendor, true);
+                            UpdateVendLedgEntry(VendLedgEntry);
+                            IsHandled := false;
+                            OnBeforeFindVendApply(GenJnlLine, VendLedgEntry, Amount, IsHandled);
+                            if not IsHandled then
+                                if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendLedgEntry, 0, false) and
+                                   (Abs(VendLedgEntry."Amount to Apply") >=
+                                    Abs(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible"))
+                                then
+                                    Amount := Amount - (VendLedgEntry."Amount to Apply" - VendLedgEntry."Remaining Pmt. Disc. Possible")
+                                else
+                                    Amount := Amount - VendLedgEntry."Amount to Apply";
+                        end;
                     until VendLedgEntry.Next = 0;
+                    TempVendorLedgerEntry.DeleteAll();
                     if ("Bal. Account Type" = "Bal. Account Type"::Customer) or ("Bal. Account Type" = "Bal. Account Type"::Vendor) then
                         Amount := -Amount;
                     Validate(Amount);
@@ -450,6 +462,54 @@ codeunit 225 "Gen. Jnl.-Apply"
         OnAfterApplyEmployeeLedgerEntry(GenJnlLine, EmplLedgEntry);
     end;
 
+    local procedure GetAppliedCustomerEntries(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; GenJournalLineSource: Record "Gen. Journal Line")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        if GenJournalLineSource.Amount <> 0 then
+            exit;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLineSource."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLineSource."Journal Batch Name");
+        GenJournalLine.SetFilter("Line No.", '<>%1', GenJournalLineSource."Line No.");
+        GenJournalLine.SetRange("Document No.", GenJournalLineSource."Document No.");
+        if not GenJournalLine.IsEmpty() then begin
+            CustLedgerEntry.SetCurrentKey("Customer No.", Open, Positive);
+            CustLedgerEntry.SetRange("Customer No.", AccNo);
+            CustLedgerEntry.SetRange(Open, true);
+            CustLedgerEntry.SetRange("Applies-to ID", GenJournalLineSource."Document No.");
+            if CustLedgerEntry.FindSet() then
+                repeat
+                    TempCustLedgerEntry := CustLedgerEntry;
+                    TempCustLedgerEntry.Insert();
+                until CustLedgerEntry.Next() = 0;
+        end;
+    end;
+
+    local procedure GetAppliedVendorEntries(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; GenJournalLineSource: Record "Gen. Journal Line")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        if GenJournalLineSource.Amount <> 0 then
+            exit;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLineSource."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLineSource."Journal Batch Name");
+        GenJournalLine.SetFilter("Line No.", '<>%1', GenJournalLineSource."Line No.");
+        GenJournalLine.SetRange("Document No.", GenJournalLineSource."Document No.");
+        if not GenJournalLine.IsEmpty() then begin
+            VendorLedgerEntry.SetCurrentKey("Vendor No.", Open, Positive);
+            VendorLedgerEntry.SetRange("Vendor No.", AccNo);
+            VendorLedgerEntry.SetRange(Open, true);
+            VendorLedgerEntry.SetRange("Applies-to ID", GenJournalLineSource."Document No.");
+            if VendorLedgerEntry.FindSet() then
+                repeat
+                    TempVendorLedgerEntry := VendorLedgerEntry;
+                    TempVendorLedgerEntry.Insert();
+                until VendorLedgerEntry.Next() = 0;
+        end;
+    end;
+
     local procedure ConfirmCurrencyUpdate(GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10])
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -505,6 +565,11 @@ codeunit 225 "Gen. Jnl.-Apply"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyCustomerLedgerEntryOnBeforeCheckAgainstApplnCurrency(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustomerLedgerEntryOnBeforeModify(var GenJnlLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

@@ -583,7 +583,7 @@ page 6711 "OData Setup Wizard"
             TempTenantWebServiceFilter.DeleteAll();
             foreach keyValuePair in DataItemDictionary do begin
                 Clear(TempTenantWebServiceFilter);
-                FilterText := FilterPage.GetView(keyValuePair.Value, true);
+                FilterText := FilterPage.GetView(keyValuePair.Value, false);
                 TempTenantWebServiceFilter.Init();
                 TempTenantWebServiceFilter."Data Item" := keyValuePair.Key;
                 TempTenantWebServiceFilter.TenantWebServiceID := RecordId;

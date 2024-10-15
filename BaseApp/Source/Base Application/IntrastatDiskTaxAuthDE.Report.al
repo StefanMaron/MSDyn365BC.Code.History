@@ -331,6 +331,7 @@ report 11014 "Intrastat - Disk Tax Auth DE"
             Area := SourceIntrastatJnlLine.Area;
             "Transaction Specification" := SourceIntrastatJnlLine."Transaction Specification";
             "Document No." := SourceIntrastatJnlLine."Document No.";
+            "Partner VAT ID" := SourceIntrastatJnlLine."Partner VAT ID";
 
             Amount += SourceIntrastatJnlLine.Amount;
             Quantity += SourceIntrastatJnlLine.Quantity;

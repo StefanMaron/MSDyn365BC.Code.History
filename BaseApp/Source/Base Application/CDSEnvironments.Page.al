@@ -1,7 +1,7 @@
 page 7207 "CDS Environments"
 {
     Extensible = false;
-    Caption = 'Common Data Service User environments', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+    Caption = 'CDataverse User environments', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     Editable = false;
     PageType = List;
     SourceTable = "CDS Environment";
@@ -19,13 +19,13 @@ page 7207 "CDS Environments"
                 {
                     Caption = 'Name';
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the name of the Common Data Service environment.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the name of the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
                 field(Url; Url)
                 {
                     Caption = 'URL';
                     ApplicationArea = All;
-                    ToolTip = ' Specifies the URL of the Common Data Service environment.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = ' Specifies the URL of the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
             }
         }

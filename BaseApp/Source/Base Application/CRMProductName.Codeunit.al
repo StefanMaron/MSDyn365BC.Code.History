@@ -24,7 +24,7 @@ codeunit 5344 "CRM Product Name"
     [Scope('Cloud')]
     procedure CDSServiceName(): Text
     begin
-        exit('Common Data Service');
+        exit('Dataverse');
     end;
 }
 

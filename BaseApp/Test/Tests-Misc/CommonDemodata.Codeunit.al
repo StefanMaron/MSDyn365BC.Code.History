@@ -284,6 +284,8 @@ codeunit 138500 "Common Demodata"
         // [THEN] "Price List Nos." in Purchase Setup is filled.
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.TestField("Price List Nos.");
+        // [THEN] "Copy Vendor Name to Entries" is 'Yes' in Purchase Setup is filled.
+        PurchasesPayablesSetup.TestField("Copy Vendor Name to Entries");
         // [THEN] "Price List Nos." in Jobs Setup is filled.
         JobsSetup.Get();
         JobsSetup.TestField("Price List Nos.");
@@ -302,7 +304,7 @@ codeunit 138500 "Common Demodata"
         CountryRegion.SetFilter("VAT Scheme", '*%1', ':VAT');
         Assert.RecordIsEmpty(CountryRegion);
         CountryRegion.SetFilter("VAT Scheme", '<>%1', '');
-        Assert.RecordCount(CountryRegion, 30);
+        Assert.RecordCount(CountryRegion, 31);
     end;
 
     local procedure Initialize()

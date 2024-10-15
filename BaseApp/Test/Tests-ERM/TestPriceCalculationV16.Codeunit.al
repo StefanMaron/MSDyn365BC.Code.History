@@ -1466,42 +1466,6 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    procedure T120_ApplyDiscountServiceLine()
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        ServiceLinePrice: Codeunit "Service Line - Price";
-        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
-        PriceCalculation: interface "Price Calculation";
-        Line: Variant;
-        ExpectedDiscount: Decimal;
-    begin
-        // [FEATURE] [Service] [Discount]
-        // [SCENARIO] ApplyDiscount updates 'Unit Price' in service line.
-        Initialize();
-        // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
-        ExpectedDiscount := LibraryRandom.RandInt(100);
-        /*
-        ServiceLine."Price Calculation Method" := ServiceLine."Price Calculation Method"::" ";
-
-        ServiceLinePrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
-        PriceCalculationMgt.GetHandler(ServiceLinePrice, PriceCalculation);
-        PriceCalculation.ApplyDiscount();
-        PriceCalculation.GetLine(Line);
-        ServiceLine := Line;
-        */
-        // [THEN] Line, where "Line Discount %" is 15%
-        asserterror ServiceLine.TestField("Line Discount %", ExpectedDiscount);
-        Assert.KnownFailure('Line Discount % must be equal to', 303311);
-    end;
-
-    [Test]
     procedure T122_ApplyPriceFromItemCardServiceLine()
     var
         Item: Record Item;
@@ -1528,40 +1492,6 @@ codeunit 134159 "Test Price Calculation - V16"
         ServiceLine.TestField("Unit Price", Item."Unit Price");
         //SalesLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method"::"Lowest Price");
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
-    end;
-
-    [Test]
-    procedure T130_ApplyDiscountPurchLine()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        PurchaseLinePrice: Codeunit "Purchase Line - Price";
-        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
-        PriceCalculation: interface "Price Calculation";
-        Line: Variant;
-        ExpectedDiscount: Decimal;
-    begin
-        // [FEATURE] [Purchase] [Discount]
-        // [SCENARIO] ApplyDiscount updates 'Direct Unit Cost' in purchase line.
-        Initialize();
-        // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
-        ExpectedDiscount := LibraryRandom.RandInt(100);
-        /*
-        PurchaseLinePrice.SetLine("Price Type"::Purchase, PurchaseHeader, PurchaseLine);
-        PriceCalculationMgt.GetHandler(PurchaseLinePrice, PriceCalculation);
-        PriceCalculation.ApplyDiscount();
-        PriceCalculation.GetLine(Line);
-        PurchaseLine := Line;
-        */
-        // [THEN] Line, where "Line Discount %" is 15%
-        asserterror PurchaseLine.TestField("Line Discount %", ExpectedDiscount);
-        Assert.KnownFailure('Line Discount % must be equal to', 303311);
     end;
 
     [Test]
@@ -1593,38 +1523,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PurchaseLine.TestField("Direct Unit Cost", Item."Last Direct Cost");
         //SalesLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method"::"Lowest Price");
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
-    end;
-
-    [Test]
-    procedure T140_ApplyDiscountRequisitionLine()
-    var
-        RequisitionLine: Record "Requisition Line";
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
-        RequisitionLinePrice: Codeunit "Requisition Line - Price";
-        PriceCalculation: interface "Price Calculation";
-        Line: Variant;
-        ExpectedDiscount: Decimal;
-    begin
-        // [FEATURE] [Requisition] [Discount]
-        // [SCENARIO] ApplyDiscount updates 'Unit Amount' in requisition line.
-        Initialize();
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
-        ExpectedDiscount := LibraryRandom.RandInt(100);
-        /*
-        RequisitionLinePrice.SetLine("Price Type"::Purchase, RequisitionLine);
-        PriceCalculationMgt.GetHandler(RequisitionLinePrice, PriceCalculation);
-        PriceCalculation.ApplyDiscount();
-        PriceCalculation.GetLine(Line);
-        RequisitionLine := Line;
-        */
-        // [THEN] Line, where "Line Discount %" is 15%
-        asserterror RequisitionLine.TestField("Line Discount %", ExpectedDiscount);
-        Assert.KnownFailure('Line Discount % must be equal to', 303311);
     end;
 
     [Test]
@@ -2255,8 +2153,86 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    [HandlerFunctions('GetPurchPriceLinePriceModalPageHandler')]
+    procedure T180_PickPricePurchLineBelowMinQuantity()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Purchase] [Price]
+        // [SCENARIO] Cannot pick price line for the Purchase line if minimal quantity in the price line below the quantity in the Purchase line.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Vendor 'V'
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Minimum Quantity" is 10
+        CreatePriceLine(PriceListLine, Vendor, Item, false);
+        PriceListLine."Minimum Quantity" := 10;
+        PriceListLine.Modify();
+        // [GIVEN] Purchase Invoice for Vendor 'V' selling Item 'I', where Quantity is 1
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+
+        // [WHEN] PickPrice
+        asserterror PurchaseLine.PickPrice();
+
+        // [THEN] Error message: "Quantity is below Minimal Qty"
+        Assert.ExpectedError(PickedWrongMinQtyErr);
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPurchPriceLineDiscountModalPageHandler')]
+    procedure T181_PickDiscountPurchLine()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemDiscountGroup: Record "Item Discount Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Purchase] [Discount] [UI]
+        // [SCENARIO 381378] Get Price Line page shows product columns if the item has Item Discount Group set.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Vendor 'V'
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Item 'I', where "Item Disc. Group" is 'IDG'
+        LibraryInventory.CreateItem(Item);
+        LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
+        Item."Item Disc. Group" := ItemDiscountGroup.Code;
+        item.Modify();
+
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Minimum Quantity" is 0
+        CreateDiscountLine(PriceListLine, Vendor, Item, false);
+        // [GIVEN] Purchase Invoice for Vendor 'V' selling Item 'I', where Quantity is 1
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+
+        // [WHEN] PickDiscount
+        PurchaseLine.PickDiscount();
+
+        // [THEN] "Asset Type" and "Asset No." are visible in the "Get Price Line" page
+        // verified in GetPurchPriceLineDiscountModalPageHandler
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
-    procedure T180_ActivateCampaignIfPriceExists()
+    procedure T190_ActivateCampaignIfPriceExists()
     var
         Customer: Record Customer;
         Campaign: Record Campaign;
@@ -2301,7 +2277,7 @@ codeunit 134159 "Test Price Calculation - V16"
 
     [Test]
     [HandlerFunctions('ConfirmNoHandler')]
-    procedure T181_ActivateCampaignIfPriceDoesNotExist()
+    procedure T191_ActivateCampaignIfPriceDoesNotExist()
     var
         Customer: Record Customer;
         Campaign: Record Campaign;
@@ -2546,7 +2522,6 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T203_PostedServiceCrMemoContainsPriceCalcMethod()
     var
-        ServiceItem: Record "Service Item";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
@@ -2560,9 +2535,8 @@ codeunit 134159 "Test Price Calculation - V16"
         OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Create Service Credit Memo - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
         Initialize;
-        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
-        CreateServiceLineWithResource(ServiceLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceDocumentWithResource(
+            ServiceHeader, ServiceLine, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         ServiceLine.TestField("Price Calculation Method", ServiceLine."Price Calculation Method"::"Lowest Price");
 
         // [WHEN] Post Service Credit Memo
@@ -2581,8 +2555,6 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T204_PostedServiceInvoiceContainsPriceCalcMethod()
     var
-        ServiceItem: Record "Service Item";
-        ServiceItemLine: Record "Service Item Line";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceInvoiceHeader: Record "Service Invoice Header";
@@ -2596,15 +2568,12 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Default price calculation is 'V16'
         OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
-        // [GIVEN] Create Service Credit Memo - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
+        // [GIVEN] Create Service Order - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
         Initialize;
-        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateServiceLineWithResource(ServiceLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceOrderWithResource(ServiceHeader, ServiceLine, LibrarySales.CreateCustomerNo);
         ServiceLine.TestField("Price Calculation Method", ServiceLine."Price Calculation Method"::"Lowest Price");
 
-        // [WHEN] Post Service Credit Memo
+        // [WHEN] Post Service Order
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [THEN] Posted Service Invoice Header has "Price Calculation Method" as 'Lowest Price'
@@ -2624,6 +2593,127 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    procedure T210_SalesLineMinQtyPriceForGLAccount()
+    var
+        Customer: Record Customer;
+        PriceListLine: Record "Price List Line";
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [G/L Account] [UT]
+        Initialize();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Price list line for G/L Account 'X', where "Minimum Quantity" is 10, "Unit Price" is 50
+        GLAccount."No." := LibraryERM.CreateGLAccountWithSalesSetup();
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
+        PriceListLine."Minimum Quantity" := 10 + LibraryRandom.RandInt(20);
+        PriceListLine."Unit Price" := 100 + LibraryRandom.RandDec(100, 2);
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [GIVEN] Order for customer 'A' with one line with "Type" = 'G/L Account' and "No." = 'X', "Quantity" = 1
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::"G/L Account", GLAccount."No.", 1);
+        // [GIVEN] Sales Line, where "Unit Price" is 0
+        SalesLine.TestField("Unit Price", 0);
+
+        // [WHEN] Change "Quantity" to 10
+        SalesLine.Validate(Quantity, PriceListLine."Minimum Quantity");
+
+        // [THEN] Sales Line, where "Unit Price" is 50 (from Price line)
+        SalesLine.TestField("Unit Price", PriceListLine."Unit Price");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T211_ServiceLineMinQtyPriceForGLAccount()
+    var
+        Customer: Record Customer;
+        PriceListLine: Record "Price List Line";
+        GLAccount: Record "G/L Account";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Service] [G/L Account] [UT]
+        Initialize();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Price list line for G/L Account 'X', where "Minimum Quantity" is 10, "Unit Price" is 50
+        GLAccount."No." := LibraryERM.CreateGLAccountWithSalesSetup();
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
+        PriceListLine."Minimum Quantity" := 10 + LibraryRandom.RandInt(20);
+        PriceListLine."Unit Price" := 100 + LibraryRandom.RandDec(100, 2);
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [GIVEN] Service Order for customer 'A' with one line with "Type" = 'G/L Account' and "No." = 'X', "Quantity" = 1
+        LibraryService.CreateServiceHeader(ServiceHeader, "Sales Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, "Service Line Type"::"G/L Account", GLAccount."No.");
+        // [GIVEN] Service Line, where "Unit Price" is 0
+        ServiceLine.TestField("Unit Price", 0);
+
+        // [WHEN] Change "Quantity" to 10
+        ServiceLine.Validate(Quantity, PriceListLine."Minimum Quantity");
+
+        // [THEN] Service Line, where "Unit Price" is 50 (from Price line)
+        ServiceLine.TestField("Unit Price", PriceListLine."Unit Price");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T212_PurchaseLineMinQtyPriceForGLAccount()
+    var
+        PriceListLine: Record "Price List Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+        Vendor: Record Vendor;
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Purchase] [G/L Account] [UT]
+        Initialize();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Vendor 'V'
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Price list line for G/L Account 'X', where "Minimum Quantity" is 10, "Unit Price" is 50
+        GLAccount."No." := LibraryERM.CreateGLAccountWithSalesSetup();
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
+        PriceListLine."Minimum Quantity" := 10 + LibraryRandom.RandInt(20);
+        PriceListLine."Direct Unit Cost" := 100 + LibraryRandom.RandDec(100, 2);
+        ;
+        PriceListLine."Unit Cost" := PriceListLine."Direct Unit Cost" / 4;
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+        // [GIVEN] Order for Vendor 'V', with one line, where "Type" is 'G/L Account', "No." is 'X'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        // [GIVEN] Purchase Line, where "Direct Unit Cost" is 0
+        PurchaseLine.TestField("Direct Unit Cost", 0);
+
+        // [WHEN] Change "Quantity" to 10
+        PurchaseLine.Validate(Quantity, PriceListLine."Minimum Quantity");
+
+        // [THEN] Purchase Line, where "Direct Unit Price" is 50 (from Price line)
+        PurchaseLine.TestField("Direct Unit Cost", PriceListLine."Direct Unit Cost");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
     procedure T240_SalesLineGetsCustomerSourcesForResource()
     var
         Campaign: Array[5] of Record Campaign;
@@ -2631,7 +2721,6 @@ codeunit 134159 "Test Price Calculation - V16"
         Customer: Record Customer;
         CustomerDiscountGroup: Record "Customer Discount Group";
         CustomerPriceGroup: Record "Customer Price Group";
-        Resource: Record Resource;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TempPriceSource: Record "Price Source" temporary;
@@ -2645,13 +2734,11 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Customer 'A', where "Customer Discount Group" is 'CDG', "Customer Price Group" is 'CPG'
         SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
 
-        // [GIVEN] Invoice for customer 'A', where 'Campaign No.' is 'HdrCmp'
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [GIVEN] Invoice for customer 'A' with 'Campaign No.' = 'HdrCmp'.
+        // [GIVEN] Invoice has one line with "Type" = 'Resource' and "No." = 'X'.
+        CreateSalesInvoiceWithResource(SalesHeader, SalesLine, Customer."No.");
         SalesHeader.Validate("Campaign No.", Campaign[1]."No.");
         SalesHeader.Modify(true);
-        // [GIVEN] with one line, where "Type" is 'Resource', "No." is 'X'
-        LibraryResource.CreateResource(Resource, '');
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", 0);
 
         // [WHEN] SetLine()
         SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
@@ -2672,7 +2759,6 @@ codeunit 134159 "Test Price Calculation - V16"
         Customer: Record Customer;
         CustomerDiscountGroup: Record "Customer Discount Group";
         CustomerPriceGroup: Record "Customer Price Group";
-        Resource: Record Resource;
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         TempPriceSource: Record "Price Source" temporary;
@@ -2686,11 +2772,10 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Customer 'A', where "Customer Discount Group" is 'CDG', "Customer Price Group" is 'CPG'
         SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
 
-        // [GIVEN] Invoice for customer 'A'
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
-        // [GIVEN] with one line, where "Type" is 'Resource', "No." is 'X'
-        LibraryResource.CreateResource(Resource, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, Resource."No.");
+        // [GIVEN] Invoice for customer 'A'.
+        // [GIVEN] Invoice has one line with "Type" = 'Resource' and "No." = 'X'.
+        CreateServiceDocumentWithResource(
+            ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.");
 
         // [WHEN] SetLine()
         ServiceLinePrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
@@ -2859,13 +2944,13 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Order for Vendor 'V', with one line, where "Type" is 'Resource', "No." is 'X'
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", 1);
-        // [GIVEN] Service Line, where "Unit Cost" is 100 (from Resource card)
+        // [GIVEN] Purchase Line, where "Direct Unit Cost" is 100 (from Resource card)
         PurchaseLine.TestField("Direct Unit Cost", Resource."Direct Unit Cost");
 
         // [WHEN] Change "Quantity" to 10
         PurchaseLine.Validate(Quantity, PriceListLine."Minimum Quantity");
 
-        // [THEN] Service Line, where "Direct Unit Price" is 50 (from Price line)
+        // [THEN] Purchase Line, where "Direct Unit Price" is 50 (from Price line)
         PurchaseLine.TestField("Direct Unit Cost", PriceListLine."Direct Unit Cost");
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
@@ -3623,14 +3708,22 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify();
     end;
 
-    local procedure CreateResource(): Code[20]
+    local procedure CreateDiscountLine(var PriceListLine: Record "Price List Line"; Vendor: Record Vendor; Item: Record Item; AllowLineDisc: Boolean)
+    begin
+        LibraryPriceCalculation.CreatePurchDiscountLine(
+            PriceListLine, PriceListLine."Price List Code",
+            "Price Source Type"::Vendor, Vendor."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+    end;
+
+    local procedure CreateResource(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Resource: Record Resource;
     begin
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
-        Resource.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        LibraryResource.CreateResource(Resource, VATBusPostingGroup);
+        Resource.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Resource.Modify(true);
         exit(Resource."No.");
     end;
@@ -3657,12 +3750,63 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify();
     end;
 
-    local procedure CreateServiceLineWithResource(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])
+    local procedure CreateSalesInvoiceWithResource(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        ResourceNo: Code[20];
     begin
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, CreateResource());
-        ServiceLine.Validate("Service Item No.", ServiceItemNo);
-        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));  // Required field - value is not important to test case.
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(5, 10, 2));
+        ResourceNo := CreateResource(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        UpdateVATBusPostingGroupOnCustomer(CustomerNo, VATPostingSetup."VAT Bus. Posting Group");
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, ResourceNo, LibraryRandom.RandDecInRange(10, 20, 2));
+    end;
+
+    local procedure CreateServiceDocumentWithResource(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ServiceDocType: Enum "Service Document Type"; CustomerNo: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        ResourceNo: Code[20];
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(5, 10, 2));
+        ResourceNo := CreateResource(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        UpdateVATBusPostingGroupOnCustomer(CustomerNo, VATPostingSetup."VAT Bus. Posting Group");
+
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceDocType, CustomerNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
+        ServiceLine.Validate(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));
         ServiceLine.Modify(true);
+
+        CustomerPostingGroup.Get(ServiceHeader."Customer Posting Group");
+        UpdateVATProdPostingGroupOnInvRoundingAccount(CustomerPostingGroup.GetInvRoundingAccount(), VATPostingSetup."VAT Prod. Posting Group");
+    end;
+
+    local procedure CreateServiceOrderWithResource(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; CustomerNo: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        ResourceNo: Code[20];
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(5, 10, 2));
+        ResourceNo := CreateResource(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        UpdateVATBusPostingGroupOnCustomer(CustomerNo, VATPostingSetup."VAT Bus. Posting Group");
+
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
+        LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
+        ServiceLine.Validate("Service Item No.", ServiceItem."No.");
+        ServiceLine.Validate(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));
+        ServiceLine.Modify(true);
+
+        CustomerPostingGroup.Get(ServiceHeader."Customer Posting Group");
+        UpdateVATProdPostingGroupOnInvRoundingAccount(CustomerPostingGroup.GetInvRoundingAccount(), VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     local procedure FindReturnShipmentHeaderNo(OrderNo: Code[20]): Code[20]
@@ -3757,6 +3901,24 @@ codeunit 134159 "Test Price Calculation - V16"
         exit(PriceCalculationBufferMgt.GetSources(TempPriceSource));
     end;
 
+    local procedure UpdateVATBusPostingGroupOnCustomer(CustomerNo: Code[20]; VATBusPostingGroup: Code[20])
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Customer.Modify(true);
+    end;
+
+    local procedure UpdateVATProdPostingGroupOnInvRoundingAccount(InvRoundingAccountCode: Code[20]; VATProdPostingGroupCode: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(InvRoundingAccountCode);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        GLAccount.Modify(true);
+    end;
+
     local procedure VerifyCampaignSource(SalesLinePrice: Codeunit "Sales Line - Price"; CampaignNo: code[20]; ExpectedCount: Integer)
     var
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
@@ -3818,8 +3980,44 @@ codeunit 134159 "Test Price Calculation - V16"
         Assert.AreEqual(true, GetPriceLine."Price List Code".Visible(), 'Price List Code.Visible');
         Assert.AreEqual(false, GetPriceLine."Line Discount %".Visible(), 'Line Discount %.Visible');
         Assert.AreEqual(true, GetPriceLine."Unit Price".Visible(), 'Unit Price.Visible');
+        Assert.AreEqual(false, GetPriceLine."Direct Unit Cost".Visible(), 'Direct Unit Cost.Visible');
+        Assert.AreEqual(false, GetPriceLine.PurchLineDiscountPct.Visible(), 'PurchLineDiscountPct.Visible');
         Assert.AreEqual(true, GetPriceLine."Allow Line Disc.".Visible(), 'Allow Line Disc.Visible');
         Assert.AreEqual(true, GetPriceLine."Allow Invoice Disc.".Visible(), 'Allow Invoice Disc.Visible');
+        GetPriceLine.First();
+        GetPriceLine.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GetPurchPriceLinePriceModalPageHandler(var GetPriceLine: TestPage "Get Price Line")
+    begin
+        Assert.AreEqual(true, GetPriceLine."Price List Code".Visible(), 'Price List Code.Visible');
+        Assert.AreEqual(false, GetPriceLine."Line Discount %".Visible(), 'Line Discount %.Visible');
+        Assert.AreEqual(false, GetPriceLine."Unit Price".Visible(), 'Unit Price.Visible');
+        Assert.AreEqual(true, GetPriceLine."Direct Unit Cost".Visible(), 'Direct Unit Cost.Visible');
+        Assert.AreEqual(false, GetPriceLine.PurchLineDiscountPct.Visible(), 'PurchLineDiscountPct.Visible');
+        Assert.AreEqual(true, GetPriceLine."Allow Line Disc.".Visible(), 'Allow Line Disc.Visible');
+        Assert.AreEqual(true, GetPriceLine."Allow Invoice Disc.".Visible(), 'Allow Invoice Disc.Visible');
+        // Asset Type/No not visible as the asset list is just of one asset
+        Assert.AreEqual(false, GetPriceLine."Asset Type".Visible(), 'Asset Type.Visible');
+        Assert.AreEqual(false, GetPriceLine."Asset No.".Visible(), 'Asset No.Visible');
+        GetPriceLine.First();
+        GetPriceLine.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GetPurchPriceLineDiscountModalPageHandler(var GetPriceLine: TestPage "Get Price Line")
+    begin
+        Assert.AreEqual(true, GetPriceLine."Price List Code".Visible(), 'Price List Code.Visible');
+        Assert.AreEqual(false, GetPriceLine."Line Discount %".Visible(), 'Line Discount %.Visible');
+        Assert.AreEqual(false, GetPriceLine."Unit Price".Visible(), 'Unit Price.Visible');
+        Assert.AreEqual(false, GetPriceLine."Direct Unit Cost".Visible(), 'Direct Unit Cost.Visible');
+        Assert.AreEqual(true, GetPriceLine.PurchLineDiscountPct.Visible(), 'PurchLineDiscountPct.Visible');
+        Assert.AreEqual(false, GetPriceLine."Allow Line Disc.".Visible(), 'Allow Line Disc.Visible');
+        Assert.AreEqual(false, GetPriceLine."Allow Invoice Disc.".Visible(), 'Allow Invoice Disc.Visible');
+        // Asset Type/No visible as the asset list is more than one asset
+        Assert.AreEqual(true, GetPriceLine."Asset Type".Visible(), 'Asset Type.Visible');
+        Assert.AreEqual(true, GetPriceLine."Asset No.".Visible(), 'Asset No.Visible');
         GetPriceLine.First();
         GetPriceLine.OK.Invoke();
     end;
@@ -3830,6 +4028,8 @@ codeunit 134159 "Test Price Calculation - V16"
         Assert.AreEqual(true, GetPriceLine."Price List Code".Visible(), 'Price List Code.Visible');
         Assert.AreEqual(true, GetPriceLine."Line Discount %".Visible(), 'Line Discount %.Visible');
         Assert.AreEqual(false, GetPriceLine."Unit Price".Visible(), 'Unit Price.Visible');
+        Assert.AreEqual(false, GetPriceLine."Direct Unit Cost".Visible(), 'Direct Unit Cost.Visible');
+        Assert.AreEqual(false, GetPriceLine.PurchLineDiscountPct.Visible(), 'PurchLineDiscountPct.Visible');
         Assert.AreEqual(false, GetPriceLine."Allow Line Disc.".Visible(), 'Allow Line Disc.Visible');
         Assert.AreEqual(false, GetPriceLine."Allow Invoice Disc.".Visible(), 'Allow Invoice Disc.Visible');
         GetPriceLine.First();
