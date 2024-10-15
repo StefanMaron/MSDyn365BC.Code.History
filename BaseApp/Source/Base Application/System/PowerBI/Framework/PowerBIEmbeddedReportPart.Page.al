@@ -122,7 +122,9 @@ page 6325 "Power BI Embedded Report Part"
                     trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                     begin
                         LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::Report);
-                        AvailableReportLevelFilters := ReportFilters;
+                        if not AvailableReportLevelFilters.ReadFrom(ReportFilters) then
+                            Clear(AvailableReportLevelFilters);
+
                         PushFiltersToAddin();
                     end;
 
@@ -517,7 +519,13 @@ page 6325 "Power BI Embedded Report Part"
         EnvironmentInformation: Codeunit "Environment Information";
     begin
         IsPBIAdmin := PowerBiServiceMgt.IsUserAdminForPowerBI(UserSecurityId());
-        IsSaaSUser := EnvironmentInformation.IsSaaS();
+        IsSaaSUser := EnvironmentInformation.IsSaaSInfrastructure(); // SaaS but not Docker
+    end;
+
+    trigger OnOpenPage()
+    begin
+        // The web client doesn't open parts that are not visible
+        IsPartVisible := true;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -600,13 +608,14 @@ page 6325 "Power BI Embedded Report Part"
 #endif
         PageState: Option GetStarted,ShouldDeploy,NoElementSelected,NoElementSelectedButDeploying,ElementVisible,ErrorVisible;
         ReportFrameRatio: Text;
-        AvailableReportLevelFilters: Text;
+        AvailableReportLevelFilters: JsonArray;
         FilterValuesJsonArray: JsonArray;
         PageContext: Text[30];
         AddInReady: Boolean;
         ErrorMessageText: Text;
         IsSaaSUser: Boolean;
         IsPBIAdmin: Boolean;
+        IsPartVisible: Boolean;
         LockedToFirstElement: Boolean;
         // Telemetry labels
         EmbedCorrelationTelemetryTxt: Label 'Embed element started with type: %1, and correlation: %2', Locked = true;
@@ -803,11 +812,24 @@ page 6325 "Power BI Embedded Report Part"
             Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
     end;
 
+    local procedure ShouldCalculateFilter(): Boolean
+    begin
+        // When the page just opened, we want to have an initial filter pointing to the single selected record (the first in the list).
+        // This will be applied when (and if) the part is actually visible.
+        // If we have already the initial filter, we should calculate filters only if the part is visible and there is a filter to use.
+        if FilterValuesJsonArray.Count > 0 then
+            exit(IsPartVisible and (AvailableReportLevelFilters.Count() > 0));
+
+        exit(true);
+    end;
+
     local procedure PushFiltersToAddin()
     var
+        ReportFiltersJArray: JsonArray;
         ReportFiltersToSet: Text;
+        AvailableReportFiltersText: Text;
     begin
-        if AvailableReportLevelFilters = '' then
+        if AvailableReportLevelFilters.Count() = 0 then
             exit;
 
 #if not CLEAN23
@@ -818,9 +840,12 @@ page 6325 "Power BI Embedded Report Part"
             exit;
 #endif
 
-        ReportFiltersToSet := PowerBiFilterHelper.MergeValuesIntoFirstFilter(AvailableReportLevelFilters, FilterValuesJsonArray);
+        ReportFiltersJArray := PowerBiFilterHelper.MergeValuesIntoFirstFilter(AvailableReportLevelFilters, FilterValuesJsonArray);
 
-        if ReportFiltersToSet = AvailableReportLevelFilters then
+        ReportFiltersJArray.WriteTo(ReportFiltersToSet);
+        AvailableReportLevelFilters.WriteTo(AvailableReportFiltersText);
+
+        if ReportFiltersToSet = AvailableReportFiltersText then
             exit;
 
         CurrPage.PowerBIAddin.UpdateReportFilters(ReportFiltersToSet);
@@ -851,6 +876,9 @@ page 6325 "Power BI Embedded Report Part"
     var
         FilteringRecordRef: RecordRef;
     begin
+        if not ShouldCalculateFilter() then
+            exit;
+
         case true of
             FilteringVariant.IsRecordRef():
                 FilteringRecordRef := FilteringVariant;
@@ -873,6 +901,9 @@ page 6325 "Power BI Embedded Report Part"
     /// <param name="InputSelectionVariant">A value to set as filter for the Power BI Report.</param>
     procedure SetCurrentListSelection(InputSelectionVariant: Variant)
     begin
+        if not ShouldCalculateFilter() then
+            exit;
+
         FilterValuesJsonArray := PowerBiFilterHelper.VariantToFilter(InputSelectionVariant);
         PushFiltersToAddin();
     end;

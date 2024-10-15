@@ -253,6 +253,26 @@ table 91 "User Setup"
                 end;
             end;
         }
+        field(22; "Allow VAT Date From"; Date)
+        {
+            Caption = 'Allow VAT Date From';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                CheckAllowedVATDates(0);
+            end;
+        }
+        field(23; "Allow VAT Date To"; Date)
+        {
+            Caption = 'Allow VAT Date To';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                CheckAllowedVATDates(0);
+            end;
+        }
         field(31; "License Type"; Option)
         {
             CalcFormula = lookup(User."License Type" where("User Name" = field("User ID")));
@@ -465,6 +485,11 @@ table 91 "User Setup"
             if SalesPersonPurchaser.Get(UserSetup2."Salespers./Purch. Code") then
                 if SalesPersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalesPersonPurchaser) then
                     Error(PrivacyBlockedGenericErr, UserSetup2."Salespers./Purch. Code")
+    end;
+
+    procedure CheckAllowedVATDates(NotificationType: Option Error,Notification)
+    begin
+        UserSetupManagement.CheckAllowedVATDatesRange("Allow VAT Date From", "Allow VAT Date To", NotificationType, Database::"User Setup");
     end;
 
     procedure CheckAllowedPostingDates(NotificationType: Option Error,Notification)

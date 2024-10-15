@@ -5034,6 +5034,325 @@ codeunit 134159 "Test Price Calculation - V16"
                 PurchaseLine.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure S483393_CopyAllowInvoiceDiscInGetReceiptLines()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PriceListLine: Record "Price List Line";
+        PriceListHeader: Record "Price List Header";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        // [SCENARIO 483393] Verify that manually set "Allow Invoice Disc." is carried over from Order to Invoice line with Get Receipt Lines.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Price List Header for All Vendors.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader,
+            "Price Type"::Purchase,
+            "Price Source Type"::"All Vendors",
+            '');
+
+        // [GIVEN] Create a Price List Line with an Item.
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine,
+            PriceListHeader,
+            "Price Amount Type"::Any,
+            "Price Asset Type"::Item,
+            Item."No.");
+
+        // [GIVEN] Update the Direct Unit Cost in Price List Line with Allow Line Disc. = true and Allow Invoice Disc. = false.
+        PriceListLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        PriceListLine.Validate("Allow Line Disc.", true);
+        PriceListLine.Validate("Allow Invoice Disc.", false);
+        PriceListLine.Modify(true);
+
+        // [GIVEN] Update Status to Active in Price List Header.
+        PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+        PriceListHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Order Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Order Line with an Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineOrder,
+            PurchaseHeaderOrder,
+            PurchaseLineOrder.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Set Invoice Discount for Item line.
+        PurchaseLineOrder.Validate("Allow Invoice Disc.", true);
+        PurchaseLineOrder.Validate("Inv. Discount Amount", Round(PurchaseLineOrder."Line Amount" * LibraryRandom.RandDec(1, 2)));
+        PurchaseLineOrder.Modify(true);
+
+        // [GIVEN] Receive Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Create a Purchase Invoice Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeaderInvoice,
+            PurchaseHeaderInvoice."Document Type"::Invoice,
+            PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchaseHeaderInvoice.Validate("Vendor Invoice No.", PurchaseHeaderInvoice."No.");
+        PurchaseHeaderInvoice.Modify(true);
+
+        // [WHEN] Run "Get Receipt Lines" from new Purchase Invoice.
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchRcptHeader.SetRange("Order No.", PurchaseHeaderOrder."No.");
+        if PurchRcptHeader.FindSet() then
+            repeat
+                PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+                PurchGetReceipt.CreateInvLines(PurchRcptLine);
+            until PurchRcptHeader.Next() = 0;
+
+        // [THEN] Verify that "Allow Invoce Disc." is copied from Purchase Order Line to Purchase Invoice Line.
+        PurchaseLineInvoice.SetRange("Document No.", PurchaseHeaderInvoice."No.");
+        PurchaseLineInvoice.FindFirst();
+        Assert.AreEqual(
+            true,
+            PurchaseLineInvoice."Allow Invoice Disc.",
+            PurchaseLineInvoice.FieldCaption("Allow Invoice Disc."));
+    end;
+
+    [Test]
+    procedure S485957_SalesLineForResourceInForeignCurrency_UnitCost()
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        Customer: Record Customer;
+        Resource: Record Resource;
+        PriceListLineSales: Record "Price List Line";
+        PriceListLinePurchase: Record "Price List Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        OldHandler: Enum "Price Calculation Handler";
+        UnitCostInFCY: Decimal;
+    begin
+        // [FEATURE] [Sales] [Resource] [UT]
+        // [SCENARIO 485957 - 1] Sales line for Resource in foreign Currency - Given that there is Unit Cost defined in Resource Card, verify that Unit Cost is taken from Resource Card.
+        // [SCENARIO 485957 - 2] Sales line for Resource in foreign Currency - Given that there is Unit Cost defined in Resource Card and higher in Purchase Price List in local Currency, verify that Unit Cost is taken from Purchase Price List.
+        // [SCENARIO 485957 - 3] Sales line for Resource in foreign Currency - Given that there is Unit Cost defined in Resource Card and higher in Purchase Price List in local Currency and even higher in Purchase Price List in foreign Currency, verify that Unit Cost is taken from Purchase Price List in foreign Currency.
+
+        Initialize();
+        PriceListLineSales.DeleteAll();
+
+        // [GIVEN] Default price calculation is 'V16'.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Currency and Currency Exchange Rate.
+        LibraryERM.CreateCurrency(Currency);
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code);
+
+        // [GIVEN] Customer 'A' with Currency.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Resource 'X', where "Unit Price" is '100' in local Currency, "Unit Cost" is 33 in local Currency.
+        LibraryResource.CreateResource(Resource, Customer."VAT Bus. Posting Group");
+        Resource.Validate("Unit Price", 100 + LibraryRandom.RandDec(100, 2));
+        Resource.Validate("Unit Cost", 100 - LibraryRandom.RandDec(100, 2));
+        Resource.Modify();
+
+        // [GIVEN] Sales Price List line for "All Customers" for Resource 'X', "Unit Price" is 50 in foreign Currency.
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLineSales, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLineSales.Validate("Currency Code", Currency.Code);
+        PriceListLineSales."Unit Price" := Resource."Unit Price" / 2;
+        PriceListLineSales.Status := PriceListLineSales."Status"::Active;
+        PriceListLineSales.Modify();
+
+        // [GIVEN] Sales Order for customer 'A' in Currency.
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, Customer."No.");
+
+        // [WHEN - 1] One Sales Order line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine."Type"::Resource, Resource."No.", 1);
+
+        // [THEN - 1] "Unit Cost (LCY)" = 33 (from Resource Card), "Unit Price" = 50 (from Sales Price List line).
+        SalesLine.TestField("Unit Cost (LCY)", Round(Resource."Unit Cost", Currency."Unit-Amount Rounding Precision"));
+        UnitCostInFCY := Round(
+            CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+              WorkDate(), Currency.Code, Resource."Unit Cost",
+              CurrencyExchangeRate.ExchangeRate(WorkDate(), Currency.Code)),
+            Currency."Unit-Amount Rounding Precision");
+        SalesLine.TestField("Unit Cost", UnitCostInFCY);
+        SalesLine.TestField("Unit Price", PriceListLineSales."Unit Price");
+
+        // [GIVEN] Purchase Price List line for "All Vendors" for Resource 'X', "Unit Cost" is 66 in local Currency.
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLinePurchase, '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLinePurchase."Unit Cost" := Resource."Unit Cost" * 2;
+        PriceListLinePurchase.Status := PriceListLinePurchase."Status"::Active;
+        PriceListLinePurchase.Modify();
+
+        // [WHEN - 2] One Sales Order line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine."Type"::Resource, Resource."No.", 1);
+
+        // [THEN - 2] "Unit Cost (LCY)" = 66 (from Purchase Price List line), "Unit Price" = 50 (from Sales Price List line).
+        SalesLine.TestField("Unit Cost (LCY)", Round(PriceListLinePurchase."Unit Cost", Currency."Unit-Amount Rounding Precision"));
+        UnitCostInFCY := Round(
+            CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+              WorkDate(), Currency.Code, PriceListLinePurchase."Unit Cost",
+              CurrencyExchangeRate.ExchangeRate(WorkDate(), Currency.Code)),
+            Currency."Unit-Amount Rounding Precision");
+        SalesLine.TestField("Unit Cost", UnitCostInFCY);
+        SalesLine.TestField("Unit Price", PriceListLineSales."Unit Price");
+
+        // [GIVEN] Purchase Price List line for "All Vendors" for Resource 'X', "Unit Cost" is 99 local currency (but defined in foreign currency).
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLinePurchase, '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLinePurchase.Validate("Currency Code", Currency.Code);
+        UnitCostInFCY := Round(
+            CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+              WorkDate(), Currency.Code, Resource."Unit Cost" * 3,
+              CurrencyExchangeRate.ExchangeRate(WorkDate(), Currency.Code)),
+            Currency."Unit-Amount Rounding Precision");
+        PriceListLinePurchase."Unit Cost" := UnitCostInFCY;
+        PriceListLinePurchase.Status := PriceListLinePurchase."Status"::Active;
+        PriceListLinePurchase.Modify();
+
+        // [WHEN - 3] One Sales Order line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine."Type"::Resource, Resource."No.", 1);
+
+        // [THEN - 3] "Unit Cost (LCY)" = 99 (from Purchase Price List line in foreign Currency), "Unit Price" = 50 (from Sales Price List line).
+        SalesLine.TestField("Unit Cost (LCY)", Resource."Unit Cost" * 3);
+        SalesLine.TestField("Unit Cost", PriceListLinePurchase."Unit Cost");
+        SalesLine.TestField("Unit Price", PriceListLineSales."Unit Price");
+
+        // Cleanup
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure S485957_ServiceLineForResourceInForeignCurrency_UnitCost()
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        Customer: Record Customer;
+        Resource: Record Resource;
+        PriceListLineSales: Record "Price List Line";
+        PriceListLinePurchase: Record "Price List Line";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        OldHandler: Enum "Price Calculation Handler";
+        UnitCostInFCY: Decimal;
+    begin
+        // [FEATURE] [Service] [Resource] [UT]
+        // [SCENARIO 485957 - 1] Service line for Resource in foreign Currency - Given that there is Unit Cost defined in Resource Card, verify that Unit Cost is taken from Resource Card.
+        // [SCENARIO 485957 - 2] Service line for Resource in foreign Currency - Given that there is Unit Cost defined in Resource Card and higher in Purchase Price List in local Currency, verify that Unit Cost is taken from Purchase Price List.
+        // [SCENARIO 485957 - 3] Service line for Resource in foreign Currency - Given that there is Unit Cost defined in Resource Card and higher in Purchase Price List in local Currency and even higher in Purchase Price List in foreign Currency, verify that Unit Cost is taken from Purchase Price List in foreign Currency.
+
+        Initialize();
+        PriceListLineSales.DeleteAll();
+
+        // [GIVEN] Default price calculation is 'V16'.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Currency and Currency Exchange Rate.
+        LibraryERM.CreateCurrency(Currency);
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code);
+
+        // [GIVEN] Customer 'A' with Currency.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Resource 'X', where "Unit Price" is '100' in local Currency, "Unit Cost" is 33 in local Currency.
+        LibraryResource.CreateResource(Resource, Customer."VAT Bus. Posting Group");
+        Resource.Validate("Unit Price", 100 + LibraryRandom.RandDec(100, 2));
+        Resource.Validate("Unit Cost", 100 - LibraryRandom.RandDec(100, 2));
+        Resource.Modify();
+
+        // [GIVEN] Sales Price List line for "All Customers" for Resource 'X', "Unit Price" is 50 in foreign Currency.
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLineSales, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLineSales.Validate("Currency Code", Currency.Code);
+        PriceListLineSales."Unit Price" := Resource."Unit Price" / 2;
+        PriceListLineSales.Status := PriceListLineSales."Status"::Active;
+        PriceListLineSales.Modify();
+
+        // [GIVEN] Sales Order for customer 'A' in Currency.
+        LibraryService.CreateServiceHeader(ServiceHeader, "Sales Document Type"::Order, Customer."No.");
+
+        // [WHEN - 1] One Sales Order line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1.
+        Clear(ServiceLine);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine."Type"::Resource, Resource."No.");
+
+        // [THEN - 1] "Unit Cost (LCY)" = 33 (from Resource Card), "Unit Price" = 50 (from Sales Price List line).
+        ServiceLine.TestField("Unit Cost (LCY)", Round(Resource."Unit Cost", Currency."Unit-Amount Rounding Precision"));
+        UnitCostInFCY := Round(
+            CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+              WorkDate(), Currency.Code, Resource."Unit Cost",
+              CurrencyExchangeRate.ExchangeRate(WorkDate(), Currency.Code)),
+            Currency."Unit-Amount Rounding Precision");
+        ServiceLine.TestField("Unit Cost", UnitCostInFCY);
+        ServiceLine.TestField("Unit Price", PriceListLineSales."Unit Price");
+
+        // [GIVEN] Purchase Price List line for "All Vendors" for Resource 'X', "Unit Cost" is 66 in local Currency.
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLinePurchase, '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLinePurchase."Unit Cost" := Resource."Unit Cost" * 2;
+        PriceListLinePurchase.Status := PriceListLinePurchase."Status"::Active;
+        PriceListLinePurchase.Modify();
+
+        // [WHEN - 2] One Sales Order line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1.
+        Clear(ServiceLine);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine."Type"::Resource, Resource."No.");
+
+        // [THEN - 2] "Unit Cost (LCY)" = 66 (from Purchase Price List line), "Unit Price" = 50 (from Sales Price List line).
+        ServiceLine.TestField("Unit Cost (LCY)", Round(PriceListLinePurchase."Unit Cost", Currency."Unit-Amount Rounding Precision"));
+        UnitCostInFCY := Round(
+            CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+              WorkDate(), Currency.Code, PriceListLinePurchase."Unit Cost",
+              CurrencyExchangeRate.ExchangeRate(WorkDate(), Currency.Code)),
+            Currency."Unit-Amount Rounding Precision");
+        ServiceLine.TestField("Unit Cost", UnitCostInFCY);
+        ServiceLine.TestField("Unit Price", PriceListLineSales."Unit Price");
+
+        // [GIVEN] Purchase Price List line for "All Vendors" for Resource 'X', "Unit Cost" is 99 local currency (but defined in foreign currency).
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLinePurchase, '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLinePurchase.Validate("Currency Code", Currency.Code);
+        UnitCostInFCY := Round(
+            CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+              WorkDate(), Currency.Code, Resource."Unit Cost" * 3,
+              CurrencyExchangeRate.ExchangeRate(WorkDate(), Currency.Code)),
+            Currency."Unit-Amount Rounding Precision");
+        PriceListLinePurchase."Unit Cost" := UnitCostInFCY;
+        PriceListLinePurchase.Status := PriceListLinePurchase."Status"::Active;
+        PriceListLinePurchase.Modify();
+
+        // [WHEN - 3] One Sales Order line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1.
+        Clear(ServiceLine);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine."Type"::Resource, Resource."No.");
+
+        // [THEN - 3] "Unit Cost (LCY)" = 99 (from Purchase Price List line in foreign Currency), "Unit Price" = 50 (from Sales Price List line).
+        ServiceLine.TestField("Unit Cost (LCY)", Resource."Unit Cost" * 3);
+        ServiceLine.TestField("Unit Cost", PriceListLinePurchase."Unit Cost");
+        ServiceLine.TestField("Unit Price", PriceListLineSales."Unit Price");
+
+        // Cleanup
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

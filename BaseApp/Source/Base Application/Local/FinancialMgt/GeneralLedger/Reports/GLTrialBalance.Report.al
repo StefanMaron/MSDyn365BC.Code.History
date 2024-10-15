@@ -42,6 +42,9 @@ report 10803 "G/L Trial Balance"
             column("Filter"; Filter)
             {
             }
+            column(ShowNegativeAmounts; ShowNegAmts)
+            {
+            }
             column(FiscalYearStatusText; FiscalYearStatusText)
             {
             }
@@ -159,6 +162,12 @@ report 10803 "G/L Trial Balance"
                         Caption = 'Print G/L Accs. without balance';
                         ToolTip = 'Specifies whether to include information about general ledger accounts without a balance.';
                     }
+                    field(ShowNegAmounts; ShowNegAmts)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show negative amounts';
+                        ToolTip = 'Specifies whether to show negative amounts.';
+                    }
                 }
             }
         }
@@ -191,6 +200,7 @@ report 10803 "G/L Trial Balance"
         PreviousEndDate: Date;
         TextDate: Text[30];
         ImprNonMvt: Boolean;
+        ShowNegAmts: Boolean;
         "Filter": Text;
         FiscalYearStatusText: Text;
         Text007: Label 'Fiscal-Year Status: %1';
@@ -204,4 +214,3 @@ report 10803 "G/L Trial Balance"
         DebitCaptionLbl: Label 'Debit';
         CreditCaptionLbl: Label 'Credit';
 }
-

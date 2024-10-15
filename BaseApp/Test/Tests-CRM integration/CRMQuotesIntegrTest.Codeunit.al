@@ -24,7 +24,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         SalesHeaderArchiveErr: Label 'The sales quote %1 was nor properly archived';
-        SalesLineArchiveErr: Label 'The lines of the sales quote %1 ware nor properly archived';
         EmptyCRMIntegrationRecErr: Label 'The empty CRM integration record for CRM Quote %1 doesn''t exist';
         SalesHeaderNotCreatedErr: Label 'The Sales Header corresponding to the CRM Quote %1 was not created';
         SalesQuoteDeleteErr: Label 'The Sales Header corresponding to the CRM Quote %1 was not deleted succesfully';
@@ -475,10 +474,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     var
         CRMQuote: Record "CRM Quote";
         SalesHeader: Record "Sales Header";
-        SalesHeaderArchive: Record "Sales Header Archive";
-        SalesLineArchive: Record "Sales Line Archive";
         CRMQuotedetail: Record "CRM Quotedetail";
-        SalesLine: Record "Sales Line";
         ProcessedSalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
         BlankGUID: Guid;
@@ -556,7 +552,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMQuote: Record "CRM Quote";
         SalesHeader: Record "Sales Header";
         SalesHeaderArchive: Record "Sales Header Archive";
-        SalesLineArchive: Record "Sales Line Archive";
         CRMQuotedetail: Record "CRM Quotedetail";
         ProcessedSalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";

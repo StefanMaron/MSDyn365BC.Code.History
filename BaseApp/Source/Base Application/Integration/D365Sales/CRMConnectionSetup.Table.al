@@ -899,7 +899,6 @@ table 5330 "CRM Connection Setup"
                 CRMIntegrationManagement.ClearConnectionDisableReason(Rec);
         end else begin
             "CRM Version" := '';
-            "Is S.Order Integration Enabled" := false;
             "Is CRM Solution Installed" := false;
             CurrencyDecimalPrecision := 0;
             Clear(BaseCurrencyId);

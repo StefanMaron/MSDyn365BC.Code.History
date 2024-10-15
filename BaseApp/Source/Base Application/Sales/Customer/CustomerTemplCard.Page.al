@@ -178,6 +178,11 @@ page 1382 "Customer Templ. Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the language to be used on printouts for this customer.';
                     }
+                    field("Format Region"; Rec."Format Region")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the region format to be used on printouts for this customer.';
+                    }
                     field("Document Sending Profile"; Rec."Document Sending Profile")
                     {
                         ApplicationArea = Basic, Suite;

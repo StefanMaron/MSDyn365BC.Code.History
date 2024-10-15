@@ -1269,7 +1269,7 @@ page 54 "Purchase Order Subform"
                     Caption = 'Deferral Schedule';
                     Enabled = Rec."Deferral Code" <> '';
                     Image = PaymentPeriod;
-                    ToolTip = 'View or edit the deferral schedule that governs how revenue made with this sales document is deferred to different accounting periods when the document is posted.';
+                    ToolTip = 'View or edit the deferral schedule that governs how revenue made with this purchase document is deferred to different accounting periods when the document is posted.';
 
                     trigger OnAction()
                     begin
@@ -1287,7 +1287,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     var
-                        AllocAccManualOverride: Page Microsoft.Finance.AllocationAccount."Redistribute Acc. Allocations";
+                        AllocAccManualOverride: Page "Redistribute Acc. Allocations";
                     begin
                         if ((Rec."Type" <> Rec."Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '')) then
                             Error(ActionOnlyAllowedForAllocationAccountsErr);
@@ -1549,7 +1549,14 @@ page 54 "Purchase Order Subform"
     trigger OnDeleteRecord(): Boolean
     var
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDeleteRecord(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
             Commit();
             if not PurchLineReserve.DeleteLineConfirm(Rec) then
@@ -1618,7 +1625,6 @@ page 54 "Purchase Order Subform"
         ItemChargeStyleExpression: Text;
         ItemChargeToHandleStyleExpression: Text;
         VariantCodeMandatory: Boolean;
-        InvDiscAmountEditable: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
         IsFoundation: Boolean;
@@ -1653,6 +1659,7 @@ page 54 "Purchase Order Subform"
         OverReceiptAllowed: Boolean;
         ItemReferenceVisible: Boolean;
         AttachToInvtItemEnabled: Boolean;
+        InvDiscAmountEditable: Boolean;
 
     local procedure SetOpenPage()
     var
@@ -2015,6 +2022,11 @@ page 54 "Purchase Order Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeleteReservationEntries(var PurchaseLine: Record "Purchase Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDeleteRecord(var PurchaseLine: Record "Purchase Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

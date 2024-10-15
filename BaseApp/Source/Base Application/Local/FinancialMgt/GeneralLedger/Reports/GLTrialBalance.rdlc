@@ -788,7 +788,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!GLAcc2DebitAmtCreditAmt.Value)</Value>
+                                  <Value>=Code.BlankZero(Fields!GLAcc2DebitAmtCreditAmt.Value)</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>=IIF(Fields!TLAccType.Value &gt; 0,"Bold","Normal")</FontWeight>
@@ -800,6 +800,9 @@
                             </Paragraph>
                           </Paragraphs>
                           <ZIndex>5</ZIndex>
+                          <Visibility>
+                            <Hidden>=iif((Fields!GLAcc2DebitAmtCreditAmt.Value &lt; 0) and (not Fields!ShowNegativeAmounts.Value),True,False)</Hidden>
+                          </Visibility>
                           <Style>
                             <TopBorder>
                               <Style>=IIF(Fields!TLAccType.Value &gt; 0,"Solid","None")</Style>
@@ -829,7 +832,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!GLAcc2CreditAmtDebitAmt.Value)</Value>
+                                  <Value>=Code.BlankZero(Fields!GLAcc2CreditAmtDebitAmt.Value)</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>=IIF(Fields!TLAccType.Value &gt; 0,"Bold","Normal")</FontWeight>
@@ -841,6 +844,9 @@
                             </Paragraph>
                           </Paragraphs>
                           <ZIndex>4</ZIndex>
+                          <Visibility>
+                            <Hidden>=iif((Fields!GLAcc2CreditAmtDebitAmt.Value &lt; 0) and (not Fields!ShowNegativeAmounts.Value),True,False)</Hidden>
+                          </Visibility>
                           <Style>
                             <TopBorder>
                               <Style>=IIF(Fields!TLAccType.Value &gt; 0,"Solid","None")</Style>
@@ -870,7 +876,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!DebitAmt_GLAcc.Value)</Value>
+                                  <Value>=Code.BlankZero(Fields!DebitAmt_GLAcc.Value)</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>=IIF(Fields!TLAccType.Value &gt; 0,"Bold","Normal")</FontWeight>
@@ -882,6 +888,9 @@
                             </Paragraph>
                           </Paragraphs>
                           <ZIndex>3</ZIndex>
+                          <Visibility>
+                            <Hidden>=iif((Fields!DebitAmt_GLAcc.Value &lt; 0) and (not Fields!ShowNegativeAmounts.Value),True,False)</Hidden>
+                          </Visibility>
                           <Style>
                             <TopBorder>
                               <Style>=IIF(Fields!TLAccType.Value &gt; 0,"Solid","None")</Style>
@@ -912,7 +921,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!CreditAmt_GLAcc.Value)</Value>
+                                  <Value>=Code.BlankZero(Fields!CreditAmt_GLAcc.Value)</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>=IIF(Fields!TLAccType.Value &gt; 0,"Bold","Normal")</FontWeight>
@@ -924,6 +933,9 @@
                             </Paragraph>
                           </Paragraphs>
                           <ZIndex>2</ZIndex>
+                          <Visibility>
+                            <Hidden>=iif((Fields!CreditAmt_GLAcc.Value &lt; 0) and (not Fields!ShowNegativeAmounts.Value),True,False)</Hidden>
+                          </Visibility>
                           <Style>
                             <TopBorder>
                               <Style>=IIF(Fields!TLAccType.Value &gt; 0,"Solid","None")</Style>
@@ -953,7 +965,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!BalAtEndingDateDebitCaption.Value)</Value>
+                                  <Value>=Code.BlankZero(Fields!BalAtEndingDateDebitCaption.Value)</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>=IIF(Fields!TLAccType.Value &gt; 0,"Bold","Normal")</FontWeight>
@@ -965,6 +977,9 @@
                             </Paragraph>
                           </Paragraphs>
                           <ZIndex>1</ZIndex>
+                          <Visibility>
+                            <Hidden>=iif((Fields!BalAtEndingDateDebitCaption.Value &lt; 0) and (not Fields!ShowNegativeAmounts.Value),True,False)</Hidden>
+                          </Visibility>
                           <Style>
                             <TopBorder>
                               <Style>=IIF(Fields!TLAccType.Value &gt; 0,"Solid","None")</Style>
@@ -994,7 +1009,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!BalAtEndingDateCreditCaption.Value)</Value>
+                                  <Value>=Code.BlankZero(Fields!BalAtEndingDateCreditCaption.Value)</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>=IIF(Fields!TLAccType.Value &gt; 0,"Bold","Normal")</FontWeight>
@@ -1005,6 +1020,9 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
+                          <Visibility>
+                            <Hidden>=iif((Fields!BalAtEndingDateCreditCaption.Value &lt; 0) and (not Fields!ShowNegativeAmounts.Value),True,False)</Hidden>
+                          </Visibility>
                           <Style>
                             <TopBorder>
                               <Style>=IIF(Fields!TLAccType.Value &gt; 0,"Solid","None")</Style>
@@ -1496,12 +1514,12 @@
       </Page>
     </ReportSection>
   </ReportSections>
-  <Code>Public Function BlankNegAndZero(ByVal Value As Decimal)
-    if Value &lt;= 0 then
+  <Code>Public Function BlankZero(ByVal Value As Decimal)
+    if Value = 0 then
         Return ""
     end if
     Return Value
-End Function</Code>
+  End Function</Code>
   <Language>=User!Language</Language>
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
   <rd:ReportUnitType>Cm</rd:ReportUnitType>
@@ -1529,6 +1547,9 @@ End Function</Code>
         </Field>
         <Field Name="Filter">
           <DataField>Filter</DataField>
+        </Field>
+        <Field Name="ShowNegativeAmounts">
+          <DataField>ShowNegativeAmounts</DataField>
         </Field>
         <Field Name="FiscalYearStatusText">
           <DataField>FiscalYearStatusText</DataField>

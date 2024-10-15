@@ -185,6 +185,10 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                         WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
                         WarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
                     end;
+                    if WarehouseJournalLine."From Zone Code" = '' then
+                        WarehouseJournalLine."From Zone Code" := GetZoneCode("Location Code", WarehouseJournalLine."From Bin Code");
+                    if WarehouseJournalLine."From Bin Type Code" = '' then
+                        WarehouseJournalLine."From Bin Type Code" := GetBinTypeCode("Location Code", WarehouseJournalLine."From Bin Code");
                 end else begin
                     WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
                     WarehouseJournalLine."To Bin Code" := "Bin Code";
@@ -222,6 +226,8 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                     GetBin("Location Code", WarehouseJournalLine."To Bin Code");
                     WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
                 end;
+                if WarehouseJournalLine."To Zone Code" = '' then
+                    WarehouseJournalLine."To Zone Code" := GetZoneCode("Location Code", WarehouseJournalLine."To Bin Code");
             end else begin
                 WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
                 WarehouseJournalLine."From Bin Code" := "Bin Code";
@@ -390,6 +396,22 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         GetLocation(LocationCode);
         if Location."Directed Put-away and Pick" then
             Bin.TestField("Zone Code");
+    end;
+
+    local procedure GetZoneCode(LocationCode: Code[10]; BinCode: Code[20]): Code[10]
+    var
+        Bin2: Record Bin;
+    begin
+        if Bin2.Get(LocationCode, BinCode) then
+            exit(Bin2."Zone Code");
+    end;
+
+    local procedure GetBinTypeCode(LocationCode: Code[10]; BinCode: Code[20]): Code[10]
+    var
+        Bin2: Record Bin;
+    begin
+        if Bin2.Get(LocationCode, BinCode) then
+            exit(Bin2."Bin Type Code");
     end;
 
     [IntegrationEvent(false, false)]

@@ -1198,6 +1198,9 @@ codeunit 1605 "PEPPOL Management"
     begin
         ToRecord := ToSalesHeader;
         RecRefTransferFields(FromRecord, ToRecord);
+
+        OnAfterRecRefTransferFieldsOnTransferHeaderToSalesHeader(FromRecord, ToRecord);
+
         ToSalesHeader := ToRecord;
     end;
 
@@ -1207,6 +1210,9 @@ codeunit 1605 "PEPPOL Management"
     begin
         ToRecord := ToSalesLine;
         RecRefTransferFields(FromRecord, ToRecord);
+
+        OnAfterRecRefTransferFieldsOnTransferLineToSalesLine(FromRecord, ToRecord);
+
         ToSalesLine := ToRecord;
     end;
 
@@ -1493,6 +1499,16 @@ codeunit 1605 "PEPPOL Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingSupplierPartyLegalEntityByFormat(var PartyLegalEntityRegName: Text; var PartyLegalEntityCompanyID: Text; var PartyLegalEntitySchemeID: Text; var SupplierRegAddrCityName: Text; var SupplierRegAddrCountryIdCode: Text; var SupplRegAddrCountryIdListId: Text; IsBISBilling: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecRefTransferFieldsOnTransferHeaderToSalesHeader(FromRecord: Variant; var ToRecord: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecRefTransferFieldsOnTransferLineToSalesLine(FromRecord: Variant; var ToRecord: Variant)
     begin
     end;
 }

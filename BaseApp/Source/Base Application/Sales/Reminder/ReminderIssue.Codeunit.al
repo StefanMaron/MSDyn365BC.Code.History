@@ -4,6 +4,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Customer;
@@ -34,6 +35,10 @@ codeunit 393 "Reminder-Issue"
             exit;
 
         with ReminderHeader do begin
+
+            ErrorMessageMgt.Activate(ErrorMessageHandler);
+            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, '');
+
             UpdateReminderRounding(ReminderHeader);
             if (PostingDate <> 0D) and (ReplacePostingDate or ("Posting Date" = 0D)) then
                 Validate("Posting Date", PostingDate);
@@ -48,6 +53,11 @@ codeunit 393 "Reminder-Issue"
             TestField("Document Date");
             TestField("Due Date");
             TestField("Customer Posting Group");
+
+            if ErrorMessageHandler.HasErrors() then
+                if ErrorMessageHandler.ShowErrors() then
+                    Error('');
+
             GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then
                 if "Post Additional Fee" or "Post Interest" or "Post Add. Fee per Line" then begin
@@ -170,6 +180,7 @@ codeunit 393 "Reminder-Issue"
             Delete();
         end;
 
+        ErrorMessageMgt.PopContext(ErrorContextElement);
         OnAfterIssueReminder(ReminderHeader, IssuedReminderHeader."No.", GenJnlPostLine);
     end;
 
@@ -191,7 +202,9 @@ codeunit 393 "Reminder-Issue"
         DimMgt: Codeunit DimensionManagement;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
         DocNo: Code[20];
         NextEntryNo: Integer;
         ReplacePostingDate, ReplaceVATDate : Boolean;
@@ -210,7 +223,6 @@ codeunit 393 "Reminder-Issue"
         LineFeeAlreadyIssuedErr: Label 'The Line Fee for %1 %2 on reminder level %3 has already been issued.', Comment = '%1 = Document Type, %2 = Document No. %3 = Reminder Level. E.g. The Line Fee for Invoice 141232 on reminder level 2 has already been issued.';
         MultipleLineFeesSameDocErr: Label 'You cannot issue multiple line fees for the same level for the same document. Error with line fees for %1 %2.', Comment = '%1 = Document Type, %2 = Document No. E.g. You cannot issue multiple line fees for the same level for the same document. Error with line fees for Invoice 1312312.';
         MissingJournalFieldErr: Label 'Please enter a %1 when posting Additional Fees or Interest.', Comment = '%1 - field caption';
-        VATDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - VAT Date field caption';
 
 
     procedure Set(var NewReminderHeader: Record "Reminder Header"; NewReplacePostingDate: Boolean; NewPostingDate: Date; NewReplaceVATDate: Boolean; NewVATDate: Date)
@@ -582,27 +594,13 @@ codeunit 393 "Reminder-Issue"
         CustLedgerEntry2.ModifyAll("Closing Interest Calculated", true);
     end;
 
-    local procedure CheckVATDate(var ReminderHeader: Record "Reminder Header")
-    var
-        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
-        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
-        SetupRecID: RecordID;
+    local procedure CheckVATDate(var ReminderHeader2: Record "Reminder Header")
     begin
         // ensure VAT Date is filled in
-        If ReminderHeader."VAT Reporting Date" = 0D then begin
-            ReminderHeader."VAT Reporting Date" := GLSetup.GetVATDate(ReminderHeader."Posting Date", ReminderHeader."Document Date");
-            ReminderHeader.Modify();
+        if ReminderHeader2."VAT Reporting Date" = 0D then begin
+            ReminderHeader2."VAT Reporting Date" := GLSetup.GetVATDate(ReminderHeader2."Posting Date", ReminderHeader2."Document Date");
+            ReminderHeader2.Modify();
         end;
-
-        // check whether VAT Date is within allowed VAT Periods
-        GenJnlCheckLine.CheckVATDateAllowed(ReminderHeader."VAT Reporting Date");
-
-        // check whether VAT Date is within Allowed period defined in Gen. Ledger Setup
-        if GenJnlCheckLine.IsDateNotAllowed(ReminderHeader."VAT Reporting Date", SetupRecID, '') then
-            ErrorMessageMgt.LogContextFieldError(
-              ReminderHeader.FieldNo("VAT Reporting Date"), StrSubstNo(VATDateNotAllowedErr, ReminderHeader.FieldCaption("VAT Reporting Date")),
-              SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
-              ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
     end;
 
     [IntegrationEvent(false, false)]
