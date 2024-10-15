@@ -847,6 +847,8 @@
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         IntrastatSetup: Record "Intrastat Setup";
+        Customer: Record Customer;
+        Vendor: Record Vendor;
         CampaignTargetGrMgt: Codeunit "Campaign Target Group Mgt";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
     begin
@@ -974,6 +976,18 @@
         VATRegistrationLogMgt.DeleteContactLog(Rec);
 
         IntrastatSetup.CheckDeleteIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Contact, "No.");
+
+        Customer.SetRange("Primary Contact No.", "No.");
+        if not Customer.IsEmpty() then begin
+            Customer.ModifyAll(Contact, '');
+            Customer.ModifyAll("Primary Contact No.", '');
+        end;
+
+        Vendor.SetRange("Primary Contact No.", "No.");
+        if not Vendor.IsEmpty() then begin
+            Vendor.ModifyAll(Contact, '');
+            Vendor.ModifyAll("Primary Contact No.", '');
+        end;
     end;
 
     trigger OnInsert()
