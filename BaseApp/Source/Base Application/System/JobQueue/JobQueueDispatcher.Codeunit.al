@@ -54,7 +54,7 @@ codeunit 448 "Job Queue Dispatcher"
         JobQueueEntry."User Session Started" := CurrentDateTime();
         JobQueueEntry."User Session ID" := SessionId();
         JobQueueEntry."User Service Instance ID" := ServiceInstanceId();
-        JobQueueEntry.Modify(); 
+        JobQueueEntry.Modify();
 
         JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
         // Codeunit.Run is limited during write transactions because one or more tables will be locked.
@@ -110,7 +110,6 @@ codeunit 448 "Job Queue Dispatcher"
             exit(false);
 
         JobQueueEntry.ReadIsolation := JobQueueEntry.ReadIsolation::ReadCommitted;
-        JobQueueEntry.SetLoadFields(ID, "Job Queue Category Code", Status, "User ID", "System Task ID");
         JobQueueEntryCheck.SetLoadFields(ID, "Job Queue Category Code", Status, "User ID");
         JobQueueEntry.SetFilter(ID, '<>%1', CurrJobQueueEntry.ID);
         JobQueueEntry.SetRange("Job Queue Category Code", CurrJobQueueEntry."Job Queue Category Code");

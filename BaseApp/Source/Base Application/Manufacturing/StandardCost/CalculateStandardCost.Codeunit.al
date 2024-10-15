@@ -529,7 +529,7 @@ codeunit 5812 "Calculate Standard Cost"
                 CalcRtngCost("Routing No.", MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, Item);
                 CalcProdBOMCost(
                   Item, "Production BOM No.", "Routing No.",
-                  MfgItemQtyBase, true, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd);
+                  MfgItemQtyBase, true, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd, Item);
                 SLMfgOvhd :=
                   CostCalcMgt.CalcOvhdCost(
                     SLMat + SLCap + SLSub + SLCapOvhd,
@@ -591,7 +591,7 @@ codeunit 5812 "Calculate Standard Cost"
         OnAfterSetProdBOMFilters(ProdBOMLine, PBOMVersionCode, ProdBOMNo);
     end;
 
-    local procedure CalcProdBOMCost(MfgItem: Record Item; ProdBOMNo: Code[20]; RtngNo: Code[20]; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; Level: Integer; var SLMat: Decimal; var RUMat: Decimal; var RUCap: Decimal; var RUSub: Decimal; var RUCapOvhd: Decimal; var RUMfgOvhd: Decimal)
+    local procedure CalcProdBOMCost(MfgItem: Record Item; ProdBOMNo: Code[20]; RtngNo: Code[20]; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; Level: Integer; var SLMat: Decimal; var RUMat: Decimal; var RUCap: Decimal; var RUSub: Decimal; var RUCapOvhd: Decimal; var RUMfgOvhd: Decimal; var ParentItem: Record Item)
     var
         CompItem: Record Item;
         ProdBOMLine: Record "Production BOM Line";
@@ -620,6 +620,7 @@ codeunit 5812 "Calculate Standard Cost"
         with ProdBOMLine do
             if Find('-') then
                 repeat
+                    OnCalcProdBOMCostOnBeforeCalcCompItemQtyBase(ProdBOMLine, ParentItem, CalculationDate, MfgItem, MfgItemQtyBase, IsTypeItem, CompItemQtyBase, RtngNo, UOMFactor);
                     CompItemQtyBase :=
                       UOMMgt.RoundQty(
                         CostCalcMgt.CalcCompItemQtyBase(ProdBOMLine, CalculationDate, MfgItemQtyBase, RtngNo, IsTypeItem) / UOMFactor);
@@ -639,7 +640,7 @@ codeunit 5812 "Calculate Standard Cost"
                                         IncrCost(RUSub, CompItem."Rolled-up Subcontracted Cost", CompItemQtyBase);
                                         IncrCost(RUCapOvhd, CompItem."Rolled-up Cap. Overhead Cost", CompItemQtyBase);
                                         IncrCost(RUMfgOvhd, CompItem."Rolled-up Mfg. Ovhd Cost", CompItemQtyBase);
-                                        OnCalcProdBOMCostOnAfterCalcMfgItem(ProdBOMLine, MfgItem, MfgItemQtyBase, CompItem, CompItemQtyBase, Level, IsTypeItem, UOMFactor);
+                                        OnCalcProdBOMCostOnAfterCalcMfgItem(ProdBOMLine, MfgItem, MfgItemQtyBase, CompItem, CompItemQtyBase, Level, IsTypeItem, UOMFactor, ParentItem);
                                     end else begin
                                         IncrCost(SLMat, CompItem."Unit Cost", CompItemQtyBase);
                                         IncrCost(RUMat, CompItem."Unit Cost", CompItemQtyBase);
@@ -649,7 +650,7 @@ codeunit 5812 "Calculate Standard Cost"
                             end;
                         Type::"Production BOM":
                             CalcProdBOMCost(
-                              MfgItem, "No.", RtngNo, CompItemQtyBase, false, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd);
+                              MfgItem, "No.", RtngNo, CompItemQtyBase, false, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd, ParentItem);
                     end;
                 until Next() = 0;
     end;
@@ -1125,7 +1126,7 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcProdBOMCostOnAfterCalcMfgItem(var ProdBOMLine: Record "Production BOM Line"; MfgItem: Record Item; MfgItemQtyBase: Decimal; CompItem: Record Item; CompItemQtyBase: Decimal; Level: Integer; IsTypeItem: Boolean; UOMFactor: Decimal)
+    local procedure OnCalcProdBOMCostOnAfterCalcMfgItem(var ProdBOMLine: Record "Production BOM Line"; MfgItem: Record Item; MfgItemQtyBase: Decimal; CompItem: Record Item; CompItemQtyBase: Decimal; Level: Integer; IsTypeItem: Boolean; UOMFactor: Decimal; var ParentItem: Record Item)
     begin
     end;
 
@@ -1179,6 +1180,11 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnDoCalcAssemblyItemPriceOnAfterSetBOMCompFilters(var Item: Record Item; var BOMComponent: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdBOMCostOnBeforeCalcCompItemQtyBase(var ProductionBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; CalculationDate: Date; MfgItem: Record Item; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; var CompItemQtyBase: Decimal; RtngNo: Code[20]; UOMFactor: Decimal)
     begin
     end;
 }

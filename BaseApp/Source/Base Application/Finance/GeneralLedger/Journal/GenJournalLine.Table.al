@@ -319,6 +319,11 @@ table 81 "Gen. Journal Line"
         field(7; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+
+            trigger OnValidate()
+            begin
+                CheckOpenApprovalEntryExistForCurrentUser();
+            end;
         }
         field(8; Description; Text[100])
         {
@@ -3171,14 +3176,11 @@ table 81 "Gen. Journal Line"
 
     trigger OnModify()
     var
-        GenJournalBatch: Record "Gen. Journal Batch";
         IsHandled: Boolean;
     begin
         CheckJobQueueStatus(Rec);
 
-        ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(Rec);
-        if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
-            ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(GenJournalBatch);
+        CheckOpenApprovalEntryExistForCurrentUser();
 
         SetLastModifiedDateTime();
 
@@ -3662,7 +3664,7 @@ table 81 "Gen. Journal Line"
                     end;
                     GenJnlLine3.Get("Journal Template Name", "Journal Batch Name", "Line No.");
                     CheckJobQueueStatus(GenJnlLine3);
-                    GenJnlLine3."Document No." := DocNo;
+                    GenJnlLine3.Validate("Document No.", DocNo);
                     GenJnlLine3.Modify();
                     OnRenumberDocNoOnLinesOnAfterModifyGenJnlLine3(DocNo, GenJnlLine3);
                     First := false;
@@ -3801,6 +3803,7 @@ table 81 "Gen. Journal Line"
 
         if CurrencyCode = '' then begin
             Clear(Currency);
+            OnGetCurrencyOnBeforeInitRoundingPrecision(Rec, Currency);
             Currency.InitRoundingPrecision()
         end else
             if CurrencyCode <> Currency.Code then begin
@@ -7448,6 +7451,15 @@ table 81 "Gen. Journal Line"
             exit(true);
     end;
 
+    local procedure CheckOpenApprovalEntryExistForCurrentUser()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(Rec);
+        if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
+            ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(GenJournalBatch);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAccountNoOnValidateOnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
@@ -8795,6 +8807,7 @@ table 81 "Gen. Journal Line"
         if "Currency Code" = '' then
             exit("VAT Amount");
 
+        OnCalcVATAmountLCYOnBeforeInitRoundingPrecision(Rec, LCYCurrency);
         LCYCurrency.InitRoundingPrecision();
 
         "VAT Difference" :=
@@ -9230,6 +9243,16 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     procedure OnUpdateLineBalanceOnAfterUpdateAllocations(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCurrencyOnBeforeInitRoundingPrecision(var GenJournalLine: Record "Gen. Journal Line"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLCYOnBeforeInitRoundingPrecision(var GenJournalLine: Record "Gen. Journal Line"; var Currency: Record Currency)
     begin
     end;
 }
