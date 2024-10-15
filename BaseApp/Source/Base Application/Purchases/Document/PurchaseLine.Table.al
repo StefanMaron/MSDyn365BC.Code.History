@@ -354,9 +354,10 @@ table 39 "Purchase Line"
                 IsHandled: Boolean;
             begin
                 TestStatusOpen();
-                OnValidateLocationCodeOnAfterTestStatusOpen(Rec);
+                IsHandled := false;
+                OnValidateLocationCodeOnAfterTestStatusOpen(Rec, xRec, IsHandled);
                 if xRec."Location Code" <> "Location Code" then begin
-                    if "Prepmt. Amt. Inv." <> 0 then
+                    if ("Prepmt. Amt. Inv." <> 0) and (not IsHandled) then
                         if not ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(
                                Text046, FieldCaption("Direct Unit Cost"), FieldCaption("Location Code"), PRODUCTNAME.Full()), true)
@@ -5716,8 +5717,12 @@ table 39 "Purchase Line"
     var
         ItemListPage: Page "Item List";
         SelectionFilter: Text;
+        IsHandled: Boolean;
     begin
-        OnBeforeSelectMultipleItems(Rec);
+        IsHandled := false;
+        OnBeforeSelectMultipleItems(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         if IsCreditDocType() then
             SelectionFilter := ItemListPage.SelectActiveItems()
@@ -6830,12 +6835,15 @@ table 39 "Purchase Line"
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         PrevVatAmountLine: Record "VAT Amount Line";
         Currency: Record Currency;
+        AddCurrency: Record Currency;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         TotalVATAmount: Decimal;
         QtyToHandle: Decimal;
         AmtToHandle: Decimal;
+        AmountToInvoice: Decimal;
+        AmountLCY: Decimal;
+        AmountACY: Decimal;
         RoundingLineInserted: Boolean;
-        AddCurrency: Record Currency;
         CurrencyFactor: Decimal;
         UseDate: Date;
         TotalVATAmountACY: Decimal;
@@ -6856,7 +6864,7 @@ table 39 "Purchase Line"
             UseDate := WorkDate();
         if GLSetup."Additional Reporting Currency" <> '' then begin
             AddCurrency.Get(GLSetup."Additional Reporting Currency");
-            if UseDate <> 0D then begin
+            if UseDate <> 0D then
                 if (PurchHeader."Vendor Exchange Rate (ACY)" <> 0) and (PurchHeader."Currency Code" = '') then
                     CurrencyFactor :=
                       CurrExchRate.ExchangeRateFactorFRS21(
@@ -6865,7 +6873,6 @@ table 39 "Purchase Line"
                     CurrencyFactor :=
                       CurrExchRate.ExchangeRate(
                         UseDate, GLSetup."Additional Reporting Currency");
-            end;
         end;
 
         VATAmountLine.DeleteAll();
@@ -6902,20 +6909,10 @@ table 39 "Purchase Line"
                                 OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
                                 VATAmountLine.SumLine(
                                   PurchLine."Line Amount", PurchLine."Inv. Discount Amount", PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
-                                if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
-                                    VATAmountLine."Amount (ACY)" += PurchLine.Amount
-                                else
-                                    VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
-                                      Round(
-                                        CurrExchRate.ExchangeAmtLCYToFCY(
-                                          UseDate, GLSetup."Additional Reporting Currency",
-                                          Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                                            UseDate, PurchHeader."Currency Code", PurchLine.Amount,
-                                            PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
-                                        AddCurrency."Amount Rounding Precision");
                                 VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
                                 VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
                                 VATAmountLine.Modify();
+                                AmountToInvoice := PurchLine.Amount;
                             end;
                         QtyType::Invoicing:
                             begin
@@ -6956,21 +6953,10 @@ table 39 "Purchase Line"
                                 else
                                     VATAmountLine.SumLine(
                                       AmtToHandle, PurchLine."Inv. Disc. Amount to Invoice", PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
-                                if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
-                                    VATAmountLine."Amount (ACY)" += PurchLine.Amount
-                                else
-                                    VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
-                                      Round(
-                                        CurrExchRate.ExchangeAmtLCYToFCY(
-                                          UseDate, GLSetup."Additional Reporting Currency",
-                                          Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                                              UseDate, PurchHeader."Currency Code", Round(PurchLine.Amount * QtyToHandle / PurchLine.Quantity,
-                                                Currency."Amount Rounding Precision"),
-                                              PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
-                                        AddCurrency."Amount Rounding Precision");
                                 VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
                                 VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
                                 VATAmountLine.Modify();
+                                AmountToInvoice := PurchLine.Amount * QtyToHandle / PurchLine.Quantity;
                             end;
                         QtyType::Shipping:
                             begin
@@ -6986,26 +6972,22 @@ table 39 "Purchase Line"
                                 VATAmountLine.SumLine(
                                   AmtToHandle, Round(PurchLine."Inv. Discount Amount" * QtyToHandle / PurchLine.Quantity, Currency."Amount Rounding Precision"),
                                   PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
-                                if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
-                                    VATAmountLine."Amount (ACY)" += PurchLine.Amount
-                                else
-                                    VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
-                                      Round(
-                                        CurrExchRate.ExchangeAmtLCYToFCY(
-                                          UseDate, GLSetup."Additional Reporting Currency",
-                                          Round(
-                                            CurrExchRate.ExchangeAmtFCYToLCY(
-                                              UseDate, PurchHeader."Currency Code",
-                                              Round(PurchLine.Amount * QtyToHandle / PurchLine.Quantity, Currency."Amount Rounding Precision"),
-                                              PurchHeader."Currency Factor"),
-                                            Currency."Amount Rounding Precision"),
-                                          CurrencyFactor),
-                                        AddCurrency."Amount Rounding Precision");
                                 VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
                                 VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
                                 VATAmountLine.Modify();
+                                AmountToInvoice := PurchLine.Amount * QtyToHandle / PurchLine.Quantity;
                             end;
                     end;
+
+                    if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
+                        VATAmountLine."Amount (ACY)" += PurchLine.Amount
+                    else begin
+                        AmountLCY := CurrExchRate.ExchangeAmtFCYToLCY(UseDate, PurchHeader."Currency Code", Round(AmountToInvoice, Currency."Amount Rounding Precision"), PurchHeader."Currency Factor");
+                        AmountACY := CurrExchRate.ExchangeAmtLCYToFCY(UseDate, GLSetup."Additional Reporting Currency", Round(AmountLCY, Currency."Amount Rounding Precision"), CurrencyFactor);
+                        VATAmountLine."Amount (ACY)" += Round(AmountACY, AddCurrency."Amount Rounding Precision");
+                    end;
+                    VATAmountLine.Modify();
+
                     TotalVATAmount += PurchLine."Amount Including VAT" - PurchLine.Amount;
                     TotalVATAmountACY += PurchLine."Amount Including VAT (ACY)" - PurchLine."Amount (ACY)";
                     OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, PurchHeader, PurchLine, Currency, QtyType, TotalVATAmount);
@@ -7048,6 +7030,19 @@ table 39 "Purchase Line"
                                         (1 - PurchHeader."VAT Base Discount %" / 100),
                                         Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" + VATAmountLine."VAT Amount";
+                                    VATAmountLine."VAT Base (ACY)" :=
+                                          Round(
+                                            (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount") / (1 + VATAmountLine."VAT %" / 100),
+                                            Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference (ACY)";
+                                    VATAmountLine."VAT Amount (ACY)" :=
+                                      VATAmountLine."VAT Difference (ACY)" +
+                                      Round(
+                                        PrevVatAmountLine."VAT Amount (ACY)" +
+                                        (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base (ACY)" - VATAmountLine."VAT Difference (ACY)") *
+                                        (1 - PurchHeader."VAT Base Discount %" / 100),
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    VATAmountLine."Amount Including VAT (ACY)" := VATAmountLine."VAT Base (ACY)" + VATAmountLine."VAT Amount (ACY)";
+
                                 end;
                                 if VATAmountLine.Positive then
                                     PrevVatAmountLine.Init()
@@ -8002,6 +7997,7 @@ table 39 "Purchase Line"
                 "Qty. to Receive (Base)" := 0;
             end;
         end;
+        OnAfterClearQtyIfBlank(Rec, xRec, PurchSetup);
     end;
 
     procedure ShowLineComments()
@@ -10424,7 +10420,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelectMultipleItems(var PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeSelectMultipleItems(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -11272,7 +11268,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line")
+    local procedure OnValidateLocationCodeOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -11691,6 +11687,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDimensionsFromJobTask(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearQtyIfBlank(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; PurchasePayablesSetup: Record "Purchases & Payables Setup")
     begin
     end;
 }

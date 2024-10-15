@@ -268,7 +268,7 @@ codeunit 311 "Item-Check Avail."
         if IsHandled then
             exit(Result);
 
-        exit(InitialQtyAvailable + ItemNetChange - OldItemNetResChange < 0);
+        exit(InitialQtyAvailable + ItemNetChange < 0);
     end;
 
     local procedure SetFilterOnItem(var Item: Record Item; ItemNo: Code[20]; ItemVariantCode: Code[10]; ItemLocationCode: Code[10]; ShipmentDate: Date)
@@ -333,7 +333,7 @@ codeunit 311 "Item-Check Avail."
         AvailableToPromise.CalcQtyAvailabletoPromise(
           Item, GrossReq, SchedRcpt, Item.GetRangeMax("Date Filter"),
           CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
-        InventoryQty := ConvertQty(AvailableToPromise.CalcAvailableInventory(Item));
+        InventoryQty := ConvertQty(AvailableToPromise.CalcAvailableInventory(Item) - OldItemNetResChange);
         GrossReq := ConvertQty(GrossReq);
         ReservedReq := ConvertQty(AvailableToPromise.CalcReservedRequirement(Item) + OldItemNetResChange);
         SchedRcpt := ConvertQty(SchedRcpt);
@@ -511,7 +511,7 @@ codeunit 311 "Item-Check Avail."
     procedure AsmOrderLineShowWarning(AssemblyLine: Record "Assembly Line") IsWarning: Boolean
     var
         OldAssemblyLine: Record "Assembly Line";
-        IsHandled: Boolean;
+        ShouldCheckQty, IsHandled : Boolean;
     begin
         if not ShowWarningForThisItem(AssemblyLine."No.") then
             exit(false);
@@ -522,14 +522,17 @@ codeunit 311 "Item-Check Avail."
 
         OldAssemblyLine := AssemblyLine;
 
-        if OldAssemblyLine.Find() then // Find previous quantity
-            if (OldAssemblyLine."Document Type" = OldAssemblyLine."Document Type"::Order) and
+        if OldAssemblyLine.Find() then begin // Find previous quantity
+            ShouldCheckQty :=
+               (OldAssemblyLine."Document Type" = OldAssemblyLine."Document Type"::Order) and
                (OldAssemblyLine.Type = OldAssemblyLine.Type::Item) and
                (OldAssemblyLine."No." = AssemblyLine."No.") and
                (OldAssemblyLine."Variant Code" = AssemblyLine."Variant Code") and
                (OldAssemblyLine."Location Code" = AssemblyLine."Location Code") and
-               (OldAssemblyLine."Bin Code" = AssemblyLine."Bin Code")
-            then
+               (OldAssemblyLine."Bin Code" = AssemblyLine."Bin Code");
+            OnAsmOrderLineShowWarningOnAfterFindPreviousAssemblyOrderLineWithinPeriod(AssemblyLine, OldAssemblyLine, ShouldCheckQty, OldItemNetChange, OldItemNetResChange);
+
+            if ShouldCheckQty then
                 if OldAssemblyLine."Due Date" > AssemblyLine."Due Date" then
                     AvailableToPromise.SetChangedAsmLine(OldAssemblyLine)
                 else begin
@@ -537,6 +540,7 @@ codeunit 311 "Item-Check Avail."
                     OldAssemblyLine.CalcFields("Reserved Qty. (Base)");
                     OldItemNetResChange := -OldAssemblyLine."Reserved Qty. (Base)";
                 end;
+        end;
 
         UseOrderPromise := true;
         IsHandled := false;
@@ -951,6 +955,11 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesLineCheckOnAfterSalesLineShowWarning(var SalesLine: Record "Sales Line"; var Rollback: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAsmOrderLineShowWarningOnAfterFindPreviousAssemblyOrderLineWithinPeriod(AssemblyLine: Record "Assembly Line"; OldAssemblyLine: Record "Assembly Line"; var ShouldCheckQty: Boolean; var OldItemNetChange: Decimal; var OldItemNetResChange: Decimal);
     begin
     end;
 }

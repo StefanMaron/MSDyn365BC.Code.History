@@ -50,23 +50,24 @@ codeunit 1001 "Job Post-Line"
         IsHandled: Boolean;
     begin
         OnBeforeInsertPlLineFromLedgEntry(JobLedgEntry, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            if JobLedgEntry."Line Type" = JobLedgEntry."Line Type"::" " then
+                exit;
+            ClearAll();
+            JobPlanningLine."Job No." := JobLedgEntry."Job No.";
+            JobPlanningLine."Job Task No." := JobLedgEntry."Job Task No.";
+            JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+            JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+            if JobPlanningLine.FindLast() then;
+            JobPlanningLine."Line No." := JobPlanningLine."Line No." + 10000;
+            JobPlanningLine.Init();
+            JobPlanningLine.Reset();
+            Clear(JobTransferLine);
+            JobTransferLine.FromJobLedgEntryToPlanningLine(JobLedgEntry, JobPlanningLine);
+            PostPlanningLine(JobPlanningLine);
+        end;
 
-        if JobLedgEntry."Line Type" = JobLedgEntry."Line Type"::" " then
-            exit;
-        ClearAll();
-        JobPlanningLine."Job No." := JobLedgEntry."Job No.";
-        JobPlanningLine."Job Task No." := JobLedgEntry."Job Task No.";
-        JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
-        JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-        if JobPlanningLine.FindLast() then;
-        JobPlanningLine."Line No." := JobPlanningLine."Line No." + 10000;
-        JobPlanningLine.Init();
-        JobPlanningLine.Reset();
-        Clear(JobTransferLine);
-        JobTransferLine.FromJobLedgEntryToPlanningLine(JobLedgEntry, JobPlanningLine);
-        PostPlanningLine(JobPlanningLine);
+        OnAfterInsertPlLineFromLedgEntry(JobLedgEntry, JobPlanningLine);
     end;
 
     procedure PostPlanningLine(var JobPlanningLine: Record "Job Planning Line")
@@ -218,8 +219,11 @@ codeunit 1001 "Job Post-Line"
 
         OnAfterJobPlanningLineModify(JobPlanningLine);
 
-        if JobPlanningLine.Type <> JobPlanningLine.Type::Text then
-            PostJobOnSalesLine(JobPlanningLine, SalesHeader, SalesLine, "Job Journal Line Entry Type"::Sale);
+        IsHandled := false;
+        OnPostInvoiceContractLineOnBeforePostJobOnSalesLine(JobPlanningLine, JobPlanningLineInvoice, SalesHeader, SalesLine, IsHandled);
+        if not IsHandled then
+            if JobPlanningLine.Type <> JobPlanningLine.Type::Text then
+                PostJobOnSalesLine(JobPlanningLine, SalesHeader, SalesLine, "Job Journal Line Entry Type"::Sale);
 
         OnAfterPostInvoiceContractLine(SalesHeader, SalesLine);
     end;
@@ -815,6 +819,16 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvoiceContractLineOnBeforePostJobOnSalesLine(JobPlanningLine: Record "Job Planning Line"; JobPlanningLineInvoice: Record "Job Planning Line Invoice"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertPlLineFromLedgEntry(JobLedgerEntry: Record "Job Ledger Entry"; var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

@@ -501,8 +501,9 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 
     [NonDebuggable]
-    internal procedure GetEmbedAccessToken() AccessToken: Text
+    procedure InitializeAddinToken(PowerBIManagement: ControlAddIn PowerBIManagement)
     var
+        AccessToken: Text;
         HttpUtility: DotNet HttpUtility;
     begin
         AccessToken := HttpUtility.JavaScriptStringEncode(
@@ -513,6 +514,8 @@ codeunit 6301 "Power BI Service Mgt."
             Session.LogMessage('0000KQL', EmptyAccessTokenTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
             Error(FailedAuthErr);
         end;
+
+        PowerBIManagement.SetToken(AccessToken);
     end;
 
     internal procedure CreateServiceProvider(var PowerBIServiceProvider: Interface "Power BI Service Provider")

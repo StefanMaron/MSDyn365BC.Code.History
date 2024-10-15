@@ -100,11 +100,11 @@ page 576 "VAT Specification Subform"
                         if GLSetup."Additional Reporting Currency" <> '' then
                             AddCurrency.Get(GLSetup."Additional Reporting Currency");
                         if PurchHeader1."Posting Date" <> 0D then begin
-                            if (PurchHeader1."Vendor Exchange Rate (ACY)" <> 0) and (PurchHeader1."Currency Code" = '') then begin
+                            if (PurchHeader1."Vendor Exchange Rate (ACY)" <> 0) and (PurchHeader1."Currency Code" = '') then
                                 CurrencyFactor :=
                                   CurrExchRate.ExchangeRateFactorFRS21(
                                     PurchHeader1."Posting Date", GLSetup."Additional Reporting Currency", PurchHeader1."Vendor Exchange Rate (ACY)")
-                            end else
+                            else
                                 CurrencyFactor :=
                                   CurrExchRate.ExchangeRate(
                                     PurchHeader1."Posting Date", GLSetup."Additional Reporting Currency");
@@ -117,6 +117,7 @@ page 576 "VAT Specification Subform"
                                       PurchHeader1."Posting Date", PurchHeader1."Currency Code", Rec."VAT Amount",
                                       PurchHeader1."Currency Factor"), AddCurrency."Amount Rounding Precision"), CurrencyFactor),
                                 AddCurrency."Amount Rounding Precision");
+                            Rec."VAT Difference (ACY)" := Rec."VAT Amount (ACY)" - Rec."Calculated VAT Amount (ACY)";
                         end;
 
                         if PricesIncludingVAT then begin
@@ -362,6 +363,7 @@ page 576 "VAT Specification Subform"
         VATAmountLine2: Record "VAT Amount Line";
         TotalVATDifference: Decimal;
         TotalVATDifferenceACY: Decimal;
+        Factor: Decimal;
     begin
         Rec.CheckVATDifference(CurrencyCode, AllowVATDifference);
         VATAmountLine2 := Rec;
@@ -378,10 +380,13 @@ page 576 "VAT Specification Subform"
               Text001, Rec.FieldCaption("VAT Difference"),
               Currency."Max. VAT Difference Allowed", Currency.FieldCaption("Max. VAT Difference Allowed"));
 
-        if TotalVATDifferenceACY > (Currency."Max. VAT Difference Allowed" * PurchHeader1."Vendor Exchange Rate (ACY)") then
+        Factor := PurchHeader1."Vendor Exchange Rate (ACY)";
+        if Factor = 0 then
+            Factor := 1;
+        if TotalVATDifferenceACY > (Currency."Max. VAT Difference Allowed" * Factor) then
             Error(
               Text001, Rec.FieldCaption("VAT Difference (ACY)"),
-              Currency."Max. VAT Difference Allowed" * PurchHeader1."Vendor Exchange Rate (ACY)",
+              Currency."Max. VAT Difference Allowed" * Factor,
               Currency.FieldCaption("Max. VAT Difference Allowed"));
     end;
 

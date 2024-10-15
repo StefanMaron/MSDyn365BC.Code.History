@@ -676,6 +676,7 @@ codeunit 7312 "Create Pick"
         IsSetCurrentKeyHandled: Boolean;
         IsHandled: Boolean;
         EndLoop: Boolean;
+        SkipUpdateQuantitiesToPick: Boolean;
     begin
         IsSetCurrentKeyHandled := false;
         OnBeforeFindBWPickBin(FromBinContent, IsSetCurrentKeyHandled);
@@ -740,11 +741,16 @@ codeunit 7312 "Create Pick"
                             if WhseItemTrackingSetup."Serial No. Required" then
                                 QtyAvailableBase := 1;
 
-                        UpdateQuantitiesToPick(
-                            QtyAvailableBase,
-                            QtyPerUnitofMeasure, QtytoPick, QtyToPickBase,
+                        SkipUpdateQuantitiesToPick := false;
+                        OnFindBWPickBinOnBeforeUpdateQuantitiesToPick(SkipUpdateQuantitiesToPick, FromBinContent, QtyAvailableBase,
                             QtyPerUnitofMeasure, QtytoPick, QtyToPickBase,
                             TotalQtyToPick, TotalQtyToPickBase);
+                        if not SkipUpdateQuantitiesToPick then
+                            UpdateQuantitiesToPick(
+                                QtyAvailableBase,
+                                QtyPerUnitofMeasure, QtytoPick, QtyToPickBase,
+                                QtyPerUnitofMeasure, QtytoPick, QtyToPickBase,
+                                TotalQtyToPick, TotalQtyToPickBase);
 
                         CreateTempActivityLine(
                             LocationCode, FromBinContent."Bin Code", UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtyToPickBase, 1, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
@@ -4677,6 +4683,11 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewWhseDocOnAfterCheckCreateNewWhseActivHeader(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var CreateNewWhseActivHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBWPickBinOnBeforeUpdateQuantitiesToPick(var SkipUpdateQuantitiesToPick: Boolean; FromBinContent: Record "Bin Content"; QtyAvailableBase: Decimal; QtyPerUnitofMeasure: Decimal; var QtyToPick: Decimal; var QtyToPickBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal)
     begin
     end;
 }

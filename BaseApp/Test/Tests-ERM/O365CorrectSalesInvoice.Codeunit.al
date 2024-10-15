@@ -30,7 +30,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
         EntriesSuccessfullyUnappliedMsg: Label 'The entries were successfully unapplied.';
         ShippedQtyReturnedCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         ShippedQtyReturnedCancelErr: Label 'You cannot cancel this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
-        AmountSalesInvErr: Label 'Amount must have a value in Sales Invoice Header';
         CorrectPostedInvoiceFromSingleOrderQst: Label 'The invoice was posted from an order. The invoice will be cancelled, and the order will open so that you can make the correction.\ \Do you want to continue?';
         CorrectPostedInvoiceFromDeletedOrderQst: Label 'The invoice was posted from an order. The order has been deleted, and the invoice will be cancelled. You can create a new invoice or order by using the Copy Document action.\ \Do you want to continue?';
         CorrectPostedInvoiceFromMultipleOrderQst: Label 'The invoice was posted from multiple orders. It will now be cancelled, and you can make a correction manually in the original orders.\ \Do you want to continue?';
@@ -1435,13 +1434,11 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // [SCENARIO 352180] Posted Sales Invoice with zero amount line cannot be corrected
         Initialize();
 
-        // [GIVEN] Posted Sales Invoice with 1 line and Unit Price/Line Amount = 0
+        // [WHEN] Posted Sales Invoice with 1 line and Unit Price/Line Amount = 0
         CreateAndPostSalesInvForNewItemAndCust(Item, Customer, 0, 1, SalesInvoiceHeader);
 
-        // [WHEN] Invoice is corrected
-        // [THEN] Error message 'Amount must have a value in Sales Invoice Header' appears
-        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, FALSE);
-        Assert.ExpectedError(AmountSalesInvErr);
+        // [THEN] Invoice is corrected
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, FALSE);
     end;
 
     [Test]

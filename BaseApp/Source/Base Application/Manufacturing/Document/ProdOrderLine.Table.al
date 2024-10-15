@@ -1187,6 +1187,8 @@ table 5406 "Prod. Order Line"
           DimMgt.EditDimensionSet(
             Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', Status, "Prod. Order No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnShowDimensionsOnAfterEditDimensionSet(Rec, OldDimSetID);
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify();
             if ProdOrderCompExist() then
@@ -1770,6 +1772,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateEndingTimeOnBeforeRecalculate(var ProdOrderLine: Record "Prod. Order Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDimensionsOnAfterEditDimensionSet(var ProdOrderLine: Record "Prod. Order Line"; OldDimSetID: Integer)
     begin
     end;
 }

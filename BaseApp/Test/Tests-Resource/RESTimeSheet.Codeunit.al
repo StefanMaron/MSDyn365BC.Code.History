@@ -338,6 +338,49 @@ codeunit 136504 "RES Time Sheet"
     end;
 
     [Test]
+    [HandlerFunctions('JobJournalLineHandler,JobJournalTemplateListHandler')]
+    [Scope('OnPrem')]
+    procedure MenuSuggestlLinesFromTimeSheetOnJobJournalWhereDocumentNoEqualJobNo()
+    var
+        JobTask: Record "Job Task";
+        JobJournalTemplate: Record "Job Journal Template";
+        JobsSetup: Record "Jobs Setup";
+        JobJournal: TestPage "Job Journal";
+        JobsSetupUpdated: Boolean;
+    begin
+        // Check that Suggest Lines from Time Sheets include copying Job No. to Document No. on Job Journal Line.
+        Initialize();
+
+        //[GIVEN] Update Jobs Setup.
+        JobsSetup.Get();
+        if not JobsSetup."Document No. Is Job No." then begin
+            JobsSetup."Document No. Is Job No." := true;
+            JobsSetup.Modify(true);
+            JobsSetupUpdated := true;
+        end;
+
+        //[GIVEN] Create Time Sheet and Job Task.
+        LibraryJob.CreateJobJournalTemplate(JobJournalTemplate);
+        CreateJobAndJobTask(JobTask);
+        TimeSheetNo := CreateJobTimeSheet(JobTask."Job No.", JobTask."Job Task No.");
+        Commit();
+
+        //[WHEN]Run Suggest Lines from Time Sheets.
+        JobJournal.OpenEdit();
+        JobJournal.SuggestLinesFromTimeSheets.Invoke();
+
+        //[THEN] Job Journal Line has Document No. equal to Job No.
+        JobJournal.Last();
+        Assert.AreEqual(JobJournal."Job No.".Value, JobTask."Job No.", 'Job Jnl Line is not created');
+        Assert.AreEqual(JobJournal."Job No.".Value, JobJournal."Document No.".Value, 'Document No. is not equal to Job No.');
+
+        if JobsSetupUpdated then begin
+            JobsSetup."Document No. Is Job No." := false;
+            JobsSetup.Modify(true);
+        end;
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ResourceSetupValidate()
     var
