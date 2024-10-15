@@ -11,7 +11,7 @@ page 185 "Posted General Journal Batch"
         {
             repeater(Control1)
             {
-                field("Journal Template Name"; "Journal Template Name")
+                field("Journal Template Name"; Rec."Journal Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the journal template.';
@@ -26,12 +26,12 @@ page 185 "Posted General Journal Batch"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a brief description of the journal batch.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to.';
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to.';

@@ -56,9 +56,9 @@ table 306 "Fin. Charge Comment Line"
     begin
         FinChrgCommentLine.SetRange(Type, Type);
         FinChrgCommentLine.SetRange("No.", "No.");
-        FinChrgCommentLine.SetRange(Date, WorkDate);
+        FinChrgCommentLine.SetRange(Date, WorkDate());
         if not FinChrgCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, FinChrgCommentLine);
     end;

@@ -80,20 +80,20 @@ table 914 "Posted Assemble-to-Order Link"
 
     procedure AsmExistsForPostedShipmentLine(SalesShipmentLine: Record "Sales Shipment Line"): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Document Type", "Document No.", "Document Line No.");
         SetRange("Document Type", "Document Type"::"Sales Shipment");
         SetRange("Document No.", SalesShipmentLine."Document No.");
         SetRange("Document Line No.", SalesShipmentLine."Line No.");
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     procedure DeleteAsmFromSalesShptLine(SalesShptLine: Record "Sales Shipment Line")
     begin
         if AsmExistsForPostedShipmentLine(SalesShptLine) then begin
-            Delete;
+            Delete();
 
-            if GetPostedAsmHeader then begin
+            if GetPostedAsmHeader() then begin
                 PostedAsmHeader.Delete(true);
                 PostedAsmHeader.Init();
             end;
@@ -103,7 +103,7 @@ table 914 "Posted Assemble-to-Order Link"
     procedure ShowPostedAsm(SalesShptLine: Record "Sales Shipment Line")
     begin
         if AsmExistsForPostedShipmentLine(SalesShptLine) then begin
-            GetPostedAsmHeader;
+            GetPostedAsmHeader();
             PAGE.RunModal(PAGE::"Posted Assembly Order", PostedAsmHeader);
         end;
     end;
@@ -151,7 +151,7 @@ table 914 "Posted Assemble-to-Order Link"
             else
                 SalesLine.FieldError("Document Type");
         end;
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2348 "BC O365 Payment Services"
 {
     Caption = ' ';
@@ -5,6 +6,9 @@ page 2348 "BC O365 Payment Services"
     PageType = CardPart;
     RefreshOnActivate = true;
     ShowFilter = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -21,19 +25,19 @@ page 2348 "BC O365 Payment Services"
                 Visible = ShowChoice;
                 field(MsPayOrPaypalOption; MsPayOrPaypalOption)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment Service';
 
                     trigger OnValidate()
                     begin
                         if MsPayOrPaypalOption = MsPayOrPaypalOption::"Microsoft Pay Payments" then begin
-                            O365SalesInvoicePayment.SetMspayDefault;
+                            O365SalesInvoicePayment.SetMspayDefault();
                             if Confirm(RemovePaypalSettingsQst) then
                                 PaypalAccountProxy.SetPaypalAccount('', true);
                         end else
-                            O365SalesInvoicePayment.SetPaypalDefault;
+                            O365SalesInvoicePayment.SetPaypalDefault();
 
-                        UpdateControls;
+                        UpdateControls();
                         CurrPage.Update();
                     end;
                 }
@@ -61,7 +65,7 @@ page 2348 "BC O365 Payment Services"
 
     trigger OnInit()
     begin
-        UpdateControls;
+        UpdateControls();
     end;
 
     var
@@ -95,4 +99,4 @@ page 2348 "BC O365 Payment Services"
         ShowChoice := NumberOfPaymentServiceSetups > 1;
     end;
 }
-
+#endif

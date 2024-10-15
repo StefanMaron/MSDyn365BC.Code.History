@@ -38,22 +38,22 @@ page 121 "G/L Budget Names"
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Budget Dimension 1 Code"; "Budget Dimension 1 Code")
+                field("Budget Dimension 1 Code"; Rec."Budget Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a code for a budget dimension. You can specify four additional dimensions on each budget that you create.';
                 }
-                field("Budget Dimension 2 Code"; "Budget Dimension 2 Code")
+                field("Budget Dimension 2 Code"; Rec."Budget Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a code for a budget dimension. You can specify four additional dimensions on each budget that you create.';
                 }
-                field("Budget Dimension 3 Code"; "Budget Dimension 3 Code")
+                field("Budget Dimension 3 Code"; Rec."Budget Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a code for a budget dimension. You can specify four additional dimensions on each budget that you create.';
                 }
-                field("Budget Dimension 4 Code"; "Budget Dimension 4 Code")
+                field("Budget Dimension 4 Code"; Rec."Budget Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a code for a budget dimension. You can specify four additional dimensions on each budget that you create.';
@@ -89,10 +89,6 @@ page 121 "G/L Budget Names"
                 ApplicationArea = Suite;
                 Caption = 'Edit Budget';
                 Image = EditLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Specify budgets that you can create in the general ledger application area. If you need several different budgets, you can create several budget names.';
 
@@ -113,10 +109,6 @@ page 121 "G/L Budget Names"
                     ApplicationArea = Suite;
                     Caption = 'Trial Balance/Budget';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'View budget details for the specified period.';
 
                     trigger OnAction()
@@ -124,6 +116,25 @@ page 121 "G/L Budget Names"
                         REPORT.Run(REPORT::"Trial Balance/Budget");
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(EditBudget_Promoted; EditBudget)
+                {
+                }
+                actionref(ReportTrialBalance_Promoted; ReportTrialBalance)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
             }
         }
     }

@@ -23,7 +23,7 @@ codeunit 347 "Amount Auto Format"
     local procedure ResolveAutoFormatTranslateCase1(AutoFormatType: Enum "Auto Format"; AutoFormatExpr: Text[80]; var Result: Text[80]; var Resolved: Boolean)
     begin
         // Amount
-        if not Resolved and GetGLSetup then
+        if not Resolved and GetGLSetup() then
             if AutoFormatType = EnumType::AmountFormat then begin
                 Result := GetAmountPrecisionFormat(AutoFormatExpr);
                 Resolved := true;
@@ -34,7 +34,7 @@ codeunit 347 "Amount Auto Format"
     local procedure ResolveAutoFormatTranslateCase2(AutoFormatType: Enum "Auto Format"; AutoFormatExpr: Text[80]; var Result: Text[80]; var Resolved: Boolean)
     begin
         // Unit Amount
-        if not Resolved and GetGLSetup then
+        if not Resolved and GetGLSetup() then
             if AutoFormatType = EnumType::UnitAmountFormat then begin
                 Result := GetUnitAmountPrecisionFormat(AutoFormatExpr);
                 Resolved := true;
@@ -45,7 +45,7 @@ codeunit 347 "Amount Auto Format"
     local procedure ResolveAutoFormatTranslateCase10(AutoFormatType: Enum "Auto Format"; AutoFormatExpr: Text[80]; var Result: Text[80]; var Resolved: Boolean)
     begin
         // Custom or AutoFormatExpr = '1[,<curr>[,<PrefixedText>]]' or '2[,<curr>[,<PrefixedText>]]'
-        if not Resolved and GetGLSetup then
+        if not Resolved and GetGLSetup() then
             if AutoFormatType = EnumType::CurrencySymbolFormat then begin
                 Result := GetCustomFormat(AutoFormatExpr);
                 Resolved := true;
@@ -124,19 +124,19 @@ codeunit 347 "Amount Auto Format"
     local procedure GetCustomAmountFormat(AutoFormatCurrencyCode: Text[80]; AutoFormatPrefixedText: Text[80]): Text[80]
     begin
         if AutoFormatCurrencyCode = '' then
-            exit(StrSubstNo(CurrFormatTxt, GLSetup."Amount Decimal Places", GLSetup.GetCurrencySymbol, AutoFormatPrefixedText));
+            exit(StrSubstNo(CurrFormatTxt, GLSetup."Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText));
         if GetCurrencyAndAmount(AutoFormatCurrencyCode) then
-            exit(StrSubstNo(CurrFormatTxt, Currency."Amount Decimal Places", Currency.GetCurrencySymbol, AutoFormatPrefixedText));
-        exit(StrSubstNo(CurrFormatTxt, GLSetup."Amount Decimal Places", GLSetup.GetCurrencySymbol, AutoFormatPrefixedText));
+            exit(StrSubstNo(CurrFormatTxt, Currency."Amount Decimal Places", Currency.GetCurrencySymbol(), AutoFormatPrefixedText));
+        exit(StrSubstNo(CurrFormatTxt, GLSetup."Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText));
     end;
 
     local procedure GetCustomUnitAmountFormat(AutoFormatCurrencyCode: Text[80]; AutoFormatPrefixedText: Text[80]): Text[80]
     begin
         if AutoFormatCurrencyCode = '' then
-            exit(StrSubstNo(CurrFormatTxt, GLSetup."Unit-Amount Decimal Places", GLSetup.GetCurrencySymbol, AutoFormatPrefixedText));
+            exit(StrSubstNo(CurrFormatTxt, GLSetup."Unit-Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText));
         if GetCurrencyAndUnitAmount(AutoFormatCurrencyCode) then
-            exit(StrSubstNo(CurrFormatTxt, Currency."Unit-Amount Decimal Places", Currency.GetCurrencySymbol, AutoFormatPrefixedText));
-        exit(StrSubstNo(CurrFormatTxt, GLSetup."Unit-Amount Decimal Places", GLSetup.GetCurrencySymbol, AutoFormatPrefixedText));
+            exit(StrSubstNo(CurrFormatTxt, Currency."Unit-Amount Decimal Places", Currency.GetCurrencySymbol(), AutoFormatPrefixedText));
+        exit(StrSubstNo(CurrFormatTxt, GLSetup."Unit-Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText));
     end;
 
     local procedure GetCurrency(CurrencyCode: Code[10]): Boolean
@@ -145,7 +145,7 @@ codeunit 347 "Amount Auto Format"
             exit(true);
         if CurrencyCode = '' then begin
             CLEAR(Currency);
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
             exit(true);
         end;
         exit(Currency.GET(CurrencyCode));

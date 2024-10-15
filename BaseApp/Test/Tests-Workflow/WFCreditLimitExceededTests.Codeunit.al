@@ -101,7 +101,7 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.SalesLines.GotoRecord(SalesLine);
         SalesInvoice.SalesLines."Unit Price".SetValue(LineAmount);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // Verify
         Assert.IsFalse(WorkflowStepInstanceArchive.IsEmpty, 'No workflow was archived');

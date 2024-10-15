@@ -101,7 +101,7 @@ codeunit 143009 "Library - Remittance"
         repeat
             TempGenJournalLine.TransferFields(WaitingJournal);
             TempGenJournalLine.Insert();
-        until WaitingJournal.Next = 0;
+        until WaitingJournal.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -232,7 +232,7 @@ codeunit 143009 "Library - Remittance"
             SetRange("Agreement Code", AgreementCode);
             DeleteAll(true);
 
-            Init;
+            Init();
             Validate("Agreement Code", AgreementCode);
             Validate("Line No.", 10000);
             Validate("Return File Name", CopyStr(FilePath, 1, MaxStrLen("Return File Name")));

@@ -265,8 +265,8 @@ codeunit 131305 "Library - ERM Country Data"
                     GenPostingSetup.Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
                     GenPostingSetup.Modify(true);
                 end;
-            until GenProdPostingGroup.Next = 0;
-        until GenBusPostingGroup.Next = 0;
+            until GenProdPostingGroup.Next() = 0;
+        until GenBusPostingGroup.Next() = 0;
     end;
 
     local procedure PrepareNormalGenPostingSetup(var GenPostingSetup: Record "General Posting Setup")
@@ -319,8 +319,8 @@ codeunit 131305 "Library - ERM Country Data"
             VATProdPostingGroup.FindSet();
             repeat
                 CreateVATPostingSetup(VATBusPostingGroup.Code, VATProdPostingGroup.Code);
-            until VATProdPostingGroup.Next = 0;
-        until VATBusPostingGroup.Next = 0
+            until VATProdPostingGroup.Next() = 0;
+        until VATBusPostingGroup.Next() = 0
     end;
 
     local procedure CreateVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])

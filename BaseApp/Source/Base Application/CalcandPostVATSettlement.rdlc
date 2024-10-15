@@ -94,7 +94,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PostingDateCaption.Value</Value>
+                                  <Value>=Fields!DateCaption.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -748,14 +748,14 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="VATEntryPostingDate">
+                        <Textbox Name="VATEntryVATDate">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PostingDate_VATEntry.Value</Value>
+                                  <Value>=Fields!VATDate_VATEntry.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -1101,14 +1101,14 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="VATEntryPostingDateControl65">
+                        <Textbox Name="VATEntryVATDateControl65">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PostingDate_VATEntry.Value</Value>
+                                  <Value>=Fields!VATDate_VATEntry.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
@@ -2209,7 +2209,7 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="PostingDateControl28">
+                        <Textbox Name="VATDateControl28">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2227,7 +2227,7 @@
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>PostingDateControl28</rd:DefaultName>
+                          <rd:DefaultName>VATDateControl28</rd:DefaultName>
                           <ZIndex>43</ZIndex>
                           <Style>
                             <VerticalAlign>Middle</VerticalAlign>
@@ -3798,13 +3798,13 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="PostingDateCaption">
+          <Textbox Name="DateCaption">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=Fields!PostingDateCaption.Value</Value>
+                    <Value>=Fields!DateCaption.Value</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
                     </Style>
@@ -4132,8 +4132,8 @@ End Function
         <Field Name="EntryNoCaption">
           <DataField>EntryNoCaption</DataField>
         </Field>
-        <Field Name="PostingDateCaption">
-          <DataField>PostingDateCaption</DataField>
+        <Field Name="DateCaption">
+          <DataField>DateCaption</DataField>
         </Field>
         <Field Name="VATBusPstGr_VATPostSetup">
           <DataField>VATBusPstGr_VATPostSetup</DataField>
@@ -4150,8 +4150,8 @@ End Function
         <Field Name="VATEntryGetFilterUseTax">
           <DataField>VATEntryGetFilterUseTax</DataField>
         </Field>
-        <Field Name="PostingDate_VATEntry">
-          <DataField>PostingDate_VATEntry</DataField>
+        <Field Name="VATDate_VATEntry">
+          <DataField>VATDate_VATEntry</DataField>
         </Field>
         <Field Name="DocumentNo_VATEntry">
           <DataField>DocumentNo_VATEntry</DataField>

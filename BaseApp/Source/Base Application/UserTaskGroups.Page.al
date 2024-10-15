@@ -37,13 +37,21 @@ page 1177 "User Task Groups"
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Task Group Members';
                 Image = Users;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "User Task Group Members";
                 RunPageLink = "User Task Group Code" = FIELD(Code);
                 Scope = Repeater;
                 ToolTip = 'View or edit the members of the user task group.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(UserTaskGroupMembers_Promoted; UserTaskGroupMembers)
+                {
+                }
             }
         }
     }

@@ -12,12 +12,12 @@ page 9070 "Accounting Services Activities"
             cuegroup(Documents)
             {
                 Caption = 'Documents';
-                field("My Incoming Documents"; "My Incoming Documents")
+                field("My Incoming Documents"; Rec."My Incoming Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies incoming documents that are assigned to you.';
                 }
-                field("Ongoing Sales Invoices"; "Ongoing Sales Invoices")
+                field("Ongoing Sales Invoices"; Rec."Ongoing Sales Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Invoice List";
@@ -56,7 +56,7 @@ page 9070 "Accounting Services Activities"
             cuegroup(Approvals)
             {
                 Caption = 'Approvals';
-                field("Requests to Approve"; "Requests to Approve")
+                field("Requests to Approve"; Rec."Requests to Approve")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies requests for certain accounting activities that you must approve for other users before they can proceed.';
@@ -65,7 +65,7 @@ page 9070 "Accounting Services Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
+                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
@@ -76,7 +76,7 @@ page 9070 "Accounting Services Activities"
                     var
                         UserTaskList: Page "User Task List";
                     begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
+                        UserTaskList.SetPageToShowMyPendingUserTasks();
                         UserTaskList.Run();
                     end;
                 }
@@ -90,10 +90,10 @@ page 9070 "Accounting Services Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
 
         SetRange("User ID Filter", UserId);

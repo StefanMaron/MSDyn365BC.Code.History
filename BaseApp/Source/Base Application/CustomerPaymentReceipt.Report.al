@@ -134,7 +134,7 @@ report 211 "Customer - Payment Receipt"
                 column(CompanyInfoHomePageCptn; CompanyInfoHomePageCptnLbl)
                 {
                 }
-                column(EnterpriseRegister; CompanyInfo.GetEnterpriseClassification)
+                column(EnterpriseRegister; CompanyInfo.GetEnterpriseClassification())
                 {
                 }
                 dataitem(DetailedCustLedgEntry1; "Detailed Cust. Ledg. Entry")
@@ -303,7 +303,7 @@ report 211 "Customer - Payment Receipt"
                 FormatAddr.Customer(CustAddr, Cust);
 
                 if not Currency.Get("Currency Code") then
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
 
                 if "Document Type" = "Document Type"::Payment then begin
                     ReportTitle := Text003;
@@ -343,7 +343,6 @@ report 211 "Customer - Payment Receipt"
     }
 
     var
-        CompanyInfo: Record "Company Information";
         GLSetup: Record "General Ledger Setup";
         Cust: Record Customer;
         Currency: Record Currency;
@@ -379,6 +378,9 @@ report 211 "Customer - Payment Receipt"
         PaymAmtNotAllocatedCptnLbl: Label 'Payment Amount Not Allocated';
         CustLedgEntryOrgAmtCptnLbl: Label 'Payment Amount';
         ExternalDocumentNoCaptionLbl: Label 'External Document No.';
+
+    protected var
+        CompanyInfo: Record "Company Information";
 
     local procedure CurrencyCode(SrcCurrCode: Code[10]): Code[10]
     begin

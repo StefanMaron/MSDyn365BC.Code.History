@@ -222,242 +222,6 @@ codeunit 134986 "ERM Financial Reports II"
         UpdateCustomerPostingGroup(GenJournalLine."Account No.", SavedAddFeeAccountNo);
     end;
 
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('RHReminderNos')]
-    [Scope('OnPrem')]
-    procedure ReminderNos()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        ReminderNo: Code[20];
-        IssuedReminderNo: Code[20];
-    begin
-        // Check Reminder Nos. Report.
-
-        // Setup: Make Invoice Entry for Customer with Random Amount. Create and Issue Reminder for the posted entry.
-        Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
-        IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderNo);
-
-        // Exercise.
-        RunReportReminderNos(IssuedReminderNo, IssuedReminderNo);
-
-        // Verify.
-        VerifyReminderNos(IssuedReminderNo);
-    end;
-#endif
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('RHReminderNos')]
-    [Scope('OnPrem')]
-    procedure ReminderNosPostingDateWarning()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        ReminderNo: Code[20];
-        IssuedReminderNo: Code[20];
-        IssuedReminderNo2: Code[20];
-    begin
-        // Check Posting Date Warning on Reminder Nos. Report.
-
-        // Setup: Make Invoice Entry for Customer. Post another Entry on earlier Posting Date for Customer. Take Random Date and Amount.
-        Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
-        IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderNo);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Document Type",
-          GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.", GenJournalLine.Amount);
-        GenJournalLine.Validate("Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
-        IssuedReminderNo2 := IssueReminderAndGetIssuedNo(ReminderNo);
-
-        // Exercise.
-        RunReportReminderNos(IssuedReminderNo, IssuedReminderNo2);
-
-        // Verify: Verify Posting Date Warning on Report.
-        VerifyWarningOnReport(IssuedReminderNo2, 'Issued_Reminder_Header_No_', PostingDateWarningMsg);
-    end;
-#endif
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('RHReminderNos')]
-    [Scope('OnPrem')]
-    procedure ReminderNosNoSeriesWarning()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        ReminderNo: Code[20];
-    begin
-        // Check No. Series Warning on Reminder Nos. Report.
-
-        // Setup: Create Reminder with No No. Series for Customer. Take Random Invoice Amount.
-        Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
-        UpdateNoSeriesAndIssueReminder(ReminderNo);
-
-        // Exercise.
-        RunReportReminderNos(ReminderNo, ReminderNo);
-
-        // Verify: Verify No. Series Warning on Report.
-        VerifyWarningOnReport(ReminderNo, 'Issued_Reminder_Header_No_', NoSeriesWarningMsg);
-    end;
-#endif
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('RHReminderNos')]
-    [Scope('OnPrem')]
-    procedure ReminderNosNoSeriesGapWarning()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        ReminderNo: Code[20];
-        IssuedReminderNo: Code[20];
-    begin
-        // Check No. Series Gap Warning on Reminder Nos. Report.
-
-        // Setup: Create two Reminders with different Issuing No. Series. Take Random Invoice Amount.
-        Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
-        IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderNo);
-        CreateAndPostGenJournalLine(GenJournalLine, GenJournalLine."Account No.", LibraryRandom.RandDec(1000, 2));
-        ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
-        UpdateAndIssueReminder(ReminderNo);
-
-        // Exercise.
-        RunReportReminderNos(IssuedReminderNo, ReminderNo);
-
-        // Verify: Verify No. Series Gap Warning on Reminder Nos. Report.
-        VerifyWarningOnReport(IssuedReminderNo, 'Issued_Reminder_Header_No_', NoSeriesGapWarningMsg);
-    end;
-#endif
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('RHFinanceChargeMemoNos')]
-    [Scope('OnPrem')]
-    procedure FinChargeMemoNos()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        FinChargeMemoNo: Code[20];
-        IssuedFinChargeMemoNo: Code[20];
-    begin
-        // Check Finance Charge Memo Nos. Report.
-
-        // Setup: Create and Issue Finance Charge Memo. Take Random value for Invoice Amount.
-        Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
-        IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
-
-        // Exercise.
-        RunReportFinanceChargeMemoNos(IssuedFinChargeMemoNo, IssuedFinChargeMemoNo);
-
-        // Verify.
-        VerifyFinanceChargeMemoNos(IssuedFinChargeMemoNo);
-    end;
-#endif
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('RHFinanceChargeMemoNos')]
-    [Scope('OnPrem')]
-    procedure FinChargeMemoNosPostingDate()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        FinChargeMemoNo: Code[20];
-        IssuedFinChargeMemoNo: Code[20];
-        IssuedFinChargeMemoNo2: Code[20];
-    begin
-        // Check Posting Date Warning on Finance Charge Memo Nos. Report.
-
-        // Setup: Create and Issue two Finance Charge Memos on different Document Dates. Take last Document Date earlier than
-        // Previous Document Date using Random. Take Random value for Invoice Amount.
-        Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
-        IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Document Type",
-          GenJournalLine."Account Type"::Customer, CreateCustomer, GenJournalLine.Amount);
-        GenJournalLine.Validate("Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
-        IssuedFinChargeMemoNo2 := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
-
-        // Exercise.
-        RunReportFinanceChargeMemoNos(IssuedFinChargeMemoNo, IssuedFinChargeMemoNo2);
-
-        // Verify: Verify Posting Date Warning on Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', Format(PostingDateWarningMsg));
-    end;
-#endif
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('RHFinanceChargeMemoNos')]
-    [Scope('OnPrem')]
-    procedure FinChargeMemoNosNoSeries()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        FinChargeMemoNo: Code[20];
-        IssuedFinChargeMemoNo: Code[20];
-    begin
-        // Check No. Series Warning on Finance Charge Memo Nos. Report.
-
-        // Setup: Create and Issue Finance Charge Memo for a Customer with Blank No. Series. Use Random value for Invoice Amount.
-        Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
-        IssuedFinChargeMemoNo := UpdateNoSeriesInFinChargeMemo(FinChargeMemoNo);
-
-        // Exercise.
-        RunReportFinanceChargeMemoNos(IssuedFinChargeMemoNo, IssuedFinChargeMemoNo);
-
-        // Verify: Verify No. Series warning on Finance Charge Memo Nos. Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', Format(NoSeriesWarningMsg));
-    end;
-#endif
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('RHFinanceChargeMemoNos')]
-    [Scope('OnPrem')]
-    procedure FinChargeMemoNosNoSeriesGap()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        FinChargeMemoNo: Code[20];
-        IssuedFinChargeMemoNo: Code[20];
-    begin
-        // Check No. Series Gap Warning on Finance Charge Memo Nos. Report.
-
-        // Setup: Create and Issue Two Finance Charge Memo with different Issuing No. Series. Take Random value for Invoice Amount.
-        Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
-        IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
-
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
-        UpdateIssuingNoSeries(FinChargeMemoNo);
-
-        // Exercise:
-        RunReportFinanceChargeMemoNos(IssuedFinChargeMemoNo, FinChargeMemoNo);
-
-        // Verify: Verify No. Series Gap Warning on Finance Charge Memo Nos. Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', Format(NoSeriesGapWarningMsg));
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('RHFinanceChargeMemo')]
     [Scope('OnPrem')]
@@ -672,7 +436,7 @@ codeunit 134986 "ERM Financial Reports II"
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
 
         // Exercise: Save Report Receivables Payables.
-        RunReportReceivablesPayables(WorkDate, LibraryRandom.RandInt(5), PeriodLength);
+        RunReportReceivablesPayables(WorkDate(), LibraryRandom.RandInt(5), PeriodLength);
 
         // Verify: Verify Receivables Payables different Amounts.
         GeneralLedgerSetup.FindFirst();
@@ -682,7 +446,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset.AssertElementWithValueExists('VenBalancesDue_GLSetup', GeneralLedgerSetup."Vendor Balances Due");
         if not LibraryReportDataset.GetNextRow then
             Error(EmptyDatasetErr);
-        GeneralLedgerSetup.SetRange("Date Filter", 0D, WorkDate - 1);
+        GeneralLedgerSetup.SetRange("Date Filter", 0D, WorkDate() - 1);
         GeneralLedgerSetup.CalcFields("Cust. Balances Due", "Vendor Balances Due");
         LibraryReportDataset.AssertCurrentRowValueEquals('BeforeCustBalanceLCY', GeneralLedgerSetup."Cust. Balances Due");
         LibraryReportDataset.AssertCurrentRowValueEquals('BeforeVendorBalanceLCY', GeneralLedgerSetup."Vendor Balances Due");
@@ -778,14 +542,14 @@ codeunit 134986 "ERM Financial Reports II"
 
         // Setup.
         Initialize();
-        WorkDate := CalcDate('<+1Y>', WorkDate);
+        WorkDate := CalcDate('<+1Y>', WorkDate());
         PostGenLinesCustomPostingDate(GenJournalLine);
 
         // Exercise: Save Trial Balance Previous Year Report.
-        RunReportTrialBalancePreviousYear(GenJournalLine."Account No.", WorkDate);
+        RunReportTrialBalancePreviousYear(GenJournalLine."Account No.", WorkDate());
 
         // Below Customized Formula is required as per Report Requirement.
-        FindGLAccount(GLAccount, GenJournalLine."Account No.", WorkDate, WorkDate);
+        FindGLAccount(GLAccount, GenJournalLine."Account No.", WorkDate(), WorkDate());
         FiscalYearStartDate := GLAccount.GetRangeMin("Date Filter");
         FiscalYearEndDate := GLAccount.GetRangeMax("Date Filter");
         LastYearStartDate := CalcDate('<-1Y>', NormalDate(FiscalYearStartDate) + 1) - 1;
@@ -1077,10 +841,10 @@ codeunit 134986 "ERM Financial Reports II"
         CustomerNo := CreateCustomer;
 
         // [GIVEN] Posted invoice with "Posting Date" = WORKDATE + 2 Month
-        CreateAndPostGenJournalLineWithDate(GenJournalLine, CalcDate('<2M>', WorkDate), CustomerNo, LibraryRandom.RandDec(1000, 2));  // Using Random value for Amount.
+        CreateAndPostGenJournalLineWithDate(GenJournalLine, CalcDate('<2M>', WorkDate()), CustomerNo, LibraryRandom.RandDec(1000, 2));  // Using Random value for Amount.
 
         // [GIVEN] Posted invoice with "Posting Date" = WORKDATE
-        CreateAndPostGenJournalLineWithDate(GenJournalLine, WorkDate, CustomerNo, LibraryRandom.RandDec(1000, 2));  // Using Random value for Amount.
+        CreateAndPostGenJournalLineWithDate(GenJournalLine, WorkDate(), CustomerNo, LibraryRandom.RandDec(1000, 2));  // Using Random value for Amount.
 
         // [GIVEN] Issued reminder with WORKDATE
         ReminderNo := CreateReminderWithGivenCust(CustomerNo);
@@ -1178,7 +942,7 @@ codeunit 134986 "ERM Financial Reports II"
 
         // [THEN] Report Bank Acc. - Detail Trial Bal. show field Start Balance (LCY) amount
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.SetRange("Posting Date", WorkDate);
+        BankAccountLedgerEntry.SetRange("Posting Date", WorkDate());
         BankAccountLedgerEntry.CalcSums(Amount, "Amount (LCY)");
         LibraryReportValidation.OpenFile;
         LibraryReportValidation.VerifyCellValueByRef(
@@ -1291,11 +1055,11 @@ codeunit 134986 "ERM Financial Reports II"
         CreateAndPostGenJournalLineWithExtDocNo(GenJournalLine, BankAccountNo);
 
         // [WHEN] Run Bank Acc. - Detail Trial Balance report.
-        RunReportBankAccDetailTrialBal(BankAccountNo, WorkDate);
+        RunReportBankAccDetailTrialBal(BankAccountNo, WorkDate());
 
         // [THEN] Report Bank Acc. - Detail Trial Bal. show field External Document No.
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.SetRange("Posting Date", WorkDate);
+        BankAccountLedgerEntry.SetRange("Posting Date", WorkDate());
         BankAccountLedgerEntry.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile;
@@ -1359,8 +1123,8 @@ codeunit 134986 "ERM Financial Reports II"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, LibraryRandom.RandDecInRange(100, 200, 2),
           WorkDate);
         CreateInvoiceGenJnlLineWithAmount(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount, WorkDate);
-        GenJournalLine.SetRecFilter;
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount, WorkDate());
+        GenJournalLine.SetRecFilter();
         Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
@@ -1391,11 +1155,11 @@ codeunit 134986 "ERM Financial Reports II"
         // [GIVEN] "L1" and "L2" have same Posting Date
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID,
-          LibraryRandom.RandDecInRange(100, 200, 2), WorkDate);
+          LibraryRandom.RandDecInRange(100, 200, 2), WorkDate());
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID,
-          -GenJournalLine.Amount, WorkDate);
-        GenJournalLine.SetRecFilter;
+          -GenJournalLine.Amount, WorkDate());
+        GenJournalLine.SetRecFilter();
         Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
@@ -1433,8 +1197,8 @@ codeunit 134986 "ERM Financial Reports II"
           WorkDate);
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount,
-          LibraryRandom.RandDateFrom(WorkDate, 10));
-        GenJournalLine.SetRecFilter;
+          LibraryRandom.RandDateFrom(WorkDate(), 10));
+        GenJournalLine.SetRecFilter();
         Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
@@ -1471,14 +1235,14 @@ codeunit 134986 "ERM Financial Reports II"
         // [GIVEN] "L2" and "L3" have same Document Type, Document No and Posting Date, but "L1" has other Document No and Posting Date
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID,
-          ExpectedDifference, LibraryRandom.RandDateFrom(WorkDate, 10));
+          ExpectedDifference, LibraryRandom.RandDateFrom(WorkDate(), 10));
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, LibraryRandom.RandDecInRange(100, 200, 2),
           WorkDate);
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount,
           WorkDate);
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L3"
@@ -1516,7 +1280,7 @@ codeunit 134986 "ERM Financial Reports II"
 
         // [GIVEN] Gen. Journal Line "L2" with Bal. Account, Document No. = "X-01" and Amount = -1000.0
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(GenJournalLine, GenJournalBatch, DocNo, -GenJournalLine.Amount);
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
@@ -1553,7 +1317,7 @@ codeunit 134986 "ERM Financial Reports II"
 
         // [GIVEN] Gen. Journal Line "L2" with Bal. Account, Document No. = "X-01" and Amount = -1000.0
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(GenJournalLine, GenJournalBatch, DocNo, -GenJournalLine.Amount);
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
@@ -1629,7 +1393,7 @@ codeunit 134986 "ERM Financial Reports II"
         // [GIVEN] Gen. Journal Line with batch "B2"
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(
           GenJournalLine, GenJournalBatch, LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(1000, 2000, 2));
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         Commit();
 
         // [WHEN] Run report General Journal - Test
@@ -1656,7 +1420,7 @@ codeunit 134986 "ERM Financial Reports II"
         Initialize();
 
         // [GIVEN] Set GeneralLedgerSetup."Allow Posting From" = 01.01.2020
-        LibraryERM.SetAllowPostingFromTo(CalcDate('<2Y>', WorkDate), 0D);
+        LibraryERM.SetAllowPostingFromTo(CalcDate('<2Y>', WorkDate()), 0D);
 
         // [GIVEN] Gen. Journal Batch
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::"Cash Receipts");
@@ -1664,7 +1428,7 @@ codeunit 134986 "ERM Financial Reports II"
         // [GIVEN] Gen. Journal Line with Posting Date = 01.01.2018
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(
           GenJournalLine, GenJournalBatch, LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(1000, 2000, 2));
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         Commit();
 
         // [WHEN] Run report General Journal - Test
@@ -1728,7 +1492,7 @@ codeunit 134986 "ERM Financial Reports II"
 
         // [WHEN] Report Reminder is run.
         Commit();
-        IssuedRmdrHdr.SetRecFilter;
+        IssuedRmdrHdr.SetRecFilter();
         REPORT.Run(REPORT::Reminder, true, true, IssuedRmdrHdr);
 
         // [THEN] Total is equal to "A1" + "A2" + "A3".
@@ -1790,7 +1554,7 @@ codeunit 134986 "ERM Financial Reports II"
         Clear(LibraryReportValidation);
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         if OriginalWorkdate = 0D then
-            OriginalWorkdate := WorkDate;
+            OriginalWorkdate := WorkDate();
         WorkDate := OriginalWorkdate;
 
         if IsInitialized then
@@ -1965,7 +1729,7 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo,
           BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
     end;
 
@@ -2123,7 +1887,7 @@ codeunit 134986 "ERM Financial Reports II"
         // Calculate Document Date according to Reminder Level's Grace Period and add One day.
         exit(
           CreateReminder(
-            CustomerNo, CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", WorkDate))));
+            CustomerNo, CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", WorkDate()))));
     end;
 
     local procedure CreateReminderWithInterestAmount(var ReminderHeader: Record "Reminder Header"; VATCalculationType: Enum "Tax Calculation Type")
@@ -2223,7 +1987,7 @@ codeunit 134986 "ERM Financial Reports II"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
         with CurrencyExchangeRate do begin
             Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
             Validate("Adjustment Exch. Rate Amount", LibraryRandom.RandDec(10, 2));
@@ -2414,7 +2178,7 @@ codeunit 134986 "ERM Financial Reports II"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         FinanceChargeMemoHeader.Get(No);
-        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate, false);
+        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate(), false);
         IssueFinChargeMemo(FinanceChargeMemoHeader);
     end;
 
@@ -2440,7 +2204,7 @@ codeunit 134986 "ERM Financial Reports II"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         ReminderHeader.Get(ReminderNo);
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate, false);
+        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
         IssueReminder(ReminderHeader);
     end;
 
@@ -2563,7 +2327,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(1000, 2) * 1000);
-        GenJournalLine.Validate("Posting Date", CalcDate('<-1Y>', WorkDate));  // Take Previous Year Date.
+        GenJournalLine.Validate("Posting Date", CalcDate('<-1Y>', WorkDate()));  // Take Previous Year Date.
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -2576,7 +2340,7 @@ codeunit 134986 "ERM Financial Reports II"
         SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
         BankAccount.SetRange("No.", BankAccReconciliation."Bank Account No.");
         SuggestBankAccReconLines.SetTableView(BankAccount);
-        SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, true);  // Set TRUE for Include Checks Option.
+        SuggestBankAccReconLines.InitializeRequest(WorkDate(), WorkDate(), true);  // Set TRUE for Include Checks Option.
         SuggestBankAccReconLines.UseRequestPage(false);
         SuggestBankAccReconLines.Run();
     end;
@@ -2662,7 +2426,7 @@ codeunit 134986 "ERM Financial Reports II"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         FinanceChargeMemoHeader.Get(No);
-        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate, false);
+        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate(), false);
         FinanceChargeMemoHeader.Validate("No. Series", '');
         FinanceChargeMemoHeader.Validate("Issuing No. Series", '');
         FinanceChargeMemoHeader.Modify(true);
@@ -2686,14 +2450,14 @@ codeunit 134986 "ERM Financial Reports II"
         ActualRowQty: Integer;
     begin
         Initialize();
-        WorkDate := CalcDate('<+1Y>', WorkDate);
+        WorkDate := CalcDate('<+1Y>', WorkDate());
         PostGenLinesCustomPostingDate(GenJournalLine);
 
         GLAccount.Get(GenJournalLine."Account No.");
         GLAccount."No. of Blank Lines" := NoOfBlankLines;
         GLAccount.Modify();
 
-        RunReportTrialBalancePreviousYear(GenJournalLine."Account No.", WorkDate);
+        RunReportTrialBalancePreviousYear(GenJournalLine."Account No.", WorkDate());
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_GLAccount', GenJournalLine."Account No.");
@@ -2710,9 +2474,9 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         LibraryReportDataset.LoadDataSetFile;
 
-        LibraryReportDataset.SetRange('Check_Ledger_Entry__Check_Date_', Format(WorkDate));
+        LibraryReportDataset.SetRange('Check_Ledger_Entry__Check_Date_', Format(WorkDate()));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Check_Ledger_Entry__Check_Date_', Format(WorkDate)));
+            Error(StrSubstNo(RowNotFoundErr, 'Check_Ledger_Entry__Check_Date_', Format(WorkDate())));
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Check_Ledger_Entry__Bal__Account_No__', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -2728,9 +2492,9 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset.AssertElementWithValueExists('HeaderError1', Format(WarningMsg));
 
         // Verify Lines
-        LibraryReportDataset.SetRange('Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate));
+        LibraryReportDataset.SetRange('Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate()));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate)));
+            Error(StrSubstNo(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate())));
         LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Acc__Reconciliation_Line__Applied_Amount_', -GenJournalLine.Amount);
 
         // Verify Totals
@@ -2893,7 +2657,7 @@ codeunit 134986 "ERM Financial Reports II"
                   'VATAmountLine__Amount_Including_VAT_',
                   FinanceChargeMemoLine.Amount + FinanceChargeMemoLine."VAT Amount");
             end;
-        until FinanceChargeMemoLine.Next = 0;
+        until FinanceChargeMemoLine.Next() = 0;
     end;
 
     local procedure VerifyFinChrgMemoVATEntry(FinanceChargeMemoNo: Code[20])
@@ -2924,7 +2688,7 @@ codeunit 134986 "ERM Financial Reports II"
               IssuedFinChargeMemoLine.Amount + IssuedFinChargeMemoLine."VAT Amount", AmountIncludingVAT,
               LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(ValidationErr, AmtInclVATLabelTxt, IssuedFinChargeMemoLine.Amount + IssuedFinChargeMemoLine."VAT Amount"));
-        until IssuedFinChargeMemoLine.Next = 0;
+        until IssuedFinChargeMemoLine.Next() = 0;
     end;
 
     local procedure VerifyInteractionLogEntry(DocumentType: Enum "Interaction Log Entry Document Type"; DocumentNo: Code[20])
@@ -3011,7 +2775,7 @@ codeunit 134986 "ERM Financial Reports II"
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__VAT_Base_', ReminderLine.Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__Amount_Including_VAT_',
               ReminderLine.Amount + ReminderLine."VAT Amount");
-        until ReminderLine.Next = 0;
+        until ReminderLine.Next() = 0;
     end;
 
     local procedure VerifyReminderReport(No: Code[20])
@@ -3095,7 +2859,7 @@ codeunit 134986 "ERM Financial Reports II"
             // Verify "VAT Base" and "VAT Amount" in VAT Amount Specification in GBP Caption.
             VerifyVATAmountSpecificationInGBPOnReminderReport(
               Format(IssuedReminderLine."VAT %"), VATBase / CurrFactor, (AmountIncludeVAT - VATBase) / CurrFactor);
-        until IssuedReminderLine.Next = 0;
+        until IssuedReminderLine.Next() = 0;
     end;
 
     local procedure VerifyFinanceChargeMemoVATAmountSpecInGBP(FinanceChargeMemoNo: Code[20])
@@ -3131,7 +2895,7 @@ codeunit 134986 "ERM Financial Reports II"
               Round(
                 (AmountIncludeVAT - VATBase) / CurrFactor,
                 LibraryERM.GetCurrencyAmountRoundingPrecision(IssuedFinChargeMemoHeader."Currency Code")));
-        until IssuedFinChargeMemoLine.Next = 0;
+        until IssuedFinChargeMemoLine.Next() = 0;
     end;
 
     local procedure VerifyVATAmountSpecificationOnReminderReport(VAT: Text[50]; VATBase: Decimal; TotalVATAmount: Decimal)
@@ -3255,8 +3019,8 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         CurrentSaveValuesId := REPORT::"Adjust Exchange Rates";
         LibraryVariableStorage.Dequeue(Code);
-        AdjustExchangeRate.StartingDate.SetValue(WorkDate);
-        AdjustExchangeRate.EndingDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate));
+        AdjustExchangeRate.StartingDate.SetValue(WorkDate());
+        AdjustExchangeRate.EndingDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate()));
         AdjustExchangeRate.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
         AdjustExchangeRate.Currency.SetFilter(Code, Code);
         LibraryVariableStorage.Enqueue(AdjustExchangeRate.DocumentNo.Value);
@@ -3280,32 +3044,12 @@ codeunit 134986 "ERM Financial Reports II"
     end;
 #endif
 
-#if not CLEAN18
-    local procedure RunReportReminderNos(ReminderNo1: Code[20]; ReminderNo2: Code[20])
-    begin
-        LibraryVariableStorage.Enqueue(ReminderNo1);
-        LibraryVariableStorage.Enqueue(ReminderNo2);
-        Commit();
-        REPORT.Run(REPORT::"Reminder Nos.");
-    end;
-#endif
-
     local procedure RunReportReminder(IssuedReminderNo: Code[20])
     begin
         LibraryVariableStorage.Enqueue(IssuedReminderNo);
         Commit();
         REPORT.Run(REPORT::Reminder);
     end;
-
-#if not CLEAN18
-    local procedure RunReportFinanceChargeMemoNos(FinanceChargeMemoNo1: Code[20]; FinanceChargeMemoNo2: Code[20])
-    begin
-        LibraryVariableStorage.Enqueue(FinanceChargeMemoNo1);
-        LibraryVariableStorage.Enqueue(FinanceChargeMemoNo2);
-        Commit();
-        REPORT.Run(REPORT::"Finance Charge Memo Nos.");
-    end;
-#endif
 
     local procedure RunReportFinanceChargeMemo(FinanceChargeMemoNo: Code[20]; ShowInternalInfo: Boolean; LogInteraction: Boolean)
     begin

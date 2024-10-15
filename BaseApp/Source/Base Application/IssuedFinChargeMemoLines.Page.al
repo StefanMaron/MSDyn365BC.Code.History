@@ -21,34 +21,34 @@ page 451 "Issued Fin. Charge Memo Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the customer ledger entry that this finance charge memo line is for.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type of the customer ledger entry this finance charge memo line is for.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number of the customer ledger entry this finance charge memo line is for.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date of the customer ledger entry this finance charge memo line is for.';
@@ -60,13 +60,13 @@ page 451 "Issued Fin. Charge Memo Lines"
                     StyleExpr = DescriptionEmphasize;
                     ToolTip = 'Specifies an entry description, based on the contents of the Type field.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the original amount of the customer ledger entry that this finance charge memo line is for.';
                     Visible = false;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -80,7 +80,7 @@ page 451 "Issued Fin. Charge Memo Lines"
                     StyleExpr = AmountEmphasize;
                     ToolTip = 'Specifies the amount in the currency of the finance charge memo.';
                 }
-                field("Account Code"; "Account Code")
+                field("Account Code"; Rec."Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account code of the customer.';
@@ -97,9 +97,9 @@ page 451 "Issued Fin. Charge Memo Lines"
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        DescriptionOnFormat;
-        RemainingAmountOnFormat;
-        AmountOnFormat;
+        DescriptionOnFormat();
+        RemainingAmountOnFormat();
+        AmountOnFormat();
     end;
 
     var

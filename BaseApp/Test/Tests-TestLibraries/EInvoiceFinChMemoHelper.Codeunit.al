@@ -61,7 +61,7 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
         EInvoiceHelper.CreateCustomer(Customer);
 
         with FinChMemoHeader do begin
-            Init;
+            Init();
             Validate("Customer No.", Customer."No.");
             FinanceChargeTerms.FindFirst();
             Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
@@ -80,7 +80,7 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
     begin
         for Counter := 1 to NoOfLines do
             with FinanceChargeMemoLine do begin
-                Init;
+                Init();
                 "Finance Charge Memo No." := FinanceChargeMemoHeaderNo;
                 LineNo := LineNo + 10000;
                 "Line No." := LineNo;

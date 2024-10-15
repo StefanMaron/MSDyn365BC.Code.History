@@ -1,5 +1,6 @@
 table 130201 "Enabled Test Codeunit"
 {
+    ReplicateData = false;
 
     fields
     {

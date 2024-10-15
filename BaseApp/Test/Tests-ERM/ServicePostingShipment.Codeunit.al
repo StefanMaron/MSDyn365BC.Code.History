@@ -12,6 +12,7 @@ codeunit 136107 "Service Posting - Shipment"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryService: Codeunit "Library - Service";
@@ -23,7 +24,6 @@ codeunit 136107 "Service Posting - Shipment"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
-        NothingToPostError: Label 'There is nothing to post.';
         UnknownError: Label 'Unknown error.';
         WarningMsg: Label 'The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.';
         ExpectedMsg: Label 'Expected Cost Posting to G/L has been changed';
@@ -51,7 +51,7 @@ codeunit 136107 "Service Posting - Shipment"
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
         // [THEN] Error is generated as There is Nothing to Post when Service Order is posted as Ship with Qty. to Ship as 0.
-        Assert.AreEqual(StrSubstNo(NothingToPostError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1633,7 +1633,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceLineOld.Init();
             ServiceLineOld := ServiceLine;
             ServiceLineOld.Insert();
-        until ServiceLine.Next = 0
+        until ServiceLine.Next() = 0
     end;
 
     local procedure CreateBinsAndItems(LocationCode: Code[10]; var Bin: array[3] of Record Bin; var Item: array[3] of Record Item)
@@ -1719,8 +1719,8 @@ codeunit 136107 "Service Posting - Shipment"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-            ServiceCost.Next;
-        until ServiceItemLine.Next = 0;
+            ServiceCost.Next();
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceLineForGLAccount(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -1735,7 +1735,7 @@ codeunit 136107 "Service Posting - Shipment"
               ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceLineForItem(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -1749,7 +1749,7 @@ codeunit 136107 "Service Posting - Shipment"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceLineForResource(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -1763,7 +1763,7 @@ codeunit 136107 "Service Posting - Shipment"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceLineForItemWithBin(ServiceHeader: Record "Service Header"; ServiceItemLineNo: Integer; Bin: Record Bin; ItemNo: Code[20]; var Quantity: Decimal)
@@ -1858,7 +1858,7 @@ codeunit 136107 "Service Posting - Shipment"
     local procedure CreateServiceItemWithWarrantyStartingDate(var ServiceItem: Record "Service Item")
     begin
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
-        ServiceItem.Validate("Warranty Starting Date (Parts)", WorkDate);
+        ServiceItem.Validate("Warranty Starting Date (Parts)", WorkDate());
         ServiceItem.Modify(true);
     end;
 
@@ -1911,7 +1911,7 @@ codeunit 136107 "Service Posting - Shipment"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure SetupCostPostingInventory(AutomaticCostPosting: Boolean; ExpectedCostPostingToGL: Boolean)
@@ -1953,7 +1953,7 @@ codeunit 136107 "Service Posting - Shipment"
         repeat
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdatePartQtyToShipAndConume(var ServiceLine: Record "Service Line")
@@ -1966,7 +1966,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship");
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdatePartQtyToShipAndInvoice(var ServiceLine: Record "Service Line")
@@ -1979,7 +1979,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Qty. to Ship");
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateFullyOnlyQtyToShip(var ServiceLine: Record "Service Line")
@@ -1990,7 +1990,7 @@ codeunit 136107 "Service Posting - Shipment"
         repeat
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQuantity(var ServiceLine: Record "Service Line")
@@ -2001,7 +2001,7 @@ codeunit 136107 "Service Posting - Shipment"
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQtyToShipZero(var ServiceLine: Record "Service Line")
@@ -2013,7 +2013,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
             ServiceLine.Validate("Qty. to Ship", 0);  // Value 0 is important for the test case.
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdatePartialQtyToShip(var ServiceLine: Record "Service Line")
@@ -2025,7 +2025,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdatePartialQtyToConsume(var ServiceLine: Record "Service Line")
@@ -2037,7 +2037,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateLocationOnServiceHeader(var ServiceHeader: Record "Service Header"; LocationCode: Code[10])
@@ -2106,7 +2106,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceInvoiceLine.FindFirst();
             ServiceInvoiceLine.TestField("No.", TempServiceLine."No.");
             ServiceInvoiceLine.TestField(Quantity, TempServiceLine."Qty. to Invoice");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyUpdatedShipQtyAfterShip(var TempServiceLine: Record "Service Line" temporary)
@@ -2119,7 +2119,7 @@ codeunit 136107 "Service Posting - Shipment"
         repeat
             ServiceLine.Get(TempServiceLine."Document Type", TempServiceLine."Document No.", TempServiceLine."Line No.");
             ServiceLine.TestField("Quantity Shipped", TempServiceLine."Qty. to Ship" + TempServiceLine."Quantity Shipped");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyQtyOnServShipAndInvoice(var TempServiceLine: Record "Service Line" temporary)
@@ -2134,7 +2134,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
             ServiceShipmentLine.FindFirst();
             ServiceShipmentLine.TestField("Quantity Invoiced", TempServiceLine."Qty. to Invoice");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyQuantityAfterFullShipmnt(var TempServiceLine: Record "Service Line" temporary)
@@ -2148,7 +2148,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceLine.Get(TempServiceLine."Document Type", TempServiceLine."Document No.", TempServiceLine."Line No.");
             ServiceLine.TestField("Quantity Shipped", ServiceLine.Quantity);
             ServiceLine.TestField("Qty. to Ship", 0);
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyQtyOnServiceShipmentLine(var TempServiceLine: Record "Service Line" temporary)
@@ -2164,7 +2164,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceShipmentLine.FindLast();  // Find the Shipment Line for the second shipment.
             ServiceShipmentLine.TestField("Qty. Shipped Not Invoiced", TempServiceLine."Qty. to Ship");
             ServiceShipmentLine.TestField(Quantity, TempServiceLine."Qty. to Ship");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyQtyOnItemLedgerEntry(var TempServiceLine: Record "Service Line" temporary)
@@ -2181,7 +2181,7 @@ codeunit 136107 "Service Posting - Shipment"
             ItemLedgerEntry.SetRange("Document Line No.", TempServiceLine."Line No.");
             ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second shipment.
             ItemLedgerEntry.TestField(Quantity, -TempServiceLine."Qty. to Ship (Base)");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyCountryRegionCodeOnItemLedgerEntry(OrderNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; CountryRegionCode: Code[10])
@@ -2211,7 +2211,7 @@ codeunit 136107 "Service Posting - Shipment"
             ValueEntry.SetRange("Document Line No.", TempServiceLine."Line No.");
             ValueEntry.FindFirst();
             ValueEntry.TestField("Valued Quantity", -TempServiceLine."Qty. to Ship (Base)");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLedgerEntry(var TempServiceLine: Record "Service Line" temporary)
@@ -2232,7 +2232,7 @@ codeunit 136107 "Service Posting - Shipment"
             ServiceLedgerEntry.TestField("No.", TempServiceLine."No.");
             ServiceLedgerEntry.TestField("Posting Date", TempServiceLine."Posting Date");
             ServiceLedgerEntry.TestField("Bill-to Customer No.", TempServiceLine."Bill-to Customer No.");
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceShipmentLine(ServiceLine: Record "Service Line")
@@ -2291,7 +2291,7 @@ codeunit 136107 "Service Posting - Shipment"
             ItemLedgerEntry.TestField("Cost Amount (Actual)", -RelatedItemLedgerEntry."Cost Amount (Actual)");
             ItemLedgerEntry.TestField("Sales Amount (Actual)", 0);
             VerifyValueEntryAfterUndoConsumption(ItemLedgerEntry);
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure VerifyValueEntryAfterUndoConsumption(var ItemLedgerEntry: Record "Item Ledger Entry")
@@ -2352,7 +2352,7 @@ codeunit 136107 "Service Posting - Shipment"
         ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Posting Date", ServiceShipmentLine."Posting Date");
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyResourceEntriesAfterUndoShipment(ServiceOrderNo: Code[20])
@@ -2367,7 +2367,7 @@ codeunit 136107 "Service Posting - Shipment"
         ResLedgerEntry.FindSet();
         repeat
             ResLedgerEntry.TestField("Posting Date", ServiceShipmentLine."Posting Date");
-        until ResLedgerEntry.Next = 0;
+        until ResLedgerEntry.Next() = 0;
     end;
 
     [ConfirmHandler]
@@ -2415,7 +2415,7 @@ codeunit 136107 "Service Posting - Shipment"
     [Scope('OnPrem')]
     procedure WarehouseShipmentPageHandler(var WarehouseShipment: TestPage "Warehouse Shipment")
     begin
-        WarehouseShipment.Close;
+        WarehouseShipment.Close();
     end;
 }
 

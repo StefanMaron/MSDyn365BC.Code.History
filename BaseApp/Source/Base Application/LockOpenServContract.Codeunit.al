@@ -46,7 +46,7 @@ codeunit 5943 "Lock-OpenServContract"
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("Line Amount", 0);
                 ServContractLine.SetFilter("Line Discount %", '<%1', 100);
-                RaiseError := not ServContractLine.IsEmpty;
+                RaiseError := not ServContractLine.IsEmpty();
                 OnErrorIfServContractLinesHaveZeroAmount(ServContractHeader, ServContractLine, RaiseError);
                 if RaiseError then
                     Error(Text000, Status, "Contract Type", ServContractLine.FieldCaption("Line Amount"));
@@ -71,7 +71,7 @@ codeunit 5943 "Lock-OpenServContract"
             if "Change Status" = "Change Status"::Open then
                 exit;
             LockTable();
-            if (Status = Status::Canceled) and ("Contract Type" = "Contract Type"::Contract) then
+            if (Status = Status::Cancelled) and ("Contract Type" = "Contract Type"::Contract) then
                 Error(Text001, Status);
             "Change Status" := "Change Status"::Open;
             Modify();

@@ -644,7 +644,7 @@ page 8907 "Sales & Marketing Manager RC"
                     RunObject = page "Item Attributes";
                     Tooltip = 'Open the Item Attributes page.';
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Sales Price Worksheet")
                 {
                     ApplicationArea = Suite;
@@ -721,7 +721,7 @@ page 8907 "Sales & Marketing Manager RC"
                         RunObject = report "Inventory Order Details";
                         Tooltip = 'Run the Inventory Order Details report.';
                     }
-#if not CLEAN19
+#if not CLEAN21
                     action("Price List")
                     {
                         ApplicationArea = Basic, Suite;
@@ -921,18 +921,6 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Recurring Groups';
                     RunObject = page "Recurring Group Overview";
                 }
-#if not CLEAN18
-                action("Contact Conversion Templates")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Contact Conversion Templates';
-                    RunObject = page "Customer Template List";
-                    Tooltip = 'Open the Contact Conversion Templates page.';
-                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Customer Templates".';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '18.0';
-                }
-#endif
                 action("Customer Templates")
                 {
                     ApplicationArea = RelationshipMgmt;

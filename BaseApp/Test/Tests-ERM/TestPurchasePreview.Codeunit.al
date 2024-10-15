@@ -13,6 +13,7 @@
     var
         LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
@@ -26,7 +27,6 @@
         ExpectedQuantity: Decimal;
         PurchHeaderPostingNo: Code[20];
         NoRecordsErr: Label 'There are no preview records to show.';
-        NothingToPostErr: Label 'There is nothing to post.';
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         PostingPreviewNoTok: Label '***', Locked = true;
         IsInitialized: Boolean;
@@ -179,7 +179,7 @@
         Commit();
         ErrorMessagesPage.Trap;
         PaymentRegistration.PreviewPayments.Invoke;
-        ErrorMessagesPage.Description.AssertEquals(NothingToPostErr);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -198,7 +198,7 @@
         Commit();
         ErrorMessagesPage.Trap;
         PaymentRegistration.PreviewLump.Invoke;
-        ErrorMessagesPage.Description.AssertEquals(NothingToPostErr);
+        ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -366,7 +366,7 @@
           'Posted cost amount is not as expected.');
         Assert.AreEqual(0, ValueEntriesPreview."Cost Amount (Non-Invtbl.)".AsDEcimal, 'Non-inventoriable cost amount is non-zero.');
 
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Cleanup
         PurchaseHeader.Delete();
@@ -405,7 +405,7 @@
           'Posted cost amount is not as expected.');
         Assert.AreEqual(0, ItemLedgerEntriesPreview.CostAmountNonInvtbl.AsDEcimal, 'Non-inventoriable cost amount is non-zero.');
 
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // Cleanup
         PurchaseHeader.Delete();
@@ -442,9 +442,9 @@
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
         // [THEN] GETLASTERRORTEXT should be null
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview. Actual error: ' + GetLastErrorText);
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
-        ClearLastError;
+        ClearLastError();
         Clear(PurchPostYesNo);
 
         ExpectedErrorMessage := StrSubstNo(RecordRestrictedTxt,
@@ -525,7 +525,7 @@
         Assert.ExpectedError('');
 
         // [THEN] Posting preview page opens without errors.
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
     end;
 
     [Test]
@@ -549,7 +549,7 @@
         Assert.ExpectedError('');
 
         // [THEN] Posting preview page opens without errors.
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
     end;
 
     [Test]
@@ -570,7 +570,7 @@
         LibraryPurchase.SetCalcInvDiscount(true);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate());
         PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandIntInRange(5, 10));
         PurchaseHeader.Modify(true);
 
@@ -586,7 +586,7 @@
         Assert.ExpectedError('');
 
         // [THEN] Posting preview page opens without errors.
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
     end;
 
     [Test]
@@ -678,7 +678,7 @@
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate());
 
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInDecimalRange(100, 200, 2));
         PurchaseLine.Modify(true);
@@ -786,7 +786,7 @@
         // [GIVEN] Create purchase invoice
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate());
         Commit();
 
         // [WHEN] Run posting preview
@@ -814,7 +814,7 @@
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
 
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         Commit();
@@ -862,7 +862,7 @@
     begin
         LibraryPurchase.SetCalcInvDiscount(true);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, DocumentType, '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+          PurchaseHeader, PurchaseLine, DocumentType, '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate());
         PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandIntInRange(5, 10));
         PurchaseHeader.Modify(true);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -984,7 +984,7 @@
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, -PmtAmount);
-        GenJournalLine.Validate("Posting Date", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate) + 1); // date after "Pmt. Disc. Posting Date"
+        GenJournalLine.Validate("Posting Date", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()) + 1); // date after "Pmt. Disc. Posting Date"
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         PmtNo := GenJournalLine."Document No.";
@@ -1096,7 +1096,7 @@
         DetailedVendEntriesPreview.FILTER.SetFilter("Entry Type", Format(DetailedVendorLedgEntry."Entry Type"::Application));
         Assert.IsTrue(
           DetailedVendEntriesPreview.Amount.AsDEcimal <> 0, 'Application does not exist');
-        DetailedVendEntriesPreview.Next;
+        DetailedVendEntriesPreview.Next();
         Assert.IsTrue(
           DetailedVendEntriesPreview.Amount.AsDEcimal <> 0, 'Application does not exist');
     end;

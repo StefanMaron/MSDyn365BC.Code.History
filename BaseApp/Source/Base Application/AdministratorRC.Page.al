@@ -469,6 +469,13 @@ page 8900 "Administrator Main Role Center"
                         Tooltip = 'Open the Data Classification Worksheet page.';
                         AccessByPermission = TableData "Data Sensitivity" = R;
                     }
+                    action("Privacy for App Integrations")
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Privacy for App Integrations';
+                        RunObject = page "Privacy Notices";
+                        AccessByPermission = TableData "Privacy Notice" = IM;
+                    }
                     action("XML Schemas")
                     {
                         ApplicationArea = Basic, Suite;
@@ -835,15 +842,23 @@ page 8900 "Administrator Main Role Center"
                         Tooltip = 'Open the Archived Workflow Step Instances page.';
                     }
                 }
+#if not CLEAN21
                 group("Group25")
                 {
                     Caption = 'Power Automate';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This group has been removed as all actions are in the tab dedicated to Power Automate';
+                    ObsoleteTag = '21.0';
                     action("Workflows1")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Manage flows';
                         RunObject = page "Flow Selector";
                         Tooltip = 'Open the Manage Flows page.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                        ObsoleteTag = '21.0';
                     }
                     action("Workflows2")
                     {
@@ -851,8 +866,13 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Flow Entries';
                         RunObject = page "Workflow Webhook Entries";
                         Tooltip = 'Open the Flow Entries page.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
+                        ObsoleteTag = '21.0';
                     }
                 }
+#endif
                 group("Group26")
                 {
                     Caption = 'Dynamic Request Pages';
@@ -1083,6 +1103,16 @@ page 8900 "Administrator Main Role Center"
                         RunObject = page "Exchange Sync. Setup";
                     }
                 }
+                group("GroupOneDrive")
+                {
+                    Caption = 'OneDrive for Business';
+                    action("OneDrive Setup")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'OneDrive Setup';
+                        RunObject = page "Document Service Setup";
+                    }
+                }
             }
             group("Group28")
             {
@@ -1103,7 +1133,7 @@ page 8900 "Administrator Main Role Center"
                 }
                 action("Setup Master Templates")
                 {
-                    ApplicationArea = Suite, Basic;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Configuration Templates';
                     RunObject = page "Config. Template List";
                     Tooltip = 'Open the Configuration Templates page.';

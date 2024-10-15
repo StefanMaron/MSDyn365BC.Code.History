@@ -62,7 +62,7 @@ codeunit 143017 "E-Invoice Reminder Helper"
         EInvoiceHelper.CreateCustomer(Customer);
 
         with ReminderHeader do begin
-            Init;
+            Init();
             Validate("Customer No.", Customer."No.");
             ReminderTerms.FindFirst();
             Validate("Reminder Terms Code", ReminderTerms.Code);
@@ -81,7 +81,7 @@ codeunit 143017 "E-Invoice Reminder Helper"
     begin
         for Counter := 1 to NoOfLines do
             with ReminderLine do begin
-                Init;
+                Init();
                 "Reminder No." := ReminderHeaderNo;
                 LineNo := LineNo + 10000;
                 "Line No." := LineNo;

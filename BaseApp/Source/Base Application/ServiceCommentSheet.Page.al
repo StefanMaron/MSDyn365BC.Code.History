@@ -33,12 +33,12 @@ page 5911 "Service Comment Sheet"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CurrPage.Caption := CopyStr(Caption + CaptionString, 1, 80);
+        CurrPage.Caption := CopyStr(Caption() + CaptionString, 1, 80);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 
     trigger OnOpenPage()
@@ -87,26 +87,23 @@ page 5911 "Service Comment Sheet"
                   StrSubstNo('%1 %2 %3 - %4 ', ServHeader."Document Type", ServHeader."No.",
                     ServHeader.Description, ServCommentLine.Type));
 
-        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Contract" then begin
+        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Contract" then
             if ServContractLine.Get(ServCommentLine."Table Subtype",
                  ServCommentLine."No.", ServCommentLine."Table Line No.")
             then
                 exit(
                   StrSubstNo('%1 %2 %3 - %4 ', ServContractLine."Contract Type", ServContractLine."Contract No.",
                     ServContractLine.Description, ServCommentLine.Type));
-        end;
 
-        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Contract" then begin
+        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Contract" then
             if ServContract.Get(ServCommentLine."Table Subtype", ServCommentLine."No.") then
                 exit(
                   StrSubstNo('%1 %2 %3 - %4 ', ServContract."Contract Type",
                     ServContract."Contract No.", ServContract.Description, ServCommentLine.Type));
-        end;
 
-        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Item" then begin
+        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Item" then
             if ServItem.Get(ServCommentLine."No.") then
                 exit(StrSubstNo('%1 %2 - %3 ', ServItem."No.", ServItem.Description, ServCommentLine.Type));
-        end;
 
         if ServCommentLine."Table Name" = ServCommentLine."Table Name"::Loaner then
             if Loaner.Get(ServCommentLine."No.") then

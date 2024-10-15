@@ -62,7 +62,7 @@ table 5950 "Service Order Allocation"
                     if Status <> Status::Nonactive then
                         Error(Text001, FieldCaption("Allocation Date"), FieldCaption(Status), Status);
 
-                if "Allocation Date" < WorkDate then
+                if "Allocation Date" < WorkDate() then
                     Message(Text002, FieldCaption("Allocation Date"), "Allocation Date");
             end;
         }
@@ -108,7 +108,7 @@ table 5950 "Service Order Allocation"
                     end;
 
                     if (Status = Status::"Reallocation Needed") or (Status = Status::Active) then
-                        CreateReallocationEntry;
+                        CreateReallocationEntry();
                 end;
             end;
         }
@@ -126,7 +126,7 @@ table 5950 "Service Order Allocation"
                         if "Resource Group No." <> Res."Resource Group No." then
                             "Resource No." := '';
                     if (Status = Status::"Reallocation Needed") or (Status = Status::Active) then
-                        CreateReallocationEntry;
+                        CreateReallocationEntry();
                 end;
             end;
         }
@@ -171,7 +171,7 @@ table 5950 "Service Order Allocation"
 
             trigger OnValidate()
             begin
-                ValidateStartEndTime;
+                ValidateStartEndTime();
             end;
         }
         field(10; "Finishing Time"; Time)
@@ -180,7 +180,7 @@ table 5950 "Service Order Allocation"
 
             trigger OnValidate()
             begin
-                ValidateStartEndTime;
+                ValidateStartEndTime();
             end;
         }
         field(11; Description; Text[100])
@@ -327,7 +327,7 @@ table 5950 "Service Order Allocation"
         if ("Service Item Line No." <> 0) and
            ("Resource No." <> '')
         then begin
-            CheckAllocationEntry;
+            CheckAllocationEntry();
             if not HideDialog and ServHeader.Get("Document Type", "Document No.") then
                 ServOrderAllocMgt.CheckServiceItemLineFinished(ServHeader, "Service Item Line No.");
         end;
@@ -336,7 +336,7 @@ table 5950 "Service Order Allocation"
             if ("Resource No." <> '') or
                ("Resource Group No." <> '')
             then
-                CheckAllocationEntry;
+                CheckAllocationEntry();
 
             if ("Allocation Date" <> 0D) and
                (("Resource No." <> '') or ("Resource Group No." <> ''))
@@ -357,7 +357,7 @@ table 5950 "Service Order Allocation"
                ("Resource Group No." = '')
             then
                 Error(Text008, FieldCaption("Resource No."), FieldCaption("Resource Group No."));
-        CheckAllocationEntry;
+        CheckAllocationEntry();
 
         if Status = Status::Nonactive then
             if ("Allocation Date" <> 0D) and
@@ -367,14 +367,6 @@ table 5950 "Service Order Allocation"
     end;
 
     var
-        Text000: Label 'Only one %1 can be allocated to a %2.';
-        Text001: Label '%1 must be filled in when the %2 is %3.';
-        Text002: Label 'The %1 %2 has expired.';
-        Text003: Label '%1 %2 is not qualified to carry out the service.';
-        Text004: Label '%1 %2 is not working in %3 %4.';
-        Text005: Label '%1 must be greater than 0 when the %2 is %3.';
-        Text006: Label '%1 cannot be greater than %2.';
-        Text007: Label '%1 with the field %2 selected cannot be found.';
         ServHeader: Record "Service Header";
         ServItemLine: Record "Service Item Line";
         ServmgtSetup: Record "Service Mgt. Setup";
@@ -392,6 +384,15 @@ table 5950 "Service Order Allocation"
         HideDialog: Boolean;
         RepairStatusCode: Code[10];
         Flag: Boolean;
+
+        Text000: Label 'Only one %1 can be allocated to a %2.';
+        Text001: Label '%1 must be filled in when the %2 is %3.';
+        Text002: Label 'The %1 %2 has expired.';
+        Text003: Label '%1 %2 is not qualified to carry out the service.';
+        Text004: Label '%1 %2 is not working in %3 %4.';
+        Text005: Label '%1 must be greater than 0 when the %2 is %3.';
+        Text006: Label '%1 cannot be greater than %2.';
+        Text007: Label '%1 with the field %2 selected cannot be found.';
         Text008: Label '%1 and %2 cannot be blank at the same time.';
 
     local procedure ValidateStartEndTime()
@@ -434,11 +435,11 @@ table 5950 "Service Order Allocation"
 
         Flag := false;
         if not HideDialog then
-            Flag := ReallocEntryReasons.RunModal = ACTION::Yes
+            Flag := ReallocEntryReasons.RunModal() = ACTION::Yes
         else
             Flag := true;
         if Flag then begin
-            "Reason Code" := ReallocEntryReasons.ReturnReasonCode;
+            "Reason Code" := ReallocEntryReasons.ReturnReasonCode();
             ServOrderAlloc2 := Rec;
             ServOrderAlloc.Reset();
             if ServOrderAlloc.Find('+') then
@@ -464,7 +465,7 @@ table 5950 "Service Order Allocation"
                     end else
                         Error(
                           Text007,
-                          RepairStatus.TableCaption, RepairStatus.FieldCaption(Referred));
+                          RepairStatus.TableCaption(), RepairStatus.FieldCaption(Referred));
                 end else
                     if RepairStatus."In Process" then begin
                         RepairStatus2.Reset();
@@ -484,7 +485,7 @@ table 5950 "Service Order Allocation"
                         end else
                             Error(
                               Text007,
-                              RepairStatus.TableCaption, RepairStatus.FieldCaption("Partly Serviced"));
+                              RepairStatus.TableCaption(), RepairStatus.FieldCaption("Partly Serviced"));
                     end else begin
                         Validate(Status, Status::Active);
                         ServOrderAlloc2."Resource No." := xRec."Resource No.";
@@ -553,20 +554,20 @@ table 5950 "Service Order Allocation"
                        (ServOrderAlloc."Resource No." <> '') and
                        (ServOrderAlloc."Resource No." <> "Resource No.")
                     then
-                        Error(Text000, Res.TableCaption, ServItemLine.TableCaption);
+                        Error(Text000, Res.TableCaption(), ServItemLine.TableCaption());
 
                     if ("Resource Group No." <> '') and
                        (ServOrderAlloc."Resource Group No." <> '') and
                        (ServOrderAlloc."Resource Group No." <> "Resource Group No.")
                     then
-                        Error(Text000, ResGr.TableCaption, ServItemLine.TableCaption);
+                        Error(Text000, ResGr.TableCaption(), ServItemLine.TableCaption());
                 until ServOrderAlloc.Next() = 0;
         end;
     end;
 
     procedure SetFilters(ServiceItemLine: Record "Service Item Line")
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
         SetRange("Document Type", ServiceItemLine."Document Type");
         SetRange("Document No.", ServiceItemLine."Document No.");

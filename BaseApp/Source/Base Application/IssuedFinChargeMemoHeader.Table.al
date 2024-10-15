@@ -232,6 +232,11 @@ table 304 "Issued Fin. Charge Memo Header"
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
         }
+        field(44; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(50; Canceled; Boolean)
         {
             Caption = 'Canceled';
@@ -362,7 +367,7 @@ table 304 "Issued Fin. Charge Memo Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure GetCustomerVATRegistrationNumber(): Text

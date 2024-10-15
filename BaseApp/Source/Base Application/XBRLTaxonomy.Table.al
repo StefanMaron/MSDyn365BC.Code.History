@@ -12,6 +12,7 @@ table 394 "XBRL Taxonomy"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
+    ReplicateData = false;
 
     fields
     {

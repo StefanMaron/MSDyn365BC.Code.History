@@ -35,7 +35,7 @@ table 7334 "Whse. Internal Pick Line"
 
             trigger OnValidate()
             begin
-                TestReleased;
+                TestReleased();
                 if xRec."To Bin Code" <> "To Bin Code" then
                     if "To Bin Code" <> '' then begin
                         GetLocation("Location Code");
@@ -46,7 +46,7 @@ table 7334 "Whse. Internal Pick Line"
                                   "To Bin Code",
                                   StrSubstNo(
                                     Text004, Location.FieldCaption("Adjustment Bin Code"),
-                                    Location.TableCaption));
+                                    Location.TableCaption()));
 
                             CheckBin(true);
                         end;
@@ -60,7 +60,7 @@ table 7334 "Whse. Internal Pick Line"
 
             trigger OnValidate()
             begin
-                TestReleased;
+                TestReleased();
                 if xRec."To Zone Code" <> "To Zone Code" then begin
                     if "To Zone Code" <> '' then begin
                         GetLocation("Location Code");
@@ -100,7 +100,7 @@ table 7334 "Whse. Internal Pick Line"
             var
                 DocStatus: Option;
             begin
-                TestReleased;
+                TestReleased();
                 CalcFields("Pick Qty.");
                 if Quantity < "Qty. Picked" + "Pick Qty." then
                     FieldError(Quantity, StrSubstNo(Text001, "Qty. Picked" + "Pick Qty."));
@@ -111,7 +111,7 @@ table 7334 "Whse. Internal Pick Line"
 
                 CheckBin(true);
 
-                Status := CalcStatusPickLine;
+                Status := CalcStatusPickLine();
                 if Status <> xRec.Status then begin
                     GetInternalPickHeader("No.");
                     DocStatus := WhseInternalPickHeader.GetDocumentStatus(0);
@@ -208,7 +208,7 @@ table 7334 "Whse. Internal Pick Line"
             trigger OnValidate()
             begin
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     "Qty. per Unit of Measure" := ItemUnitofMeasure."Qty. per Unit of Measure";
                 end else
                     "Qty. per Unit of Measure" := 1;
@@ -318,7 +318,7 @@ table 7334 "Whse. Internal Pick Line"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         DocStatus: Option;
     begin
-        TestReleased;
+        TestReleased();
 
         if ("Qty. Picked" > 0) and (Quantity > "Qty. Picked") then
             if not HideValidationDialog then
@@ -343,12 +343,12 @@ table 7334 "Whse. Internal Pick Line"
 
     trigger OnInsert()
     begin
-        "Sorting Sequence No." := GetSortSeqNo;
+        "Sorting Sequence No." := GetSortSeqNo();
     end;
 
     trigger OnModify()
     begin
-        "Sorting Sequence No." := GetSortSeqNo;
+        "Sorting Sequence No." := GetSortSeqNo();
     end;
 
     trigger OnRename()
@@ -383,7 +383,7 @@ table 7334 "Whse. Internal Pick Line"
                 LastLineNo := LastWhseInternalPickLine."Line No."
             else
                 LastLineNo := 0;
-            "Line No." := GetNextLineNo;
+            "Line No." := GetNextLineNo();
             "To Zone Code" := WhseInternalPickHeader."To Zone Code";
             "To Bin Code" := WhseInternalPickHeader."To Bin Code";
             "Due Date" := WhseInternalPickHeader."Due Date";
@@ -429,7 +429,7 @@ table 7334 "Whse. Internal Pick Line"
 
     local procedure GetItemUnitOfMeasure()
     begin
-        GetItem;
+        GetItem();
         Item.TestField("No.");
         if (Item."No." <> ItemUnitofMeasure."Item No.") or
            ("Unit of Measure Code" <> ItemUnitofMeasure.Code)
@@ -455,7 +455,7 @@ table 7334 "Whse. Internal Pick Line"
             exit;
 
         if "Item No." <> '' then begin
-            GetItemUnitOfMeasure;
+            GetItemUnitOfMeasure();
             Description := Item.Description;
             "Description 2" := Item."Description 2";
             "Shelf No." := Item."Shelf No.";
@@ -589,7 +589,7 @@ table 7334 "Whse. Internal Pick Line"
     begin
         WhseInternalPickLine.SetRange("No.", WhseInternalPickHeader."No.");
         if WhseInternalPickHeader."Sorting Method" <> WhseInternalPickHeader."Sorting Method"::"None" then
-            exit(GetLastLineNo + 10000);
+            exit(GetLastLineNo() + 10000);
 
         WhseInternalPickLine."No." := WhseInternalPickHeader."No.";
         WhseInternalPickLine."Line No." := LastLineNo;
@@ -672,7 +672,7 @@ table 7334 "Whse. Internal Pick Line"
 
     local procedure GetLastSeqNo(WhseInternalPickLine: Record "Whse. Internal Pick Line"): Integer
     begin
-        WhseInternalPickLine.SetRecFilter;
+        WhseInternalPickLine.SetRecFilter();
         WhseInternalPickLine.SetRange("Line No.");
         WhseInternalPickLine.SetCurrentKey("No.", "Sorting Sequence No.");
         if WhseInternalPickLine.FindLast() then

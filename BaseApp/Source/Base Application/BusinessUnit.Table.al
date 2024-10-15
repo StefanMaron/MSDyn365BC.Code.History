@@ -106,9 +106,9 @@ table 220 "Business Unit"
                 CurrencyFactor: Decimal;
             begin
                 if "Currency Exchange Rate Table" = "Currency Exchange Rate Table"::"Business Unit" then
-                    CurrencyFactor := GetCurrencyFactorFromBusUnit
+                    CurrencyFactor := GetCurrencyFactorFromBusUnit()
                 else
-                    CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate, "Currency Code");
+                    CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate(), "Currency Code");
 
                 "Income Currency Factor" := CurrencyFactor;
                 "Balance Currency Factor" := CurrencyFactor;
@@ -228,7 +228,7 @@ table 220 "Business Unit"
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
         end;
     end;
 
@@ -246,7 +246,7 @@ table 220 "Business Unit"
         GLSetup.TestField("LCY Code");
 
         CurrExchRate.ChangeCompany("Company Name");
-        CurrExchRate.SetRange("Starting Date", 0D, WorkDate);
+        CurrExchRate.SetRange("Starting Date", 0D, WorkDate());
         CurrExchRate.GetLastestExchangeRate(GLSetup."LCY Code", Date, CurrencyFactor);
         exit(CurrencyFactor);
     end;

@@ -246,7 +246,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
                                 trigger OnBeforePassVariable()
                                 begin
-                                    InstrId := DelChr(CreateGuid, '=', '{}-');
+                                    InstrId := DelChr(CreateGuid(), '=', '{}-');
                                 end;
                             }
                             fieldelement(EndToEndId; PaymentExportData."End-to-End ID")
@@ -460,7 +460,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if not PaymentExportData.GetPreserveNonLatinCharacters then
+                    if not PaymentExportData.GetPreserveNonLatinCharacters() then
                         PaymentExportData.CompanyInformationConvertToLatin(CompanyInformation);
                 end;
             }
@@ -481,7 +481,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
     trigger OnPreXmlPort()
     begin
-        InitData;
+        InitData();
     end;
 
     var
@@ -518,7 +518,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
         InitPmtGroup(PaymentGroupNo);
         repeat
-            if IsNewGroup then begin
+            if IsNewGroup() then begin
                 PaymentExportDataGroup.Insert();
                 InitPmtGroup(PaymentGroupNo);
             end;

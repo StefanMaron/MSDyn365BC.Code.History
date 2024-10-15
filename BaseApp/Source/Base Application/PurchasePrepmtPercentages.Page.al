@@ -1,7 +1,7 @@
 page 665 "Purchase Prepmt. Percentages"
 {
     Caption = 'Purchase Prepmt. Percentages';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DelayedInsert = true;
     PageType = Worksheet;
     SourceTable = "Purchase Prepayment %";
@@ -24,15 +24,15 @@ page 665 "Purchase Prepmt. Percentages"
                         VendList: Page "Vendor List";
                     begin
                         VendList.LookupMode := true;
-                        if VendList.RunModal <> ACTION::LookupOK then
+                        if VendList.RunModal() <> ACTION::LookupOK then
                             exit(false);
-                        Text := VendList.GetSelectionFilter;
+                        Text := VendList.GetSelectionFilter();
                         exit(true);
                     end;
 
                     trigger OnValidate()
                     begin
-                        VendNoFilterOnAfterValidate;
+                        VendNoFilterOnAfterValidate();
                     end;
                 }
                 field(CodeFilterCtrl; ItemNoFilter)
@@ -46,15 +46,15 @@ page 665 "Purchase Prepmt. Percentages"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
-                            Text := ItemList.GetSelectionFilter;
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
+                            Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        ItemNoFilterOnAfterValidate;
+                        ItemNoFilterOnAfterValidate();
                     end;
                 }
                 field(StartingDateFilter; StartingDateFilter)
@@ -68,34 +68,34 @@ page 665 "Purchase Prepmt. Percentages"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(StartingDateFilter);
-                        StartingDateFilterOnAfterValid;
+                        StartingDateFilterOnAfterValid();
                     end;
                 }
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor that the prepayment percentage for this item is valid for.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item for which the prepayment percentage is valid.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the date from which the purchase prepayment percentage is valid.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the date to which the purchase prepayment percentage is valid.';
                 }
-                field("Prepayment %"; "Prepayment %")
+                field("Prepayment %"; Rec."Prepayment %")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment percentage to use to calculate the prepayment for purchases.';
@@ -123,13 +123,13 @@ page 665 "Purchase Prepmt. Percentages"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditable;
+        SetEditable();
     end;
 
     trigger OnOpenPage()
     begin
-        GetRecFilters;
-        SetRecFilters;
+        GetRecFilters();
+        SetRecFilters();
     end;
 
     var
@@ -178,12 +178,12 @@ page 665 "Purchase Prepmt. Percentages"
         PurchaseCodeCaption: Text;
     begin
         if ItemNoFilter <> '' then begin
-            ItemNoCaption := StrSubstNo('%1 %2', Item.TableCaption, ItemNoFilter);
+            ItemNoCaption := StrSubstNo('%1 %2', Item.TableCaption(), ItemNoFilter);
             if Item.Get(CopyStr(ItemNoFilter, 1, MaxStrLen(Item."No."))) then
                 ItemNoCaption := ItemNoCaption + ' - ' + Item.Description;
         end;
 
-        PurchaseCodeCaption := StrSubstNo('%1 %2', Vend.TableCaption, VendNoFilter);
+        PurchaseCodeCaption := StrSubstNo('%1 %2', Vend.TableCaption(), VendNoFilter);
         if Vend.Get(CopyStr(VendNoFilter, 1, MaxStrLen(Vend."No."))) then
             PurchaseCodeCaption := PurchaseCodeCaption + ' - ' + Vend.Name;
 
@@ -192,20 +192,20 @@ page 665 "Purchase Prepmt. Percentages"
 
     local procedure VendNoFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure StartingDateFilterOnAfterValid()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure ItemNoFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 }
 

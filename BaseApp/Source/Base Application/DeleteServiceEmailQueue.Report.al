@@ -13,7 +13,7 @@ report 6006 "Delete Service Email Queue"
             trigger OnAfterGetRecord()
             begin
                 i := i + 1;
-                Delete;
+                Delete();
             end;
 
             trigger OnPostDataItem()

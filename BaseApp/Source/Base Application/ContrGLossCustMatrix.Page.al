@@ -13,13 +13,13 @@ page 9261 "Contr. G/Loss (Cust.) Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the starting date of the period that you want to view.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Name';
@@ -439,14 +439,14 @@ page 9261 "Contr. G/Loss (Cust.) Matrix"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CalculateTotals;
+        CalculateTotals();
     end;
 
     trigger OnAfterGetRecord()
     var
         MATRIX_CurrentColumnOrdinal: Integer;
     begin
-        CalculateTotals;
+        CalculateTotals();
         MATRIX_CurrentColumnOrdinal := 0;
         while MATRIX_CurrentColumnOrdinal < MATRIX_CurrentNoOfMatrixColumn do begin
             MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + 1;
@@ -654,7 +654,7 @@ page 9261 "Contr. G/Loss (Cust.) Matrix"
             MATRIX_CellData[Ordinal] := ''
         else
             MATRIX_CellData[Ordinal] := Format(Amount, 0, Text000);
-        SetVisible;
+        SetVisible();
     end;
 
     local procedure CalculateMovement(ShipToAddrCode: Code[10]): Decimal

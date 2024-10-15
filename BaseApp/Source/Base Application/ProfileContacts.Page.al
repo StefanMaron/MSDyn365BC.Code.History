@@ -11,18 +11,18 @@ page 5115 "Profile Contacts"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the contact to which you have assigned this questionnaire.';
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the company for which the contact works, if the contact is a person.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;

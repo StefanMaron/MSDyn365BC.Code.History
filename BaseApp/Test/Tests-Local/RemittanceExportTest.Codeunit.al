@@ -1296,7 +1296,7 @@ codeunit 144129 "Remittance - Export Test"
         Assert.IsTrue(Ins.EOS, 'Not end of stream');
 
         ServerFileName := ExportFile.Name;
-        ExportFile.Close;
+        ExportFile.Close();
         FileMgt.DeleteServerFile(ServerFileName);
     end;
 
@@ -1326,7 +1326,7 @@ codeunit 144129 "Remittance - Export Test"
             else
                 TextCode := '602';
 
-        AssertValue(Ins, FormatDateYYMMDD(WorkDate), 0, 'DueDate');
+        AssertValue(Ins, FormatDateYYMMDD(WorkDate()), 0, 'DueDate');
         AssertValue(Ins, GenJournalLine."Account No.", 30, 'Account No');
         AssertValue(Ins, ' ', 0, 'Reserved');
         AssertValue(Ins, RecipientAccountNo, 0, 'Recipient Account No');
@@ -1380,7 +1380,7 @@ codeunit 144129 "Remittance - Export Test"
         AssertFill(Ins, 1);
         if (GenJournalLine.KID = '') and (GenJournalLine."External Document No." <> '') then begin
             AssertValue(Ins, Vendor."Our Account No.", 15, 'Our account no.');
-            AssertValue(Ins, FormatDateYYYYMMDD(WorkDate), 0, 'InvoiceDate');
+            AssertValue(Ins, FormatDateYYYYMMDD(WorkDate()), 0, 'InvoiceDate');
         end else begin
             AssertFill(Ins, 15);
             AssertFill(Ins, 8);
@@ -1544,7 +1544,7 @@ codeunit 144129 "Remittance - Export Test"
         AssertValue(Ins, Format(CountTrans), -5, 'Number of transactions');
         AssertFill(Ins, 163);
         AssertFill(Ins, 4 + 1 + 1 + 1 + 18); // Sigill - not used.
-        AssertValue(Ins, UpperCase(PadStr('Nav ' + ApplicationSystemConstants.ApplicationVersion, 11)), 16, 'Application Version');
+        AssertValue(Ins, UpperCase(PadStr('Nav ' + ApplicationSystemConstants.ApplicationVersion(), 11)), 16, 'Application Version');
         AssertFill(Ins, 8);
         if RemittanceAgreement."Payment System" = RemittanceAgreement."Payment System"::"DnB Telebank" then
             AssertFill(Ins, 80);
@@ -1634,7 +1634,7 @@ codeunit 144129 "Remittance - Export Test"
         Assert.IsTrue(Ins.EOS, 'Not end of stream');
 
         ServerFileName := ExportFile.Name;
-        ExportFile.Close;
+        ExportFile.Close();
         FileMgt.DeleteServerFile(ServerFileName);
     end;
 
@@ -1809,8 +1809,8 @@ codeunit 144129 "Remittance - Export Test"
             repeat
                 Ins.ReadText(String, MaxStrLen(String));
                 Assert.AreEqual(PaymentOrderData.Data, String, LinesDoesntMatchErr);
-            until PaymentOrderData.Next = 0;
-        ExportFile.Close;
+            until PaymentOrderData.Next() = 0;
+        ExportFile.Close();
     end;
 
     local procedure VerifyFileLinesAgainstCRLF(FileName: Text; RemittancePaymentOrderID: Integer)
@@ -1832,9 +1832,9 @@ codeunit 144129 "Remittance - Export Test"
                 AssertChar(13, Char); // carriage return
                 TempFile.Read(Char);
                 AssertChar(10, Char); // line feed
-            until PaymentOrderData.Next = 0;
+            until PaymentOrderData.Next() = 0;
 
-        TempFile.Close;
+        TempFile.Close();
         FileMgt.DeleteServerFile(ServerFileName);
     end;
 
@@ -1880,7 +1880,7 @@ codeunit 144129 "Remittance - Export Test"
             File.Read(TextLine);
             Assert.AreNotEqual('600F', CopyStr(TextLine, 24, 4), StrSubstNo(HeaderNotExpectedErr, Index));
         end;
-        File.Close;
+        File.Close();
     end;
 
     local procedure AssertChar(ExpectedValue: Integer; Char: Char)
@@ -2091,7 +2091,7 @@ codeunit 144129 "Remittance - Export Test"
             if not (Byte in [10, 13]) then // get rid of carriage return and line feed symbols
                 NewString += Format(Char);
         end;
-        TempFile.Close;
+        TempFile.Close();
         FileMgt.DeleteServerFile(ServerFileName);
 
         ServerFileName := FileMgt.ServerTempFileName('txt');
@@ -2099,7 +2099,7 @@ codeunit 144129 "Remittance - Export Test"
         TempFile.Create(ServerFileName);
         TempFile.CreateOutStream(OutStream);
         OutStream.WriteText(NewString);
-        TempFile.Close;
+        TempFile.Close();
 
         TempFile.Open(ServerFileName);
         TempFile.TextMode := true;
@@ -2202,7 +2202,7 @@ codeunit 144129 "Remittance - Export Test"
 
     local procedure UpdateWorkdate(NewDate: Date) OldDate: Date
     begin
-        OldDate := WorkDate;
+        OldDate := WorkDate();
         WorkDate := NewDate;
         if Date2DWY(NewDate, 1) in [6, 7] then // "Posting Date" and "Pmt. Discount Date" compared works date in CU 15000001
             WorkDate := WorkDate + 2;
@@ -2229,7 +2229,7 @@ codeunit 144129 "Remittance - Export Test"
     begin
         LibraryVariableStorage.Dequeue(RemittanceAccountCode);
         LibraryVariableStorage.Dequeue(VendorNo);
-        SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate());
         SuggestRemittancePayments.Vendor.SetFilter("No.", VendorNo);
         SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", RemittanceAccountCode);
         SuggestRemittancePayments.OK.Invoke;

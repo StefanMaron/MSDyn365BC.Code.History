@@ -16,10 +16,10 @@ codeunit 2021 "Image Analysis Result"
 
     procedure SetJson(JSONMgt: Codeunit "JSON Management"; AnalysisType: Option Tags,Faces,Color)
     begin
-        Tags := Tags.JArray;
-        Color := Color.JObject;
-        DominantColors := DominantColors.JArray;
-        Faces := Faces.JArray;
+        Tags := Tags.JArray();
+        Color := Color.JObject();
+        DominantColors := DominantColors.JArray();
+        Faces := Faces.JArray();
 
         LastAnalysisType := AnalysisType;
 
@@ -30,18 +30,18 @@ codeunit 2021 "Image Analysis Result"
         if not JSONManagement.GetArrayPropertyValueFromJObjectByName(Result, 'tags', Tags) then
             if not JSONManagement.GetArrayPropertyValueFromJObjectByName(Result, 'Predictions', Tags) then
                 if not JSONManagement.GetArrayPropertyValueFromJObjectByName(Result, 'predictions', Tags) then
-                    Tags := Tags.JArray;
+                    Tags := Tags.JArray();
 
         if not JSONManagement.GetArrayPropertyValueFromJObjectByName(Result, 'faces', Faces) then
-            Faces := Faces.JArray;
+            Faces := Faces.JArray();
 
-        Color := Color.JObject;
-        DominantColors := DominantColors.JArray;
+        Color := Color.JObject();
+        DominantColors := DominantColors.JArray();
         if JSONManagement.GetObjectPropertyValueFromJObjectByName(Result, 'color', Color) then
             JSONManagement.GetArrayPropertyValueFromJObjectByName(Color, 'dominantColors', DominantColors)
         else begin
-            Color := Color.JObject;
-            DominantColors := DominantColors.JArray;
+            Color := Color.JObject();
+            DominantColors := DominantColors.JArray();
         end;
     end;
 

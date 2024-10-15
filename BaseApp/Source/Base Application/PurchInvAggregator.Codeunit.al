@@ -24,7 +24,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertPurchaseHeader(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -36,7 +36,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyPurchaseHeader(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header"; RunTrigger: Boolean)
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if IsBackgroundPosting(Rec) then
@@ -53,7 +53,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     var
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -70,7 +70,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch - Calc Disc. By Type", 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
     local procedure OnAfterResetRecalculateInvoiceDisc(var PurchaseHeader: Record "Purchase Header")
     begin
-        if not CheckValidRecord(PurchaseHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(PurchaseHeader) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(PurchaseHeader.SystemId) then
@@ -132,7 +132,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Purch. Inv. Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertPurchaseInvoiceHeader(var Rec: Record "Purch. Inv. Header"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -144,7 +144,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Purch. Inv. Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyPurchaseInvoiceHeader(var Rec: Record "Purch. Inv. Header"; var xRec: Record "Purch. Inv. Header"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -158,7 +158,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     var
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -176,7 +176,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     var
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -191,7 +191,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Calc.Discount", 'OnAfterCalcPurchaseDiscount', '', false, false)]
     local procedure OnAfterCalculatePurchaseDiscountOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        if not CheckValidRecord(PurchaseHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(PurchaseHeader) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(PurchaseHeader.SystemId) then
@@ -203,7 +203,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertVendorLedgerEntry(var Rec: Record "Vendor Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -215,7 +215,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyVendorLedgerEntry(var Rec: Record "Vendor Ledger Entry"; var xRec: Record "Vendor Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -227,7 +227,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameVendorLedgerEntry(var Rec: Record "Vendor Ledger Entry"; var xRec: Record "Vendor Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -239,7 +239,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteVendorLedgerEntry(var Rec: Record "Vendor Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -251,7 +251,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertCancelledDocument(var Rec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -263,7 +263,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -275,7 +275,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -288,7 +288,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteCancelledDocument(var Rec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -304,7 +304,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         ExistingPurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
         IsRenameAllowed: Boolean;
     begin
-        if PurchInvHeader.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if PurchInvHeader.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if IsNullGuid(PurchHeader.SystemId) then begin
@@ -331,7 +331,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             ExistingPurchInvEntityAggregate.Delete();
         end;
 
-        IsRenameAllowed := PurchInvEntityAggregate.GetIsRenameAllowed;
+        IsRenameAllowed := PurchInvEntityAggregate.GetIsRenameAllowed();
         PurchInvEntityAggregate.SetIsRenameAllowed(true);
         PurchInvEntityAggregate.Rename(PurchInvHeader."No.", true);
         PurchInvEntityAggregate.SetIsRenameAllowed(IsRenameAllowed);
@@ -345,7 +345,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         DocTypeFieldRef: FieldRef;
         NoFieldRef: FieldRef;
     begin
-        if PurchInvEntityAggregate.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if PurchInvEntityAggregate.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if PurchInvEntityAggregate.Posted then
@@ -388,7 +388,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         TargetRecordRef: RecordRef;
         Exists: Boolean;
     begin
-        if PurchInvEntityAggregate.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if PurchInvEntityAggregate.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if PurchInvEntityAggregate.Posted then
@@ -421,7 +421,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchaseHeader: Record "Purchase Header";
     begin
-        if PurchInvEntityAggregate.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if PurchInvEntityAggregate.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if PurchInvEntityAggregate.Posted then begin
@@ -488,7 +488,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvEntityAggregate.Posted := false;
         PurchInvEntityAggregate.Status := PurchInvEntityAggregate.Status::Draft;
         AssignTotalsFromPurchaseHeader(PurchaseHeader, PurchInvEntityAggregate);
-        PurchInvEntityAggregate.UpdateReferencedRecordIds;
+        PurchInvEntityAggregate.UpdateReferencedRecordIds();
 
         if RecordExists then
             PurchInvEntityAggregate.Modify(true)
@@ -528,7 +528,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvEntityAggregate.Posted := true;
         SetStatusOptionFromPurchaseInvoiceHeader(PurchInvHeader, PurchInvEntityAggregate);
         AssignTotalsFromPurchaseInvoiceHeader(PurchInvHeader, PurchInvEntityAggregate);
-        PurchInvEntityAggregate.UpdateReferencedRecordIds;
+        PurchInvEntityAggregate.UpdateReferencedRecordIds();
 
         if RecordExists then
             PurchInvEntityAggregate.Modify(true)
@@ -561,17 +561,18 @@ codeunit 5529 "Purch. Inv. Aggregator"
     var
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
     begin
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
-        PurchInvEntityAggregate.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
+        PurchInvEntityAggregate.SetRange("No.", VendorLedgerEntry."Document No.");
         PurchInvEntityAggregate.SetRange(Posted, true);
 
         if not PurchInvEntityAggregate.FindSet(true) then
             exit;
 
         repeat
-            UpdateStatusIfChanged(PurchInvEntityAggregate);
+            if PurchInvEntityAggregate."Vendor Ledger Entry No." = VendorLedgerEntry."Entry No." then
+                UpdateStatusIfChanged(PurchInvEntityAggregate);
         until PurchInvEntityAggregate.Next() = 0;
     end;
 
@@ -579,7 +580,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     var
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
     begin
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
         case CancelledDocument."Source ID" of
@@ -731,7 +732,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
         PurchaseHeader: Record "Purchase Header";
     begin
-        if PurchaseLine.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if PurchaseLine.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if PurchaseLine."Document Type" <> PurchaseLine."Document Type"::Invoice then
@@ -785,7 +786,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             PurchInvEntityAggregate.Delete(true);
 
         if PurchInvEntityAggregate.Get(PurchaseHeader."No.", false) then begin
-            IsRenameAllowed := PurchInvEntityAggregate.GetIsRenameAllowed;
+            IsRenameAllowed := PurchInvEntityAggregate.GetIsRenameAllowed();
             PurchInvEntityAggregate.SetIsRenameAllowed(true);
             PurchInvEntityAggregate.Rename(PurchInvHeader."No.", true);
             PurchInvEntityAggregate.SetIsRenameAllowed(IsRenameAllowed);
@@ -876,7 +877,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
                 PurchInvLineAggregate."Tax Amount" := PurchInvLine."Amount Including VAT" - PurchInvLine."VAT Base Amount";
                 PurchInvLineAggregate."Currency Code" := PurchInvLine.GetCurrencyCode();
                 PurchInvLineAggregate."Prices Including Tax" := PurchInvEntityAggregate."Prices Including VAT";
-                PurchInvLineAggregate.UpdateReferencedRecordIds;
+                PurchInvLineAggregate.UpdateReferencedRecordIds();
                 UpdateLineAmountsFromPurchaseInvoiceLine(PurchInvLineAggregate);
                 SetItemVariantId(PurchInvLineAggregate, PurchInvLine."No.", PurchInvLine."Variant Code");
                 PurchInvLineAggregate.Insert(true);
@@ -915,7 +916,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvLineAggregate."VAT %" := PurchaseLine."VAT %";
         PurchInvLineAggregate."Tax Amount" := PurchaseLine."Amount Including VAT" - PurchaseLine."VAT Base Amount";
         PurchInvLineAggregate."Prices Including Tax" := PurchInvEntityAggregate."Prices Including VAT";
-        PurchInvLineAggregate.UpdateReferencedRecordIds;
+        PurchInvLineAggregate.UpdateReferencedRecordIds();
         UpdateLineAmountsFromPurchaseLine(PurchInvLineAggregate);
         SetItemVariantId(PurchInvLineAggregate, PurchaseLine."No.", PurchaseLine."Variant Code");
     end;
@@ -949,7 +950,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
 
         RedistributeInvoiceDiscounts(PurchInvEntityAggregate);
 
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         TransferFromPurchaseLine(PurchInvLineAggregate, PurchInvEntityAggregate, PurchaseLine);
     end;
 
@@ -969,7 +970,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
 
         RedistributeInvoiceDiscounts(PurchInvEntityAggregate);
 
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         TransferFromPurchaseLine(PurchInvLineAggregate, PurchInvEntityAggregate, PurchaseLine);
     end;
 
@@ -1005,7 +1006,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         end;
 
         SearchPurchInvEntityAggregate.Copy(PurchInvEntityAggregate);
-        if SearchPurchInvEntityAggregate.Next <> 0 then
+        if SearchPurchInvEntityAggregate.Next() <> 0 then
             Error(MultipleDocumentsFoundForIdErr);
 
         if PurchInvEntityAggregate.Posted then
@@ -1054,7 +1055,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         if PurchaseLine.IsTemporary then
             exit(false);
 
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit(false);
 
         if PurchaseLine."Document Type" <> PurchaseLine."Document Type"::Invoice then
@@ -1106,7 +1107,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             PurchInvLineAggregate."Tax Code" := VATIdentifier;
             if VATProductPostingGroup.Get(VATProductPostingGroupCode) then
                 PurchInvLineAggregate."Tax Id" := VATProductPostingGroup.SystemId;

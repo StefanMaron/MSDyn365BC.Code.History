@@ -288,13 +288,13 @@ codeunit 133769 "Daily Report Tests"
         // [GIVEN] Sales Invoice for "A1", Posting Date = "D1".
         // [GIVEN] Purchase Invoice for "A1", Posting Date = "D1" + 1.
         // [GIVEN] Sales Invoice for "A1", Posting Date = "D1" + 1.
-        DocNoFilter += CreateAndPostSalesInvoice(CustVendNo, WorkDate - 1);
+        DocNoFilter += CreateAndPostSalesInvoice(CustVendNo, WorkDate() - 1);
         DocNoFilter += '|';
-        DocNoFilter += CreateAndPostPurchaseInvoice(CustVendNo, WorkDate);
+        DocNoFilter += CreateAndPostPurchaseInvoice(CustVendNo, WorkDate());
         DocNoFilter += '|';
-        DocNoFilter += CreateAndPostSalesInvoice(CustVendNo, WorkDate);
+        DocNoFilter += CreateAndPostSalesInvoice(CustVendNo, WorkDate());
         LibraryVariableStorage.Enqueue(DocNoFilter);
-        LibraryVariableStorage.Enqueue(StrSubstNo('%1..%2', WorkDate - 1, WorkDate));
+        LibraryVariableStorage.Enqueue(StrSubstNo('%1..%2', WorkDate() - 1, WorkDate()));
 
         // [WHEN] Run report "Day Book VAT Entry" on these documents.
         REPORT.Run(REPORT::"Day Book VAT Entry");
@@ -400,7 +400,7 @@ codeunit 133769 "Daily Report Tests"
     [Scope('OnPrem')]
     procedure RHDayBookVATEntry(var DayBookVATEntry: TestRequestPage "Day Book VAT Entry")
     begin
-        DayBookVATEntry.ReqVATEntry.SetFilter("Posting Date", Format(WorkDate));
+        DayBookVATEntry.ReqVATEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookVATEntry.SaveAsPdf(FomatFileName(DayBookVATEntry.Caption));
     end;
 
@@ -408,7 +408,7 @@ codeunit 133769 "Daily Report Tests"
     [Scope('OnPrem')]
     procedure RHDayBookCustLedgerEntry(var DayBookCustLedgerEntry: TestRequestPage "Day Book Cust. Ledger Entry")
     begin
-        DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Posting Date", Format(WorkDate));
+        DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookCustLedgerEntry.SaveAsPdf(FomatFileName(DayBookCustLedgerEntry.Caption));
     end;
 
@@ -416,7 +416,7 @@ codeunit 133769 "Daily Report Tests"
     [Scope('OnPrem')]
     procedure RHDayBookVendorLedgerEntry(var DayBookVendorLedgerEntry: TestRequestPage "Day Book Vendor Ledger Entry")
     begin
-        DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Posting Date", Format(WorkDate));
+        DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookVendorLedgerEntry.SaveAsPdf(FomatFileName(DayBookVendorLedgerEntry.Caption));
     end;
 
@@ -473,8 +473,8 @@ codeunit 133769 "Daily Report Tests"
         CustLedgerEntry."Customer No." := CreateCustomer;
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Positive := true;
-        CustLedgerEntry."Due Date" := WorkDate;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Due Date" := WorkDate();
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Transaction No." := GLEntry."Transaction No.";
         CustLedgerEntry."Closed by Entry No." := CustLedgerEntry."Entry No.";
         CustLedgerEntry."Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
@@ -505,7 +505,7 @@ codeunit 133769 "Daily Report Tests"
         CreateVendorLedgerEntryWithGLEntry(VendorLedgerEntry, AppliesToID, VendorNo, AmountToApply, DocumentType);
         VendorLedgerEntry."Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(10, 2); // Using Random value less than Amount.
         VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDec(10, 2);
-        VendorLedgerEntry."Pmt. Discount Date" := WorkDate;
+        VendorLedgerEntry."Pmt. Discount Date" := WorkDate();
         VendorLedgerEntry.Modify();
 
         // Required inside DayBookVendorLedgerEntryRequestPageHandler.
@@ -530,7 +530,7 @@ codeunit 133769 "Daily Report Tests"
 
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; TransactionNo: Integer; Type: Enum "General Posting Type"; Base: Decimal; VATProdPostingSetup: Code[10]; VATBusPostingSetup: Code[10]; BillToPayToNo: Code[20])
     begin
-        VATEntry.Init;
+        VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry.Type := Type;
         VATEntry."Transaction No." := TransactionNo;
@@ -542,7 +542,7 @@ codeunit 133769 "Daily Report Tests"
         VATEntry."VAT Base Discount %" := LibraryRandom.RandDec(10, 2);
         VATEntry."VAT Difference" := LibraryRandom.RandDec(10, 2);
         VATEntry.Amount := LibraryRandom.RandDec(10, 2);
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry.Insert();
     end;
 
@@ -629,7 +629,7 @@ codeunit 133769 "Daily Report Tests"
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Applies-to ID" := AppliesToID;
         VendorLedgerEntry."Amount to Apply" := AmountToApply;
         VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode;
@@ -759,7 +759,7 @@ codeunit 133769 "Daily Report Tests"
         DayBookVendorLedgerEntry.PrintVendLedgerDetails.SetValue(PrintVendLedgerDetails);
         DayBookVendorLedgerEntry.PrintGLEntryDetails.SetValue(PrintVendLedgerDetails);
         DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Vendor No.", VendorNo);
-        DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Posting Date", Format(WorkDate));
+        DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookVendorLedgerEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -776,7 +776,7 @@ codeunit 133769 "Daily Report Tests"
         DayBookCustLedgerEntry.PrintCustLedgerDetails.SetValue(PrintCustLedgerDetails);
         DayBookCustLedgerEntry.PrintGLEntryDetails.SetValue(PrintCustLedgerDetails);
         DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Customer No.", CustomerNo);
-        DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Posting Date", Format(WorkDate));
+        DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookCustLedgerEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -787,7 +787,7 @@ codeunit 133769 "Daily Report Tests"
         DocumentNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
-        DayBookVATEntry.ReqVATEntry.SetFilter("Posting Date", Format(WorkDate));
+        DayBookVATEntry.ReqVATEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookVATEntry.ReqVATEntry.SetFilter("Document No.", DocumentNo);
         DayBookVATEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

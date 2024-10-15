@@ -102,7 +102,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
             LibraryReportDataset.AssertCurrentRowValueEquals('RemainingAmt_CustLedgEntry', CustLedgerEntry."Remaining Amount");
             CustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
             LibraryReportDataset.AssertCurrentRowValueEquals('RemainingAmountLCY_CustLedgEntry', CustLedgerEntry."Remaining Amt. (LCY)");
-            CustLedgerEntry.Next;
+            CustLedgerEntry.Next();
         end;
     end;
 
@@ -229,7 +229,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         LineNo := 10000;
         for Counter := 1 to NumberOfReminderLines do
             with ReminderLine do begin
-                Init;
+                Init();
                 "Reminder No." := ReminderHeader."No.";
                 Type := Type::"G/L Account";
                 LineNo := LineNo + 10000;
@@ -262,7 +262,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         repeat
             CustLedgerEntry.CalcFields(Amount);
             with ReminderLine do begin
-                Init;
+                Init();
                 "Reminder No." := ReminderHeader."No.";
                 Type := Type::"Customer Ledger Entry";
                 LineNo := LineNo + 10000;
@@ -272,7 +272,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
                 Validate(Amount, 100);
                 Insert(true);
             end;
-        until (CustLedgerEntry.Next = 0);
+        until (CustLedgerEntry.Next() = 0);
     end;
 
     local procedure CreateReminderHeader(var ReminderHeader: Record "Reminder Header"; Customer: Record Customer)
@@ -312,9 +312,9 @@ codeunit 144182 "ERM NO Reports 3 Test"
             ReminderLineOrigAmountArray[Count] := ReminderLine."Original Amount";
             ReminderLineReminderTotalArray[Count] := ReminderLine.Amount + ReminderLine."Original Amount";
             Count := Count + 1;
-        until (ReminderLine.Next = 0);
+        until (ReminderLine.Next() = 0);
 
-        ReminderIssue.Set(ReminderHeader, false, WorkDate);
+        ReminderIssue.Set(ReminderHeader, false, WorkDate());
         ReminderIssue.Run();
         ReminderIssue.GetIssuedReminder(IssuedReminderHeader);
 

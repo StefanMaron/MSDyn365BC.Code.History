@@ -41,7 +41,7 @@ codeunit 144181 "ERM NO KID Reports"
         // [GIVEN] Posted Sales Invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Run Standard Sales Invoice report for the invoice
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
@@ -186,7 +186,7 @@ codeunit 144181 "ERM NO KID Reports"
         // [GIVEN] Posted Sales Invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Run Standard Sales Invoice report for the invoice
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
@@ -340,7 +340,7 @@ codeunit 144181 "ERM NO KID Reports"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         FinanceChargeMemoHeader.Get(No);
-        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate, false);
+        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate(), false);
         IssueFinChargeMemo(FinanceChargeMemoHeader);
     end;
 
@@ -366,7 +366,7 @@ codeunit 144181 "ERM NO KID Reports"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         ReminderHeader.Get(ReminderNo);
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate, false);
+        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
         IssueReminder(ReminderHeader);
     end;
 

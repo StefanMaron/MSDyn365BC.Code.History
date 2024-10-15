@@ -11,14 +11,14 @@ page 9153 "My Accounts"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the G/L account number.';
 
                     trigger OnValidate()
                     begin
-                        SyncFieldsWithGLAccount;
+                        SyncFieldsWithGLAccount();
                     end;
                 }
                 field(Name; Name)
@@ -41,9 +41,9 @@ page 9153 "My Accounts"
                         GLEntry: Record "G/L Entry";
                         GLAccountsFilterText: Text;
                     begin
-                        SyncFieldsWithGLAccount;
+                        SyncFieldsWithGLAccount();
                         GLAccountsFilterText := GLAccount."No.";
-                        if GLAccount.IsTotaling then
+                        if GLAccount.IsTotaling() then
                             GLAccountsFilterText := GLAccount.Totaling;
                         GLEntry.SetFilter("G/L Account No.", GLAccountsFilterText);
                         PAGE.Run(0, GLEntry);
@@ -74,7 +74,7 @@ page 9153 "My Accounts"
 
     trigger OnAfterGetRecord()
     begin
-        SyncFieldsWithGLAccount;
+        SyncFieldsWithGLAccount();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -102,7 +102,7 @@ page 9153 "My Accounts"
                 "Account Balance" := GLAccount.Balance;
                 Name := GLAccount.Name;
                 if MyAccount.Get("User ID", "Account No.") then
-                    Modify;
+                    Modify();
             end;
         end;
     end;

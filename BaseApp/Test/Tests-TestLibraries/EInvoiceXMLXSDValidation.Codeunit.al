@@ -35,7 +35,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
                         if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
                             exit('K');
                         VATProductPostingGroup.SetRange(Code, "VAT Prod. Posting Group");
-                        if VATProductPostingGroup.FindFirst and VATProductPostingGroup."Outside Tax Area" then
+                        if VATProductPostingGroup.FindFirst() and VATProductPostingGroup."Outside Tax Area" then
                             exit('Z');
                         exit('E');
                     end;
@@ -353,7 +353,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
                     TempVATEntry.Amount += VATEntry.Amount;
                     TempVATEntry.Modify();
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
         TempVATEntry.Reset();
 
         Assert.AreEqual(ExpectedVATEntriesCount, TempVATEntry.Count, 'Wrong number of VAT Entries posted.');
@@ -385,7 +385,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
                 if VATEntry."Entry No." = 0 then
                     Assert.AreEqual(GetExemptionReason(VATEntry), GetExemptionReason(TempVATEntry), WrongVATExemptionReasonTxt);
                 TempVATEntry.Delete();
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -435,7 +435,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
     begin
         TempVATEntry.SetRange("VAT Bus. Posting Group", VATEntry."VAT Bus. Posting Group");
         TempVATEntry.SetRange("VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
-        exit(TempVATEntry.FindFirst);
+        exit(TempVATEntry.FindFirst())
     end;
 
     local procedure GetExemptionReason(VATEntry: Record "VAT Entry"): Text
@@ -537,7 +537,7 @@ codeunit 143002 "E-Invoice XML XSD Validation"
                 TempVATEntry.FindFirst();
                 Assert.AreEqual(GetTaxCategoryID(VATEntry, TempVATEntry."VAT Base Discount %"), TempVATEntry."VAT Code", 'Wrong ID');
                 TempVATEntry.Delete();
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

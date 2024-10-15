@@ -316,7 +316,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // Verify - ShippingOptionWithLocation is visible and ShippignWithoutLocation is not visible
         Assert.IsTrue(PurchaseQuote.ShippingOptionWithLocation.Visible, FieldShouldBeVisibleTxt);
         VerifyShippingOptionWithoutLocationIsHiddenForLocation(PurchaseQuote, false); // TFS 255272, 305512
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
 
         // Setup - Enable Return Order app area(Location app area is disabled)
         LibraryApplicationArea.EnableReturnOrderSetup;

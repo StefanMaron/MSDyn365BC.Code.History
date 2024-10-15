@@ -185,7 +185,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         CurrencyCode := RandomCurrency;
         Amount := LibraryRandom.RandDec(200, 2);
         CreateVendorInvoice(InvVendorLedgerEntry, VendorNo, -Amount, '');
-        AmountLCY := LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate);
+        AmountLCY := LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate());
         CreateVendorPayment(PmtVendorLedgerEntry, VendorNo, AmountLCY, CurrencyCode, '<0D>');
         SetupApplyingEntry(PmtVendorLedgerEntry, PmtVendorLedgerEntry.Amount);
         SetupApplyEntry(InvVendorLedgerEntry);
@@ -361,8 +361,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJnlLine.Modify(true);
 
         // [THEN] "Applies-to ID" in Vendor Ledger Entry is empty
-        VendLedgEntry.Find;
-        Assert.AreEqual('', VendLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, VendLedgEntry.TableCaption));
+        VendLedgEntry.Find();
+        Assert.AreEqual('', VendLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, VendLedgEntry.TableCaption()));
         Assert.AreEqual(0, VendLedgEntry."Amount to Apply", AmountToApplyErr);
     end;
 
@@ -387,8 +387,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJnlLine.Delete(true);
 
         // [THEN] "Applies-to ID" in Vendor Ledger Entry is empty
-        VendLedgEntry.Find;
-        Assert.AreEqual('', VendLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, VendLedgEntry.TableCaption));
+        VendLedgEntry.Find();
+        Assert.AreEqual('', VendLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, VendLedgEntry.TableCaption()));
         Assert.AreEqual(0, VendLedgEntry."Amount to Apply", AmountToApplyErr);
     end;
 
@@ -413,7 +413,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJnlLine.Modify(true);
 
         // [THEN] Vendor Ledger Entry "Amount to Apply" = 0
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         Assert.AreEqual(0, VendLedgEntry."Amount to Apply", AmountToApplyErr);
     end;
 
@@ -437,7 +437,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJnlLine.Modify(true);
 
         // [THEN] Vendor Ledger Entry "Amount to Apply" = 0
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         Assert.AreEqual(0, VendLedgEntry."Amount to Apply", AmountToApplyErr);
     end;
 
@@ -549,7 +549,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         Assert.ExpectedErrorCode(DialogTxt);
         Assert.ExpectedError(
           StrSubstNo(DimensionUsedErr,
-            GenJournalLine.TableCaption, GenJournalLine."Journal Template Name",
+            GenJournalLine.TableCaption(), GenJournalLine."Journal Template Name",
             GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 
@@ -1135,7 +1135,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
             VendorLedgerEntry.CalcFields("Remaining Amount");
             VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
             VendorLedgerEntry.Modify(true);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -1215,7 +1215,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GetVendorAndUpdatePmtTerms(Vendor);
 
         // Compute Invoice and Payment amounts.
-        ComputeAmounts(InvLCYFullAmount, PmtLCYFullAmount, 1.0, WorkDate);
+        ComputeAmounts(InvLCYFullAmount, PmtLCYFullAmount, 1.0, WorkDate());
 
         // Create an Invoice.
         for i := 1 to NumberOfInvoices do begin
@@ -1578,7 +1578,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           Amount);
 
         // Set posting date and currency.
-        PostingDate := CalcDate(PostingDelta, WorkDate);
+        PostingDate := CalcDate(PostingDelta, WorkDate());
         Pmt.Validate("Posting Date", PostingDate);
         Pmt.Validate("Currency Code", Currency);
         Pmt.Modify(true);
@@ -1603,7 +1603,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
             InvLCYAmount := Round((10 + LibraryRandom.RandInt(80)) / 100 * Remainder);
 
         // Convert amount to foreign currency.
-        InvAmount := Round(LibraryERM.ConvertCurrency(InvLCYAmount, '', Currency, WorkDate));
+        InvAmount := Round(LibraryERM.ConvertCurrency(InvLCYAmount, '', Currency, WorkDate()));
 
         // Create partial payment for PmtAmount.
         CreateVendorInvoice(InvVendorLedgerEntry, Vendor."No.", InvAmount, Currency);
@@ -1622,7 +1622,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
             PmtLCYAmount := Round((10 + LibraryRandom.RandInt(80)) / 100 * Remainder);
 
         // Convert amount to foreign currency.
-        PmtAmount := Round(LibraryERM.ConvertCurrency(PmtLCYAmount, '', Currency, WorkDate));
+        PmtAmount := Round(LibraryERM.ConvertCurrency(PmtLCYAmount, '', Currency, WorkDate()));
 
         // Create partial payment for PmtAmount.
         CreateVendorPayment(PmtVendorLedgerEntry, Vendor."No.", PmtAmount, Currency, PostingDelta);
@@ -1641,7 +1641,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
             PmtLCYAmount := Round((10 + LibraryRandom.RandInt(80)) / 100 * Remainder);
 
         // Convert amount to foreign currency.
-        PmtAmount := Round(LibraryERM.ConvertCurrency(PmtLCYAmount, '', Currency, WorkDate));
+        PmtAmount := Round(LibraryERM.ConvertCurrency(PmtLCYAmount, '', Currency, WorkDate()));
         if PaymentNumber = NumberOfPayments then
             PmtAmount += Abs(LCYRemainder - PmtAmount);
 
@@ -1659,7 +1659,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
             LibraryERM.CreateGeneralJnlLine(
               GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
             "Applies-to ID" := AppliesToID;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1674,7 +1674,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
               GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
             "Applies-to Doc. No." := AppliesToDocNo;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1916,7 +1916,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VendorLedgerEntry.CalcFields("Remaining Amount");
         repeat
             VendorLedgerEntry.TestField("Remaining Amount", RemainingAmount);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure SetApplicationMethodOnVendor(VendorNo: Code[20]; ApplicationMethod: Enum "Application Method")
@@ -1931,7 +1931,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     local procedure VerifyExtDocNoAmount(GenJournalLine: Record "Gen. Journal Line"; ExpectedExtDocNo: Code[35]; ExpectedAmount: Decimal)
     begin
         with GenJournalLine do begin
-            Find;
+            Find();
             Assert.AreEqual(
               ExpectedExtDocNo, "Applies-to Ext. Doc. No.",
               StrSubstNo(WrongValErr, FieldCaption("Applies-to Ext. Doc. No."), ExpectedExtDocNo, TableCaption));
@@ -2012,7 +2012,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         AppliesToID := ApplyVendorEntries.AppliesToID.Value;
 
-        ApplyVendorEntries.Next;
+        ApplyVendorEntries.Next();
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         ApplyVendorEntries.AppliesToID.SetValue('');
         ApplyVendorEntries.AppliesToID.AssertEquals('');
@@ -2032,7 +2032,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         AppliesToID := ApplyVendorEntries.AppliesToID.Value;
 
-        ApplyVendorEntries.Next;
+        ApplyVendorEntries.Next();
         ApplyVendorEntries.AppliesToID.SetValue(AppliesToID);
         ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
 
@@ -2052,7 +2052,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         AppliesToID := ApplyVendorEntries.AppliesToID.Value;
 
-        ApplyVendorEntries.Next;
+        ApplyVendorEntries.Next();
         AlternativeAppliesToID := LibraryUtility.GenerateGUID();
         ApplyVendorEntries.AppliesToID.SetValue(AlternativeAppliesToID);
 

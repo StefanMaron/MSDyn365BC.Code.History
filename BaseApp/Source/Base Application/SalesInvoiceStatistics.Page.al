@@ -147,7 +147,7 @@ page 397 "Sales Invoice Statistics"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupAdjmtValueEntries;
+                        LookupAdjmtValueEntries();
                     end;
                 }
             }
@@ -192,7 +192,7 @@ page 397 "Sales Invoice Statistics"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -211,7 +211,7 @@ page 397 "Sales Invoice Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", CustAmount, "Currency Factor");
+                WorkDate(), "Currency Code", CustAmount, "Currency Factor");
 
         CustLedgEntry.SetCurrentKey("Document No.");
         CustLedgEntry.SetRange("Document No.", "No.");
@@ -253,15 +253,12 @@ page 397 "Sales Invoice Statistics"
     end;
 
     var
-        Text000: Label 'VAT Amount';
-        Text001: Label '%1% VAT';
         CurrExchRate: Record "Currency Exchange Rate";
         SalesInvLine: Record "Sales Invoice Line";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TotalAdjCostLCY: Decimal;
         CustAmount: Decimal;
-        AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
         VATAmount: Decimal;
         ProfitLCY: Decimal;
@@ -277,8 +274,12 @@ page 397 "Sales Invoice Statistics"
         VATPercentage: Decimal;
         VATAmountText: Text[30];
 
+        Text000: Label 'VAT Amount';
+        Text001: Label '%1% VAT';
+
     protected var
         Currency: Record Currency;
+        AmountInclVAT: Decimal;
         AmountLCY: Decimal;
         CostLCY: Decimal;
 

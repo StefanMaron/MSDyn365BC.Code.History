@@ -16,13 +16,13 @@ page 5305 "Outlook Synch. User Setup"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "User Lookup";
                     ToolTip = 'Specifies the ID of a user who uses the Windows Server Authentication to log on to Dynamics 365 to access the current database. In Dynamics 365 the user ID consists of only a user name.';
                 }
-                field("Synch. Entity Code"; "Synch. Entity Code")
+                field("Synch. Entity Code"; Rec."Synch. Entity Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the synchronization entity. The program copied this code from the Code field of the Outlook Synch. Entity table.';
@@ -33,7 +33,7 @@ page 5305 "Outlook Synch. User Setup"
                     DrillDown = false;
                     ToolTip = 'Specifies a brief description of the synchronization entity. The program copies this description from the Description field of the Outlook Synch. Entity table. This field is filled in when you enter a code in the Synch. Entity Code field.';
                 }
-                field("No. of Elements"; "No. of Elements")
+                field("No. of Elements"; Rec."No. of Elements")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the collections which were selected for the synchronization. The user defines these collections on the Outlook Synch. Setup Details page.';
@@ -49,7 +49,7 @@ page 5305 "Outlook Synch. User Setup"
                         Condition := CopyStr(OSynchSetupMgt.ShowOSynchFiltersForm("Record GUID", OSynchEntity."Table No.", 0), 1, MaxStrLen(Condition));
                     end;
                 }
-                field("Synch. Direction"; "Synch. Direction")
+                field("Synch. Direction"; Rec."Synch. Direction")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the direction of the synchronization for the current entry. The following options are available:';
@@ -106,7 +106,7 @@ page 5305 "Outlook Synch. User Setup"
                     trigger OnAction()
                     begin
                         OSynchEntity.Get("Synch. Entity Code");
-                        OSynchEntity.SetRecFilter;
+                        OSynchEntity.SetRecFilter();
                         REPORT.Run(REPORT::"Outlook Synch. Change Log Set.", true, false, OSynchEntity);
                     end;
                 }
@@ -118,7 +118,7 @@ page 5305 "Outlook Synch. User Setup"
     var
         OutlookSynchSetupDefaults: Codeunit "Outlook Synch. Setup Defaults";
     begin
-        OutlookSynchSetupDefaults.InsertOSynchDefaults;
+        OutlookSynchSetupDefaults.InsertOSynchDefaults();
     end;
 
     var

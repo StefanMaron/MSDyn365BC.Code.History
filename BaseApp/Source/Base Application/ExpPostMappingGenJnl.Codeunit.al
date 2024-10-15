@@ -44,7 +44,7 @@ codeunit 1275 "Exp. Post-Mapping Gen. Jnl."
         until GenJnlLine.Next() = 0;
         LineNo += TempInteger.Count();
 
-        Window.Close;
+        Window.Close();
     end;
 
     var

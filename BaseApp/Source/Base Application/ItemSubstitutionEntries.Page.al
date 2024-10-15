@@ -14,12 +14,12 @@ page 5718 "Item Substitution Entries"
             group(General)
             {
                 Caption = 'General';
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
@@ -28,12 +28,12 @@ page 5718 "Item Substitution Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Substitute No."; "Substitute No.")
+                field("Substitute No."; Rec."Substitute No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the item that can be used as a substitute in case the original item is unavailable.';
                 }
-                field("Substitute Variant Code"; "Substitute Variant Code")
+                field("Substitute Variant Code"; Rec."Substitute Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the code of the variant that can be used as a substitute.';
@@ -50,7 +50,7 @@ page 5718 "Item Substitution Entries"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies how many units (such as pieces, boxes, or cans) of the item are available.';
                 }
-                field("Quantity Avail. on Shpt. Date"; "Quantity Avail. on Shpt. Date")
+                field("Quantity Avail. on Shpt. Date"; Rec."Quantity Avail. on Shpt. Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the substitute item quantity available on the shipment date.';
@@ -86,8 +86,6 @@ page 5718 "Item Substitution Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Condition';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Sub. Conditions";
                 RunPageLink = Type = FIELD(Type),
                               "No." = FIELD("No."),
@@ -96,6 +94,17 @@ page 5718 "Item Substitution Entries"
                               "Substitute No." = FIELD("Substitute No."),
                               "Substitute Variant Code" = FIELD("Substitute Variant Code");
                 ToolTip = 'Specify a condition for the item substitution, which is for information only and does not affect the item substitution.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Condition_Promoted"; "&Condition")
+                {
+                }
             }
         }
     }

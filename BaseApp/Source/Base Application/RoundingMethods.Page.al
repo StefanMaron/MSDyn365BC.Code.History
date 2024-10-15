@@ -18,12 +18,12 @@ page 65 "Rounding Methods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the rounding method for item prices.';
                 }
-                field("Minimum Amount"; "Minimum Amount")
+                field("Minimum Amount"; Rec."Minimum Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the minimum amount to round.';
                 }
-                field("Amount Added Before"; "Amount Added Before")
+                field("Amount Added Before"; Rec."Amount Added Before")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an amount to add before it is rounded.';
@@ -38,7 +38,7 @@ page 65 "Rounding Methods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the size of the interval that you want between rounded amounts.';
                 }
-                field("Amount Added After"; "Amount Added After")
+                field("Amount Added After"; Rec."Amount Added After")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an amount to add, after the amount has been rounded.';

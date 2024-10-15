@@ -64,7 +64,7 @@ codeunit 9150 "My Records Filter Sub."
                 AddToFilter(TextFilterText, Format(FieldRef.Value));
                 NoOfValues += 1;
             until (RecRef.Next() = 0) or (NoOfValues > 2000);
-        RecRef.Close;
+        RecRef.Close();
 
         if NoOfValues > 2000 then
             Message(OverflowMsg);

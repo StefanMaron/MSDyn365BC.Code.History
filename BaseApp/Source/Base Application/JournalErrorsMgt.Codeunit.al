@@ -15,6 +15,13 @@ codeunit 9080 "Journal Errors Mgt."
         TempGenJnlLineAfterModify: Record "Gen. Journal Line" temporary;
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         FullBatchCheck: Boolean;
+        NothingToPostErr: Label 'There is nothing to post because the journal does not contain a quantity or amount.';
+
+    procedure GetNothingToPostErrorMsg(): Text
+    begin
+        exit(NothingToPostErr);
+    end;
+
 #if not CLEAN20
     [Obsolete('FeatureKey JournalErrorBackgroundCheck removed', '19.0')]
     procedure IsEnabled() Result: Boolean

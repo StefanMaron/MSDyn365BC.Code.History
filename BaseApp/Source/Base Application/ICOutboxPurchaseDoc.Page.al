@@ -139,9 +139,6 @@ page 638 "IC Outbox Purchase Doc."
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "IC Document Dimensions";
                     RunPageLink = "Table ID" = CONST(428),
                                   "Transaction No." = FIELD("IC Transaction No."),
@@ -150,6 +147,17 @@ page 638 "IC Outbox Purchase Doc."
                                   "Line No." = CONST(0);
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
                 }
             }
         }

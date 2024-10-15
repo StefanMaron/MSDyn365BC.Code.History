@@ -10,9 +10,8 @@
     begin
         LockTable();
         BankAccount.Get("Bal. Account No.");
-        if Export(Rec, BankAccount.GetPaymentExportXMLPortID) then begin
+        if Export(Rec, BankAccount.GetPaymentExportXMLPortID()) then begin
             ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(Rec);
-
             // Delete journal lines that where just processed
             if FindSet() then
                 DeleteAll();
@@ -45,7 +44,7 @@
         OnBeforeBLOBExport(TempBlob, CreditTransferRegister, UseCommonDialog, FileCreated, IsHandled);
         if not IsHandled then
             FileCreated :=
-              FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', CreditTransferRegister.Identifier), UseCommonDialog) <> '';
+                FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', CreditTransferRegister.Identifier), UseCommonDialog) <> '';
         if FileCreated then
             SetCreditTransferRegisterToFileCreated(CreditTransferRegister, TempBlob);
 

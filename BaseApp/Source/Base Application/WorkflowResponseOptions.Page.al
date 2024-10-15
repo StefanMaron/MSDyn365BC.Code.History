@@ -27,7 +27,7 @@ page 1523 "Workflow Response Options"
                 {
                     ShowCaption = false;
                     Visible = "Response Option Group" = 'GROUP 1';
-                    field("General Journal Template Name"; "General Journal Template Name")
+                    field("General Journal Template Name"; Rec."General Journal Template Name")
                     {
                         ApplicationArea = Suite;
                         ShowMandatory = true;
@@ -38,7 +38,7 @@ page 1523 "Workflow Response Options"
                             CurrPage.Update(true)
                         end;
                     }
-                    field("General Journal Batch Name"; "General Journal Batch Name")
+                    field("General Journal Batch Name"; Rec."General Journal Batch Name")
                     {
                         ApplicationArea = Suite;
                         ShowMandatory = true;
@@ -65,13 +65,13 @@ page 1523 "Workflow Response Options"
                             CurrPage.Update(true)
                         end;
                     }
-                    field("Link Target Page Approvals"; "Link Target Page")
+                    field("Link Target Page Approvals"; Rec."Link Target Page")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Link Target Page';
                         ToolTip = 'Specifies a specific page that opens when a user chooses the link in a notification. If you do not fill this field, the page showing the involved record will open. The page must have the same source table as the record involved.';
                     }
-                    field("Custom Link Approvals"; "Custom Link")
+                    field("Custom Link Approvals"; Rec."Custom Link")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Custom Link';
@@ -93,7 +93,7 @@ page 1523 "Workflow Response Options"
                             CurrPage.Update(true)
                         end;
                     }
-                    field("Notification User ID"; "Notification User ID")
+                    field("Notification User ID"; Rec."Notification User ID")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Recipient User ID';
@@ -106,19 +106,19 @@ page 1523 "Workflow Response Options"
                             CurrPage.Update(true)
                         end;
                     }
-                    field("Notification Entry Type"; "Notification Entry Type")
+                    field("Notification Entry Type"; Rec."Notification Entry Type")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Notification Entry Type';
                         ToolTip = 'Specifies the type of the notification.';
                     }
-                    field("Link Target Page"; "Link Target Page")
+                    field("Link Target Page"; Rec."Link Target Page")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Link Target Page';
                         ToolTip = 'Specifies a specific page that opens when a user chooses the link in a notification. If you do not fill this field, the page showing the involved record will open. The page must have the same source table as the record involved.';
                     }
-                    field("Custom Link"; "Custom Link")
+                    field("Custom Link"; Rec."Custom Link")
                     {
                         ApplicationArea = Suite;
                         ToolTip = 'Specifies a link that is inserted in the notification to link to a custom location.';
@@ -144,29 +144,29 @@ page 1523 "Workflow Response Options"
                 {
                     ShowCaption = false;
                     Visible = "Response Option Group" = 'GROUP 5';
-                    field("Show Confirmation Message"; "Show Confirmation Message")
+                    field("Show Confirmation Message"; Rec."Show Confirmation Message")
                     {
                         ApplicationArea = Suite;
                         ToolTip = 'Specifies that a confirmation message is shown to users after they request an approval.';
                     }
-                    field("Due Date Formula"; "Due Date Formula")
+                    field("Due Date Formula"; Rec."Due Date Formula")
                     {
                         ApplicationArea = Suite;
                         ToolTip = 'Specifies in how many days the approval request must be resolved from the date when it was sent.';
                     }
-                    field("Delegate After"; "Delegate After")
+                    field("Delegate After"; Rec."Delegate After")
                     {
                         ApplicationArea = Suite;
                         ToolTip = 'Specifies if and when an approval request will automatically be delegated to the relevant substitute. You can select to automatically delegate one, two, or five days after the date when the approval was requested.';
                     }
-                    field("Approver Type"; "Approver Type")
+                    field("Approver Type"; Rec."Approver Type")
                     {
                         ApplicationArea = Suite;
                         ToolTip = 'Specifies who is notified first about approval requests.';
 
                         trigger OnValidate()
                         begin
-                            SetVisibilityOptions;
+                            SetVisibilityOptions();
                             CurrPage.Update(true)
                         end;
                     }
@@ -174,7 +174,7 @@ page 1523 "Workflow Response Options"
                     {
                         ShowCaption = false;
                         Visible = ShowApprovalLimitType;
-                        field("Approver Limit Type"; "Approver Limit Type")
+                        field("Approver Limit Type"; Rec."Approver Limit Type")
                         {
                             ApplicationArea = Suite;
                             ToolTip = 'Specifies how approvers'' approval limits affect when approval request entries are created for them. A qualified approver is an approver whose approval limit is above the value on the approval request.';
@@ -189,7 +189,7 @@ page 1523 "Workflow Response Options"
                     {
                         ShowCaption = false;
                         Visible = NOT ShowApprovalLimitType;
-                        field("Workflow User Group Code"; "Workflow User Group Code")
+                        field("Workflow User Group Code"; Rec."Workflow User Group Code")
                         {
                             ApplicationArea = Suite;
                             ShowMandatory = true;
@@ -243,14 +243,14 @@ page 1523 "Workflow Response Options"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            GetEventTable;
+                            GetEventTable();
                             Text := LookupFieldCaption(Format("Table No."), '');
                             exit(Text <> '')
                         end;
 
                         trigger OnValidate()
                         begin
-                            ValidateFieldCaption;
+                            ValidateFieldCaption();
                         end;
                     }
                 }
@@ -286,13 +286,13 @@ page 1523 "Workflow Response Options"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                Text := LookupFieldCaptionForApplyNewValues;
+                                Text := LookupFieldCaptionForApplyNewValues();
                                 exit(Text <> '')
                             end;
 
                             trigger OnValidate()
                             begin
-                                ValidateFieldCaption;
+                                ValidateFieldCaption();
                             end;
                         }
                     }
@@ -301,14 +301,14 @@ page 1523 "Workflow Response Options"
                 {
                     ShowCaption = false;
                     Visible = "Response Option Group" = 'GROUP 8';
-                    field("Response Type"; "Response Type")
+                    field("Response Type"; Rec."Response Type")
                     {
                         ApplicationArea = Suite;
                         ToolTip = 'Specifies the response type for the workflow response. You cannot set options for this.';
 
                         trigger OnValidate()
                         begin
-                            SetVisibilityOptions;
+                            SetVisibilityOptions();
                             CurrPage.Update(true)
                         end;
                     }
@@ -340,8 +340,8 @@ page 1523 "Workflow Response Options"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetVisibilityOptions;
-        GetEventTable;
+        SetVisibilityOptions();
+        GetEventTable();
         CalcFields("Field Caption");
         TableFieldCaption := "Field Caption";
         ApplyAllValues := ("Field No." = 0);
@@ -349,7 +349,7 @@ page 1523 "Workflow Response Options"
 
     trigger OnAfterGetRecord()
     begin
-        SetVisibilityOptions;
+        SetVisibilityOptions();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -363,7 +363,7 @@ page 1523 "Workflow Response Options"
     begin
         NoArguments := NoArgumentsTxt;
         ApprovalUserSetupLabel := StrSubstNo(OpenPageTxt, ApprovalUserSetup.Caption);
-        HideExternalUsers;
+        HideExternalUsers();
     end;
 
     var
@@ -443,7 +443,7 @@ page 1523 "Workflow Response Options"
         WorkflowStepApply.SetRange(Argument, ID);
         if WorkflowStepApply.FindFirst() then begin
             WorkflowStepRevert.SetRange("Workflow Code", WorkflowStepApply."Workflow Code");
-            WorkflowStepRevert.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode);
+            WorkflowStepRevert.SetRange("Function Name", WorkflowResponseHandling.RevertValueForFieldCode());
 
             if WorkflowStepRevert.FindSet() then
                 repeat

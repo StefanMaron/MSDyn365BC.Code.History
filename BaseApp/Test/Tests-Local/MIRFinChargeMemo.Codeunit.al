@@ -113,7 +113,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         with IssuedFinChargeMemoHeader do begin
-            Init;
+            Init();
             Validate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header"));
             Validate("Customer No.", Customer."No.");
             Validate("Customer Posting Group", Customer."Customer Posting Group");
@@ -131,7 +131,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
         RecRef: RecordRef;
     begin
         with IssuedFinChargeMemoLine do begin
-            Init;
+            Init();
             Validate("Finance Charge Memo No.", IssuedFinChargeMemoNo);
             RecRef.GetTable(IssuedFinChargeMemoLine);
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));

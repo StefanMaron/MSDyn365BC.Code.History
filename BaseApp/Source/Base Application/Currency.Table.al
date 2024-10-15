@@ -506,12 +506,12 @@ table 4 Currency
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetRange("Currency Code", Code);
         if not CustLedgEntry.IsEmpty() then
-            Error(Text002, CustLedgEntry.TableCaption, TableCaption, Code);
+            Error(Text002, CustLedgEntry.TableCaption(), TableCaption(), Code);
 
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.SetRange("Currency Code", Code);
         if not VendLedgEntry.IsEmpty() then
-            Error(Text002, VendLedgEntry.TableCaption, TableCaption, Code);
+            Error(Text002, VendLedgEntry.TableCaption(), TableCaption(), Code);
 
         CurrExchRate.SetRange("Currency Code", Code);
         CurrExchRate.DeleteAll();
@@ -537,10 +537,12 @@ table 4 Currency
     end;
 
     var
-        Text000: Label 'must be rounded to the nearest %1';
-        Text001: Label '%1 must be rounded to the nearest %2.';
         CurrExchRate: Record "Currency Exchange Rate";
         GLSetup: Record "General Ledger Setup";
+        TypeHelper: Codeunit "Type Helper";
+
+        Text000: Label 'must be rounded to the nearest %1';
+        Text001: Label '%1 must be rounded to the nearest %2.';
         Text002: Label 'There is one or more opened entries in the %1 table using %2 %3.', Comment = '1 either customer or vendor ledger entry table 2 name co currency table 3 currencency code';
         IncorrectEntryTypeErr: Label 'Incorrect Entry Type %1.';
         EuroDescriptionTxt: Label 'Euro', Comment = 'Currency Description';
@@ -550,7 +552,6 @@ table 4 Currency
         ISOCodeLengthErr: Label 'The length of the string is %1, but it must be equal to %2 characters. Value: %3.', Comment = '%1, %2 - numbers, %3 - actual value';
         ASCIILetterErr: Label 'must contain ASCII letters only';
         NumericErr: Label 'must contain numbers only';
-        TypeHelper: Codeunit "Type Helper";
 
     procedure InitRoundingPrecision()
     begin
@@ -577,7 +578,7 @@ table 4 Currency
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
         end;
     end;
 
@@ -617,13 +618,13 @@ table 4 Currency
 
         case DtldCVLedgEntryBuf."Entry Type" of
             DtldCVLedgEntryBuf."Entry Type"::"Unrealized Loss":
-                exit(GetUnrealizedLossesAccount);
+                exit(GetUnrealizedLossesAccount());
             DtldCVLedgEntryBuf."Entry Type"::"Unrealized Gain":
-                exit(GetUnrealizedGainsAccount);
+                exit(GetUnrealizedGainsAccount());
             DtldCVLedgEntryBuf."Entry Type"::"Realized Loss":
-                exit(GetRealizedLossesAccount);
+                exit(GetRealizedLossesAccount());
             DtldCVLedgEntryBuf."Entry Type"::"Realized Gain":
-                exit(GetRealizedGainsAccount);
+                exit(GetRealizedGainsAccount());
             else
                 Error(IncorrectEntryTypeErr, DtldCVLedgEntryBuf."Entry Type");
         end;
@@ -758,7 +759,7 @@ table 4 Currency
             exit(Currency.ResolveCurrencySymbol(CurrencyCode));
 
         GLSetup.Get();
-        exit(GLSetup.GetCurrencySymbol);
+        exit(GLSetup.GetCurrencySymbol());
     end;
 
     procedure Initialize(CurrencyCode: Code[10])
@@ -827,7 +828,7 @@ table 4 Currency
         CurrencyFieldRef := CurrencyRecRef.Field(FieldNo(Code));
         CurrencyFieldRef.SetFilter('<>%1', Code);
         TempAccountUseBuffer.UpdateBuffer(CurrencyRecRef, AccountFieldNo);
-        CurrencyRecRef.Close;
+        CurrencyRecRef.Close();
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");

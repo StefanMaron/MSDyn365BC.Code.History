@@ -126,7 +126,7 @@ page 7376 "Invt. Put-away Subform"
 
                     trigger OnValidate()
                     begin
-                        QtytoHandleOnAfterValidate;
+                        QtytoHandleOnAfterValidate();
                     end;
                 }
                 field("Qty. Handled"; Rec."Qty. Handled")
@@ -242,7 +242,7 @@ page 7376 "Invt. Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        ShowBinContents;
+                        ShowBinContents();
                     end;
                 }
                 group("Item Availability by")
@@ -258,7 +258,7 @@ page 7376 "Invt. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByEvent);
+                            ItemAvailability(ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -270,7 +270,7 @@ page 7376 "Invt. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailability(ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -282,7 +282,7 @@ page 7376 "Invt. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByVariant);
+                            ItemAvailability(ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -295,7 +295,7 @@ page 7376 "Invt. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByLocation);
+                            ItemAvailability(ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)
@@ -321,7 +321,7 @@ page 7376 "Invt. Put-away Subform"
 
     trigger OnAfterGetRecord()
     begin
-        ExpirationDateOnFormat;
+        ExpirationDateOnFormat();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -462,7 +462,7 @@ page 7376 "Invt. Put-away Subform"
 
     local procedure ExpirationDateOnFormat()
     begin
-        if UpdateExpDateEditable then;
+        if UpdateExpDateEditable() then;
     end;
 
     local procedure SetPackageTrackingVisibility()

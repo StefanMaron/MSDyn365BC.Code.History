@@ -113,7 +113,7 @@ codeunit 143003 "E-Invoice Helper"
     procedure InitExpectedCustomerInfo(var TempExpectedCustomerInfo: Record Customer temporary)
     begin
         with TempExpectedCustomerInfo do begin
-            Init;
+            Init();
             Address := 'Kanalvej 1';
             "Address 2" := 'Kanalvej 42';
             City := 'Kongens Lyngby';
@@ -142,7 +142,7 @@ codeunit 143003 "E-Invoice Helper"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("E-Invoice Sales Invoice Path", Path);
             Validate("E-Invoice Sales Cr. Memo Path", Path);
             Validate("E-Invoice Reminder Path", Path);
@@ -157,7 +157,7 @@ codeunit 143003 "E-Invoice Helper"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("KID Setup", NewKIDSetup);
             "Document No. length" := DocNoLength;
             "Customer No. length" := CustNoLength;

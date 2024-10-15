@@ -1290,7 +1290,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("SWIFT Code", LibraryUtility.GenerateRandomXMLText(MaxStrLen("SWIFT Code")));
             Modify(true);
         end;
@@ -1359,7 +1359,7 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         VATCode: Record "VAT Code";
     begin
         with VATCode do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Code");
             "Gen. Posting Type" := "Gen. Posting Type"::Sale;
             "Trade Settlement 2017 Box No." := ReportBoxNo;
@@ -1567,8 +1567,8 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         LibraryXMLRead.VerifyNodeValueInSubtree('meldingsopplysning', 'meldingstype', 1);
         LibraryXMLRead.VerifyNodeValueInSubtree('meldingsopplysning', 'termintype', 4);
         LibraryXMLRead.VerifyNodeValueInSubtree(
-          'meldingsopplysning', 'termin', '0' + Format(NorwegianVATTools.VATPeriodNo(WorkDate)) + '4');
-        LibraryXMLRead.VerifyNodeValueInSubtree('meldingsopplysning', 'aar', Date2DMY(WorkDate, 3));
+          'meldingsopplysning', 'termin', '0' + Format(NorwegianVATTools.VATPeriodNo(WorkDate())) + '4');
+        LibraryXMLRead.VerifyNodeValueInSubtree('meldingsopplysning', 'aar', Date2DMY(WorkDate(), 3));
     end;
 
     local procedure VerifyBoxesForDeduction(VATBase: Decimal; VATAmount: Decimal; DeductionRate: Decimal; VATBaseAndAmountBoxNo: Integer)
@@ -1613,8 +1613,8 @@ codeunit 144004 "Trade Settlement 2017 - XML"
         NorwegianVATTools: Codeunit "Norwegian VAT Tools";
         FileName: Text;
     begin
-        TradeSettlement2017.SettlementYear.SetValue(Date2DMY(WorkDate, 3));
-        TradeSettlement2017.SettlementPeriod.SetValue(NorwegianVATTools.VATPeriodNo(WorkDate));
+        TradeSettlement2017.SettlementYear.SetValue(Date2DMY(WorkDate(), 3));
+        TradeSettlement2017.SettlementPeriod.SetValue(NorwegianVATTools.VATPeriodNo(WorkDate()));
         TradeSettlement2017.ExportXML.SetValue(true);
         FileName := LibraryVariableStorage.DequeueText;
         TradeSettlement2017.ClientFileName.SetValue(LibraryVariableStorage.DequeueText());

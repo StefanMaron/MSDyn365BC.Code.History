@@ -613,7 +613,7 @@ table 5993 "Service Invoice Line"
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(ServInvHeader: Record "Service Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -625,7 +625,7 @@ table 5993 "Service Invoice Line"
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromServInvLine(Rec);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader, TempVATAmountLine);
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
@@ -658,7 +658,7 @@ table 5993 "Service Invoice Line"
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID",
-          StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+          StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])

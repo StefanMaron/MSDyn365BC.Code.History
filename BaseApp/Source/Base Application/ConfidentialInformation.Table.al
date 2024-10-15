@@ -34,8 +34,9 @@ table 5216 "Confidential Information"
         }
         field(5; Comment; Boolean)
         {
-            CalcFormula = Exist ("HR Confidential Comment Line" WHERE("Table Name" = CONST("Confidential Information"),
+            CalcFormula = Exist("HR Confidential Comment Line" WHERE("Table Name" = CONST("Confidential Information"),
                                                                       "No." = FIELD("Employee No."),
+                                                                      "Code" = FIELD("Confidential Code"),
                                                                       "Table Line No." = FIELD("Line No.")));
             Caption = 'Comment';
             Editable = false;
@@ -62,7 +63,8 @@ table 5216 "Confidential Information"
     end;
 
     var
-        Text000: Label 'You can not delete confidential information if there are comments associated with it.';
         Confidential: Record Confidential;
+
+        Text000: Label 'You can not delete confidential information if there are comments associated with it.';
 }
 

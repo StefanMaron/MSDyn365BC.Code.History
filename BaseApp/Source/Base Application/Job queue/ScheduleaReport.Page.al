@@ -12,7 +12,7 @@ page 682 "Schedule a Report"
     {
         area(content)
         {
-            field("Object ID to Run"; "Object ID to Run")
+            field("Object ID to Run"; Rec."Object ID to Run")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Report ID';
@@ -33,11 +33,11 @@ page 682 "Schedule a Report"
                 trigger OnValidate()
                 begin
                     if "Object ID to Run" <> 0 then
-                        RunReportRequestPage;
+                        RunReportRequestPage();
                     OutPutEditable := REPORT.DefaultLayout("Object ID to Run") <> DEFAULTLAYOUT::None; // Processing Only
                 end;
             }
-            field("Object Caption to Run"; "Object Caption to Run")
+            field("Object Caption to Run"; Rec."Object Caption to Run")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Report Name';
@@ -49,38 +49,38 @@ page 682 "Schedule a Report"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies a description of the job queue entry. You can edit and update the description on the job queue entry card. The description is also displayed in the Job Queue Entries window, but it cannot be updated there.';
             }
-            field("Report Request Page Options"; "Report Request Page Options")
+            field("Report Request Page Options"; Rec."Report Request Page Options")
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies whether options on the report request page have been set for scheduled report job. If the check box is selected, then options have been set for the scheduled report.';
                 Visible = ReportEditable;
             }
-            field("Report Output Type"; "Report Output Type")
+            field("Report Output Type"; Rec."Report Output Type")
             {
                 ApplicationArea = Basic, Suite;
                 Enabled = OutPutEditable;
                 ToolTip = 'Specifies the output of the scheduled report.';
             }
-            field("Printer Name"; "Printer Name")
+            field("Printer Name"; Rec."Printer Name")
             {
                 ApplicationArea = Basic, Suite;
                 Enabled = "Report Output Type" = "Report Output Type"::Print;
                 Importance = Additional;
                 ToolTip = 'Specifies the printer to use to print the scheduled report.';
             }
-            field("Next Run Date Formula"; "Next Run Date Formula")
+            field("Next Run Date Formula"; Rec."Next Run Date Formula")
             {
                 ApplicationArea = Basic, Suite;
                 Importance = Additional;
                 ToolTip = 'Specifies the date formula that is used to calculate the next time the recurring job queue entry will run.';
             }
-            field("Earliest Start Date/Time"; "Earliest Start Date/Time")
+            field("Earliest Start Date/Time"; Rec."Earliest Start Date/Time")
             {
                 ApplicationArea = Basic, Suite;
                 Importance = Additional;
                 ToolTip = 'Specifies the earliest date and time when the job queue entry should be run.  The format for the date and time must be month/day/year hour:minute, and then AM or PM. For example, 3/10/2021 12:00 AM.';
             }
-            field("Expiration Date/Time"; "Expiration Date/Time")
+            field("Expiration Date/Time"; Rec."Expiration Date/Time")
             {
                 ApplicationArea = Basic, Suite;
                 Importance = Additional;
@@ -96,7 +96,7 @@ page 682 "Schedule a Report"
     trigger OnOpenPage()
     begin
         if not FindFirst() then begin
-            Init;
+            Init();
             ReportEditable := true;
             OutPutEditable := true;
             Status := Status::"On Hold";
@@ -121,12 +121,12 @@ page 682 "Schedule a Report"
         CalcFields(XML);
         JobQueueEntry := Rec;
         Clear(JobQueueEntry.ID); // "Job Queue - Enqueue" defines it on the real record insert
-        JobQueueEntry."Run in User Session" := not JobQueueEntry.IsNextRunDateFormulaSet;
+        JobQueueEntry."Run in User Session" := not JobQueueEntry.IsNextRunDateFormulaSet();
         if JobQueueEntry.Description = '' then
             JobQueueEntry.Description := CopyStr("Object Caption to Run", 1, MaxStrLen(JobQueueEntry.Description));
         OnOnQueryClosePageOnBeforeJobQueueEnqueue(Rec, JobQueueEntry);
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-        if JobQueueEntry.IsToReportInbox then
+        if JobQueueEntry.IsToReportInbox() then
             Message(ReportScheduledMsg);
         exit(true);
     end;
@@ -142,7 +142,7 @@ page 682 "Schedule a Report"
         ScheduleAReport: Page "Schedule a Report";
     begin
         ScheduleAReport.SetParameters(ReportId, RequestPageXml);
-        exit(ScheduleAReport.RunModal = ACTION::OK);
+        exit(ScheduleAReport.RunModal() = ACTION::OK);
     end;
 
     procedure SetParameters(ReportId: Integer; RequestPageXml: Text)
@@ -150,7 +150,7 @@ page 682 "Schedule a Report"
         ReportDescription: Text[250];
         IsHandled: Boolean;
     begin
-        Init;
+        Init();
         Status := Status::"On Hold";
         Validate("Object Type to Run", "Object Type to Run"::Report);
         Validate("Object ID to Run", ReportId);

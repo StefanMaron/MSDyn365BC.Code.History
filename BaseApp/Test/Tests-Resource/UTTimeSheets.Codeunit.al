@@ -138,8 +138,8 @@ codeunit 136500 "UT Time Sheets"
             ToTimeSheetLine.TestField("Cause of Absence Code", FromTimeSheetLine."Cause of Absence Code");
             ToTimeSheetLine.TestField(Description, FromTimeSheetLine.Description);
             ToTimeSheetLine.TestField(Chargeable, FromTimeSheetLine.Chargeable);
-            FromTimeSheetLine.Next;
-        until ToTimeSheetLine.Next = 0;
+            FromTimeSheetLine.Next();
+        until ToTimeSheetLine.Next() = 0;
 
         TearDown;
     end;
@@ -250,7 +250,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
-        TimeSheetLine.Find;
+        TimeSheetLine.Find();
         // Posted should be Yes
         Assert.IsTrue(TimeSheetLine.Posted, 'Time sheet line has to be posted.');
 
@@ -311,7 +311,7 @@ codeunit 136500 "UT Time Sheets"
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetNo[1] := TimeSheetHeader."No.";
 
-        ServiceHeader.Find;
+        ServiceHeader.Find();
 
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetNo[2] := TimeSheetHeader."No.";
@@ -377,7 +377,7 @@ codeunit 136500 "UT Time Sheets"
         // test for function "CreateServDocLinesFromTSLine" for Service Order from mulitple few time sheets
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
 
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetMgt.CreateServDocLinesFromTSLine(ServiceHeader, TimeSheetLine);
 
@@ -502,14 +502,14 @@ codeunit 136500 "UT Time Sheets"
             repeat
                 LibraryTimeSheet.CreateTimeSheetDetail(
                   TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
-            until TimeSheetLine.Next = 0;
+            until TimeSheetLine.Next() = 0;
 
         // submit and approve
         if TimeSheetLine.FindSet() then
             repeat
                 TimeSheetApprovalMgt.Submit(TimeSheetLine);
                 TimeSheetApprovalMgt.Approve(TimeSheetLine);
-            until TimeSheetLine.Next = 0;
+            until TimeSheetLine.Next() = 0;
 
         TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
 
@@ -1005,7 +1005,7 @@ codeunit 136500 "UT Time Sheets"
         Assert.IsTrue(TimeSheetList.Next, 'Expected record in repeater for Open Time Sheet');
         Assert.IsTrue(TimeSheetList.Next, 'Expected record in repeater for Open Time Sheet');
         Assert.IsFalse(TimeSheetList.Next, 'UnExpected record in repeater for Open Time Sheet');
-        TimeSheetList.Close;
+        TimeSheetList.Close();
 
         // [WHEN] The Time Sheet List is opened with filter set to Open
         // [THEN] The correct Time Sheet Header will be display.
@@ -1048,8 +1048,8 @@ codeunit 136500 "UT Time Sheets"
         // UT for TimeSheetMgt.CreateTSLineFromServiceLine
 
         // setup
-        Date := WorkDate;
-        DocumentNo := CopyStr(Format(CreateGuid), 1, MaxStrLen(DocumentNo));
+        Date := WorkDate();
+        DocumentNo := CopyStr(Format(CreateGuid()), 1, MaxStrLen(DocumentNo));
         InitUTScenario(Resource, TimeSheetHeader, Date);
         InitServiceLine(ServiceLine, Resource."No.", Date);
 
@@ -1084,7 +1084,7 @@ codeunit 136500 "UT Time Sheets"
         // UT for TimeSheetMgt.CreateTSLineFromServiceShptLine
 
         // setup
-        Date := WorkDate;
+        Date := WorkDate();
         InitUTScenario(Resource, TimeSheetHeader, Date);
         InitServiceShptLine(ServiceShipmentLine, Resource."No.", Date);
 
@@ -1116,10 +1116,10 @@ codeunit 136500 "UT Time Sheets"
 
         // setup
         Resource.Init();
-        Resource."No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(Resource."No."));
+        Resource."No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Resource."No."));
         Resource.Insert();
 
-        InitServiceLine(ServiceLine, Resource."No.", WorkDate);
+        InitServiceLine(ServiceLine, Resource."No.", WorkDate());
 
         // exercise (Document Number is not needed in this case)
         TimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, '', true);
@@ -1144,11 +1144,11 @@ codeunit 136500 "UT Time Sheets"
         // if ServiceLine."Time Sheet No." is fileld in, then time sheet line should not be created
 
         // setup
-        Date := WorkDate;
-        DocumentNo := CopyStr(Format(CreateGuid), 1, MaxStrLen(DocumentNo));
+        Date := WorkDate();
+        DocumentNo := CopyStr(Format(CreateGuid()), 1, MaxStrLen(DocumentNo));
         InitUTScenario(Resource, TimeSheetHeader, Date);
         InitServiceLine(ServiceLine, Resource."No.", Date);
-        ServiceLine."Time Sheet No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(ServiceLine."Time Sheet No."));
+        ServiceLine."Time Sheet No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(ServiceLine."Time Sheet No."));
 
         // exercise
         TimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, DocumentNo, true);
@@ -1172,10 +1172,10 @@ codeunit 136500 "UT Time Sheets"
         // if ServiceShipmentLine."Time Sheet No." is fileld in, then time sheet line should not be created
 
         // setup
-        Date := WorkDate;
+        Date := WorkDate();
         InitUTScenario(Resource, TimeSheetHeader, Date);
         InitServiceShptLine(ServiceShipmentLine, Resource."No.", Date);
-        ServiceShipmentLine."Time Sheet No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(ServiceShipmentLine."Time Sheet No."));
+        ServiceShipmentLine."Time Sheet No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(ServiceShipmentLine."Time Sheet No."));
 
         // exercise
         TimeSheetMgt.CreateTSLineFromServiceShptLine(ServiceShipmentLine);
@@ -1306,7 +1306,7 @@ codeunit 136500 "UT Time Sheets"
         // UT for TimeSheetMgt.CreateTSLineFromAssemblyLine
 
         // setup
-        Date := WorkDate;
+        Date := WorkDate();
         InitUTScenario(Resource, TimeSheetHeader, Date);
         InitAssemblyOrder(AssemblyHeader, AssemblyLine, Resource."No.", Date);
 
@@ -1541,7 +1541,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetHeader."Resource No." := Resource."No.";
         TimeSheetHeader."Starting Date" := CalcDate('<-CW>', Date);
         TimeSheetHeader."Ending Date" := CalcDate('<CW>', Date);
-        TimeSheetHeader."Approver User ID" := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetHeader."Approver User ID"));
+        TimeSheetHeader."Approver User ID" := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetHeader."Approver User ID"));
         TimeSheetHeader.Insert();
     end;
 
@@ -1550,18 +1550,18 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetDetail: Record "Time Sheet Detail";
         i: Integer;
     begin
-        TimeSheetHeader."No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetHeader."No."));
-        TimeSheetHeader."Starting Date" := CalcDate('<-CW>', WorkDate);
-        TimeSheetHeader."Ending Date" := CalcDate('<CW>', WorkDate);
+        TimeSheetHeader."No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetHeader."No."));
+        TimeSheetHeader."Starting Date" := CalcDate('<-CW>', WorkDate());
+        TimeSheetHeader."Ending Date" := CalcDate('<CW>', WorkDate());
         TimeSheetHeader.Insert();
 
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         TimeSheetLine."Line No." := 10000;
-        TimeSheetLine."Job No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine."Job No."));
-        TimeSheetLine."Job Task No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine."Job Task No."));
-        TimeSheetLine."Service Order No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine."Service Order No."));
-        TimeSheetLine."Assembly Order No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine."Assembly Order No."));
-        TimeSheetLine."Cause of Absence Code" := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine."Cause of Absence Code"));
+        TimeSheetLine."Job No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetLine."Job No."));
+        TimeSheetLine."Job Task No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetLine."Job Task No."));
+        TimeSheetLine."Service Order No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetLine."Service Order No."));
+        TimeSheetLine."Assembly Order No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetLine."Assembly Order No."));
+        TimeSheetLine."Cause of Absence Code" := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TimeSheetLine."Cause of Absence Code"));
         TimeSheetLine.Insert();
 
         for i := 1 to 7 do begin
@@ -1585,12 +1585,12 @@ codeunit 136500 "UT Time Sheets"
     local procedure InitServiceLine(var ServiceLine: Record "Service Line"; ResourceNo: Code[20]; Date: Date)
     begin
         with ServiceLine do begin
-            "Document No." := CopyStr(Format(CreateGuid), 1, MaxStrLen("Document No."));
+            "Document No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Document No."));
             "Line No." := Round(LibraryUtility.GenerateRandomFraction * 10000, 1);
             "No." := ResourceNo;
             "Posting Date" := Date;
-            "Work Type Code" := CopyStr(Format(CreateGuid), 1, MaxStrLen("Work Type Code"));
-            Description := Format(CreateGuid);
+            "Work Type Code" := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Work Type Code"));
+            Description := Format(CreateGuid());
             "Qty. to Ship" := LibraryUtility.GenerateRandomFraction * 10;
         end;
     end;
@@ -1598,14 +1598,14 @@ codeunit 136500 "UT Time Sheets"
     local procedure InitServiceShptLine(var ServiceShipmentLine: Record "Service Shipment Line"; ResourceNo: Code[20]; Date: Date)
     begin
         with ServiceShipmentLine do begin
-            "Document No." := CopyStr(Format(CreateGuid), 1, MaxStrLen("Document No."));
+            "Document No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Document No."));
             "Line No." := Round(LibraryUtility.GenerateRandomFraction * 10000, 1);
             "No." := ResourceNo;
             "Posting Date" := Date;
-            "Work Type Code" := CopyStr(Format(CreateGuid), 1, MaxStrLen("Work Type Code"));
-            Description := Format(CreateGuid);
+            "Work Type Code" := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Work Type Code"));
+            Description := Format(CreateGuid());
             "Qty. Shipped Not Invoiced" := LibraryUtility.GenerateRandomFraction * 10;
-            "Order No." := CopyStr(Format(CreateGuid), 1, MaxStrLen("Order No."));
+            "Order No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Order No."));
             "Order Line No." := Round(LibraryUtility.GenerateRandomFraction * 10000, 1);
         end;
     end;
@@ -1613,19 +1613,19 @@ codeunit 136500 "UT Time Sheets"
     local procedure InitAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; ResourceNo: Code[20]; Date: Date)
     begin
         with AssemblyHeader do begin
-            Init;
-            "No." := CopyStr(Format(CreateGuid), 1, MaxStrLen("No."));
-            "Posting No." := CopyStr(Format(CreateGuid), 1, MaxStrLen("Posting No."));
+            Init();
+            "No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen("No."));
+            "Posting No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Posting No."));
             "Posting Date" := Date;
         end;
 
         with AssemblyLine do begin
-            Init;
+            Init();
             Type := Type::Resource;
             "Document No." := AssemblyHeader."No.";
             "Line No." := Round(LibraryUtility.GenerateRandomFraction * 10000, 1);
             "No." := ResourceNo;
-            Description := Format(CreateGuid);
+            Description := Format(CreateGuid());
             "Quantity to Consume (Base)" := LibraryUtility.GenerateRandomFraction * 10;
         end;
     end;
@@ -1650,7 +1650,7 @@ codeunit 136500 "UT Time Sheets"
             Resource.Validate("Time Sheet Approver User ID", UserId);
         Resource.Modify();
 
-        SetupTimeSheetChart(TimeSheetChartSetup, UserId, WorkDate);
+        SetupTimeSheetChart(TimeSheetChartSetup, UserId, WorkDate());
 
         if IsAdmin then begin
             UserSetup.Get(UserId);
@@ -1668,7 +1668,7 @@ codeunit 136500 "UT Time Sheets"
             if FindFirstColumn(BusChartMapColumn) and Resource.FindSet() then
                 repeat
                     Assert.AreEqual(Resource."No.", BusChartMapColumn.Name, 'Incorrect time sheet chart column name.');
-                until not NextColumn(BusChartMapColumn) and (Resource.Next = 0);
+                until not NextColumn(BusChartMapColumn) and (Resource.Next() = 0);
         end;
     end;
 
@@ -1811,12 +1811,12 @@ codeunit 136500 "UT Time Sheets"
                             repeat
                                 if DefaultDimension."Dimension Code" = DimensionSetEntry."Dimension Code" then
                                     EqualDimensionQty := EqualDimensionQty + 1;
-                            until DefaultDimension.Next = 0;
+                            until DefaultDimension.Next() = 0;
                         DimensionSetEntryQty := DimensionSetEntryQty + 1;
-                    until DimensionSetEntry.Next = 0;
+                    until DimensionSetEntry.Next() = 0;
                     Assert.AreEqual(DimensionSetEntryQty, EqualDimensionQty, 'Dimensions are not the same.');
                 end;
-            until ServiceLine.Next = 0;
+            until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLinesQty(ServiceOrderNo: Code[20]; TimeSheetNo: Code[20])
@@ -1838,7 +1838,7 @@ codeunit 136500 "UT Time Sheets"
             repeat
                 ServiceLineQtyCon := ServiceLineQtyCon + ServiceLine."Qty. to Consume";
                 ServiceLineQty := ServiceLineQty + ServiceLine.Quantity;
-            until ServiceLine.Next = 0;
+            until ServiceLine.Next() = 0;
 
         // calc time sheet quantity
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetNo);
@@ -1854,8 +1854,8 @@ codeunit 136500 "UT Time Sheets"
                             TimeSheetCharQty := TimeSheetCharQty + TimeSheetDetail.Quantity
                         else
                             TimeSheetUncharQty := TimeSheetUncharQty + TimeSheetDetail.Quantity
-                    until TimeSheetDetail.Next = 0;
-            until TimeSheetLine.Next = 0;
+                    until TimeSheetDetail.Next() = 0;
+            until TimeSheetLine.Next() = 0;
 
         Assert.AreEqual(ServiceLineQtyCon, TimeSheetUncharQty, 'Incorrect service lines consume quantity.');
         Assert.AreEqual(ServiceLineQty, TimeSheetCharQty + TimeSheetUncharQty, 'Incorrect service lines quantity.');
@@ -1878,7 +1878,7 @@ codeunit 136500 "UT Time Sheets"
             repeat
                 ServiceLineQtyCon := ServiceLineQtyCon + ServiceLine."Qty. to Consume";
                 ServiceLineQty := ServiceLineQty + ServiceLine.Quantity;
-            until ServiceLine.Next = 0;
+            until ServiceLine.Next() = 0;
 
         CalcTSQuantity(ServiceOrderNo, TimeSheetNo[1], TimeSheetUncharQty[1], TimeSheetCharQty[1]);
         CalcTSQuantity(ServiceOrderNo, TimeSheetNo[2], TimeSheetUncharQty[2], TimeSheetCharQty[2]);
@@ -1923,8 +1923,8 @@ codeunit 136500 "UT Time Sheets"
                             QtyChargLines := QtyChargLines + TimeSheetDetail.Quantity
                         else
                             QtyUnchargLines := QtyUnchargLines + TimeSheetDetail.Quantity;
-                    until TimeSheetDetail.Next = 0;
-            until TimeSheetLine.Next = 0;
+                    until TimeSheetDetail.Next() = 0;
+            until TimeSheetLine.Next() = 0;
     end;
 
     local procedure CreateJobWithBlocked(var Job: Record Job; BlockedOption: Enum "Job Blocked")
@@ -2209,7 +2209,7 @@ codeunit 136500 "UT Time Sheets"
         repeat
             TimeSheetHeaderArchive.TransferFields(TimeSheetHeader);
             TimeSheetHeaderArchive.Insert();
-        until TimeSheetHeader.Next = 0;
+        until TimeSheetHeader.Next() = 0;
 
         // EXERCISE
         case Role of
@@ -2374,7 +2374,7 @@ codeunit 136500 "UT Time Sheets"
                 Assert.AreEqual('APPROVED', TimeSheetList."No.".Value, 'Unexpected record for Approved Time Sheet');
         end;
         Assert.IsFalse(TimeSheetList.Next, 'Unexpected record in repeater for filtered Time Sheet');
-        TimeSheetList.Close;
+        TimeSheetList.Close();
     end;
 }
 

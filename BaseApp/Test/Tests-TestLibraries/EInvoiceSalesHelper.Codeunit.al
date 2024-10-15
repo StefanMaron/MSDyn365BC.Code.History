@@ -26,7 +26,7 @@ codeunit 143000 "E-Invoice Sales Helper"
                     UnitOfMeasure."International Standard Code" := '';
                     UnitOfMeasure.Modify();
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -220,7 +220,7 @@ codeunit 143000 "E-Invoice Sales Helper"
         GLAccount: Record "G/L Account";
     begin
         with VATPostingSetup do begin
-            Init;
+            Init();
             LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
             "VAT Prod. Posting Group" := VATProductPostingGroup.Code;
             "VAT Bus. Posting Group" := VATBusPostingGrCode;
@@ -234,7 +234,7 @@ codeunit 143000 "E-Invoice Sales Helper"
             "Tax Category" := 'AA';
             LibraryERM.CreateGLAccount(GLAccount);
             Validate("Sales VAT Account", GLAccount."No.");
-            Insert;
+            Insert();
 
             exit("VAT Prod. Posting Group");
         end;

@@ -106,13 +106,11 @@ page 1459 "Global Admin Message"
     }
 
     trigger OnInit()
-    var
-        ClientTypeManagement: Codeunit "Client Type Management";
     begin
         // Load icon
-        if MediaRepository.Get('AssistedSetupInfo-NoText.png', Format(ClientTypeManagement.GetCurrentClientType())) then
+        if MediaRepository.GetForCurrentClientType('AssistedSetupInfo-NoText.png') then
             if MediaResources.Get(MediaRepository."Media Resources Ref") then
-                IconVisible := true;
+            IconVisible := true;
     end;
 
     var

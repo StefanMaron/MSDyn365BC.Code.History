@@ -62,7 +62,7 @@ page 5461 "API Webhook Logs"
         ContentInStream: InStream;
         TextLine: Text;
     begin
-        if not "Detailed Info".HasValue then
+        if not "Detailed Info".HasValue() then
             Details := "Activity Message"
         else begin
             Details := '';

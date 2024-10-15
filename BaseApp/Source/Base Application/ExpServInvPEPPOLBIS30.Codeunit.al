@@ -27,7 +27,7 @@ codeunit 1612 "Exp. Serv.Inv. PEPPOL BIS3.0"
     begin
         SalesInvoicePEPPOLBIS30.Initialize(VariantRec);
         SalesInvoicePEPPOLBIS30.SetDestination(OutStr);
-        SalesInvoicePEPPOLBIS30.Export;
+        SalesInvoicePEPPOLBIS30.Export();
     end;
 
 #if not CLEAN20
@@ -44,7 +44,7 @@ codeunit 1612 "Exp. Serv.Inv. PEPPOL BIS3.0"
 
         OutFile.CreateOutStream(OutStream);
         GenerateXMLFile(ServiceInvoiceHeader, OutStream);
-        OutFile.Close;
+        OutFile.Close();
 
         exit(CopyStr(XmlServerPath, 1, 250));
     end;

@@ -112,7 +112,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [WHEN] Convert the Sales Quote to Order by Make Order.
         SalesOrder.Trap;
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [THEN] Check that the Sales Quote has been deleted.
         CustomerNo := VerifySalesOrderFromQuote(SalesHeader);
@@ -120,7 +120,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         Assert.IsFalse(
           SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."),
           StrSubstNo(
-            SalesQuoteMustNotExistError, SalesHeader.TableCaption, SalesHeader.FieldCaption("Document Type"), SalesHeader."Document Type",
+            SalesQuoteMustNotExistError, SalesHeader.TableCaption(), SalesHeader.FieldCaption("Document Type"), SalesHeader."Document Type",
             SalesHeader.FieldCaption("No."), SalesHeader."No."));
     end;
 
@@ -292,7 +292,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [GIVEN] Convert Quote to Order.
         SalesOrder.Trap;
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [GIVEN] Find Sales order and Archive Sales Header.
         FindSalesDocument(SalesHeader1, CustomerTemplateCode, SalesHeader."Sell-to Contact No.", SalesHeader1."Document Type"::Order);
@@ -327,7 +327,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [GIVEN] Convert Quote to Order.
         SalesOrder.Trap;
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [GIVEN] Find Sales Order and Update Opportunity No. as blank before Archive Sales Header.
         FindSalesDocument(SalesHeader1, CustomerTemplateCode, SalesHeader."Sell-to Contact No.", SalesHeader1."Document Type"::Order);
@@ -486,7 +486,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [GIVEN] Sales Order made from Sales Quote
         SalesOrder.Trap;
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
-        SalesOrder.Close;
+        SalesOrder.Close();
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Order);
 
         // [WHEN] Deleting Sales Order
@@ -494,7 +494,7 @@ codeunit 136204 "Marketing Quotations Contacts"
 
         // [THEN] Sales Order deleted without errors
         // [THEN] Opportunity "Status" changed to "Lost"
-        Opportunity.Find;
+        Opportunity.Find();
         Opportunity.TestField(Status, Opportunity.Status::Lost);
 
         // [THEN] Created while closing Opportunity Entry has 0 "Estimated Value"
@@ -538,7 +538,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [GIVEN] Sales Order made from Sales Quote
         SalesOrder.Trap;
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
-        SalesOrder.Close;
+        SalesOrder.Close();
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Order);
 
         // [WHEN] Deleting Sales Order

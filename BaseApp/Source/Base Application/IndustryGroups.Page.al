@@ -23,7 +23,7 @@ page 5066 "Industry Groups"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the industry group.';
                 }
-                field("No. of Contacts"; "No. of Contacts")
+                field("No. of Contacts"; Rec."No. of Contacts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Industry Group Contacts";

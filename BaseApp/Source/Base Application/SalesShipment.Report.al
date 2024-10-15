@@ -1,4 +1,4 @@
-report 208 "Sales - Shipment"
+﻿report 208 "Sales - Shipment"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesShipment.rdlc';
@@ -174,7 +174,7 @@ report 208 "Sales - Shipment"
                     column(ExternalDocumentNo_SalesShptHeader; "Sales Shipment Header"."External Document No.")
                     {
                     }
-                    column(EnterpriseRegister; CompanyInfo.GetEnterpriseClassification)
+                    column(EnterpriseRegister; CompanyInfo.GetEnterpriseClassification())
                     {
                     }
                     dataitem(DimensionLoop1; "Integer")
@@ -331,10 +331,10 @@ report 208 "Sales - Shipment"
                         dataitem(DisplayAsmInfo; "Integer")
                         {
                             DataItemTableView = SORTING(Number);
-                            column(PostedAsmLineItemNo; BlanksForIndent + PostedAsmLine."No.")
+                            column(PostedAsmLineItemNo; BlanksForIndent() + PostedAsmLine."No.")
                             {
                             }
-                            column(PostedAsmLineDescription; BlanksForIndent + PostedAsmLine.Description)
+                            column(PostedAsmLineDescription; BlanksForIndent() + PostedAsmLine.Description)
                             {
                             }
                             column(PostedAsmLineQuantity; PostedAsmLine.Quantity)
@@ -350,9 +350,9 @@ report 208 "Sales - Shipment"
                                 ItemTranslation: Record "Item Translation";
                             begin
                                 if Number = 1 then
-                                    PostedAsmLine.FindSet
+                                    PostedAsmLine.FindSet()
                                 else
-                                    PostedAsmLine.Next;
+                                    PostedAsmLine.Next();
 
                                 if ItemTranslation.Get(PostedAsmLine."No.",
                                      PostedAsmLine."Variant Code",
@@ -389,8 +389,8 @@ report 208 "Sales - Shipment"
                             if ShowLotSN then begin
                                 ItemTrackingDocMgt.SetRetrieveAsmItemTracking(true);
                                 TrackingSpecCount :=
-                                  ItemTrackingDocMgt.RetrieveDocumentItemTracking(TrackingSpecBuffer,
-                                    "Sales Shipment Header"."No.", DATABASE::"Sales Shipment Header", 0);
+                                  ItemTrackingDocMgt.RetrieveDocumentItemTracking(
+                                      TempTrackingSpecBuffer, "Sales Shipment Header"."No.", DATABASE::"Sales Shipment Header", 0);
                                 ItemTrackingDocMgt.SetRetrieveAsmItemTracking(false);
                             end;
                         end;
@@ -455,19 +455,19 @@ report 208 "Sales - Shipment"
                     dataitem(ItemTrackingLine; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(TrackingSpecBufferNo; TrackingSpecBuffer."Item No.")
+                        column(TrackingSpecBufferNo; TempTrackingSpecBuffer."Item No.")
                         {
                         }
-                        column(TrackingSpecBufferDesc; TrackingSpecBuffer.Description)
+                        column(TrackingSpecBufferDesc; TempTrackingSpecBuffer.Description)
                         {
                         }
-                        column(TrackingSpecBufferLotNo; TrackingSpecBuffer."Lot No.")
+                        column(TrackingSpecBufferLotNo; TempTrackingSpecBuffer."Lot No.")
                         {
                         }
-                        column(TrackingSpecBufferSerNo; TrackingSpecBuffer."Serial No.")
+                        column(TrackingSpecBufferSerNo; TempTrackingSpecBuffer."Serial No.")
                         {
                         }
-                        column(TrackingSpecBufferQty; TrackingSpecBuffer."Quantity (Base)")
+                        column(TrackingSpecBufferQty; TempTrackingSpecBuffer."Quantity (Base)")
                         {
                         }
                         column(ShowTotal; ShowTotal)
@@ -502,29 +502,29 @@ report 208 "Sales - Shipment"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                TrackingSpecBuffer.FindSet
+                                TempTrackingSpecBuffer.FindSet()
                             else
-                                TrackingSpecBuffer.Next;
+                                TempTrackingSpecBuffer.Next();
 
-                            if not ShowCorrectionLines and TrackingSpecBuffer.Correction then
+                            if not ShowCorrectionLines and TempTrackingSpecBuffer.Correction then
                                 CurrReport.Skip();
-                            if TrackingSpecBuffer.Correction then
-                                TrackingSpecBuffer."Quantity (Base)" := -TrackingSpecBuffer."Quantity (Base)";
+                            if TempTrackingSpecBuffer.Correction then
+                                TempTrackingSpecBuffer."Quantity (Base)" := -TempTrackingSpecBuffer."Quantity (Base)";
 
                             ShowTotal := false;
-                            if ItemTrackingAppendix.IsStartNewGroup(TrackingSpecBuffer) then
+                            if ItemTrackingAppendix.IsStartNewGroup(TempTrackingSpecBuffer) then
                                 ShowTotal := true;
 
                             ShowGroup := false;
-                            if (TrackingSpecBuffer."Source Ref. No." <> OldRefNo) or
-                               (TrackingSpecBuffer."Item No." <> OldNo)
+                            if (TempTrackingSpecBuffer."Source Ref. No." <> OldRefNo) or
+                               (TempTrackingSpecBuffer."Item No." <> OldNo)
                             then begin
-                                OldRefNo := TrackingSpecBuffer."Source Ref. No.";
-                                OldNo := TrackingSpecBuffer."Item No.";
+                                OldRefNo := TempTrackingSpecBuffer."Source Ref. No.";
+                                OldNo := TempTrackingSpecBuffer."Item No.";
                                 TotalQty := 0;
                             end else
                                 ShowGroup := true;
-                            TotalQty += TrackingSpecBuffer."Quantity (Base)";
+                            TotalQty += TempTrackingSpecBuffer."Quantity (Base)";
                         end;
 
                         trigger OnPreDataItem()
@@ -532,8 +532,8 @@ report 208 "Sales - Shipment"
                             if TrackingSpecCount = 0 then
                                 CurrReport.Break();
                             SetRange(Number, 1, TrackingSpecCount);
-                            TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
-                              "Source Prod. Order Line", "Source Ref. No.");
+                            TempTrackingSpecBuffer.SetCurrentKey(
+                                "Source ID", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
                         end;
                     }
 
@@ -551,7 +551,7 @@ report 208 "Sales - Shipment"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                     TotalQty := 0;           // Item Tracking
@@ -559,7 +559,7 @@ report 208 "Sales - Shipment"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Sales Shpt.-Printed", "Sales Shipment Header");
                 end;
 
@@ -655,7 +655,7 @@ report 208 "Sales - Shipment"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -670,12 +670,12 @@ report 208 "Sales - Shipment"
         SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
-        OnAfterInitReport;
+        OnAfterInitReport();
     end;
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Sales Shipment Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(
@@ -688,14 +688,13 @@ report 208 "Sales - Shipment"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
         AsmHeaderExists := false;
 
         OnAfterOnPreReport("Sales Shipment Header");
     end;
 
     var
-        Text002: Label 'Sales - Shipment %1', Comment = '%1 = Document No.';
         SalesPurchPerson: Record "Salesperson/Purchaser";
         CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
@@ -705,7 +704,6 @@ report 208 "Sales - Shipment"
         SalesSetup: Record "Sales & Receivables Setup";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        TrackingSpecBuffer: Record "Tracking Specification" temporary;
         PostedAsmHeader: Record "Posted Assembly Header";
         PostedAsmLine: Record "Posted Assembly Line";
         RespCenter: Record "Responsibility Center";
@@ -744,6 +742,8 @@ report 208 "Sales - Shipment"
         DisplayAssemblyInformation: Boolean;
         AsmHeaderExists: Boolean;
         LinNo: Integer;
+
+        Text002: Label 'Sales - Shipment %1', Comment = '%1 = Document No.';
         ItemTrackingAppendixCaptionLbl: Label 'Item Tracking - Appendix';
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegNoCaptionLbl: Label 'VAT Reg. No.';
@@ -769,6 +769,9 @@ report 208 "Sales - Shipment"
         OrderNoText: Text;
         OrderNoTextCaptionLbl: Label 'OrderNoText';
 
+    protected var
+        TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
+
     procedure InitLogInteraction()
     begin
         LogInteraction := SegManagement.FindInteractTmplCode(5) <> '';
@@ -788,7 +791,7 @@ report 208 "Sales - Shipment"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(SalesShipmentHeader: Record "Sales Shipment Header")

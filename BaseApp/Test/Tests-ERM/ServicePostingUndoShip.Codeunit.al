@@ -278,7 +278,7 @@ codeunit 136117 "Service Posting - Undo Ship"
           ServiceShipmentLine.FindFirst,
           StrSubstNo(
             ServiceShipLineMustNotExist, ServiceShipmentLine.FieldCaption("Document No."), ServiceShipmentLine."Document No.",
-            ServiceShipmentLine.FieldCaption("Line No."), ServiceShipmentLine."Line No.", ServiceShipmentLine.TableCaption));
+            ServiceShipmentLine.FieldCaption("Line No."), ServiceShipmentLine."Line No.", ServiceShipmentLine.TableCaption()));
     end;
 
     [Test]
@@ -521,7 +521,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         SetHandler := true; // Assign global variables for ItemTrackingPageHandler / ItemTrackingPageHandlerForLot.
         CreateNewLotNo := CreateNewLotNoFrom;
         OpenItemTrackingLinesForPurchaseOrder(PurchaseHeader2."No.");
-        UpdateReservationEntry(PurchaseLine."No.", WorkDate);
+        UpdateReservationEntry(PurchaseLine."No.", WorkDate());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, false);
 
         // Setup: Create and post sales shipment with Expiration Date and Serial No. / Lot No.
@@ -625,7 +625,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         PurchaseHeader.Validate("Location Code", '');
-        PurchaseHeader.Validate("Expected Receipt Date", WorkDate);
+        PurchaseHeader.Validate("Expected Receipt Date", WorkDate());
         PurchaseHeader.Modify(true);
     end;
 
@@ -678,7 +678,7 @@ codeunit 136117 "Service Posting - Undo Ship"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceLineForItem(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -694,8 +694,8 @@ codeunit 136117 "Service Posting - Undo Ship"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-            Item.Next;
-        until ServiceItemLine.Next = 0;
+            Item.Next();
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceLineForGLAccount(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -710,7 +710,7 @@ codeunit 136117 "Service Posting - Undo Ship"
               ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceLineForResource(ServiceHeader: Record "Service Header")
@@ -727,7 +727,7 @@ codeunit 136117 "Service Posting - Undo Ship"
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, Resource."No.");
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
-        until ServiceItemLine.Next = 0;
+        until ServiceItemLine.Next() = 0;
     end;
 
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
@@ -820,7 +820,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         repeat
             ServiceLine.Validate("Qty. to Invoice", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdatePartialQtyToShip(ServiceLine: Record "Service Line")
@@ -830,7 +830,7 @@ codeunit 136117 "Service Posting - Undo Ship"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQtyToConsume(ServiceLine: Record "Service Line")
@@ -840,7 +840,7 @@ codeunit 136117 "Service Posting - Undo Ship"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQuantity(ServiceLine: Record "Service Line")
@@ -849,7 +849,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQuantityToShipOnServiceLine(DocumentNo: Code[20])
@@ -910,7 +910,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         Assert.AreEqual(
           StrSubstNo(
             QtyShippedErrorServiceTier, ServiceShipmentLine.FieldCaption("Qty. Shipped Not Invoiced"),
-            ServiceShipmentLine.Quantity, ServiceShipmentLine.TableCaption, ServiceShipmentLine.FieldCaption("Document No."),
+            ServiceShipmentLine.Quantity, ServiceShipmentLine.TableCaption(), ServiceShipmentLine.FieldCaption("Document No."),
             ServiceShipmentLine."Document No.", ServiceShipmentLine.FieldCaption("Line No."), ServiceShipmentLine."Line No.",
             ServiceShipmentLine."Qty. Shipped Not Invoiced"),
           GetLastErrorText, UnknownError);
@@ -933,7 +933,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        Assert.AreEqual(ExpectedValue, ItemLedgerEntry.Count, StrSubstNo(NoOfEntriesError, ItemLedgerEntry.TableCaption, ExpectedValue));
+        Assert.AreEqual(ExpectedValue, ItemLedgerEntry.Count, StrSubstNo(NoOfEntriesError, ItemLedgerEntry.TableCaption(), ExpectedValue));
     end;
 
     local procedure VerifyNoOfValueEntry(DocumentNo: Code[20]; ExpectedValue: Integer)
@@ -942,7 +942,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
-        Assert.AreEqual(ExpectedValue, ValueEntry.Count, StrSubstNo(NoOfEntriesError, ValueEntry.TableCaption, ExpectedValue));
+        Assert.AreEqual(ExpectedValue, ValueEntry.Count, StrSubstNo(NoOfEntriesError, ValueEntry.TableCaption(), ExpectedValue));
     end;
 
     local procedure VerifyQtyOnItemLedgerEntry(DocumentNo: Code[20])
@@ -966,10 +966,10 @@ codeunit 136117 "Service Posting - Undo Ship"
                 ItemLedgerEntry.FindSet();
                 repeat
                     TotalQuantity += ItemLedgerEntry.Quantity;
-                until ItemLedgerEntry.Next = 0;
-            until ServiceShipmentLine.Next = 0;
+                until ItemLedgerEntry.Next() = 0;
+            until ServiceShipmentLine.Next() = 0;
             Assert.AreEqual(0, TotalQuantity, StrSubstNo(QtyMustBeZeroError, ItemLedgerEntry.FieldCaption(Quantity)));
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyQtyOnServiceShipment(DocumentNo: Code[20])
@@ -987,9 +987,9 @@ codeunit 136117 "Service Posting - Undo Ship"
             ServiceShipmentLine.FindSet();
             repeat
                 TotalQuantity += ServiceShipmentLine."Qty. Shipped Not Invoiced";
-            until ServiceShipmentLine.Next = 0;
+            until ServiceShipmentLine.Next() = 0;
             Assert.AreEqual(0, TotalQuantity, StrSubstNo(QtyMustBeZeroError, ServiceShipmentLine.FieldCaption("Qty. Shipped Not Invoiced")));
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyQtyOnValueEntry(DocumentNo: Code[20])
@@ -1013,10 +1013,10 @@ codeunit 136117 "Service Posting - Undo Ship"
                 ValueEntry.FindSet();
                 repeat
                     TotalQuantity += ValueEntry."Valued Quantity";
-                until ValueEntry.Next = 0;
-            until ServiceShipmentLine.Next = 0;
+                until ValueEntry.Next() = 0;
+            until ServiceShipmentLine.Next() = 0;
             Assert.AreEqual(0, TotalQuantity, StrSubstNo(QtyMustBeZeroError, ValueEntry.FieldCaption("Valued Quantity")));
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyQtyShippedAfterUndoShip(DocumentNo: Code[20])
@@ -1027,7 +1027,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         FindServiceLine(ServiceLine, DocumentNo);
         repeat
             ServiceLine.TestField("Quantity Shipped", 0);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLedgerEntry(DocumentNo: Code[20])
@@ -1046,7 +1046,7 @@ codeunit 136117 "Service Posting - Undo Ship"
             ServiceLedgerEntry.TestField("No.", ServiceLine."No.");
             ServiceLedgerEntry.TestField("Posting Date", ServiceLine."Posting Date");
             ServiceLedgerEntry.TestField("Bill-to Customer No.", ServiceLine."Bill-to Customer No.");
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyPostedSalesShipmentLine(DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
@@ -1057,7 +1057,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         SalesShipmentLine.SetRange("No.", ItemNo);
         SalesShipmentLine.FindSet();
         SalesShipmentLine.TestField(Quantity, Quantity);
-        SalesShipmentLine.Next;
+        SalesShipmentLine.Next();
         SalesShipmentLine.TestField(Quantity, -Quantity);
     end;
 

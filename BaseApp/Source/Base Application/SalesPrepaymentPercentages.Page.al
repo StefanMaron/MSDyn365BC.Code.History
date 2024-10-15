@@ -1,7 +1,7 @@
 page 664 "Sales Prepayment Percentages"
 {
     Caption = 'Sales Prepayment Percentages';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DelayedInsert = true;
     PageType = Worksheet;
     SourceTable = "Sales Prepayment %";
@@ -22,7 +22,7 @@ page 664 "Sales Prepayment Percentages"
 
                     trigger OnValidate()
                     begin
-                        SalesTypeFilterOnAfterValidate;
+                        SalesTypeFilterOnAfterValidate();
                     end;
                 }
                 field(SalesCodeFilterCtrl; SalesCodeFilter)
@@ -44,16 +44,16 @@ page 664 "Sales Prepayment Percentages"
                             SalesTypeFilter::Customer:
                                 begin
                                     CustList.LookupMode := true;
-                                    if CustList.RunModal = ACTION::LookupOK then begin
-                                        Text := CustList.GetSelectionFilter;
+                                    if CustList.RunModal() = ACTION::LookupOK then begin
+                                        Text := CustList.GetSelectionFilter();
                                         exit(true);
                                     end;
                                 end;
                             SalesTypeFilter::"Customer Price Group":
                                 begin
                                     CustPriceGrList.LookupMode := true;
-                                    if CustPriceGrList.RunModal = ACTION::LookupOK then begin
-                                        Text := CustPriceGrList.GetSelectionFilter;
+                                    if CustPriceGrList.RunModal() = ACTION::LookupOK then begin
+                                        Text := CustPriceGrList.GetSelectionFilter();
                                         exit(true);
                                     end;
                                 end;
@@ -62,7 +62,7 @@ page 664 "Sales Prepayment Percentages"
 
                     trigger OnValidate()
                     begin
-                        SalesCodeFilterOnAfterValidate;
+                        SalesCodeFilterOnAfterValidate();
                     end;
                 }
                 field(CodeFilterCtrl; ItemNoFilter)
@@ -77,15 +77,15 @@ page 664 "Sales Prepayment Percentages"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
-                            Text := ItemList.GetSelectionFilter;
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
+                            Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        ItemNoFilterOnAfterValidate;
+                        ItemNoFilterOnAfterValidate();
                     end;
                 }
                 field(StartingDateFilter; StartingDateFilter)
@@ -99,45 +99,45 @@ page 664 "Sales Prepayment Percentages"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(StartingDateFilter);
-                        StartingDateFilterOnAfterValid;
+                        StartingDateFilterOnAfterValid();
                     end;
                 }
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Sales Type"; "Sales Type")
+                field("Sales Type"; Rec."Sales Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales type of the prepayment percentage.';
 
                     trigger OnValidate()
                     begin
-                        SalesTypeOnAfterValidate;
+                        SalesTypeOnAfterValidate();
                     end;
                 }
-                field("Sales Code"; "Sales Code")
+                field("Sales Code"; Rec."Sales Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesCodeEditable;
                     ToolTip = 'Specifies the code that belongs to the sales type.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item for which the prepayment percentage is valid.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the date from which the prepayment percentage is valid.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the date to which the prepayment percentage is valid.';
                 }
-                field("Prepayment %"; "Prepayment %")
+                field("Prepayment %"; Rec."Prepayment %")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment percentage to use to calculate the prepayment for sales.';
@@ -165,7 +165,7 @@ page 664 "Sales Prepayment Percentages"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditable;
+        SetEditable();
     end;
 
     trigger OnInit()
@@ -177,8 +177,8 @@ page 664 "Sales Prepayment Percentages"
 
     trigger OnOpenPage()
     begin
-        GetRecFilters;
-        SetRecFilters;
+        GetRecFilters();
+        SetRecFilters();
     end;
 
     var
@@ -254,7 +254,7 @@ page 664 "Sales Prepayment Percentages"
         SalesCodeCaption: Text;
     begin
         if ItemNoFilter <> '' then begin
-            ItemNoCaption := StrSubstNo('%1 %2', Item.TableCaption, ItemNoFilter);
+            ItemNoCaption := StrSubstNo('%1 %2', Item.TableCaption(), ItemNoFilter);
             if Item.Get(CopyStr(ItemNoFilter, 1, MaxStrLen(Item."No."))) then
                 ItemNoCaption := ItemNoCaption + ' - ' + Item.Description;
         end;
@@ -262,13 +262,13 @@ page 664 "Sales Prepayment Percentages"
         case SalesTypeFilter of
             SalesTypeFilter::Customer:
                 begin
-                    SalesCodeCaption := StrSubstNo('%1 %2', Cust.TableCaption, SalesCodeFilter);
+                    SalesCodeCaption := StrSubstNo('%1 %2', Cust.TableCaption(), SalesCodeFilter);
                     if Cust.Get(CopyStr(SalesCodeFilter, 1, MaxStrLen(Cust."No."))) then
                         SalesCodeCaption := SalesCodeCaption + ' - ' + Cust.Name;
                 end;
             SalesTypeFilter::"Customer Price Group":
                 begin
-                    SalesCodeCaption := StrSubstNo('%1 %2', CustPriceGr.TableCaption, SalesCodeFilter);
+                    SalesCodeCaption := StrSubstNo('%1 %2', CustPriceGr.TableCaption(), SalesCodeFilter);
                     if CustPriceGr.Get(CopyStr(SalesCodeFilter, 1, MaxStrLen(CustPriceGr.Code))) then
                         SalesCodeCaption := SalesCodeCaption + ' - ' + CustPriceGr.Description;
                 end;
@@ -281,32 +281,32 @@ page 664 "Sales Prepayment Percentages"
 
     local procedure SalesTypeOnAfterValidate()
     begin
-        SetEditable;
+        SetEditable();
     end;
 
     local procedure SalesTypeFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         SalesCodeFilter := '';
-        SetRecFilters;
+        SetRecFilters();
     end;
 
     local procedure SalesCodeFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure StartingDateFilterOnAfterValid()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure ItemNoFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 }
 

@@ -42,7 +42,7 @@ codeunit 1711 "Positive Pay Export Mgt"
             DataExch."File Content".CreateOutStream(OutStream);
             CopyStream(OutStream, InStream);
 
-            ExportFile.Close;
+            ExportFile.Close();
             // Copy current Record to newly-instantiated file
             ExportFile.Create(Filename);
             DataExch."File Content".CreateInStream(InStream);
@@ -66,8 +66,8 @@ codeunit 1711 "Positive Pay Export Mgt"
             // Now copy current file contents to table, also.
             ExportGenericFixedWidth.SetDestination(OutStream);
             ExportGenericFixedWidth.SetTableView(DataExchField);
-            ExportGenericFixedWidth.Export;
-            ExportFile.Close;
+            ExportGenericFixedWidth.Export();
+            ExportFile.Close();
 
             DataExchField.DeleteAll(true);
         end;
@@ -117,7 +117,7 @@ codeunit 1711 "Positive Pay Export Mgt"
                 FieldRef := RecRef.Field(DataExchFieldMapping."Field ID");
 
                 if FieldRef.Class = FieldClass::FlowField then
-                    FieldRef.CalcField;
+                    FieldRef.CalcField();
                 CheckOptional(DataExchFieldMapping.Optional, FieldRef);
                 CastToDestinationType(ValueAsDestType, FieldRef.Value, DataExchColumnDef, DataExchFieldMapping.Multiplier);
                 ValueAsString := FormatToText(ValueAsDestType, DataExchDef, DataExchColumnDef);
@@ -125,7 +125,7 @@ codeunit 1711 "Positive Pay Export Mgt"
                 if TransformationRule.Get(DataExchFieldMapping."Transformation Rule") then
                     ValueAsString := CopyStr(TransformationRule.TransformText(ValueAsString), 1, DataExchColumnDef.Length);
 
-                if DataExchColumnDef."Text Padding Required" and (DataExchColumnDef."Pad Character" <> '') then
+                if DataExchColumnDef."Text Padding Required" and (DataExchColumnDef."Pad Character" <> '') and (not DataExchColumnDef."Blank Zero") then
                     ValueAsString :=
                       StringConversionManagement.GetPaddedString(
                         ValueAsString,
@@ -186,7 +186,7 @@ codeunit 1711 "Positive Pay Export Mgt"
         if ((Value.IsDecimal or Value.IsInteger or Value.IsBigInteger) and (StringValue = '0')) or
            (StringValue = '')
         then
-            FieldRef.TestField
+            FieldRef.TestField();
     end;
 
     local procedure CastToDestinationType(var DestinationValue: Variant; SourceValue: Variant; DataExchColumnDef: Record "Data Exch. Column Def"; Multiplier: Decimal)
@@ -223,6 +223,8 @@ codeunit 1711 "Positive Pay Export Mgt"
     local procedure FormatToText(ValueToFormat: Variant; DataExchDef: Record "Data Exch. Def"; DataExchColumnDef: Record "Data Exch. Column Def"): Text[250]
     begin
         case true of
+            (Format(ValueToFormat) = '0') and (DataExchColumnDef."Blank Zero"):
+                exit('');
             DataExchDef."File Type" = DataExchDef."File Type"::Xml:
                 exit(Format(ValueToFormat, 0, 9));
             DataExchColumnDef."Data Format" <> '':

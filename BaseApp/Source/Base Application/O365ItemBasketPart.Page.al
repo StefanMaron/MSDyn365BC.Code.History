@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2124 "O365 Item Basket Part"
 {
     Caption = 'Prices';
@@ -7,6 +8,9 @@ page 2124 "O365 Item Basket Part"
     SourceTable = "O365 Item Basket Entry";
     SourceTableTemporary = true;
     SourceTableView = SORTING(Description);
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -21,7 +25,7 @@ page 2124 "O365 Item Basket Part"
             {
                 field(Quantity; Quantity)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     BlankZero = true;
                     DecimalPlaces = 0 : 5;
                     Style = StandardAccent;
@@ -33,27 +37,27 @@ page 2124 "O365 Item Basket Part"
                         ChangeBasket(Quantity - xRec.Quantity);
                     end;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the item number.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the item description.';
                 }
-                field("Base Unit of Measure"; "Base Unit of Measure")
+                field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the item unit of measure.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '2';
                     AutoFormatType = 10;
                     Editable = false;
@@ -61,12 +65,12 @@ page 2124 "O365 Item Basket Part"
                 }
                 field(Picture; Picture)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a picture of the item.';
                 }
-                field("Brick Text 2"; "Brick Text 2")
+                field("Brick Text 2"; Rec."Brick Text 2")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     Style = StandardAccent;
                     StyleExpr = TRUE;
@@ -82,41 +86,35 @@ page 2124 "O365 Item Basket Part"
         {
             action(AddToBasket)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = '+1';
                 Gesture = LeftSwipe;
                 Image = Add;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Add an item to the invoice.';
 
                 trigger OnAction()
                 begin
-                    AddOneToBasket;
+                    AddOneToBasket();
                 end;
             }
             action(ReduceBasket)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = '-1';
                 Gesture = RightSwipe;
                 Image = RemoveLine;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Remove an item from the invoice.';
 
                 trigger OnAction()
                 begin
-                    RemoveOneFromBasket;
+                    RemoveOneFromBasket();
                 end;
             }
             action(Card)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Card';
                 Scope = Repeater;
                 ToolTip = 'View or change detailed information about the record on the document or journal line.';
@@ -129,6 +127,20 @@ page 2124 "O365 Item Basket Part"
                         exit;
                     PAGE.RunModal(PAGE::"O365 Item Card", Item);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(AddToBasket_Promoted; AddToBasket)
+                {
+                }
+                actionref(ReduceBasket_Promoted; ReduceBasket)
+                {
+                }
             }
         }
     }
@@ -221,7 +233,7 @@ page 2124 "O365 Item Basket Part"
         GetBasketEntry(TempO365ItemBasketEntry);
         TempO365ItemBasketEntry.Quantity += QuantityChange;
         if TempO365ItemBasketEntry.Quantity <= 0 then
-            TempO365ItemBasketEntry.Delete
+            TempO365ItemBasketEntry.Delete()
         else begin
             TempO365ItemBasketEntry."Unit Price" := "Unit Price";
             TempO365ItemBasketEntry."Line Total" := Round(TempO365ItemBasketEntry.Quantity * TempO365ItemBasketEntry."Unit Price");
@@ -233,15 +245,15 @@ page 2124 "O365 Item Basket Part"
     local procedure CopyFromItem(var Item: Record Item)
     begin
         if not Get(Item."No.") then begin
-            Init;
+            Init();
             "Item No." := Item."No.";
             "Unit Price" := Item."Unit Price";
             Description := Item.Description;
             "Base Unit of Measure" := Item."Base Unit of Measure";
             Picture := Item.Picture;
-            Insert;
+            Insert();
         end else
-            Modify;
+            Modify();
     end;
 
     procedure SetSalesLines(var OrgSalesLine: Record "Sales Line")
@@ -263,7 +275,7 @@ page 2124 "O365 Item Basket Part"
             repeat
                 TempO365ItemBasketEntry.Init();
                 TempO365ItemBasketEntry."Item No." := SalesLine."No.";
-                if not TempO365ItemBasketEntry.Find then
+                if not TempO365ItemBasketEntry.Find() then
                     TempO365ItemBasketEntry.Insert();
                 TempO365ItemBasketEntry.Quantity += SalesLine.Quantity;
                 TempO365ItemBasketEntry."Unit Price" := SalesLine."Unit Price";
@@ -303,11 +315,11 @@ page 2124 "O365 Item Basket Part"
                 SalesLine."Unit of Measure Code" := TempO365ItemBasketEntry."Base Unit of Measure";
                 if SalesLine."Unit of Measure Code" <> '' then
                     if UnitOfMeasure.Get(SalesLine."Unit of Measure Code") then
-                        SalesLine."Unit of Measure" := UnitOfMeasure.GetDescriptionInCurrentLanguage;
+                        SalesLine."Unit of Measure" := UnitOfMeasure.GetDescriptionInCurrentLanguage();
                 SalesLine.Validate("Unit Price", TempO365ItemBasketEntry."Unit Price");
                 SalesLine.Validate(Quantity, TempO365ItemBasketEntry.Quantity);
                 SalesLine.Insert();
             until TempO365ItemBasketEntry.Next() = 0;
     end;
 }
-
+#endif

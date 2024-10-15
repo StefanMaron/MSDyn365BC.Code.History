@@ -13,8 +13,8 @@ codeunit 394 "FinChrgMemo-Make"
         FinChrgMemoHeaderReq: Record "Finance Charge Memo Header";
         FinChrgMemoHeader: Record "Finance Charge Memo Header";
         FinChrgMemoLine: Record "Finance Charge Memo Line";
-        Currency: Record Currency temporary;
         TempCurrency: Record Currency temporary;
+        TempCurrency2: Record Currency temporary;
         CurrExchRate: Record "Currency Exchange Rate";
         NextLineNo: Integer;
         CustAmountLCY: Decimal;
@@ -48,8 +48,8 @@ codeunit 394 "FinChrgMemo-Make"
                 OnCodeOnAfterCalcCustIsBlocked(Cust, CustIsBlocked);
                 if CustIsBlocked then
                     exit(false);
-                Currency.DeleteAll();
                 TempCurrency.DeleteAll();
+                TempCurrency2.DeleteAll();
                 CustLedgEntry2.CopyFilters(CustLedgEntry);
                 CustLedgEntry.SetCurrentKey("Customer No.");
                 CustLedgEntry.SetRange("Customer No.", "No.");
@@ -57,15 +57,15 @@ codeunit 394 "FinChrgMemo-Make"
                 if CustLedgEntry.Find('-') then
                     repeat
                         if CustLedgEntry."On Hold" = '' then begin
-                            Currency.Code := CustLedgEntry."Currency Code";
-                            if Currency.Insert() then;
+                            TempCurrency.Code := CustLedgEntry."Currency Code";
+                            if TempCurrency.Insert() then;
                         end;
                     until CustLedgEntry.Next() = 0;
                 CustLedgEntry.CopyFilters(CustLedgEntry2);
-                if Currency.Find('-') then
+                if TempCurrency.Find('-') then
                     repeat
-                        FinChrgMemoCheck(Currency.Code);
-                    until Currency.Next() = 0;
+                        FinChrgMemoCheck(TempCurrency.Code);
+                    until TempCurrency.Next() = 0;
             end;
 
             if ((CustAmountLCY = 0) or (CustAmountLCY < FinChrgTerms."Minimum Amount (LCY)")) and
@@ -78,11 +78,11 @@ codeunit 394 "FinChrgMemo-Make"
             if HeaderExists then
                 MakeFinChrgMemo(FinChrgMemoHeader."Currency Code")
             else
-                if Currency.Find('-') then
+                if TempCurrency.Find('-') then
                     repeat
-                        if TempCurrency.Get(Currency.Code) then
-                            MakeFinChrgMemo(Currency.Code);
-                    until Currency.Next() = 0;
+                        if TempCurrency2.Get(tempCurrency.Code) then
+                            MakeFinChrgMemo(TempCurrency.Code);
+                    until TempCurrency.Next() = 0;
         end;
         exit(true);
     end;
@@ -108,7 +108,7 @@ codeunit 394 "FinChrgMemo-Make"
                 exit;
         NextLineNo := 0;
         MakeLines(CurrencyCode, false);
-        FinChrgMemoHeader.InsertLines;
+        FinChrgMemoHeader.InsertLines();
         FinChrgMemoHeader.Modify();
     end;
 
@@ -205,14 +205,14 @@ codeunit 394 "FinChrgMemo-Make"
                     FinChrgMemoLine."Account Code" := FinChrgMemoHeader."Account Code";
                     FinChrgMemoLine.SetCheckingMode(Checking);
                     FinChrgMemoLine.Validate("Entry No.", CustLedgEntry."Entry No.");
-                    if CurrencyCode <> '' then begin
+                    if CurrencyCode <> '' then
                         CustAmountLCY :=
                           CustAmountLCY +
                           CurrExchRate.ExchangeAmtFCYToLCY(
                             FinChrgMemoHeader."Posting Date", CurrencyCode, FinChrgMemoLine.Amount,
                             CurrExchRate.ExchangeRate(
                               FinChrgMemoHeader."Posting Date", CurrencyCode))
-                    end else
+                    else
                         CustAmountLCY := CustAmountLCY + FinChrgMemoLine.Amount;
                     if (CustAmountLCY >= FinChrgTerms."Minimum Amount (LCY)") and
                        (FinChrgMemoHeader."Document Date" > CalcDate(FinChrgTerms."Grace Period", FinChrgMemoLine."Due Date"))
@@ -222,10 +222,10 @@ codeunit 394 "FinChrgMemo-Make"
                     OnMakeLines2OnBeforeCheckInsertFinChrgMemoLine(FinChrgMemoLine, Checking);
                     if FinChrgMemoLine.Amount <> 0 then
                         if not Checking then
-                            FinChrgMemoLine.Insert
+                            FinChrgMemoLine.Insert()
                         else begin
-                            TempCurrency.Code := CurrencyCode;
-                            if TempCurrency.Insert() then;
+                            TempCurrency2.Code := CurrencyCode;
+                            if TempCurrency2.Insert() then;
                         end;
                     OnAfterFinChrgMemoLineCreated(FinChrgMemoLine, Checking);
                 until CustLedgEntry.Next() = 0;

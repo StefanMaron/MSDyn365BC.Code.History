@@ -291,7 +291,7 @@ codeunit 144180 "ERM NO Reports Test"
         ReportSelectionSales."Report ID".SetValue(REPORT::"Sales Order Picking List");
         ReportSelectionSales.First;
         ReportSelectionSales."Report ID".AssertEquals(REPORT::"Sales Order Picking List");
-        ReportSelectionSales.Close;
+        ReportSelectionSales.Close();
     end;
 
     [Test]
@@ -312,7 +312,7 @@ codeunit 144180 "ERM NO Reports Test"
         // [WHEN] Report "Trial Balance/Previous Period" is run with filter set to G/L Accounts "No."'s.
         Commit();
         GLAccount[1].SetFilter("No.", StrSubstNo('%1|%2', GLAccount[1]."No.", GLAccount[2]."No."));
-        GLAccount[1].SetRange("Date Filter", WorkDate);
+        GLAccount[1].SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount[1]);
 
         // [THEN] IncomeHidden and BalanceHidden are set to FALSE.
@@ -338,7 +338,7 @@ codeunit 144180 "ERM NO Reports Test"
         // [WHEN] Report "Trial Balance/Previous Period" is run with filter set to G/L Account "No.".
         Commit();
         GLAccount.SetRange("No.", GLAccount."No.");
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount);
 
         // [THEN] IncomeHidden and BalanceHidden are set to FALSE/TRUE.
@@ -364,7 +364,7 @@ codeunit 144180 "ERM NO Reports Test"
         // [WHEN] Report "Trial Balance/Previous Period" is run with filter set to G/L Account "No.".
         Commit();
         GLAccount.SetRange("No.", GLAccount."No.");
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount);
 
         // [THEN] IncomeHidden and BalanceHidden are set to TRUE/FALSE.
@@ -394,7 +394,7 @@ codeunit 144180 "ERM NO Reports Test"
         Commit();
         GLAccount[1].SetFilter(
           "No.", StrSubstNo('%1|%2|%3|%4', GLAccount[1]."No.", GLAccount[2]."No.", GLAccount[3]."No.", GLAccount[4]."No."));
-        GLAccount[1].SetRange("Date Filter", WorkDate);
+        GLAccount[1].SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount[1]);
 
         // [THEN] IncomePageNo and BalancePageNo equal to 0 exist, equal to 1 dont.
@@ -426,7 +426,7 @@ codeunit 144180 "ERM NO Reports Test"
         Commit();
         GLAccount[1].SetFilter(
           "No.", StrSubstNo('%1|%2|%3|%4', GLAccount[1]."No.", GLAccount[2]."No.", GLAccount[3]."No.", GLAccount[4]."No."));
-        GLAccount[1].SetRange("Date Filter", WorkDate);
+        GLAccount[1].SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Trial Balance/Previous Period", true, false, GLAccount[1]);
 
         // [THEN] IncomePageNo and BalancePageNo equal to 0 and 1 exist.
@@ -458,7 +458,7 @@ codeunit 144180 "ERM NO Reports Test"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Print VAT specification in LCY" := VATSpecificationInLCY;
             Modify(true);
         end;
@@ -469,7 +469,7 @@ codeunit 144180 "ERM NO Reports Test"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Invoice Rounding", InvoiceRounding);
             Modify(true);
         end;

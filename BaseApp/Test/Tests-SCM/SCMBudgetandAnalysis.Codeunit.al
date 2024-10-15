@@ -186,7 +186,7 @@ codeunit 137403 "SCM Budget and Analysis"
 
         // [THEN] "Item Ledger Entry Type Filter" is "Assembly Output"
         AnalysisTypes."Item Ledger Entry Type Filter".AssertEquals(AssemblyOutpuTxt);
-        AnalysisTypes.Close;
+        AnalysisTypes.Close();
     end;
 
     [Test]
@@ -209,7 +209,7 @@ codeunit 137403 "SCM Budget and Analysis"
 
         // [THEN] "Item Ledger Entry Type Filter" is "Direct Cost"
         AnalysisTypes."Value Entry Type Filter".AssertEquals(DirectCostTxt);
-        AnalysisTypes.Close;
+        AnalysisTypes.Close();
     end;
 
     [Test]
@@ -233,7 +233,7 @@ codeunit 137403 "SCM Budget and Analysis"
 
         // [THEN] "Item Ledger Entry Type Filter" is "Assembly Output"
         AnalysisTypes."Item Ledger Entry Type Filter".AssertEquals(AssemblyOutpuTxt);
-        AnalysisTypes.Close;
+        AnalysisTypes.Close();
     end;
 
     [Test]
@@ -257,7 +257,7 @@ codeunit 137403 "SCM Budget and Analysis"
 
         // [THEN] "Item Ledger Entry Type Filter" is "Direct Cost"
         AnalysisTypes."Value Entry Type Filter".AssertEquals(DirectCostTxt);
-        AnalysisTypes.Close;
+        AnalysisTypes.Close();
     end;
 
     [Test]
@@ -380,10 +380,10 @@ codeunit 137403 "SCM Budget and Analysis"
         AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLineTemplateName);
         AnalysisLine.FindSet();
         AnalysisLine.TestField("Row Ref. No.", NewRowNo);
-        AnalysisLine.Next;
+        AnalysisLine.Next();
         NewRowNo := IncStr(NewRowNo);
         AnalysisLine.TestField("Row Ref. No.", NewRowNo);
-        AnalysisLine.Next;
+        AnalysisLine.Next();
         NewRowNo := IncStr(NewRowNo);
         AnalysisLine.TestField("Row Ref. No.", NewRowNo);
     end;

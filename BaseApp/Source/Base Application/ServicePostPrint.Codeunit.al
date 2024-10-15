@@ -8,8 +8,6 @@ codeunit 5982 "Service-Post+Print"
     end;
 
     var
-        Text000: Label '&Ship,&Invoice,Ship &and Invoice,Ship and &Consume';
-        Text001: Label 'Do you want to post and print the %1?';
         ServiceHeader: Record "Service Header";
         ServShptHeader: Record "Service Shipment Header";
         ServInvHeader: Record "Service Invoice Header";
@@ -20,13 +18,16 @@ codeunit 5982 "Service-Post+Print"
         Consume: Boolean;
         Invoice: Boolean;
 
+        Text000: Label '&Ship,&Invoice,Ship &and Invoice,Ship and &Consume';
+        Text001: Label 'Do you want to post and print the %1?';
+
     procedure PostDocument(var Rec: Record "Service Header")
     var
-        DummyServLine: Record "Service Line" temporary;
+        TempServiceLine: Record "Service Line" temporary;
     begin
         OnBeforePostDocument(Rec);
         ServiceHeader.Copy(Rec);
-        Code(DummyServLine);
+        Code(TempServiceLine);
         Rec := ServiceHeader;
     end;
 
@@ -69,7 +70,7 @@ codeunit 5982 "Service-Post+Print"
         end;
     end;
 
-    local procedure GetReport(var ServiceHeader: Record "Service Header")
+    procedure GetReport(var ServiceHeader: Record "Service Header")
     var
         EInvoiceExportServiceInvoice: Codeunit "E-Invoice Export Serv. Invoice";
         EInvoiceExportServiceCrMemo: Codeunit "E-Invoice Exp. Serv. Cr. Memo";
@@ -86,7 +87,7 @@ codeunit 5982 "Service-Post+Print"
                     begin
                         if Ship then begin
                             ServShptHeader."No." := "Last Shipping No.";
-                            ServShptHeader.SetRecFilter;
+                            ServShptHeader.SetRecFilter();
                             IsHandled := false;
                             OnBeforeServiceShipmentHeaderPrintRecords(ServShptHeader, IsHandled);
                             if not IsHandled then
@@ -94,7 +95,7 @@ codeunit 5982 "Service-Post+Print"
                         end;
                         if Invoice then begin
                             ServInvHeader."No." := "Last Posting No.";
-                            ServInvHeader.SetRecFilter;
+                            ServInvHeader.SetRecFilter();
                             ServInvHeader.PrintRecords(false);
                             if "E-Invoice" then
                                 if ServInvHeader.Find('=') then
@@ -111,7 +112,7 @@ codeunit 5982 "Service-Post+Print"
                             ServInvHeader."No." := "No."
                         else
                             ServInvHeader."No." := "Last Posting No.";
-                        ServInvHeader.SetRecFilter;
+                        ServInvHeader.SetRecFilter();
                         ServInvHeader.PrintRecords(false);
                         if "E-Invoice" then
                             if ServInvHeader.Find('=') then
@@ -127,7 +128,7 @@ codeunit 5982 "Service-Post+Print"
                             ServCrMemoHeader."No." := "No."
                         else
                             ServCrMemoHeader."No." := "Last Posting No.";
-                        ServCrMemoHeader.SetRecFilter;
+                        ServCrMemoHeader.SetRecFilter();
                         ServCrMemoHeader.PrintRecords(false);
                         if "E-Invoice" then
                             if ServCrMemoHeader.Find('=') then

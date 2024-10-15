@@ -16,12 +16,12 @@ page 6318 "PBI Report Labels"
         {
             repeater(Group)
             {
-                field("Label ID"; "Label ID")
+                field("Label ID"; Rec."Label ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Label ID', Locked = true;
                 }
-                field("Text Value"; "Text Value")
+                field("Text Value"; Rec."Text Value")
                 {
                     ApplicationArea = All;
                     Caption = 'Text Value', Locked = true;

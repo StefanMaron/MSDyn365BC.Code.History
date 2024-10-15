@@ -4,7 +4,6 @@ page 5110 "Profile Questionnaire Setup"
     Caption = 'Profile Questionnaire Setup';
     DataCaptionExpression = CaptionExpr;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Line';
     SaveValues = true;
     SourceTable = "Profile Questionnaire Line";
 
@@ -21,7 +20,7 @@ page 5110 "Profile Questionnaire Setup"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     Commit();
                     if PAGE.RunModal(0, ProfileQuestnHeader) = ACTION::LookupOK then begin
                         ProfileQuestnHeader.Get(ProfileQuestnHeader.Code);
@@ -34,7 +33,7 @@ page 5110 "Profile Questionnaire Setup"
                 trigger OnValidate()
                 begin
                     ProfileQuestnHeader.Get(CurrentQuestionsChecklistCode);
-                    CurrentQuestionsChecklistCodeO;
+                    CurrentQuestionsChecklistCodeO();
                 end;
             }
             repeater(Control1)
@@ -56,7 +55,7 @@ page 5110 "Profile Questionnaire Setup"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the profile question or answer.';
                 }
-                field("Multiple Answers"; "Multiple Answers")
+                field("Multiple Answers"; Rec."Multiple Answers")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the question has more than one possible answer.';
@@ -67,23 +66,23 @@ page 5110 "Profile Questionnaire Setup"
                     HideValue = PriorityHideValue;
                     ToolTip = 'Specifies the priority you give to the answer and where it should be displayed on the lines of the Contact Card. There are five options:';
                 }
-                field("Auto Contact Classification"; "Auto Contact Classification")
+                field("Auto Contact Classification"; Rec."Auto Contact Classification")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
                     ToolTip = 'Specifies that the question is automatically answered when you run the Update Contact Classification batch job.';
                 }
-                field("From Value"; "From Value")
+                field("From Value"; Rec."From Value")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the value from which the automatic classification of your contacts starts.';
                 }
-                field("To Value"; "To Value")
+                field("To Value"; Rec."To Value")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the value that the automatic classification of your contacts stops at.';
                 }
-                field("No. of Contacts"; "No. of Contacts")
+                field("No. of Contacts"; Rec."No. of Contacts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of contacts that have given this answer.';
@@ -118,8 +117,6 @@ page 5110 "Profile Questionnaire Setup"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Question Details';
                     Image = Questionaire;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Scope = Repeater;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View detailed information about the questions within the questionnaire.';
@@ -139,8 +136,6 @@ page 5110 "Profile Questionnaire Setup"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Answer Where-Used';
                     Image = Trace;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View which questions the current answer is based on with the number of points given.';
 
                     trigger OnAction()
@@ -182,7 +177,7 @@ page 5110 "Profile Questionnaire Setup"
                         ProfileQuestnHeader: Record "Profile Questionnaire Header";
                     begin
                         ProfileQuestnHeader.Get(CurrentQuestionsChecklistCode);
-                        ProfileQuestnHeader.SetRecFilter;
+                        ProfileQuestnHeader.SetRecFilter();
                         REPORT.Run(REPORT::"Update Contact Classification", true, false, ProfileQuestnHeader);
                     end;
                 }
@@ -194,15 +189,12 @@ page 5110 "Profile Questionnaire Setup"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Move &Up';
                     Image = MoveUp;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Change the sorting order of the lines.';
 
                     trigger OnAction()
                     begin
-                        MoveUp;
+                        MoveUp();
                     end;
                 }
                 action("Move &Down")
@@ -210,15 +202,12 @@ page 5110 "Profile Questionnaire Setup"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Move &Down';
                     Image = MoveDown;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Change the sorting order of the lines.';
 
                     trigger OnAction()
                     begin
-                        MoveDown
+                        MoveDown();
                     end;
                 }
                 separator(Action32)
@@ -230,8 +219,6 @@ page 5110 "Profile Questionnaire Setup"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Print';
                     Image = Print;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Print the information in the window. A print request window opens where you can specify what to include on the print-out.';
 
                     trigger OnAction()
@@ -256,6 +243,43 @@ page 5110 "Profile Questionnaire Setup"
                         ProfileQuestnHeader.SetRange(Code, CurrentQuestionsChecklistCode);
                         REPORT.Run(REPORT::"Questionnaire - Test", true, false, ProfileQuestnHeader);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Move &Up_Promoted"; "Move &Up")
+                {
+                }
+                actionref("Move &Down_Promoted"; "Move &Down")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Question Details_Promoted"; "Question Details")
+                {
+                }
+                actionref("Answer Where-Used_Promoted"; "Answer Where-Used")
+                {
                 }
             }
         }
@@ -298,7 +322,7 @@ page 5110 "Profile Questionnaire Setup"
         end;
 
         if CurrentQuestionsChecklistCode = '' then
-            CurrentQuestionsChecklistCode := ProfileManagement.GetQuestionnaire;
+            CurrentQuestionsChecklistCode := ProfileManagement.GetQuestionnaire();
 
         ProfileManagement.SetName(CurrentQuestionsChecklistCode, Rec, 0);
 

@@ -17,7 +17,7 @@
             exit;
 
         ChangeStatusForm.Set(Rec);
-        if ChangeStatusForm.RunModal = ACTION::Yes then begin
+        if ChangeStatusForm.RunModal() = ACTION::Yes then begin
             OnRunOnAfterChangeStatusFormRun(Rec);
             ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
             ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
@@ -134,8 +134,8 @@
                     end;
             end;
 
-            ToProdOrder.TestNoSeries;
-            if (ToProdOrder.GetNoSeriesCode <> GetNoSeriesCode) and
+            ToProdOrder.TestNoSeries();
+            if (ToProdOrder.GetNoSeriesCode() <> GetNoSeriesCode()) and
                (ToProdOrder.Status <> ToProdOrder.Status::Finished)
             then begin
                 ToProdOrder."No." := '';
@@ -167,7 +167,7 @@
             TransProdOrderBOMCmtLine(FromProdOrder);
             TransProdOrderCapNeed(FromProdOrder);
             OnAfterTransProdOrder(FromProdOrder, ToProdOrder);
-            Delete;
+            Delete();
             FromProdOrder := ToProdOrder;
         end;
     end;
@@ -309,7 +309,7 @@
                           FieldCaption("Line No."),
                           "Line No.");
                     ToProdOrderComp := FromProdOrderComp;
-                    ToProdOrderComp.Status := ToProdOrder.Status;
+                    ToProdOrderComp.Validate(Status, ToProdOrder.Status);
                     ToProdOrderComp."Prod. Order No." := ToProdOrder."No.";
                     OnTransProdOrderCompOnBeforeToProdOrderCompInsert(FromProdOrderComp, ToProdOrderComp);
                     ToProdOrderComp.Insert();
@@ -515,7 +515,7 @@
         if IsStatusSimulatedOrPlanned(NewStatus) then
             exit;
 
-        GetSourceCodeSetup;
+        GetSourceCodeSetup();
 
         ProdOrderLine.LockTable();
         ProdOrderLine.Reset();
@@ -592,12 +592,12 @@
                         ItemJnlLine."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
                         OnFlushProdOrderOnBeforeCopyItemTracking(ItemJnlLine, ProdOrderComp, Item);
                         if Item."Item Tracking Code" <> '' then
-                            ItemTrackingMgt.CopyItemTracking(RowID1, ItemJnlLine.RowID1, false);
+                            ItemTrackingMgt.CopyItemTracking(RowID1(), ItemJnlLine.RowID1(), false);
                         PostFlushItemJnlLine(ItemJnlLine);
                         OnFlushProdOrderOnAfterPostFlushItemJnlLine(ItemJnlLine);
                     end;
                 until Next() = 0;
-                Window.Close;
+                Window.Close();
             end;
         end;
     end;
@@ -667,7 +667,7 @@
                   PutawayQtyBaseToCalc);
                 ItemJnlLine."Concurrent Capacity" := ProdOrderRtngLine."Concurrent Capacities";
                 ItemJnlLine."Source Code" := SourceCodeSetup.Flushing;
-                if not (ItemJnlLine.TimeIsEmpty and (ItemJnlLine."Output Quantity" = 0)) then begin
+                if not (ItemJnlLine.TimeIsEmpty() and (ItemJnlLine."Output Quantity" = 0)) then begin
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       ItemJnlLine."Dimension Set ID", ItemJnlLine."Shortcut Dimension 1 Code", ItemJnlLine."Shortcut Dimension 2 Code");
                     OnAfterUpdateGlobalDim(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
@@ -780,7 +780,7 @@
             SetFilter("Outstanding Quantity", '<>%1', 0);
             OnCheckBeforeFinishProdOrderOnAfterSetProdOrderCompFilters(ProdOrderComp, ProdOrder, PurchLine);
             if FindFirst() then
-                Error(Text008, ProdOrder.TableCaption, ProdOrder."No.", "Document No.");
+                Error(Text008, ProdOrder.TableCaption(), ProdOrder."No.", "Document No.");
         end;
 
         OnCheckBeforeFinishProdOrderOnAfterCheckProdOrder(ProdOrder);
@@ -808,7 +808,7 @@
 
             OnCheckMissingOutput(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ShowWarning);
             if ShowWarning then
-                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, ProdOrder.TableCaption, ProdOrder."No."), true) then
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, ProdOrder.TableCaption(), ProdOrder."No."), true) then
                     Error(Text005);
         end;
 
@@ -828,7 +828,7 @@
 
             OnCheckMissingConsumption(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ShowWarning);
             if ShowWarning then
-                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text006, ProdOrder.TableCaption, ProdOrder."No."), true) then
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text006, ProdOrder.TableCaption(), ProdOrder."No."), true) then
                     Error(Text005);
         end;
     end;
@@ -852,7 +852,7 @@
             SetRange("Routing Link Code", ProdOrderComp."Routing Link Code");
             SetRange("Routing No.", ProdOrderLine."Routing No.");
             SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-            exit(FindFirst);
+            exit(FindFirst());
         end;
     end;
 
@@ -884,11 +884,11 @@
                 if not IsHandled then
                     if not OutputExists(ProdOrderLine) then
                         if MatrOrCapConsumpExists(ProdOrderLine) then
-                            Error(Text009, ProdOrderLine."Line No.", ToProdOrder.TableCaption, ProdOrderLine."Prod. Order No.");
+                            Error(Text009, ProdOrderLine."Line No.", ToProdOrder.TableCaption(), ProdOrderLine."Prod. Order No.");
             until ProdOrderLine.Next() = 0;
     end;
 
-    local procedure OutputExists(ProdOrderLine: Record "Prod. Order Line"): Boolean
+    procedure OutputExists(ProdOrderLine: Record "Prod. Order Line"): Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
@@ -905,7 +905,7 @@
         exit(false);
     end;
 
-    local procedure MatrOrCapConsumpExists(ProdOrderLine: Record "Prod. Order Line") EntriesExist: Boolean
+    procedure MatrOrCapConsumpExists(ProdOrderLine: Record "Prod. Order Line") EntriesExist: Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         CapLedgEntry: Record "Capacity Ledger Entry";
@@ -933,11 +933,11 @@
         exit(not CapLedgEntry.IsEmpty);
     end;
 
-    local procedure SetTimeAndQuantityOmItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; OutputQtyBase: Decimal; OutputQty: Decimal; PutawayQtyBaseToCalc: Decimal)
+    procedure SetTimeAndQuantityOmItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; OutputQtyBase: Decimal; OutputQty: Decimal; PutawayQtyBaseToCalc: Decimal)
     var
         CostCalculationManagement: Codeunit "Cost Calculation Management";
     begin
-        if ItemJnlLine.SubcontractingWorkCenterUsed then begin
+        if ItemJnlLine.SubcontractingWorkCenterUsed() then begin
             ItemJnlLine.Validate("Output Quantity", 0);
             ItemJnlLine.Validate("Run Time", 0);
             ItemJnlLine.Validate("Setup Time", 0)
@@ -950,7 +950,7 @@
                 CalendarMgt.QtyperTimeUnitofMeasure(
                   ProdOrderRtngLine."Work Center No.",
                   ProdOrderRtngLine."Setup Time Unit of Meas. Code"),
-                UOMMgt.TimeRndPrecision));
+                UOMMgt.TimeRndPrecision()));
             ItemJnlLine.Validate(
               "Run Time",
               CostCalculationManagement.CalcCostTime(
@@ -1033,7 +1033,13 @@
         if IsHandled then
             exit;
 
-        Message(Text000, ProdOrder.Status, ProdOrder.TableCaption, ProdOrder."No.", ToProdOrder.Status, ToProdOrder.TableCaption, ToProdOrder."No.");
+        Message(Text000, ProdOrder.Status, ProdOrder.TableCaption(), ProdOrder."No.", ToProdOrder.Status, ToProdOrder.TableCaption(), ToProdOrder."No.");
+    end;
+
+    procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; var NewProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
+    begin
+        ChangeProdOrderStatus(ProdOrder, NewStatus, NewPostingDate, NewUpdateUnitCost);
+        NewProdOrder := ToProdOrder;
     end;
 
     [IntegrationEvent(false, false)]

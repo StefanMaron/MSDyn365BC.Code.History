@@ -15,12 +15,12 @@ page 5885 "Posted Phys. Invt. Order Subf."
             repeater(Control40)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item number.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -31,115 +31,115 @@ page 5885 "Posted Phys. Invt. Order Subf."
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the item.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies an additional part of the description of the item.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the location where the item must be counted.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the Bin Code of the table physical inventory order line.';
                     Visible = false;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the unit of measure used for the item, for example bottle or piece.';
                     Visible = false;
                 }
-                field("Base Unit of Measure Code"; "Base Unit of Measure Code")
+                field("Base Unit of Measure Code"; Rec."Base Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the base unit of measure that is set up for the item.';
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number where the item is placed.';
                     Visible = false;
                 }
-                field("Qty. Expected (Base)"; "Qty. Expected (Base)")
+                field("Qty. Expected (Base)"; Rec."Qty. Expected (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item''s current expected inventory quantity in the base unit of measure.';
                 }
-                field("Qty. Exp. Item Tracking (Base)"; "Qty. Exp. Item Tracking (Base)")
+                field("Qty. Exp. Item Tracking (Base)"; Rec."Qty. Exp. Item Tracking (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item''s current expected inventory of serial and lot numbers in the base unit of measure.';
                 }
-                field("Use Item Tracking"; "Use Item Tracking")
+                field("Use Item Tracking"; Rec."Use Item Tracking")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that the counting of the item is done by counting its serial and lot numbers.';
                 }
-                field("Qty. Recorded (Base)"; "Qty. Recorded (Base)")
+                field("Qty. Recorded (Base)"; Rec."Qty. Recorded (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the counted quantity in the base unit of measure.';
                 }
-                field("No. Finished Rec.-Lines"; "No. Finished Rec.-Lines")
+                field("No. Finished Rec.-Lines"; Rec."No. Finished Rec.-Lines")
                 {
                     ApplicationArea = Warehouse;
                     BlankZero = true;
                     ToolTip = 'Specifies how many of the related physical inventory recordings are closed.';
                 }
-                field("Recorded Without Order"; "Recorded Without Order")
+                field("Recorded Without Order"; Rec."Recorded Without Order")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that no physical inventory order lines existed for the recorded item, and that the line was generated based on the related recording.';
                     Visible = false;
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the difference in the Quantity (Base) field on the related closed recording is positive or negative.';
                     Visible = false;
                 }
-                field("Quantity (Base)"; "Quantity (Base)")
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the difference between the Qty. Expected (Base) and the Qty. Recorded (Base) fields.';
                     Visible = false;
                 }
-                field("Pos. Qty. (Base)"; "Pos. Qty. (Base)")
+                field("Pos. Qty. (Base)"; Rec."Pos. Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     BlankZero = true;
                     ToolTip = 'Specifies the positive difference between the Qty. Expected (Base) and the Qty. Recorded (Base) fields.';
                 }
-                field("Neg. Qty. (Base)"; "Neg. Qty. (Base)")
+                field("Neg. Qty. (Base)"; Rec."Neg. Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     BlankZero = true;
                     ToolTip = 'Specifies the negative difference between the Qty. Expected (Base) and the Qty. Recorded (Base) fields.';
                 }
-                field("Unit Amount"; "Unit Amount")
+                field("Unit Amount"; Rec."Unit Amount")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the sum of unit costs for the item quantity on the line.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item''s unit cost.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -219,7 +219,7 @@ page 5885 "Posted Phys. Invt. Order Subf."
 
                     trigger OnAction()
                     begin
-                        ShowPostPhysInvtRecordingLines;
+                        ShowPostPhysInvtRecordingLines();
                     end;
                 }
                 action(Dimensions)
@@ -247,7 +247,7 @@ page 5885 "Posted Phys. Invt. Order Subf."
 
                         trigger OnAction()
                         begin
-                            ShowPostExpPhysInvtTrackLines;
+                            ShowPostExpPhysInvtTrackLines();
                         end;
                     }
                     action(ItemTrackingEntries)
@@ -259,7 +259,7 @@ page 5885 "Posted Phys. Invt. Order Subf."
 
                         trigger OnAction()
                         begin
-                            ShowPostedItemTrackingLines;
+                            ShowPostedItemTrackingLines();
                         end;
                     }
                 }
@@ -269,7 +269,7 @@ page 5885 "Posted Phys. Invt. Order Subf."
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     protected var

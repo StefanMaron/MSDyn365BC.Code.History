@@ -16,57 +16,57 @@ page 7331 "Posted Whse. Receipt Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date that the receipt line was due.';
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for informational use.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone on this posted receipt line.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Cross-Dock Zone Code"; "Cross-Dock Zone Code")
+                field("Cross-Dock Zone Code"; Rec."Cross-Dock Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone code used to create the cross-dock put-away for this line when the receipt was posted.';
                     Visible = false;
                 }
-                field("Cross-Dock Bin Code"; "Cross-Dock Bin Code")
+                field("Cross-Dock Bin Code"; Rec."Cross-Dock Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin code used to create the cross-dock put-away for this line when the receipt was posted.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that was received and posted.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -77,7 +77,7 @@ page 7331 "Posted Whse. Receipt Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item in the line.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a second description of the item in the line, if any.';
@@ -88,49 +88,49 @@ page 7331 "Posted Whse. Receipt Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that was received.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that was received, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Put Away"; "Qty. Put Away")
+                field("Qty. Put Away"; Rec."Qty. Put Away")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that is put away.';
                     Visible = false;
                 }
-                field("Qty. Cross-Docked"; "Qty. Cross-Docked")
+                field("Qty. Cross-Docked"; Rec."Qty. Cross-Docked")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of items that was in the Qty. To Cross-Dock field on the warehouse receipt line when it was posted.';
                     Visible = false;
                 }
-                field("Qty. Put Away (Base)"; "Qty. Put Away (Base)")
+                field("Qty. Put Away (Base)"; Rec."Qty. Put Away (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that is put away, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Cross-Docked (Base)"; "Qty. Cross-Docked (Base)")
+                field("Qty. Cross-Docked (Base)"; Rec."Qty. Cross-Docked (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the base quantity of items in the Qty. To Cross-Dock (Base) field on the warehouse receipt line when it was posted.';
                     Visible = false;
                 }
-                field("Put-away Qty."; "Put-away Qty.")
+                field("Put-away Qty."; Rec."Put-away Qty.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity on put-away instructions in the process of being put away.';
                     Visible = false;
                 }
-                field("Put-away Qty. (Base)"; "Put-away Qty. (Base)")
+                field("Put-away Qty. (Base)"; Rec."Put-away Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity on put-away instructions, in the base unit of measure, in the process of being put away.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -156,7 +156,7 @@ page 7331 "Posted Whse. Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowPostedSourceDoc;
+                        ShowPostedSourceDoc();
                     end;
                 }
                 action("Whse. Document Line")
@@ -168,7 +168,7 @@ page 7331 "Posted Whse. Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowWhseLine;
+                        ShowWhseLine();
                     end;
                 }
                 action("Bin Contents List")
@@ -180,7 +180,7 @@ page 7331 "Posted Whse. Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowBinContents;
+                        ShowBinContents();
                     end;
                 }
             }

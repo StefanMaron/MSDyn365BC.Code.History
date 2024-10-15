@@ -241,14 +241,14 @@ codeunit 144116 "E-Invoice Fin. Ch. Memo"
         with IssuedFinChMemoLine do begin
             SetRange("Finance Charge Memo No.", IssuedFinChMemoHeader."No.");
             FindLast();
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Type := Type::"Customer Ledger Entry";
             "Document Type" := DocumentType;
             "Document No." := Format(DocumentType);
             Description := Format(DocumentType);
             Amount := AmountValue;
-            Insert;
+            Insert();
         end;
     end;
 

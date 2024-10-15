@@ -501,7 +501,7 @@ codeunit 137927 "SCM Assembly Copy"
 
         // [GIVEN] Assembly Order
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, LibraryRandom.RandDateFromInRange(WorkDate, 1, 10), ItemNo,
+          AssemblyHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 1, 10), ItemNo,
           LibraryWarehouse.CreateLocation(Location), LibraryRandom.RandDecInRange(10, 20, 2), '');
 
         // [GIVEN] Modified Global Dimensions in Assembly Order
@@ -517,7 +517,7 @@ codeunit 137927 "SCM Assembly Copy"
         CopyAsmOrderToAsmOrder(AssemblyHeader."No.", ToAssemblyHeader."No.", true);
 
         // [THEN] Both Assembly Orders have same Dimensions
-        ToAssemblyHeader.Find;
+        ToAssemblyHeader.Find();
         VerifyDimensionsMatchInAsmDocs(ToAssemblyHeader, AssemblyHeader);
     end;
 
@@ -542,7 +542,7 @@ codeunit 137927 "SCM Assembly Copy"
 
         // [GIVEN] Assembly Order
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, LibraryRandom.RandDateFromInRange(WorkDate, 1, 10), ItemNo,
+          AssemblyHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 1, 10), ItemNo,
           LibraryWarehouse.CreateLocation(Location), LibraryRandom.RandDecInRange(10, 20, 2), '');
         SaveOldDimSetValuesForAsmOrder(OldAsmHdrDimSetID, OldAsmLineDimSetID, AssemblyHeader);
 
@@ -551,14 +551,14 @@ codeunit 137927 "SCM Assembly Copy"
 
         // [GIVEN] New Assembly Order
         LibraryAssembly.CreateAssemblyHeader(
-          ToAssemblyHeader, LibraryRandom.RandDateFromInRange(WorkDate, 1, 10), ItemNo,
+          ToAssemblyHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 1, 10), ItemNo,
           LibraryWarehouse.CreateLocation(Location), LibraryRandom.RandDecInRange(10, 20, 2), '');
 
         // [WHEN] Copy Assembly Order to new Assembly Order with Include Header = No
         CopyAsmOrderToAsmOrder(AssemblyHeader."No.", ToAssemblyHeader."No.", false);
 
         // [THEN] Dimensions are recalculated in new Assembly Order Line
-        ToAssemblyHeader.Find;
+        ToAssemblyHeader.Find();
         VerifyDimensionsRecalcInAsmDoc(ToAssemblyHeader, OldAsmHdrDimSetID, OldAsmLineDimSetID);
     end;
 
@@ -1118,9 +1118,9 @@ codeunit 137927 "SCM Assembly Copy"
         FromSalesShipmentLine.FindSet();
         repeat
             Assert.IsTrue(FromSalesShipmentLine.AsmToShipmentExists(PostedAsmHeader),
-              StrSubstNo('%1: No Assembly orders exist for %2: Order %3 line %4', ThisObj, FromSalesShipmentLine.TableCaption,
+              StrSubstNo('%1: No Assembly orders exist for %2: Order %3 line %4', ThisObj, FromSalesShipmentLine.TableCaption(),
                 FromSalesShipmentLine.FieldCaption("Document No."), FromSalesShipmentLine.FieldCaption("Line No.")));
-        until FromSalesShipmentLine.Next = 0;
+        until FromSalesShipmentLine.Next() = 0;
         ToSalesHeader.Get(ToSalesHeader."Document Type"::Order, EmptySalesOrderNo);
         CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Shipment", SalesShipmentNo, ToSalesHeader); // 6 = from Sales Shipment
     end;
@@ -1138,9 +1138,9 @@ codeunit 137927 "SCM Assembly Copy"
         FromSalesShipmentLine.FindSet();
         repeat
             Assert.IsTrue(FromSalesShipmentLine.AsmToShipmentExists(PostedAsmHeader),
-              StrSubstNo('%1: No Assembly orders exist for %2: Order %3 line %4', FromSalesShipmentLine.TableCaption,
+              StrSubstNo('%1: No Assembly orders exist for %2: Order %3 line %4', FromSalesShipmentLine.TableCaption(),
                 FromSalesShipmentLine.FieldCaption("Document No."), FromSalesShipmentLine.FieldCaption("Line No.")));
-        until FromSalesShipmentLine.Next = 0;
+        until FromSalesShipmentLine.Next() = 0;
         ToAsmHeader.Get(ToAsmHeader."Document Type"::Order, AssemblyHeaderNo);
         CopyDocumentMgt.CopyPostedAsmHeaderToAsmHeader(PostedAsmHeader, ToAsmHeader, true);
     end;
@@ -1206,7 +1206,7 @@ codeunit 137927 "SCM Assembly Copy"
             Assert.AreEqual(TempAsmLine."No.", ToAsmLine."No.", GetMsg(ToAsmLine.FieldCaption("No.")));
             Assert.AreEqual(TempAsmLine.Quantity, ToAsmLine.Quantity, GetMsg(ToAsmLine.FieldCaption(Quantity)));
             Assert.AreEqual(TempAsmLine."Quantity (Base)", ToAsmLine."Quantity (Base)", GetMsg(ToAsmLine.FieldCaption("Quantity (Base)")));
-        until (ToAsmLine.Next = 0) and (TempAsmLine.Next = 0);
+        until (ToAsmLine.Next() = 0) and (TempAsmLine.Next() = 0);
     end;
 
     local procedure CreateAssemblyOrderHeader(var AssemblyHeaderNo: Code[20])
@@ -1235,7 +1235,7 @@ codeunit 137927 "SCM Assembly Copy"
         end;
         ManufacturingSetup.Get();
         SalesHeader.Validate(
-          "Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
+          "Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
         SalesHeader.Validate("Location Code", UsedLocationCode);
         SalesHeader.Modify();
         if AssemblyItemQuantity > 0 then begin
@@ -1256,7 +1256,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesLine.Validate("Shipment Date", LibraryRandom.RandDateFromInRange(WorkDate, 10, 20));
+        SalesLine.Validate("Shipment Date", LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20));
         SalesLine.Validate("Qty. to Assemble to Order", SalesLine.Quantity);
         SalesLine.Modify(true);
     end;
@@ -1314,8 +1314,8 @@ codeunit 137927 "SCM Assembly Copy"
                 repeat
                     TempAsmLine := AsmLine;
                     TempAsmLine.Insert();
-                until AsmLine.Next = 0;
-        until AssembleToOrderLink.Next = 0;
+                until AsmLine.Next() = 0;
+        until AssembleToOrderLink.Next() = 0;
     end;
 
     local procedure CollectAsmLinesFromShipment(ShipmentNo: Code[20]; var FullAssemblyOrderNo: Code[20])
@@ -1339,8 +1339,8 @@ codeunit 137927 "SCM Assembly Copy"
                     TempAsmLine."Document No." := PostedAsmLine."Document No.";
                     TempAsmLine."Line No." := PostedAsmLine."Line No.";
                     TempAsmLine.Insert();
-                until PostedAsmLine.Next = 0;
-        until PostedAssembleToOrderLink.Next = 0;
+                until PostedAsmLine.Next() = 0;
+        until PostedAssembleToOrderLink.Next() = 0;
     end;
 
     local procedure CompareAsmLines(NewDocType: Enum "Assembly Document Type"; NewSalesHeaderNo: Code[20]; Posted: Boolean; OriginalDocType: Enum "Assembly Document Type"; OriginalDocNo: Code[20])
@@ -1389,7 +1389,7 @@ codeunit 137927 "SCM Assembly Copy"
             Assert.AreEqual(TempAsmLine."Location Code", ToAsmLine."Location Code", GetMsg(TempAsmLine.FieldCaption("Location Code")));
             Assert.AreEqual(TempAsmLine."Variant Code", ToAsmLine."Variant Code", GetMsg(TempAsmLine.FieldCaption("Variant Code")));
             Assert.AreEqual(TempAsmLine."Location Code", ToAsmLine."Location Code", GetMsg(TempAsmLine.FieldCaption("Location Code")));
-        until (TempAsmLine.Next = 0) and (ToAsmLine.Next = 0);
+        until (TempAsmLine.Next() = 0) and (ToAsmLine.Next() = 0);
     end;
 
     local procedure PostOrderAsShip(NonEmptySalesOrderNo: Code[20]; QtyToShip: Decimal): Code[20]
@@ -1475,10 +1475,10 @@ codeunit 137927 "SCM Assembly Copy"
         end;
         if not BasicDataInitialized then begin
             CreateCustomer;
-            GetResource;
+            GetResource();
             UsedLocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
             CreateAssemblyItem;
-            GetSKU;
+            GetSKU();
             ProvideAssemblyComponentSupply;
             BasicDataInitialized := true;
         end;

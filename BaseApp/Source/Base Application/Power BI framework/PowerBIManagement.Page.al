@@ -25,7 +25,7 @@ page 6319 "Power BI Management"
                         PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
                         Url: Text;
                     begin
-                        Url := PowerBIUrlMgt.GetPowerBIEmbedReportsUrl;
+                        Url := PowerBIUrlMgt.GetPowerBIEmbedReportsUrl();
 
                         if not IsNullGuid(TargetReportId) and (TargetReportUrl <> '') then begin
                             CurrPage.PowerBIManagement.InitializeReport(TargetReportUrl, TargetReportId,
@@ -68,10 +68,6 @@ page 6319 "Power BI Management"
                 ApplicationArea = All;
                 Caption = 'View Mode';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
-                PromotedOnly = true;
 
                 trigger OnAction()
                 begin
@@ -83,14 +79,30 @@ page 6319 "Power BI Management"
                 ApplicationArea = All;
                 Caption = 'Edit Mode';
                 Image = Edit;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
 
                 trigger OnAction()
                 begin
                     CurrPage.PowerBIManagement.EditMode();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(EditMode_Promoted; EditMode)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(ViewMode_Promoted; ViewMode)
+                {
+                }
             }
         }
     }

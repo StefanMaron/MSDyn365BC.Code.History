@@ -38,7 +38,7 @@ codeunit 144000 "Proportional VAT Test"
         CurrencyCode := SetupAdditionalCurrency;
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
         CreateProportionalVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", GetTFS190253PropVATRate);
-        CreatePostGenJnlLines(GenJnlLine, GenPostingSetup, VATPostingSetup, CurrencyCode, '', WorkDate);
+        CreatePostGenJnlLines(GenJnlLine, GenPostingSetup, VATPostingSetup, CurrencyCode, '', WorkDate());
         VerifyGLEntryWithNormalVAT(GenJnlLine, VATPostingSetup);
     end;
 
@@ -354,7 +354,7 @@ codeunit 144000 "Proportional VAT Test"
         // [WHEN] Post Gen. Journal Line with Amount = 120
         CreatePostGenJnlLines(
           GenJournalLine, GeneralPostingSetup, VATPostingSetup, '',
-          DeferralTemplate."Deferral Code", CalcDate('<-CM>', WorkDate));
+          DeferralTemplate."Deferral Code", CalcDate('<-CM>', WorkDate()));
 
         // [THEN] Total amount to defer = "VAT Base Amount" + "VAT Amount" excluding proportional VAT = 100 + 20 * (100 - 25%) / 100 = 115.
         // [THEN] Created 4 Deferral G/L Entries with summarized Amount = 115
@@ -428,7 +428,7 @@ codeunit 144000 "Proportional VAT Test"
         SettlementGLAccNo := LibraryERM.CreateGLAccountNo();
         SettlementDocNo := LibraryUtility.GenerateGUID();
         RunCalcAndPostVATSettlement(
-          VATPostingSetup."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate);
+          VATPostingSetup."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate());
 
         // [THEN] 3 G/L entries created
         // [THEN] Purchase VAT Account has amount = -2 (-(100 * 20%) * 10%)
@@ -470,7 +470,7 @@ codeunit 144000 "Proportional VAT Test"
         // [WHEN] Calc and post VAT Settlement
         SettlementGLAccNo := LibraryERM.CreateGLAccountNo();
         SettlementDocNo := LibraryUtility.GenerateGUID();
-        RunCalcAndPostVATSettlement(VATPostingSetup."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate);
+        RunCalcAndPostVATSettlement(VATPostingSetup."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate());
 
         // [THEN] 3 G/L entries created
         // [THEN] Purchase VAT Account has amount = 0 (-(100 * 20%) * 0%)
@@ -514,7 +514,7 @@ codeunit 144000 "Proportional VAT Test"
         // [WHEN] Calc and post VAT Settlement
         SettlementGLAccNo := LibraryERM.CreateGLAccountNo();
         SettlementDocNo := LibraryUtility.GenerateGUID();
-        RunCalcAndPostVATSettlement(VATPostingSetup."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate);
+        RunCalcAndPostVATSettlement(VATPostingSetup."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate());
 
         // [THEN] 2 G/L entries created
         // [THEN] Purchase VAT Account has amount = -20 (-(100 * 20%) * 100%)
@@ -570,7 +570,7 @@ codeunit 144000 "Proportional VAT Test"
         // [WHEN] Calc and post VAT Settlement
         SettlementGLAccNo := LibraryERM.CreateGLAccountNo();
         SettlementDocNo := LibraryUtility.GenerateGUID();
-        RunCalcAndPostVATSettlement(VATPostingSetup1."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate);
+        RunCalcAndPostVATSettlement(VATPostingSetup1."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate());
 
         // [THEN] 5 G/L entries created
         // [THEN] Purchase VAT Account has amount = -8 (-2 - 6)
@@ -690,7 +690,7 @@ codeunit 144000 "Proportional VAT Test"
 
         // [WHEN] Calc and post VAT Settlement
         RunCalcAndPostVATSettlement(
-          VATPostingSetup."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate);
+          VATPostingSetup."VAT Bus. Posting Group", SettlementDocNo, SettlementGLAccNo, WorkDate());
 
         // [THEN] 3 G/L entries created
         // [THEN] Purchase VAT Account has amount = -2 (-(100 * 20%) * 10%)
@@ -773,7 +773,7 @@ codeunit 144000 "Proportional VAT Test"
         Currency.Validate("Residual Losses Account", LibraryERM.CreateGLAccountNo);
         Currency.Modify(true);
 
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", GetTFS190253ExchRate);
@@ -951,7 +951,7 @@ codeunit 144000 "Proportional VAT Test"
         CurrencyCode := SetupAdditionalCurrency;
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
         CreateProportionalVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", GetTFS190253PropVATRate);
-        CreatePostGenJnlLines(GenJnlLine, GenPostingSetup, VATPostingSetup, CurrencyCode, '', WorkDate);
+        CreatePostGenJnlLines(GenJnlLine, GenPostingSetup, VATPostingSetup, CurrencyCode, '', WorkDate());
     end;
 
     local procedure CreateSalesInvoice(var Customer: Record Customer; VATPostingSetup: Record "VAT Posting Setup")
@@ -1031,7 +1031,7 @@ codeunit 144000 "Proportional VAT Test"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        PurchaseHeader.Validate("Posting Date", CalcDate('<-CM>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<-CM>', WorkDate()));
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,

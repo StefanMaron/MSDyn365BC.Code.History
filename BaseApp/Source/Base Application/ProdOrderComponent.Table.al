@@ -11,6 +11,11 @@ table 5407 "Prod. Order Component"
         field(1; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
+
+            trigger OnValidate()
+            begin
+                WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
+            end;
         }
         field(2; "Prod. Order No."; Code[20])
         {
@@ -34,7 +39,7 @@ table 5407 "Prod. Order Component"
 
             trigger OnValidate()
             begin
-                if xRec.Find then begin
+                if xRec.Find() then begin
                     CalcFields("Act. Consumption (Qty)");
                     TestField("Act. Consumption (Qty)", 0);
                 end;
@@ -52,15 +57,15 @@ table 5407 "Prod. Order Component"
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
                     OnValidateItemNoOnBeforeGetDefaultBin(Rec, Item);
-                    GetDefaultBin;
-                    ClearCalcFormula;
+                    GetDefaultBin();
+                    ClearCalcFormula();
                     if "Quantity per" <> 0 then
                         Validate("Quantity per");
                 end;
                 Description := Item.Description;
                 UpdateUOMFromItem(Item);
                 OnValidateItemNoOnAfterUpdateUOMFromItem(Rec, xRec, Item);
-                GetUpdateFromSKU;
+                GetUpdateFromSKU();
                 CreateDimFromDefaultDim();
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
@@ -87,7 +92,7 @@ table 5407 "Prod. Order Component"
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
 
-                UpdateUnitCost;
+                UpdateUnitCost();
 
                 UpdateExpectedQuantity();
             end;
@@ -144,7 +149,7 @@ table 5407 "Prod. Order Component"
                 if Format("Lead-Time Offset") <> '' then begin
                     "Due Date" :=
                       "Due Date" -
-                      (CalcDate("Lead-Time Offset", WorkDate) - WorkDate);
+                      (CalcDate("Lead-Time Offset", WorkDate()) - WorkDate());
                     "Due Time" := 0T;
                 end;
 
@@ -177,15 +182,15 @@ table 5407 "Prod. Order Component"
                 if Item."No." <> "Item No." then
                     Item.Get("Item No.");
                 AssignDecsriptionFromItemOrVariant();
-                GetDefaultBin;
+                GetDefaultBin();
                 WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
                 ProdOrderCompReserve.VerifyChange(Rec, xRec);
                 CalcFields("Reserved Qty. (Base)");
                 TestField("Reserved Qty. (Base)", 0);
                 TestField("Remaining Qty. (Base)", "Expected Qty. (Base)");
-                UpdateUnitCost;
+                UpdateUnitCost();
                 Validate("Expected Quantity");
-                GetUpdateFromSKU;
+                GetUpdateFromSKU();
             end;
         }
         field(22; "Qty. Rounding Precision"; Decimal)
@@ -236,9 +241,9 @@ table 5407 "Prod. Order Component"
 
                 if ("Qty. Rounding Precision" > 0) and (BaseUOMPrecRoundedExpectedQuantity <> ItemPrecRoundedExpectedQuantity) then
                     if UnroundedExpectedQuantity <> ItemPrecRoundedExpectedQuantity then
-                        Error(WrongPrecisionItemAndUOMExpectedQtyErr, Item.FieldCaption("Rounding Precision"), Item.TableCaption, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption, Rec.FieldCaption("Expected Quantity"))
+                        Error(WrongPrecisionItemAndUOMExpectedQtyErr, Item.FieldCaption("Rounding Precision"), Item.TableCaption(), ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption(), Rec.FieldCaption("Expected Quantity"))
                     else
-                        Error(WrongPrecOnUOMExpectedQtyErr, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption, Rec.FieldCaption("Expected Quantity"));
+                        Error(WrongPrecOnUOMExpectedQtyErr, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption(), Rec.FieldCaption("Expected Quantity"));
 
                 "Expected Quantity" := BaseUOMPrecRoundedExpectedQuantity;
                 "Expected Qty. (Base)" := CalcBaseQty("Expected Quantity", FieldCaption("Expected Quantity"), FieldCaption("Expected Qty. (Base)"));
@@ -308,7 +313,7 @@ table 5407 "Prod. Order Component"
                     if "Line No." = 0 then
                         ItemLedgEntry.SetRange("Item No.", "Item No.");
                     if not ItemLedgEntry.IsEmpty() then
-                        Error(Text99000002, "Flushing Method", ItemLedgEntry.TableCaption);
+                        Error(Text99000002, "Flushing Method", ItemLedgEntry.TableCaption());
                 end;
 
                 if ("Flushing Method" <> xRec."Flushing Method") and
@@ -335,7 +340,7 @@ table 5407 "Prod. Order Component"
                         PickWhseWorksheetLine.SetRange("Source Line No.", "Prod. Order Line No.");
                         PickWhseWorksheetLine.SetRange("Source Subline No.", "Line No.");
                         if not PickWhseWorksheetLine.IsEmpty() then
-                            Error(Text99000002, "Flushing Method", PickWhseWorksheetLine.TableCaption);
+                            Error(Text99000002, "Flushing Method", PickWhseWorksheetLine.TableCaption());
                     end;
                 end;
 
@@ -353,15 +358,15 @@ table 5407 "Prod. Order Component"
                 if Item."No." <> "Item No." then
                     Item.Get("Item No.");
 
-                UpdateUnitCost;
+                UpdateUnitCost();
                 Validate("Expected Quantity");
 
                 if Item.IsInventoriableType() then begin
-                    GetDefaultBin;
+                    GetDefaultBin();
                     WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
                 end;
                 ProdOrderCompReserve.VerifyChange(Rec, xRec);
-                GetUpdateFromSKU;
+                GetUpdateFromSKU();
                 CreateDimFromDefaultDim();
             end;
         }
@@ -436,7 +441,7 @@ table 5407 "Prod. Order Component"
                       FieldCaption("Bin Code"),
                       "Location Code",
                       "Bin Code", 0);
-                    CheckBin;
+                    CheckBin();
                 end;
             end;
         }
@@ -538,7 +543,7 @@ table 5407 "Prod. Order Component"
                         Error(
                           Text99000003,
                           FieldCaption("Unit Cost"), Item.FieldCaption("Costing Method"), Item."Costing Method");
-                    UpdateUnitCost;
+                    UpdateUnitCost();
                 end;
                 Validate("Calculation Formula");
             end;
@@ -558,14 +563,13 @@ table 5407 "Prod. Order Component"
                 CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
             begin
                 WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
-                if not Blocked then begin
+                if not Blocked then
                     if CurrFieldNo <> 0 then
                         CheckDateConflict.ProdOrderComponentCheck(Rec, true, true)
                     else
                         if CheckDateConflict.ProdOrderComponentCheck(Rec, not WarningRaised, false) then
                             WarningRaised := true;
-                end;
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(53; "Due Time"; Time)
@@ -574,7 +578,7 @@ table 5407 "Prod. Order Component"
 
             trigger OnValidate()
             begin
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(60; "Qty. per Unit of Measure"; Decimal)
@@ -647,7 +651,7 @@ table 5407 "Prod. Order Component"
                     OnValidateExpectedQtyBaseOnAfterCalcActConsumptionQty(Rec, xRec);
                     "Remaining Quantity" := "Expected Quantity" - "Act. Consumption (Qty)";
                     OnValidateExpectedQtyBaseOnAfterCalcRemainingQuantity(Rec, xRec);
-                    "Remaining Qty. (Base)" := Round("Remaining Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                    "Remaining Qty. (Base)" := Round("Remaining Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                 end;
                 "Cost Amount" := Round("Expected Quantity" * "Unit Cost");
                 "Overhead Amount" :=
@@ -1000,7 +1004,7 @@ table 5407 "Prod. Order Component"
         if "Due Date" = 0D then begin
             "Due Date" := ProdOrderLine."Starting Date";
             "Due Time" := ProdOrderLine."Starting Time";
-            UpdateDatetime;
+            UpdateDatetime();
         end;
 
         ProdOrderRtngLine.Reset();
@@ -1038,7 +1042,7 @@ table 5407 "Prod. Order Component"
         Item.Get("Item No.");
         RoundingPrecision := Item."Rounding Precision";
         if RoundingPrecision = 0 then
-            RoundingPrecision := UOMMgt.QtyRndPrecision;
+            RoundingPrecision := UOMMgt.QtyRndPrecision();
 
         OnGetNeededQtyOnBeforeCalcBasedOn(Rec, RoundingPrecision);
         if CalcBasedOn = CalcBasedOn::"Actual Output" then begin
@@ -1049,7 +1053,7 @@ table 5407 "Prod. Order Component"
             ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
             ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
             ProdOrderRtngLine.SetRange("Routing Link Code", "Routing Link Code");
-            if not ProdOrderRtngLine.FindFirst or ("Routing Link Code" = '') then begin
+            if not ProdOrderRtngLine.FindFirst() or ("Routing Link Code" = '') then begin
                 ProdOrderRtngLine.SetRange("Routing Link Code");
                 ProdOrderRtngLine.SetFilter("Next Operation No.", '%1', '');
                 if not ProdOrderRtngLine.FindFirst() then
@@ -1160,7 +1164,7 @@ table 5407 "Prod. Order Component"
         if Status in [Status::Released, Status::Finished] then
             CalcFields("Act. Consumption (Qty)");
         "Remaining Quantity" := "Expected Quantity" - "Act. Consumption (Qty)";
-        "Remaining Qty. (Base)" := Round("Remaining Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+        "Remaining Qty. (Base)" := Round("Remaining Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
         "Shortcut Dimension 1 Code" := PlanningComponent."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := PlanningComponent."Shortcut Dimension 2 Code";
         "Dimension Set ID" := PlanningComponent."Dimension Set ID";
@@ -1416,7 +1420,7 @@ table 5407 "Prod. Order Component"
             end;
         end;
 
-        exit(ProdOrderRtngLine.FindFirst);
+        exit(ProdOrderRtngLine.FindFirst());
     end;
 
     local procedure GetBinCodeFromRtngLine(ProdOrderRtngLine: Record "Prod. Order Routing Line") BinCode: Code[20]
@@ -1469,7 +1473,7 @@ table 5407 "Prod. Order Component"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         ProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
-        exit(StrSubstNo('%1 %2 %3 %4 %5', Status, TableCaption, "Prod. Order No.", "Item No.", ProdOrderLine."Item No."));
+        exit(StrSubstNo('%1 %2 %3 %4 %5', Status, TableCaption(), "Prod. Order No.", "Item No.", ProdOrderLine."Item No."));
     end;
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
@@ -1503,7 +1507,7 @@ table 5407 "Prod. Order Component"
         OverwriteBinCode: Boolean;
     begin
         ProdOrderComp2 := ProdOrderComp;
-        ProdOrderComp2.GetDefaultBin;
+        ProdOrderComp2.GetDefaultBin();
         if ProdOrderComp."Bin Code" <> ProdOrderComp2."Bin Code" then
             if CurrFieldNo = FieldNo then begin
                 if Confirm(Text001, false, FieldCaption, ProdOrderComp2."Bin Code") then
@@ -1577,14 +1581,14 @@ table 5407 "Prod. Order Component"
             ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Due Date", "Remaining Quantity", "Remaining Qty. (Base)");
             CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-            Find;
+            Find();
             if not FullAutoReservation and
                (CurrFieldNo <> 0)
             then
                 if Confirm(Text99000009, true) then begin
                     Commit();
                     ShowReservation();
-                    Find;
+                    Find();
                 end;
         end;
 
@@ -1635,7 +1639,7 @@ table 5407 "Prod. Order Component"
         if IsHandled then
             exit;
 
-        if GetSKU then
+        if GetSKU() then
             "Unit Cost" := SKU."Unit Cost"
         else
             "Unit Cost" := Item."Unit Cost";
@@ -1644,7 +1648,7 @@ table 5407 "Prod. Order Component"
           Round("Unit Cost" * "Qty. per Unit of Measure",
             GLSetup."Unit-Amount Rounding Precision");
 
-        "Indirect Cost %" := Round(Item."Indirect Cost %", UOMMgt.QtyRndPrecision);
+        "Indirect Cost %" := Round(Item."Indirect Cost %", UOMMgt.QtyRndPrecision());
 
         "Overhead Rate" :=
           Round(Item."Overhead Rate" * "Qty. per Unit of Measure",
@@ -1660,7 +1664,7 @@ table 5407 "Prod. Order Component"
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item; IncludeFirmPlanned: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", "Variant Code", "Location Code", Status, "Due Date");
         if IncludeFirmPlanned then
             SetRange(Status, Status::Planned, Status::Released)
@@ -1691,7 +1695,7 @@ table 5407 "Prod. Order Component"
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code", "Due Date");
         SetRange(Status, NewStatus);
         SetRange("Item No.", ReservationEntry."Item No.");
@@ -1726,7 +1730,7 @@ table 5407 "Prod. Order Component"
 
     procedure SetFilterByReleasedOrderNo(OrderNo: Code[20])
     begin
-        Reset;
+        Reset();
         SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Item No.", "Line No.");
         SetRange(Status, Status::Released);
         SetRange("Prod. Order No.", OrderNo);
@@ -1818,13 +1822,13 @@ table 5407 "Prod. Order Component"
             "Calculation Formula"::" ":
                 CalculatedQuantity := "Quantity per";
             "Calculation Formula"::Length:
-                CalculatedQuantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision);
+                CalculatedQuantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision());
             "Calculation Formula"::"Length * Width":
-                CalculatedQuantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision);
+                CalculatedQuantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision());
             "Calculation Formula"::"Length * Width * Depth":
-                CalculatedQuantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
+                CalculatedQuantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision());
             "Calculation Formula"::Weight:
-                CalculatedQuantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+                CalculatedQuantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision());
             "Calculation Formula"::"Fixed Quantity":
                 CalculatedQuantity := "Quantity per";
             else begin

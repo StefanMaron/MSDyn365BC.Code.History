@@ -13,7 +13,7 @@ page 742 "VAT Report Statement Subform"
         {
             repeater(Group)
             {
-                field("Row No."; "Row No.")
+                field("Row No."; Rec."Row No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
@@ -25,7 +25,7 @@ page 742 "VAT Report Statement Subform"
                     ToolTip = 'Specifies a description of the VAT report statement.';
                     Editable = false;
                 }
-                field("Box No."; "Box No.")
+                field("Box No."; Rec."Box No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number on the box that the VAT statement applies to.';

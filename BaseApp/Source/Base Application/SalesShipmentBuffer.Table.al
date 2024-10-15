@@ -131,7 +131,7 @@ table 7190 "Sales Shipment Buffer"
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then begin
                     if QtyPerUOM <> 0 then
-                        Quantity := Round(ValueEntry."Invoiced Quantity" / QtyPerUOM, UOMMgt.QtyRndPrecision)
+                        Quantity := Round(ValueEntry."Invoiced Quantity" / QtyPerUOM, UOMMgt.QtyRndPrecision())
                     else
                         Quantity := ValueEntry."Invoiced Quantity";
                     AddBufferEntry(
@@ -278,7 +278,7 @@ table 7190 "Sales Shipment Buffer"
         SetRange("Posting Date", PostingDate);
         if FindFirst() then begin
             Quantity += QtyOnShipment;
-            Modify;
+            Modify();
             exit;
         end;
 
@@ -290,7 +290,7 @@ table 7190 "Sales Shipment Buffer"
         "No." := ItemNo;
         Quantity := QtyOnShipment;
         "Posting Date" := PostingDate;
-        Insert;
+        Insert();
     end;
 
     local procedure CorrectShipment(var SalesShipmentLine: Record "Sales Shipment Line")

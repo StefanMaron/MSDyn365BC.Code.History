@@ -1,4 +1,4 @@
-﻿report 109 "Customer - Summary Aging Simp."
+report 109 "Customer - Summary Aging Simp."
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CustomerSummaryAgingSimp.rdlc';
@@ -16,7 +16,7 @@
             column(STRSUBSTNO_Text001_FORMAT_StartDate__; StrSubstNo(Text001, Format(StartDate)))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Customer_TABLECAPTION__________CustFilter; TableCaption + ': ' + CustFilter)
@@ -193,7 +193,7 @@
         trigger OnOpenPage()
         begin
             if StartDate = 0D then
-                StartDate := WorkDate;
+                StartDate := WorkDate();
         end;
     }
 
@@ -213,14 +213,14 @@
     end;
 
     var
-        Text001: Label 'As of %1';
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         StartDate: Date;
-        CustFilter: Text;
         PeriodStartDate: array[6] of Date;
         CustBalanceDueLCY: array[5] of Decimal;
         PrintCust: Boolean;
         i: Integer;
+
+        Text001: Label 'As of %1';
         Customer___Summary_Aging_Simp_CaptionLbl: Label 'Customer - Summary Aging Simp.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         All_amounts_are_in_LCYCaptionLbl: Label 'All amounts are in LCY';
@@ -232,6 +232,9 @@
         TotalCaptionLbl: Label 'Total';
         TotalCustBalanceLCY: Decimal;
         TotalCustBalanceLCYCaption: Label 'Balance';
+
+    protected var
+        CustFilter: Text;
 
     procedure InitializeRequest(StartingDate: Date)
     begin

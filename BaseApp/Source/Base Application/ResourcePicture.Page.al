@@ -56,7 +56,7 @@ page 407 "Resource Picture"
                     TestField("No.");
                     TestField(Name);
 
-                    if Image.HasValue then
+                    if Image.HasValue() then
                         if not Confirm(OverrideImageQst) then
                             exit;
 
@@ -120,7 +120,7 @@ page 407 "Resource Picture"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditableOnPictureActions;
+        SetEditableOnPictureActions();
     end;
 
     trigger OnOpenPage()

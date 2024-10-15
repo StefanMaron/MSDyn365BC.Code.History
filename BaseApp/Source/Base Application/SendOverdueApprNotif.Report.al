@@ -30,10 +30,10 @@ report 1509 "Send Overdue Appr. Notif."
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        if not ApprovalsMgmt.IsOverdueNotificationsWorkflowEnabled then
+        if not ApprovalsMgmt.IsOverdueNotificationsWorkflowEnabled() then
             Error(NoWorkflowEnabledErr);
 
-        OnSendOverdueNotifications;
+        OnSendOverdueNotifications();
     end;
 
     var

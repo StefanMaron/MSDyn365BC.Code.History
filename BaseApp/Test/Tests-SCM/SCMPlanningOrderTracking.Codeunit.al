@@ -61,7 +61,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Calculate Regenerative Change Plan for Planning Worksheet for Parent Item and Child Item.
-        CalcRegenPlanForPlanWkshWithMultipleItems(Item."No.", ChildItem."No.", WorkDate, GetRequiredDate(10, 30, WorkDate, 1));
+        CalcRegenPlanForPlanWkshWithMultipleItems(Item."No.", ChildItem."No.", WorkDate(), GetRequiredDate(10, 30, WorkDate(), 1));
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
         VerifyOrderTrackingOnRequisitionLine(Item."No.", 0, 0, ProductionOrder.Quantity, true);  // Untracked Quantity and total Quantity - 0.
@@ -88,7 +88,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateAndPostOutputJournal(ProductionOrder."No.");
 
         // [WHEN] Calculate Regenerative Plan for Planning Worksheet.
-        CalcRegenPlanForPlanWkshWithMultipleItems(Item."No.", ChildItem."No.", WorkDate, GetRequiredDate(10, 30, WorkDate, 1));
+        CalcRegenPlanForPlanWkshWithMultipleItems(Item."No.", ChildItem."No.", WorkDate(), GetRequiredDate(10, 30, WorkDate(), 1));
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status::Released, ProductionOrder."No.", ChildItem."No.");
@@ -145,8 +145,8 @@ codeunit 137075 "SCM Planning Order Tracking"
         PostSalesDocumentAsShip(SalesLine);
 
         // [WHEN] Calculate Plan for Requisition Worksheet.
-        StartDate := GetRequiredDate(10, 0, WorkDate, -1);  // Start Date less than WORKDATE.
-        EndDate := GetRequiredDate(10, 0, WorkDate, 1);  // End Date more than WORKDATE.
+        StartDate := GetRequiredDate(10, 0, WorkDate(), -1);  // Start Date less than WORKDATE.
+        EndDate := GetRequiredDate(10, 0, WorkDate(), 1);  // End Date more than WORKDATE.
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, StartDate, EndDate);
 
         // [THEN] Verify Untracked Quantity, Total Quantity on Requisition Line using Order Tracking.
@@ -167,7 +167,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [GIVEN] Create Lot for Lot Item. Create Production Forecast.
         Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
-        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate);
+        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate());
 
         // [GIVEN] Create Sales Order.
         CreateSalesOrder(SalesLine, Item."No.", '');
@@ -200,7 +200,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateLotForLotItemSetup(Item, ChildItem, ChildItem."Replenishment System"::Purchase);
 
         // [GIVEN] Create Production Forecast for parent item.
-        ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
+        ForecastDate := GetRequiredDate(10, 0, WorkDate(), 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate);
 
         // [GIVEN] Create Released Production Order of parent item. Create and Post Consumption Journal.
@@ -262,7 +262,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS,MRP Calculation of Manufacturing Setup - FALSE.
         CreateLotForLotItem(Item, Item."Replenishment System"::"Prod. Order");
-        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate);
+        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate());
 
         // [GIVEN] Create Sales Order.
         CreateSalesOrder(SalesLine, Item."No.", '');
@@ -355,7 +355,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateAndPostOutputJournalWithAppliesToEntry(ProductionOrder."No.", Item."No.", -ProductionOrder.Quantity);
 
         // [WHEN] Calculate Regenerative Plan for Planning Worksheet.
-        CalcRegenPlanForPlanWkshWithMultipleItems(Item."No.", ChildItem."No.", WorkDate, GetRequiredDate(10, 30, WorkDate, 1));
+        CalcRegenPlanForPlanWkshWithMultipleItems(Item."No.", ChildItem."No.", WorkDate(), GetRequiredDate(10, 30, WorkDate(), 1));
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
         LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
@@ -403,8 +403,8 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateAndPostSalesOrderWithPartialQtyToShip(SalesLine, Item."No.");
 
         // [WHEN] Calculate Plan for Requisition Worksheet.
-        StartDate := GetRequiredDate(10, 0, WorkDate, -1);  // Start Date less than WORKDATE.
-        EndDate := GetRequiredDate(10, 0, WorkDate, 1);  // End Date more than WORKDATE.
+        StartDate := GetRequiredDate(10, 0, WorkDate(), -1);  // Start Date less than WORKDATE.
+        EndDate := GetRequiredDate(10, 0, WorkDate(), 1);  // End Date more than WORKDATE.
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, StartDate, EndDate);
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
@@ -437,19 +437,19 @@ codeunit 137075 "SCM Planning Order Tracking"
         CreateAndPostSalesOrderWithPartialQtyToShip(SalesLine, Item."No.");
 
         // [WHEN] Calculate Plan for Requisition Worksheet.
-        EndDate := GetRequiredDate(10, 0, WorkDate, 1);  // End Date more than WORKDATE.
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 0, WorkDate(), 1);  // End Date more than WORKDATE.
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), EndDate);
 
         // [THEN] Verify Untracked Quantity, Total Quantity and Quantity on Requisition Line using Order Tracking.
         LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
         LibraryVariableStorage.Enqueue(NoTrackingLines);  // Required inside MessageHandler.
         Quantity := SalesLine.Quantity - SalesLine."Qty. to Ship";
         VerifyOrderTrackingOnRequisitionLineWithDueDate(
-          Item."No.", SelectDateWithSafetyLeadTime(WorkDate, -1), SalesLine."Qty. to Ship", SalesLine."Qty. to Ship", 0, false);
+          Item."No.", SelectDateWithSafetyLeadTime(WorkDate(), -1), SalesLine."Qty. to Ship", SalesLine."Qty. to Ship", 0, false);
         VerifyOrderTrackingOnRequisitionLineWithDueDate(
-          Item."No.", SelectDateWithSafetyLeadTime(WorkDate, 1), Item."Reorder Point", Item."Reorder Point", 0, false);
+          Item."No.", SelectDateWithSafetyLeadTime(WorkDate(), 1), Item."Reorder Point", Item."Reorder Point", 0, false);
         VerifyOrderTrackingOnRequisitionLineWithDueDate(
-          Item."No.", WorkDate, Item."Safety Stock Quantity", Quantity + Item."Safety Stock Quantity", -Quantity, true);
+          Item."No.", WorkDate(), Item."Safety Stock Quantity", Quantity + Item."Safety Stock Quantity", -Quantity, true);
     end;
 
     [Test]
@@ -497,7 +497,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         SalesLine.OpenItemTrackingLines();
 
         // [WHEN] open the Requisition Worksheets and Calculate a Plan for the item
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, CalcDate('<-1M>', WorkDate()), CalcDate('<+1M>', WorkDate()));
 
         // [THEN] Review the Sales Order, open the Item Tracking and notice the Serial No. disappeared.
         LibraryVariableStorage.Enqueue(ControlOptions::Verification);
@@ -565,14 +565,14 @@ codeunit 137075 "SCM Planning Order Tracking"
         Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
         CreateTransferOrder(TransferLine, Item."No.", LocationBlue.Code, LocationSilver.Code);
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate, WorkDate + LibraryRandom.RandInt(20));
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), WorkDate + LibraryRandom.RandInt(20));
         Assert.IsTrue(
           FindRequisitionLine(RequisitionLine, RequisitionLine."Action Message"::Cancel, Item."No.", LocationSilver.Code),
           StrSubstNo(ReqLineShouldExistErr, LocationSilver.Code)); // Check Cancel Action Message Req. Line for Location Silver exists
 
         // [WHEN] Calculate Plan for Requisition Worksheet with new Req. Worksheet Name for Location Blue
         Item.SetRange("Location Filter", LocationBlue.Code); // Set Location filter as Blue
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate, WorkDate + LibraryRandom.RandInt(20));
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), WorkDate + LibraryRandom.RandInt(20));
         RequisitionLine.Reset();
         FilterRequisitionLine(RequisitionLine, Item."No.", LocationBlue.Code);
 
@@ -599,7 +599,7 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [WHEN] Calculate Regenerative Change Plan for Planning Worksheet for Parent Item and Child Item.
         CalcRegenPlanForPlanWkshWithMultipleItems(
-          Item."No.", ChildItem."No.", WorkDate - LibraryRandom.RandInt(10), GetRequiredDate(10, 30, WorkDate, 1));
+          Item."No.", ChildItem."No.", WorkDate - LibraryRandom.RandInt(10), GetRequiredDate(10, 30, WorkDate(), 1));
 
         // [THEN] Verify Reserved Quantity on Prod. Order Component Line.
         VerifyReservedQuantityOnProdOrderComponent(ProductionOrder."No.", ChildItem."No.");
@@ -622,7 +622,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [GIVEN] Create sales order with "Special Order" purchasing code and lot tracking
         LibraryItemTracking.CreateLotItem(Item);
         LibraryWarehouse.CreateLocation(Location);
-        CreateSpecialOrder(SalesHeader, SalesLine, Item, Location.Code, '', 1, WorkDate, LibraryRandom.RandDec(10, 2));
+        CreateSpecialOrder(SalesHeader, SalesLine, Item, Location.Code, '', 1, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         LibraryVariableStorage.Enqueue(ControlOptions::Sale);
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
@@ -668,7 +668,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [GIVEN] Poduction order "P1" for 100 pcs of item "PROD"
         CreateAndRefreshFirmPlannedProductionOrderWithDueDate(
           ProductionOrder[1], ProdItem."No.", LibraryRandom.RandIntInRange(50, 100),
-          LeadTimeManagement.PlannedDueDate(ProdItem."No.", '', '', WorkDate, '', 2));
+          LeadTimeManagement.PlannedDueDate(ProdItem."No.", '', '', WorkDate(), '', 2));
         ProdOrderComponent.SetRange("Item No.", ComponentItem."No.");
         ProdOrderComponent.FindFirst();
 
@@ -737,7 +737,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // [GIVEN] Create and ship Sales Order with item tracking for Item "I"
-        CreateSpecialOrder(SalesHeader, SalesLine, Item, Location.Code, '', 1, WorkDate, LibraryRandom.RandDec(10, 2));
+        CreateSpecialOrder(SalesHeader, SalesLine, Item, Location.Code, '', 1, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         LibraryVariableStorage.Enqueue(ControlOptions::Sale);
         LibraryVariableStorage.Enqueue(SerialNo);
@@ -786,7 +786,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [GIVEN] Create a purchase order with Item "I"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryPatterns.MAKEPurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item, Location.Code, '', 2, WorkDate, LibraryRandom.RandDec(10, 2));
+          PurchaseHeader, PurchaseLine, Item, Location.Code, '', 2, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] From Item tracking lines (Purchase Order), add a SN to the item, then post receipt
         LibraryVariableStorage.Enqueue(ControlOptions::Purchase);
@@ -1109,7 +1109,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         FilterRequisitionLine(RequisitionLine, No, LocationCode);
         RequisitionLine.SetRange("Action Message", ActionMessage);
-        exit(RequisitionLine.FindFirst);
+        exit(RequisitionLine.FindFirst())
     end;
 
     local procedure FilterRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20]; LocationCode: Code[10])
@@ -1150,8 +1150,8 @@ codeunit 137075 "SCM Planning Order Tracking"
     var
         EndDate: Date;
     begin
-        EndDate := GetRequiredDate(10, 30, WorkDate, 1);  // End Date relative to Workdate.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, EndDate);
+        EndDate := GetRequiredDate(10, 30, WorkDate(), 1);  // End Date relative to Workdate.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
     end;
 
     local procedure UpdateManufacturingSetup(NewCombinedMPSMRPCalculation: Boolean) OldCombinedMPSMRPCalculation: Boolean
@@ -1520,7 +1520,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry."Entry No." := ReservationEntryNo;
         ReservationEntry.Positive := IsPositive;
         ReservationEntry."Item No." := ItemNo;
@@ -1541,8 +1541,8 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryVariableStorage.Dequeue(ItemNo2);
         CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo(ItemFilter, ItemNo, ItemNo2));
         CalculatePlanPlanWksh.MPS.SetValue(true);
-        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate);
-        CalculatePlanPlanWksh.EndingDate.SetValue(GetRequiredDate(10, 50, WorkDate, 1));
+        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
+        CalculatePlanPlanWksh.EndingDate.SetValue(GetRequiredDate(10, 50, WorkDate(), 1));
         CalculatePlanPlanWksh.OK.Invoke;
     end;
 

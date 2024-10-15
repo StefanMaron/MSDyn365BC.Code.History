@@ -19,13 +19,13 @@ table 348 Dimension
                 Item: Record Item;
                 Location: Record Location;
             begin
-                if (UpperCase(Code) = UpperCase(GLAcc.TableCaption)) or
-                   (UpperCase(Code) = UpperCase(BusUnit.TableCaption)) or
-                   (UpperCase(Code) = UpperCase(Item.TableCaption)) or
-                   (UpperCase(Code) = UpperCase(Location.TableCaption)) or
+                if (UpperCase(Code) = UpperCase(GLAcc.TableCaption())) or
+                   (UpperCase(Code) = UpperCase(BusUnit.TableCaption())) or
+                   (UpperCase(Code) = UpperCase(Item.TableCaption())) or
+                   (UpperCase(Code) = UpperCase(Location.TableCaption())) or
                    (UpperCase(Code) = UpperCase(Text006))
                 then
-                    Error(Text007, FieldCaption(Code), GLAcc.TableCaption, BusUnit.TableCaption, Item.TableCaption, Location.TableCaption);
+                    Error(Text007, FieldCaption(Code), GLAcc.TableCaption(), BusUnit.TableCaption(), Item.TableCaption(), Location.TableCaption());
 
                 UpdateText(Code, '', Name);
                 UpdateText(Code, Text008, "Code Caption");
@@ -127,14 +127,14 @@ table 348 Dimension
         if CheckIfDimUsed(xRec.Code, 0, '', '', 0) then begin
             if DimVal.FindSet() then
                 repeat
-                    if DimVal.CheckIfDimValueUsed then
-                        Error(Text000, GetCheckDimErr);
+                    if DimVal.CheckIfDimValueUsed() then
+                        Error(Text000, GetCheckDimErr());
                 until DimVal.Next() = 0;
-            Error(Text001, GetCheckDimErr);
+            Error(Text001, GetCheckDimErr());
         end;
         if DimVal.FindSet() then
             repeat
-                if DimVal.CheckIfDimValueUsed then
+                if DimVal.CheckIfDimValueUsed() then
                     Error(Text002);
             until DimVal.Next() = 0;
 
@@ -177,12 +177,12 @@ table 348 Dimension
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
@@ -190,21 +190,10 @@ table 348 Dimension
         DimValuePerAccount: Record "Dim. Value per Account";
     begin
         DimValuePerAccount.RenameDimension(xRec.Code, Code);
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     var
-        Text000: Label '%1\This dimension is also used in posted or budget entries.\You cannot delete it.';
-        Text001: Label '%1\You cannot delete it.';
-        Text002: Label 'You cannot delete this dimension value, because it has been used in one or more documents or budget entries.';
-        Text006: Label 'Period';
-        Text007: Label '%1 can not be %2, %3, %4, %5 or Period. These names are used internally by the system.';
-        Text008: Label 'Code';
-        Text009: Label 'Filter';
-        Text010: Label 'This dimension is used in the following setup: ';
-        Text011: Label 'General Ledger Setup, ';
-        Text012: Label 'G/L Budget Names, ';
-        Text013: Label 'Analysis View Card, ';
         DefaultDim: Record "Default Dimension";
         DimVal: Record "Dimension Value";
         DimComb: Record "Dimension Combination";
@@ -218,6 +207,18 @@ table 348 Dimension
         UsedAsItemBudgetDim: Boolean;
         UsedAsItemAnalysisViewDim: Boolean;
         CheckDimErr: Text;
+
+        Text000: Label '%1\This dimension is also used in posted or budget entries.\You cannot delete it.';
+        Text001: Label '%1\You cannot delete it.';
+        Text002: Label 'You cannot delete this dimension value, because it has been used in one or more documents or budget entries.';
+        Text006: Label 'Period';
+        Text007: Label '%1 can not be %2, %3, %4, %5 or Period. These names are used internally by the system.';
+        Text008: Label 'Code';
+        Text009: Label 'Filter';
+        Text010: Label 'This dimension is used in the following setup: ';
+        Text011: Label 'General Ledger Setup, ';
+        Text012: Label 'G/L Budget Names, ';
+        Text013: Label 'Analysis View Card, ';
         Text014: Label 'Item Budget Names, ';
         Text015: Label 'Item Analysis View Card, ';
 
@@ -505,7 +506,7 @@ table 348 Dimension
         if IsApplicationLanguage(LanguageID) then begin
             if Name <> NewMLName then begin
                 Name := NewMLName;
-                Modify;
+                Modify();
             end;
         end else begin
             InsertDimTrans(LanguageID);
@@ -521,7 +522,7 @@ table 348 Dimension
         if IsApplicationLanguage(LanguageID) then begin
             if "Code Caption" <> NewMLCodeCaption then begin
                 "Code Caption" := NewMLCodeCaption;
-                Modify;
+                Modify();
             end;
         end else begin
             InsertDimTrans(LanguageID);
@@ -537,7 +538,7 @@ table 348 Dimension
         if IsApplicationLanguage(LanguageID) then begin
             if "Filter Caption" <> NewMLFilterCaption then begin
                 "Filter Caption" := NewMLFilterCaption;
-                Modify;
+                Modify();
             end;
         end else begin
             InsertDimTrans(LanguageID);
@@ -553,7 +554,7 @@ table 348 Dimension
         if IsApplicationLanguage(LanguageID) then begin
             if Description <> NewMLDescription then begin
                 Description := NewMLDescription;
-                Modify;
+                Modify();
             end;
         end else
             InsertDimTrans(LanguageID);
@@ -586,7 +587,7 @@ table 348 Dimension
     var
         Language: Codeunit Language;
     begin
-        exit(LanguageID = Language.GetDefaultApplicationLanguageId);
+        exit(LanguageID = Language.GetDefaultApplicationLanguageId());
     end;
 
     local procedure SetLastModifiedDateTime()

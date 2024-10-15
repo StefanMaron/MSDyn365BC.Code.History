@@ -64,7 +64,7 @@ codeunit 144131 "Remittance - Import BBS"
         // [THEN] Waiting Journal has status Sent
         // [THEN] Balancing line has "Document Type" = Payment
         VerifyBBSImportedLines(
-          BatchName, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, NoSeriesLine, Vendor."No.",
+          BatchName, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Payment);
         VerifyWaitingJournalStatusIsSent;
@@ -119,7 +119,7 @@ codeunit 144131 "Remittance - Import BBS"
         // [THEN] Waiting Journal has status Sent
         // [THEN] Balancing line has blank "Document Type"
         VerifyBBSImportedLines(
-          ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, NoSeriesLine, Vendor."No.",
+          ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::" ");
         VerifyWaitingJournalStatusIsSent;
@@ -322,7 +322,7 @@ codeunit 144131 "Remittance - Import BBS"
 
         LibraryVariableStorage.Enqueue(UseControlBatch);
         if UseControlBatch then
-            LibraryVariableStorage.Enqueue(StrSubstNo(NoteWithControlReturnFilesAreReadMsg, PRODUCTNAME.Full));
+            LibraryVariableStorage.Enqueue(StrSubstNo(NoteWithControlReturnFilesAreReadMsg, PRODUCTNAME.Full()));
         LibraryVariableStorage.Enqueue(ConfirmTheImport);
         if not UseControlBatch then
             LibraryVariableStorage.Enqueue(NoteWithControlReturnFilesAreReadMsg);
@@ -360,7 +360,7 @@ codeunit 144131 "Remittance - Import BBS"
         BBSPaymentOutputStream.WriteText;
 
         BBSPaymentOutputStream.WriteText(
-          GenerateBBSRemittanceTransactionRecordAmountEntry1Line('1234567', WorkDate, Amount));
+          GenerateBBSRemittanceTransactionRecordAmountEntry1Line('1234567', WorkDate(), Amount));
         BBSPaymentOutputStream.WriteText;
 
         BBSPaymentOutputStream.WriteText(GenerateBBSRemittanceTransactionRecordAmountEntry2Line(WaitingJournal."BBS Referance"));
@@ -374,7 +374,7 @@ codeunit 144131 "Remittance - Import BBS"
             BBSPaymentOutputStream.WriteText;
         end;
 
-        BBSPaymentFile.Close;
+        BBSPaymentFile.Close();
     end;
 
     local procedure GenerateBBSRemittanceStartRecordShipmentLine(ShipmentNo: Text[7]; DataRecipient: Text[8]): Text
@@ -578,7 +578,7 @@ codeunit 144131 "Remittance - Import BBS"
         GenJournalLine.Find('-');
 
         VerifyPaymentLine(GenJournalLine, PostingDate, NoSeriesLine, VendorAccountNo, Amount, DocumentNo, PaymentDocType);
-        GenJournalLine.Next;
+        GenJournalLine.Next();
 
         VerifyBalancingLine(GenJournalLine, PostingDate, NoSeriesLine, RemittanceAccountNo, -Amount, BalanceDocType);
     end;
@@ -656,7 +656,7 @@ codeunit 144131 "Remittance - Import BBS"
 
     local procedure UpdateWorkdate(NewDate: Date) OldDate: Date
     begin
-        OldDate := WorkDate;
+        OldDate := WorkDate();
         WorkDate := NewDate;
         if Date2DWY(NewDate, 1) in [6, 7] then // "Posting Date" and "Pmt. Discount Date" compared works date in CU 15000001
             WorkDate := WorkDate + 2;
@@ -728,7 +728,7 @@ codeunit 144131 "Remittance - Import BBS"
     begin
         LibraryVariableStorage.Dequeue(RemittanceAccountCode);
         LibraryVariableStorage.Dequeue(VendorNo);
-        SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate());
         SuggestRemittancePayments.Vendor.SetFilter("No.", VendorNo);
         SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", RemittanceAccountCode);
         SuggestRemittancePayments.OK.Invoke;

@@ -26,22 +26,22 @@ page 1237 "Transformation Rules"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Business Central.';
                 }
-                field("Transformation Type"; "Transformation Type")
+                field("Transformation Type"; Rec."Transformation Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Business Central.';
                 }
-                field("Find Value"; "Find Value")
+                field("Find Value"; Rec."Find Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Business Central.';
                 }
-                field("Replace Value"; "Replace Value")
+                field("Replace Value"; Rec."Replace Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Business Central.';
                 }
-                field("Start Position"; "Start Position")
+                field("Start Position"; Rec."Start Position")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Business Central.';
@@ -51,12 +51,12 @@ page 1237 "Transformation Rules"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Business Central.';
                 }
-                field("Data Format"; "Data Format")
+                field("Data Format"; Rec."Data Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Business Central.';
                 }
-                field("Data Formatting Culture"; "Data Formatting Culture")
+                field("Data Formatting Culture"; Rec."Data Formatting Culture")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Business Central.';
@@ -72,8 +72,8 @@ page 1237 "Transformation Rules"
     trigger OnOpenPage()
     begin
         if IsEmpty() then
-            CreateDefaultTransformations;
-        OnCreateTransformationRules;
+            CreateDefaultTransformations();
+        OnCreateTransformationRules();
     end;
 }
 

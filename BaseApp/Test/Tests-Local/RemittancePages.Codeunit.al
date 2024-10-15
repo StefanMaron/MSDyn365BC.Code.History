@@ -388,7 +388,7 @@ codeunit 144134 "Remittance - Pages"
         Specification := CopyStr(PaymentTypeCodeAbroad.Description, 1, 60);
         Assert.AreEqual(Specification, Vendor."Specification (Norges Bank)", 'Specification (Norges Bank)');
 
-        PaymentTypeCodeAbroad.Next;
+        PaymentTypeCodeAbroad.Next();
         Vendor.Validate("Payment Type Code Abroad", PaymentTypeCodeAbroad.Code);
         Specification := CopyStr(PaymentTypeCodeAbroad.Description, 1, 60);
         Assert.AreEqual(Specification, Vendor."Specification (Norges Bank)", 'Specification (Norges Bank)');
@@ -463,7 +463,7 @@ codeunit 144134 "Remittance - Pages"
               GenJournalLine, "Document Type", "Account Type"::"G/L Account", GLAccNo, LibraryRandom.RandInt(10));
             "Bal. Account Type" := "Bal. Account Type"::Vendor;
             "Bal. Account No." := VendorNo;
-            Modify;
+            Modify();
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;

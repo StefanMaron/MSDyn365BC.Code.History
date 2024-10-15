@@ -1076,7 +1076,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         ServiceCrMemoHeader.Get(HeaderId);
         with Customer do begin
-            Init;
+            Init();
             Address := ServiceCrMemoHeader."Ship-to Address";
             "Address 2" := ServiceCrMemoHeader."Ship-to Address 2";
             City := ServiceCrMemoHeader."Ship-to City";
@@ -1093,7 +1093,7 @@ codeunit 144111 "E-Invoice Service"
     begin
         ServiceInvoiceHeader.Get(HeaderId);
         with Customer do begin
-            Init;
+            Init();
             Address := ServiceInvoiceHeader."Ship-to Address";
             "Address 2" := ServiceInvoiceHeader."Ship-to Address 2";
             City := ServiceInvoiceHeader."Ship-to City";

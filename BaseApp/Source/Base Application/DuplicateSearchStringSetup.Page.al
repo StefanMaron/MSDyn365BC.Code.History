@@ -12,7 +12,7 @@ page 5138 "Duplicate Search String Setup"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
@@ -22,19 +22,19 @@ page 5138 "Duplicate Search String Setup"
                     var
                         ClientTypeManagement: Codeunit "Client Type Management";
                     begin
-                        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
-                            LookupFieldName;
+                        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
+                            LookupFieldName();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         ClientTypeManagement: Codeunit "Client Type Management";
                     begin
-                        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows then
-                            LookupFieldName;
+                        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Windows then
+                            LookupFieldName();
                     end;
                 }
-                field("Part of Field"; "Part of Field")
+                field("Part of Field"; Rec."Part of Field")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the part of the field to use to generate the search string. There are two options: First and Last.';

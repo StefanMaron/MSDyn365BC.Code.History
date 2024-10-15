@@ -25,39 +25,39 @@ page 556 "Analysis View List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name.';
                 }
-                field("Account Source"; "Account Source")
+                field("Account Source"; Rec."Account Source")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies an account that you can use as a filter to define what is displayed in the Analysis by Dimensions window. ';
                 }
-                field("Include Budgets"; "Include Budgets")
+                field("Include Budgets"; Rec."Include Budgets")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether to include an update of analysis view budget entries, when updating an analysis view.';
                     Visible = GLAccountSource;
                 }
-                field("Last Date Updated"; "Last Date Updated")
+                field("Last Date Updated"; Rec."Last Date Updated")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date on which the analysis view was last updated.';
                 }
-                field("Dimension 1 Code"; "Dimension 1 Code")
+                field("Dimension 1 Code"; Rec."Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 2 Code"; "Dimension 2 Code")
+                field("Dimension 2 Code"; Rec."Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 3 Code"; "Dimension 3 Code")
+                field("Dimension 3 Code"; Rec."Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 4 Code"; "Dimension 4 Code")
+                field("Dimension 4 Code"; Rec."Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
@@ -88,9 +88,6 @@ page 556 "Analysis View List"
                 ApplicationArea = Dimensions;
                 Caption = 'Analysis by Dimensions';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View amounts in G/L accounts by their dimension values and other filters that you define in an analysis view and then show in a matrix window.';
 
                 trigger OnAction()
@@ -103,11 +100,22 @@ page 556 "Analysis View List"
                 ApplicationArea = Suite;
                 Caption = '&Update';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 RunObject = Codeunit "Update Analysis View";
                 ToolTip = 'Get the latest entries into the analysis view.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(EditAnalysis_Promoted; EditAnalysis)
+                {
+                }
+                actionref("&Update_Promoted"; "&Update")
+                {
+                }
             }
         }
     }

@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 5473 "Graph Mgt - Company Info."
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -52,7 +56,7 @@ codeunit 5473 "Graph Mgt - Company Info."
         if Address = '' then
             exit;
 
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         JSONManagement.AddJPropertyToJObject(JObject, 'name', Name);
         JSONManagement.AddJPropertyToJObject(JObject, 'type', Type);
         JSONManagement.AddJPropertyToJObject(JObject, 'address', Address);
@@ -122,15 +126,15 @@ codeunit 5473 "Graph Mgt - Company Info."
         JObject: DotNet JObject;
     begin
         if O365SocialNetwork.FindSet() then begin
-            JSONMgt.InitializeEmptyCollection;
+            JSONMgt.InitializeEmptyCollection();
             repeat
-                JSONMgt.InitializeEmptyObject;
+                JSONMgt.InitializeEmptyObject();
                 JSONMgt.GetJSONObject(JObject);
                 JSONMgt.AddJPropertyToJObject(JObject, 'address', O365SocialNetwork.URL);
                 JSONMgt.AddJPropertyToJObject(JObject, 'displayName', O365SocialNetwork.Name);
                 JSONMgt.AddJObjectToCollection(JObject);
             until O365SocialNetwork.Next() = 0;
-            SocialNetworks := JSONMgt.WriteCollectionToString;
+            SocialNetworks := JSONMgt.WriteCollectionToString();
         end;
     end;
 
@@ -173,7 +177,7 @@ codeunit 5473 "Graph Mgt - Company Info."
         end else
             AddEmailAddress(JSONManagement, AddressType, AddressType, Address);
 
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdatePhoneJson(PhonesString: Text; PhoneType: Text; Number: Text): Text
@@ -185,13 +189,13 @@ codeunit 5473 "Graph Mgt - Company Info."
         if not JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'type', PhoneType) then begin
             if Number = '' then
                 exit;
-            JObject := JObject.JObject;
+            JObject := JObject.JObject();
             JSONManagement.AddJPropertyToJObject(JObject, 'type', PhoneType);
             JSONManagement.AddJObjectToCollection(JObject);
             JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'type', PhoneType)
         end;
         JSONManagement.ReplaceOrAddJPropertyInJObject(JObject, 'number', Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdatePostalAddressJson(PostalAddressesString: Text; AddressType: Text; Address: Text[100]; Address2: Text[50]; City: Text[30]; County: Text[30]; CountryRegionCode: Code[10]; PostCode: Code[20]): Text
@@ -203,12 +207,12 @@ codeunit 5473 "Graph Mgt - Company Info."
         JSONManagement.InitializeCollection(PostalAddressesString);
         if (Address = '') and (Address2 = '') and (City = '') and (County = '') and (PostCode = '') then begin
             if JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'type', AddressType) then
-                JObject.Remove;
-            exit(JSONManagement.WriteCollectionToString);
+                JObject.Remove();
+            exit(JSONManagement.WriteCollectionToString());
         end;
 
         if not JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'type', AddressType) then begin
-            JObject := JObject.JObject;
+            JObject := JObject.JObject();
             JSONManagement.AddJPropertyToJObject(JObject, 'type', AddressType);
             JSONManagement.AddJObjectToCollection(JObject);
             JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'type', AddressType);
@@ -218,7 +222,7 @@ codeunit 5473 "Graph Mgt - Company Info."
         JSONManagement.ReplaceOrAddJPropertyInJObject(JObject, 'state', County);
         JSONManagement.ReplaceOrAddJPropertyInJObject(JObject, 'countryOrRegion', CountryRegionCode);
         JSONManagement.ReplaceOrAddJPropertyInJObject(JObject, 'postalCode', PostCode);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateSocialNetworks(SocialLinksString: Text)
@@ -285,7 +289,7 @@ codeunit 5473 "Graph Mgt - Company Info."
         JSONManagement.ReplaceOrAddJPropertyInJObject(JObject, 'address', Address);
         if not JSONManagement.GetPropertyValueFromJObjectByName(JObject, 'type', Type) then
             JSONManagement.ReplaceOrAddJPropertyInJObject(JObject, 'type', WebsiteType);
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
@@ -294,4 +298,4 @@ codeunit 5473 "Graph Mgt - Company Info."
         UpdateIntegrationRecords(false);
     end;
 }
-
+#endif

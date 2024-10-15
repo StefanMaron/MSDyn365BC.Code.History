@@ -1,4 +1,4 @@
-﻿table 302 "Finance Charge Memo Header"
+table 302 "Finance Charge Memo Header"
 {
     Caption = 'Finance Charge Memo Header';
     DataCaptionFields = "No.", Name;
@@ -14,7 +14,7 @@
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode);
+                    NoSeriesMgt.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
                 "Posting Description" := StrSubstNo(Text000, "No.");
@@ -29,7 +29,7 @@
             begin
                 OnBeforeValidateCustomerNo(Rec);
                 if CurrFieldNo = FieldNo("Customer No.") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Customer No." := xRec."Customer No.";
                         exit;
                     end;
@@ -97,8 +97,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; City; Text[30])
@@ -117,8 +122,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; County; Text[30])
@@ -149,7 +159,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Currency Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Currency Code" := xRec."Currency Code";
                         exit;
                     end;
@@ -219,6 +229,13 @@
         field(21; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+
+            trigger OnValidate()
+            begin
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
+            end;
         }
         field(22; "Document Date"; Date)
         {
@@ -227,11 +244,15 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Document Date") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Document Date" := xRec."Document Date";
                         exit;
                     end;
                 Validate("Fin. Charge Terms Code");
+
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
             end;
         }
         field(23; "Due Date"; Date)
@@ -246,7 +267,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo = FieldNo("Fin. Charge Terms Code") then
-                    if Undo then begin
+                    if Undo() then begin
                         "Fin. Charge Terms Code" := xRec."Fin. Charge Terms Code";
                         exit;
                     end;
@@ -335,8 +356,8 @@
             begin
                 with FinChrgMemoHeader do begin
                     FinChrgMemoHeader := Rec;
-                    TestNoSeries;
-                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode, "Issuing No. Series") then
+                    TestNoSeries();
+                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode(), "Issuing No. Series") then
                         Validate("Issuing No. Series");
                     Rec := FinChrgMemoHeader;
                 end;
@@ -345,8 +366,8 @@
             trigger OnValidate()
             begin
                 if "Issuing No. Series" <> '' then begin
-                    TestNoSeries;
-                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode, "Issuing No. Series");
+                    TestNoSeries();
+                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode(), "Issuing No. Series");
                 end;
                 TestField("Issuing No.", '');
             end;
@@ -369,6 +390,17 @@
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
         }
+        field(44; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+
+            trigger OnValidate()
+            begin
+                if "VAT Reporting Date" = 0D then
+                    InitVATDate();
+            end;
+        }
         field(163; "Company Bank Account Code"; Code[20])
         {
             Caption = 'Company Bank Account Code';
@@ -382,7 +414,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim;
+                ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -459,8 +491,8 @@
     begin
         SalesSetup.Get();
         if "No." = '' then begin
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
+            TestNoSeries();
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
         "Posting Description" := StrSubstNo(Text000, "No.");
         if ("No. Series" <> '') and
@@ -471,9 +503,11 @@
             NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
 
         if "Posting Date" = 0D then
-            "Posting Date" := WorkDate;
-        "Document Date" := WorkDate;
-        "Due Date" := WorkDate;
+            "Posting Date" := WorkDate();
+        "Document Date" := WorkDate();
+        "Due Date" := WorkDate();
+
+        InitVATDate();
 
         if GetFilter("Customer No.") <> '' then
             if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then
@@ -481,14 +515,6 @@
     end;
 
     var
-        Text000: Label 'Finance Charge Memo %1';
-        Text001: Label 'Do you want to print finance charge memo %1?';
-        Text002: Label 'This change will cause the existing lines to be deleted for this finance charge memo.\\';
-        Text003: Label 'Do you want to continue?';
-        Text004: Label 'There is not enough space to insert the text.';
-        Text005: Label 'Deleting this document will cause a gap in the number series for finance charge memos.';
-        Text006: Label 'An empty finance charge memo %1 will be created to fill this gap in the number series.\\';
-        Text10600: Label 'The GLN No. field does not contain a valid, 13-digit GLN  number';
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         CustPostingGr: Record "Customer Posting Group";
@@ -503,6 +529,7 @@
         IssuedFinChrgMemoHdr: Record "Issued Fin. Charge Memo Header";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         CurrExchRate: Record "Currency Exchange Rate";
+	GLSetup: Record "General Ledger Setup";
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
         AutoFormat: Codeunit "Auto Format";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -515,13 +542,22 @@
         OK: Boolean;
         SelectNoSeriesAllowed: Boolean;
 
+        Text000: Label 'Finance Charge Memo %1';
+        Text001: Label 'Do you want to print finance charge memo %1?';
+        Text002: Label 'This change will cause the existing lines to be deleted for this finance charge memo.\\';
+        Text003: Label 'Do you want to continue?';
+        Text004: Label 'There is not enough space to insert the text.';
+        Text005: Label 'Deleting this document will cause a gap in the number series for finance charge memos.';
+        Text006: Label 'An empty finance charge memo %1 will be created to fill this gap in the number series.\\';
+        Text10600: Label 'The GLN No. field does not contain a valid, 13-digit GLN  number';
+
     procedure AssistEdit(OldFinChrgMemoHeader: Record "Finance Charge Memo Header"): Boolean
     begin
         with FinChrgMemoHeader do begin
             FinChrgMemoHeader := Rec;
-            TestNoSeries;
+            TestNoSeries();
             if NoSeriesMgt.SelectSeries(SalesSetup."Fin. Chrg. Memo Nos.", OldFinChrgMemoHeader."No. Series", "No. Series") then begin
-                TestNoSeries;
+                TestNoSeries();
                 NoSeriesMgt.SetSeries("No.");
                 Rec := FinChrgMemoHeader;
                 exit(true);
@@ -561,6 +597,11 @@
         exit(NoSeriesMgt.GetNoSeriesWithCheck(NoSeriesCode, SelectNoSeriesAllowed, "No. Series"));
     end;
 
+    local procedure InitVATDate()
+    begin
+        "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
+    end;
+
     local procedure GetIssuingNoSeriesCode() IssuingNos: Code[20]
     var
         IsHandled: Boolean;
@@ -597,7 +638,7 @@
             then
                 exit(true);
             FinChrgMemoLine.DeleteAll();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -628,7 +669,7 @@
             FinChrgMemoLine.Type := FinChrgMemoLine.Type::"G/L Account";
             TestField("Customer Posting Group");
             CustPostingGr.Get("Customer Posting Group");
-            FinChrgMemoLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount);
+            FinChrgMemoLine.Validate("No.", CustPostingGr.GetAdditionalFeeAccount());
             FinChrgMemoLine.Description :=
               CopyStr(
                 TranslationHelper.GetTranslatedFieldCaption(
@@ -654,7 +695,7 @@
         FinanceChargeRounding(Rec);
         InsertBeginTexts(Rec);
         InsertEndTexts(Rec);
-        Modify;
+        Modify();
     end;
 
     procedure UpdateLines(FinChrgMemoHeader2: Record "Finance Charge Memo Header")
@@ -668,7 +709,7 @@
               (FinChrgMemoLine."Attached to Line No." = 0);
             if OK then begin
                 FinChrgMemoLine.Delete(true);
-                OK := FinChrgMemoLine.Next <> 0;
+                OK := FinChrgMemoLine.Next() <> 0;
             end;
         end;
         OK := FinChrgMemoLine.Find('+');
@@ -754,30 +795,30 @@
               FinChrgMemoHeader2."Remaining Amount" + FinChrgMemoHeader2."Interest Amount" +
               FinChrgMemoHeader2."Additional Fee" + FinChrgMemoHeader2."VAT Amount";
 
-            repeat
-                NextLineNo := NextLineNo + LineSpacing;
-                FinChrgMemoLine.Init();
-                FinChrgMemoLine."Line No." := NextLineNo;
-                FinChrgMemoLine.Description :=
-                  CopyStr(
-                    StrSubstNo(
-                      FinChrgText.Text,
-                      FinChrgMemoHeader2."Document Date",
-                      FinChrgMemoHeader2."Due Date",
-                      FinChrgTerms."Interest Rate",
-                      FinChrgMemoHeader2."Remaining Amount",
-                      FinChrgMemoHeader2."Interest Amount",
-                      FinChrgMemoHeader2."Additional Fee",
-                      Format(FinChrgMemoTotal, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, FinChrgMemoHeader."Currency Code")),
-                      FinChrgMemoHeader2."Currency Code",
-                      FinChrgMemoHeader2."Posting Date"),
-                    1, MaxStrLen(FinChrgMemoLine.Description));
-                if FinChrgText.Position = FinChrgText.Position::Beginning then
-                    FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Beginning Text"
-                else
-                    FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Ending Text";
-                FinChrgMemoLine.Insert();
-            until FinChrgText.Next() = 0;
+                                          repeat
+                                              NextLineNo := NextLineNo + LineSpacing;
+                                              FinChrgMemoLine.Init();
+                                              FinChrgMemoLine."Line No." := NextLineNo;
+                                              FinChrgMemoLine.Description :=
+                                                CopyStr(
+                                                  StrSubstNo(
+                                                    FinChrgText.Text,
+                                                    FinChrgMemoHeader2."Document Date",
+                                                    FinChrgMemoHeader2."Due Date",
+                                                    FinChrgTerms."Interest Rate",
+                                                    FinChrgMemoHeader2."Remaining Amount",
+                                                    FinChrgMemoHeader2."Interest Amount",
+                                                    FinChrgMemoHeader2."Additional Fee",
+                                                    Format(FinChrgMemoTotal, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, FinChrgMemoHeader."Currency Code")),
+                                                    FinChrgMemoHeader2."Currency Code",
+                                                    FinChrgMemoHeader2."Posting Date"),
+                                                  1, MaxStrLen(FinChrgMemoLine.Description));
+                                              if FinChrgText.Position = FinChrgText.Position::Beginning then
+                                                  FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Beginning Text"
+                                              else
+                                                  FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Ending Text";
+                                              FinChrgMemoLine.Insert();
+                                          until FinChrgText.Next() = 0;
             if FinChrgText.Position = FinChrgText.Position::Beginning then
                 InsertBlankLine(FinChrgMemoLine."Line Type"::"Beginning Text");
         end;
@@ -914,7 +955,7 @@
                 Round(
                     TotalAmountInclVAT,
                     Currency."Invoice Rounding Precision",
-                    Currency.InvoiceRoundingDirection),
+                    Currency.InvoiceRoundingDirection()),
               Currency."Amount Rounding Precision"));
     end;
 
@@ -927,10 +968,10 @@
         if FinanceChargeRoundingAmount <> 0 then begin
             CustPostingGr.Get(FinanceChargeHeader."Customer Posting Group");
             with FinChrgMemoLine do begin
-                Init;
+                Init();
                 Validate(Type, Type::"G/L Account");
                 "System-Created Entry" := true;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                Validate("No.", CustPostingGr.GetInvRoundingAccount());
                 Validate(
                   Amount,
                   Round(
@@ -938,7 +979,7 @@
                     Currency."Amount Rounding Precision"));
                 "VAT Amount" := FinanceChargeRoundingAmount - Amount;
                 "Line Type" := "Line Type"::Rounding;
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -947,7 +988,7 @@
     begin
         with FinanceChargeHeader do
             if "Currency Code" = '' then
-                Currency.InitRoundingPrecision
+                Currency.InitRoundingPrecision()
             else begin
                 Currency.Get("Currency Code");
                 Currency.TestField("Amount Rounding Precision");
@@ -969,7 +1010,7 @@
         if FinChrgMemoLine.FindLast() then begin
             OldLineNo := FinChrgMemoLine."Line No.";
             FinChrgMemoLine.SetRange(Type);
-            if FinChrgMemoLine.Next <> 0 then
+            if FinChrgMemoLine.Next() <> 0 then
                 FinChrgMemoLine."Line No." := OldLineNo + ((FinChrgMemoLine."Line No." - OldLineNo) / 2)
             else
                 FinChrgMemoLine."Line No." := FinChrgMemoLine."Line No." + 10000;
@@ -989,7 +1030,7 @@
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -1003,15 +1044,15 @@
         FinChrgMemoLine.Reset();
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
         FinChrgMemoLine.SetFilter(Type, '>%1', FinChrgMemoLine.Type::" ");
-        exit(FinChrgMemoLine.FindFirst);
+        exit(FinChrgMemoLine.FindFirst())
     end;
 
     [Scope('OnPrem')]
     procedure UpdateFinChrgLines(ChangedFieldName: Text[100])
     begin
-        if FinChrgLinesExist then begin
+        if FinChrgLinesExist() then begin
             FinChrgMemoLine.LockTable();
-            Modify;
+            Modify();
 
             FinChrgMemoLine.Reset();
             FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
@@ -1036,8 +1077,8 @@
 
     procedure SetCustomerFromFilter()
     begin
-        if GetFilterCustNo <> '' then
-            Validate("Customer No.", GetFilterCustNo);
+        if GetFilterCustNo() <> '' then
+            Validate("Customer No.", GetFilterCustNo());
     end;
 
     procedure CreateDimFromDefaultDim()
@@ -1209,6 +1250,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCustomerNoOnAfterAssignCustomerValues(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; Customer: Record "Customer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 

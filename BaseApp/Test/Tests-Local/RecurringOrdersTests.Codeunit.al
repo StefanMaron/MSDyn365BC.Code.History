@@ -43,7 +43,7 @@ codeunit 144200 "Recurring Orders Tests"
         // Check that Recurring Groups are only valid for Blanket Orders
         with SalesHeader do
             for NewDocType := "Document Type"::Quote to "Document Type"::"Return Order" do begin
-                Init;
+                Init();
                 Validate("Document Type", NewDocType);
                 if NewDocType = "Document Type"::"Blanket Order" then begin
                     Validate("Recurring Group Code", RecurringGroup.Code);
@@ -76,7 +76,7 @@ codeunit 144200 "Recurring Orders Tests"
         Periods := 'D,W,M,Q,Y';
         for PeriodIndex := 1 to 5 do begin // For any type of period
             Evaluate(NewDF, '<1' + SelectStr(PeriodIndex, Periods) + '>');
-            OriginalDate := WorkDate;
+            OriginalDate := WorkDate();
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
 
@@ -88,11 +88,11 @@ codeunit 144200 "Recurring Orders Tests"
             BlanketSalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
             BlanketSalesHeader.Modify(true);
 
-            ProcessingDate := WorkDate;
+            ProcessingDate := WorkDate();
             CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
 
             // Verify : Check that the Blanket Order Date is shifted forward by the Date formula
-            BlanketSalesHeader.Find;
+            BlanketSalesHeader.Find();
             Assert.AreEqual(CalcDate(RecurringGroup."Date formula", OriginalDate), BlanketSalesHeader."Order Date", '');
         end;
     end;
@@ -118,7 +118,7 @@ codeunit 144200 "Recurring Orders Tests"
         Periods := 'D,W,M,Q,Y';
         for PeriodIndex := 1 to 5 do begin  // Use different types of period Date formulas
             Evaluate(NewDF, '<1' + SelectStr(PeriodIndex, Periods) + '>');
-            OriginalDate := WorkDate;
+            OriginalDate := WorkDate();
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
 
@@ -131,11 +131,11 @@ codeunit 144200 "Recurring Orders Tests"
             BlanketSalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
             BlanketSalesHeader.Modify(true);
 
-            ProcessingDate := CalcDate('<2' + SelectStr(PeriodIndex, Periods) + '>', WorkDate);
+            ProcessingDate := CalcDate('<2' + SelectStr(PeriodIndex, Periods) + '>', WorkDate());
             CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
 
             // Verify : Check that the Blanket Order Date is shifted forward to be greater than the Processing Date
-            BlanketSalesHeader.Find;
+            BlanketSalesHeader.Find();
             Assert.IsTrue(ProcessingDate < BlanketSalesHeader."Order Date", SelectStr(PeriodIndex, Periods));
         end;
     end;
@@ -158,8 +158,8 @@ codeunit 144200 "Recurring Orders Tests"
         CreateRecurringSetup(RecurringGroup);
 
         for PeriodIndex := -1 to 1 do begin // Use starting dates wrt order date
-            OriginalDate := WorkDate;
-            ProcessingDate := WorkDate;
+            OriginalDate := WorkDate();
+            ProcessingDate := WorkDate();
             Evaluate(NewDF, '<1D>');
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
@@ -178,7 +178,7 @@ codeunit 144200 "Recurring Orders Tests"
                 Assert.ExpectedError('Processing date');
             end else begin
                 CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
-                BlanketSalesHeader.Find;
+                BlanketSalesHeader.Find();
                 Assert.AreEqual(CalcDate(RecurringGroup."Date formula", OriginalDate), BlanketSalesHeader."Order Date", '');
             end;
         end;
@@ -201,8 +201,8 @@ codeunit 144200 "Recurring Orders Tests"
 
         CreateRecurringSetup(RecurringGroup);
         for PeriodIndex := -1 to 1 do begin
-            OriginalDate := WorkDate;
-            ProcessingDate := WorkDate;
+            OriginalDate := WorkDate();
+            ProcessingDate := WorkDate();
             Evaluate(NewDF, '<1D>');
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
@@ -222,7 +222,7 @@ codeunit 144200 "Recurring Orders Tests"
                 Assert.ExpectedError('Processing date');
             end else begin
                 CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
-                BlanketSalesHeader.Find;
+                BlanketSalesHeader.Find();
                 Assert.AreEqual(CalcDate(RecurringGroup."Date formula", OriginalDate), BlanketSalesHeader."Order Date", '');
             end;
         end;
@@ -249,7 +249,7 @@ codeunit 144200 "Recurring Orders Tests"
         Periods := 'D,W,M,Q,Y';
         for PeriodIndex := 1 to 5 do begin // Use different Date formula Options
             Evaluate(NewDF, '<1D>');
-            OriginalDate := WorkDate;
+            OriginalDate := WorkDate();
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
 
@@ -265,13 +265,13 @@ codeunit 144200 "Recurring Orders Tests"
             BlanketSalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
             BlanketSalesHeader.Modify(true);
 
-            ProcessingDate := CalcDate(NewDF, WorkDate);
+            ProcessingDate := CalcDate(NewDF, WorkDate());
             CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
 
             // Verify : Check that the Document Date is shifted forward by the Date formula
-            BlanketSalesHeader.Find;
+            BlanketSalesHeader.Find();
             Assert.AreEqual(0D, BlanketSalesHeader."Document Date", '');
-            SalesOrderHeader.Find;
+            SalesOrderHeader.Find();
             Assert.AreEqual(CalcDate('<1' + SelectStr(PeriodIndex, Periods) + '>', ProcessingDate), SalesOrderHeader."Document Date", '');
         end;
     end;
@@ -299,7 +299,7 @@ codeunit 144200 "Recurring Orders Tests"
         for PeriodIndex := 1 to 5 do begin // Use different Date formula Options
             Evaluate(NewDF, '<1D>');
             Evaluate(DeliveryDateDF, '<1' + SelectStr(PeriodIndex, Periods) + '>');
-            OriginalDate := WorkDate;
+            OriginalDate := WorkDate();
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
 
@@ -315,13 +315,13 @@ codeunit 144200 "Recurring Orders Tests"
             BlanketSalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
             BlanketSalesHeader.Modify(true);
 
-            ProcessingDate := WorkDate;
+            ProcessingDate := WorkDate();
             CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
 
             // Verify : Check that the Blanket Order Date is shifted forward by the Date formula
-            BlanketSalesHeader.Find;
+            BlanketSalesHeader.Find();
             Assert.AreEqual(0D, BlanketSalesHeader."Shipment Date", '');
-            SalesOrderHeader.Find;
+            SalesOrderHeader.Find();
             Assert.AreEqual(CalcDate(DeliveryDateDF, OriginalDate), SalesOrderHeader."Shipment Date", '');
         end;
     end;
@@ -350,8 +350,8 @@ codeunit 144200 "Recurring Orders Tests"
             RecurringGroup."Update Price"::Fixed to
             RecurringGroup."Update Price"::Reset
         do begin
-            OriginalDate := WorkDate;
-            ProcessingDate := WorkDate;
+            OriginalDate := WorkDate();
+            ProcessingDate := WorkDate();
             Evaluate(NewDF, '<1D>');
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
@@ -373,12 +373,12 @@ codeunit 144200 "Recurring Orders Tests"
             BlanketSalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
             BlanketSalesHeader.Modify(true);
 
-            ProcessingDate := WorkDate;
+            ProcessingDate := WorkDate();
             CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
 
             // Verify : Check that the Sales Order Line Unit Price wrt Recurring group Update Price option
             FindSalesLineWithItem(SalesOrderHeader, SalesOrderLine);
-            BlanketSalesLine.Find;
+            BlanketSalesLine.Find();
             case PriceChoice of
                 RecurringGroup."Update Price"::Fixed:
                     Assert.AreEqual(BlanketSalesLine."Unit Price", SalesOrderLine."Unit Price", '');
@@ -420,8 +420,8 @@ codeunit 144200 "Recurring Orders Tests"
             RecurringGroup."Update Price"::Fixed to
             RecurringGroup."Update Price"::Reset
         do begin
-            OriginalDate := WorkDate;
-            ProcessingDate := WorkDate;
+            OriginalDate := WorkDate();
+            ProcessingDate := WorkDate();
             Evaluate(NewDF, '<1D>');
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
@@ -448,12 +448,12 @@ codeunit 144200 "Recurring Orders Tests"
             BlanketSalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
             BlanketSalesHeader.Modify(true);
 
-            ProcessingDate := WorkDate;
+            ProcessingDate := WorkDate();
             CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
 
             // Verify : Check that the Sales Order Line Unit Price wrt Recurring group Update Price option
             FindSalesLineWithItem(SalesOrderHeader, SalesOrderLine);
-            BlanketSalesLine.Find;
+            BlanketSalesLine.Find();
             case PriceChoice of
                 RecurringGroup."Update Price"::Fixed:
                     Assert.AreEqual(BlanketSalesLine."Unit Price", SalesOrderLine."Unit Price", '');
@@ -490,8 +490,8 @@ codeunit 144200 "Recurring Orders Tests"
             RecurringGroup."Update Number"::Constant to
             RecurringGroup."Update Number"::Reduce
         do begin
-            OriginalDate := WorkDate;
-            ProcessingDate := WorkDate;
+            OriginalDate := WorkDate();
+            ProcessingDate := WorkDate();
             Evaluate(NewDF, '<1D>');
 
             CreateBlanketSalesOrder(BlanketSalesHeader);
@@ -506,12 +506,12 @@ codeunit 144200 "Recurring Orders Tests"
             BlanketSalesHeader.Validate("Recurring Group Code", RecurringGroup.Code);
             BlanketSalesHeader.Modify(true);
 
-            ProcessingDate := WorkDate;
+            ProcessingDate := WorkDate();
             CreateRecurringSalesOrder(BlanketSalesHeader, SalesOrderHeader, false, ProcessingDate);
 
             // Verify : Check that the Blanket Order Quantity to Ship is update wrt Recurring Group Update Number option
             FindSalesLineWithItem(SalesOrderHeader, SalesOrderLine);
-            BlanketSalesLine.Find;
+            BlanketSalesLine.Find();
             case NumberChoice of
                 RecurringGroup."Update Number"::Constant:
                     Assert.AreEqual(BlanketSalesLine.Quantity, BlanketSalesLine."Qty. to Ship", '');
@@ -526,9 +526,9 @@ codeunit 144200 "Recurring Orders Tests"
     local procedure CreateRecurringSetup(var RecurringGroup: Record "Recurring Group")
     begin
         with RecurringGroup do begin
-            Init;
+            Init();
             Code := LibraryUTUtility.GetNewCode10;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -553,7 +553,7 @@ codeunit 144200 "Recurring Orders Tests"
     begin
         Commit();
 
-        BlanketSalesHeader.SetRecFilter;
+        BlanketSalesHeader.SetRecFilter();
         with CreateRecurringOrders do begin
             SetHiddenError(HiddenError);
             SetCreatingDate(ProcessingDate);

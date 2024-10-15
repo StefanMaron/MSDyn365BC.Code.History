@@ -219,7 +219,7 @@ codeunit 144119 "Remittance Agreement Table UT"
         // Setup
         LibraryVariableStorage.Enqueue(false);
         RemittanceAgreement.Init();
-        LatestExportValue := WorkDate;
+        LatestExportValue := WorkDate();
         RemittanceAgreement."Latest Export" := LatestExportValue;
 
         // Exercise
@@ -247,7 +247,7 @@ codeunit 144119 "Remittance Agreement Table UT"
         // Setup
         LibraryVariableStorage.Enqueue(true);
         RemittanceAgreement.Init();
-        LatestExportValue := WorkDate;
+        LatestExportValue := WorkDate();
         RemittanceAgreement."Latest Export" := LatestExportValue;
 
         // Exercise

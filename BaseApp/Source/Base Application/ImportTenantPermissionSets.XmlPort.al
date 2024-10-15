@@ -1,3 +1,4 @@
+#if not CLEAN21
 xmlport 9174 "Import Tenant Permission Sets"
 {
     Caption = 'Import Permission Sets';
@@ -5,6 +6,9 @@ xmlport 9174 "Import Tenant Permission Sets"
     Encoding = UTF8;
     PreserveWhiteSpace = true;
     UseRequestPage = true;
+    ObsoleteTag = '21.0';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with "Import Permission Sets"';
 
     schema
     {
@@ -197,7 +201,7 @@ xmlport 9174 "Import Tenant Permission Sets"
     var
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
-        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers;
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
         OnAfterOnPreXmlPort(UpdatePermissions);
     end;
 
@@ -222,6 +226,11 @@ xmlport 9174 "Import Tenant Permission Sets"
 
         if SystemPermissionsExist and ServerSettings.GetUsePermissionSetsFromExtensions() then
             Message(SystemPermissionSetMsg);
+    end;
+
+    procedure SetUpdatePermissions(NewUpdatePermissions: Boolean)
+    begin
+        UpdatePermissions := NewUpdatePermissions;
     end;
 
     local procedure ProcessSystemPermissionSet(AggregatePermissionSet: Record "Aggregate Permission Set")
@@ -333,4 +342,4 @@ xmlport 9174 "Import Tenant Permission Sets"
     begin
     end;
 }
-
+#endif

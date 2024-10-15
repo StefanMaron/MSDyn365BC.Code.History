@@ -70,7 +70,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         PurchasesPayablesSetup.Modify(true);
 
         ManufacturingSetup.Get();
-        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
         LibraryAssembly.UpdateAssemblySetup(
           AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode);
 
@@ -283,7 +283,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                     InitialResQty := AssemblyLine."Reserved Qty. (Base)";
                     InitialInventory := Item.Inventory;
                 end;
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
 
         // Exercise: Post reservations.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
@@ -299,7 +299,7 @@ codeunit 137095 "SCM Kitting - Reservations"
             if ReservationEntry.FindSet() then begin
                 repeat
                     RemainingResQty += Abs(ReservationEntry."Quantity (Base)");
-                until ReservationEntry.Next = 0;
+                until ReservationEntry.Next() = 0;
                 Assert.AreNearlyEqual(InitialResQty - InitialInventory, RemainingResQty, LibraryERM.GetAmountRoundingPrecision,
                   'Remaining reserved quantity is not correct.');
             end
@@ -741,7 +741,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         asserterror
           TestUIAvailToReserve(Item.Reserve::Never, 0, false, false, 0, false);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorResNever) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -825,7 +825,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         asserterror
           TestUIAvailToReserve(Item.Reserve::Optional, 0, false, false, 0, true);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorFullyReserved) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Normal]
@@ -995,7 +995,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         asserterror
           TestUIReserveCancel(false, true, 0, false, 32, true);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorNotAvail) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Normal]
@@ -1071,7 +1071,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         asserterror
           TestChangeLine(AssemblyLine.FieldNo("Location Code"), false, 0, 0, 1);
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ErrorChangeLine, 'Location Code')) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1098,7 +1098,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         asserterror
           TestChangeLine(AssemblyLine.FieldNo("Variant Code"), false, 0, 0, 1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorResQty) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1134,7 +1134,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         asserterror
           TestChangeLine(AssemblyLine.FieldNo(Type), false, 0, 0, 1);
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ErrorChangeLine, 'Type')) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1145,7 +1145,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         asserterror
           TestChangeLine(AssemblyLine.FieldNo("No."), false, 0, 0, 1);
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ErrorChangeLine, 'No.')) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Normal]
@@ -1339,7 +1339,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         asserterror
           TestChangeHeader(AssemblyHeader.FieldNo("Location Code"), false, 0, 0, 1);
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ErrorChangeLine, 'Location Code')) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1608,7 +1608,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     begin
         asserterror PostOptionalSalesLine(false);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorInventory) > 0, 'Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1813,7 +1813,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         GlobalAOSupply := LibraryRandom.RandDec(200, 2);
         CreateAssemblyOrder(WorkDate2, GlobalAOSupply);
 
-        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalAOSupply, WorkDate - 1);
+        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalAOSupply, WorkDate() - 1);
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.");
 
         LibraryVariableStorage.Enqueue(GlobalAOSupply);
@@ -1834,7 +1834,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         GlobalAOSupply := LibraryRandom.RandDec(200, 2);
         CreateAssemblyOrder(WorkDate2, GlobalAOSupply);
 
-        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalAOSupply, WorkDate - 1);
+        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalAOSupply, WorkDate() - 1);
 
         LibraryVariableStorage.Enqueue(GlobalAOSupply);
         AssemblyLine.ShowReservation();
@@ -1855,7 +1855,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         Initialize();
         GlobalAOSupply := LibraryRandom.RandDec(200, 2);
         LibraryInventory.CreateItem(Item);
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', GlobalAOSupply, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', GlobalAOSupply, '');
 
         CreateAndRefreshProductionOrderWithComponent(ProdOrderComponent, Item."No.", GlobalAOSupply, WorkDate2, '');
 
@@ -1905,7 +1905,7 @@ codeunit 137095 "SCM Kitting - Reservations"
 
         CreateAndRefreshProductionOrderWithComponent(ProdOrderComponent, Item."No.", GlobalPOSupply, WorkDate2, '');
 
-        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalPOSupply, WorkDate);
+        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalPOSupply, WorkDate());
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.");
 
         LibraryVariableStorage.Enqueue(GlobalPOSupply);
@@ -2055,7 +2055,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                 Item.Get(BOMComponent."No.");
                 Item.Validate(Reserve, Reserve);
                 Item.Modify(true);
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
     end;
 
     [Normal]
@@ -2145,7 +2145,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                 TempReservationEntry."Quantity (Base)" := QtyToReserve;
                 TempReservationEntry.Modify(true);
 
-            until TempReservationEntry.Next = 0;
+            until TempReservationEntry.Next() = 0;
     end;
 
     [Normal]
@@ -2349,7 +2349,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         GlobalPOSupply := LibraryRandom.RandDec(200, 2);
         CreateAndRefreshProductionOrderWithComponent(ProdOrderComponent, Item."No.", GlobalPOSupply, WorkDate2, '');
 
-        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalPOSupply, WorkDate);
+        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", GlobalPOSupply, WorkDate());
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.");
         ProdOrderComponent.AutoReserve();
     end;
@@ -2375,7 +2375,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyOrder.Lines."Unit of Measure Code".Value := AssemblyLine."Unit of Measure Code";
         AssemblyOrder.Lines."Quantity per".Value := Format(AssemblyLine."Quantity per", 5);
 
-        AssemblyOrder.Close;
+        AssemblyOrder.Close();
 
         // Fetch the line from the database for validation.
         AssemblyLine.Reset();
@@ -2462,7 +2462,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         if ReservationEntry.FindSet() then
             repeat
                 ReservedQty += ReservationEntry."Quantity (Base)";
-            until ReservationEntry.Next = 0;
+            until ReservationEntry.Next() = 0;
 
         exit(ReservedQty);
     end;
@@ -2504,7 +2504,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                 ReservationEntry2.TestField("Location Code", AssemblyLine."Location Code");
                 ReservationEntry2.TestField("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
                 Assert.AreEqual(-ReservationEntry."Quantity (Base)", ReservationEntry2."Quantity (Base)", 'Wrong Qty base.');
-            until ReservationEntry.Next = 0;
+            until ReservationEntry.Next() = 0;
     end;
 
     [Normal]
@@ -2529,12 +2529,12 @@ codeunit 137095 "SCM Kitting - Reservations"
                 ExpectedQty := 0;
                 repeat
                     ExpectedQty += TempReservationEntry."Quantity (Base)";
-                until TempReservationEntry.Next = 0;
+                until TempReservationEntry.Next() = 0;
 
                 ActualQty := 0;
                 repeat
                     ActualQty += ReservationEntry."Quantity (Base)";
-                until ReservationEntry.Next = 0;
+                until ReservationEntry.Next() = 0;
 
                 Assert.AreEqual(ExpectedQty, ActualQty, 'Wrong res. qty for source type ' + Format(TempReservationEntry."Source Type"));
             end;
@@ -2725,7 +2725,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                     AvailToReserve += TempReservationEntry."Quantity (Base)";
                     AvailableSupply += TempReservationEntry."Qty. to Handle (Base)";
                 end;
-            until TempReservationEntry.Next = 0;
+            until TempReservationEntry.Next() = 0;
 
         exit(AvailableSupply)
     end;
@@ -2793,11 +2793,11 @@ codeunit 137095 "SCM Kitting - Reservations"
         // Validate: Entry summaries for various supply types.
         VerifyEntrySummary(Reservation, Format(GlobalILESupply), Format(GlobalILESupply), 'Item Ledger Entry');
         Reservation.AvailableToReserve.Invoke;
-        Reservation.Next;
+        Reservation.Next();
 
         VerifyEntrySummary(Reservation, Format(GlobalPOSupply), Format(GlobalPOSupply), 'Purchase');
         Reservation.AvailableToReserve.Invoke;
-        Reservation.Next;
+        Reservation.Next();
 
         VerifyEntrySummary(Reservation, Format(GlobalAOSupply), Format(GlobalAOSupply), 'Assembly');
         Reservation.AvailableToReserve.Invoke;
@@ -2805,7 +2805,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         Reservation.First;
         if Reservation."Summary Type".Value <> '' then
             counter := 1;
-        while Reservation.Next do
+        while Reservation.Next() do
             counter += 1;
 
         Assert.AreEqual(3, counter, 'Wrong no. of Summary entries.');
@@ -2837,7 +2837,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         Reservation.First;
         // Set the cursor on the desired supply type.
         while StrPos(Reservation."Summary Type".Value, SupplyType) = 0 do
-            if not Reservation.Next then
+            if not Reservation.Next() then
                 Assert.Fail('Expected line for ' + SupplyType + ' not found.');
 
         // Exercise: Reserve from current line.
@@ -2880,7 +2880,7 @@ codeunit 137095 "SCM Kitting - Reservations"
             repeat
                 Evaluate(LineQty, AvailableItemLedgEntries."Remaining Quantity".Value);
                 ActualQty += LineQty;
-            until not AvailableItemLedgEntries.Next;
+            until not AvailableItemLedgEntries.Next();
 
         Assert.AreEqual(GlobalILESupply, ActualQty, 'Wrong drilled down ILE qty.');
     end;
@@ -2897,7 +2897,7 @@ codeunit 137095 "SCM Kitting - Reservations"
             repeat
                 Evaluate(LineQty, AvailablePurchaseLines."Outstanding Qty. (Base)".Value);
                 ActualQty += LineQty;
-            until not AvailablePurchaseLines.Next;
+            until not AvailablePurchaseLines.Next();
 
         Assert.AreEqual(GlobalPOSupply, ActualQty, 'Wrong drilled down PO qty.');
     end;
@@ -2914,7 +2914,7 @@ codeunit 137095 "SCM Kitting - Reservations"
             repeat
                 Evaluate(LineQty, AvailableAssemblyHeaders."Remaining Quantity".Value);
                 ActualQty += LineQty;
-            until not AvailableAssemblyHeaders.Next;
+            until not AvailableAssemblyHeaders.Next();
 
         Assert.AreEqual(GlobalAOSupply, ActualQty, 'Wrong drilled down AO qty.');
     end;

@@ -1,14 +1,18 @@
+#if not CLEAN21
 codeunit 2110 "O365 Sales Initial Setup"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
     Permissions = TableData "Sales Document Icon" = rimd,
                   TableData "Marketing Setup" = rimd;
 
     trigger OnRun()
     begin
-        InitializeO365SalesCompany;
-        InitializeAccountingPeriod; // ensure accounting period is always valid
-        CreatePaymentRegistrationSetupForCurrentUser; // payment registration setup needs to be initialized per user
-        ValidateUserLocale;
+        InitializeO365SalesCompany();
+        InitializeAccountingPeriod(); // ensure accounting period is always valid
+        CreatePaymentRegistrationSetupForCurrentUser(); // payment registration setup needs to be initialized per user
+        ValidateUserLocale();
     end;
 
     var
@@ -27,10 +31,6 @@ codeunit 2110 "O365 Sales Initial Setup"
         TaxableCodeTxt: Label 'TAXABLE', Locked = true;
         TaxableDescriptionTxt: Label 'Taxable';
         DefaultCityTxt: Label 'Default';
-#if not CLEAN18
-        CompanyCodeTok: Label 'COMPANY', Locked = true;
-        PersonCodeTok: Label 'PERSON', Locked = true;
-#endif
         SalesMailTok: Label 'SALESEMAIL', Locked = true;
         OutOfDateCompanyErr: Label 'You have used this company in Dynamics 365 a long time ago. Please go to Dynamics 365 Business Central and recreate the company. If you have forgotten your login details, the site will help you.\For more information, see https://go.microsoft.com/fwlink/?linkid=860971.', Comment = 'No translation needed for url';
         CannotSendTestInvoiceErr: Label 'You cannot send a test invoice.';
@@ -51,12 +51,12 @@ codeunit 2110 "O365 Sales Initial Setup"
         Overwrite: Boolean;
     begin
         // Override defaults for O365 Sales
-        if not GetO365SalesInitialSetup then
+        if not GetO365SalesInitialSetup() then
             exit;
         if O365SalesInitialSetup."Is initialized" then
             exit;
 
-        if not (IsNewCompany or HideDialogs) then begin
+        if not (IsNewCompany() or HideDialogs) then begin
             if not GuiAllowed then
                 exit;
             Overwrite := Confirm(OverrideDefaultsWithSalesSetupQst);
@@ -65,29 +65,22 @@ codeunit 2110 "O365 Sales Initial Setup"
         O365SalesInitialSetup.LockTable();
         O365SalesInitialSetup.Get();
 
-        if IsNewCompany or Overwrite then begin
-            InitializeBankAccount;
-            InitializeSalesAndReceivablesSetup;
-            InitializePaymentRegistrationSetup;
-            InitializeReportSelections;
-            InitializeNotifications;
-            InitializeNoSeries;
-            InitializeDefaultBCC;
-#if not CLEAN18
-            InitializeCustomerTemplate;
-            InitializeContactToCustomerTemplate;
-#endif
-            InitializePaymentInstructions;
-#if not CLEAN18            
-            InitializeItemTemplate;
-#endif
-            ClearPaymentMethodsBalAccount;
+        if IsNewCompany() or Overwrite then begin
+            InitializeBankAccount();
+            InitializeSalesAndReceivablesSetup();
+            InitializePaymentRegistrationSetup();
+            InitializeReportSelections();
+            InitializeNotifications();
+            InitializeNoSeries();
+            InitializeDefaultBCC();
+            InitializePaymentInstructions();
+            ClearPaymentMethodsBalAccount();
         end;
 
-        InitializeVAT;
-        InitializeVATRegService;
-        InitializeTax;
-        SetFinancialsJobQueueEntriesOnHold;
+        InitializeVAT();
+        InitializeVATRegService();
+        InitializeTax();
+        SetFinancialsJobQueueEntriesOnHold();
 
         O365SalesInitialSetup."Is initialized" := true;
         O365SalesInitialSetup.Modify();
@@ -108,7 +101,7 @@ codeunit 2110 "O365 Sales Initial Setup"
 
         with PaymentRegistrationSetup do begin
             DeleteAll();
-            Init;
+            Init();
             Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", GenJournalBatch.Name);
             Insert(true);
@@ -121,7 +114,7 @@ codeunit 2110 "O365 Sales Initial Setup"
     begin
         if PaymentRegistrationSetup.Get(UserId) then
             exit;
-        if PaymentRegistrationSetup.Get then begin
+        if PaymentRegistrationSetup.Get() then begin
             PaymentRegistrationSetup."User ID" := UserId;
             if PaymentRegistrationSetup.Insert(true) then;
         end;
@@ -131,7 +124,7 @@ codeunit 2110 "O365 Sales Initial Setup"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        if not SalesReceivablesSetup.Get then
+        if not SalesReceivablesSetup.Get() then
             SalesReceivablesSetup.Insert(true);
 
         SalesReceivablesSetup."Default Item Quantity" := true;
@@ -140,137 +133,6 @@ codeunit 2110 "O365 Sales Initial Setup"
         SalesReceivablesSetup."Calc. Inv. Discount" := true;
         SalesReceivablesSetup.Modify(true);
     end;
-
-#if not CLEAN18
-    local procedure InitializeCustomerTemplate()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        Customer: Record Customer;
-        CompanyInformation: Record "Company Information";
-        CountryRegion: Record "Country/Region";
-    begin
-        ConfigTemplateHeader.SetFilter(Code, '<>%1', O365SalesInitialSetup."Default Customer Template");
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        ConfigTemplateHeader.DeleteAll(true);
-
-        ConfigTemplateManagement.ReplaceDefaultValueForAllTemplates(
-          DATABASE::Customer, Customer.FieldNo("Payment Method Code"), O365SalesInitialSetup."Default Payment Method Code");
-        ConfigTemplateManagement.ReplaceDefaultValueForAllTemplates(
-          DATABASE::Customer, Customer.FieldNo("Payment Terms Code"), O365SalesInitialSetup."Default Payment Terms Code");
-
-        if CompanyInformation.Get then
-            if CountryRegion.Get(CompanyInformation.GetCompanyCountryRegionCode) then
-                ConfigTemplateManagement.ReplaceDefaultValueForAllTemplates(
-                  DATABASE::Customer, Customer.FieldNo("Country/Region Code"), CountryRegion.Code);
-
-        ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Customer);
-        if not ConfigTmplSelectionRules.FindFirst() then begin
-            ConfigTmplSelectionRules.Validate("Table ID", DATABASE::Customer);
-            ConfigTmplSelectionRules.Validate("Page ID", PAGE::"Customer Entity");
-            ConfigTmplSelectionRules.Validate("Template Code", O365SalesInitialSetup."Default Customer Template");
-            ConfigTmplSelectionRules.Insert(true);
-            exit;
-        end;
-
-        Clear(ConfigTmplSelectionRules."Selection Criteria");
-        ConfigTmplSelectionRules.Modify(true);
-    end;
-
-    local procedure InitializeContactToCustomerTemplate()
-    var
-        MarketingSetup: Record "Marketing Setup";
-        CompanyCustomerTemplate: Record "Customer Template";
-        PersonCustomerTemplate: Record "Customer Template";
-        ConfigTemplateLine: Record "Config. Template Line";
-        CompanyTemplateFieldRef: FieldRef;
-        CompanyTemplateRecordRef: RecordRef;
-        PersonTemplateFieldRef: FieldRef;
-        PersonTemplateRecordRef: RecordRef;
-    begin
-        if not MarketingSetup.Get then begin
-            MarketingSetup.Init();
-            MarketingSetup.Insert(true);
-        end;
-
-        if (MarketingSetup."Cust. Template Company Code" = '') or
-           (MarketingSetup."Cust. Template Person Code" = '')
-        then begin
-            MarketingSetup.Validate("Cust. Template Company Code", CompanyCodeTok);
-            MarketingSetup.Validate("Cust. Template Person Code", PersonCodeTok);
-            MarketingSetup.Modify(true);
-        end;
-
-        // Get the fields that we need to copy over to the customer template
-        ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Customer Template");
-        ConfigTemplateLine.SetFilter(
-          "Field ID",
-          '<>%1&<>%2&<>%3',// there are some fields we should ignore
-          CompanyCustomerTemplate.FieldNo("Contact Type"),
-          CompanyCustomerTemplate.FieldNo("Allow Line Disc."),
-          CompanyCustomerTemplate.FieldNo("Prices Including VAT"));
-
-        if not ConfigTemplateLine.FindSet() then
-            exit;
-
-        if not CompanyCustomerTemplate.Get(MarketingSetup."Cust. Template Company Code") then begin
-            CompanyCustomerTemplate.Validate(Code, CompanyCodeTok);
-            CompanyCustomerTemplate.Validate("Contact Type", CompanyCustomerTemplate."Contact Type"::Company);
-            CompanyCustomerTemplate.Validate("Allow Line Disc.", true);
-            CompanyCustomerTemplate.Insert(true);
-        end;
-
-        if not PersonCustomerTemplate.Get(MarketingSetup."Cust. Template Person Code") then begin
-            PersonCustomerTemplate.Validate(Code, PersonCodeTok);
-            PersonCustomerTemplate.Validate("Contact Type", PersonCustomerTemplate."Contact Type"::Person);
-            PersonCustomerTemplate.Validate("Allow Line Disc.", true);
-            if O365SalesInitialSetup."Tax Type" = O365SalesInitialSetup."Tax Type"::VAT then
-                PersonCustomerTemplate.Validate("Prices Including VAT", true);
-            PersonCustomerTemplate.Insert(true);
-        end else
-            if O365SalesInitialSetup."Tax Type" = O365SalesInitialSetup."Tax Type"::VAT then begin
-                PersonCustomerTemplate.Validate("Prices Including VAT", true);
-                PersonCustomerTemplate.Modify(true);
-            end;
-
-        CompanyTemplateRecordRef.GetTable(CompanyCustomerTemplate);
-        PersonTemplateRecordRef.GetTable(PersonCustomerTemplate);
-
-        repeat
-            if CompanyTemplateRecordRef.FieldExist(ConfigTemplateLine."Field ID") then begin
-                CompanyTemplateFieldRef := CompanyTemplateRecordRef.Field(ConfigTemplateLine."Field ID");
-                PersonTemplateFieldRef := PersonTemplateRecordRef.Field(ConfigTemplateLine."Field ID");
-                CompanyTemplateFieldRef.Validate(ConfigTemplateLine."Default Value");
-                PersonTemplateFieldRef.Validate(ConfigTemplateLine."Default Value");
-            end;
-        until ConfigTemplateLine.Next() = 0;
-
-        CompanyTemplateRecordRef.Modify(true);
-        PersonTemplateRecordRef.Modify(true);
-    end;
-
-    local procedure InitializeItemTemplate()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-    begin
-        ConfigTemplateHeader.SetFilter(Code, '<>%1', O365SalesInitialSetup."Default Item Template");
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.DeleteAll(true);
-
-        ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Item);
-        if not ConfigTmplSelectionRules.FindFirst() then begin
-            ConfigTmplSelectionRules.Validate("Table ID", DATABASE::Item);
-            ConfigTmplSelectionRules.Validate("Page ID", PAGE::"Item Entity");
-            ConfigTmplSelectionRules.Validate("Template Code", O365SalesInitialSetup."Default Item Template");
-            ConfigTmplSelectionRules.Insert(true);
-            exit;
-        end;
-
-        Clear(ConfigTmplSelectionRules."Selection Criteria");
-        ConfigTmplSelectionRules.Modify(true);
-    end;
-#endif
 
     local procedure InitializeReportSelections()
     var
@@ -297,7 +159,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         ReportSelections.DeleteAll();
 
         ReportSelections.Usage := ReportUsage;
-        ReportSelections.NewRecord;
+        ReportSelections.NewRecord();
         ReportSelections.Validate("Report ID", ReportID);
         ReportSelections.Validate("Use for Email Body", true);
         ReportSelections.Validate("Email Body Layout Type", EmailBodyLayoutType);
@@ -325,7 +187,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         MyNotificationsPage: Page "My Notifications";
     begin
         // Disable all notifications
-        MyNotificationsPage.InitializeNotificationsWithDefaultState;
+        MyNotificationsPage.InitializeNotificationsWithDefaultState();
         MyNotifications.ModifyAll(Enabled, false, true);
     end;
 
@@ -333,10 +195,10 @@ codeunit 2110 "O365 Sales Initial Setup"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        if not IsNewCompany then
+        if not IsNewCompany() then
             exit; // Do not change no. series if we already have invoices documents
 
-        if not SalesReceivablesSetup.Get then
+        if not SalesReceivablesSetup.Get() then
             exit;
 
         if O365SalesInitialSetup."Sales Invoice No. Series" <> '' then
@@ -364,7 +226,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         TaxAreaCode: Code[20];
         TaxJurisdictionCode: Code[10];
     begin
-        if CompanyInformation.Get and (CompanyInformation.City <> '') then begin
+        if CompanyInformation.Get() and (CompanyInformation.City <> '') then begin
             TaxAreaCode := UpperCase(CopyStr(CompanyInformation.City, 1, MaxStrLen(TaxAreaCode) - 4));
             TaxJurisdictionCode := CopyStr(TaxAreaCode, 1, MaxStrLen(TaxJurisdictionCode));
             if CompanyInformation.County <> '' then // 2 char state
@@ -394,7 +256,7 @@ codeunit 2110 "O365 Sales Initial Setup"
             TaxGroup.Insert();
         end;
 
-        if TaxSetup.Get then;
+        if TaxSetup.Get() then;
         TaxJurisdiction.Validate(Description, TaxableDescriptionTxt);
         if GLAccount.Get(TaxSetup."Tax Account (Sales)") then
             TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");
@@ -409,12 +271,12 @@ codeunit 2110 "O365 Sales Initial Setup"
             TaxAreaLine.Insert();
         end;
 
-        if not TaxDetail.Get(TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", WorkDate) then begin
+        if not TaxDetail.Get(TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", WorkDate()) then begin
             TaxDetail.Init();
             TaxDetail.Validate("Tax Jurisdiction Code", TaxJurisdiction.Code);
             TaxDetail.Validate("Tax Group Code", TaxGroup.Code);
             TaxDetail.Validate("Tax Type", TaxDetail."Tax Type"::"Sales Tax");
-            TaxDetail.Validate("Effective Date", WorkDate);
+            TaxDetail.Validate("Effective Date", WorkDate());
             TaxDetail.Insert(true);
         end;
 
@@ -465,11 +327,11 @@ codeunit 2110 "O365 Sales Initial Setup"
         CreateFiscalYear: Report "Create Fiscal Year";
         DateFormulaVariable: DateFormula;
     begin
-        if not (GetO365SalesInitialSetup and O365SalesInitialSetup."Is initialized") then
+        if not (GetO365SalesInitialSetup() and O365SalesInitialSetup."Is initialized") then
             exit;
 
         if AccountingPeriod.FindLast() then
-            if AccountingPeriod."Starting Date" > WorkDate + 366 then
+            if AccountingPeriod."Starting Date" > WorkDate() + 366 then
                 exit;
 
         // Auto-create accounting periods will fail with items with average costing.
@@ -479,12 +341,12 @@ codeunit 2110 "O365 Sales Initial Setup"
 
         AccountingPeriod.LockTable();
         if AccountingPeriod.FindLast() then
-            if AccountingPeriod."Starting Date" > WorkDate + 366 then
+            if AccountingPeriod."Starting Date" > WorkDate() + 366 then
                 exit;
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
         if not AccountingPeriod.FindLast() then
-            AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate)
+            AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate())
         else
             AccountingPeriod."Starting Date" := CalcDate('<1Y>', AccountingPeriod."Starting Date");
 
@@ -502,7 +364,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
         CompanyInformation.LockTable();
-        if not CompanyInformation.Get then
+        if not CompanyInformation.Get() then
             exit;
 
         CompanyInformation.Validate("Allow Blank Payment Info.", true);
@@ -516,17 +378,17 @@ codeunit 2110 "O365 Sales Initial Setup"
         O365PaymentInstructions: Record "O365 Payment Instructions";
         O365PaymentInstrTransl: Record "O365 Payment Instr. Transl.";
     begin
-        if GetCompany then;
+        if GetCompany() then;
         O365PaymentInstructions.SetRange(Default, true);
         if O365PaymentInstructions.FindFirst() then begin
             O365PaymentInstructions.SetPaymentInstructions(
-              StrSubstNo(O365PaymentInstructions.GetPaymentInstructions, Company."Display Name"));
+              StrSubstNo(O365PaymentInstructions.GetPaymentInstructions(), Company."Display Name"));
             O365PaymentInstructions.Modify(true);
             O365PaymentInstrTransl.SetRange(Id, O365PaymentInstructions.Id);
             if O365PaymentInstrTransl.FindSet() then
                 repeat
                     O365PaymentInstrTransl.SetTranslPaymentInstructions(
-                      StrSubstNo(O365PaymentInstrTransl.GetTransPaymentInstructions, Company."Display Name"));
+                      StrSubstNo(O365PaymentInstrTransl.GetTransPaymentInstructions(), Company."Display Name"));
                     O365PaymentInstrTransl.Modify(true);
                 until O365PaymentInstrTransl.Next() = 0;
         end;
@@ -566,7 +428,7 @@ codeunit 2110 "O365 Sales Initial Setup"
     var
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
     begin
-        VATRegistrationLogMgt.EnableService;
+        VATRegistrationLogMgt.EnableService();
     end;
 
     local procedure SetFinancialsJobQueueEntriesOnHold()
@@ -602,7 +464,7 @@ codeunit 2110 "O365 Sales Initial Setup"
             exit;
         if not WindowsLanguage.ReadPermission then
             exit;
-        if not UserPersonalization.Get(UserSecurityId) then
+        if not UserPersonalization.Get(UserSecurityId()) then
             exit;
 
         if WindowsLanguage.Get(UserPersonalization."Locale ID") then
@@ -610,14 +472,14 @@ codeunit 2110 "O365 Sales Initial Setup"
 
         // Locale may be invalid, perform check again with a lock to be sure
         UserPersonalization.LockTable();
-        if not UserPersonalization.Get(UserSecurityId) then
+        if not UserPersonalization.Get(UserSecurityId()) then
             exit;
         if WindowsLanguage.Get(UserPersonalization."Locale ID") then
             exit;
 
-        Session.LogMessage('00001UN', StrSubstNo(BadLocaleMsg, UserPersonalization."Locale ID", Language.GetDefaultApplicationLanguageId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InitialSetupCategoryTxt);
+        Session.LogMessage('00001UN', StrSubstNo(BadLocaleMsg, UserPersonalization."Locale ID", Language.GetDefaultApplicationLanguageId()), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InitialSetupCategoryTxt);
 
-        UserPersonalization.Validate("Locale ID", Language.GetDefaultApplicationLanguageId);
+        UserPersonalization.Validate("Locale ID", Language.GetDefaultApplicationLanguageId());
         UserPersonalization.Modify(true);
     end;
 
@@ -626,7 +488,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         User: Record User;
         MailManagement: Codeunit "Mail Management";
     begin
-        if not User.Get(UserSecurityId) then
+        if not User.Get(UserSecurityId()) then
             exit;
 
         if User."Authentication Email" = '' then
@@ -645,7 +507,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         SetupCompletedNotification: Notification;
         InvoiceRecordId: RecordID;
     begin
-        SetupCompletedNotification.Id := CreateGuid;
+        SetupCompletedNotification.Id := CreateGuid();
         SetupCompletedNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
         SetupCompletedNotification.SetData('SalesInvoiceNo', SalesInvoiceNo);
         SetupCompletedNotification.Message(SetupCompleteMsg);
@@ -668,7 +530,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         end;
 
         O365SalesInvoice.SetRecord(SalesHeader);
-        O365SalesInvoice.SuppressExitPrompt;
+        O365SalesInvoice.SuppressExitPrompt();
         O365SalesInvoice.Run();
     end;
 
@@ -693,9 +555,6 @@ codeunit 2110 "O365 Sales Initial Setup"
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTemplateLine: Record "Config. Template Line";
         CustomReportLayout: Record "Custom Report Layout";
-#if not CLEAN18
-        CustomerTemplate: Record "Customer Template";
-#endif
         CompanyInformation: Record "Company Information";
         GenJournalBatch: Record "Gen. Journal Batch";
         MarketingSetup: Record "Marketing Setup";
@@ -723,9 +582,6 @@ codeunit 2110 "O365 Sales Initial Setup"
                             ConfigTemplateHeader.WritePermission,
                             ConfigTemplateLine.WritePermission,
                             CustomReportLayout.WritePermission,
-#if not CLEAN18
-                            CustomerTemplate.WritePermission,
-#endif
                             CompanyInformation.WritePermission,
                             GenJournalBatch.WritePermission,
                             MarketingSetup.WritePermission,
@@ -787,33 +643,33 @@ codeunit 2110 "O365 Sales Initial Setup"
         EnvInfoProxy: Codeunit "Env. Info Proxy";
         FinancialsCompanyName: Text;
     begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Background then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Background then
             exit;
 
-        if not EnvInfoProxy.IsInvoicing then
+        if not EnvInfoProxy.IsInvoicing() then
             exit;
 
-        if GetCompany and Company."Evaluation Company" then
+        if GetCompany() and Company."Evaluation Company" then
             exit;
 
-        if CompanyInformationMgt.IsDemoCompany then
+        if CompanyInformationMgt.IsDemoCompany() then
             exit;
 
-        if not HasPermission then
+        if not HasPermission() then
             exit;
 
         Error(InvoicingNotSupportedErr);
 
         // Do not setup Invoicing App for financials users.
-        if not IsNewCompany then
-            if not (GetO365SalesInitialSetup and O365SalesInitialSetup."Is initialized") then begin
+        if not IsNewCompany() then
+            if not (GetO365SalesInitialSetup() and O365SalesInitialSetup."Is initialized") then begin
                 FinancialsCompanyName := CompanyName;
-                if GetCompany then
+                if GetCompany() then
                     FinancialsCompanyName := Company."Display Name";
                 Error(NotAnInvoicingCompanyErr, FinancialsCompanyName);
             end;
 
-        if (not GetO365SalesInitialSetup) or
+        if (not GetO365SalesInitialSetup()) or
            ((not O365SalesInitialSetup."Is initialized") and (O365SalesInitialSetup."Sales Quote No. Series" = ''))
         then
             Error(OutOfDateCompanyErr); // User signed up for financials a long time ago and is now trying to use MS invoicing
@@ -862,7 +718,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         if ConfigTmplSelectionRules.FindFirst() then
             exit;
 
-        if not GetO365SalesInitialSetup then
+        if not GetO365SalesInitialSetup() then
             exit;
 
         ConfigTmplSelectionRules.Validate("Table ID", TableId);
@@ -907,7 +763,7 @@ codeunit 2110 "O365 Sales Initial Setup"
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not GetO365SalesInitialSetup then
+        if not GetO365SalesInitialSetup() then
             exit;
         if not O365SalesInitialSetup."Is initialized" then
             exit;
@@ -935,10 +791,10 @@ codeunit 2110 "O365 Sales Initial Setup"
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if not EnvInfoProxy.IsInvoicing then
+        if not EnvInfoProxy.IsInvoicing() then
             exit;
 
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             exit;
 
         if not O365SalesInitialSetup."Is initialized" then
@@ -947,4 +803,6 @@ codeunit 2110 "O365 Sales Initial Setup"
         IsNotificationEnabled := false;
     end;
 }
+#endif
+
 

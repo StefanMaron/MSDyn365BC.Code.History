@@ -38,7 +38,7 @@ page 6010 "Res.Gr. Availability (Service)"
                     begin
                         DateControl();
                         SetMatrixColumns("Matrix Page Step Type"::Initial);
-                        DateFilterOnAfterValidate;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(ColumnsSet; ColumnsSet)
@@ -61,9 +61,6 @@ page 6010 "Res.Gr. Availability (Service)"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -82,9 +79,6 @@ page 6010 "Res.Gr. Availability (Service)"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -97,15 +91,29 @@ page 6010 "Res.Gr. Availability (Service)"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }

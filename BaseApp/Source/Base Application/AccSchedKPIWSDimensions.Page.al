@@ -18,7 +18,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
                     ToolTip = 'Specifies the number of the dimension.';
                     Visible = false;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -29,77 +29,77 @@ page 198 "Acc. Sched. KPI WS Dimensions"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the date on which the KPI figures are calculated.';
                 }
-                field("Closed Period"; "Closed Period")
+                field("Closed Period"; Rec."Closed Period")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies if the accounting period is closed or locked. KPI data for periods that are not closed or locked will be forecasted values from the general ledger budget.';
                 }
-                field("Account Schedule Name"; "Account Schedule Name")
+                field("Account Schedule Name"; Rec."Account Schedule Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the name of the account schedule that the KPI web service is based on.';
                 }
-                field("KPI Code"; "KPI Code")
+                field("KPI Code"; Rec."KPI Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a code for the account-schedule KPI web service.';
                 }
-                field("KPI Name"; "KPI Name")
+                field("KPI Name"; Rec."KPI Name")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a name of the account-schedule KPI web service.';
                 }
-                field("Net Change Actual"; "Net Change Actual")
+                field("Net Change Actual"; Rec."Net Change Actual")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies changes in the actual general ledger amount, for closed accounting periods, up until the date in the Date field.';
                 }
-                field("Balance at Date Actual"; "Balance at Date Actual")
+                field("Balance at Date Actual"; Rec."Balance at Date Actual")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the actual general ledger balance, based on closed accounting periods, on the date in the Date field.';
                 }
-                field("Net Change Budget"; "Net Change Budget")
+                field("Net Change Budget"; Rec."Net Change Budget")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies changes in the budgeted general ledger amount, based on the general ledger budget, up until the date in the Date field.';
                 }
-                field("Balance at Date Budget"; "Balance at Date Budget")
+                field("Balance at Date Budget"; Rec."Balance at Date Budget")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the budgeted general ledger balance, based on the general ledger budget, on the date in the Date field.';
                 }
-                field("Net Change Actual Last Year"; "Net Change Actual Last Year")
+                field("Net Change Actual Last Year"; Rec."Net Change Actual Last Year")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies actual changes in the general ledger amount, based on closed accounting periods, up until the date in the Date field in the previous accounting year.';
                 }
-                field("Balance at Date Actual Last Year"; "Balance at Date Act. Last Year")
+                field("Balance at Date Actual Last Year"; Rec."Balance at Date Act. Last Year")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the actual general ledger balance, based on closed accounting periods, on the date in the Date field in the previous accounting year.';
                 }
-                field("Net Change Budget Last Year"; "Net Change Budget Last Year")
+                field("Net Change Budget Last Year"; Rec."Net Change Budget Last Year")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies budgeted changes in the general ledger amount, based on the general ledger budget, up until the date in the Date field in the previous year.';
                 }
-                field("Balance at Date Budget Last Year"; "Balance at Date Bud. Last Year")
+                field("Balance at Date Budget Last Year"; Rec."Balance at Date Bud. Last Year")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the budgeted general ledger balance, based on the general ledger budget, on the date in the Date field in the previous accounting year.';
                 }
-                field("Net Change Forecast"; "Net Change Forecast")
+                field("Net Change Forecast"; Rec."Net Change Forecast")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies forecasted changes in the general ledger amount, based on open accounting periods, up until the date in the Date field.';
                 }
-                field("Balance at Date Forecast"; "Balance at Date Forecast")
+                field("Balance at Date Forecast"; Rec."Balance at Date Forecast")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the forecasted general ledger balance, based on open accounting periods, on the date in the Date field.';
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
@@ -123,7 +123,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     begin
         ViewTxt := GetView();
         Initialize();
-        PrecalculateData;
+        PrecalculateData();
         SetView(ViewTxt);
     end;
 
@@ -138,9 +138,9 @@ page 198 "Acc. Sched. KPI WS Dimensions"
         LogInManagement: Codeunit LogInManagement;
     begin
         if not GuiAllowed then
-            WorkDate := LogInManagement.GetDefaultWorkDate;
+            WorkDate := LogInManagement.GetDefaultWorkDate();
 
-        SetupActiveAccSchedLines;
+        SetupActiveAccSchedLines();
     end;
 
     local procedure SetupColumnLayout(var TempColumnLayout: Record "Column Layout" temporary)
@@ -182,13 +182,13 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     begin
         with TempColumnLayout do begin
             if FindLast() then;
-            Init;
+            Init();
             "Line No." += 10000;
             "Column Type" := ColumnType;
             "Ledger Entry Type" := EntryType;
             if LastYear then
                 Evaluate("Comparison Date Formula", '<-1Y>');
-            Insert;
+            Insert();
         end;
     end;
 
@@ -208,13 +208,13 @@ page 198 "Acc. Sched. KPI WS Dimensions"
         SetupColumnLayout(TempColumnLayout);
 
         AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfPeriods, StartDate, EndDate);
-        LastClosedDate := AccSchedKPIWebSrvSetup.GetLastClosedAccDate;
+        LastClosedDate := AccSchedKPIWebSrvSetup.GetLastClosedAccDate();
 
         for C := 1 to NoOfPeriods do begin
             FromDate := AccSchedKPIWebSrvSetup.CalcNextStartDate(StartDate, C - 1);
             ToDate := AccSchedKPIWebSrvSetup.CalcNextStartDate(FromDate, 1) - 1;
             with TempAccSchedKPIBuffer do begin
-                Init;
+                Init();
                 Date := FromDate;
                 "Closed Period" := (FromDate <= LastClosedDate);
                 ForecastFromBudget :=
@@ -223,7 +223,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
                    not "Closed Period") or
                   ((AccSchedKPIWebSrvSetup."Forecasted Values Start" =
                     AccSchedKPIWebSrvSetup."Forecasted Values Start"::"After Current Date") and
-                   (Date > WorkDate));
+                   (Date > WorkDate()));
             end;
 
             with TempAccScheduleLine do begin
@@ -243,7 +243,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
             end;
             InsertAccSchedulePeriod(TempAccSchedKPIBuffer, ForecastFromBudget);
         end;
-        Reset;
+        Reset();
         FindFirst();
     end;
 
@@ -252,7 +252,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
         with TempAccSchedKPIBuffer do begin
-            Reset;
+            Reset();
             if FindSet() then
                 repeat
                     AccScheduleLine.SetRange("Schedule Name", TempAccSchedKPIBuffer."Account Schedule Name");
@@ -269,7 +269,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     var
         TempAccScheduleLine2: Record "Acc. Schedule Line" temporary;
     begin
-        Init;
+        Init();
         "No." += 1;
         TransferFields(AccSchedKPIBuffer, false);
 
@@ -304,7 +304,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
             "Net Change Forecast" := "Net Change Actual";
             "Balance at Date Forecast" := "Balance at Date Actual";
         end;
-        Insert;
+        Insert();
     end;
 }
 

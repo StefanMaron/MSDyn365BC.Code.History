@@ -6,7 +6,6 @@ page 9305 "Sales Order List"
     DataCaptionFields = "Sell-to Customer No.";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Request Approval,Order,Release,Posting,Print/Send,Navigate';
     QueryCategory = 'Sales Order List';
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
@@ -23,162 +22,162 @@ page 9305 "Sales Order List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                    ToolTip = 'Specifies a unique number that identifies the sales order. The number can be generated automatically from a number series, or you can number each of them manually.';
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer.';
+                    ToolTip = 'Specifies the name of the customer that you’re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer.';
+                    ToolTip = 'Specifies the name of the customer that you’re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Sell-to Post Code"; "Sell-to Post Code")
+                field("Sell-to Post Code"; Rec."Sell-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the customer''s main address.';
                     Visible = false;
                 }
-                field("Sell-to Country/Region Code"; "Sell-to Country/Region Code")
+                field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the customer''s main address.';
                     Visible = false;
                 }
-                field("Sell-to Contact"; "Sell-to Contact")
+                field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
                     Visible = false;
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Post Code"; "Bill-to Post Code")
+                field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Contact"; "Bill-to Contact")
+                field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Post Code"; "Ship-to Post Code")
+                field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Contact"; "Ship-to Contact")
+                field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the posting of the sales document will be recorded.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
                 }
-                field("Quote No."; "Quote No.")
+                field("Quote No."; Rec."Quote No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales quote that the sales order was created from. You can track the number to sales quote documents that you have printed, saved, or emailed.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the salesperson who is assigned to the customer.';
                     Visible = false;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency of amounts on the sales document.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Requested Delivery Date"; "Requested Delivery Date")
+                field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the campaign number the document is linked to.';
@@ -190,61 +189,61 @@ page 9305 "Sales Order List"
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                     StyleExpr = StatusStyleTxt;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the sales invoice must be paid.';
                     Visible = false;
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment discount percentage that is granted if the customer pays on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
                     Visible = false;
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                     Visible = false;
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
-                field("Package Tracking No."; "Package Tracking No.")
+                field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the shipping agent''s package number.';
                     Visible = false;
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                     Visible = false;
                 }
-                field("Shipping Advice"; "Shipping Advice")
+                field("Shipping Advice"; Rec."Shipping Advice")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the customer accepts partial shipment of orders.';
                     Visible = false;
                 }
-                field("Completely Shipped"; "Completely Shipped")
+                field("Completely Shipped"; Rec."Completely Shipped")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether all the items on the order have been shipped or, in the case of inbound items, completely received.';
@@ -252,7 +251,7 @@ page 9305 "Sales Order List"
                     AboutTitle = 'Is the order completely shipped?';
                     AboutText = 'Sales orders stay in this list until their order quantities are fully shipped and invoiced. After that you can find them in the Posted Sales Invoice and Posted Sales Shipment lists.';
                 }
-                field("Job Queue Status"; "Job Queue Status")
+                field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = All;
                     Style = Unfavorable;
@@ -269,12 +268,12 @@ page 9305 "Sales Order List"
                         JobQueueEntry.ShowStatusMsg("Job Queue Entry ID");
                     end;
                 }
-                field("Amt. Ship. Not Inv. (LCY) Base"; "Amt. Ship. Not Inv. (LCY) Base")
+                field("Amt. Ship. Not Inv. (LCY) Base"; Rec."Amt. Ship. Not Inv. (LCY) Base")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum, in LCY, for items that have been shipped but not yet been invoiced. The amount is calculated as Amount Including VAT x Qty. Shipped Not Invoiced / Quantity.';
                 }
-                field("Amt. Ship. Not Inv. (LCY)"; "Amt. Ship. Not Inv. (LCY)")
+                field("Amt. Ship. Not Inv. (LCY)"; Rec."Amt. Ship. Not Inv. (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum, in LCY, for items that have been shipped but not yet been invoiced. The amount is calculated as Amount Including VAT x Qty. Shipped Not Invoiced / Quantity.';
@@ -284,16 +283,22 @@ page 9305 "Sales Order List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document. This will include invoice discounts.';
                 }
-                field("Posting Description"; "Posting Description")
+                field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
                     Visible = false;
+                }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the sales order is coupled to an order in Dynamics 365 Sales.';
+                    Visible = CRMIntegrationEnabled and BidirectionalSalesOrderIntEnabled;
                 }
             }
         }
@@ -307,11 +312,20 @@ page 9305 "Sales Order List"
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
+#if not CLEAN21
             part("Power BI Report FactBox"; "Power BI Report FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Power BI Reports';
-                Visible = PowerBIVisible;
+                Visible = false;
+                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
+            }
+#endif
+            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
@@ -357,15 +371,12 @@ page 9305 "Sales Order List"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action(Statistics)
@@ -373,15 +384,12 @@ page 9305 "Sales Order List"
                     ApplicationArea = Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                     trigger OnAction()
                     begin
-                        OpenSalesOrderStatistics;
+                        OpenSalesOrderStatistics();
                     end;
                 }
                 action(Approvals)
@@ -389,8 +397,6 @@ page 9305 "Sales Order List"
                     ApplicationArea = Suite;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -405,8 +411,6 @@ page 9305 "Sales Order List"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Sales Comment Sheet";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "No." = FIELD("No."),
@@ -423,8 +427,6 @@ page 9305 "Sales Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'S&hipments';
                     Image = Shipment;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     RunObject = Page "Posted Sales Shipments";
                     RunPageLink = "Order No." = FIELD("No.");
                     RunPageView = SORTING("Order No.");
@@ -435,8 +437,6 @@ page 9305 "Sales Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Invoices';
                     Image = Invoice;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     RunObject = Page "Posted Sales Invoices";
                     RunPageLink = "Order No." = FIELD("No.");
                     RunPageView = SORTING("Order No.");
@@ -507,13 +507,115 @@ page 9305 "Sales Order List"
                     Enabled = CRMIntegrationEnabled;
                     Image = "Order";
                     ToolTip = 'Open the Sales Order List - Dynamics 365 Sales page in Business Central';
-                    Visible = CRMIntegrationEnabled;
+                    Visible = CRMIntegrationEnabled and (not BidirectionalSalesOrderIntEnabled);
 
                     trigger OnAction()
                     var
                         CRMSalesorder: Record "CRM Salesorder";
                     begin
                         PAGE.Run(PAGE::"CRM Sales Order List", CRMSalesorder);
+                    end;
+                }
+                action(CRMGoToSalesOrder)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Order';
+                    Enabled = CRMIntegrationEnabled AND CRMIsCoupledToRecord;
+                    Image = CoupledOrder;
+                    ToolTip = 'View the selected sales order.';
+                    Visible = BidirectionalSalesOrderIntEnabled;
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(RecordId);
+                    end;
+                }
+                action(CRMSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send updated data to Dynamics 365 Sales.';
+                    Visible = BidirectionalSalesOrderIntEnabled;
+
+                    trigger OnAction()
+                    var
+                        SalesHeader: Record "Sales Header";
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        SalesHeaderRecordRef: RecordRef;
+                    begin
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        SalesHeader.SetRange(Status, SalesHeader.Status::Released);
+                        SalesHeader.Next();
+
+                        if SalesHeader.Count = 1 then
+                            CRMIntegrationManagement.UpdateOneNow(SalesHeader.RecordId)
+                        else begin
+                            SalesHeaderRecordRef.GetTable(SalesHeader);
+                            CRMIntegrationManagement.UpdateMultipleNow(SalesHeaderRecordRef);
+                        end
+                    end;
+                }
+                group(Coupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    Enabled = Rec.Status = Rec.Status::Released;
+                    Visible = BidirectionalSalesOrderIntEnabled;
+                    action(ManageCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales order.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineCoupling(Rec.RecordId);
+                        end;
+                    }
+                    action(DeleteCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = D;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales order.';
+
+                        trigger OnAction()
+                        var
+                            SalesHeader: Record "Sales Header";
+                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(SalesHeader);
+                            RecRef.GetTable(SalesHeader);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
+                        end;
+                    }
+                }
+                action(ShowLog)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for the sales order table.';
+                    Visible = BidirectionalSalesOrderIntEnabled;
+                    Enabled = Rec.Status = Rec.Status::Released;
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowLog(Rec.RecordId);
                     end;
                 }
             }
@@ -529,9 +631,6 @@ page 9305 "Sales Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
@@ -548,9 +647,6 @@ page 9305 "Sales Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedOnly = true;
                     ToolTip = 'Reopen the document to change it after it has been approved. Approved documents have the Released status and must be opened before they can be changed.';
 
                     trigger OnAction()
@@ -591,11 +687,11 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     var
-                        OrderPromisingLine: Record "Order Promising Line" temporary;
+                        TempOrderPromisingLine: Record "Order Promising Line" temporary;
                     begin
-                        OrderPromisingLine.SetRange("Source Type", "Document Type");
-                        OrderPromisingLine.SetRange("Source ID", "No.");
-                        PAGE.RunModal(PAGE::"Order Promising Lines", OrderPromisingLine);
+                        TempOrderPromisingLine.SetRange("Source Type", "Document Type");
+                        TempOrderPromisingLine.SetRange("Source ID", "No.");
+                        PAGE.RunModal(PAGE::"Order Promising Lines", TempOrderPromisingLine);
                     end;
                 }
                 action("Send IC Sales Order Cnfmn.")
@@ -676,10 +772,10 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     begin
-                        CreateInvtPutAwayPick;
+                        CreateInvtPutAwayPick();
 
                         if not Find('=><') then
-                            Init;
+                            Init();
                     end;
                 }
                 action("Create &Warehouse Shipment")
@@ -697,7 +793,7 @@ page 9305 "Sales Order List"
                         GetSourceDocOutbound.CreateFromSalesOrder(Rec);
 
                         if not Find('=><') then
-                            Init;
+                            Init();
                     end;
                 }
             }
@@ -711,9 +807,6 @@ page 9305 "Sales Order List"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -739,9 +832,6 @@ page 9305 "Sales Order List"
                     Caption = 'Post and Send';
                     Ellipsis = true;
                     Image = PostMail;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ToolTip = 'Finalize and prepare to send the document according to the customer''s sending profile, such as attached to an email. The Send document to window opens where you can confirm or select a sending profile.';
 
                     trigger OnAction()
@@ -768,8 +858,6 @@ page 9305 "Sales Order List"
                     Caption = 'Post &Batch';
                     Ellipsis = true;
                     Image = PostBatch;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ToolTip = 'Post several documents at once. A report request window opens where you can specify which documents to post.';
 
                     trigger OnAction()
@@ -793,7 +881,7 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     begin
-                        CancelBackgroundPosting;
+                        CancelBackgroundPosting();
                     end;
                 }
                 action("Preview Posting")
@@ -801,14 +889,12 @@ page 9305 "Sales Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
                     begin
-                        ShowPreview
+                        ShowPreview();
                     end;
                 }
             }
@@ -847,8 +933,6 @@ page 9305 "Sales Order List"
                     Caption = 'Print Picking List';
                     Ellipsis = true;
                     Image = Print;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View or print a detailed list of items that must be picked.';
 
                     trigger OnAction()
@@ -867,8 +951,6 @@ page 9305 "Sales Order List"
                     Caption = 'Email Confirmation';
                     Ellipsis = true;
                     Image = Email;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'Send an order confirmation by email. The Send Email window opens prefilled for the customer so you can add or change information before you send the email.';
 
                     trigger OnAction()
@@ -882,8 +964,6 @@ page 9305 "Sales Order List"
                     Caption = 'Print Confirmation';
                     Ellipsis = true;
                     Image = Print;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'Print an order confirmation. A report request window opens where you can specify what to include on the print-out.';
                     Visible = NOT IsOfficeAddin;
 
@@ -897,8 +977,6 @@ page 9305 "Sales Order List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Attach as PDF';
                     Image = PrintAttachment;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     Ellipsis = true;
                     ToolTip = 'Create a PDF file and attach it to the document.';
 
@@ -912,15 +990,24 @@ page 9305 "Sales Order List"
                     end;
                 }
             }
+#if not CLEAN21
             group(Display)
             {
                 Caption = 'Display';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
+                ObsoleteTag = '21.0';
                 action(ReportFactBoxVisibility)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show/Hide Power BI Reports';
                     Image = "Report";
                     ToolTip = 'Select if the Power BI FactBox is visible or not.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
+                    ObsoleteTag = '21.0';
 
                     trigger OnAction()
                     begin
@@ -929,6 +1016,7 @@ page 9305 "Sales Order List"
                     end;
                 }
             }
+#endif
         }
         area(reporting)
         {
@@ -937,21 +1025,151 @@ page 9305 "Sales Order List"
                 ApplicationArea = Reservation;
                 Caption = 'Sales Reservation Avail.';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Sales Reservation Avail.";
                 ToolTip = 'View, print, or save an overview of availability of items for shipment on sales documents, filtered on shipment status.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Create &Warehouse Shipment_Promoted"; "Create &Warehouse Shipment")
+                {
+                }
+                actionref("Create Inventor&y Put-away/Pick_Promoted"; "Create Inventor&y Put-away/Pick")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 5.';
+                ShowAs = SplitButton;
+
+                actionref(Release_Promoted; Release)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 6.';
+                ShowAs = SplitButton;
+
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref(PostAndSend_Promoted; PostAndSend)
+                {
+                }
+                actionref("Post &Batch_Promoted"; "Post &Batch")
+                {
+                }
+                actionref("Preview Posting_Promoted"; "Preview Posting")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref("Print Confirmation_Promoted"; "Print Confirmation")
+                {
+                }
+                actionref("Pick Instruction_Promoted"; "Pick Instruction")
+                {
+                }
+                actionref("Print Picking List_Promoted"; "Print Picking List")
+                {
+                }
+                actionref("Email Confirmation_Promoted"; "Email Confirmation")
+                {
+                }
+                actionref("Work Order_Promoted"; "Work Order")
+                {
+                }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Order', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+                separator(Navigate_Separator)
+                {
+                }
+                actionref("S&hipments_Promoted"; "S&hipments")
+                {
+                }
+                actionref(PostedSalesInvoices_Promoted; PostedSalesInvoices)
+                {
+                }
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 8.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+#if not CLEAN21
+                actionref("Sales Reservation Avail._Promoted"; "Sales Reservation Avail.")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled;
+
+                actionref(CRMGoToSalesOrderListInNAV_Promoted; CRMGoToSalesOrderListInNAV)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        SetControlVisibility;
+        SetControlVisibility();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
 
+        if CRMIntegrationEnabled then
+            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
+
+#if not CLEAN21
         // Contextual Power BI FactBox: send data to filter the report in the FactBox
         CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection("No.", false, PowerBIVisible);
+#endif
+        CurrPage.PowerBIEmbeddedReportPart.PAGE.SetCurrentListSelection("No.");
     end;
 
     trigger OnAfterGetRecord()
@@ -961,13 +1179,18 @@ page 9305 "Sales Order List"
 
     trigger OnInit()
     begin
+#if not CLEAN21
         PowerBIVisible := false;
         CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
+#endif
+        CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
+        CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
 
     trigger OnOpenPage()
     var
         SalesSetup: Record "Sales & Receivables Setup";
+        CRMConnectionSetup: Record "CRM Connection Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         OfficeMgt: Codeunit "Office Management";
     begin
@@ -975,11 +1198,12 @@ page 9305 "Sales Order List"
 
         SetRange("Date Filter", 0D, WorkDate());
 
-        JobQueueActive := SalesSetup.JobQueueActive;
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        JobQueueActive := SalesSetup.JobQueueActive();
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        BidirectionalSalesOrderIntEnabled := CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
 
-        CopySellToCustomerFilter;
+        CopySellToCustomerFilter();
         if OnlyShowHeadersWithVat then
             SetFilterOnPositiveVatPostingGroups();
     end;
@@ -987,15 +1211,20 @@ page 9305 "Sales Order List"
     var
         DocPrint: Codeunit "Document-Print";
         ReportPrint: Codeunit "Test Report-Print";
+        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction","Sales Order Picking List";
         [InDataSet]
         JobQueueActive: Boolean;
         OnlyShowHeadersWithVat: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CRMIntegrationEnabled: Boolean;
+        BidirectionalSalesOrderIntEnabled: Boolean;
+        CRMIsCoupledToRecord: Boolean;
         IsOfficeAddin: Boolean;
         CanCancelApprovalForRecord: Boolean;
+#if not CLEAN21
         PowerBIVisible: Boolean;
+#endif
         [InDataSet]
         StatusStyleTxt: Text;
         ReadyToPostQst: Label 'The number of orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';

@@ -23,11 +23,11 @@ page 447 "Finance Charge Memo Lines"
 
                     trigger OnValidate()
                     begin
-                        TypeOnAfterValidate;
+                        TypeOnAfterValidate();
                         NoOnAfterValidate();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = Type = Type::"G/L Account";
@@ -38,19 +38,19 @@ page 447 "Finance Charge Memo Lines"
                         NoOnAfterValidate();
                     end;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the customer ledger entry that this finance charge memo line is for.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = Type = Type::"Customer Ledger Entry";
@@ -58,10 +58,10 @@ page 447 "Finance Charge Memo Lines"
 
                     trigger OnValidate()
                     begin
-                        DocumentTypeOnAfterValidate;
+                        DocumentTypeOnAfterValidate();
                     end;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = Type = Type::"Customer Ledger Entry";
@@ -69,7 +69,7 @@ page 447 "Finance Charge Memo Lines"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupDocNo;
+                        LookupDocNo();
                         CurrPage.Update();
                     end;
 
@@ -78,7 +78,7 @@ page 447 "Finance Charge Memo Lines"
                         DocumentNoOnAfterValidate();
                     end;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date of the customer ledger entry this finance charge memo line is for.';
@@ -90,13 +90,13 @@ page 447 "Finance Charge Memo Lines"
                     StyleExpr = DescriptionEmphasize;
                     ToolTip = 'Specifies an entry description, based on the contents of the Type field.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the original amount of the customer ledger entry that this finance charge memo line is for.';
                     Visible = false;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -110,7 +110,7 @@ page 447 "Finance Charge Memo Lines"
                     StyleExpr = AmountEmphasize;
                     ToolTip = 'Specifies the amount in the currency that is represented by the currency code on the finance charge memo header.';
                 }
-                field("Account Code"; "Account Code")
+                field("Account Code"; Rec."Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account code of the customer.';
@@ -148,9 +148,9 @@ page 447 "Finance Charge Memo Lines"
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        DescriptionOnFormat;
-        RemainingAmountOnFormat;
-        AmountOnFormat;
+        DescriptionOnFormat();
+        RemainingAmountOnFormat();
+        AmountOnFormat();
     end;
 
     var
@@ -169,18 +169,18 @@ page 447 "Finance Charge Memo Lines"
         OnBeforeInsertExtendedText(Rec);
 
         if TransferExtendedText.FinChrgMemoCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             TransferExtendedText.InsertFinChrgMemoExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             CurrPage.Update();
     end;
 
     local procedure FormUpdateAttachedLines()
     begin
-        if CheckAttachedLines then begin
-            CurrPage.SaveRecord;
-            UpdateAttachedLines;
+        if CheckAttachedLines() then begin
+            CurrPage.SaveRecord();
+            UpdateAttachedLines();
             CurrPage.Update(false);
         end;
     end;
@@ -194,7 +194,7 @@ page 447 "Finance Charge Memo Lines"
     local procedure TypeOnAfterValidate()
     begin
         InsertExtendedText(false);
-        FormUpdateAttachedLines;
+        FormUpdateAttachedLines();
     end;
 
     local procedure NoOnAfterValidate()
@@ -204,12 +204,12 @@ page 447 "Finance Charge Memo Lines"
 
     local procedure DocumentTypeOnAfterValidate()
     begin
-        FormUpdateAttachedLines;
+        FormUpdateAttachedLines();
     end;
 
     local procedure DocumentNoOnAfterValidate()
     begin
-        FormUpdateAttachedLines;
+        FormUpdateAttachedLines();
         CurrPage.Update();
     end;
 

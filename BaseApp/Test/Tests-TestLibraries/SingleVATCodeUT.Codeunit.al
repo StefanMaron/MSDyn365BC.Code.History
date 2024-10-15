@@ -216,7 +216,7 @@ codeunit 144002 "Single VAT Code UT"
 
         CreateVATPostingSetupWithCode(VATPostingSetup, SameVATCode.Code);
         asserterror CreateVATPostingSetupWithCode(VATPostingSetup, SameVATCode.Code);
-        Assert.ExpectedError(VATPostingSetup.TableCaption);
+        Assert.ExpectedError(VATPostingSetup.TableCaption());
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

@@ -4,6 +4,7 @@ table 870 "Social Listening Setup"
     ObsoleteState = Removed;
     ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
     ObsoleteTag = '20.0';
+    ReplicateData = false;
 
     fields
     {

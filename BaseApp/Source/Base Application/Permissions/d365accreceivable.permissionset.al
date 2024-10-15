@@ -52,7 +52,9 @@ permissionset 7862 "D365 ACC. RECEIVABLE"
                   tabledata "Line Fee Note on Report Hist." = Rim,
                   tabledata "Lot No. Information" = RIMD,
                   tabledata "Notification Entry" = RIMD,
+#if not CLEAN21
                   tabledata "O365 Document Sent History" = RimD,
+#endif
                   tabledata Opportunity = R,
                   tabledata "Opportunity Entry" = RIM,
                   tabledata "Order Address" = RIMD,
@@ -82,5 +84,6 @@ permissionset 7862 "D365 ACC. RECEIVABLE"
                   tabledata "Reminder Line" = RIMD,
                   tabledata "Reminder Text" = R,
                   tabledata "Reminder/Fin. Charge Entry" = Rimd,
+                  tabledata "Remit Address" = RIMD,
                   tabledata "VAT Registration No. Format" = IMD;
 }

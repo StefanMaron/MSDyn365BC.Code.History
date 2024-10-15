@@ -28,7 +28,7 @@ codeunit 5819 "Undo Service Consumption Line"
 
         LockTable();
         ServShptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := ServShptLine;
     end;
 
@@ -184,7 +184,7 @@ codeunit 5819 "Undo Service Consumption Line"
         ServShptHeader.Get(ServShptLine."Document No.");
 
         with ItemJnlLine do begin
-            Init;
+            Init();
             "Entry Type" := EntryType;
             "Document Line No." :=
               ServShptLine."Line No." + GetCorrectiveShptLineNoStep(ServShptLine."Document No.", ServShptLine."Line No.");
@@ -205,7 +205,7 @@ codeunit 5819 "Undo Service Consumption Line"
 
             WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
               DATABASE::"Service Line", ServiceLine."Document Type"::Order.AsInteger(), ServShptHeader."Order No.", ServShptLine."Order Line No.",
-              TempWhseJnlLine."Reference Document"::"Posted Shipment", TempWhseJnlLine, NextLineNo);
+              TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
 
             if not TrackingSpecificationExists then begin
                 ItemJnlPostLine.SetServUndoConsumption(true);
@@ -239,7 +239,7 @@ codeunit 5819 "Undo Service Consumption Line"
         ServShptHeader.Get(ServiceShptLine."Document No.");
 
         with ResJnlLine do begin
-            Init;
+            Init();
             CopyDocumentFields(ServiceShptLine."Document No.", '', SourceCodeSetup."Service Management", ServShptHeader."No. Series");
 
             CopyFromServShptHeader(ServShptHeader);
@@ -262,7 +262,7 @@ codeunit 5819 "Undo Service Consumption Line"
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
     begin
         with ItemJnlLine do begin
-            Init;
+            Init();
             "Entry Type" := EntryType;
             "Document Line No." :=
               ServShptLine."Line No." + GetCorrectiveShptLineNoStep(ServShptLine."Document No.", ServShptLine."Line No.");
@@ -341,9 +341,9 @@ codeunit 5819 "Undo Service Consumption Line"
                     end else
                         ReservEntry."Shipment Date" := ServShptLine."Posting Date";
                     ReservEntry.Description := ServShptLine.Description;
-                    ReservEntry."Creation Date" := WorkDate;
+                    ReservEntry."Creation Date" := WorkDate();
                     ReservEntry."Created By" := UserId;
-                    ReservEntry.UpdateItemTracking;
+                    ReservEntry.UpdateItemTracking();
                     ReservEntry."Appl.-to Item Entry" := "Entry No.";
                     OnBeforeReservEntryInsert(ReservEntry, TempTrkgItemLedgEntry2);
                     ReservEntry.Insert();
@@ -374,7 +374,7 @@ codeunit 5819 "Undo Service Consumption Line"
                     OnBeforeTempGlobalItemEntryRelationInsert(TempGlobalItemEntryRelation, TempSSLItemLedgEntry);
                     if TempGlobalItemEntryRelation.Insert() then;
 
-                    TempSSLItemLedgEntry.Next;
+                    TempSSLItemLedgEntry.Next();
                 until TempTrkgItemLedgEntry.Next() = 0;
         end;
     end;
@@ -386,7 +386,7 @@ codeunit 5819 "Undo Service Consumption Line"
         NewEntryNo: Integer;
     begin
         with TrackingSpecification do begin
-            Reset;
+            Reset();
             SetRange("Item Ledger Entry No.", OldItemShptEntryNo);
             if FindFirst() then begin
                 NewTrackingSpecification.LockTable();
@@ -480,7 +480,7 @@ codeunit 5819 "Undo Service Consumption Line"
             "Qty. Shipped Not Invoiced" := 0;
             "Qty. Shipped Not Invd. (Base)" := 0;
             Correction := true;
-            Modify;
+            Modify();
         end;
     end;
 

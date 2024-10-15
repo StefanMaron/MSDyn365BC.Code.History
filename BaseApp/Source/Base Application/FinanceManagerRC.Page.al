@@ -26,7 +26,7 @@ page 8901 "Finance Manager Role Center"
                 action("Account Schedules")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Account Schedules';
+                    Caption = 'Financial Reporting';
                     RunObject = page "Account Schedule Names";
                     Tooltip = 'Open the Account Schedules page.';
                 }
@@ -376,7 +376,7 @@ page 8901 "Finance Manager Role Center"
                         action("Account Schedule")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Account Schedule';
+                            Caption = 'Financial Report';
                             RunObject = report "Account Schedule";
                             Tooltip = 'Run the Account Schedule report.';
                         }
@@ -2141,7 +2141,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Phys. Invt. Counting Periods")
                 {
-                    ApplicationArea = Warehouse, Basic, Suite;
+                    ApplicationArea = Basic, Suite, Warehouse;
                     Caption = 'Physical Inventory Counting Periods';
                     RunObject = page "Phys. Invt. Counting Periods";
                     Tooltip = 'Open the Physical Invtory Counting Periods page.';
@@ -2367,7 +2367,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Analysis View Card")
                     {
-                        ApplicationArea = InventoryAnalysis, Dimensions;
+                        ApplicationArea = Dimensions, InventoryAnalysis;
                         Caption = 'Inventory Analysis by Dimensions';
                         RunObject = page "Analysis View List Inventory";
                         Tooltip = 'Open the Inventory Analysis by Dimensions page.';

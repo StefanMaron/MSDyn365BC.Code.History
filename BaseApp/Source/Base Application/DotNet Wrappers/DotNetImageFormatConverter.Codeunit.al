@@ -14,7 +14,7 @@ codeunit 3011 DotNet_ImageFormatConverter
 
     procedure InitImageFormatConverter()
     begin
-        DotNetImageFormatConverter := DotNetImageFormatConverter.ImageFormatConverter
+        DotNetImageFormatConverter := DotNetImageFormatConverter.ImageFormatConverter();
     end;
 
     [Obsolete('Replaced by GetFormatAsString() in Image module', '19.0')]

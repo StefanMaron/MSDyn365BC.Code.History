@@ -39,12 +39,12 @@ codeunit 144001 "VAT Tools Test"
         Initialize();
 
         // Verify that Settled VAT Periods are updated when the VAT is settled through Calc. and Post VAT Settlement report
-        CreateAndPostSalesInvoice(WorkDate);
-        CalcAndPostVATSettlement(WorkDate, WorkDate, WorkDate, true);
+        CreateAndPostSalesInvoice(WorkDate());
+        CalcAndPostVATSettlement(WorkDate(), WorkDate(), WorkDate, true);
 
-        asserterror CreateAndPostSalesInvoice(WorkDate);
+        asserterror CreateAndPostSalesInvoice(WorkDate());
 
-        Assert.ExpectedError(StrSubstNo(SettledAndClosedVATPeriodErr, Date2DMY(WorkDate, 3), NorwegianVATTools.VATPeriodNo(WorkDate)));
+        Assert.ExpectedError(StrSubstNo(SettledAndClosedVATPeriodErr, Date2DMY(WorkDate(), 3), NorwegianVATTools.VATPeriodNo(WorkDate())));
     end;
 
     [Test]
@@ -62,7 +62,7 @@ codeunit 144001 "VAT Tools Test"
         SetApplicationAlwaysAllowedInGLSetup(false);
 
         asserterror ApplicationInClosedVATPeriodAfterCalcAndPostVATSettlement(InvoiceNo, PaymentNo);
-        Assert.ExpectedError(StrSubstNo(SettledAndClosedVATPeriodErr, Date2DMY(WorkDate, 3), NorwegianVATTools.VATPeriodNo(WorkDate)));
+        Assert.ExpectedError(StrSubstNo(SettledAndClosedVATPeriodErr, Date2DMY(WorkDate(), 3), NorwegianVATTools.VATPeriodNo(WorkDate())));
     end;
 
     [Test]
@@ -124,7 +124,7 @@ codeunit 144001 "VAT Tools Test"
         Initialize();
 
         // post invoice and payment
-        OneYearAhead := CalcDate('<1Y>', WorkDate);
+        OneYearAhead := CalcDate('<1Y>', WorkDate());
 
         InvoiceNo := CreateAndPostSalesInvoice(OneYearAhead);
         CreateAndPostPaymentForInvoice(InvoiceNo);
@@ -149,7 +149,7 @@ codeunit 144001 "VAT Tools Test"
         Initialize();
 
         // [GIVEN] Posted sales invoice and payment
-        InvoiceNo := CreateAndPostSalesInvoice(WorkDate);
+        InvoiceNo := CreateAndPostSalesInvoice(WorkDate());
         CreateAndPostPaymentForInvoice(InvoiceNo);
 
         // [WHEN] run "Trade Settlement" report on open settlements
@@ -160,7 +160,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryReportDataset.Reset();
 
         // [GIVEN] Close open settlements
-        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate);
+        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate());
         Assert.IsTrue(SettledVATPeriod.Closed, 'Expected VAT Period to be closed');
 
         // [WHEN] run "Trade Settlement" report on open settlements
@@ -211,7 +211,7 @@ codeunit 144001 "VAT Tools Test"
         Initialize();
 
         // [GIVEN] Posted sales invoice and payment
-        InvoiceNo := CreateAndPostSalesInvoiceWithVAT(WorkDate);
+        InvoiceNo := CreateAndPostSalesInvoiceWithVAT(WorkDate());
         CreateAndPostPaymentForInvoice(InvoiceNo);
 
         // [WHEN] run "Trade Settlement" report on open settlements
@@ -222,7 +222,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryReportDataset.Reset();
 
         // [GIVEN] Close opened settlements.
-        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate);
+        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate());
         Assert.IsTrue(SettledVATPeriod.Closed, 'Expected VAT Period to be closed');
 
         // [WHEN] run "Trade Settlement" report on open settlements
@@ -273,7 +273,7 @@ codeunit 144001 "VAT Tools Test"
         Initialize();
 
         // [GIVEN] Posted invoice and payment
-        InvoiceNo := CreateAndPostPurchaseInvoiceWithVAT(WorkDate);
+        InvoiceNo := CreateAndPostPurchaseInvoiceWithVAT(WorkDate());
         CreateAndPostReceivalForInvoice(InvoiceNo);
 
         // [WHEN] run "Trade Settlement" report on open settlements
@@ -284,7 +284,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryReportDataset.Reset();
 
         // [GIVEN] Close opened settlements.
-        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate);
+        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate());
         Assert.IsTrue(SettledVATPeriod.Closed, 'Expected VAT Period to be closed');
 
         // [WHEN] run "Trade Settlement" report on open settlements
@@ -335,12 +335,12 @@ codeunit 144001 "VAT Tools Test"
         // [SCENARIO] posting is allowed if Settled VAT period has "Closed" set to false
         Initialize();
 
-        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate);
+        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate());
 
         SettledVATPeriod.Validate(Closed, false);
         SettledVATPeriod.Modify(true);
 
-        InvoiceNo := CreateAndPostSalesInvoice(WorkDate);
+        InvoiceNo := CreateAndPostSalesInvoice(WorkDate());
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
         CustLedgerEntry.CalcFields(Amount);
         PaymentNo := CreateAndPostGenJnlLine(CustLedgerEntry."Customer No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry.Amount);
@@ -365,8 +365,8 @@ codeunit 144001 "VAT Tools Test"
         // If we use end of the month minus one and two days
         // It will always be the same period even if workdate changes
         // We need to verify that the Settlement Date will change
-        FirstDate := CalcDate('<CM + 3M - 2D>', WorkDate);
-        SecondDate := CalcDate('<CM + 3M - 1D>', WorkDate);
+        FirstDate := CalcDate('<CM + 3M - 2D>', WorkDate());
+        SecondDate := CalcDate('<CM + 3M - 1D>', WorkDate());
 
         CreateOrUpdateSettledVATPeriod(SettledVATPeriod, FirstDate);
         Assert.AreEqual(FirstDate, SettledVATPeriod."Settlement Date", 'Wrong settlement date has been set');
@@ -388,24 +388,24 @@ codeunit 144001 "VAT Tools Test"
         // [FEATURE] [Settled VAT Period] [UI]
         Initialize();
 
-        InvoiceNo := CreateAndPostSalesInvoice(WorkDate);
+        InvoiceNo := CreateAndPostSalesInvoice(WorkDate());
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
         CustLedgerEntry.CalcFields(Amount);
         PaymentNo := CreateAndPostGenJnlLine(CustLedgerEntry."Customer No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry.Amount);
 
         SettledVATPeriods.OpenNew();
-        SettledVATPeriods.Year.SetValue(Date2DMY(WorkDate, 3));
+        SettledVATPeriods.Year.SetValue(Date2DMY(WorkDate(), 3));
 
         // In norway PeriodNo are based on 2 month periods
-        PeriodNo := Round((Date2DMY(WorkDate, 2) - 1) / 2, 1, '<') + 1;
+        PeriodNo := Round((Date2DMY(WorkDate(), 2) - 1) / 2, 1, '<') + 1;
         SettledVATPeriods."Period No.".SetValue(PeriodNo);
-        SettledVATPeriods."Settlement Date".SetValue(WorkDate);
-        SettledVATPeriods.Close;
+        SettledVATPeriods."Settlement Date".SetValue(WorkDate());
+        SettledVATPeriods.Close();
 
         // Posting should not be allowed on manually created VAT period
-        asserterror CreateAndPostSalesInvoice(WorkDate);
+        asserterror CreateAndPostSalesInvoice(WorkDate());
 
-        Assert.ExpectedError(StrSubstNo(SettledAndClosedVATPeriodErr, Date2DMY(WorkDate, 3), NorwegianVATTools.VATPeriodNo(WorkDate)));
+        Assert.ExpectedError(StrSubstNo(SettledAndClosedVATPeriodErr, Date2DMY(WorkDate(), 3), NorwegianVATTools.VATPeriodNo(WorkDate())));
 
         // Exceptions should be allowed on manually created VAT period
         SetApplicationAlwaysAllowedInGLSetup(true);
@@ -434,7 +434,7 @@ codeunit 144001 "VAT Tools Test"
                 Assert.AreEqual("Start Month", 2 * PeriodNo - 1, 'Periods should be two months long.');
                 Assert.AreEqual("Start Day", 1, 'Day should be the first in the month.');
             end;
-            VATPeriod.Next;
+            VATPeriod.Next();
         end;
     end;
 
@@ -945,12 +945,12 @@ codeunit 144001 "VAT Tools Test"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        InvoiceNo := CreateAndPostSalesInvoice(WorkDate);
+        InvoiceNo := CreateAndPostSalesInvoice(WorkDate());
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
         CustLedgerEntry.CalcFields(Amount);
         PaymentNo := CreateAndPostGenJnlLine(CustLedgerEntry."Customer No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry.Amount);
 
-        CalcAndPostVATSettlement(WorkDate, WorkDate, WorkDate, true);
+        CalcAndPostVATSettlement(WorkDate(), WorkDate(), WorkDate, true);
 
         ApplyCustomerEntries(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
     end;
@@ -1444,7 +1444,7 @@ codeunit 144001 "VAT Tools Test"
         VATPeriod.FindFirst();
         TradeSettlement.SettlementPeriod.SetValue(VATPeriod."Period No.");
         // SettlementYear
-        ExpectedYear := Date2DMY(WorkDate, 3);
+        ExpectedYear := Date2DMY(WorkDate(), 3);
         Assert.AreEqual(ExpectedYear, TradeSettlement.SettlementYear.AsInteger, 'The settlement year should be from current workdate');
         TradeSettlement.SettlementYear.SetValue(ExpectedYear);
         // StartDate

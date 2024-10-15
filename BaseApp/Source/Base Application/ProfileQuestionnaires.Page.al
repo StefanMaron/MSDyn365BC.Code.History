@@ -28,12 +28,12 @@ page 5109 "Profile Questionnaires"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the priority you give to the profile questionnaire and where it should be displayed on the lines of the Contact Card. There are five options:';
                 }
-                field("Contact Type"; "Contact Type")
+                field("Contact Type"; Rec."Contact Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the type of contact you want to use this profile questionnaire for.';
                 }
-                field("Business Relation Code"; "Business Relation Code")
+                field("Business Relation Code"; Rec."Business Relation Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the business relation to which the profile questionnaire applies.';
@@ -65,12 +65,21 @@ page 5109 "Profile Questionnaires"
                 Caption = 'Edit Questionnaire Setup';
                 Ellipsis = true;
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Profile Questionnaire Setup";
                 RunPageLink = "Profile Questionnaire Code" = FIELD(Code);
                 ShortCutKey = 'Return';
                 ToolTip = 'Modify how the questionnaire is set up.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Edit Questionnaire Setup_Promoted"; "Edit Questionnaire Setup")
+                {
+                }
             }
         }
     }

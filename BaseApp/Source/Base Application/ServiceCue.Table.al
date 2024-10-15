@@ -116,7 +116,7 @@ table 9052 "Service Cue"
         UserSetupMgt: Codeunit "User Setup Management";
         RespCenterCode: Code[10];
     begin
-        RespCenterCode := UserSetupMgt.GetServiceFilter;
+        RespCenterCode := UserSetupMgt.GetServiceFilter();
         if RespCenterCode <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center Filter", RespCenterCode);

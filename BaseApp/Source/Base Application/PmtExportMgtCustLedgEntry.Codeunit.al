@@ -103,7 +103,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
             if not HandledGenJnlDataExchLine then
                 CreateCustLedgerDataExchLine(DataExch."Entry No.", CustLedgerEntry2, LineNo);
         until CustLedgerEntry2.Next() = 0;
-        Window.Close;
+        Window.Close();
         OnBeforePaymentExportCustLedgerEntry(CustLedgerEntry."Bal. Account No.", DataExch."Entry No.",
           LineNo, TotalAmount, TransferDate, HandledPaymentExportVendLedgerEntry);
         if not HandledPaymentExportVendLedgerEntry then
@@ -138,7 +138,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
             BankAccount.GetBankExportImportSetup(BankExportImportSetup);
             SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
 
-            Init;
+            Init();
             "Data Exch Entry No." := DataExchEntryNo;
             "Sender Bank Account Code" := CustLedgerEntry."Bal. Account No.";
 
@@ -153,7 +153,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
             end;
 
             "Recipient Bank Acc. No." :=
-              CopyStr(CustomerBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
+              CopyStr(CustomerBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
             "Recipient Reg. No." := CustomerBankAccount."Bank Branch No.";
             "Recipient Acc. No." := CustomerBankAccount."Bank Account No.";
             "Recipient Bank Country/Region" := CustomerBankAccount."Country/Region Code";
@@ -186,7 +186,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
 
     procedure GetServerTempFileName(): Text[1024]
     begin
-        exit(PaymentExportMgt.GetServerTempFileName);
+        exit(PaymentExportMgt.GetServerTempFileName());
     end;
 
     local procedure SetExportFlagOnCustLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry")

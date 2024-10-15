@@ -42,19 +42,19 @@
 
         for i := 1 to 3 do begin
             UpdateQtysInLine(SalesOrderLine, 2, 0);
-            SalesOrderHeader.Find;
+            SalesOrderHeader.Find();
             LibrarySales.PostSalesDocument(SalesOrderHeader, true, false);
             GetShipmentLine(SalesInvoiceHeader, SalesOrderHeader."Last Shipping No.");
         end;
 
-        SalesOrderHeader.Find;
+        SalesOrderHeader.Find();
         LibrarySales.PostSalesDocument(SalesOrderHeader, true, false);
         GetShipmentLine(SalesInvoiceHeader, SalesOrderHeader."Last Shipping No.");
 
         LibrarySales.PostSalesDocument(SalesInvoiceHeader, false, true);
         VerifyZeroCustomerAccEntry;
 
-        SalesOrderLine.Find;
+        SalesOrderLine.Find();
         Assert.AreEqual(
           SalesOrderLine."Prepmt. Amt. Inv.",
           SalesOrderLine."Prepmt Amt Deducted", '"Prepmt Amt Deducted" should be equal to "Prepmt. Amt. Inv.".');
@@ -115,7 +115,7 @@
         LibrarySales.PostSalesDocument(SalesInvoiceHeader, false, true);
         VerifyZeroCustomerAccEntry;
 
-        SalesOrderHeader.Find;
+        SalesOrderHeader.Find();
         LibrarySales.PostSalesDocument(SalesOrderHeader, true, true);
         VerifyZeroCustomerAccEntry;
     end;
@@ -165,7 +165,7 @@
         GetShipmentLine(SalesInvoiceHeader, SalesOrderHeader."Last Shipping No.");
 
         UpdateQtysInLine(SalesOrderLine, GetQtyToShipTFS332246(PositiveDiff), 0);
-        SalesOrderHeader.Find;
+        SalesOrderHeader.Find();
         LibrarySales.PostSalesDocument(SalesOrderHeader, true, false);
         GetShipmentLine(SalesInvoiceHeader, SalesOrderHeader."Last Shipping No.");
 
@@ -854,10 +854,10 @@
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             OldStockoutWarning := "Stockout Warning";
             Validate("Stockout Warning", false);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -899,7 +899,7 @@
         if SalesLine.FindSet() then
             repeat
                 UpdateQtysInLine(SalesLine, GetQtyToShipTFS332246(PositiveDiff), 0);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure PrepareSalesOrder(var SalesHeader: Record "Sales Header")
@@ -951,7 +951,7 @@
             Validate("Currency Code", CurrencyCode);
             Validate("Prices Including VAT", PricesInclVAT);
             Validate("Compress Prepayment", CompressPrepmt);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -975,7 +975,7 @@
 
     local procedure CreateCurrencyCodeWithExchRate(ExchRate: Decimal): Code[10]
     begin
-        exit(UpdateCurrencyInvRoundPrecision(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchRate, ExchRate)));
+        exit(UpdateCurrencyInvRoundPrecision(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate)));
     end;
 
     local procedure AddSalesOrderLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Qty: Decimal; UnitPrice: Decimal; PrepmtPct: Decimal; DiscountPct: Decimal)
@@ -1091,7 +1091,7 @@
 
     local procedure UpdateQtysInLine(var SalesLine: Record "Sales Line"; QtyToShip: Decimal; QtyToInvoice: Decimal)
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", QtyToShip);
         SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
         SalesLine.Modify();

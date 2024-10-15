@@ -198,10 +198,6 @@ page 520 "Item Availability by Lot No."
                 ApplicationArea = Location;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -215,9 +211,6 @@ page 520 "Item Availability by Lot No."
                 ApplicationArea = Location;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -225,6 +218,20 @@ page 520 "Item Availability by Lot No."
                     FindPeriod('>=');
                     UpdateSubForm();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PreviousPeriod_Promoted; PreviousPeriod)
+                {
+                }
+                actionref(NextPeriod_Promoted; NextPeriod)
+                {
+                }
             }
         }
     }

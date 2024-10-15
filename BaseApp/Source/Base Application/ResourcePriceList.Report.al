@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 1115 "Resource - Price List"
 {
     DefaultLayout = RDLC;
@@ -33,7 +33,7 @@ report 1115 "Resource - Price List"
             column(CompanyAddr6; CompanyAddr[6])
             {
             }
-            column(StrsubsnoAsofFormatWorkDt; StrSubstNo(Text004, Format(WorkDate, 0, 4)))
+            column(StrsubsnoAsofFormatWorkDt; StrSubstNo(Text004, Format(WorkDate(), 0, 4)))
             {
             }
             column(PhoneNo_CompanyInfo; CompanyInfo."Phone No.")
@@ -103,7 +103,7 @@ report 1115 "Resource - Price List"
             column(WorkTypeDescriptionCaption; WorkTypeDescriptionCaptionLbl)
             {
             }
-            column(EnterpriseClassification; CompanyInfo.GetEnterpriseClassification)
+            column(EnterpriseClassification; CompanyInfo.GetEnterpriseClassification())
             {
             }
             dataitem("Integer"; "Integer")
@@ -125,17 +125,17 @@ report 1115 "Resource - Price List"
                     PriceInCurrency := false;
 
                     if Number = 1 then
-                        Ok := ResPriceBuffer.Find('-')
+                        Ok := TempResourcePrice.Find('-')
                     else
-                        Ok := ResPriceBuffer.Next <> 0;
+                        Ok := TempResourcePrice.Next() <> 0;
                     if not Ok then
                         CurrReport.Break();
-                    if ResPriceBuffer."Work Type Code" = '' then
+                    if TempResourcePrice."Work Type Code" = '' then
                         CurrReport.Skip();
 
                     ResPrice.Type := ResPrice.Type::Resource;
                     ResPrice.Code := Resource."No.";
-                    ResPrice."Work Type Code" := ResPriceBuffer."Work Type Code";
+                    ResPrice."Work Type Code" := TempResourcePrice."Work Type Code";
                     ResPrice."Currency Code" := Currency.Code;
                     CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
                     WorkType.Get(ResPrice."Work Type Code");
@@ -145,22 +145,22 @@ report 1115 "Resource - Price List"
                         ResPrice."Unit Price" :=
                           Round(
                             CurrExchRate.ExchangeAmtLCYToFCY(
-                              WorkDate, Currency.Code, ResPrice."Unit Price",
+                              WorkDate(), Currency.Code, ResPrice."Unit Price",
                               CurrExchRate.ExchangeRate(
-                                WorkDate, Currency.Code)),
+                                WorkDate(), Currency.Code)),
                             Currency."Unit-Amount Rounding Precision");
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    ResPriceBuffer.SetRange(Type, ResPriceBuffer.Type::Resource, ResPriceBuffer.Type::"Group(Resource)");
-                    ResPriceBuffer.DeleteAll();
+                    TempResourcePrice.SetRange(Type, TempResourcePrice.Type::Resource, TempResourcePrice.Type::"Group(Resource)");
+                    TempResourcePrice.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     ResPrice.SetFilter(Code, '%1|%2', Resource."No.", '');
-                    ResPriceBuffer.Reset();
+                    TempResourcePrice.Reset();
                 end;
             }
 
@@ -177,30 +177,30 @@ report 1115 "Resource - Price List"
                     "Unit Price" :=
                       Round(
                         CurrExchRate.ExchangeAmtLCYToFCY(
-                          WorkDate, Currency.Code, "Unit Price",
+                          WorkDate(), Currency.Code, "Unit Price",
                           CurrExchRate.ExchangeRate(
-                            WorkDate, Currency.Code)),
+                            WorkDate(), Currency.Code)),
                         Currency."Unit-Amount Rounding Precision");
 
                 ResPrice.SetRange(Type, ResPrice.Type::Resource);
                 ResPrice.SetRange(Code, "No.");
-                FindWorkTypes;
+                FindWorkTypes();
                 ResPrice.SetRange(Type, ResPrice.Type::"Group(Resource)");
                 ResPrice.SetRange(Code, "Resource Group No.");
-                FindWorkTypes;
+                FindWorkTypes();
             end;
 
             trigger OnPreDataItem()
             begin
                 ResPrice.SetFilter("Currency Code", '%1|%2', Currency.Code, '');
 
-                ResPriceBuffer.Init();
+                TempResourcePrice.Init();
                 ResPrice.SetRange(Type, ResPrice.Type::All);
                 if ResPrice.Find('-') then
                     repeat
-                        ResPriceBuffer.Type := ResPrice.Type;
-                        ResPriceBuffer."Work Type Code" := ResPrice."Work Type Code";
-                        Ok := ResPriceBuffer.Insert();
+                        TempResourcePrice.Type := ResPrice.Type;
+                        TempResourcePrice."Work Type Code" := ResPrice."Work Type Code";
+                        Ok := TempResourcePrice.Insert();
                     until ResPrice.Next() = 0;
             end;
         }
@@ -247,18 +247,19 @@ report 1115 "Resource - Price List"
     end;
 
     var
-        Text004: Label 'As of %1';
         CompanyInfo: Record "Company Information";
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         ResPrice: Record "Resource Price";
-        ResPriceBuffer: Record "Resource Price" temporary;
+        TempResourcePrice: Record "Resource Price" temporary;
         WorkType: Record "Work Type";
         FormatAddr: Codeunit "Format Address";
         CompanyAddr: array[8] of Text[100];
         PriceInCurrency: Boolean;
         Ok: Boolean;
         CurrencyText: Text[30];
+
+        Text004: Label 'As of %1';
         ResourcePriceListCaptionLbl: Label 'Resource - Price List';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoVATRegistrationNoCaptionLbl: Label 'VAT Reg. No.';
@@ -274,11 +275,11 @@ report 1115 "Resource - Price List"
     begin
         if ResPrice.Find('-') then
             repeat
-                ResPriceBuffer.SetRange("Work Type Code", ResPrice."Work Type Code");
-                if not ResPriceBuffer.Find('-') then begin
-                    ResPriceBuffer.Type := ResPrice.Type;
-                    ResPriceBuffer."Work Type Code" := ResPrice."Work Type Code";
-                    Ok := ResPriceBuffer.Insert();
+                TempResourcePrice.SetRange("Work Type Code", ResPrice."Work Type Code");
+                if not TempResourcePrice.Find('-') then begin
+                    TempResourcePrice.Type := ResPrice.Type;
+                    TempResourcePrice."Work Type Code" := ResPrice."Work Type Code";
+                    Ok := TempResourcePrice.Insert();
                 end;
             until ResPrice.Next() = 0;
     end;

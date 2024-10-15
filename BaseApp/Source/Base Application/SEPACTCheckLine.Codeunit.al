@@ -4,7 +4,7 @@ codeunit 1223 "SEPA CT-Check Line"
 
     trigger OnRun()
     begin
-        DeletePaymentFileErrors;
+        DeletePaymentFileErrors();
         CheckGenJnlLine(Rec);
         CheckBank(Rec);
         CheckCustVendEmpl(Rec);
@@ -38,17 +38,17 @@ codeunit 1223 "SEPA CT-Check Line"
 
         GLSetup.Get();
         if GenJournalBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
-            GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
+            GenJournalBatch.OnCheckGenJournalLineExportRestrictions();
 
         with GenJnlLine do begin
             if "Bal. Account Type" <> "Bal. Account Type"::"Bank Account" then
                 InsertPaymentFileError(MustBeBankAccErr);
 
             if "Bal. Account No." = '' then
-                AddFieldEmptyError(GenJnlLine, TableCaption, FieldCaption("Bal. Account No."), '');
+                AddFieldEmptyError(GenJnlLine, TableCaption(), FieldCaption("Bal. Account No."), '');
 
             if "Recipient Bank Account" = '' then
-                AddFieldEmptyError(GenJnlLine, TableCaption, FieldCaption("Recipient Bank Account"), '');
+                AddFieldEmptyError(GenJnlLine, TableCaption(), FieldCaption("Recipient Bank Account"), '');
 
             if not ("Account Type" in ["Account Type"::Vendor, "Account Type"::Customer, "Account Type"::Employee]) then
                 InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
@@ -92,10 +92,9 @@ codeunit 1223 "SEPA CT-Check Line"
             exit;
 
         with GenJnlLine do
-            if BankAccount.Get("Bal. Account No.") then begin
+            if BankAccount.Get("Bal. Account No.") then
                 if BankAccount.IBAN = '' then
-                    AddFieldEmptyError(GenJnlLine, BankAccount.TableCaption, BankAccount.FieldCaption(IBAN), "Bal. Account No.");
-            end;
+                    AddFieldEmptyError(GenJnlLine, BankAccount.TableCaption(), BankAccount.FieldCaption(IBAN), "Bal. Account No.");
     end;
 
     local procedure CheckCustVendEmpl(var GenJnlLine: Record "Gen. Journal Line")
@@ -122,36 +121,35 @@ codeunit 1223 "SEPA CT-Check Line"
                     begin
                         Customer.Get("Account No.");
                         if Customer.Name = '' then
-                            AddFieldEmptyError(GenJnlLine, Customer.TableCaption, Customer.FieldCaption(Name), "Account No.");
+                            AddFieldEmptyError(GenJnlLine, Customer.TableCaption(), Customer.FieldCaption(Name), "Account No.");
                         if "Recipient Bank Account" <> '' then begin
                             CustomerBankAccount.Get(Customer."No.", "Recipient Bank Account");
                             if CustomerBankAccount.IBAN = '' then
                                 AddFieldEmptyError(
-                                  GenJnlLine, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption(IBAN), "Recipient Bank Account");
+                                  GenJnlLine, CustomerBankAccount.TableCaption(), CustomerBankAccount.FieldCaption(IBAN), "Recipient Bank Account");
                         end;
                     end;
                 "Account Type"::Vendor:
                     begin
                         Vendor.Get("Account No.");
                         if Vendor.Name = '' then
-                            AddFieldEmptyError(GenJnlLine, Vendor.TableCaption, Vendor.FieldCaption(Name), "Account No.");
+                            AddFieldEmptyError(GenJnlLine, Vendor.TableCaption(), Vendor.FieldCaption(Name), "Account No.");
                         if "Recipient Bank Account" <> '' then begin
                             VendorBankAccount.Get(Vendor."No.", "Recipient Bank Account");
                             if VendorBankAccount.IBAN = '' then
                                 AddFieldEmptyError(
-                                  GenJnlLine, VendorBankAccount.TableCaption, VendorBankAccount.FieldCaption(IBAN), "Recipient Bank Account");
+                                  GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(IBAN), "Recipient Bank Account");
                         end;
                     end;
                 "Account Type"::Employee:
                     begin
                         Employee.Get("Account No.");
-                        if Employee.FullName = '' then
-                            AddFieldEmptyError(GenJnlLine, Employee.TableCaption, Employee.FieldCaption("First Name"), "Account No.");
-                        if "Recipient Bank Account" <> '' then begin
+                        if Employee.FullName() = '' then
+                            AddFieldEmptyError(GenJnlLine, Employee.TableCaption(), Employee.FieldCaption("First Name"), "Account No.");
+                        if "Recipient Bank Account" <> '' then
                             if Employee.IBAN = '' then
                                 AddFieldEmptyError(
-                                  GenJnlLine, Employee.TableCaption, Employee.FieldCaption(IBAN), "Recipient Bank Account");
-                        end;
+                                  GenJnlLine, Employee.TableCaption(), Employee.FieldCaption(IBAN), "Recipient Bank Account");
                     end;
                 else
                     OnCheckCustVendEmplOnCaseElse(GenJnlLine);
@@ -159,14 +157,14 @@ codeunit 1223 "SEPA CT-Check Line"
         end;
     end;
 
-    local procedure AddFieldEmptyError(var GenJnlLine: Record "Gen. Journal Line"; TableCaption: Text; FieldCaption: Text; KeyValue: Text)
+    local procedure AddFieldEmptyError(var GenJnlLine: Record "Gen. Journal Line"; TableCaption2: Text; FieldCaption: Text; KeyValue: Text)
     var
         ErrorText: Text;
     begin
         if KeyValue = '' then
             ErrorText := StrSubstNo(FieldBlankErr, FieldCaption)
         else
-            ErrorText := StrSubstNo(FieldKeyBlankErr, TableCaption, KeyValue, FieldCaption);
+            ErrorText := StrSubstNo(FieldKeyBlankErr, TableCaption2, KeyValue, FieldCaption);
         GenJnlLine.InsertPaymentFileError(ErrorText);
     end;
 

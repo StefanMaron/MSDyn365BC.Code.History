@@ -39,7 +39,7 @@ report 742 "VAT Report Request Page"
                 VATStatementLine.FindSet();
 
                 VATStatement.InitializeRequest(
-                  VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency");
+                  VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency", Enum::"VAT Date Type"::"Posting Date");
 
                 VATStatementReportLine.SetRange("VAT Report No.", "No.");
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");

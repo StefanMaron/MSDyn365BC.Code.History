@@ -42,9 +42,9 @@ codeunit 144160 "Recurring Post Table UT"
         // Verify
         RecurringPost.Find('-');
         Assert.AreEqual(1, RecurringPost."Serial No.", 'First serial no must be 1');
-        RecurringPost.Next;
+        RecurringPost.Next();
         Assert.AreEqual(2, RecurringPost."Serial No.", 'Second serial no must be 2');
-        RecurringPost.Next;
+        RecurringPost.Next();
         Assert.AreEqual(100, RecurringPost."Serial No.", 'Hard coded serial no to 100 must be 100');
     end;
 }

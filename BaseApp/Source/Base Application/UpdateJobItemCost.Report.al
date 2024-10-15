@@ -35,7 +35,7 @@ report 1095 "Update Job Item Cost"
 
                             Validate("Unit Cost (LCY)", "Job Ledger Entry"."Unit Cost (LCY)");
                             Validate("Line Discount Amount (LCY)", "Job Ledger Entry"."Line Discount Amount (LCY)");
-                            Modify;
+                            Modify();
                             "Job Ledger Entry".Validate("Unit Price", "Unit Price");
                             "Job Ledger Entry".Validate("Unit Price (LCY)", "Unit Price (LCY)");
                             "Job Ledger Entry".Validate("Total Price", "Total Price");
@@ -121,12 +121,11 @@ report 1095 "Update Job Item Cost"
             trigger OnPostDataItem()
             begin
                 OnBeforeOnPostDataItemJob(NoOfJobLedgEntry, HideResult);
-                if not HideResult then begin
+                if not HideResult then
                     if NoOfJobLedgEntry <> 0 then
                         Message(StrSubstNo(Text001, NoOfJobLedgEntry))
                     else
                         Message(Text003);
-                end;
             end;
 
             trigger OnPreDataItem()
@@ -251,9 +250,9 @@ report 1095 "Update Job Item Cost"
         end;
     end;
 
-    local procedure AddJobCostValue(var JobLedgerEntryCostValue: Decimal; var JobLedgerEntryCostValueACY: Decimal; ValueEntry: Record "Value Entry"; IsInventoriableItem: Boolean)
+    local procedure AddJobCostValue(var JobLedgerEntryCostValue: Decimal; var JobLedgerEntryCostValueACY: Decimal; ValueEntry: Record "Value Entry"; InventoriableItem: Boolean)
     begin
-        if IsInventoriableItem then begin
+        if InventoriableItem then begin
             JobLedgerEntryCostValue += ValueEntry."Cost Amount (Actual)";
             JobLedgerEntryCostValueACY += ValueEntry."Cost Amount (Actual) (ACY)";
         end else begin

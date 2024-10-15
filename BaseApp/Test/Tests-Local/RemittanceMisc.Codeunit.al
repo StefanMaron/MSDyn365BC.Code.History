@@ -114,7 +114,7 @@ codeunit 144135 "Remittance - Misc"
             for DocumentType := "Document Type"::" " to "Document Type"::Reminder do
                 if DocumentType <> "Document Type"::Invoice then begin
                     // [GIVEN] Purchase Journal Line with "Document Type" = " "("Credit Memo", "Finance Charge Memo", Payment, Refund, Reminder), "Account Type" = "Vendor"
-                    Init;
+                    Init();
                     Validate("Document Type", DocumentType);
                     Validate("Account Type", "Account Type"::Vendor);
 
@@ -132,7 +132,7 @@ codeunit 144135 "Remittance - Misc"
         with Vendor do begin
             "Payment Type Code Abroad" := MockPaymentTypeCodeAbroad;
             "Specification (Norges Bank)" := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -141,11 +141,11 @@ codeunit 144135 "Remittance - Misc"
         PaymentTypeCodeAbroad: Record "Payment Type Code Abroad";
     begin
         with PaymentTypeCodeAbroad do begin
-            Init;
+            Init();
             Code :=
               CopyStr(
                 LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Type Code Abroad"), 1, MaxStrLen(Code));
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;

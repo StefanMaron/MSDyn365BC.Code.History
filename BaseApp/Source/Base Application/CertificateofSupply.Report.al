@@ -16,7 +16,7 @@ report 780 "Certificate of Supply"
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(COMPANYADDRESS; CompanyInfo.Address)
@@ -165,7 +165,7 @@ report 780 "Certificate of Supply"
                     begin
                         if Number = 1 then begin
                             if not TempServiceShipmentLine.FindSet() then
-                                CurrReport.Break
+                                CurrReport.Break()
                         end else
                             if TempServiceShipmentLine.Next() = 0 then
                                 CurrReport.Break();
@@ -179,8 +179,8 @@ report 780 "Certificate of Supply"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
-                        CertificateOfSupply.SetPrintedTrue;
+                    if not IsReportInPreviewMode() then
+                        CertificateOfSupply.SetPrintedTrue();
                 end;
             }
 
@@ -285,6 +285,12 @@ report 780 "Certificate of Supply"
     end;
 
     var
+        TempServiceShipmentHeader: Record "Service Shipment Header" temporary;
+        TempServiceShipmentLine: Record "Service Shipment Line" temporary;
+        CompanyInfo: Record "Company Information";
+        PrintLineDetails: Boolean;
+        CreateCertificatesofSupply: Boolean;
+
         Quantity_of_the_object_of_the_supply_Lbl: Label '(Quantity of the object of the supply)';
         Standard_commercial_description___in_the_case_of_vehicles__including_vehicle_identification_number_Lbl: Label '(Standard commercial description - in the case of vehicles, including vehicle identification number)';
         Date_the_object_of_the_supply_was_received_in_the_Member_State_of_entry_Lbl: Label '(Date the object of the supply was received in the Member State of entry if the supplying trader transported or dispatched the object of the supply or if the customer dispatched the object of the supply)';
@@ -300,15 +306,10 @@ report 780 "Certificate of Supply"
         EU_Member_State__Entry_Certificate_Lbl: Label 'EU Member State (Entry Certificate)';
         Name_and_address_of_the_customer_of_the_intra_Community_supply__if_applicable__E_Mail_address_Lbl: Label '(Name and address of the customer of the intra-Community supply, if applicable, Email-address)';
         I_as_the_customer_hereby_certify_my_receipt_the_entry_of_the_following_object_of_an_intra___Community_supplyLbl: Label 'I as the customer hereby certify my receipt/the entry of the following object of an intra - Community supply';
-        TempServiceShipmentHeader: Record "Service Shipment Header" temporary;
-        TempServiceShipmentLine: Record "Service Shipment Line" temporary;
-        CompanyInfo: Record "Company Information";
-        PrintLineDetails: Boolean;
         onLbl: Label 'on';
         receivedLbl: Label 'received/arrived 1)';
         deleteAsAppropriateLbl: Label '1) Delete as appropriate';
         MultipleDocumentsErr: Label 'Multiple Document Types are not allowed.';
-        CreateCertificatesofSupply: Boolean;
 
     local procedure SetSource(CertificateOfSupply: Record "Certificate of Supply")
     var
@@ -390,7 +391,7 @@ report 780 "Certificate of Supply"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure GetLines(CertificateOfSupply: Record "Certificate of Supply")

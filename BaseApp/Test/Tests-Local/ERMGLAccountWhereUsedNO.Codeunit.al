@@ -39,7 +39,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
 
         // [THEN] G/L Account "G" is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          OCRSetup.TableCaption,
+          OCRSetup.TableCaption(),
           OCRSetup.FieldCaption("Divergence Account No."),
           StrSubstNo('%1=%2', OCRSetup.FieldCaption("Primary Key"), OCRSetup."Primary Key"));
     end;
@@ -86,7 +86,7 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
 
         // [THEN] G/L Account "G" is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          RemittanceAccount.TableCaption,
+          RemittanceAccount.TableCaption(),
           RemittanceAccount.FieldCaption("Round off/Divergence Acc. No."),
           StrSubstNo('%1=%2', RemittanceAccount.FieldCaption(Code), RemittanceAccount.Code));
     end;
@@ -125,10 +125,10 @@ codeunit 144544 "ERM G/L Account Where-Used NO"
     local procedure CreateRemittanceAccount(var RemittanceAccount: Record "Remittance Account")
     begin
         with RemittanceAccount do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Remittance Account");
             "Round off/Divergence Acc. No." := LibraryERM.CreateGLAccountNo();
-            Insert;
+            Insert();
         end;
     end;
 

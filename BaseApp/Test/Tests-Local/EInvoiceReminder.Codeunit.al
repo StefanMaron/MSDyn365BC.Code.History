@@ -361,14 +361,14 @@ codeunit 144118 "E-Invoice Reminder"
         with IssuedReminderLine do begin
             SetRange("Reminder No.", IssuedReminderHeader."No.");
             FindLast();
-            Init;
+            Init();
             "Line No." := "Line No." + 10000;
             Type := Type::"Customer Ledger Entry";
             "Document Type" := DocumentType;
             "Document No." := Format(DocumentType);
             Description := Format(DocumentType);
             Amount := AmountValue;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -390,14 +390,14 @@ codeunit 144118 "E-Invoice Reminder"
     local procedure AddCustLedgerEntryReminderLine(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header")
     begin
         with ReminderLine do begin
-            Init;
+            Init();
             "Reminder No." := ReminderHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(ReminderLine, FieldNo("Line No."));
             Type := Type::"Customer Ledger Entry";
             "Entry No." := MockCustLedgerEntry(ReminderHeader."Customer No.");
             Description := LibraryUtility.GenerateGUID();
             "Remaining Amount" := LibraryRandom.RandInt(1000);
-            Insert;
+            Insert();
         end;
     end;
 

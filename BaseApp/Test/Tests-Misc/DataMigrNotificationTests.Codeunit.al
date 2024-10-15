@@ -247,7 +247,7 @@ codeunit 135021 "Data Migr. Notification Tests"
 
         // The corresponding job queue is running
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Data Migration Mgt.";
         JobQueueEntry.Status := JobQueueStatus;
@@ -418,7 +418,7 @@ codeunit 135021 "Data Migr. Notification Tests"
     begin
         if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId then
             exit;
-        Assert.ExpectedMessage(StrSubstNo(DataMigrationInProgressMsg, PRODUCTNAME.Short), Notification.Message);
+        Assert.ExpectedMessage(StrSubstNo(DataMigrationInProgressMsg, PRODUCTNAME.Short()), Notification.Message);
         DataMigrationMgt.ShowMoreInfoPage(Notification);
     end;
 

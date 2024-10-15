@@ -339,7 +339,7 @@ codeunit 144136 "Remittance - Import SEPA"
         // [THEN] the data is imported to the expected journal
         // [THEN] "Document Type" is Payment in the balancing payment line (TFS 232592)
         VerifyImportedLinesInternational(
-          ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, DocumentNo, Vendor."No.",
+          ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), DocumentNo, Vendor."No.",
           RemittanceAccount, Amount);
 
         Cleanup(FilePath, OldDate);
@@ -458,7 +458,7 @@ codeunit 144136 "Remittance - Import SEPA"
         Initialize();
 
         // [GIVEN] Foreign remittance invoice
-        OldDate := UpdateWorkdate(WorkDate);
+        OldDate := UpdateWorkdate(WorkDate());
         LibraryRemittance.SetupForeignRemittancePayment(
           RemittanceAgreement."Payment System"::"Other bank",
           RemittanceAgreement,
@@ -525,22 +525,22 @@ codeunit 144136 "Remittance - Import SEPA"
         // [THEN] Payment journal error factbox shows "ERR1-1", "ERR1-2" for the first line, "ERR2-1", "ERR2-2" for the second line
         // [THEN] No errors for the new third blanked line (just step cursor to the next line after the second one)
         PaymentJournal."Payment File Errors"."Error Text".AssertEquals(FirstLineErrorText[1]);
-        PaymentJournal."Payment File Errors".Next;
+        PaymentJournal."Payment File Errors".Next();
         PaymentJournal."Payment File Errors"."Error Text".AssertEquals(FirstLineErrorText[2]);
-        PaymentJournal."Payment File Errors".Next;
+        PaymentJournal."Payment File Errors".Next();
         PaymentJournal."Payment File Errors"."Error Text".AssertEquals(FirstLineErrorText[2]);
-        PaymentJournal.Next;
+        PaymentJournal.Next();
         PaymentJournal."Payment File Errors"."Error Text".AssertEquals(SecondLineErrorText[1]);
-        PaymentJournal."Payment File Errors".Next;
+        PaymentJournal."Payment File Errors".Next();
         PaymentJournal."Payment File Errors"."Error Text".AssertEquals(SecondLineErrorText[2]);
-        PaymentJournal."Payment File Errors".Next;
+        PaymentJournal."Payment File Errors".Next();
         PaymentJournal."Payment File Errors"."Error Text".AssertEquals(SecondLineErrorText[2]);
-        PaymentJournal.Next;
+        PaymentJournal.Next();
         PaymentJournal."Payment File Errors"."Error Text".AssertEquals('');
 
-        PaymentJournal.Close;
-        GeneralJournalBatches.Close;
-        GeneralJournalTemplates.Close;
+        PaymentJournal.Close();
+        GeneralJournalBatches.Close();
+        GeneralJournalTemplates.Close();
     end;
 
     [Test]
@@ -1238,7 +1238,7 @@ codeunit 144136 "Remittance - Import SEPA"
         ReturnFileSetup.DeleteAll();
         VendorBankAccount.DeleteAll();
         Vendor.DeleteAll();
-        ReturnError.DeleteAll;
+        ReturnError.DeleteAll();
 
         LibraryERMCountryData.UpdateLocalData();
         LibrarySetupStorage.Restore();
@@ -1368,7 +1368,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
         LibraryVariableStorage.Enqueue(UseControlBatch);
         if UseControlBatch then
-            LibraryVariableStorage.Enqueue(StrSubstNo(NoteWithControlReturnFilesAreReadMsg, PRODUCTNAME.Full));
+            LibraryVariableStorage.Enqueue(StrSubstNo(NoteWithControlReturnFilesAreReadMsg, PRODUCTNAME.Full()));
         EnqueueConfirmImport(FilePath, Approved, Rejected, Settled, ConfirmTheImport);
 
         // ImportPaymentOrder action
@@ -1405,7 +1405,7 @@ codeunit 144136 "Remittance - Import SEPA"
         XMLBuffer.DeleteAll();
         XMLBuffer.Load(ServerTemplateFileName);
 
-        UpdateXmlFileBasedOnNames(XMLBuffer, 'CreDtTm', FormatDate(WorkDate));
+        UpdateXmlFileBasedOnNames(XMLBuffer, 'CreDtTm', FormatDate(WorkDate()));
         UpdateXmlFileBasedOnNames(XMLBuffer, 'OrgnlMsgId', WaitingJournal."SEPA Msg. ID");
         UpdateXmlFileBasedOnNames(XMLBuffer, 'OrgnlPmtInfId', WaitingJournal."SEPA Payment Inf ID");
         UpdateXmlFileBasedOnNames(XMLBuffer, 'OrgnlInstrId', WaitingJournal."SEPA Instr. ID");
@@ -1450,7 +1450,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         RemittanceAccount.Validate("Document No. Series", CreateNoSeriesWithLongDocNos());
         RemittanceAccount.Modify(true);
-        DocumentNo := LibraryUtility.GetNextNoFromNoSeries(RemittanceAccount."Document No. Series", WorkDate);
+        DocumentNo := LibraryUtility.GetNextNoFromNoSeries(RemittanceAccount."Document No. Series", WorkDate());
 
         // Prepare to export the remittance file
         BatchName := LibraryRemittance.PostGenJournalLine(GenJournalLine);
@@ -1483,7 +1483,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure UpdateWorkdate(NewDate: Date) OldDate: Date
     begin
-        OldDate := WorkDate;
+        OldDate := WorkDate();
         WorkDate := NewDate;
         if Date2DWY(NewDate, 1) in [6, 7] then // "Posting Date" and "Pmt. Discount Date" compared works date in CU 15000001
             WorkDate := WorkDate + 2;
@@ -1565,7 +1565,7 @@ codeunit 144136 "Remittance - Import SEPA"
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
         GenJournalBatch.Modify(true);
-        exit(LibraryUtility.GetNextNoFromNoSeries(GenJournalBatch."No. Series", WorkDate));
+        exit(LibraryUtility.GetNextNoFromNoSeries(GenJournalBatch."No. Series", WorkDate()));
     end;
 
     local procedure InvokeUpdateWaitingJournal(WaitingJournal: Record "Waiting Journal"; GenJournalLine: Record "Gen. Journal Line")
@@ -1624,7 +1624,7 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure AddToNameValueBuffer(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Name: Text)
     begin
-        TempNameValueBuffer.Init;
+        TempNameValueBuffer.Init();
         TempNameValueBuffer.ID += 1;
         TempNameValueBuffer.Name := CopyStr(Name, 1, MaxStrLen(TempNameValueBuffer.Name));
         TempNameValueBuffer.Insert;
@@ -1880,12 +1880,12 @@ codeunit 144136 "Remittance - Import SEPA"
         TempNameValueBuffer.FindSet();
         repeat
             WriteLine(OutStream, TempNameValueBuffer.Name);
-        until TempNameValueBuffer.Next = 0;
+        until TempNameValueBuffer.Next() = 0;
         WriteLine(OutStream, '      </TxInfAndSts>        ');
         WriteLine(OutStream, '    </OrgnlPmtInfAndSts>');
         WriteLine(OutStream, '  </CstmrPmtStsRpt>');
         WriteLine(OutStream, '</Document>');
-        OutFile.Close;
+        OutFile.Close();
     end;
 
     local procedure WriteCamtFiletoDisk(WaitingJournal: Record "Waiting Journal"; Date: Date; Sts: Text): Text
@@ -2205,7 +2205,7 @@ codeunit 144136 "Remittance - Import SEPA"
     begin
         LibraryVariableStorage.Dequeue(RemittanceAccountCode);
         LibraryVariableStorage.Dequeue(VendorNo);
-        SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate());
         SuggestRemittancePayments.Vendor.SetFilter("No.", VendorNo);
         SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", RemittanceAccountCode);
         SuggestRemittancePayments.OK().Invoke();

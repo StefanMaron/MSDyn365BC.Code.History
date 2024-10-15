@@ -10,7 +10,7 @@ codeunit 5479 "Graph Mgt - Customer Payments"
 
     procedure SetCustomerPaymentsTemplateAndBatch(var GenJournalLine: Record "Gen. Journal Line"; CustomerPaymentBatchName: Code[10])
     begin
-        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName);
+        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName());
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
 
         GenJournalLine.Validate("Journal Batch Name", CustomerPaymentBatchName);
@@ -22,7 +22,7 @@ codeunit 5479 "Graph Mgt - Customer Payments"
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Customer);
         GenJournalLine.SetRange("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
-        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName);
+        GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName());
     end;
 
     procedure SetCustomerPaymentsValues(var GenJournalLine: Record "Gen. Journal Line"; TempGenJournalLine: Record "Gen. Journal Line" temporary)
@@ -47,7 +47,7 @@ codeunit 5479 "Graph Mgt - Customer Payments"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
-        UpdateIds;
+        UpdateIds();
     end;
 
     procedure UpdateIds()
@@ -66,12 +66,12 @@ codeunit 5479 "Graph Mgt - Customer Payments"
 
             if FindSet() then begin
                 repeat
-                    UpdateCustomerID;
+                    UpdateCustomerID();
 #if not CLEAN20                    
-                    UpdateGraphContactId;
+                    UpdateGraphContactId();
 #endif
-                    UpdateAppliesToInvoiceID;
-                    UpdateJournalBatchID;
+                    UpdateAppliesToInvoiceID();
+                    UpdateJournalBatchID();
                     Modify(false);
                     if WithCommit then
                         APIDataUpgrade.CountRecordsAndCommit(RecordCount);

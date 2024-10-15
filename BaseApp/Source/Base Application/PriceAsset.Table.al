@@ -1,4 +1,4 @@
-﻿table 7003 "Price Asset"
+table 7003 "Price Asset"
 {
 #pragma warning disable AS0034
     TableType = Temporary;

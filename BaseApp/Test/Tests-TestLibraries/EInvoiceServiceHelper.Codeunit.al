@@ -19,7 +19,7 @@ codeunit 143010 "E-Invoice Service Helper"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         with ServiceMgtSetup do begin
-            Get;
+            Get();
             Validate("E-Invoice Service Invoice Path", Path);
             Validate("E-Invoice Serv. Cr. Memo Path", Path);
             Modify(true);
@@ -154,7 +154,7 @@ codeunit 143010 "E-Invoice Service Helper"
                     UnitOfMeasure."International Standard Code" := '';
                     UnitOfMeasure.Modify();
                 end;
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
     end;
 
     local procedure PostServOrder(var ServHeader: Record "Service Header"): Code[20]

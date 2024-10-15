@@ -46,7 +46,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         RegulatoryReportingCodes.OpenNew();
         RegulatoryReportingCodes.Code.SetValue(RegCode);
         RegulatoryReportingCodes.Description.SetValue(RegDescr);
-        RegulatoryReportingCodes.Close;
+        RegulatoryReportingCodes.Close();
 
         RegulatoryReportingCode.Get(RegCode);
         RegulatoryReportingCode.TestField(Description, RegDescr);
@@ -105,9 +105,9 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankExportImportSetupPage.OpenEdit;
         BankExportImportSetupPage.GotoRecord(BankExportImportSetup);
         BankExportImportSetupPage.RegReportingThreshAmtLCY.SetValue(ThreshAmt);
-        BankExportImportSetupPage.Close;
+        BankExportImportSetupPage.Close();
 
-        BankExportImportSetup.Find;
+        BankExportImportSetup.Find();
         BankExportImportSetup.TestField("Reg.Reporting Thresh.Amt (LCY)", ThreshAmt);
     end;
 
@@ -388,7 +388,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         // [WHEN] Push "Remittance Suggestion" on page ribbon
         LibraryVariableStorage.Enqueue(GenJournalLineInvoice."Account No.");
         LibraryVariableStorage.Enqueue(GetRemittanceAccountForVendor(GenJournalLineInvoice."Account No."));
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
 
         PaymentJournal.SuggestRemittancePayments.Invoke;
 
@@ -406,7 +406,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         PaymentJournal.GotoRecord(GenJournalLinePayment);
         PaymentJournal.Balance.AssertEquals(-GenJournalLineInvoice.Amount);
 
-        PaymentJournal.Close;
+        PaymentJournal.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -714,7 +714,7 @@ codeunit 144137 "ERM Norge SEPA CT"
             "SWIFT Code" := 'NDEASESS';
             "Payment Export Format" := BankExpImpSetup;
             "Credit Transfer Msg. Nos." := LibraryERM.CreateNoSeriesCode;
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -724,14 +724,14 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         with BankExportImportSetup do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             Direction := Direction::Export;
             "Processing Codeunit ID" := CODEUNIT::"Norge SEPA CC-Export File";
             "Processing XMLport ID" := XMLPORT::"SEPA CT pain.001.001.03";
             "Check Export Codeunit" := CODEUNIT::"SEPA CT-Check Line";
             "Reg.Reporting Thresh.Amt (LCY)" := ThreshAmt;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -836,13 +836,13 @@ codeunit 144137 "ERM Norge SEPA CT"
           CreateBankAccountWithExportSetup(CreateNorgeBankExportImportSetup(Amount)),
           Amount * 2, 3);
         GenJournalLine.FindFirst();
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine.Modify(true);
-        GenJournalLine.Next;
-        GenJournalLine."Posting Date" := CalcDate('<-1D>', WorkDate);
+        GenJournalLine.Next();
+        GenJournalLine."Posting Date" := CalcDate('<-1D>', WorkDate());
         GenJournalLine.Modify(true);
-        GenJournalLine.Next;
-        GenJournalLine."Posting Date" := CalcDate('<-1D>', WorkDate);
+        GenJournalLine.Next();
+        GenJournalLine."Posting Date" := CalcDate('<-1D>', WorkDate());
         GenJournalLine.Modify(true);
     end;
 
@@ -882,7 +882,7 @@ codeunit 144137 "ERM Norge SEPA CT"
     begin
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, false, 0, false, WorkDate, LibraryUtility.GenerateGUID, false, 0, '', 0);
+          WorkDate, false, 0, false, WorkDate(), LibraryUtility.GenerateGUID, false, 0, '', 0);
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.UseRequestPage(false);
@@ -938,7 +938,7 @@ codeunit 144137 "ERM Norge SEPA CT"
     procedure GenJnlRegPerCodesPageHandler(var GenJnlLineRegRepCodes: TestPage "Gen. Jnl. Line Reg. Rep. Codes")
     begin
         GenJnlLineRegRepCodes."Reg. Code".SetValue(LibraryVariableStorage.DequeueText);
-        GenJnlLineRegRepCodes.Close;
+        GenJnlLineRegRepCodes.Close();
     end;
 
     [RequestPageHandler]

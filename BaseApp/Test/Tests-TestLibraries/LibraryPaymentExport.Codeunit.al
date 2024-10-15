@@ -100,11 +100,11 @@ codeunit 130100 "Library - Payment Export"
             SetRange(Recurring, false);
 
             if not FindFirst() then begin
-                Init;
+                Init();
                 Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Gen. Journal Template");
                 Type := Type::Payments;
                 Recurring := false;
-                Insert;
+                Insert();
             end;
 
             exit(Name);
@@ -203,12 +203,12 @@ codeunit 130100 "Library - Payment Export"
     begin
         with BankExportImportSetup do begin
             if Get(DataExchDefCode) then
-                Delete;
-            Reset;
+                Delete();
+            Reset();
             Code := LibraryUtility.GenerateGUID();
             Direction := Direction::Export;
             "Data Exch. Def. Code" := DataExchDefCode;
-            Insert;
+            Insert();
         end;
     end;
 

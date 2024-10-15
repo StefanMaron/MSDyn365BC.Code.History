@@ -140,7 +140,7 @@ codeunit 144005 "EHF Reminder"
         repeat
             VerifyXmlLine(IssuedReminderLine, i);
             i += 1;
-        until IssuedReminderLine.Next = 0;
+        until IssuedReminderLine.Next() = 0;
         // [THEN] 'PaymentID' is exported with Giro KID value of the reminder (TFS 362900)
         LibraryXPathXMLReader.VerifyNodeValue('//cbc:PaymentID', GetGiroKID(3, IssuedReminderHeader."No."));
     end;
@@ -186,7 +186,7 @@ codeunit 144005 "EHF Reminder"
             IssuedReminderLine.TransferFields(IssuedFinChargeMemoLine);
             VerifyXmlLine(IssuedReminderLine, i);
             i += 1;
-        until IssuedFinChargeMemoLine.Next = 0;
+        until IssuedFinChargeMemoLine.Next() = 0;
         // [THEN] 'PaymentID' is exported with Giro KID value of the finance charge memo (TFS 362900)
         LibraryXPathXMLReader.VerifyNodeValue('//cbc:PaymentID', GetGiroKID(2, IssuedFinChargeMemoHeader."No."));
     end;
@@ -205,7 +205,7 @@ codeunit 144005 "EHF Reminder"
         // [GIVEN] Issued Reminder with blank 'Your Reference'
         IssuedReminderHeader.Get(EInvoiceReminderHelper.CreateReminder);
         IssuedReminderHeader."Your Reference" := '';
-        IssuedReminderHeader.Modify;
+        IssuedReminderHeader.Modify();
 
         // [WHEN] Export Issued Reminder
         FileName := ExportEHFReminder.GenerateXMLFile(IssuedReminderHeader);
@@ -300,14 +300,14 @@ codeunit 144005 "EHF Reminder"
     begin
         ReminderHeader."Your Reference" := YourReference;
         ReminderHeader."E-Invoice" := Einvoice;
-        ReminderHeader.Modify;
+        ReminderHeader.Modify();
     end;
 
     local procedure UpdateFinChargeMemoEInvoiceFields(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; YourReference: Text[35]; Einvoice: Boolean)
     begin
         FinanceChargeMemoHeader."Your Reference" := YourReference;
         FinanceChargeMemoHeader."E-Invoice" := Einvoice;
-        FinanceChargeMemoHeader.Modify;
+        FinanceChargeMemoHeader.Modify();
     end;
 
     local procedure VerifyXMLGeneralInfo(IssuedReminderHeader: Record "Issued Reminder Header"; YourReference: Text[35])

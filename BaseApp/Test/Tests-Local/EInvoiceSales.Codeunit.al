@@ -290,7 +290,7 @@ codeunit 144103 "E-Invoice Sales"
         Initialize();
         asserterror EInvoiceSalesHelper.CreateSalesInvoiceNoUNECECode;
         Assert.ExpectedError(
-          StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption));
+          StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption()));
     end;
 
     [Test]
@@ -725,7 +725,7 @@ codeunit 144103 "E-Invoice Sales"
         Initialize();
         asserterror EInvoiceSalesHelper.CreateSalesCrMemoNoUNECECode;
         Assert.ExpectedError(
-          StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption));
+          StrSubstNo(MissingUnitOfMeasureCodeErr, UnitOfMeasure.FieldCaption("International Standard Code"), UnitOfMeasure.TableCaption()));
     end;
 
     [Test]
@@ -1622,7 +1622,7 @@ codeunit 144103 "E-Invoice Sales"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate(GLN, '1234567890128');
             Validate("SWIFT Code", 'MIDLGB22Z0K');
             Modify(true);
@@ -1704,7 +1704,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         SalesCrMemoHeader.Get(HeaderId);
         with Customer do begin
-            Init;
+            Init();
             Address := SalesCrMemoHeader."Ship-to Address";
             "Address 2" := SalesCrMemoHeader."Ship-to Address 2";
             City := SalesCrMemoHeader."Ship-to City";
@@ -1721,7 +1721,7 @@ codeunit 144103 "E-Invoice Sales"
     begin
         SalesInvoiceHeader.Get(SalesInvoiceHeaderId);
         with Customer do begin
-            Init;
+            Init();
             Address := SalesInvoiceHeader."Ship-to Address";
             "Address 2" := SalesInvoiceHeader."Ship-to Address 2";
             City := SalesInvoiceHeader."Ship-to City";

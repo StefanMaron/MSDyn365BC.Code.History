@@ -21,7 +21,7 @@ codeunit 1754 "Data Classif. Import/Export"
     begin
         DataSensitivity.SetRange("Company Name", CompanyName);
         if DataSensitivity.IsEmpty() then
-            DataClassificationMgt.PopulateDataSensitivityTable;
+            DataClassificationMgt.PopulateDataSensitivityTable();
 
         ShouldUploadFile := true;
         OnUploadExcelSheet(TempExcelBuffer, ShouldUploadFile);
@@ -31,7 +31,7 @@ codeunit 1754 "Data Classif. Import/Export"
 
         ProcessExcelSheet(TempExcelBuffer);
 
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
     end;
 
     local procedure ReadExcelSheet(var TempExcelBuffer: Record "Excel Buffer" temporary)
@@ -49,7 +49,7 @@ codeunit 1754 "Data Classif. Import/Export"
             Error('');
 
         TempExcelBuffer.OpenBookStream(ExcelStream, DataClassificationWorksheet.Caption);
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
     end;
 
     local procedure ProcessExcelSheet(var TempExcelBuffer: Record "Excel Buffer" temporary)
@@ -80,10 +80,9 @@ codeunit 1754 "Data Classif. Import/Export"
             if TableNo <> 0 then begin
                 FieldNo := GetValueAtRowAndColumn(TempExcelBuffer, RowIndex, FieldNoColumn);
 
-                if FieldNo <> 0 then begin
+                if FieldNo <> 0 then
                     if TempExcelBuffer.Get(RowIndex, ClassColumn) then
                         UpdateDataSensitivity(TableNo, FieldNo, TempExcelBuffer."Cell Value as Text");
-                end;
             end;
         end;
     end;
@@ -108,18 +107,18 @@ codeunit 1754 "Data Classif. Import/Export"
         Class: Integer;
     begin
         if DataSensitivity.Get(CompanyName, TableNo, FieldNo) then begin
-            Class := TypeHelper.GetOptionNo(ClassValue, DataClassificationMgt.GetDataSensitivityOptionString);
+            Class := TypeHelper.GetOptionNo(ClassValue, DataClassificationMgt.GetDataSensitivityOptionString());
 
             if Class < 0 then begin
                 // Try the English version
                 RecordRef.Open(DATABASE::"Data Sensitivity");
                 FieldRef := RecordRef.Field(DataSensitivity.FieldNo("Data Sensitivity"));
                 Class := TypeHelper.GetOptionNo(ClassValue, FieldRef.OptionMembers);
-                RecordRef.Close;
+                RecordRef.Close();
             end;
 
             if Class < 0 then
-                Error(WrongSensitivityValueErr, ClassValue, DataClassificationMgt.GetDataSensitivityOptionString);
+                Error(WrongSensitivityValueErr, ClassValue, DataClassificationMgt.GetDataSensitivityOptionString());
 
             if Class <> DataSensitivity."Data Sensitivity"::Unclassified then
                 ClassifyDataSensitivity(DataSensitivity, Class);
@@ -129,7 +128,7 @@ codeunit 1754 "Data Classif. Import/Export"
     local procedure ClassifyDataSensitivity(DataSensitivity: Record "Data Sensitivity"; Class: Integer)
     begin
         DataSensitivity.Validate("Data Sensitivity", Class);
-        DataSensitivity.Validate("Last Modified By", UserSecurityId);
+        DataSensitivity.Validate("Last Modified By", UserSecurityId());
         DataSensitivity.Validate("Last Modified", CurrentDateTime);
         DataSensitivity.Modify(true);
     end;
@@ -144,7 +143,7 @@ codeunit 1754 "Data Classif. Import/Export"
     begin
         DataSensitivity.SetRange("Company Name", CompanyName);
         if not DataSensitivity.FindFirst() then
-            DataClassificationMgt.PopulateDataSensitivityTable;
+            DataClassificationMgt.PopulateDataSensitivityTable();
 
         CreateExcelSheet(TempExcelBuffer, DataSensitivity);
 
@@ -166,12 +165,12 @@ codeunit 1754 "Data Classif. Import/Export"
 
         TempExcelBuffer.WriteSheet(DataClassificationWorksheet.Caption, CompanyName, UserId);
 
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
     end;
 
     local procedure CreateExcelSheetColumnHeaders(var TempExcelBuffer: Record "Excel Buffer" temporary; DataSensitivity: Record "Data Sensitivity")
     begin
-        TempExcelBuffer.NewRow;
+        TempExcelBuffer.NewRow();
 
         AddTextColumnToExcelSheet(TempExcelBuffer, DataSensitivity.FieldName("Table No"));
         AddTextColumnToExcelSheet(TempExcelBuffer, DataSensitivity.FieldName("Field No"));
@@ -191,7 +190,7 @@ codeunit 1754 "Data Classif. Import/Export"
                 DataSensitivity.CalcFields("Field Type");
 
                 if (DataSensitivity."Table Caption" <> '') and (DataSensitivity."Field Caption" <> '') then begin
-                    TempExcelBuffer.NewRow;
+                    TempExcelBuffer.NewRow();
 
                     AddNumericColumnToExcelSheet(TempExcelBuffer, DataSensitivity."Table No");
                     AddNumericColumnToExcelSheet(TempExcelBuffer, DataSensitivity."Field No");

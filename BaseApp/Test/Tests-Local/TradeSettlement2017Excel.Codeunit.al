@@ -44,7 +44,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 3 (Domestic turnover and withdrawal, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 19 (Tax to pay) = 250
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(3, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -77,7 +77,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 4 (Domestic turnover and withdrawal, VAT 15 %) = 1000 (base) + 150 (amount)
         // [THEN] Box 19 (Tax to pay) = 150
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(4, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -108,7 +108,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 5 (Domestic turnover and withdrawal, VAT 10 %) = 1000 (base) + 100 (amount)
         // [THEN] Box 19 (Tax to pay) = 100
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(5, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -139,7 +139,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 6 (Zero rated domestic turnover and withdrawal) = 1000
         // [THEN] Box 19 (Tax to pay) = 0
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBase(6, VATBase);
         VerifyBoxVATAmount(19, 0);
@@ -171,7 +171,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 0
         // [THEN] Box 7 (Domestic turnover subject to reverse charge (emission trading and gold)) = 1000 (base) + 150 (amount)
         // [THEN] Box 19 (Outstanding Tax) = -150
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(7, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -202,7 +202,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 8 (Total zero rated turnover due to export of goods and services) = 1000
         // [THEN] Box 19 (Tax to pay) = 0
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBase(8, VATBase);
         VerifyBoxVATAmount(19, 0);
@@ -233,7 +233,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 9 (Import of goods, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 19 (Tax to pay) = 250
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(9, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -266,7 +266,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 9 (Import of goods, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 250
         // [THEN] Box 19 (Tax to pay) = 250 (box9) - 250 (box17) = 0
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(9, VATBase, VATAmount);
         VerifyBoxVATAmount(17, VATAmount);
@@ -298,7 +298,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 10 (Import of goods, VAT 15 %) = 1000 (base) + 150 (amount)
         // [THEN] Box 19 (Tax to pay) = 150
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(10, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -331,7 +331,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 10 (Import of goods, VAT 15 %) = 1000 (base) + 150 (amount)
         // [THEN] Box 18 (Deductible import VAT, 15 %) = 150
         // [THEN] Box 19 (Tax to pay) = 150 (box10) - 150 (box18) = 0
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(10, VATBase, VATAmount);
         VerifyBoxVATAmount(18, VATAmount);
@@ -363,7 +363,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 11 (Import of goods not subject to VAT) = 1000
         // [THEN] Box 19 (Tax to pay) = 0
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBase(11, VATBase);
         VerifyBoxVATAmount(19, 0);
@@ -394,7 +394,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 1000
         // [THEN] Box 12 (Purchase of intangible services from abroad, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 19 (Tax to pay) = 250
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(12, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -427,7 +427,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 12 (Purchase of intangible services from abroad, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 250
         // [THEN] Box 19 (Tax to pay) = 250 (box12) - 250 (box17) = 0
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase);
         VerifyBoxVATBaseAndAmount(12, VATBase, VATAmount);
         VerifyBoxVATAmount(17, VATAmount);
@@ -459,7 +459,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 0
         // [THEN] Box 13 (Domestic purchases subject to reverse charge, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 19 (Tax to pay) = 250
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATBaseAndAmount(13, VATBase, VATAmount);
         VerifyBoxVATAmount(19, VATAmount);
@@ -492,7 +492,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 13 (Domestic purchases subject to reverse charge, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 14 (Deductible domestic input VAT, 25 %) = 250
         // [THEN] Box 19 (Tax to pay) = 250 (box13) - 250 (box14) = 0
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATBaseAndAmount(13, VATBase, VATAmount);
         VerifyBoxVATAmount(14, VATAmount);
@@ -524,7 +524,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 0
         // [THEN] Box 14 (Deductible domestic input VAT, 25 %) = 250
         // [THEN] Box 19 (Outstanding Tax) = -250
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATAmount(14, VATAmount);
         VerifyBoxVATAmount(19, -VATAmount);
@@ -555,7 +555,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 0
         // [THEN] Box 15 (Deductible domestic input VAT, 15 %) = 150
         // [THEN] Box 19 (Outstanding Tax) = -150
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATAmount(15, VATAmount);
         VerifyBoxVATAmount(19, -VATAmount);
@@ -586,7 +586,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 0
         // [THEN] Box 16 (Deductible domestic input VAT, 10 %) = 100
         // [THEN] Box 19 (Outstanding Tax) = -150
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATAmount(16, VATAmount);
         VerifyBoxVATAmount(19, -VATAmount);
@@ -617,7 +617,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 0
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 250
         // [THEN] Box 19 (Outstanding Tax) = -250
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATAmount(17, VATAmount);
         VerifyBoxVATAmount(19, -VATAmount);
@@ -648,7 +648,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 2 (Total turnover and withdrawal covered by the VAT Act and import) = 0
         // [THEN] Box 18 (Deductible import VAT, 15 %) = 150
         // [THEN] Box 19 (Outstanding Tax) = -150
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATAmount(18, VATAmount);
         VerifyBoxVATAmount(19, -VATAmount);
@@ -691,7 +691,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 6 (Zero rated domestic turnover and withdrawal) = 400
         // [THEN] Box 8 (Total zero rated turnover due to export of goods and services) = 200
         // [THEN] Box 19 (Tax to pay) = 250 + 120 + 60 = 430
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase[1] + VATBase[2] + VATBase[3] + VATBase[4] + VATBase[5]);
         VerifyBoxVATBaseAndAmount(3, VATBase[1], VATAmount[1]);
         VerifyBoxVATBaseAndAmount(4, VATBase[2], VATAmount[2]);
@@ -734,7 +734,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 10 (Import of goods, VAT 15 %) = 800 (base) + 120 (amount)
         // [THEN] Box 11 (Import of goods not subject to VAT) = 600
         // [THEN] Box 19 (Tax to pay) = 250 (box9) + 150 (box10) = 400
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase[1] + VATBase[2] + VATBase[3]);
         VerifyBoxVATBaseAndAmount(9, VATBase[1], VATAmount[1]);
         VerifyBoxVATBaseAndAmount(10, VATBase[2], VATAmount[2]);
@@ -775,7 +775,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 12 (Purchase of intangible services from abroad, VAT 25 %) = 1000 (base) + 250 (amount)
         // [THEN] Box 13 (Domestic purchases subject to reverse charge, VAT 25 %) = 800 (base) + 200 (amount)
         // [THEN] Box 19 (Tax to pay) = 250 (box12) + 200 (box13) = 450
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase[1]);
         VerifyBoxVATBaseAndAmount(12, VATBase[1], VATAmount[1]);
         VerifyBoxVATBaseAndAmount(13, VATBase[2], VATAmount[2]);
@@ -815,7 +815,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 15 (Deductible domestic input VAT, 15 %) = 120
         // [THEN] Box 16 (Deductible domestic input VAT, 10 %) = 60
         // [THEN] Box 19 (Outstanding Tax) = -250 - 120 - 60 = -430
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATAmount(14, VATAmount[1]);
         VerifyBoxVATAmount(15, VATAmount[2]);
@@ -854,7 +854,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 250
         // [THEN] Box 18 (Deductible import VAT, 15 %) = 150
         // [THEN] Box 19 (Outstanding Tax) = - 250 (box17) - 150 (box18) = -400
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0);
         VerifyBoxVATAmount(17, VATAmount[1]);
         VerifyBoxVATAmount(18, VATAmount[2]);
@@ -901,7 +901,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 250
         // [THEN] Box 18 (Deductible import VAT, 15 %) = 150
         // [THEN] Box 19 (Tax to pay) = 2500 (box9) + 1500 (box10) - 250 (box17) - 150 (box18) = 3600
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase[1] + VATBase[2] + VATBase[3]);
         VerifyBoxVATBaseAndAmount(9, VATBase[1], VATAmount[1]);
         VerifyBoxVATBaseAndAmount(10, VATBase[2], VATAmount[2]);
@@ -966,7 +966,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 17 (Deductible import VAT, 25 %) = 20
         // [THEN] Box 18 (Deductible import VAT, 15 %) = 3
         // [THEN] Box 19 (Tax to pay) = 2500 + 1200 + 250 + 200 - (25 + 12 + 6 + 20 + 3) = 4150 - 66 = 4084
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, VATBase[1] + VATBase[2] + VATBase[3] + VATBase[4]);
         VerifyBoxVATBaseAndAmount(9, VATBase[1], VATAmount[1]);
         VerifyBoxVATBaseAndAmount(10, VATBase[2], VATAmount[2]);
@@ -1029,7 +1029,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         // [THEN] Box 15 (Deductible domestic input VAT, 15 %) = 120
         // [THEN] Box 16 (Deductible domestic input VAT, 10 %) = 60
         // [THEN] Box 19 (Tax to pay) = 2500 + 1200 + 600 = 4300
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, SalesVATBase[1] + SalesVATBase[2] + SalesVATBase[3]);
         VerifyBoxVATBaseAndAmount(3, SalesVATBase[1], SalesVATAmount[1]);
         VerifyBoxVATBaseAndAmount(4, SalesVATBase[2], SalesVATAmount[2]);
@@ -1058,7 +1058,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         RunTradeSettlement2017ReportCombine(VATEntry."Entry No." + 1);
 
         // [THEN] Standard Trade Settlement part is printed with zero values
-        OpenExcel;
+        OpenExcel();
         VerifyBoxVATBase(2, 0); // Total turnover and withdrawal based on import
         VerifyBoxVATBaseAndAmount(3, 0, 0); // Base and Amount for Domestic turnover and withdrawal, VAT 25 %
         VerifyBoxVATBaseAndAmount(4, 0, 0); // Base and Amount for Domestic turnover and withdrawal, VAT 15 %
@@ -1086,19 +1086,19 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
 
         // [GIVEN] VAT Entry with this VAT Posting Setup. Amount = "X".
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
             "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
             Type := Type::Sale;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := LibraryRandom.RandDecInRange(100, 200, 2);
-            Insert;
+            Insert();
         end;
 
         // [WHEN] Run Trade Settlement 2017 report.
         Commit();
-        VATEntry.SetRecFilter;
+        VATEntry.SetRecFilter();
         RunTradeSettlement2017Report(VATEntry);
 
         // [THEN] The report shows the VAT Entry with blank "VAT Bus. Posting Group", VAT Amount = "X".
@@ -1164,7 +1164,7 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
         VATCode: Record "VAT Code";
     begin
         with VATCode do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Code");
             "Gen. Posting Type" := "Gen. Posting Type"::Sale;
             "Trade Settlement 2017 Box No." := ReportBoxNo;
@@ -1383,8 +1383,8 @@ codeunit 144003 "Trade Settlement 2017 - Excel"
     var
         NorwegianVATTools: Codeunit "Norwegian VAT Tools";
     begin
-        TradeSettlement2017.SettlementYear.SetValue(Date2DMY(WorkDate, 3));
-        TradeSettlement2017.SettlementPeriod.SetValue(NorwegianVATTools.VATPeriodNo(WorkDate));
+        TradeSettlement2017.SettlementYear.SetValue(Date2DMY(WorkDate(), 3));
+        TradeSettlement2017.SettlementPeriod.SetValue(NorwegianVATTools.VATPeriodNo(WorkDate()));
         TradeSettlement2017.ExportXML.SetValue(false);
         TradeSettlement2017.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;

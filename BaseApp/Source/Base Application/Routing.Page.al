@@ -11,7 +11,7 @@ page 99000766 Routing
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -37,12 +37,12 @@ page 99000766 Routing
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of this routing.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a search description.';
                 }
-                field("Version Nos."; "Version Nos.")
+                field("Version Nos."; Rec."Version Nos.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number series you want to use to create a new version of this routing.';
@@ -61,17 +61,17 @@ page 99000766 Routing
                         RtngVersion.SetRange("Routing No.", "No.");
                         RtngVersion.SetRange("Version Code", ActiveVersionCode);
                         PAGE.RunModal(PAGE::"Routing Version", RtngVersion);
-                        ActiveVersionCode := VersionMgt.GetRtngVersion("No.", WorkDate, true);
+                        ActiveVersionCode := VersionMgt.GetRtngVersion("No.", WorkDate(), true);
                     end;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the routing card was last modified.';
 
                     trigger OnValidate()
                     begin
-                        LastDateModifiedOnAfterValidat;
+                        LastDateModifiedOnAfterValidat();
                     end;
                 }
             }
@@ -120,8 +120,6 @@ page 99000766 Routing
                     ApplicationArea = Manufacturing;
                     Caption = '&Versions';
                     Image = RoutingVersions;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Routing Version List";
                     RunPageLink = "Routing No." = FIELD("No.");
                     ToolTip = 'View or edit other versions of the routing, typically with other operations data. ';
@@ -131,8 +129,6 @@ page 99000766 Routing
                     ApplicationArea = Manufacturing;
                     Caption = 'Where-used';
                     Image = "Where-Used";
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Where-Used Item List";
                     RunPageLink = "Routing No." = FIELD("No.");
                     RunPageView = SORTING("Routing No.");
@@ -152,8 +148,6 @@ page 99000766 Routing
                     Caption = 'Copy &Routing';
                     Ellipsis = true;
                     Image = CopyDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Copy an existing routing to quickly create a similar BOM.';
 
                     trigger OnAction()
@@ -174,11 +168,27 @@ page 99000766 Routing
                 ApplicationArea = Manufacturing;
                 Caption = 'Routing Sheet';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Routing Sheet";
                 ToolTip = 'View basic information for routings, such as send-ahead quantity, setup time, run time and time unit. This report shows you the operations to be performed in this routing, the work or machine centers to be used, the personnel, the tools, and the description of each operation.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Copy &Routing_Promoted"; "Copy &Routing")
+                {
+                }
+                actionref("&Versions_Promoted"; "&Versions")
+                {
+                }
+                actionref("Where-used_Promoted"; "Where-used")
+                {
+                }
             }
         }
     }
@@ -186,7 +196,7 @@ page 99000766 Routing
     trigger OnAfterGetRecord()
     begin
         ActiveVersionCode :=
-          VersionMgt.GetRtngVersion("No.", WorkDate, true);
+          VersionMgt.GetRtngVersion("No.", WorkDate(), true);
     end;
 
     var

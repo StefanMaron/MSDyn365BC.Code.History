@@ -154,7 +154,7 @@ codeunit 141000 "Report Layout - Local"
         FileMgt: Codeunit "File Management";
         FileName: Text;
     begin
-        TrialBalancePreviousPeriod."G/L Account".SetFilter("Date Filter", Format(CalcDate('<-1Y>', WorkDate)));
+        TrialBalancePreviousPeriod."G/L Account".SetFilter("Date Filter", Format(CalcDate('<-1Y>', WorkDate())));
         FileName := FileMgt.ServerTempFileName('pdf');
         LibraryVariableStorage.Enqueue(FileName);
         TrialBalancePreviousPeriod.SaveAsPdf(FileName);

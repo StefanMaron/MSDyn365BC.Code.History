@@ -14,12 +14,12 @@ page 1512 "Notification Setup"
         {
             repeater(Group)
             {
-                field("Notification Type"; "Notification Type")
+                field("Notification Type"; Rec."Notification Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies what type of event the notification is about.';
                 }
-                field("Notification Method"; "Notification Method")
+                field("Notification Method"; Rec."Notification Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the notification method that is used to create notifications for the user.';
@@ -43,13 +43,21 @@ page 1512 "Notification Setup"
                 ApplicationArea = Suite;
                 Caption = 'Notification Schedule';
                 Image = DateRange;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Notification Schedule";
                 RunPageLink = "User ID" = FIELD("User ID"),
                               "Notification Type" = FIELD("Notification Type");
                 ToolTip = 'Specify when the user receives notifications. The value is copied from the Recurrence field in the Notification Schedule window.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Notification Schedule_Promoted"; "Notification Schedule")
+                {
+                }
             }
         }
     }

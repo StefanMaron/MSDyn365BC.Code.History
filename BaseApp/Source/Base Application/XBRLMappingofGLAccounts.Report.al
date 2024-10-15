@@ -18,7 +18,7 @@ report 506 "XBRL Mapping of G/L Accounts"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Name_XBRLTaxonomy; Name)
@@ -197,7 +197,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                     if Number = 1 then
                         More := TempGLAcc1.Find('-')
                     else
-                        More := TempGLAcc1.Next <> 0;
+                        More := TempGLAcc1.Next() <> 0;
                     if not More then
                         CurrReport.Break();
                 end;
@@ -229,7 +229,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                     if Number = 1 then
                         More := TempGLAcc2.Find('-')
                     else
-                        More := TempGLAcc2.Next <> 0;
+                        More := TempGLAcc2.Next() <> 0;
                     if not More then
                         CurrReport.Break();
                 end;

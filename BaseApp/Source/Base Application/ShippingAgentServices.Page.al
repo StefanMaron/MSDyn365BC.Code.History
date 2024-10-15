@@ -22,12 +22,12 @@ page 5790 "Shipping Agent Services"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the shipping agent.';
                 }
-                field("Shipping Time"; "Shipping Time")
+                field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                 }
-                field("Base Calendar Code"; "Base Calendar Code")
+                field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Warehouse;
                     DrillDown = false;
@@ -41,7 +41,7 @@ page 5790 "Shipping Agent Services"
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         TestField("Base Calendar Code");
                         CalendarMgmt.ShowCustomizedCalendar(Rec);
                     end;

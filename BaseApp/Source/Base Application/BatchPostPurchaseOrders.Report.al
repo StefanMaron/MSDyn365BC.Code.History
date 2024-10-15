@@ -135,9 +135,6 @@ report 496 "Batch Post Purchase Orders"
 
     var
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
-        PrintDoc: Boolean;
-        [InDataSet]
-        PrintDocVisible: Boolean;
 
     protected var
         ReceiveReq: Boolean;
@@ -146,6 +143,9 @@ report 496 "Batch Post Purchase Orders"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
+        PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
 
     procedure InitializeRequest(NewReceiveReq: Boolean; NewInvReq: Boolean; NewPostingDateReq: Date; NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewCalcInvDisc: Boolean)
     var

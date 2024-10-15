@@ -14,13 +14,13 @@ page 780 "Certificates of Supply"
         {
             repeater(Group)
             {
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of the posted document to which the certificate of supply applies.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -31,12 +31,12 @@ page 780 "Certificates of Supply"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status for documents where you must receive a signed certificate of supply from the customer.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Receipt Date"; "Receipt Date")
+                field("Receipt Date"; Rec."Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the receipt date of the signed certificate of supply.';
@@ -47,33 +47,33 @@ page 780 "Certificates of Supply"
                     Editable = false;
                     ToolTip = 'Specifies whether the certificate of supply has been printed and sent to the customer.';
                 }
-                field("Customer/Vendor Name"; "Customer/Vendor Name")
+                field("Customer/Vendor Name"; Rec."Customer/Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer or vendor.';
                 }
-                field("Shipment Date"; "Shipment/Posting Date")
+                field("Shipment Date"; Rec."Shipment/Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the posted shipment was shipped or posted.';
                 }
-                field("Shipment Country"; "Ship-to Country/Region Code")
+                field("Shipment Country"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                 }
-                field("Customer/Vendor No."; "Customer/Vendor No.")
+                field("Customer/Vendor No."; Rec."Customer/Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the customer or vendor.';
                 }
-                field("Shipment Method"; "Shipment Method Code")
+                field("Shipment Method"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
-                field("Vehicle Registration No."; "Vehicle Registration No.")
+                field("Vehicle Registration No."; Rec."Vehicle Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vehicle registration number associated with the shipment.';
@@ -91,8 +91,6 @@ page 780 "Certificates of Supply"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Print Certificate of Supply';
                 Image = PrintReport;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Print the certificate of supply that you must send to your customer for signature as confirmation of receipt.';
 
                 trigger OnAction()
@@ -104,8 +102,19 @@ page 780 "Certificates of Supply"
                         CertificateOfSupply.SetRange("Document Type", "Document Type");
                         CertificateOfSupply.SetRange("Document No.", "Document No.");
                     end;
-                    CertificateOfSupply.Print;
+                    CertificateOfSupply.Print();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PrintCertificateofSupply_Promoted; PrintCertificateofSupply)
+                {
+                }
             }
         }
     }

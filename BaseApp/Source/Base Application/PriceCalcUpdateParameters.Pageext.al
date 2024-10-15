@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Data Update"
 {
     ObsoleteState = Pending;

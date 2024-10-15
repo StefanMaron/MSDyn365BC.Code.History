@@ -44,7 +44,7 @@ codeunit 137617 "Production & Assembly Costing"
 
         // [GIVEN] Transfer remaining quantity of item "I" to location "L2"
         SelectTransferJournalBatch(ItemJournalBatch);
-        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Transfer, Item."No.", 3 * 3.71, WorkDate);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Transfer, Item."No.", 3 * 3.71, WorkDate());
         ItemJournalLine.Validate("New Location Code", Location.Code);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -86,13 +86,13 @@ codeunit 137617 "Production & Assembly Costing"
         PostPurchaseAndSaleItemJnlLines(Item."No.");
 
         SelectItemJournalBatch(ItemJournalBatch);
-        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3 * 3.71, WorkDate);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3 * 3.71, WorkDate());
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Post partial sales return with cost application
         ItemLedgEntry.FindLast();
         CreateItemJournalLineWithAppliesFrom(
-          ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3 * 3.71, '', ItemLedgEntry."Entry No.", WorkDate);
+          ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3 * 3.71, '', ItemLedgEntry."Entry No.", WorkDate());
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Run "Adjust cost - item entries" batch job
@@ -134,7 +134,7 @@ codeunit 137617 "Production & Assembly Costing"
         PostManyPurchasesAndSalesNoApplication(Item."No.");
 
         // [GIVEN] Sale remaining quantity of item "I" and undo sale with cost application on different date
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         SelectItemJournalBatch(ItemJournalBatch);
         for I := 1 to 9 do begin
             CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3.71, PostingDate);
@@ -188,7 +188,7 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Transfer remaining quantity to another location
         SelectTransferJournalBatch(ItemJournalBatch);
         for I := 1 to 9 do begin
-            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Transfer, Item."No.", 3.71, WorkDate);
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Transfer, Item."No.", 3.71, WorkDate());
             ItemJournalLine.Validate("New Location Code", Location.Code);
             ItemJournalLine.Modify(true);
         end;
@@ -232,14 +232,14 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Sale remaining quantity of item "I" and undo sale with cost application on the same date
         SelectItemJournalBatch(ItemJournalBatch);
         for i := 1 to 9 do begin
-            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3.71, WorkDate);
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3.71, WorkDate());
             LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
             ItemLedgEntry.FindLast();
 
             Initialize();
             CreateItemJournalLineWithAppliesFrom(
-              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3.71, '', ItemLedgEntry."Entry No.", WorkDate);
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3.71, '', ItemLedgEntry."Entry No.", WorkDate());
             LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         end;
 
@@ -283,8 +283,8 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Post purchase entries for item "I" on location "L1"
         SelectItemJournalBatch(ItemJnlBatch);
         for I := 1 to 6 do
-            CreateItemJournalLineWithUnitCost(ItemJnlBatch, ItemJnlLine."Entry Type"::Purchase, Item."No.", 2.44, 6710, WorkDate);
-        CreateItemJournalLineWithUnitCost(ItemJnlBatch, ItemJnlLine."Entry Type"::Purchase, Item."No.", 1.63, 6710, WorkDate);
+            CreateItemJournalLineWithUnitCost(ItemJnlBatch, ItemJnlLine."Entry Type"::Purchase, Item."No.", 2.44, 6710, WorkDate());
+        CreateItemJournalLineWithUnitCost(ItemJnlBatch, ItemJnlLine."Entry Type"::Purchase, Item."No.", 1.63, 6710, WorkDate());
 
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
         ItemLedgEntry.FindLast();
@@ -294,7 +294,7 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Transfer item "I" from location "L1" to locatin "L2", then sale from "L2" with cost application
         SelectTransferJournalBatch(ItemJnlBatch);
         for I := 1 to 4 do begin
-            CreateItemJournalLine(ItemJnlLine, ItemJnlBatch, ItemJnlLine."Entry Type"::Transfer, Item."No.", 2.44, WorkDate);
+            CreateItemJournalLine(ItemJnlLine, ItemJnlBatch, ItemJnlLine."Entry Type"::Transfer, Item."No.", 2.44, WorkDate());
             ItemJnlLine.Validate("New Location Code", Location.Code);
             ItemJnlLine.Modify(true);
             LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
@@ -302,16 +302,16 @@ codeunit 137617 "Production & Assembly Costing"
             ItemLedgEntry.FindLast();
 
             CreateItemJournalLineWithAppliesTo(
-              ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+              ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate());
 
             LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
         end;
 
         // [GIVEN] Sell remaining quantity from locaiton "L1", post with cost application
         SelectItemJournalBatch(ItemJnlBatch);
-        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, '', FromEntryTo, WorkDate);
-        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, '', FromEntryTo + 1, WorkDate);
-        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 1.63, '', FromEntryTo + 2, WorkDate);
+        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, '', FromEntryTo, WorkDate());
+        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, '', FromEntryTo + 1, WorkDate());
+        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 1.63, '', FromEntryTo + 2, WorkDate());
 
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
@@ -355,24 +355,24 @@ codeunit 137617 "Production & Assembly Costing"
         SelectItemJournalBatch(ItemJournalBatch);
         for I := 1 to 4 do begin
             // [GIVEN] Post sales entries without application to purchase
-            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, WorkDate);
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, WorkDate());
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
             // [GIVEN] Undo sale with fixed cost application
             ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesFrom(
-              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate());
 
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
             // [GIVEN] Post sale with aplication to previous sales return
             ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesTo(
-              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate());
 
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         end;
-        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate);
+        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate());
 
         // [WHEN] Run "Adjust cost - item entries" batch job
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -418,7 +418,7 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Sell assembled items with fixed cost application
         SelectItemJournalBatch(ItemJournalBatch);
         for I := 1 to 4 do begin
-            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", Location.Code, 2.44, '');
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", Location.Code, 2.44, '');
             LibraryAssembly.CreateAssemblyLine(
               AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", 2.44, 1, '');
             AssemblyLine.Validate("Location Code", '');
@@ -428,11 +428,11 @@ codeunit 137617 "Production & Assembly Costing"
 
             ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesTo(
-              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate());
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         end;
 
-        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate);
+        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate());
 
         // [WHEN] Run "Adjust cost - item entries" batch job
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -478,7 +478,7 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Sell assembled items with fixed cost application
         SelectItemJournalBatch(ItemJournalBatch);
         for I := 1 to 4 do begin
-            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", Location.Code, 2.44, '');
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", Location.Code, 2.44, '');
             LibraryAssembly.CreateAssemblyLine(
               AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", 2.44, 1, '');
             AssemblyLine.Validate("Location Code", '');
@@ -488,11 +488,11 @@ codeunit 137617 "Production & Assembly Costing"
 
             ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesTo(
-              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate());
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         end;
 
-        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate);
+        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate());
 
         // [WHEN] Run "Adjust cost - item entries" batch job
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -593,16 +593,16 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Item "A": post 1 pc for 100 LCY and another 1 pc for 180 LCY. The average cost is 140 LCY.
         // [GIVEN] Item "C": post 2 pcs for 10 LCY each.
         SelectItemJournalBatch(ItemJournalBatch);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, AsmItem."No.", 1, 100.0, WorkDate);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, AsmItem."No.", 1, 180.0, WorkDate);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, CompItem."No.", 2, 10.0, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, AsmItem."No.", 1, 100.0, WorkDate());
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, AsmItem."No.", 1, 180.0, WorkDate());
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, CompItem."No.", 2, 10.0, WorkDate());
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // [GIVEN] Two assembly orders for item "A".
         // [GIVEN] Add two component lines to each order: 1 pc of item "A" and 1 pc of item "C".
         // [GIVEN] Post both assemblies.
         for i := 1 to 2 do begin
-            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, AsmItem."No.", '', 1, '');
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), AsmItem."No.", '', 1, '');
             LibraryAssembly.CreateAssemblyLine(
               AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, AsmItem."No.", AsmItem."Base Unit of Measure", 1, 1, '');
             LibraryAssembly.CreateAssemblyLine(
@@ -612,20 +612,20 @@ codeunit 137617 "Production & Assembly Costing"
 
         // [GIVEN] Write the remaining quantity of "A" off the inventory.
         CreateItemJournalLineWithUnitCost(
-          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", AsmItem."No.", 1, 0.0, WorkDate);
+          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", AsmItem."No.", 1, 0.0, WorkDate());
         CreateItemJournalLineWithUnitCost(
-          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", AsmItem."No.", 1, 0.0, WorkDate);
+          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", AsmItem."No.", 1, 0.0, WorkDate());
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // [WHEN] Adjust cost of both "A" and "C".
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', AsmItem."No.", CompItem."No."), '');
 
         // [THEN] The average cost of item "A" = 150 LCY. (140 LCY after the purchase plus 10 LCY as the consumption of component "C").
-        AsmItem.Find;
+        AsmItem.Find();
         AsmItem.TestField("Unit Cost", 150.0);
 
         // [THEN] The average cost of item "C" = 10 LCY.
-        CompItem.Find;
+        CompItem.Find();
         CompItem.TestField("Unit Cost", 10.0);
 
         // [THEN] The average cost of output of "A" = 150 LCY.
@@ -675,9 +675,9 @@ codeunit 137617 "Production & Assembly Costing"
         // [GIVEN] Item "P": post 1 pc for 100 LCY and another 1 pc for 180 LCY. The average cost is 140 LCY.
         // [GIVEN] Item "C": post 2 pcs for 10 LCY each.
         SelectItemJournalBatch(ItemJournalBatch);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ProdItem."No.", 1, 100.0, WorkDate);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ProdItem."No.", 1, 180.0, WorkDate);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, CompItem."No.", 2, 10.0, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ProdItem."No.", 1, 100.0, WorkDate());
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ProdItem."No.", 1, 180.0, WorkDate());
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, CompItem."No.", 2, 10.0, WorkDate());
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // [GIVEN] Two production orders for item "P".
@@ -694,26 +694,26 @@ codeunit 137617 "Production & Assembly Costing"
             CreateProdOrderComponentWithItem(ProdOrderComponent, ProdOrderLine, CompItem."No.", 1);
             LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
 
-            ProductionOrder.Find;
-            LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, true);
+            ProductionOrder.Find();
+            LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
         end;
 
         // [GIVEN] Write the remaining quantity of "P" off the inventory.
         CreateItemJournalLineWithUnitCost(
-          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", ProdItem."No.", 1, 0.0, WorkDate);
+          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", ProdItem."No.", 1, 0.0, WorkDate());
         CreateItemJournalLineWithUnitCost(
-          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", ProdItem."No.", 1, 0.0, WorkDate);
+          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", ProdItem."No.", 1, 0.0, WorkDate());
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // [WHEN] Adjust cost of both "P" and "C".
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', ProdItem."No.", CompItem."No."), '');
 
         // [THEN] The average cost of item "P" = 150 LCY. (140 LCY after the purchase plus 10 LCY as the consumption of component "C").
-        ProdItem.Find;
+        ProdItem.Find();
         ProdItem.TestField("Unit Cost", 150.0);
 
         // [THEN] The average cost of item "C" = 10 LCY.
-        CompItem.Find;
+        CompItem.Find();
         CompItem.TestField("Unit Cost", 10.0);
 
         // [THEN] The average cost of output of "P" = 150 LCY.
@@ -897,16 +897,16 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         SelectItemJournalBatch(ItemJournalBatch);
 
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate());
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate());
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate());
 
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6709, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6709, WorkDate());
 
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate());
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate());
 
-        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 1.63, 6710, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 1.63, 6710, WorkDate());
 
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
@@ -932,16 +932,16 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         SelectItemJournalBatch(ItemJournalBatch);
         for I := 1 to 21 do
-            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 3.69, WorkDate);
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 3.69, WorkDate());
 
         for I := 1 to 21 do
-            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 3.71, WorkDate);
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 3.71, WorkDate());
 
         for I := 1 to 21 do
-            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 3.69, WorkDate);
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 3.69, WorkDate());
 
         for I := 1 to 12 do
-            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 3.71, WorkDate);
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 3.71, WorkDate());
 
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
@@ -952,10 +952,10 @@ codeunit 137617 "Production & Assembly Costing"
         ItemJournalLine: Record "Item Journal Line";
     begin
         SelectItemJournalBatch(ItemJournalBatch);
-        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 7 * 3.69, WorkDate);
-        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 7 * 3.71, WorkDate);
-        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 7 * 3.69, WorkDate);
-        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 4 * 3.71, WorkDate);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 7 * 3.69, WorkDate());
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 7 * 3.71, WorkDate());
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 7 * 3.69, WorkDate());
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 4 * 3.71, WorkDate());
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 

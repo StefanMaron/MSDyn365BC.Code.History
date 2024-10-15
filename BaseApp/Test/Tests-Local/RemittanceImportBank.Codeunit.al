@@ -60,7 +60,7 @@ codeunit 144133 "Remittance - Import Bank"
 
         // Verify
         VerifyImportedLinesDomestic(
-          BatchName, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, NoSeriesLine, Vendor."No.",
+          BatchName, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount);
         VerifyWaitingJournalStatusIsSent;
         UpdateWorkdate(OldDate);
@@ -163,7 +163,7 @@ codeunit 144133 "Remittance - Import Bank"
 
         // Verify
         VerifyImportedLinesDomestic(
-          ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, NoSeriesLine, Vendor."No.",
+          ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate(), NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount);
         VerifyWaitingJournalStatusIsSent;
         UpdateWorkdate(OldDate);
@@ -367,7 +367,7 @@ codeunit 144133 "Remittance - Import Bank"
 
         LibraryVariableStorage.Enqueue(UseControlBatch);
         if UseControlBatch then
-            LibraryVariableStorage.Enqueue(StrSubstNo(NoteWithControlReturnFilesAreReadMsg, PRODUCTNAME.Full));
+            LibraryVariableStorage.Enqueue(StrSubstNo(NoteWithControlReturnFilesAreReadMsg, PRODUCTNAME.Full()));
         LibraryVariableStorage.Enqueue(ConfirmTheImport);
         if not UseControlBatch then
             LibraryVariableStorage.Enqueue(NoteWithControlReturnFilesAreReadMsg);
@@ -389,13 +389,13 @@ codeunit 144133 "Remittance - Import Bank"
         BankPaymentFile.CreateOutStream(BankPaymentOutputStream);
 
         WriteBankRecord(GenerateBankRemittanceBatchStartRecord, BankPaymentOutputStream);
-        WriteBankRecord(GenerateBankRemittanceTransferRecordDomestic(WorkDate, ''), BankPaymentOutputStream);
+        WriteBankRecord(GenerateBankRemittanceTransferRecordDomestic(WorkDate(), ''), BankPaymentOutputStream);
         WriteBankRecord(GenerateInvoiceRecordDomestic(Format(WaitingJournal.Reference), ''), BankPaymentOutputStream);
 
         if WriteClosingLine then
             WriteBankRecord(GenerateBankRemittanceBatchEndRecord, BankPaymentOutputStream);
 
-        BankPaymentFile.Close;
+        BankPaymentFile.Close();
     end;
 
     [Normal]
@@ -432,7 +432,7 @@ codeunit 144133 "Remittance - Import Bank"
         if WriteClosingLine then
             WriteBankRecord(GenerateBankRemittanceBatchEndRecord, BankPaymentOutputStream);
 
-        BankPaymentFile.Close;
+        BankPaymentFile.Close();
     end;
 
     [Normal]
@@ -616,7 +616,7 @@ codeunit 144133 "Remittance - Import Bank"
 
     local procedure UpdateWorkdate(NewDate: Date) OldDate: Date
     begin
-        OldDate := WorkDate;
+        OldDate := WorkDate();
         WorkDate := NewDate;
         if Date2DWY(NewDate, 1) in [6, 7] then // "Posting Date" and "Pmt. Discount Date" compared works date in CU 15000001
             WorkDate := WorkDate + 2;
@@ -633,7 +633,7 @@ codeunit 144133 "Remittance - Import Bank"
 
         VerifyPaymentLine(GenJournalLine, PostingDate, NoSeriesLine, VendorAccountNo, Amount, DocumentNo);
 
-        GenJournalLine.Next;
+        GenJournalLine.Next();
 
         VerifyBalancingLine(GenJournalLine, PostingDate, NoSeriesLine, RemittanceAccountNo, -Amount);
     end;
@@ -650,15 +650,15 @@ codeunit 144133 "Remittance - Import Bank"
 
         VerifyPaymentLine(GenJournalLine, PostingDate, NoSeriesLine, VendorAccountNo, Amount, DocumentNo);
 
-        GenJournalLine.Next;
+        GenJournalLine.Next();
 
         VerifyCommissionLine(GenJournalLine, PostingDate, NoSeriesLine, RemittanceAccount."Charge Account No.", Commission);
 
-        GenJournalLine.Next;
+        GenJournalLine.Next();
 
         VerifyBalancingLine(GenJournalLine, PostingDate, NoSeriesLine, RemittanceAccount."Account No.", -(Amount + Commission));
 
-        GenJournalLine.Next;
+        GenJournalLine.Next();
 
         VerifyRoundingLine(GenJournalLine, PostingDate, NoSeriesLine, RemittanceAccount."Round off/Divergence Acc. No.", Rounding);
     end;
@@ -829,7 +829,7 @@ codeunit 144133 "Remittance - Import Bank"
     begin
         LibraryVariableStorage.Dequeue(RemittanceAccountCode);
         LibraryVariableStorage.Dequeue(VendorNo);
-        SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestRemittancePayments.LastPaymentDate.SetValue(WorkDate());
         SuggestRemittancePayments.Vendor.SetFilter("No.", VendorNo);
         SuggestRemittancePayments.Vendor.SetFilter("Remittance Account Code", RemittanceAccountCode);
         SuggestRemittancePayments.OK.Invoke;

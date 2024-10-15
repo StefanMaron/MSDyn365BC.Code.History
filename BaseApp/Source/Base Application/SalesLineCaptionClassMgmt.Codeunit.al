@@ -45,18 +45,10 @@ codeunit 345 "Sales Line CaptionClass Mgmt"
         GlobalSalesHeader := SalesHeader;
     end;
 
-#if not CLEAN18
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnValidateBilltoCustomerTemplateCodeBeforeRecreateSalesLines', '', true, true)]
-    local procedure UpdateSalesLineFieldsCaptionOnValidateBilltoCustTemplCodeBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
-    begin
-        GlobalSalesHeader := SalesHeader;
-    end;
-#else
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnValidateBilltoCustomerTemplCodeOnBeforeRecreateSalesLines', '', true, true)]
     local procedure UpdateSalesLineFieldsCaptionOnValidateBilltoCustTemplCodeBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
         GlobalSalesHeader := SalesHeader;
     end;
-#endif
 }
 

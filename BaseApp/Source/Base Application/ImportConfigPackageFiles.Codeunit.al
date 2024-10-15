@@ -12,19 +12,17 @@ codeunit 1805 "Import Config. Package Files"
         CurrentLanguageID: Integer;
     begin
         AssistedCompanySetupStatus.Get(CompanyName);
-        AssistedCompanySetupStatus."Server Instance ID" := ServiceInstanceId;
-        AssistedCompanySetupStatus."Company Setup Session ID" := SessionId;
+        AssistedCompanySetupStatus."Server Instance ID" := ServiceInstanceId();
+        AssistedCompanySetupStatus."Company Setup Session ID" := SessionId();
         AssistedCompanySetupStatus.Modify();
         Commit();
 
-        UserPersonalization.Get(UserSecurityId);
+        UserPersonalization.Get(UserSecurityId());
         CurrentLanguageID := GlobalLanguage;
         if (UserPersonalization."Language ID" <> "Language ID") and ("Language ID" <> 0) then
             if not TrySetGlobalLanguage("Language ID") then
                 Error(InvalidLanguageIDErr, "Language ID");
 
-
-        Session.LogMessage('0000HQ0', StrSubstNo(CompanyInitializeLogLbl, GlobalLanguage(), "Language ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'CompanyInitialize');        
         CompanyInitialize.InitializeCompany();
         ImportConfigurationPackageFiles(Rec);
 
@@ -43,7 +41,6 @@ codeunit 1805 "Import Config. Package Files"
         PackageLbl: Label 'Package';
         CompanyLbl: Label 'Company';
         InvalidLanguageIDErr: Label 'Cannot set the language to %1. The language pack ID number is invalid.', Comment = '%1 is the language code, tried to be set';
-        CompanyInitializeLogLbl: Label 'OnRun executed CompanyInitialize in Codeunit 1805 "Import Config. Package Files". Current language is %1. Configuration Package File language is %2.', Comment = '%1 = Global language lcid, %2 = Configuration package language lcid.';
 
     local procedure ImportConfigurationPackageFiles(var ConfigurationPackageFile: Record "Configuration Package File")
     var
@@ -83,7 +80,7 @@ codeunit 1805 "Import Config. Package Files"
                 JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
                 Message(MessageText);
 
-                ErrorCount := TempConfigSetupSystemRapidStart.ApplyPackages;
+                ErrorCount := TempConfigSetupSystemRapidStart.ApplyPackages();
                 TotalNoOfErrors += ErrorCount;
 
                 Erase(ServerTempFileName);
@@ -130,7 +127,7 @@ codeunit 1805 "Import Config. Package Files"
     local procedure InitVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskID: Guid)
     begin
         with JobQueueEntry do begin
-            Init;
+            Init();
             ID := TaskID;
             "User ID" := UserId;
             "Object Type to Run" := "Object Type to Run"::Codeunit;
