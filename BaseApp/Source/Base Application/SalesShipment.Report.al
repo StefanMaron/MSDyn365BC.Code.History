@@ -584,6 +584,7 @@
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Sales Shipment Header");
                 FormatDocumentFields("Sales Shipment Header");

@@ -701,6 +701,7 @@ report 1308 "Standard Sales - Shipment"
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales Shpt.-Printed", Header);

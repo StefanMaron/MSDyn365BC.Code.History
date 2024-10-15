@@ -38,7 +38,6 @@ codeunit 134322 "General Journal Line Approval"
         JournalBatchNotApprovedCheckErr: Label 'You cannot use Gen. Journal Line: %1,%2,%3 for this action.\\The restriction was imposed because the journal batch requires approval.';
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DeleteAfterSendingRequest()
     var
@@ -91,7 +90,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure RenameAfterSendingRequest()
     var
@@ -217,7 +215,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversApproveRequest()
     var
@@ -276,7 +273,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversApproveFilteredRequest()
     var
@@ -335,7 +331,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForCustomerAccountType()
     var
@@ -374,7 +369,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForCustomerBalAccountType()
     var
@@ -413,7 +407,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForVendorAccountType()
     var
@@ -452,7 +445,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForVendorBalAccountType()
     var
@@ -491,7 +483,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForBankAccountType()
     var
@@ -532,7 +523,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForBankBalAccountType()
     var
@@ -573,7 +563,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure SendGenJnlLineForApprovalRestrictsUsage()
     var
@@ -674,7 +663,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ApproveGenJnlLineForApprovalAllowsUsage()
     var
@@ -1163,7 +1151,7 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PrintCheckRequestPageHandler')]
+    [HandlerFunctions('PrintCheckRequestPageHandler')]
     [Scope('OnPrem')]
     procedure GenJournalLineNoRestrictionAfterCheckPrinted()
     var
@@ -1228,7 +1216,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure LineWorkflowStatusFactboxBecomesVisibleWhenSentOnApproval()
     var
@@ -1444,7 +1431,7 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PrintCheckRequestWithOneCheckPerVendorPageHandler')]
+    [HandlerFunctions('PrintCheckRequestWithOneCheckPerVendorPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithOneCheckPerVendorOption()
     var
@@ -1480,7 +1467,7 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PrintCheckRequestWithOneCheckPerVendorPageHandler')]
+    [HandlerFunctions('PrintCheckRequestWithOneCheckPerVendorPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithoutOneCheckPerVendorOption()
     var

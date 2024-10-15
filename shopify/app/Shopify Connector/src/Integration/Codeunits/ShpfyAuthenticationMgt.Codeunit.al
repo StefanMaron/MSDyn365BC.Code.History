@@ -7,7 +7,7 @@ codeunit 30199 "Shpfy Authentication Mgt."
 
     var
         // https://shopify.dev/api/usage/access-scopes
-        ScopeTxt: Label 'write_orders,read_all_orders,write_assigned_fulfillment_orders,read_checkouts,write_customers,read_discounts,write_fulfillments,write_inventory,read_locations,read_payment_terms,write_products,write_shipping,read_shopify_payments_payouts', Locked = true;
+        ScopeTxt: Label 'write_orders,read_all_orders,write_assigned_fulfillment_orders,read_checkouts,write_customers,read_discounts,write_merchant_managed_fulfillment_orders,write_fulfillments,write_inventory,read_locations,read_payment_terms,write_products,write_shipping,read_shopify_payments_payouts', Locked = true;
         ShopifyAPIKeyAKVSecretNameLbl: Label 'ShopifyApiKey', Locked = true;
         ShopifyAPISecretAKVSecretNameLbl: Label 'ShopifyApiSecret', Locked = true;
         MissingAPIKeyTelemetryTxt: Label 'The api key has not been initialized.', Locked = true;
@@ -32,8 +32,8 @@ codeunit 30199 "Shpfy Authentication Mgt."
     [Scope('OnPrem')]
     local procedure GetApiSecret(): Text
     var
-    AzureKeyVault: Codeunit "Azure Key Vault";
-    ApiSecret: Text;
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        ApiSecret: Text;
     begin
         if not AzureKeyVault.GetAzureKeyVaultSecret(ShopifyAPISecretAKVSecretNameLbl, ApiSecret) then
             Session.LogMessage('0000HCB', MissingAPISecretTelemetryTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
