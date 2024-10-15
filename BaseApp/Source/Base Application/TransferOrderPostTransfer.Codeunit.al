@@ -18,7 +18,8 @@ codeunit 5856 "TransferOrder-Post Transfer"
             CODEUNIT.Run(CODEUNIT::"Release Transfer Document", Rec);
             Rec.Status := Rec.Status::Open;
             Rec.Modify();
-            Commit();
+            if not SuppressCommit then
+                Commit();
             Rec.Status := Rec.Status::Released;
         end;
         TransHeader := Rec;
