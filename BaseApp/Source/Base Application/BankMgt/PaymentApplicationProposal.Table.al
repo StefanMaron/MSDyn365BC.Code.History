@@ -101,8 +101,8 @@
                         BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
                         if BankAccReconLine.Difference = 0 then
                             Error(PaymentAppliedErr);
+                        ValidateEntryNotApplied(Rec, BankAccReconLine);
                     end;
-
                     Apply(GetRemainingAmountAfterPosting(), "Applies-to Entry No." <> 0);
                 end;
             end;
@@ -315,6 +315,7 @@
         TransactionDateIsBeforePostingDateMsg: Label 'The transaction date %1 is before the posting date %2.', Comment = '%1 Transaction Date; %2: Posting Date';
         PaymentAppliedErr: Label 'The payment is fully applied. To apply the payment to this entry, you must first unapply the payment from another entry.';
         WantToApplyCreditMemoAndInvoicesMsg: Label 'If you want to apply credit memos and invoices, we recommend that you start by applying credit memos and then apply all others entries.';
+        EntryAlreadyHasAnApplicationErr: Label 'This entry has an ongoing application process ''%1'', it is applied in another journal. Process this journal before proceeding.', Comment = '%1 a code for the payment application process';
 
     local procedure Unapply()
     var
@@ -811,6 +812,37 @@
             Type := Type::"Check Ledger Entry"
         else
             Type := Type::"Bank Account Ledger Entry";
+    end;
+
+    local procedure AppliesToIDHasDifferentPrefixAndItsNotEmpty(AppliesToID: Code[50]; AppliesToIDPrefix: Code[50]): Boolean
+    begin
+        if AppliesToID = '' then
+            exit(false);
+        exit(CopyStr(AppliestoID, 1, StrLen(AppliesToIDPrefix)) <> AppliesToIDPrefix);
+    end;
+
+    local procedure ValidateEntryNotApplied(var PaymentApplicationProposal: Record "Payment Application Proposal"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        AppliesToIDPrefix: Code[50];
+    begin
+        AppliesToIDPrefix := BankAccReconciliationLine.GetAppliesToIDForBankStatement();
+        case PaymentApplicationProposal."Account Type" of
+            PaymentApplicationProposal."Account Type"::Customer:
+                if CustLedgerEntry.Get(PaymentApplicationProposal."Applies-to Entry No.") then
+                    if AppliesToIDHasDifferentPrefixAndItsNotEmpty(CustLedgerEntry."Applies-to ID", AppliesToIDPrefix) then
+                        Error(EntryAlreadyHasAnApplicationErr, CustLedgerEntry."Applies-to ID");
+            PaymentApplicationProposal."Account Type"::Vendor:
+                if VendorLedgerEntry.Get(PaymentApplicationProposal."Applies-to Entry No.") then
+                    if AppliesToIDHasDifferentPrefixAndItsNotEmpty(VendorLedgerEntry."Applies-to ID", AppliesToIDPrefix) then
+                        Error(EntryAlreadyHasAnApplicationErr, VendorLedgerEntry."Applies-to ID");
+            PaymentApplicationProposal."Account Type"::Employee:
+                if EmployeeLedgerEntry.Get(PaymentApplicationProposal."Applies-to Entry No.") then
+                    if AppliesToIDHasDifferentPrefixAndItsNotEmpty(EmployeeLedgerEntry."Applies-to ID", AppliesToIDPrefix) then
+                        Error(EntryAlreadyHasAnApplicationErr, EmployeeLedgerEntry."Applies-to ID");
+        end;
     end;
 }
 

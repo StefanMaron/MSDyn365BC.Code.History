@@ -1,4 +1,4 @@
-codeunit 134114 "ERM Apply Unapply Employee"
+﻿codeunit 134114 "ERM Apply Unapply Employee"
 {
     Permissions = TableData "Employee Ledger Entry" = rimd;
     Subtype = Test;
@@ -496,6 +496,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         // Apply and Unapply General Journal Lines for Payment and Invoice. Take a Random Amount greater than 100 (Standard Value).
         CreateGeneralJournalLine(GenJournalLine, 1, EmployeeNo, DocumentType, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("VAT Reporting Date", PostingDate);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;

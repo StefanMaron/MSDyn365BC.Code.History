@@ -257,16 +257,10 @@ codeunit 22 "Item Jnl.-Post Line"
 
             RoundingResidualAmount := 0;
             RoundingResidualAmountACY := 0;
-            if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
-                RoundingResidualAmount := Quantity *
-                  ("Unit Cost" - Round("Unit Cost" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision"));
-                RoundingResidualAmountACY := Quantity *
-                  ("Unit Cost (ACY)" - Round("Unit Cost (ACY)" / QtyPerUnitOfMeasure, Currency."Unit-Amount Rounding Precision"));
-                if Abs(RoundingResidualAmount) < GLSetup."Amount Rounding Precision" then
-                    RoundingResidualAmount := 0;
-                if Abs(RoundingResidualAmountACY) < Currency."Amount Rounding Precision" then
-                    RoundingResidualAmountACY := 0;
-            end;
+            RoundingResidualAmount := Quantity *
+              ("Unit Cost" / QtyPerUnitOfMeasure - Round("Unit Cost" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision"));
+            RoundingResidualAmountACY := Quantity *
+              ("Unit Cost (ACY)" / QtyPerUnitOfMeasure - Round("Unit Cost (ACY)" / QtyPerUnitOfMeasure, Currency."Unit-Amount Rounding Precision"));
 
             "Unit Amount" := Round(
                 "Unit Amount" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision");
@@ -874,7 +868,10 @@ codeunit 22 "Item Jnl.-Post Line"
             exit;
 
         with ItemJournalLine do begin
-            CostAmt := Round(CapQty * "Unit Cost");
+            CostAmt := CapQty * "Unit Cost";
+            if Subcontracting then
+                CostAmt += RoundingResidualAmount;
+            CostAmt := Round(CostAmt);
             DirCostAmt := Round((CostAmt - CapQty * "Overhead Rate") / (1 + "Indirect Cost %" / 100));
             IndirCostAmt := CostAmt - DirCostAmt;
         end;
@@ -1873,6 +1870,7 @@ codeunit 22 "Item Jnl.-Post Line"
                           "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
                         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
                         ItemJnlLine.SetReservationFilters(ReservEntry);
+                        ReservEntry.SetRange("Item No.", ItemJnlLine."Item No.");
                     end;
 
                 UseReservationApplication := ReservEntry.FindFirst();
@@ -3816,7 +3814,7 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
         with ItemJnlLine do begin
             if Expected then begin
-                DirCost := "Unit Cost" * Quantity;
+                DirCost := "Unit Cost" * Quantity + RoundingResidualAmount;
                 PurchVar := 0;
                 PurchVarACY := 0;
                 OvhdCost := 0;

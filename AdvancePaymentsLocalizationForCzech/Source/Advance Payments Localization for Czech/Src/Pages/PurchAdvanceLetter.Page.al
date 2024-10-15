@@ -378,6 +378,12 @@ page 31181 "Purch. Advance Letter CZZ"
                 ApplicationArea = All;
                 Visible = false;
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                Visible = false;
+            }
             systempart(Links; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -873,7 +879,8 @@ page 31181 "Purch. Advance Letter CZZ"
     trigger OnAfterGetCurrRecord()
     begin
         DynamicEditable := CurrPage.Editable;
-        CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
+        CurrPage.ApprovalFactBox.Page.UpdateApprovalEntriesFromSourceRecord(RecordId);
+        CurrPage.IncomingDocAttachFactBox.Page.LoadDataFromRecord(Rec);
         SetControlVisibility();
     end;
 

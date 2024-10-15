@@ -526,6 +526,26 @@ page 31262 "Payment Order CZB"
                 {
                 }
             }
+            group(Category_Category8)
+            {
+                Caption = 'Approval';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+            }
         }
     }
 

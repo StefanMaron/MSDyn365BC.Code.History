@@ -166,6 +166,11 @@ page 31170 "Sales Advance Letters CZZ"
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(31004), "No." = field("No.");
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+            }
             systempart(Links; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -431,4 +436,9 @@ page 31170 "Sales Advance Letters CZZ"
             }
         }
     }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        CurrPage.IncomingDocAttachFactBox.Page.LoadDataFromRecord(Rec);
+    end;
 }

@@ -1197,6 +1197,8 @@ codeunit 5817 "Undo Posting Management"
                                     ReservEntry."Expected Receipt Date" := AvailabilityDate
                                 else
                                     ReservEntry."Shipment Date" := AvailabilityDate;
+
+                                ReservEntry."Warranty Date" := 0D;
                                 ReservEntry."Entry No." := 0;
                                 ReservEntry.UpdateItemTracking();
                                 OnRevertPostedItemTrackingOnBeforeReservEntryInsert(ReservEntry, TempItemLedgEntry);

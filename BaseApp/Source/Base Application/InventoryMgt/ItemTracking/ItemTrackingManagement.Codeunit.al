@@ -33,7 +33,7 @@ codeunit 6500 "Item Tracking Management"
         Text012: Label 'Only one expiration date is allowed per lot number.\%1 currently has two different expiration dates: %2 and %3.';
         IsPick: Boolean;
         DeleteReservationEntries: Boolean;
-        CannotMatchItemTrackingErr: Label 'Cannot match item tracking.';
+        CannotMatchItemTrackingErr: Label 'Cannot match item tracking.\Document No.: %1, Line No.: %2, Item: %3 %4', Comment = '%1 - source document no., %2 - source document line no., %3 - item no., %4 - item description';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
 
     procedure SetPointerFilter(var TrackingSpecification: Record "Tracking Specification")
@@ -2756,6 +2756,7 @@ codeunit 6500 "Item Tracking Management"
         QtyToHandleInItemTracking: Decimal;
         QtyToHandleOnSourceDocLine: Decimal;
         QtyToHandleToNewRegister: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeRegisterNewItemTrackingLines(TempTrackingSpec);
 
@@ -2779,8 +2780,14 @@ codeunit 6500 "Item Tracking Management"
                       ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No."));
                 QtyToHandleOnSourceDocLine := ReservMgt.GetSourceRecordValue(ReservEntry, false, 0);
 
-                if QtyToHandleToNewRegister + QtyToHandleInItemTracking > QtyToHandleOnSourceDocLine then
-                    Error(CannotMatchItemTrackingErr);
+                IsHandled := false;
+                OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingErr(
+                    TempTrackingSpec, QtyToHandleToNewRegister, QtyToHandleInItemTracking, QtyToHandleOnSourceDocLine, IsHandled);
+                if not IsHandled then
+                    if QtyToHandleToNewRegister + QtyToHandleInItemTracking > QtyToHandleOnSourceDocLine then
+                        Error(CannotMatchItemTrackingErr,
+                            TempTrackingSpec."Source ID", TempTrackingSpec."Source Ref. No.",
+                            TempTrackingSpec."Item No.", TempTrackingSpec.Description);
 
                 TrackingSpec."Quantity (Base)" :=
                   TempTrackingSpec."Qty. to Handle (Base)" + Abs(ItemTrkgQtyPostedOnSource(TrackingSpec));
@@ -3902,7 +3909,7 @@ codeunit 6500 "Item Tracking Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCopyHandledItemTrkgToInvLine(FromSalesLine: Record "Sales Line"; var ToSalesInvLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -4079,6 +4086,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitInternalPutAwayLineOnNotFindWhseItemTrackingLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingErr(var empTrackingSpecification: Record "Tracking Specification" temporary; var tyToHandleToNewRegister: Decimal; var QtyToHandleInItemTrackin: Decimal; varQtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

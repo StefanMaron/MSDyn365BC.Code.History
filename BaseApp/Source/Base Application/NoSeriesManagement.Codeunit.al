@@ -411,7 +411,13 @@ codeunit 396 NoSeriesManagement
     var
         NoSeriesLine2: Record "No. Series Line";
         Length: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateNoSeriesLine(NoSeriesLine, NewNo, NewFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
         if NewNo <> '' then begin
             if IncStr(NewNo) = '' then
                 Error(StrSubstNo(UnincrementableStringErr, NewFieldName));
@@ -601,6 +607,11 @@ codeunit 396 NoSeriesManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; NewNo: Code[20]; NewFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 

@@ -18,6 +18,7 @@ codeunit 137502 "SCM Dedicated Bins"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         MessageCounter: Integer;
         IsInitialized: Boolean;
         AutomaticBinUpdate: Label 'This change may have caused bin codes on some production order component lines to be different from those on the production order routing line. Do you want to automatically align all of these unmatched bin codes?';
@@ -1003,6 +1004,125 @@ codeunit 137502 "SCM Dedicated Bins"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure S465188_CreatePickFromPickWorksheetWithQtyOnDedicatedBinInQCZone()
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        BinPutPick: Record Bin;
+        BinPutAwayDedicated: Record Bin;
+        BinReceipt: Record Bin;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReceiveQty: Decimal;
+        QCQty: Decimal;
+        ShipQty: Decimal;
+    begin
+        // [FEATURE] [Dedicated Bin] [Warehouse Receipt] [Warehouse Put-away] [Warehouse Reclassification Journal] [Warehouse Shipment] [Pick Worksheet] [Warehouse Pick]
+        // [SCENARIO 465188] Dealing with WMS and Dedicated Bin, Available Qty. to Pick should not use non-pickable bin QC.
+        Initialize();
+        ReceiveQty := LibraryRandom.RandIntInRange(20, 30);
+        QCQty := LibraryRandom.RandIntInRange(1, 9);
+        ShipQty := LibraryRandom.RandIntInRange(10, 19);
+
+        // [GIVEN] Create Location with "Directed put-away and pick" and Warehouse Employee.
+        CreateWhseLocation(Location, true, true, true, true, true, true);
+
+        // [GIVEN] Create Bin for Put-away.
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        CreateBin(BinPutPick, Location.Code, Zone.Code, Zone."Bin Type Code");
+
+        // [GIVEN] Create Dedicated Bin for QC.
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, false), false);
+        CreateBin(BinPutAwayDedicated, Location.Code, Zone.Code, Zone."Bin Type Code");
+        BinPutAwayDedicated.Validate(Dedicated, true);
+        BinPutAwayDedicated.Modify(true);
+
+        // [GIVEN] Create Bin for Receipt and set on Location as "Receipt Bin Code".
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(true, false, false, false), false);
+        CreateBin(BinReceipt, Location.Code, Zone.Code, Zone."Bin Type Code");
+        Location.Validate("Receipt Bin Code", BinReceipt.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Purchase Order with Item on ReceiveQty.
+        CreatePurchaseOrderForLocation(PurchaseHeader, PurchaseLine, Location.Code, Item."No.", ReceiveQty);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create and Post Warehouse Receipt.
+        CreateAndPostWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Register Warehouse Put-away.
+        RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [GIVEN] Move QCQty part of received Qty. to QC Dedicated Bin.
+        CreateWarehouseReclassificationJournal(WarehouseJournalLine,
+          Location.Code, BinPutPick."Zone Code", BinPutPick.Code, BinPutAwayDedicated."Zone Code", BinPutAwayDedicated.Code, Item."No.", QCQty);
+        LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", WarehouseJournalLine."Location Code", true);
+
+        // [GIVEN] Create Sales Order with Item on ShipQty.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", ShipQty);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create and Release Warehouse Shipment.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No."));
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [WHEN] Open Pick pick Worksheetand get created Warehouse Shipment.
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Pick);
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+        FindWhsePickRequestForShipment(WhsePickRequest, WarehouseShipmentHeader."No.");
+        LibraryWarehouse.GetOutboundSourceDocuments(WhsePickRequest, WhseWorksheetName, Location.Code);
+
+        // [THEN] Whse. Worksheet Line has full "Qty. to Handle" and "Available Qty. to Pick" without Qty. on QC Dedicated Bin.
+        WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplate.Name);
+        WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
+        WhseWorksheetLine.SetRange("Location Code", Location.Code);
+        WhseWorksheetLine.SetRange("Item No.", Item."No.");
+        WhseWorksheetLine.FindFirst();
+        WhseWorksheetLine.TestField(Quantity, ShipQty);
+        WhseWorksheetLine.TestField("Qty. to Handle", ShipQty);
+        Assert.AreEqual(ReceiveQty - QCQty, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), StrSubstNo('%1 must be %2, but it is %3.', 'Available Qty. to Pick', ReceiveQty - QCQty, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins()));
+
+        // [WHEN] "Create Pick" from Pick Worksheet.
+        LibraryWarehouse.CreatePickFromPickWorksheet(
+          WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
+
+        // [THEN] Worksheet Activity Line has full "Qty. to Handle".
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.TestField(Quantity, ShipQty);
+        WarehouseActivityLine.TestField("Qty. to Handle", ShipQty);
+
+        // [THEN] Warehouse Pick can be successfully registered.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
     local procedure CreateLocation(var Location: Record Location)
     var
         WhseEmployee: Record "Warehouse Employee";
@@ -1040,6 +1160,78 @@ codeunit 137502 "SCM Dedicated Bins"
         ProdOrderComponent.SetRange("Item No.");
         ProdOrderComponent.SetRange("Routing Link Code");
         ProdOrderComponent.SetRange("Flushing Method");
+    end;
+
+    local procedure CreatePurchaseOrderForLocation(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), Database::"Purchase Header"));
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostWhseReceiptFromPO(var PurchaseHeader: Record "Purchase Header")
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+    end;
+
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        WarehouseReceiptHeader.Get(FindWarehouseReceiptNo(SourceDocument, SourceNo));
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+    end;
+
+    local procedure FindWarehouseReceiptNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        WarehouseReceiptLine.FindFirst();
+        exit(WarehouseReceiptLine."No.");
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        WarehouseActivityHeader.SetRange(Type, Type);
+        WarehouseActivityHeader.SetRange("No.", FindWarehouseActivityNo(SourceNo, Type));
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"): Code[20]
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
+        exit(WarehouseActivityLine."No.");
+    end;
+
+    local procedure CreateWarehouseReclassificationJournal(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; FromZoneCode: Code[10]; FromBinCode: Code[20]; ToZoneCode: Code[10]; ToBinCode: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    var
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+    begin
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Reclassification, LocationCode);
+        LibraryWarehouse.CreateWhseJournalLine(WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
+          LocationCode, FromZoneCode, FromBinCode, WarehouseJournalLine."Entry Type"::Movement, ItemNo, Qty);
+        WarehouseJournalLine.Validate("From Zone Code", FromZoneCode);
+        WarehouseJournalLine.Validate("From Bin Code", FromBinCode);
+        WarehouseJournalLine.Validate("To Zone Code", ToZoneCode);
+        WarehouseJournalLine.Validate("To Bin Code", ToBinCode);
+        WarehouseJournalLine.Modify(true);
     end;
 
     [Test]

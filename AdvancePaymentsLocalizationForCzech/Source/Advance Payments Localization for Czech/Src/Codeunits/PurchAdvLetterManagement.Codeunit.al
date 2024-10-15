@@ -806,7 +806,12 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         PurchAdvLetterEntryCZZ: Record "Purch. Adv. Letter Entry CZZ";
         AdvanceLetterTypeCZZ: Enum "Advance Letter Type CZZ";
         AmountToUse, UseAmount, UseAmountLCY : Decimal;
+        IsHandled: Boolean;
     begin
+        OnBeforePostAdvancePaymentUsage(AdvLetterUsageDocTypeCZZ, DocumentNo, PurchInvHeader, VendorLedgerEntry, GenJnlPostLine, Preview, IsHandled);
+        if IsHandled then
+            exit;
+
         if VendorLedgerEntry."Remaining Amount" = 0 then
             VendorLedgerEntry.CalcFields("Remaining Amount");
 
@@ -1241,7 +1246,9 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                                     UseAmount := TempAdvancePostingBufferCZZ2.Amount;
                                     UseBaseAmount := TempAdvancePostingBufferCZZ2."VAT Base Amount";
                                 end;
-                                if UsedAmount < UseAmount then begin
+                                if (UsedAmount < UseAmount) or
+                                   (TempAdvancePostingBufferCZZ1."VAT %" <> TempAdvancePostingBufferCZZ2."VAT %")
+                                then begin
                                     UseAmount := UsedAmount;
                                     UseBaseAmount := Round(TempAdvancePostingBufferCZZ2."VAT Base Amount" * UseAmount / TempAdvancePostingBufferCZZ2.Amount, CurrencyGlob."Amount Rounding Precision", CurrencyGlob.VATRoundingDirection());
                                 end;
@@ -1785,6 +1792,8 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         if (DocumentNo = '') or (PostingDate = 0D) or (VATDate = 0D) or (OriginalDocumentVATDate = 0D) then
             Error(DocumentNoOrDatesEmptyErr);
 
+        OnPostAdvanceCreditMemoVATOnAfterGetDocument(PurchAdvLetterEntryCZZ, PostingDate, VATDate, OriginalDocumentVATDate);
+
         TempAdvancePostingBufferCZZ1.SetFilter(Amount, '<>0');
         if not TempAdvancePostingBufferCZZ1.FindSet() then
             Error(NothingToPostErr);
@@ -2231,6 +2240,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                             GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", GenJournalLine."Dimension Set ID", false);
 
                         InitGenJnlLineFromVendLedgEntry(VendorLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+                        GenJournalLine."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
                         GenJournalLine.SetCurrencyFactor(PurchAdvLetterEntryCZZ."Currency Code", PurchAdvLetterEntryCZZ."Currency Factor");
                         GenJournalLine.Correction := true;
                         GenJournalLine.Amount := PurchAdvLetterEntryCZZ.Amount;
@@ -2282,15 +2292,16 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                     repeat
                         if (DetailedVendorLedgEntry2."Entry Type" <> DetailedVendorLedgEntry2."Entry Type"::"Initial Entry") and
                            not DetailedVendorLedgEntry2.Unapplied
-                        then
+                        then begin
                             DetailedVendorLedgEntry3.Reset();
-                        DetailedVendorLedgEntry3.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
-                        DetailedVendorLedgEntry3.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry2."Vendor Ledger Entry No.");
-                        DetailedVendorLedgEntry3.SetRange(Unapplied, false);
-                        if DetailedVendorLedgEntry3.FindLast() and
-                           (DetailedVendorLedgEntry3."Transaction No." > DetailedVendorLedgEntry2."Transaction No.")
-                        then
-                            Error(UnapplyLastInvoicesErr);
+                            DetailedVendorLedgEntry3.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
+                            DetailedVendorLedgEntry3.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry2."Vendor Ledger Entry No.");
+                            DetailedVendorLedgEntry3.SetRange(Unapplied, false);
+                            if DetailedVendorLedgEntry3.FindLast() and
+                               (DetailedVendorLedgEntry3."Transaction No." > DetailedVendorLedgEntry2."Transaction No.")
+                            then
+                                Error(UnapplyLastInvoicesErr);
+                        end;
                     until DetailedVendorLedgEntry2.Next() = 0;
 
                 GenJournalLine.Init();
@@ -2687,6 +2698,16 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostAdvancePaymentUsageOnBeforeLoopPurchAdvLetterEntry(var AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ"; var PurchAdvLetterEntryCZZ: Record "Purch. Adv. Letter Entry CZZ")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostAdvanceCreditMemoVATOnAfterGetDocument(PurchAdvLetterEntryCZZ: Record "Purch. Adv. Letter Entry CZZ"; var PostingDate: Date; var VATDate: Date; var OriginalDocumentVATDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforePostAdvancePaymentUsage(AdvLetterUsageDocTypeCZZ: Enum "Adv. Letter Usage Doc.Type CZZ"; DocumentNo: Code[20]; var PurchInvHeader: Record "Purch. Inv. Header"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; Preview: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

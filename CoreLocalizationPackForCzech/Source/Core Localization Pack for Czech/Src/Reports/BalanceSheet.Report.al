@@ -248,6 +248,8 @@ report 11794 "Balance Sheet CZL"
 
                             RoundingHeader := '';
 
+                            OnAfterGetRecordColumnLayoutLoopOnBeforeSetRoundingHeader("Acc. Schedule Line", TempColumnLayout);
+
                             if TempColumnLayout."Rounding Factor" in [TempColumnLayout."Rounding Factor"::"1000", TempColumnLayout."Rounding Factor"::"1000000"] then
                                 case TempColumnLayout."Rounding Factor" of
                                     TempColumnLayout."Rounding Factor"::"1000":
@@ -947,5 +949,10 @@ report 11794 "Balance Sheet CZL"
         Dim2FilterEnable := AnalysisView."Dimension 2 Code" <> '';
         Dim3FilterEnable := AnalysisView."Dimension 3 Code" <> '';
         Dim4FilterEnable := AnalysisView."Dimension 4 Code" <> '';
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRecordColumnLayoutLoopOnBeforeSetRoundingHeader(AccScheduleLine: Record "Acc. Schedule Line"; var TempColumnLayout: Record "Column Layout" temporary)
+    begin
     end;
 }

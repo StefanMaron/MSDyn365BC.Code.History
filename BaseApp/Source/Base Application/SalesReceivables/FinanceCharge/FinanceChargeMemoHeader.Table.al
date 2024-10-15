@@ -745,10 +745,12 @@
         if ("Customer Posting Group" <> xRec."Customer Posting Group") and (xRec."Customer Posting Group" <> '') then begin
             TestField("Customer No.");
             Customer.Get("Customer No.");
-            Customer.TestField("Allow Multiple Posting Groups");
             SalesSetup.GetRecordOnce();
-            PostingGroupChangeInterface := SalesSetup."Check Multiple Posting Groups";
-            PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
+            if SalesSetup."Allow Multiple Posting Groups" then begin
+                Customer.TestField("Allow Multiple Posting Groups");
+                PostingGroupChangeInterface := SalesSetup."Check Multiple Posting Groups";
+                PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
+            end;
         end;
     end;
 

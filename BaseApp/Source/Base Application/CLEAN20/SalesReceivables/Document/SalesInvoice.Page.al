@@ -1953,12 +1953,10 @@ page 43 "Sales Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         OfficeMgt: Codeunit "Office Management";
         InstructionMgt: Codeunit "Instruction Mgt.";
-        PreAssignedNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
-        PreAssignedNo := "No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -1979,15 +1977,14 @@ page 43 "Sales Invoice"
             exit;
 
         if OfficeMgt.IsAvailable() then begin
-            SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
-            SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+            SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.");
             if SalesInvoiceHeader.FindFirst() then
                 PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
         end else
             case Navigate of
                 "Navigate After Posting"::"Posted Document":
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                        ShowPostedConfirmationMessage(PreAssignedNo);
+                        ShowPostedConfirmationMessage();
                 "Navigate After Posting"::"New Document":
                     if DocumentIsPosted then begin
                         SalesHeader.Init();
@@ -2013,18 +2010,20 @@ page 43 "Sales Invoice"
         CurrPage.Update(false);
     end;
 
-    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])
+    local procedure ShowPostedConfirmationMessage()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        ICFeedback: Codeunit "IC Feedback";
     begin
-        SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
-        SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if SalesInvoiceHeader.FindFirst() then
+        SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.");
+        if SalesInvoiceHeader.FindFirst() then begin
+            ICFeedback.ShowIntercompanyMessage(Rec, "IC Transaction Document Type"::Invoice, SalesInvoiceHeader."No.");
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesInvQst, SalesInvoiceHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())
             then
                 InstructionMgt.ShowPostedDocument(SalesInvoiceHeader, Page::"Sales Invoice");
+        end;
     end;
 
     local procedure SalespersonCodeOnAfterValidate()

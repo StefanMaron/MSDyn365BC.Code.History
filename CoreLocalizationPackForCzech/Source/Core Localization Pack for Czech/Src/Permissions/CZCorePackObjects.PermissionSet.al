@@ -72,6 +72,7 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   codeunit "Item Jnl-Post Line Handler CZL" = X,
                   codeunit "Item Jnl. Template Handler CZL" = X,
                   codeunit "Item Journal Line Handler CZL" = X,
+                  codeunit "Item Tracking Doc. Handler CZL" = X,
                   codeunit "Job Handler CZL" = X,
                   codeunit "Job Jnl.Check Line Handler CZL" = X,
                   codeunit "Job Journal Line Handler CZL" = X,

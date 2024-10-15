@@ -347,8 +347,13 @@ table 31008 "Purch. Adv. Letter Header CZZ"
             DataClassification = CustomerContent;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                Validate("Document Date", "Posting Date");
+                IsHandled := false;
+                OnValidatePostingDateOnBeforeAssignDocumentDate(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    Validate("Document Date", "Posting Date");
 
                 GetSetup();
 #if not CLEAN22
@@ -1721,6 +1726,11 @@ table 31008 "Purch. Adv. Letter Header CZZ"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoPrintToDocumentAttachment(var PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidatePostingDateOnBeforeAssignDocumentDate(var Rec: Record "Purch. Adv. Letter Header CZZ"; var xRec: Record "Purch. Adv. Letter Header CZZ"; var IsHandled: Boolean)
     begin
     end;
 }

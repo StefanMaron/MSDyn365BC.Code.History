@@ -18,7 +18,7 @@ codeunit 9842 "Legacy User Groups"
         UserGroupFeatureKeyTxt: Label 'HideLegacyUserGroups', Locked = true;
         CannotEnableTheFeatureErr: Label 'Can''t enable the feature, because there are still user groups defined in the system.';
         ConfirmConvertUserGroupsQst: Label 'There are still user groups defined in the system. Do you want to run the user group conversion guide?';
-        CannotAddUserGroupsErr: Label 'The functionality is disabled by a feature switch. To resolve the problem, open the Feature Management page and disable ''%1''.', Comment = '%1 = the name of the feature switch, i. e. Feature: Convert user group permissions.';
+        CannotAddUserGroupsErr: Label 'User groups can''t be created, use permission sets directly or security groups instead. To keep using user groups, switch off ''%1'' on the Feature Management page.', Comment = '%1 = the name of the feature switch, i. e. Feature: Convert user group permissions.';
         CannotAddUserGroupsTitleErr: Label 'Can''t add a new user group';
         FeatureSwitchEnabledUserGroupsPresentNotificationTxt: Label 'User groups functionality is disabled in your system, but you still have user groups defined. Disable ''%1'' and enable it again to convert user group permissions.', Comment = '%1 = the name of the feature switch, i. e. Feature: Convert user group permissions.';
         FeatureSwitchDisabledUserGroupsPresentNotificationTxt: Label 'User groups will be removed in a future release. You can convert user group permissions by enabling ''%1''.', Comment = '%1 = the name of the feature switch, i. e. Feature: Convert user group permissions.';

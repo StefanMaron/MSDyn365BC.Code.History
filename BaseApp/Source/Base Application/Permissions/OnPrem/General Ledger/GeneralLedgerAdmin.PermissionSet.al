@@ -102,6 +102,8 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "VAT Rate Change Setup" = RIMD,
                   tabledata "VAT Report Setup" = RIMD,
                   tabledata "VAT Setup Posting Groups" = RIMD,
+                  tabledata "VAT Setup" = RIMD,
+                  tabledata "VAT Posting Parameters" = RIMD,
                   tabledata "VAT Statement Line" = RIMD,
                   tabledata "VAT Statement Name" = RIMD,
                   tabledata "VAT Statement Template" = RIMD,

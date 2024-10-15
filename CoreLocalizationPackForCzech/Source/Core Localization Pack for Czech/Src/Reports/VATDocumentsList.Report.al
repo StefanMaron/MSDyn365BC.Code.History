@@ -296,9 +296,6 @@ report 11756 "VAT Documents List CZL"
                     TempTotVATAmountLine.FindSet()
                 else
                     TempTotVATAmountLine.Next();
-
-                if TempTotVATAmountLine."VAT Calculation Type" = TempTotVATAmountLine."VAT Calculation Type"::"Reverse Charge VAT" then
-                    TempTotVATAmountLine."VAT Amount" := 0;
             end;
 
             trigger OnPreDataItem()

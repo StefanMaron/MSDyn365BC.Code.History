@@ -280,6 +280,7 @@ table 11733 "Cash Document Line CZP"
                 "Applies-To Doc. Type" := GenJournalLine."Applies-to Doc. Type";
                 "Applies-To Doc. No." := GenJournalLine."Applies-to Doc. No.";
                 "Applies-to ID" := GenJournalLine."Applies-to ID";
+                OnLookupAppliesToDocNoOnAfterFillAppliesToDocNo(Rec, GenJournalLine);
                 Validate(Amount, SignAmount() * GenJournalLine.Amount);
                 if PreviousAmount <> 0 then begin
                     PaymentToleranceManagement.SetSuppressCommit(true);
@@ -373,6 +374,7 @@ table 11733 "Cash Document Line CZP"
                     "Applies-To Doc. Type" := GenJournalLine."Applies-to Doc. Type";
                     "Applies-To Doc. No." := GenJournalLine."Applies-to Doc. No.";
                     "Applies-to ID" := GenJournalLine."Applies-to ID";
+                    OnValidateAppliesToDocNoOnAfterFillAppliesToDocNo(Rec, GenJournalLine);
                 end;
 
                 if ("Applies-To Doc. No." <> xRec."Applies-To Doc. No.") and (Amount <> 0) then begin
@@ -1717,6 +1719,16 @@ table 11733 "Cash Document Line CZP"
 
     [IntegrationEvent(true, false)]
     local procedure OnLookupAppliesToDocNoOnBeforeValidateAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var CashDocumentLineCZP: Record "Cash Document Line CZP")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateAppliesToDocNoOnAfterFillAppliesToDocNo(var CashDocumentLineCZP: Record "Cash Document Line CZP"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterFillAppliesToDocNo(var CashDocumentLineCZP: Record "Cash Document Line CZP"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

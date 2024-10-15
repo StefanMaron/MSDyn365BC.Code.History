@@ -77,6 +77,7 @@
         ClassifySalesQuoteEntityBuffer();
         ClassifySalesCrMemoEntityBuffer();
         ClassifyPurchaseOrderEntityBuffer();
+        ClassifyPurchCrMemoEntityBuffer();
         ClassifyWarehouseEntry();
         ClassifyWarehouseJournalLine();
         ClassifyWarehouseEmployee();
@@ -541,6 +542,7 @@
         SetTableFieldsToNormal(DATABASE::"VAT Business Posting Group");
         SetTableFieldsToNormal(DATABASE::"VAT Product Posting Group");
         SetTableFieldsToNormal(DATABASE::"VAT Posting Setup");
+        SetTableFieldsToNormal(DATABASE::"VAT Setup");
         SetTableFieldsToNormal(DATABASE::"Tax Setup");
         SetTableFieldsToNormal(DATABASE::"Tax Jurisdiction Translation");
         SetTableFieldsToNormal(DATABASE::"Currency for Fin. Charge Terms");
@@ -6953,6 +6955,60 @@
         SetFieldToPersonal(TableNo, DummySalesCrMemoEntityBuffer.FieldNo("Bill-to Post Code"));
         SetFieldToPersonal(TableNo, DummySalesCrMemoEntityBuffer.FieldNo("Bill-to County"));
         SetFieldToPersonal(TableNo, DummySalesCrMemoEntityBuffer.FieldNo("Bill-to Country/Region Code"));
+    end;
+
+    local procedure ClassifyPurchCrMemoEntityBuffer()
+    var
+        DummyPurchCrMemoEntityBuffer: Record "Purch. Cr. Memo Entity Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := Database::"Purch. Cr. Memo Entity Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from Vendor No."));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("No."));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Vendor No."));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Name"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Address"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Address 2"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to City"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Contact"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Posting Date"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Payment Terms Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Due Date"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Shipment Method Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Vendor Posting Group"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Currency Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Prices Including VAT"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Purchaser Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Applies-to Doc. Type"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Applies-to Doc. No."));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo(Amount));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Amount Including VAT"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Reason Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from Vendor Name"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from Address"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from Address 2"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from City"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from Contact"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from Contact No."));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from Post Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from County"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Buy-from Country/Region Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Name"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Address"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Address 2"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to City"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Contact"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Post Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to County"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Pay-to Country/Region Code"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Vendor Ledger Entry No."));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Document Date"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Invoice Discount Amount"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Total Tax Amount"));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo(Status));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo(Posted));
+        SetFieldToPersonal(TableNo, DummyPurchCrMemoEntityBuffer.FieldNo("Discount Applied Before Tax"));
     end;
 
     local procedure ClassifyVendorBankAccount()

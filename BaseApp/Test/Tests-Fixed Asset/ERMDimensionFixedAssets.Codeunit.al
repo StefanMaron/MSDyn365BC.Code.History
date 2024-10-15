@@ -25,6 +25,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         DimensionValueError2: Label 'Select a %1 for the %2 %3 for %4 %5.', Comment = '%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.';
         CheckDimValueInGenJournalErr: Label 'Wrong %1 in Dimension Set for Gen. Journal Line. Document No. = %2, Account No. = %3, Batch Name = %4.';
         CompletionStatsTok: Label 'The depreciation has been calculated.';
+        DimensionsAreNotEqual: Label 'The dimensions must be equal.';
 
 
     [Test]
@@ -1245,6 +1246,47 @@ codeunit 134478 "ERM Dimension Fixed Assets"
                 DefaultDimension."Dimension Code", GLAccount.TableCaption(), DefaultDimension."No."));
     end;
 
+    [Test]
+    procedure VerifyDefaultDimensionsArePulledInFixedAssetInsuranceJournalLineFromFixedAsset()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        FixedAsset: Record "Fixed Asset";
+        Insurance: Record "Insurance";
+        DimensionValue1: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        InsuranceJournalLine: Record "Insurance Journal Line";
+    begin
+        // [SCENARIO 470969] Verify default dimensions are pulled in fixed asset insurance journal line from fixed asset
+        Initialize();
+
+        // [GIVEN] Get General Ledger Setup
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] Create fixed asset
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+
+        // [GIVEN] Create insurance
+        LibraryFixedAsset.CreateInsurance(Insurance);
+
+        // [GIVEN] Create Global Dimension values
+        LibraryDimension.CreateDimensionValue(DimensionValue1, GeneralLedgerSetup."Global Dimension 1 Code");
+        LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Global Dimension 2 Code");
+
+        // [GIVEN] Create default dimensions
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"Fixed Asset", FixedAsset."No.", DimensionValue1."Dimension Code", DimensionValue1.Code);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"Fixed Asset", FixedAsset."No.", DimensionValue2."Dimension Code", DimensionValue2.Code);
+
+        // [WHEN] Create insurance journal line
+        CreateInsuranceJournalLine(InsuranceJournalLine, Insurance."No.", FixedAsset."No.");
+
+        // [THEN]  Verify results
+        Assert.AreEqual(DimensionValue1.Code, InsuranceJournalLine."Shortcut Dimension 1 Code", DimensionsAreNotEqual);
+        Assert.AreEqual(DimensionValue2.Code, InsuranceJournalLine."Shortcut Dimension 2 Code", DimensionsAreNotEqual);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2356,6 +2398,21 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         FAJournalLine.SetRange("Journal Batch Name", JournalBatchName);
         FAJournalLine.FindFirst();
         FAJournalLine.TestField("Document No.", ExpectedDocumentNo);
+    end;
+
+    local procedure CreateInsuranceJournalLine(var InsuranceJournalLine: Record "Insurance Journal Line"; InsuranceNo: Code[20]; FixedAssetNo: Code[20])
+    var
+        InsuranceJournalBatch: Record "Insurance Journal Batch";
+    begin
+        CreateInsuranceJournalBatch(InsuranceJournalBatch);
+        LibraryFixedAsset.CreateInsuranceJournalLine(
+          InsuranceJournalLine, InsuranceJournalBatch."Journal Template Name", InsuranceJournalBatch.Name);
+
+        InsuranceJournalLine.Validate("Posting Date", WorkDate());
+        InsuranceJournalLine.Validate("FA No.", FixedAssetNo);
+        InsuranceJournalLine.Validate("Insurance No.", InsuranceNo);
+        InsuranceJournalLine.Validate(Amount, LibraryRandom.RandDec(1000, 2));
+        InsuranceJournalLine.Modify(true);
     end;
 
     [ConfirmHandler]

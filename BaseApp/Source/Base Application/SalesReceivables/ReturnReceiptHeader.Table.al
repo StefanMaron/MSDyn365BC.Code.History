@@ -447,6 +447,11 @@ table 6660 "Return Receipt Header"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }        
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -657,6 +662,7 @@ table 6660 "Return Receipt Header"
     var
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
+        PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
         TestField("No. Printed");
         LockTable();
         PostSalesDelete.DeleteSalesRcptLines(Rec);

@@ -44,7 +44,7 @@ page 315 "VAT Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("VAT Reporting Date"; Rec."VAT Reporting Date") 
+                field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT date on the VAT entry. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
@@ -87,6 +87,18 @@ page 315 "VAT Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry in LCY.';
                 }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = false;
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = false;
+                }
                 field("Unrealized Amount"; Rec."Unrealized Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -127,6 +139,18 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry. The amount is in the additional reporting currency.';
+                    Visible = false;
+                }
+                field(NonDeductibleVATBaseACY; Rec."Non-Deductible VAT Base ACY")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased. The amount is in the additional reporting currency.';
+                    Visible = false;
+                }
+                field(NonDeductibleVATAmountACY; Rec."Non-Deductible VAT Amount ACY")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased. The amount is in the additional reporting currency.';
                     Visible = false;
                 }
                 field("Add.-Curr. VAT Difference"; Rec."Add.-Curr. VAT Difference")

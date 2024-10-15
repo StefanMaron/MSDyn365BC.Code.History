@@ -1757,7 +1757,7 @@ table 246 "Requisition Line"
             TempPlanningErrorLog.SetError(
               StrSubstNo(Text031, Item.TableCaption(), Item."No."),
               DATABASE::Item, Item.GetPosition());
-        Item.TestField(Blocked, false);
+        CheckBlockedItem();
         "Low-Level Code" := Item."Low-Level Code";
         "Scrap %" := Item."Scrap %";
         "Item Category Code" := Item."Item Category Code";
@@ -1777,6 +1777,18 @@ table 246 "Requisition Line"
         SetFromBinCode();
 
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo);
+    end;
+
+    local procedure CheckBlockedItem()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBlockedItem(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Item.TestField(Blocked, false);
     end;
 
     local procedure GetItem()
@@ -2028,6 +2040,9 @@ table 246 "Requisition Line"
 
         if "Ref. Order No." <> '' then
             GetDimFromRefOrderLine(true);
+
+        if ("Demand Type" = Database::"Job Planning Line") then
+            UpdateJobTaskDimensions();
 
         OnAfterCreateDim(Rec, xRec);
     end;
@@ -3808,6 +3823,21 @@ table 246 "Requisition Line"
         exit(UserSetup."Salespers./Purch. Code");
     end;
 
+    local procedure UpdateJobTaskDimensions()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        DimSetIDArr: array[10] of Integer;
+    begin
+        DimSetIDArr[1] := "Dimension Set ID";
+
+        JobPlanningLine.SetRange("Job No.", "Demand Order No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", "Demand Line No.");
+        if JobPlanningLine.FindFirst() then
+            DimSetIDArr[2] := DimMgt.CreateDimSetFromJobTaskDim(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+
 #if not CLEAN20
     local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
     var
@@ -4025,6 +4055,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item; xRequisitionLine: Record "Requisition Line"; FieldNo: Integer; var TempPlanningErrorLog: Record "Planning Error Log" temporary; PlanningResiliency: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBlockedItem(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 

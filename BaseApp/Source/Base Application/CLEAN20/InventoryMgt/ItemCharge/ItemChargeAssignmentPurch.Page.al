@@ -299,7 +299,6 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        ReceiptLines: Page "Purch. Receipt Lines";
                     begin
                         PurchLine2.TestField("Qty. to Invoice");
 
@@ -308,14 +307,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         ItemChargeAssgntPurch.SetRange("Document Line No.", Rec."Document Line No.");
                         OnGetReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, PurchRcptLine, PurchLine);
 
-                        ReceiptLines.SetTableView(PurchRcptLine);
-                        if ItemChargeAssgntPurch.FindLast() then
-                            ReceiptLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
-                        else
-                            ReceiptLines.Initialize(Rec, PurchLine2."Unit Cost");
-
-                        ReceiptLines.LookupMode(true);
-                        ReceiptLines.RunModal();
+                        OpenPurchReceiptLines(ItemChargeAssgntPurch);
                     end;
                 }
                 action(GetTransferReceiptLines)
@@ -329,7 +321,6 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        PostedTransferReceiptLines: Page "Posted Transfer Receipt Lines";
                     begin
                         ItemChargeAssgntPurch.SetRange("Document Type", Rec."Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", Rec."Document No.");
@@ -341,14 +332,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         TransferRcptLine.FilterGroup(0);
                         OnGetTransferReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, TransferRcptLine, PurchLine);
 
-                        PostedTransferReceiptLines.SetTableView(TransferRcptLine);
-                        if ItemChargeAssgntPurch.FindLast() then
-                            PostedTransferReceiptLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
-                        else
-                            PostedTransferReceiptLines.Initialize(Rec, PurchLine2."Unit Cost");
-
-                        PostedTransferReceiptLines.LookupMode(true);
-                        PostedTransferReceiptLines.RunModal();
+                        OpenPostedTransferReceiptLines(ItemChargeAssgntPurch);
                     end;
                 }
                 action(GetReturnShipmentLines)
@@ -362,21 +346,13 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        ShipmentLines: Page "Return Shipment Lines";
                     begin
                         ItemChargeAssgntPurch.SetRange("Document Type", Rec."Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", Rec."Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", Rec."Document Line No.");
                         OnGetReturnShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, ReturnShptLine, PurchLine);
 
-                        ShipmentLines.SetTableView(ReturnShptLine);
-                        if ItemChargeAssgntPurch.FindLast() then
-                            ShipmentLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
-                        else
-                            ShipmentLines.Initialize(Rec, PurchLine2."Unit Cost");
-
-                        ShipmentLines.LookupMode(true);
-                        ShipmentLines.RunModal();
+                        OpenReturnShipmentLines(ItemChargeAssgntPurch);
                     end;
                 }
                 action(GetSalesShipmentLines)
@@ -390,21 +366,13 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        SalesShipmentLines: Page "Sales Shipment Lines";
                     begin
                         ItemChargeAssgntPurch.SetRange("Document Type", Rec."Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", Rec."Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", Rec."Document Line No.");
                         OnGetSalesShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, SalesShptLine, PurchLine);
 
-                        SalesShipmentLines.SetTableView(SalesShptLine);
-                        if ItemChargeAssgntPurch.FindLast() then
-                            SalesShipmentLines.InitializePurchase(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
-                        else
-                            SalesShipmentLines.InitializePurchase(Rec, PurchLine2."Unit Cost");
-
-                        SalesShipmentLines.LookupMode(true);
-                        SalesShipmentLines.RunModal();
+                        OpenSalesShipmentLines(ItemChargeAssgntPurch);
                     end;
                 }
                 action(GetReturnReceiptLines)
@@ -418,21 +386,13 @@ page 5805 "Item Charge Assignment (Purch)"
                     trigger OnAction()
                     var
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-                        ReturnRcptLines: Page "Return Receipt Lines";
                     begin
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
                         OnGetReturnReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, ReturnRcptLine, PurchLine);
 
-                        ReturnRcptLines.SetTableView(ReturnRcptLine);
-                        if ItemChargeAssgntPurch.FindLast() then
-                            ReturnRcptLines.InitializePurchase(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
-                        else
-                            ReturnRcptLines.InitializePurchase(Rec, PurchLine2."Unit Cost");
-
-                        ReturnRcptLines.LookupMode(true);
-                        ReturnRcptLines.RunModal();
+                        OpenReturnReceiptLines(ItemChargeAssgntPurch);
                     end;
                 }
                 action(SuggestItemChargeAssignment)
@@ -673,8 +633,107 @@ page 5805 "Item Charge Assignment (Purch)"
     local procedure QtytoAssignOnAfterValidate()
     begin
         CurrPage.SaveRecord();
-        UpdateQtyAssgnt;
+        UpdateQtyAssgnt();
         CurrPage.Update(false);
+    end;
+
+    local procedure OpenPurchReceiptLines(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    var
+        PurchReceiptLines: Page "Purch. Receipt Lines";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenPurchReceiptLines(Rec, ItemChargeAssignmentPurch, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchReceiptLines.SetTableView(PurchRcptLine);
+        if ItemChargeAssignmentPurch.FindLast() then
+            PurchReceiptLines.Initialize(ItemChargeAssignmentPurch, PurchLine2."Unit Cost")
+        else
+            PurchReceiptLines.Initialize(Rec, PurchLine2."Unit Cost");
+        PurchReceiptLines.LookupMode(true);
+        PurchReceiptLines.RunModal();
+    end;
+
+    local procedure OpenPostedTransferReceiptLines(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    var
+        PostedTransferReceiptLines: Page "Posted Transfer Receipt Lines";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenPostedTransferReceiptLines(Rec, ItemChargeAssignmentPurch, IsHandled);
+        if IsHandled then
+            exit;
+
+        PostedTransferReceiptLines.SetTableView(TransferRcptLine);
+        if ItemChargeAssignmentPurch.FindLast() then
+            PostedTransferReceiptLines.Initialize(ItemChargeAssignmentPurch, PurchLine2."Unit Cost")
+        else
+            PostedTransferReceiptLines.Initialize(Rec, PurchLine2."Unit Cost");
+
+        PostedTransferReceiptLines.LookupMode(true);
+        PostedTransferReceiptLines.RunModal();
+    end;
+
+    local procedure OpenReturnShipmentLines(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    var
+        ReturnShipmentLines: Page "Return Shipment Lines";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenReturnShipmentLines(Rec, ItemChargeAssignmentPurch, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnShipmentLines.SetTableView(ReturnShptLine);
+        if ItemChargeAssignmentPurch.FindLast() then
+            ReturnShipmentLines.Initialize(ItemChargeAssignmentPurch, PurchLine2."Unit Cost")
+        else
+            ReturnShipmentLines.Initialize(Rec, PurchLine2."Unit Cost");
+
+        ReturnShipmentLines.LookupMode(true);
+        ReturnShipmentLines.RunModal();
+    end;
+
+    local procedure OpenSalesShipmentLines(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    var
+        SalesShipmentLines: Page "Sales Shipment Lines";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenSalesShipmentLines(Rec, ItemChargeAssignmentPurch, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesShipmentLines.SetTableView(SalesShptLine);
+        if ItemChargeAssignmentPurch.FindLast() then
+            SalesShipmentLines.InitializePurchase(ItemChargeAssignmentPurch, PurchLine2."Unit Cost")
+        else
+            SalesShipmentLines.InitializePurchase(Rec, PurchLine2."Unit Cost");
+
+        SalesShipmentLines.LookupMode(true);
+        SalesShipmentLines.RunModal();
+    end;
+
+    local procedure OpenReturnReceiptLines(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    var
+        ReturnReceiptLines: Page "Return Receipt Lines";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenReturnReceiptLines(Rec, ItemChargeAssignmentPurch, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnReceiptLines.SetTableView(ReturnRcptLine);
+        if ItemChargeAssignmentPurch.FindLast() then
+            ReturnReceiptLines.InitializePurchase(ItemChargeAssignmentPurch, PurchLine2."Unit Cost")
+        else
+            ReturnReceiptLines.InitializePurchase(Rec, PurchLine2."Unit Cost");
+
+        ReturnReceiptLines.LookupMode(true);
+        ReturnReceiptLines.RunModal();
     end;
 
     [IntegrationEvent(false, false)]
@@ -709,6 +768,31 @@ page 5805 "Item Charge Assignment (Purch)"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetTransferReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TransferRcptLine: Record "Transfer Receipt Line"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPurchReceiptLines(var RecItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenReturnReceiptLines(var RecItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenReturnShipmentLines(var RecItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPostedTransferReceiptLines(var RecItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenSalesShipmentLines(var RecItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
     begin
     end;
 }

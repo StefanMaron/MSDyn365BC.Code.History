@@ -388,6 +388,23 @@ page 31261 "Payment Orders CZB"
                     }
                 }
             }
+            group(Category_Category4)
+            {
+                Caption = 'Approval';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+            }
             group(Category_Category5)
             {
                 Caption = 'Request Approval';
