@@ -1049,7 +1049,7 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromProdRouting(var BOMBuffer: Record "BOM Buffer"; RoutingLine: Record "Routing Line")
+    local procedure OnAfterTransferFromProdRouting(var BOMBuffer: Record "BOM Buffer"; var RoutingLine: Record "Routing Line")
     begin
     end;
 

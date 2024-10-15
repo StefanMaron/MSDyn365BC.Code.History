@@ -1,4 +1,4 @@
-codeunit 7301 "Whse. Jnl.-Register Line"
+﻿codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = imd,
                   TableData "Warehouse Register" = imd;
@@ -169,6 +169,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             WhseEntry."Location Code", WhseEntry."Bin Code", WhseEntry."Item No.", WhseEntry."Variant Code",
             WhseEntry."Unit of Measure Code");
         ItemTrackingMgt.GetWhseItemTrkgSetup(FromBinContent."Item No.", WhseItemTrackingSetup);
+        OnDeleteFromBinContentOnAfterGetWhseItemTrkgSetup(FromBinContent, WhseItemTrackingSetup);
         WhseItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
         FromBinContent.SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
         IsHandled := false;
@@ -289,8 +290,12 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 TestField("Expiration Date");
                 ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
                 ItemTrackingMgt.GetWhseExpirationDate("Item No.", "Variant Code", Location, ItemTrackingSetup, ExistingExpDate);
-                if (ExistingExpDate <> 0D) and ("Expiration Date" <> ExistingExpDate) then
-                    TestField("Expiration Date", ExistingExpDate)
+                if (ExistingExpDate <> 0D) and ("Expiration Date" <> ExistingExpDate) then begin
+                    IsHandled := false;
+                    OnInsertWhseEntryOnBeforeTestFieldExpirationDate(WhseEntry, ExistingExpDate, IsHandled);
+                    if not IsHandled then
+                        TestField("Expiration Date", ExistingExpDate);
+                end;
             end;
 
             OnBeforeInsertWhseEntry(WhseEntry, WhseJnlLine);
@@ -667,6 +672,16 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteFromBinContentOnAfterClearTrackingFilters(VAR WarehouseEntry2: Record "Warehouse Entry"; var FromBinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteFromBinContentOnAfterGetWhseItemTrkgSetup(FromBinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertWhseEntryOnBeforeTestFieldExpirationDate(WhseEntry: Record "Warehouse Entry"; ExistingExpDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

@@ -78,6 +78,8 @@ table 443 "IC Setup"
     local procedure UpdateCompanyInfo()
     var
         CompanyInfo: Record "Company Information";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+ICMapping: Codeunit "IC Mapping";
     begin
         if not CompanyInfo.Get() then
             exit;
@@ -91,6 +93,8 @@ table 443 "IC Setup"
         if Rec."Auto. Send Transactions" <> xRec."Auto. Send Transactions" then
             CompanyInfo."Auto. Send Transactions" := Rec."Auto. Send Transactions";
         CompanyInfo.Modify();
+
+        FeatureTelemetry.LogUptake('0000IL1', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
     end;
 #endif
 }

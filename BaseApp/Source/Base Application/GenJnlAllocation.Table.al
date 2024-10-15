@@ -586,7 +586,7 @@ table 221 "Gen. Jnl. Allocation"
             StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Journal Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
-        OnAfterShowDimensions(Rec);
+        OnAfterShowDimensions(Rec, xRec);
     end;
 
     procedure CreateDimFromDefaultDim()
@@ -674,7 +674,7 @@ table 221 "Gen. Jnl. Allocation"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShowDimensions(var GenJnlAllocation: Record "Gen. Jnl. Allocation")
+    local procedure OnAfterShowDimensions(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; xGenJnlAllocation: Record "Gen. Jnl. Allocation")
     begin
     end;
 

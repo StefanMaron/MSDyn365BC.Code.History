@@ -367,7 +367,7 @@
         NewReservEntry."Qty. per Unit of Measure" := QtyPerUOM;
 
         // Item Tracking on consumption, output and drop shipment:
-        if (NewType = DATABASE::"Item Journal Line") and (NewSubtype in [5, 6]) or OverruleItemTracking then
+        if (NewType = DATABASE::"Item Journal Line") and (NewSubtype in [3, 5, 6]) or OverruleItemTracking then
             if InsertReservEntry.NewTrackingExists() then begin
                 NewReservEntry.CopyTrackingFromReservEntryNewTracking(InsertReservEntry);
                 if NewReservEntry."Qty. to Handle (Base)" = 0 then

@@ -37,18 +37,19 @@ page 105 "New Account Schedule Name"
                     Style = Unfavorable;
                 }
             }
-#if not CLEAN21
+#pragma warning disable AS0074
+#if not CLEAN22
             group(ColumnLayoutGroup)
             {
                 Caption = 'Default Column Layout';
                 Visible = false;
                 ObsoleteReason = 'Columns have been moved to FinancialReports page, extend NewFinancialReport.Page.al instead';
-                ObsoleteTag = '21.0';
+                ObsoleteTag = '22.0';
                 ObsoleteState = Pending;
                 field(SourceColumnLayoutName; '')
                 {
                     ObsoleteReason = 'Columns have been moved to FinancialReports page, extend NewFinancialReport.Page.al instead';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                     ObsoleteState = Pending;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Column Layout Name';
@@ -59,7 +60,7 @@ page 105 "New Account Schedule Name"
                 field(NewColumnLayoutName; '')
                 {
                     ObsoleteReason = 'Columns have been moved to FinancialReports page, extend NewFinancialReport.Page.al instead';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                     ObsoleteState = Pending;
                     ApplicationArea = Basic, Suite;
                     Caption = 'New Column Layout Name';
@@ -69,7 +70,7 @@ page 105 "New Account Schedule Name"
                 field(AlreadyExistsColumnLayoutText; '')
                 {
                     ObsoleteReason = 'Columns have been moved to FinancialReports page, extend NewFinancialReport.Page.al instead';
-                    ObsoleteTag = '21.0';
+                    ObsoleteTag = '22.0';
                     ObsoleteState = Pending;
                     ShowCaption = false;
                     Editable = false;
@@ -77,6 +78,7 @@ page 105 "New Account Schedule Name"
                 }
             }
 #endif
+#pragma warning restore AS0074
         }
     }
 
@@ -93,8 +95,9 @@ page 105 "New Account Schedule Name"
         CheckAlreadyExists();
     end;
 
-#if not CLEAN21
-    [Obsolete('Use Set only with the Name parameter now. Column definition is now stored in Financial Report.', '21.0')]
+#pragma warning disable AS0074
+#if not CLEAN22
+    [Obsolete('Use Set only with the Name parameter now. Column definition is now stored in Financial Report.', '22.0')]
     procedure Set(Name: Code[10]; ColumnLayout: Code[10])
     begin
         Set(Name);
@@ -107,12 +110,13 @@ page 105 "New Account Schedule Name"
         exit(NewName);
     end;
 
-#if not CLEAN21
-    [Obsolete('Column definition is now stored in Financial Report.', '21.0')]
+#if not CLEAN22
+    [Obsolete('Column definition is now stored in Financial Report.', '22.0')]
     procedure GetColumnLayoutName(): Code[10]
     begin
     end;
 #endif
+#pragma warning restore AS0074
 
     local procedure CheckAlreadyExists()
     begin

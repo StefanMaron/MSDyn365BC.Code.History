@@ -304,8 +304,6 @@
                 CheckLedgEntry.TestField(
                     "Statement Status",
                     CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
-                CheckLedgEntry.TestField("Statement No.", '');
-                CheckLedgEntry.TestField("Statement Line No.", 0);
                 CheckLedgEntry.Open := false;
                 CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
                 CheckLedgEntry.Modify();
@@ -324,8 +322,7 @@
         BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccReconLine."Bank Account No.");
         BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.SetRange(
-          "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+        BankAccLedgEntry.SetFilter("Statement Status", '%1|%2', BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccLedgEntry."Statement Status"::"Check Entry Applied");
         BankAccLedgEntry.SetRange("Statement No.", BankAccReconLine."Statement No.");
         BankAccLedgEntry.SetRange("Statement Line No.", BankAccReconLine."Statement Line No.");
         BankAccLedgEntry.SetRange("Posting Date", 0D, StatementClosingDate);
@@ -349,8 +346,8 @@
                 if CheckLedgEntry.Find('-') then
                     repeat
                         CheckLedgEntry.TestField(Open, true);
-                        CheckLedgEntry.TestField("Statement No.", '');
-                        CheckLedgEntry.TestField("Statement Line No.", 0);
+                        CheckLedgEntry.TestField("Statement No.", BankAccReconLine."Statement No.");
+                        CheckLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
                         CheckLedgEntry.Open := false;
                         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
                         CheckLedgEntry.Modify();
@@ -445,7 +442,7 @@
                                         RemainingAmount = "Applied Amount":
                                             begin
                                                 if not PostPaymentsOnly then
-                                                    CloseBankAccountLedgerEntry("Applies-to Entry No.", "Applied Amount", BankAccReconciliation."Statement Date");
+                                                    CloseBankAccountLedgerEntry("Applies-to Entry No.", "Applied Amount", BankAccReconciliation."Statement Date", BankAccReconLine."Statement Line No.");
                                                 PaymentLineAmount -= "Applied Amount";
                                             end;
                                         Abs(RemainingAmount) > Abs("Applied Amount"):
@@ -459,7 +456,7 @@
                                         Abs(RemainingAmount) < Abs("Applied Amount"):
                                             begin
                                                 if not PostPaymentsOnly then
-                                                    CloseBankAccountLedgerEntry("Applies-to Entry No.", RemainingAmount, BankAccReconciliation."Statement Date");
+                                                    CloseBankAccountLedgerEntry("Applies-to Entry No.", RemainingAmount, BankAccReconciliation."Statement Date", BankAccReconLine."Statement Line No.");
                                                 PaymentLineAmount -= RemainingAmount;
                                             end;
                                     end;
@@ -503,12 +500,8 @@
                 BankAccountLedgerEntry.SetRange("Document No.", PostedStamentNo);
                 BankAccountLedgerEntry.SetRange("Posting Date", GenJnlLine."Posting Date");
                 OnPostPaymentApplicationsOnAfterBankAccountLedgerEntrySetFilters(BankAccountLedgerEntry, GenJnlLine);
-                if BankAccountLedgerEntry.FindLast() then begin
-                    BankAccountLedgerEntry."Statement No." := PostedStamentNo;
-                    BankAccountLedgerEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
-                    BankAccountLedgerEntry.Modify();
-                    CloseBankAccountLedgerEntry(BankAccountLedgerEntry."Entry No.", BankAccountLedgerEntry.Amount, BankAccReconciliation."Statement Date");
-                end;
+                if BankAccountLedgerEntry.FindLast() then
+                    CloseBankAccountLedgerEntry(BankAccountLedgerEntry."Entry No.", BankAccountLedgerEntry.Amount, BankAccReconciliation."Statement Date", BankAccReconLine."Statement Line No.");
             end;
         end;
     end;
@@ -682,7 +675,7 @@
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
     end;
 
-    local procedure CloseBankAccountLedgerEntry(EntryNo: Integer; AppliedAmount: Decimal; StatementDate: Date)
+    local procedure CloseBankAccountLedgerEntry(EntryNo: Integer; AppliedAmount: Decimal; StatementDate: Date; StatementLineNo: Integer)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -695,6 +688,8 @@
             Open := false;
             "Statement Status" := "Statement Status"::Closed;
             "Closed at Date" := StatementDate;
+            "Statement No." := PostedStamentNo;
+            "Statement Line No." := StatementLineNo;
             Modify();
 
             CheckLedgerEntry.Reset();
@@ -706,6 +701,8 @@
                 repeat
                     CheckLedgerEntry.Open := false;
                     CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Closed;
+                    CheckLedgEntry."Statement No." := PostedStamentNo;
+                    CheckLedgEntry."Statement Line No." := StatementLineNo;
                     CheckLedgerEntry.Modify();
                 until CheckLedgerEntry.Next() = 0;
         end;

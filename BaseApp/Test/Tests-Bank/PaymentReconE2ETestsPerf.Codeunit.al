@@ -69,10 +69,10 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         VendLedgEntry.ModifyAll(Open, false);
 
         // The size of the input data
-        N[1] := 3;
-        N[2] := 4;
-        N[3] := 5;
-        N[4] := 6;
+        N[1] := 4;
+        N[2] := 5;
+        N[3] := 6;
+        N[4] := 7;
 
         // Exercise
         for i := 1 to 4 do
@@ -99,7 +99,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
 
     local procedure TestXSaleOnePmtPeformance(NoOfSales: Integer; var ToImport: Integer; var ToOpenPmtJnl: Integer; var ToAutoApply: Integer; var ToManuallyApply: Integer; var ToPost: Integer)
     var
-        CustLedgEntry: array[36] of Record "Cust. Ledger Entry";
+        CustLedgEntry: array[50] of Record "Cust. Ledger Entry";
         BankAccRecon: Record "Bank Acc. Reconciliation";
         TempBlobUTF8: Codeunit "Temp Blob";
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
@@ -200,7 +200,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         PmtReconJnl.First;
     end;
 
-    local procedure ApplyManually(var PmtReconJnl: TestPage "Payment Reconciliation Journal"; var CustLedgEntry: array[36] of Record "Cust. Ledger Entry"; NoOfSales: Integer)
+    local procedure ApplyManually(var PmtReconJnl: TestPage "Payment Reconciliation Journal"; var CustLedgEntry: array[50] of Record "Cust. Ledger Entry"; NoOfSales: Integer)
     var
         j: Integer;
     begin
@@ -235,7 +235,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryCAMTFileMgt.SetupSourceMock(DataExchDefCode, TempBlob);
     end;
 
-    local procedure TwoSaleOnePmt(var CustLedgEntry: array[36] of Record "Cust. Ledger Entry"; var OutStream: OutStream; FromPos: Integer; ToPos: Integer)
+    local procedure TwoSaleOnePmt(var CustLedgEntry: array[50] of Record "Cust. Ledger Entry"; var OutStream: OutStream; FromPos: Integer; ToPos: Integer)
     var
         Cust: Record Customer;
         i: Integer;

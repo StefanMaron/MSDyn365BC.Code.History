@@ -1277,8 +1277,8 @@
         BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
         BankAccLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
         BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.SetRange(
-            "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+        BankAccLedgEntry.SetFilter(
+            "Statement Status", '%1|%2', BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccLedgEntry."Statement Status"::"Check Entry Applied");
         BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
         BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
         OnRemoveApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);

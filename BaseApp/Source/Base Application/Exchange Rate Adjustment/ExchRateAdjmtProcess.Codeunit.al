@@ -764,6 +764,9 @@
         if TempDtldCVLedgEntryBuf.Insert() then;
         InsertExchRateAdjmtReg(
             "Exch. Rate Adjmt. Account Type"::Customer, ExchRateAdjmtBuffer."Posting Group", ExchRateAdjmtBuffer."Currency Code");
+        TempDtldCVLedgEntryBuf.Get(TempDtldCVLedgEntryBuf."Entry No.");
+        TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No." := ExchRateAdjmtReg."No.";
+        TempDtldCVLedgEntryBuf.Modify();
     end;
 
     local procedure PostVendAdjmt(ExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer"; var TempDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer" temporary; var TempDimSetEntry: Record "Dimension Set Entry" temporary; CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
@@ -772,6 +775,9 @@
         if TempDtldCVLedgEntryBuf.Insert() then;
         InsertExchRateAdjmtReg(
             "Exch. Rate Adjmt. Account Type"::Vendor, ExchRateAdjmtBuffer."Posting Group", ExchRateAdjmtBuffer."Currency Code");
+        TempDtldCVLedgEntryBuf.Get(TempDtldCVLedgEntryBuf."Entry No.");
+        TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No." := ExchRateAdjmtReg."No.";
+        TempDtldCVLedgEntryBuf.Modify();
     end;
 
     local procedure GetDimSetEntry(EntryNo: Integer; var TempDimSetEntry: Record "Dimension Set Entry" temporary)
@@ -960,6 +966,8 @@
                             "Exch. Rate Adjmt. Account Type"::Vendor:
                                 PostVendAdjmt(TempExchRateAdjmtBuffer, TempDtldCVLedgEntryBuf, TempDimSetEntry, CVLedgEntryBuf);
                         end;
+                        TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No." := ExchRateAdjmtReg."No.";
+                        TempDtldCVLedgEntryBuf.Modify();
                 until TempExchRateAdjmtBuffer.Next() = 0;
 
                 TempCurrencyToAdjust.Get(TempExchRateAdjmtBuffer2."Currency Code");
@@ -1049,7 +1057,7 @@
                 else
                     TempDtldCustLedgEntry."Transaction No." := LastTransactionNo;
                 DtldCustLedgEntry2 := TempDtldCustLedgEntry;
-                DtldCustledgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
+                DtldCustLedgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
                 DtldCustLedgEntry2.Insert(true);
             until TempDtldCustLedgEntry.Next() = 0;
     end;
@@ -1070,7 +1078,7 @@
                 else
                     TempDtldVendLedgEntry."Transaction No." := LastTransactionNo;
                 DtldVendLedgEntry2 := TempDtldVendLedgEntry;
-                DtldVendledgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
+                DtldVendLedgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
                 DtldVendLedgEntry2.Insert(true);
             until TempDtldVendLedgEntry.Next() = 0;
     end;
@@ -2068,6 +2076,7 @@
         SourceCodeSetup.Get();
         if ExchRateAdjmtReg.FindLast() then
             ExchRateAdjmtReg.Init();
+        OnAfterInitVariablesForSetLedgEntry(ExchRateAdjmtParameters, GenJournalLine);
     end;
 
     local procedure AddCurrency(CurrencyCode: Code[10]; CurrencyFactor: Decimal)
@@ -2605,6 +2614,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDtldVendLedgerEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitVariablesForSetLedgEntry(var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

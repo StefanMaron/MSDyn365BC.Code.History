@@ -460,6 +460,7 @@
                                     Amount := Amount - (VendLedgEntry."Amount to Apply" - VendLedgEntry."Remaining Pmt. Disc. Possible")
                                 else
                                     Amount := Amount - VendLedgEntry."Amount to Apply";
+                            "Remit-to Code" := VendLedgEntry."Remit-to Code";
                         end;
                     until VendLedgEntry.Next() = 0;
                     TempVendorLedgerEntry.DeleteAll();
@@ -483,7 +484,7 @@
 
             SetJournalLineFieldsFromApplication();
 
-            OnApplyVendorLedgerEntryOnBeforeModify(GenJnlLine, TempVendorLedgerEntry);
+            OnApplyVendorLedgerEntryOnBeforeModify(GenJnlLine, TempVendorLedgerEntry, VendLedgEntry);
             if Modify() then;
             if Amount <> 0 then
                 if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
@@ -598,7 +599,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyVendorLedgerEntryOnBeforeModify(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnApplyVendorLedgerEntryOnBeforeModify(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntryLocal: Record "Vendor Ledger Entry")
     begin
     end;
 
@@ -633,12 +634,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSelectCustLedgEntryOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnSelectCustLedgEntryOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSelectVendLedgEntryOnAfterSetFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnSelectVendLedgEntryOnAfterSetFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

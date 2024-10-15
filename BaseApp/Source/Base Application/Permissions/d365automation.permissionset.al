@@ -718,7 +718,10 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Inventory Report Entry" = RIMD,
                   tabledata "Inventory Report Header" = RIMD,
                   tabledata "Inventory Setup" = RIMD,
+#if not CLEAN20
                   tabledata "Invoice Post. Buffer" = RIMD,
+#endif
+                  tabledata "Invoice Posting Buffer" = RIMD,
                   tabledata "Invoiced Booking Item" = RIMD,
                   tabledata "Invt. Document Header" = RIMD,
                   tabledata "Invt. Document Line" = RIMD,

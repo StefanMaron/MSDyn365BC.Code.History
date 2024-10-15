@@ -1458,9 +1458,11 @@
         if SuppressTotals then
             exit;
 
+        OnBeforeDeltaUpdateTotals(Rec, xRec);
+
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification();
+        if Rec."Line Amount" <> xRec."Line Amount" then
+            Rec.SendLineInvoiceDiscountResetNotification();
     end;
 
     procedure ForceTotalsCalculation()
@@ -1597,6 +1599,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetDimensionsVisibility();
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 }

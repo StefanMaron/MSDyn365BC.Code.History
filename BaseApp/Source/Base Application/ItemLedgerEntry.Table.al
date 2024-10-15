@@ -828,11 +828,16 @@
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
-    procedure CalculateRemQuantity(ItemLedgEntryNo: Integer; PostingDate: Date): Decimal
+    procedure CalculateRemQuantity(ItemLedgEntryNo: Integer; PostingDate: Date) RemQty: Decimal
     var
         ItemApplnEntry: Record "Item Application Entry";
-        RemQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateRemQuantity(Rec, ItemLedgEntryNo, PostingDate, RemQty, IsHandled);
+        if IsHandled then
+            exit(RemQty);
+
         ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.");
         ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemLedgEntryNo);
         RemQty := 0;
@@ -1181,6 +1186,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestTrackingEqualToTrackingSpec(var ItemLedgerEntry: Record "Item Ledger Entry"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateRemQuantity(ItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgEntryNo: Integer; PostingDate: Date; var RemQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 

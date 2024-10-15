@@ -14,6 +14,7 @@
         Handled: Boolean;
         VATAllocOnCost: Boolean;
     begin
+        OnBeforeOnRun(Rec);
         Rec.Reset();
         Rec.SetRange("Entry Type", Rec."Entry Type"::"Fixed Asset");
         if Rec.FindFirst() then
@@ -100,6 +101,7 @@
                     end;
             end;
         end;
+        OnRunOnBeforeDeleteAll(Rec, Number);
         Rec.DeleteAll();
         PostedDeferralHeader.DeleteForDoc("Deferral Document Type"::"G/L".AsInteger(), ReversalEntry."Document No.", '', 0, '');
         if not HideDialog then
@@ -134,6 +136,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLRegPostingReportPrint(var ReportID: Integer; ReqWindow: Boolean; SystemPrinter: Boolean; var GLRegister: Record "G/L Register"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnRun(var ReversalEntry: Record "Reversal Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeDeleteAll(var ReversalEntry: Record "Reversal Entry"; Number: Integer)
     begin
     end;
 

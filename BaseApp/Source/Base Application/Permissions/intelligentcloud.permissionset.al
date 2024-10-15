@@ -692,7 +692,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Inventory Report Entry" = R,
                   tabledata "Inventory Report Header" = R,
                   tabledata "Inventory Setup" = R,
+#if not CLEAN20
                   tabledata "Invoice Post. Buffer" = R,
+#endif
+                  tabledata "Invoice Posting Buffer" = R,
                   tabledata "Invoiced Booking Item" = R,
                   tabledata "Invt. Document Header" = R,
                   tabledata "Invt. Document Line" = R,

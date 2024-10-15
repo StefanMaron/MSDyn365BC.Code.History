@@ -885,7 +885,14 @@ table 99000853 "Inventory Profile"
         AutoReservedQty: Decimal;
         Found: Boolean;
         InsertTracking: Boolean;
+        IsHandled: Boolean;
+        Result: Decimal;
     begin
+        IsHandled := false;
+        OnBeforeTransferBindings(ReservEntry, TrackingEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ReservEntry.SetCurrentKey(
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line",
           "Reservation Status");
@@ -1050,11 +1057,11 @@ table 99000853 "Inventory Profile"
             DATABASE::"Job Planning Line":
                 TrkgReservEntry.SetSource(DATABASE::"Job Planning Line", "Source Order Status", "Source ID", "Source Ref. No.", '', 0);
             else begin
-                    IsHandled := false;
-                    OnTransferToTrackingEntrySourceTypeElseCase(Rec, TrkgReservEntry, UseSecondaryFields, IsHandled);
-                    if not IsHandled then
-                        Error(Text000, "Source Type");
-                end;
+                IsHandled := false;
+                OnTransferToTrackingEntrySourceTypeElseCase(Rec, TrkgReservEntry, UseSecondaryFields, IsHandled);
+                if not IsHandled then
+                    Error(Text000, "Source Type");
+            end;
         end;
 
         TrkgReservEntry."Item No." := "Item No.";
@@ -1290,6 +1297,11 @@ table 99000853 "Inventory Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferToTrackingEntrySourceTypeElseCase(var InventoryProfile: Record "Inventory Profile"; var ReservationEntry: Record "Reservation Entry"; UseSecondaryFields: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferBindings(var ReservEntry: Record "Reservation Entry"; var TrackingEntry: Record "Reservation Entry"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

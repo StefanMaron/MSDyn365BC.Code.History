@@ -85,14 +85,20 @@ codeunit 1509 "Notification Entry Dispatcher"
 
         NotificationSetup.GetNotificationTypeSetupForUser(NotificationType, NotificationEntry."Recipient User ID");
 
+        CreateAndDispatch(NotificationSetup, NotificationEntry, UserSetup);
+
+        OnAfterDispatchForNotificationType(NotificationSetup, NotificationEntry);
+    end;
+
+    local procedure CreateAndDispatch(NotificationSetup: Record "Notification Setup"; var NotificationEntry: Record "Notification Entry"; UserSetup: Record "User Setup")
+    begin
+        OnBeforeCreateAndDispatch(NotificationSetup, NotificationEntry);
         case NotificationSetup."Notification Method" of
             NotificationSetup."Notification Method"::Email:
                 CreateMailAndDispatch(NotificationEntry, UserSetup."E-Mail");
             NotificationSetup."Notification Method"::Note:
                 CreateNoteAndDispatch(NotificationEntry);
         end;
-
-        OnAfterDispatchForNotificationType(NotificationSetup, NotificationEntry);
     end;
 
     local procedure ScheduledInstantly(RecipientUserID: Code[50]; NotificationType: Enum "Notification Entry Type"): Boolean
@@ -389,6 +395,11 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; var MailSubject: Text; var Email: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAndDispatch(NotificationSetup: Record "Notification Setup"; var NotificationEntry: Record "Notification Entry")
     begin
     end;
 

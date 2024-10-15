@@ -685,7 +685,10 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Inventory Report Entry" = RM,
                   tabledata "Inventory Report Header" = RM,
                   tabledata "Inventory Setup" = RM,
+#if not CLEAN20
                   tabledata "Invoice Post. Buffer" = RM,
+#endif
+                  tabledata "Invoice Posting Buffer" = RM,
                   tabledata "Invoiced Booking Item" = RM,
                   tabledata "Invt. Document Header" = RIMD,
                   tabledata "Invt. Document Line" = RIMD,

@@ -21,6 +21,7 @@ codeunit 136357 "UT T Job WIP Total"
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryJob: Codeunit "Library - Job";
+        LibraryERM: Codeunit "Library - ERM";
         IsInitialized: Boolean;
 
     local procedure Initialize()
@@ -246,6 +247,127 @@ codeunit 136357 "UT T Job WIP Total"
         JobPage.OpenView();
         JobPage.GoToRecord(Job);
         JobPage."Total WIP Sales G/L Amount".AssertEquals(-UnitPrice);
+        JobPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler,TransferToInvoiceHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyAmountsForJobWithPerJobLedgerEntryWithMultipleJobJournalAndSalesInvoice()
+    var
+        JobWIPMethod: Record "Job WIP Method";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobPage: TestPage "Job Card";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        ResourceNo: Code[20];
+        GLAccountNo: Code[20];
+        ResourceUnitPrice: Integer;
+        ResourceUnitCost: Integer;
+        ResourceNewUnitPrice: Integer;
+        GLUnitPrice: Integer;
+        GLUnitCost: Integer;
+    begin
+        Initialize();
+        ResourceUnitPrice := LibraryRandom.RandIntInRange(101, 200);
+        ResourceNewUnitPrice := LibraryRandom.RandIntInRange(51, 100);
+        ResourceUnitCost := LibraryRandom.RandIntInRange(1, 100);
+        GLUnitPrice := LibraryRandom.RandIntInRange(401, 500);
+        GLUnitCost := LibraryRandom.RandIntInRange(301, 400);
+
+        // [GIVEN] Job with task where the WIP Posting Method is 'Per Job Ledger Entry'
+        // Create and setup 'Job WIP Method'
+        LibraryJob.CreateJobWIPMethod(JobWIPMethod);
+        JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+        JobWIPMethod.Validate("Recognized Sales", JobWIPMethod."Recognized Sales"::"Usage (Total Price)");
+        JobWIPMethod.TestField("WIP Cost", true); //Make sure that this field is set to true.
+        JobWIPMethod.Validate(Valid, true);
+        JobWIPMethod.Modify(true);
+
+        // Create Job
+        LibraryJob.CreateJob(Job);
+        Job.Validate("WIP Method", JobWIPMethod.Code);
+        Job.Validate("WIP Posting Method", Job."WIP Posting Method"::"Per Job Ledger Entry");
+        Job.Modify(true);
+
+        // Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
+        JobTask.Validate("WIP Method", JobWIPMethod.Code);
+        JobTask.Modify(true);
+
+        // [GIVEN] Post usage for a Resource the Job Task
+        ResourceNo := LibraryResource.CreateResourceNo();
+        LibraryJob.CreateJobJournalLine("Job Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.Validate("No.", ResourceNo);
+        JobJournalLine.Validate(Quantity, 1);
+        JobJournalLine.Validate("Unit Price", ResourceUnitPrice);
+        JobJournalLine.Validate("Unit Cost", ResourceUnitCost);
+        JobJournalLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [GIVEN] Post usage for a G/L account the Job Task
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryJob.CreateJobJournalLine("Job Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::"G/L Account");
+        JobJournalLine.Validate("No.", GLAccountNo);
+        JobJournalLine.Validate(Quantity, 1);
+        JobJournalLine.Validate("Unit Price", GLUnitPrice);
+        JobJournalLine.Validate("Unit Cost", GLUnitCost);
+        JobJournalLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [WHEN] 'Calculate WIP' and 'Post WIP to G/L' is called
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+        RunJobPostWIPToGL(Job);
+
+        // [THEN] Amounts are calculated correctly
+        JobPage.OpenView();
+        JobPage.GoToRecord(Job);
+        JobPage."Total WIP Sales G/L Amount".AssertEquals(-(ResourceUnitPrice + GLUnitPrice));
+        JobPage."Total WIP Cost G/L Amount".AssertEquals(0);
+        JobPage."Recog. Sales G/L Amount".AssertEquals(ResourceUnitPrice + GLUnitPrice);
+        JobPage."Recog. Costs G/L Amount".AssertEquals(ResourceUnitCost + GLUnitCost);
+        JobPage.Close();
+
+        // [GIVEN] Add a Job Planning Line for the same resource but with a different Unit Price
+        LibraryJob.CreateJobPlanningLine("Job planning Line Line Type"::Billable, "Job Planning Line Type"::Resource, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, 1);
+        JobPlanningLine.Validate("Unit Cost", ResourceUnitCost);
+        JobPlanningLine.Validate("Unit Price", ResourceNewUnitPrice);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Sales invoice created and posted for the 'Job Planning Line'
+        Commit();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        GetSalesDocument(JobPlanningLine, "Sales Document Type"::Invoice, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] 'Calculate WIP' and 'Post WIP to G/L' is called
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+        RunJobPostWIPToGL(Job);
+
+        // [THEN] Amounts are calculated correctly
+        JobPage.OpenView();
+        JobPage.GoToRecord(Job);
+        JobPage."Total WIP Sales G/L Amount".AssertEquals(-(ResourceUnitPrice + GLUnitPrice - ResourceNewUnitPrice));
+        JobPage."Total WIP Cost G/L Amount".AssertEquals(0);
+        // Recognized Sales and Costs are unchanged.
+        JobPage."Recog. Sales G/L Amount".AssertEquals(ResourceUnitPrice + GLUnitPrice);
+        JobPage."Recog. Costs G/L Amount".AssertEquals(ResourceUnitCost + GLUnitCost);
         JobPage.Close();
     end;
 

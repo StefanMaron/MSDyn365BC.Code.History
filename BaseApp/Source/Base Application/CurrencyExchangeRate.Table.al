@@ -1,4 +1,4 @@
-table 330 "Currency Exchange Rate"
+﻿table 330 "Currency Exchange Rate"
 {
     Caption = 'Currency Exchange Rate';
     DataCaptionFields = "Currency Code";
@@ -327,7 +327,7 @@ table 330 "Currency Exchange Rate"
                 CurrencyExchRate2[CacheNo].SetRange("Starting Date", Date)
             else
                 CurrencyExchRate2[CacheNo].SetRange("Starting Date", 0D, Date);
-            OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(CurrencyExchRate2[CacheNo], CurrencyCode, Date);
+            OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(CurrencyExchRate2[CacheNo], CurrencyCode, Date, Rec);
             CurrencyExchRate2[CacheNo].FindLast();
             Rec := CurrencyExchRate2[CacheNo];
             CurrencyCode2[CacheNo] := CurrencyCode;
@@ -624,7 +624,7 @@ table 330 "Currency Exchange Rate"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(var CurrencyExchRate2: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; Date: Date)
+    local procedure OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(var CurrencyExchRate2: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; Date: Date; var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
     end;
 }

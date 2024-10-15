@@ -910,11 +910,13 @@ table 123 "Purch. Inv. Line"
             RemainingQty := Quantity;
     end;
 
-    local procedure CalcQty(QtyBase: Decimal): Decimal
+    local procedure CalcQty(QtyBase: Decimal) Result: Decimal
     begin
         if "Qty. per Unit of Measure" = 0 then
-            exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+            Result := QtyBase
+        else
+            Result := Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        OnAfterCalcQty(Rec, QtyBase, Result);
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -1009,7 +1011,14 @@ table 123 "Purch. Inv. Line"
     end;
 
     procedure ShowDeferrals()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDeferrals(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Purchase.AsInteger(), '', '',
             GetDocumentType(), "Document No.", "Line No.");
@@ -1037,14 +1046,24 @@ table 123 "Purch. Inv. Line"
         exit(Format(Type));
     end;
 
+    procedure IsCancellationSupported(): Boolean
+    begin
+        exit(Type in [Type::" ", Type::Item, Type::"G/L Account", Type::"Charge (Item)", Type::Resource]);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQty(var PurchInvLine: Record "Purch. Inv. Line"; QtyBase: Decimal; var Result: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromPurchLine(PurchInvHeader: Record "Purch. Inv. Header"; PurchLine: Record "Purchase Line"; var PurchInvLine: Record "Purch. Inv. Line")
     begin
     end;
 
-    procedure IsCancellationSupported(): Boolean
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeferrals(var PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
     begin
-        exit(Type in [Type::" ", Type::Item, Type::"G/L Account", Type::"Charge (Item)", Type::Resource]);
     end;
 
     [IntegrationEvent(false, false)]

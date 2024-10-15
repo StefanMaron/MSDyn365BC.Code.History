@@ -168,6 +168,8 @@ codeunit 229 "Document-Print"
                 ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), true, SalesHeader.GetBillToNo())
         else
             ReportSelections.PrintForCust(ReportUsage, SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
+
+        OnAfterDoPrintSalesHeader(SalesHeader, SendAsEmail);
     end;
 
     [Scope('OnPrem')]
@@ -705,12 +707,12 @@ codeunit 229 "Document-Print"
                     exit(ReportSelections.Usage::USCM);
                 end;
             else begin
-                    IsHandled := false;
-                    OnGetSalesDocTypeUsageElseCase(SalesHeader, TypeUsage, IsHandled);
-                    if IsHandled then
-                        exit("Report Selection Usage".FromInteger(TypeUsage));
-                    Error('');
-                end;
+                IsHandled := false;
+                OnGetSalesDocTypeUsageElseCase(SalesHeader, TypeUsage, IsHandled);
+                if IsHandled then
+                    exit("Report Selection Usage".FromInteger(TypeUsage));
+                Error('');
+            end;
         end;
     end;
 
@@ -751,12 +753,12 @@ codeunit 229 "Document-Print"
             PurchHeader."Document Type"::"Return Order":
                 exit(ReportSelections.Usage::"P.Return");
             else begin
-                    IsHandled := false;
-                    OnGetPurchDocTypeUsageElseCase(PurchHeader, TypeUsage, IsHandled);
-                    if IsHandled then
-                        exit("Report Selection Usage".FromInteger(TypeUsage));
-                    Error('');
-                end;
+                IsHandled := false;
+                OnGetPurchDocTypeUsageElseCase(PurchHeader, TypeUsage, IsHandled);
+                if IsHandled then
+                    exit("Report Selection Usage".FromInteger(TypeUsage));
+                Error('');
+            end;
         end;
     end;
 
@@ -772,12 +774,12 @@ codeunit 229 "Document-Print"
             ServiceContractHeader."Contract Type"::Contract:
                 exit(ReportSelections.Usage::"SM.Contract");
             else begin
-                    IsHandled := false;
-                    OnGetServContractTypeUsageElseCase(ServiceContractHeader, TypeUsage, IsHandled);
-                    if IsHandled then
-                        exit("Report Selection Usage".FromInteger(TypeUsage));
-                    Error('');
-                end;
+                IsHandled := false;
+                OnGetServContractTypeUsageElseCase(ServiceContractHeader, TypeUsage, IsHandled);
+                if IsHandled then
+                    exit("Report Selection Usage".FromInteger(TypeUsage));
+                Error('');
+            end;
         end;
     end;
 
@@ -797,12 +799,12 @@ codeunit 229 "Document-Print"
             ServiceHeader."Document Type"::"Credit Memo":
                 exit(ReportSelections.Usage::"SM.Credit Memo");
             else begin
-                    IsHandled := false;
-                    OnGetServHeaderDocTypeUsageElseCase(ServiceHeader, TypeUsage, IsHandled);
-                    if IsHandled then
-                        exit("Report Selection Usage".FromInteger(TypeUsage));
-                    Error('');
-                end;
+                IsHandled := false;
+                OnGetServHeaderDocTypeUsageElseCase(ServiceHeader, TypeUsage, IsHandled);
+                if IsHandled then
+                    exit("Report Selection Usage".FromInteger(TypeUsage));
+                Error('');
+            end;
         end;
     end;
 
@@ -818,12 +820,12 @@ codeunit 229 "Document-Print"
             AsmHeader."Document Type"::Order:
                 exit(ReportSelections.Usage::"Asm.Order");
             else begin
-                    IsHandled := false;
-                    OnGetAsmHeaderTypeUsageElseCase(AsmHeader, TypeUsage, IsHandled);
-                    if IsHandled then
-                        exit("Report Selection Usage".FromInteger(TypeUsage));
-                    Error('');
-                end;
+                IsHandled := false;
+                OnGetAsmHeaderTypeUsageElseCase(AsmHeader, TypeUsage, IsHandled);
+                if IsHandled then
+                    exit("Report Selection Usage".FromInteger(TypeUsage));
+                Error('');
+            end;
         end;
     end;
 
@@ -863,12 +865,12 @@ codeunit 229 "Document-Print"
             SalesHeaderArchive."Document Type"::"Blanket Order":
                 exit(ReportSelections.Usage::"S.Arch.Blanket");
             else begin
-                    IsHandled := false;
-                    OnGetSalesArchDocTypeUsageElseCase(SalesHeaderArchive, TypeUsage, IsHandled);
-                    if IsHandled then
-                        exit("Report Selection Usage".FromInteger(TypeUsage));
-                    Error('');
-                end;
+                IsHandled := false;
+                OnGetSalesArchDocTypeUsageElseCase(SalesHeaderArchive, TypeUsage, IsHandled);
+                if IsHandled then
+                    exit("Report Selection Usage".FromInteger(TypeUsage));
+                Error('');
+            end;
         end
     end;
 
@@ -888,12 +890,12 @@ codeunit 229 "Document-Print"
             PurchHeaderArchive."Document Type"::"Blanket Order":
                 exit(ReportSelections.Usage::"P.Arch.Blanket");
             else begin
-                    IsHandled := false;
-                    OnGetPurchArchDocTypeUsageElseCase(PurchHeaderArchive, TypeUsage, IsHandled);
-                    if IsHandled then
-                        exit("Report Selection Usage".FromInteger(TypeUsage));
-                    Error('');
-                end;
+                IsHandled := false;
+                OnGetPurchArchDocTypeUsageElseCase(PurchHeaderArchive, TypeUsage, IsHandled);
+                if IsHandled then
+                    exit("Report Selection Usage".FromInteger(TypeUsage));
+                Error('');
+            end;
         end;
     end;
 
@@ -961,6 +963,11 @@ codeunit 229 "Document-Print"
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
             Commit();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDoPrintSalesHeader(var SalesHeader: Record "Sales Header"; SendAsEmail: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

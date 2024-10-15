@@ -84,7 +84,7 @@
             then
                 Error(
                     ErrorInfo.Create(
-                    StrSubstNo(
+                        StrSubstNo(
                         Text002,
                         FieldCaption("Account Type"), FieldCaption("Bal. Account Type")),
                     true,
@@ -110,8 +110,8 @@
             then
                 Error(
                     ErrorInfo.Create(
-                    StrSubstNo(
-                        Text004,
+                        StrSubstNo(
+                            Text004,
                             FieldCaption("Currency Code"), FieldCaption("Recurring Method"), "Recurring Method"),
                         true,
                         GenJnlLine,
@@ -379,9 +379,9 @@
                         then
                             Error(
                                 ErrorInfo.Create(
-                                StrSubstNo(
-                                    SpecifyGenPostingTypeErr, "Account No.", FieldCaption("Gen. Posting Type"),
-                                    FieldCaption("Gen. Bus. Posting Group"), FieldCaption("Gen. Prod. Posting Group"),
+                                    StrSubstNo(
+                                        SpecifyGenPostingTypeErr, "Account No.", FieldCaption("Gen. Posting Type"),
+                                        FieldCaption("Gen. Bus. Posting Group"), FieldCaption("Gen. Prod. Posting Group"),
                                         FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group")),
                                     true,
                                     GenJnlLine,
@@ -395,8 +395,8 @@
                             if "VAT Amount" + "VAT Base Amount" <> Amount then
                                 Error(
                                     ErrorInfo.Create(
-                                    StrSubstNo(
-                                        Text005, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
+                                        StrSubstNo(
+                                            Text005, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
                                             FieldCaption(Amount)),
                                         true,
                                         GenJnlLine,
@@ -405,8 +405,8 @@
                                 if "VAT Amount (LCY)" + "VAT Base Amount (LCY)" <> "Amount (LCY)" then
                                     Error(
                                         ErrorInfo.Create(
-                                        StrSubstNo(
-                                            Text005, FieldCaption("VAT Amount (LCY)"),
+                                            StrSubstNo(
+                                                Text005, FieldCaption("VAT Amount (LCY)"),
                                                 FieldCaption("VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")),
                                             true,
                                             GenJnlLine,
@@ -438,7 +438,7 @@
                             FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
-                        CheckICPartner("Account Type", "Account No.", "Document Type");
+                        CheckICPartner("Account Type", "Account No.", "Document Type", GenJnlLine);
 
                         if "Account Type" = "Account Type"::Customer then
                             if Cust.Get("Account No.") then begin
@@ -501,8 +501,8 @@
                             if "Bal. VAT Amount" + "Bal. VAT Base Amount" <> -Amount then
                                 Error(
                                     ErrorInfo.Create(
-                                    StrSubstNo(
-                                        Text006, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
+                                        StrSubstNo(
+                                            Text006, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
                                             FieldCaption(Amount)),
                                         true,
                                         GenJnlLine,
@@ -511,8 +511,8 @@
                                 if "Bal. VAT Amount (LCY)" + "Bal. VAT Base Amount (LCY)" <> -"Amount (LCY)" then
                                     Error(
                                         ErrorInfo.Create(
-                                        StrSubstNo(
-                                            Text006, FieldCaption("Bal. VAT Amount (LCY)"),
+                                            StrSubstNo(
+                                                Text006, FieldCaption("Bal. VAT Amount (LCY)"),
                                                 FieldCaption("Bal. VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")),
                                                                 true,
                                         GenJnlLine,
@@ -535,7 +535,7 @@
                             FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text009, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
-                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type");
+                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type", GenJnlLine);
                     end;
                 "Bal. Account Type"::"Bank Account":
                     begin
@@ -735,14 +735,14 @@
             end;
     end;
 
-    local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
+    local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GenJnlLine: Record "Gen. Journal Line")
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
         ICPartner: Record "IC Partner";
         CheckDone: Boolean;
     begin
-        OnBeforeCheckICPartner(AccountType, AccountNo, DocumentType.AsInteger(), CheckDone);
+        OnBeforeCheckICPartner(AccountType, AccountNo, DocumentType.AsInteger(), CheckDone, GenJnlLine);
         if CheckDone then
             exit;
 
@@ -845,9 +845,9 @@
             if "Line No." <> 0 then
                 Error(
                     ErrorInfo.Create(
-                    StrSubstNo(
-                        ErrorTemplate,
-                        TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
+                        StrSubstNo(
+                            ErrorTemplate,
+                            TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
                             ErrorText),
                         true,
                         GenJournalLine));
@@ -913,9 +913,9 @@
         then
             Error(
                 ErrorInfo.Create(
-                StrSubstNo(
-                    Text010,
-                    GenJnlLine.FieldCaption("Account Type"), GenJnlLine."Account Type",
+                    StrSubstNo(
+                        Text010,
+                        GenJnlLine.FieldCaption("Account Type"), GenJnlLine."Account Type",
                         GenJnlLine.FieldCaption("Bal. Gen. Posting Type"), GenJnlLine."Bal. Gen. Posting Type"),
                     true,
                     GenJnlLine));
@@ -937,9 +937,9 @@
         then
             Error(
                 ErrorInfo.Create(
-                StrSubstNo(
-                    Text010,
-                    GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine."Bal. Account Type",
+                    StrSubstNo(
+                        Text010,
+                        GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine."Bal. Account Type",
                         GenJnlLine.FieldCaption("Gen. Posting Type"), GenJnlLine."Gen. Posting Type"),
                     true,
                     GenJnlLine));
@@ -1096,7 +1096,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Option; var CheckDone: Boolean)
+    local procedure OnBeforeCheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Option; var CheckDone: Boolean; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

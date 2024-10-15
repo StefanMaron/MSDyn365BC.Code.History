@@ -338,7 +338,10 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Inventory Profile Track Buffer" = RIM,
                   tabledata "Inventory Report Entry" = RIM,
                   tabledata "Inventory Report Header" = RIM,
+#if not CLEAN20
                   tabledata "Invoice Post. Buffer" = RIMD,
+#endif
+                  tabledata "Invoice Posting Buffer" = RIMD,
                   tabledata "Invoiced Booking Item" = RIMD,
                   tabledata "Invt. Document Header" = RIMD,
                   tabledata "Invt. Document Line" = RIMD,

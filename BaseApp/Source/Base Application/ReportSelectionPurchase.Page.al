@@ -201,7 +201,8 @@ page 347 "Report Selection - Purchase"
                         ReportUsage2 := "Report Selection Usage Purchase"::"Archived Order";
                     "Report Selection Usage"::"P.Arch.Return":
                         ReportUsage2 := "Report Selection Usage Purchase"::"Archived Return Order";
-                    "Report Selection Usage"::"S.Arch.Blanket":
+                    "Report Selection Usage"::"P.Arch.Blanket",
+                    "Report Selection Usage"::"S.Arch.Blanket": // Wrong enum case kept here to avoid semantically breaking change (BUG 448278)
                         ReportUsage2 := "Report Selection Usage Purchase"::"Archived Blanket Order";
                     "Report Selection Usage"::"V.Remittance":
                         ReportUsage2 := "Report Selection Usage Purchase"::"Vendor Remittance";

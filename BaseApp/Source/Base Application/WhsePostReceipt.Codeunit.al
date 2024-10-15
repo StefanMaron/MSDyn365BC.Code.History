@@ -54,6 +54,11 @@ codeunit 5760 "Whse.-Post Receipt"
         ShouldCreatePutAway: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCode(WhseRcptLine, SuppressCommit, CounterSourceDocOK, CounterSourceDocTotal, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseRcptLine do begin
             SetCurrentKey("No.");
             SetRange("No.", "No.");
@@ -134,7 +139,7 @@ codeunit 5760 "Whse.-Post Receipt"
             Clear(WhseJnlRegisterLine);
         end;
 
-        OnAfterCode(WhseRcptHeader, WhseRcptLine);
+        OnAfterCode(WhseRcptHeader, WhseRcptLine, CounterSourceDocTotal);
     end;
 
     local procedure CheckUnitOfMeasureCode(WarehouseReceiptLine: Record "Warehouse Receipt Line")
@@ -186,7 +191,8 @@ codeunit 5760 "Whse.-Post Receipt"
                 else
                     OnGetSourceDocumentOnElseCase(SourceHeader);
             end;
-        OnAfterGetSourceDocument(SourceHeader);
+
+        OnAfterGetSourceDocument(SourceHeader, WhseRcptLine, SuppressCommit);
     end;
 
     local procedure MakePreliminaryChecks()
@@ -297,29 +303,33 @@ codeunit 5760 "Whse.-Post Receipt"
                         PurchLine.SetRange("Document No.", "Source No.");
                         if PurchLine.Find('-') then
                             repeat
-                                SetRange("Source Line No.", PurchLine."Line No.");
-                                if FindFirst() then begin
-                                    OnAfterFindWhseRcptLineForPurchLine(WhseRcptLine2, PurchLine);
-                                    if "Source Document" = "Source Document"::"Purchase Order" then begin
-                                        ModifyLine := PurchLine."Qty. to Receive" <> "Qty. to Receive";
-                                        if ModifyLine then
-                                            ValidateQtyToReceiveOnPurchaseLine(PurchLine, WhseRcptLine2)
-                                    end else begin
-                                        ModifyLine := PurchLine."Return Qty. to Ship" <> -"Qty. to Receive";
-                                        if ModifyLine then
-                                            PurchLine.Validate("Return Qty. to Ship", -"Qty. to Receive");
-                                    end;
-                                    if PurchLine."Bin Code" <> "Bin Code" then begin
-                                        PurchLine."Bin Code" := "Bin Code";
-                                        ModifyLine := true;
-                                    end;
-                                    OnInitSourceDocumentLinesOnAfterSourcePurchLineFound(PurchLine, WhseRcptLine2, ModifyLine, WhseRcptHeader);
-                                end else
-                                    ClearPurchLineQtyToShipReceive(PurchLine, WhseRcptLine2, ModifyLine);
-                                OnBeforePurchLineModify(PurchLine, WhseRcptLine2, ModifyLine);
-                                if ModifyLine then
-                                    PurchLine.Modify();
-                                OnInitSourceDocumentLinesOnAfterPurchLineModify(PurchLine, ModifyLine);
+                                IsHandled := false;
+                                OnInitSourceDocumentLinesOnBeforeProcessPurchLine(PurchLine, IsHandled);
+                                if not IsHandled then begin
+                                    SetRange("Source Line No.", PurchLine."Line No.");
+                                    if FindFirst() then begin
+                                        OnAfterFindWhseRcptLineForPurchLine(WhseRcptLine2, PurchLine);
+                                        if "Source Document" = "Source Document"::"Purchase Order" then begin
+                                            ModifyLine := PurchLine."Qty. to Receive" <> "Qty. to Receive";
+                                            if ModifyLine then
+                                                ValidateQtyToReceiveOnPurchaseLine(PurchLine, WhseRcptLine2)
+                                        end else begin
+                                            ModifyLine := PurchLine."Return Qty. to Ship" <> -"Qty. to Receive";
+                                            if ModifyLine then
+                                                PurchLine.Validate("Return Qty. to Ship", -"Qty. to Receive");
+                                        end;
+                                        if PurchLine."Bin Code" <> "Bin Code" then begin
+                                            PurchLine."Bin Code" := "Bin Code";
+                                            ModifyLine := true;
+                                        end;
+                                        OnInitSourceDocumentLinesOnAfterSourcePurchLineFound(PurchLine, WhseRcptLine2, ModifyLine, WhseRcptHeader);
+                                    end else
+                                        ClearPurchLineQtyToShipReceive(PurchLine, WhseRcptLine2, ModifyLine);
+                                    OnBeforePurchLineModify(PurchLine, WhseRcptLine2, ModifyLine);
+                                    if ModifyLine then
+                                        PurchLine.Modify();
+                                    OnInitSourceDocumentLinesOnAfterPurchLineModify(PurchLine, ModifyLine);
+                                end;
                             until PurchLine.Next() = 0;
                         OnInitSourceDocumentLinesOnAfterModifyPurchLines(PurchHeader);
                     end;
@@ -329,26 +339,30 @@ codeunit 5760 "Whse.-Post Receipt"
                         SalesLine.SetRange("Document No.", "Source No.");
                         if SalesLine.Find('-') then
                             repeat
-                                SetRange("Source Line No.", SalesLine."Line No.");
-                                if FindFirst() then begin
-                                    OnAfterFindWhseRcptLineForSalesLine(WhseRcptLine2, SalesLine);
-                                    if "Source Document" = "Source Document"::"Sales Order" then begin
-                                        ModifyLine := SalesLine."Qty. to Ship" <> -"Qty. to Receive";
-                                        if ModifyLine then
-                                            SalesLine.Validate("Qty. to Ship", -"Qty. to Receive");
-                                    end else begin
-                                        ModifyLine := SalesLine."Return Qty. to Receive" <> "Qty. to Receive";
-                                        if ModifyLine then
-                                            ValidateReturnQtyToReceiveOnSalesLine(SalesLine, WhseRcptLine2);
-                                    end;
-                                    CheckUpdateSalesLineBinCode(SalesLine, WhseRcptLine2, ModifyLine);
-                                    OnInitSourceDocumentLinesOnAfterSourceSalesLineFound(SalesLine, WhseRcptLine2, ModifyLine, WhseRcptHeader, WhseRcptLine);
-                                end else
-                                    ClearSalesLineQtyToShipReceive(SalesLine, WhseRcptLine2, ModifyLine);
-                                OnBeforeSalesLineModify(SalesLine, WhseRcptLine2, ModifyLine);
-                                if ModifyLine then
-                                    SalesLine.Modify();
-                                OnInitSourceDocumentLinesOnAfterSalesLineModify(SalesLine, ModifyLine);
+                                IsHandled := false;
+                                OnInitSourceDocumentLinesOnBeforeProcessSalesLine(SalesLine, IsHandled);
+                                if not IsHandled then begin
+                                    SetRange("Source Line No.", SalesLine."Line No.");
+                                    if FindFirst() then begin
+                                        OnAfterFindWhseRcptLineForSalesLine(WhseRcptLine2, SalesLine);
+                                        if "Source Document" = "Source Document"::"Sales Order" then begin
+                                            ModifyLine := SalesLine."Qty. to Ship" <> -"Qty. to Receive";
+                                            if ModifyLine then
+                                                SalesLine.Validate("Qty. to Ship", -"Qty. to Receive");
+                                        end else begin
+                                            ModifyLine := SalesLine."Return Qty. to Receive" <> "Qty. to Receive";
+                                            if ModifyLine then
+                                                ValidateReturnQtyToReceiveOnSalesLine(SalesLine, WhseRcptLine2);
+                                        end;
+                                        CheckUpdateSalesLineBinCode(SalesLine, WhseRcptLine2, ModifyLine);
+                                        OnInitSourceDocumentLinesOnAfterSourceSalesLineFound(SalesLine, WhseRcptLine2, ModifyLine, WhseRcptHeader, WhseRcptLine);
+                                    end else
+                                        ClearSalesLineQtyToShipReceive(SalesLine, WhseRcptLine2, ModifyLine);
+                                    OnBeforeSalesLineModify(SalesLine, WhseRcptLine2, ModifyLine);
+                                    if ModifyLine then
+                                        SalesLine.Modify();
+                                    OnInitSourceDocumentLinesOnAfterSalesLineModify(SalesLine, ModifyLine);
+                                end;
                             until SalesLine.Next() = 0;
                         OnInitSourceDocumentLinesOnAfterModifySalesLines(SalesHeader);
                     end;
@@ -490,6 +504,7 @@ codeunit 5760 "Whse.-Post Receipt"
         PurchPost: Codeunit "Purch.-Post";
         SalesPost: Codeunit "Sales-Post";
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
+        IsHandled: Boolean;
     begin
         WhseSetup.Get();
         with WhseRcptLine do begin
@@ -502,14 +517,17 @@ codeunit 5760 "Whse.-Post Receipt"
                         else
                             PurchHeader.Ship := true;
                         PurchHeader.Invoice := false;
-
-                        PurchPost.SetWhseRcptHeader(WhseRcptHeader);
-                        PurchPost.SetSuppressCommit(SuppressCommit);
-                        case WhseSetup."Receipt Posting Policy" of
-                            WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
-                                PostPurchErrorsNotProcessed(PurchPost);
-                            WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
-                                PostSourcePurchDocument(PurchPost);
+                        IsHandled := false;
+                        OnPostSourceDocumentOnBeforePostPurchaseHeader(PurchHeader, WhseRcptHeader, SuppressCommit, CounterSourceDocOK, IsHandled);
+                        if not IsHandled then begin
+                            PurchPost.SetWhseRcptHeader(WhseRcptHeader);
+                            PurchPost.SetSuppressCommit(SuppressCommit);
+                            case WhseSetup."Receipt Posting Policy" of
+                                WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
+                                    PostPurchErrorsNotProcessed(PurchPost);
+                                WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
+                                    PostSourcePurchDocument(PurchPost);
+                            end;
                         end;
                         OnPostSourceDocumentOnAfterPostPurchaseHeader(PurchHeader);
                         Clear(PurchPost);
@@ -521,14 +539,17 @@ codeunit 5760 "Whse.-Post Receipt"
                         else
                             SalesHeader.Receive := true;
                         SalesHeader.Invoice := false;
-
-                        SalesPost.SetWhseRcptHeader(WhseRcptHeader);
-                        SalesPost.SetSuppressCommit(SuppressCommit);
-                        case WhseSetup."Receipt Posting Policy" of
-                            WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
-                                PostSalesErrorsNotProcessed(SalesPost);
-                            WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
-                                PostSourceSalesDocument(SalesPost);
+                        IsHandled := false;
+                        OnPostSourceDocumentOnBeforePostSalesHeader(SalesHeader, WhseRcptHeader, SuppressCommit, CounterSourceDocOK, IsHandled);
+                        if not IsHandled then begin
+                            SalesPost.SetWhseRcptHeader(WhseRcptHeader);
+                            SalesPost.SetSuppressCommit(SuppressCommit);
+                            case WhseSetup."Receipt Posting Policy" of
+                                WhseSetup."Receipt Posting Policy"::"Posting errors are not processed":
+                                    PostSalesErrorsNotProcessed(SalesPost);
+                                WhseSetup."Receipt Posting Policy"::"Stop and show the first posting error":
+                                    PostSourceSalesDocument(SalesPost);
+                            end;
                         end;
                         OnPostSourceDocumentOnAfterPostSalesHeader(SalesHeader);
                         Clear(SalesPost);
@@ -1164,7 +1185,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    local procedure OnAfterCode(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseReceiptLine: Record "Warehouse Receipt Line"; CounterSourceDocTotal: Integer)
     begin
     end;
 
@@ -1274,7 +1295,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSourceDocument(SourceHeader: Variant)
+    local procedure OnAfterGetSourceDocument(SourceHeader: Variant; WhseRcptLine: Record "Warehouse Receipt Line"; var SuppressCommit: Boolean)
     begin
     end;
 
@@ -1632,5 +1653,29 @@ codeunit 5760 "Whse.-Post Receipt"
     local procedure OnGetSourceDocumentOnElseCase(var SourceHeader: Variant)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePostPurchaseHeader(var PurchHeader: Record "Purchase Header"; WhseRcptHeader: Record "Warehouse Receipt Header"; SuppressCommit: Boolean; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentLinesOnBeforeProcessPurchLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforePostSalesHeader(var SalesHeader: Record "Sales Header"; WhseRcptHeader: Record "Warehouse Receipt Header"; SuppressCommit: Boolean; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(WhseRcptLine: Record "Warehouse Receipt Line"; var SuppressCommit: Boolean; CounterSourceDocOK: Integer; CounterSourceDocTotal: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentLinesOnBeforeProcessSalesLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+}

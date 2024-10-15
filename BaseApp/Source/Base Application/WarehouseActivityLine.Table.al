@@ -1786,6 +1786,22 @@ table 5767 "Warehouse Activity Line"
         OnAfterLookupTrackingSummary(WhseActivLine, TempTrackingSpecification, TrackingType);
     end;
 
+    procedure CheckItemTrackingAvailability(): Boolean
+    var
+        TempTrackingSpec: Record "Tracking Specification" temporary;
+    begin
+        InitTrackingSpecFromWhseActivLine(TempTrackingSpec, Rec);
+        TempTrackingSpec."Quantity (Base)" := "Qty. Outstanding (Base)";
+        TempTrackingSpec."Qty. to Handle" := "Qty. Outstanding";
+        TempTrackingSpec."Qty. to Handle (Base)" := "Qty. Outstanding (Base)";
+        TempTrackingSpec.Insert();
+
+        GetItem();
+        Clear(ItemTrackingDataCollection);
+        ItemTrackingDataCollection.SetCurrentBinAndItemTrkgCode("Bin Code", ItemTrackingCode);
+        exit(ItemTrackingDataCollection.CheckAvailableTrackingQuantity(TempTrackingSpec));
+    end;
+
     procedure CheckReservedItemTrkg(CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50])
     var
         IsHandled: Boolean;
@@ -1899,8 +1915,14 @@ table 5767 "Warehouse Activity Line"
     procedure DeleteBinContent(ActionType: Option)
     var
         BinContent: Record "Bin Content";
+        IsHandled: Boolean;
     begin
         if "Action Type".AsInteger() <> ActionType then
+            exit;
+
+        IsHandled := false;
+        OnBeforeDeleteBinContent(Rec, IsHandled);
+        if IsHandled then
             exit;
 
         if BinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code") then
@@ -2129,6 +2151,9 @@ table 5767 "Warehouse Activity Line"
         AsmHeader.CalcFields("Assemble to Order");
         "Assemble to Order" := AsmHeader."Assemble to Order";
         "ATO Component" := true;
+        Item."No." := "Item No.";
+        Item.ItemSKUGet(Item, "Location Code", "Variant Code");
+        "Shelf No." := Item."Shelf No.";
 
         OnAfterTransferAllButWhseDocDetailsFromAssemblyLine(Rec, AssemblyLine);
     end;
@@ -3330,6 +3355,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnUpdateQtyToHandleOnBeforeWhseActivLineModify(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteBinContent(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 }

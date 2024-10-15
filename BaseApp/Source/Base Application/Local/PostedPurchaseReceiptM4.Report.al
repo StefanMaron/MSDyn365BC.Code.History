@@ -7,14 +7,12 @@ report 12483 "Posted Purchase Receipt M-4"
     {
         dataitem("Purch. Inv. Header"; "Purch. Inv. Header")
         {
-            dataitem("Invoice Post. Buffer"; "Invoice Post. Buffer")
+            dataitem("G/L Account Net Change"; "G/L Account Net Change")
             {
-                DataItemTableView = SORTING(Type, "G/L Account", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Area Code", "Tax Group Code", "Tax Liable", "Use Tax", "Dimension Set ID", "Job No.", "Fixed Asset Line No.");
-
                 trigger OnAfterGetRecord()
                 begin
-                    if "G/L Account" <> AccNo then
-                        InventoryReportsHelper.FillM4BodyInv("G/L Account");
+                    if "No." <> AccNo then
+                        InventoryReportsHelper.FillM4BodyInv("No.");
                 end;
             }
             dataitem("Purch. Inv. Line"; "Purch. Inv. Line")
@@ -65,7 +63,7 @@ report 12483 "Posted Purchase Receipt M-4"
 
             trigger OnAfterGetRecord()
             begin
-                InvPostBuffer.DeleteAll();
+                TempGLAccountNetChange.DeleteAll();
                 AccNo := '';
                 CompanyInfo.Get();
 
@@ -75,28 +73,28 @@ report 12483 "Posted Purchase Receipt M-4"
                     repeat
                         case PurchInvLine.Type of
                             PurchInvLine.Type::"G/L Account":
-                                InventoryReportsHelper.InsertBuffer(InvPostBuffer, PurchInvLine."No.", AccNo);
+                                InventoryReportsHelper.InsertGLAccount(TempGLAccountNetChange, PurchInvLine."No.", AccNo);
                             PurchInvLine.Type::Item:
                                 begin
                                     InvPostingSetup.Get("Location Code", PurchInvLine."Posting Group");
-                                    InventoryReportsHelper.InsertBuffer(InvPostBuffer, InvPostingSetup."Inventory Account (Interim)", AccNo);
+                                    InventoryReportsHelper.InsertGLAccount(TempGLAccountNetChange, InvPostingSetup."Inventory Account (Interim)", AccNo);
                                 end;
                             PurchInvLine.Type::"Charge (Item)":
                                 begin
                                     GeneralPostingSetup.Get("Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
-                                    InventoryReportsHelper.InsertBuffer(InvPostBuffer, GeneralPostingSetup."Purch. Account", AccNo);
+                                    InventoryReportsHelper.InsertGLAccount(TempGLAccountNetChange, GeneralPostingSetup."Purch. Account", AccNo);
                                 end;
                             PurchInvLine.Type::"Fixed Asset":
                                 begin
                                     PurchInvLine.TestField("Depreciation Book Code");
                                     FADepreciationBook.Get(PurchInvLine."No.", PurchInvLine."Depreciation Book Code");
                                     FAPostingGroup.Get(FADepreciationBook."FA Posting Group");
-                                    InventoryReportsHelper.InsertBuffer(InvPostBuffer, FAPostingGroup."Acquisition Cost Account", AccNo);
+                                    InventoryReportsHelper.InsertGLAccount(TempGLAccountNetChange, FAPostingGroup."Acquisition Cost Account", AccNo);
                                 end;
                             PurchInvLine.Type::"Empl. Purchase":
                                 begin
                                     VendPostingGroup.Get("Vendor Posting Group");
-                                    InventoryReportsHelper.InsertBuffer(InvPostBuffer, VendPostingGroup."Payables Account", AccNo);
+                                    InventoryReportsHelper.InsertGLAccount(TempGLAccountNetChange, VendPostingGroup."Payables Account", AccNo);
                                 end;
                         end;
                     until PurchInvLine.Next() = 0;
@@ -152,13 +150,13 @@ report 12483 "Posted Purchase Receipt M-4"
         GeneralPostingSetup: Record "General Posting Setup";
         InvPostingSetup: Record "Inventory Posting Setup";
         PurchInvLine: Record "Purch. Inv. Line";
-        InvPostBuffer: Record "Invoice Post. Buffer";
         FADepreciationBook: Record "FA Depreciation Book";
         FAPostingGroup: Record "FA Posting Group";
         VendPostingGroup: Record "Vendor Posting Group";
         ReleasedBy: Record "Posted Document Signature";
         ReceivedBy: Record "Posted Document Signature";
         Currency: Record Currency;
+        TempGLAccountNetChange: Record "G/L Account Net Change" temporary;
         StdRepMgt: Codeunit "Local Report Management";
         DocSignMgt: Codeunit "Doc. Signature Management";
         InventoryReportsHelper: Codeunit "Purchase Receipt M-4 Helper";

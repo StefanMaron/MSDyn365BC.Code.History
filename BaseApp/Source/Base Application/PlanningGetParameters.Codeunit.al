@@ -56,11 +56,7 @@ codeunit 99000855 "Planning-Get Parameters"
                         "Overflow Level" := 0;
                     end;
                 end;
-                if "Components at Location" = '' then
-                    if MfgSetup."Components at Location" <> '' then
-                        "Components at Location" := MfgSetup."Components at Location"
-                    else
-                        "Components at Location" := LocationCode;
+                SetComponentsAtLocation(LocationCode);
             end;
             if Format("Safety Lead Time") = '' then
                 if Format(MfgSetup."Default Safety Lead Time") <> '' then
@@ -84,6 +80,16 @@ codeunit 99000855 "Planning-Get Parameters"
     begin
         if not HasGotMfgSetUp then
             HasGotMfgSetUp := MfgSetup.Get();
+    end;
+
+    local procedure SetComponentsAtLocation(LocationCode: Code[10])
+    begin
+        if GlobalSKU."Components at Location" = '' then
+            if MfgSetup."Components at Location" <> '' then
+                GlobalSKU."Components at Location" := MfgSetup."Components at Location"
+            else
+                GlobalSKU."Components at Location" := LocationCode;
+        OnAfterSetComponentsAtLocation(GlobalSKU, Item);
     end;
 
     procedure SetLotForLot()
@@ -369,6 +375,11 @@ codeunit 99000855 "Planning-Get Parameters"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPlanningParameters(PlanningParameters: Record "Planning Parameters"; xPlanningParameters: Record "Planning Parameters");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetComponentsAtLocation(var GlobalStockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
     begin
     end;
 

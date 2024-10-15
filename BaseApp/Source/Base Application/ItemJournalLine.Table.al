@@ -163,6 +163,7 @@
                         else begin
                             "Unit of Measure Code" := Item."Base Unit of Measure";
                             Validate("Prod. Order Comp. Line No.", 0);
+                            OnValidateItemNoOnAfterValidateProdOrderCompLineNo(Rec, ProdOrderLine);
                         end;
                 end;
 
@@ -171,7 +172,7 @@
 
                 if "Value Entry Type" = "Value Entry Type"::Revaluation then
                     "Unit of Measure Code" := Item."Base Unit of Measure";
-                OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(Rec, Item, CurrFieldNo);
+                OnValidateItemNoOnBeforeValidateUnitOfMeasureCode(Rec, Item, CurrFieldNo, xRec);
                 Validate("Unit of Measure Code");
                 if "Variant Code" <> '' then
                     Validate("Variant Code");
@@ -2566,6 +2567,8 @@
             "Value Entry Type" := "Value Entry Type"::Revaluation;
             "Entry Type" := "Entry Type"::"Positive Adjmt.";
         end;
+
+        OnSetUpNewLineOnBeforeSetDefaultPriceCalculationMethod(Rec, ItemJnlBatch, DimMgt);
         SetDefaultPriceCalculationMethod();
 
         case "Entry Type" of
@@ -2667,7 +2670,8 @@
             "Entry Type"::Transfer:
                 "Unit Amount" := 0;
         end;
-        OnAfterGetUnitAmount(Rec);
+
+        OnAfterGetUnitAmount(Rec, UnitCost);
     end;
 
     procedure ApplyPrice(PriceType: Enum "Price Type"; CalledByFieldNo: Integer)
@@ -3594,6 +3598,8 @@
         ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         ReservEntry."Expected Receipt Date" := "Posting Date";
         ReservEntry."Shipment Date" := "Posting Date";
+
+        OnAfterSetReservationEntry(ReservEntry, Rec);
     end;
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
@@ -3699,15 +3705,15 @@
             "Entry Type"::Output:
                 LookupProdOrderLine();
             else begin
-                    ItemList.LookupMode := true;
-                    if "Item No." <> '' then
-                        if Item.Get("Item No.") then
-                            ItemList.SetRecord(Item);
-                    if ItemList.RunModal() = ACTION::LookupOK then begin
-                        ItemList.GetRecord(Item);
-                        Validate("Item No.", Item."No.");
-                    end;
+                ItemList.LookupMode := true;
+                if "Item No." <> '' then
+                    if Item.Get("Item No.") then
+                        ItemList.SetRecord(Item);
+                if ItemList.RunModal() = ACTION::LookupOK then begin
+                    ItemList.GetRecord(Item);
+                    Validate("Item No.", Item."No.");
                 end;
+            end;
         end;
     end;
 
@@ -4366,8 +4372,11 @@
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"): Boolean
     var
         IsHandled: Boolean;
+        RecordCount: Integer;
     begin
         ProdOrderComponent.SetFilterByReleasedOrderNo("Order No.");
+        if "Order Line No." <> 0 then
+            ProdOrderComponent.SetRange("Prod. Order Line No.", "Order Line No.");
         ProdOrderComponent.SetRange("Line No.", "Prod. Order Comp. Line No.");
         IsHandled := false;
         OnValidateItemNoOnAfterProdOrderCompSetFilters(Rec, ProdOrderComponent, IsHandled);
@@ -4375,8 +4384,12 @@
             exit;
 
         ProdOrderComponent.SetRange("Item No.", "Item No.");
-        if ProdOrderComponent.FindFirst() then
-            exit(true);
+        RecordCount := ProdOrderComponent.Count();
+        if RecordCount > 1 then
+            exit(false)
+        else
+            if RecordCount = 1 then
+                exit(ProdOrderComponent.FindFirst());
 
         ProdOrderComponent.SetRange("Line No.");
         if ProdOrderComponent.Count() = 1 then
@@ -4584,7 +4597,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetUnitAmount(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnAfterGetUnitAmount(var ItemJournalLine: Record "Item Journal Line"; UnitCost: Decimal)
     begin
     end;
 
@@ -4604,7 +4617,7 @@
     end;
 
 #if not CLEAN20
-    [Obsolete('Temporary event for compatibility', '20.0')]
+    [Obsolete('Replaced by OnAfterInitDefaultDimensionSources()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ItemJournalLine: Record "Item Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
@@ -4617,6 +4630,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecalculateUnitAmount(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationEntry(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line");
     begin
     end;
 
@@ -4917,7 +4935,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; CurrFieldNo: Integer);
+    local procedure OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; CurrFieldNo: Integer; xItemJournalLine: Record "Item Journal Line");
     begin
     end;
 
@@ -5050,6 +5068,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeAssignIndirectCostPct(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnBeforeSetDefaultPriceCalculationMethod(var ItemJournalLine: Record "Item Journal Line"; ItemJnlBatch: Record "Item Journal Batch"; var DimMgt: Codeunit DimensionManagement)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterValidateProdOrderCompLineNo(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

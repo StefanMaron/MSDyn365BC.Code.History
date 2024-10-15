@@ -1089,90 +1089,16 @@
     {
         area(processing)
         {
+#if not CLEAN22
             group(ItemActionGroup)
             {
                 Caption = 'Item';
                 Image = DataEntry;
-                action(Attributes)
-                {
-                    AccessByPermission = TableData "Item Attribute" = R;
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Attributes';
-                    Image = Category;
-                    ToolTip = 'View or edit the item''s attributes, such as color, size, or other characteristics that help to describe the item.';
-
-                    trigger OnAction()
-                    begin
-                        PAGE.RunModal(PAGE::"Item Attribute Value Editor", Rec);
-                        CurrPage.SaveRecord();
-                        CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData("No.");
-                    end;
-                }
-                action(AdjustInventory)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Adjust Inventory';
-                    Enabled = IsInventoriable;
-                    Image = InventoryCalculation;
-                    ToolTip = 'Increase or decrease the item''s inventory quantity manually by entering a new quantity. Adjusting the inventory quantity manually may be relevant after a physical count or if you do not record purchased quantities.';
-                    Visible = IsFoundationEnabled;
-
-                    trigger OnAction()
-                    var
-                        AdjustInventory: Page "Adjust Inventory";
-                    begin
-                        Commit();
-                        AdjustInventory.SetItem("No.");
-                        AdjustInventory.RunModal();
-                    end;
-                }
-                action("Va&riants")
-                {
-                    ApplicationArea = Planning;
-                    Caption = 'Va&riants';
-                    Image = ItemVariant;
-                    RunObject = Page "Item Variants";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
-                }
-                action(Identifiers)
-                {
-                    ApplicationArea = Warehouse;
-                    Caption = 'Identifiers';
-                    Image = BarCode;
-                    RunObject = Page "Item Identifiers";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    RunPageView = SORTING("Item No.", "Variant Code", "Unit of Measure Code");
-                    ToolTip = 'View a unique identifier for each item that you want warehouse employees to keep track of within the warehouse when using handheld devices. The item identifier can include the item number, the variant code and the unit of measure.';
-                }
-                action("Co&mments")
-                {
-                    ApplicationArea = Comments;
-                    Caption = 'Co&mments';
-                    Image = ViewComments;
-                    RunObject = Page "Comment Sheet";
-                    RunPageLink = "Table Name" = CONST(Item),
-                                  "No." = FIELD("No.");
-                    ToolTip = 'View or add comments for the record.';
-                }
-                action(Attachments)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Attachments';
-                    Image = Attach;
-                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
-
-                    trigger OnAction()
-                    var
-                        DocumentAttachmentDetails: Page "Document Attachment Details";
-                        RecRef: RecordRef;
-                    begin
-                        RecRef.GetTable(Rec);
-                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal();
-                    end;
-                }
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved actions to Navigation->Item';
+                ObsoleteTag = '22.0';
             }
+#endif
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
@@ -1613,6 +1539,8 @@
                         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
                         ItemTemplMgt.UpdateItemFromTemplate(Rec);
+                        EnableControls();
+                        CurrPage.Update();
                     end;
                 }
                 action(SaveAsTemplate)
@@ -1627,6 +1555,24 @@
                         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
                         ItemTemplMgt.SaveAsTemplate(Rec);
+                    end;
+                }
+                action(AdjustInventory)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Adjust Inventory';
+                    Enabled = IsInventoriable;
+                    Image = InventoryCalculation;
+                    ToolTip = 'Increase or decrease the item''s inventory quantity manually by entering a new quantity. Adjusting the inventory quantity manually may be relevant after a physical count or if you do not record purchased quantities.';
+                    Visible = IsFoundationEnabled;
+
+                    trigger OnAction()
+                    var
+                        AdjustInventory: Page "Adjust Inventory";
+                    begin
+                        Commit();
+                        AdjustInventory.SetItem("No.");
+                        AdjustInventory.RunModal();
                     end;
                 }
             }
@@ -1787,6 +1733,67 @@
             group(Navigation_Item)
             {
                 Caption = 'Item';
+                action(Attributes)
+                {
+                    AccessByPermission = TableData "Item Attribute" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attributes';
+                    Image = Category;
+                    ToolTip = 'View or edit the item''s attributes, such as color, size, or other characteristics that help to describe the item.';
+
+                    trigger OnAction()
+                    begin
+                        PAGE.RunModal(PAGE::"Item Attribute Value Editor", Rec);
+                        CurrPage.SaveRecord();
+                        CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData("No.");
+                    end;
+                }
+                action("Va&riants")
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Va&riants';
+                    Image = ItemVariant;
+                    RunObject = Page "Item Variants";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
+                }
+                action(Identifiers)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Identifiers';
+                    Image = BarCode;
+                    RunObject = Page "Item Identifiers";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    RunPageView = SORTING("Item No.", "Variant Code", "Unit of Measure Code");
+                    ToolTip = 'View a unique identifier for each item that you want warehouse employees to keep track of within the warehouse when using handheld devices. The item identifier can include the item number, the variant code and the unit of measure.';
+                }
+                action("Co&mments")
+                {
+                    ApplicationArea = Comments;
+                    Caption = 'Co&mments';
+                    Image = ViewComments;
+                    RunObject = Page "Comment Sheet";
+                    RunPageLink = "Table Name" = CONST(Item),
+                                  "No." = FIELD("No.");
+                    ToolTip = 'View or add comments for the record.';
+                }
+                action(Attachments)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
                 action(Dimensions)
                 {
                     ApplicationArea = Dimensions;
@@ -3092,6 +3099,7 @@
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
             Copy(Item);
             OnCreateItemFromTemplateOnBeforeCurrPageUpdate(Rec);
+            EnableControls();
             CurrPage.Update();
             OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
         end else

@@ -10,12 +10,12 @@ codeunit 5971 "Service Header Apply"
             CustLedgEntry.SetCurrentKey("Customer No.", Open);
             CustLedgEntry.SetRange("Customer No.", BilToCustNo);
             CustLedgEntry.SetRange(Open, true);
+            OnRunOnAfterSetCustLedgEntryFilters(CustLedgEntry, ServHeader);
             if "Applies-to ID" = '' then
                 "Applies-to ID" := "No.";
             if "Applies-to ID" = '' then
-                Error(
-                  Text000,
-                  FieldCaption("No."), FieldCaption("Applies-to ID"));
+                Error(Text000, FieldCaption("No."), FieldCaption("Applies-to ID"));
+
             ApplyCustEntries.SetService(ServHeader, CustLedgEntry, FieldNo("Applies-to ID"));
             ApplyCustEntries.SetRecord(CustLedgEntry);
             ApplyCustEntries.SetTableView(CustLedgEntry);
@@ -47,5 +47,10 @@ codeunit 5971 "Service Header Apply"
         OK: Boolean;
 
         Text000: Label 'You must specify %1 or %2.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSetCustLedgEntryFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; ServiceHeader: Record "Service Header")
+    begin
+    end;
 }
 

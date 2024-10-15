@@ -1091,10 +1091,10 @@ page 9233 "G/L Balance by Dim. Matrix"
                     PAGE.RunModal(PAGE::"Dimension Value List", DimVal);
                 end;
             else begin
-                    DimOption2 := DimOption.AsInteger();
-                    OnLookupCodeOnCaseElse(DimOption2, DimCode, Code);
-                    DimOption := "Analysis Dimension Option".FromInteger(DimOption2);
-                end;
+                DimOption2 := DimOption.AsInteger();
+                OnLookupCodeOnCaseElse(DimOption2, DimCode, Code);
+                DimOption := "Analysis Dimension Option".FromInteger(DimOption2);
+            end;
         end;
     end;
 
@@ -1521,7 +1521,7 @@ page 9233 "G/L Balance by Dim. Matrix"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSetCommonFilters(var GLAccount: Record "G/L Account"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     begin
     end;
@@ -1581,7 +1581,7 @@ page 9233 "G/L Balance by Dim. Matrix"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnSetDimFiltersOnCaseElse(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2",Fund,"Dimension 3","Dimension 4","Dimension 5","Dimension 6","Dimension 7","Dimension 8"; var TheGLAcc: Record "G/L Account"; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
     end;

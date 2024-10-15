@@ -1,4 +1,4 @@
-codeunit 5815 "Undo Sales Shipment Line"
+﻿codeunit 5815 "Undo Sales Shipment Line"
 {
     Permissions = TableData "Sales Line" = imd,
                   TableData "Sales Shipment Line" = imd,
@@ -245,7 +245,8 @@ codeunit 5815 "Undo Sales Shipment Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostItemJnlLine(SalesShptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
+        OnBeforePostItemJnlLine(
+            SalesShptLine, DocLineNo, ItemLedgEntryNo, IsHandled, TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, TempWhseJnlLine, NextLineNo);
         if IsHandled then
             exit(ItemLedgEntryNo);
 
@@ -342,16 +343,16 @@ codeunit 5815 "Undo Sales Shipment Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateOrderLine(SalesShptLine, IsHandled);
+        OnBeforeUpdateOrderLine(SalesShptLine, IsHandled, TempGlobalItemLedgEntry);
         if IsHandled then
             exit;
 
-        with SalesShptLine do begin
-            SalesLine.Get(SalesLine."Document Type"::Order, "Order No.", "Order Line No.");
-            OnUpdateOrderLineOnBeforeUpdateSalesLine(SalesShptLine, SalesLine);
-            UndoPostingMgt.UpdateSalesLine(SalesLine, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
-            OnAfterUpdateSalesLine(SalesLine, SalesShptLine);
-        end;
+        SalesLine.Get(SalesLine."Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.");
+        OnUpdateOrderLineOnBeforeUpdateSalesLine(SalesShptLine, SalesLine);
+        UndoPostingMgt.UpdateSalesLine(
+            SalesLine, SalesShptLine.Quantity - SalesShptLine."Quantity Invoiced",
+            SalesShptLine."Quantity (Base)" - SalesShptLine."Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
+        OnAfterUpdateSalesLine(SalesLine, SalesShptLine);
     end;
 
     procedure UpdateBlanketOrder(SalesShptLine: Record "Sales Shipment Line")
@@ -469,20 +470,19 @@ codeunit 5815 "Undo Sales Shipment Line"
         SalesLine: Record "Sales Line";
         AsmHeader: Record "Assembly Header";
     begin
-        with SalesLine do begin
-            Get("Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.");
+        SalesLine.Get("Sales Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.");
 
-            if AsmToOrderExists(AsmHeader) and (AsmHeader.Status = AsmHeader.Status::Released) then begin
-                AsmHeader.Status := AsmHeader.Status::Open;
-                AsmHeader.Modify();
-                AutoAsmToOrder();
-                AsmHeader.Status := AsmHeader.Status::Released;
-                AsmHeader.Modify();
-            end else
-                AutoAsmToOrder();
+        if SalesLine.AsmToOrderExists(AsmHeader) and (AsmHeader.Status = AsmHeader.Status::Released) then begin
+            AsmHeader.Status := AsmHeader.Status::Open;
+            AsmHeader.Modify();
+            SalesLine.AutoAsmToOrder();
+            AsmHeader.Status := AsmHeader.Status::Released;
+            AsmHeader.Modify();
+        end else
+            SalesLine.AutoAsmToOrder();
 
-            Modify(true);
-        end;
+        OnSynchronizeATOOnBeforeModify(SalesLine);
+        SalesLine.Modify(true);
     end;
 
     local procedure OpenATOProgressWindow(State: Text[250]; SalesShptLine: Record "Sales Shipment Line"; PostedAsmHeader: Record "Posted Assembly Header")
@@ -661,7 +661,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJnlLine(var SalesShipmentLine: Record "Sales Shipment Line"; var DocLineNo: Integer; var ItemLedgEntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforePostItemJnlLine(var SalesShipmentLine: Record "Sales Shipment Line"; var DocLineNo: Integer; var ItemLedgEntryNo: Integer; var IsHandled: Boolean; var TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary; var TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer)
     begin
     end;
 
@@ -676,7 +676,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateOrderLine(var SalesShptLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateOrderLine(var SalesShptLine: Record "Sales Shipment Line"; var IsHandled: Boolean; var TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
 
@@ -722,6 +722,11 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckSalesShptLineOnBeforeHasInvoicedNotReturnedQuantity(SalesShptLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeATOOnBeforeModify(var SalesLine: Record "Sales Line")
     begin
     end;
 }

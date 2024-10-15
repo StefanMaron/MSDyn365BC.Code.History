@@ -245,8 +245,8 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                 end;
                 CheckLedgEntry."Statement Status" :=
                   CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied";
-                CheckLedgEntry."Statement No." := '';
-                CheckLedgEntry."Statement Line No." := 0;
+                CheckLedgEntry."Statement No." := BankAccReconLine."Statement No.";
+                CheckLedgEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
                 CheckLedgEntry.Modify();
             until CheckLedgEntry.Next() = 0;
     end;
@@ -272,8 +272,8 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         if CheckLedgEntry.Find('-') then
             repeat
                 if Test then begin
-                    CheckLedgEntry.TestField("Statement No.", '');
-                    CheckLedgEntry.TestField("Statement Line No.", 0);
+                    CheckLedgEntry.TestField("Statement No.", BankAccReconLine."Statement No.");
+                    CheckLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
                 end;
                 CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Open;
                 CheckLedgEntry."Statement No." := '';

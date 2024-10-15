@@ -511,6 +511,7 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Remit-to Code';
             Editable = false;
+            TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Buy-from Vendor No."));
         }
         field(1302; Closed; Boolean)
         {
@@ -873,7 +874,13 @@ table 122 "Purch. Inv. Header"
     local procedure DoPrintToDocumentAttachment(PurchInvHeaderLocal: Record "Purch. Inv. Header")
     var
         ReportSelections: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDoPrintToDocumentAttachment(PurchInvHeaderLocal, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchInvHeaderLocal.SetRecFilter();
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"P.Invoice".AsInteger(), PurchInvHeaderLocal, PurchInvHeaderLocal."No.", PurchInvHeaderLocal."Buy-from Vendor No.", true);
@@ -1032,6 +1039,11 @@ table 122 "Purch. Inv. Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowCanceledOrCorrCrMemo(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDoPrintToDocumentAttachment(var PurchInvHeaderLocal: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
 

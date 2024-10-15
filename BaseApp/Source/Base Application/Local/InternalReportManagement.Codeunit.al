@@ -1,6 +1,6 @@
 codeunit 12403 "Internal Report Management"
 {
-    Permissions = TableData "Invoice Post. Buffer" = rimd;
+    Permissions = TableData "Invoice Posting Buffer" = rimd;
 
     trigger OnRun()
     begin
@@ -25,6 +25,9 @@ codeunit 12403 "Internal Report Management"
             BeginDate := DMY2Date(1, 1, Date2DMY(EndDate, 3));
     end;
 
+#pragma warning disable AS0072
+#if not CLEAN20
+    [Obsolete('Replaced by procedure CreareGLAccountMatrix()', '20.0')]
     [Scope('OnPrem')]
     procedure CreateCrossMatrixForGLAccount(var Rec: Record "Invoice Post. Buffer"; var GLAccount1: Record "G/L Account"; var NumbLines: Integer; var NumbColumns: Integer; BeginDate: Date; EndDate: Date; SkipZeroAmount: Boolean): Boolean
     var
@@ -100,6 +103,85 @@ codeunit 12403 "Internal Report Management"
                         Commit();
                     end;
                 until GLCorresp.Next() = 0;
+            exit((NumbLines > 0) and (NumbColumns > 0));
+        end;
+    end;
+#endif
+#pragma warning restore AS0072
+
+    procedure CreateGLCorrespondenceMatrix(var GLCorrespondenceBuffer: Record "G/L Correspondence Buffer"; var GLAccount1: Record "G/L Account"; var NumbLines: Integer; var NumbColumns: Integer; StartDate: Date; EndDate: Date; SkipZeroAmount: Boolean): Boolean
+    var
+        GLCorrespondence: Record "G/L Correspondence";
+    begin
+        with GLCorrespondenceBuffer do begin
+            Reset();
+            DeleteAll();
+            NumbColumns := 0;
+            GLCorrespondence.SetCurrentKey("Credit Account No.", "Debit Account No.");
+            GLCorrespondence.SetRange("Credit Account No.", GLAccount1."No.");
+            if not (StartDate = 0D) then
+                if not (EndDate = 0D) then
+                    GLCorrespondence.SetRange("Date Filter", StartDate, EndDate)
+                else
+                    GLCorrespondence.SetRange("Date Filter", StartDate)
+            else
+                if not (EndDate = 0D) then
+                    GLCorrespondence.SetRange("Date Filter", 0D, EndDate);
+            if GLAccount1.GetFilter("Source Type Filter") <> '' then
+                GLCorrespondence.SetFilter("Credit Source Type Filter", GLAccount1.GetFilter("Source Type Filter"));
+            if GLAccount1.GetFilter("Source No. Filter") <> '' then
+                GLCorrespondence.SetFilter("Credit Source No. Filter", GLAccount1.GetFilter("Source No. Filter"));
+            Type := Type::Credit;
+            Init();
+            if GLCorrespondence.Find('-') then
+                repeat
+                    if not (StartDate = 0D) or not (EndDate = 0D) then begin
+                        GLCorrespondence.CalcFields(Amount);
+                        Amount := GLCorrespondence.Amount;
+                    end;
+                    if not (SkipZeroAmount and
+                            (not (StartDate = 0D) or not (EndDate = 0D)) and
+                            (Amount = 0))
+                    then begin
+                        "G/L Account" := GLCorrespondence."Debit Account No.";
+                        NumbColumns := NumbColumns + 1;
+                        Insert();
+                        Commit();
+                    end;
+                until GLCorrespondence.Next() = 0;
+            NumbLines := 0;
+            GLCorrespondence.Reset();
+            GLCorrespondence.SetCurrentKey("Debit Account No.", "Credit Account No.");
+            GLCorrespondence.SetRange("Debit Account No.", GLAccount1."No.");
+            if not (StartDate = 0D) then
+                if not (EndDate = 0D) then
+                    GLCorrespondence.SetRange("Date Filter", StartDate, EndDate)
+                else
+                    GLCorrespondence.SetRange("Date Filter", StartDate)
+            else
+                if not (EndDate = 0D) then
+                    GLCorrespondence.SetRange("Date Filter", 0D, EndDate);
+            if GLAccount1.GetFilter("Source Type Filter") <> '' then
+                GLCorrespondence.SetFilter("Debit Source Type Filter", GLAccount1.GetFilter("Source Type Filter"));
+            if GLAccount1.GetFilter("Source No. Filter") <> '' then
+                GLCorrespondence.SetFilter("Debit Source No. Filter", GLAccount1.GetFilter("Source No. Filter"));
+            Init();
+            Type := Type::Debit;
+            if GLCorrespondence.Find('-') then
+                repeat
+                    if not (StartDate = 0D) or not (EndDate = 0D) then begin
+                        GLCorrespondence.CalcFields(Amount);
+                        Amount := GLCorrespondence.Amount;
+                    end;
+                    if not (SkipZeroAmount and
+                            (not (StartDate = 0D) or not (EndDate = 0D)) and
+                            (Amount = 0))
+                    then begin
+                        "G/L Account" := GLCorrespondence."Credit Account No.";
+                        NumbLines := NumbLines + 1;
+                        Insert();
+                    end;
+                until GLCorrespondence.Next() = 0;
             exit((NumbLines > 0) and (NumbColumns > 0));
         end;
     end;
