@@ -1,4 +1,4 @@
-table 7334 "Whse. Internal Pick Line"
+﻿table 7334 "Whse. Internal Pick Line"
 {
     Caption = 'Whse. Internal Pick Line';
     LookupPageID = "Whse. Internal Pick Lines";
@@ -87,19 +87,7 @@ table 7334 "Whse. Internal Pick Line"
                 if WhseInternalPickHeader."To Bin Code" <> '' then
                     "To Bin Code" := WhseInternalPickHeader."To Bin Code";
 
-                if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
-                    Description := Item.Description;
-                    "Description 2" := Item."Description 2";
-                    "Shelf No." := Item."Shelf No.";
-                    Validate("Unit of Measure Code", ItemUnitofMeasure.Code);
-                end else begin
-                    Description := '';
-                    "Description 2" := '';
-                    "Variant Code" := '';
-                    "Shelf No." := '';
-                    Validate("Unit of Measure Code", '');
-                end;
+                InitItemFields();
             end;
         }
         field(15; Quantity; Decimal)
@@ -184,7 +172,7 @@ table 7334 "Whse. Internal Pick Line"
         }
         field(27; "Pick Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = CONST(Pick),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = CONST(Pick),
                                                                                   "Whse. Document Type" = CONST("Internal Pick"),
                                                                                   "Whse. Document No." = FIELD("No."),
                                                                                   "Whse. Document Line No." = FIELD("Line No."),
@@ -199,7 +187,7 @@ table 7334 "Whse. Internal Pick Line"
         }
         field(28; "Pick Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = CONST(Pick),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = CONST(Pick),
                                                                                          "Whse. Document Type" = CONST("Internal Pick"),
                                                                                          "Whse. Document No." = FIELD("No."),
                                                                                          "Whse. Document Line No." = FIELD("Line No."),
@@ -457,26 +445,60 @@ table 7334 "Whse. Internal Pick Line"
         exit(true);
     end;
 
-    procedure CreatePickDoc(var WhseInternalPickLine: Record "Whse. Internal Pick Line"; WhseInternalPickHeader2: Record "Whse. Internal Pick Header")
+    local procedure InitItemFields()
     var
-        CreatePickFromWhseSource: Report "Whse.-Source - Create Document";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitItemFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Item No." <> '' then begin
+            GetItemUnitOfMeasure;
+            Description := Item.Description;
+            "Description 2" := Item."Description 2";
+            "Shelf No." := Item."Shelf No.";
+            Validate("Unit of Measure Code", ItemUnitofMeasure.Code);
+        end else begin
+            Description := '';
+            "Description 2" := '';
+            "Variant Code" := '';
+            "Shelf No." := '';
+            Validate("Unit of Measure Code", '');
+        end;
+    end;
+
+    procedure CreatePickDoc(var WhseInternalPickLine: Record "Whse. Internal Pick Line"; WhseInternalPickHeader2: Record "Whse. Internal Pick Header")
     begin
         WhseInternalPickHeader2.CheckPickRequired(WhseInternalPickHeader2."Location Code");
         WhseInternalPickHeader2.TestField(Status, WhseInternalPickHeader2.Status::Released);
         WhseInternalPickLine.SetFilter(Quantity, '>0');
         WhseInternalPickLine.SetFilter(
           Status, '<>%1', WhseInternalPickLine.Status::"Completely Picked");
-        if WhseInternalPickLine.Find('-') then begin
-            CreatePickFromWhseSource.SetWhseInternalPickLine(
-              WhseInternalPickLine, WhseInternalPickHeader2."Assigned User ID");
-            CreatePickFromWhseSource.SetHideValidationDialog(HideValidationDialog);
-            CreatePickFromWhseSource.UseRequestPage(not HideValidationDialog);
-            CreatePickFromWhseSource.RunModal;
-            CreatePickFromWhseSource.GetResultMessage(2);
-            Clear(CreatePickFromWhseSource);
-        end else
+        if WhseInternalPickLine.Find('-') then
+            RunCreatePickFromWhseSource(WhseInternalPickLine, WhseInternalPickHeader2)
+        else
             if not HideValidationDialog then
                 Message(Text005);
+    end;
+
+    local procedure RunCreatePickFromWhseSource(var WhseInternalPickLine: Record "Whse. Internal Pick Line"; WhseInternalPickHeader2: Record "Whse. Internal Pick Header")
+    var
+        CreatePickFromWhseSource: Report "Whse.-Source - Create Document";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunCreatePickFromWhseSource(WhseInternalPickLine, WhseInternalPickHeader2, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        CreatePickFromWhseSource.SetWhseInternalPickLine(
+            WhseInternalPickLine, WhseInternalPickHeader2."Assigned User ID");
+        CreatePickFromWhseSource.SetHideValidationDialog(HideValidationDialog);
+        CreatePickFromWhseSource.UseRequestPage(not HideValidationDialog);
+        CreatePickFromWhseSource.RunModal();
+        CreatePickFromWhseSource.GetResultMessage(2);
     end;
 
     procedure OpenItemTrackingLines()
@@ -537,14 +559,26 @@ table 7334 "Whse. Internal Pick Line"
                 "To Zone Code" := BinContent."Zone Code";
             end else begin
                 Bin.Get("Location Code", "To Bin Code");
-                Bin.CheckIncreaseBin(
-                  "To Bin Code", "Item No.", "Qty. Outstanding",
-                  WhseInternalPickLine.Cubage, WhseInternalPickLine.Weight,
-                  Cubage, Weight, false, false);
+                CheckIncreaseBin(Bin, WhseInternalPickLine);
                 Bin.TestField("Bin Type Code");
                 "To Zone Code" := Bin."Zone Code";
             end;
         end;
+    end;
+
+    local procedure CheckIncreaseBin(Bin: Record Bin; WhseInternalPickLine: Record "Whse. Internal Pick Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIncreaseBin(Rec, Bin, WhseInternalPickLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        Bin.CheckIncreaseBin(
+          "To Bin Code", "Item No.", "Qty. Outstanding",
+          WhseInternalPickLine.Cubage, WhseInternalPickLine.Weight,
+          Cubage, Weight, false, false);
     end;
 
     local procedure GetNextLineNo(): Integer
@@ -644,6 +678,21 @@ table 7334 "Whse. Internal Pick Line"
         if WhseInternalPickLine.FindLast then
             exit(WhseInternalPickLine."Sorting Sequence No.");
         exit(0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIncreaseBin(var RecWhseInternalPickLine: Record "Whse. Internal Pick Line"; var Bin: Record Bin; WhseInternalPickLine: Record "Whse. Internal Pick Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitItemFields(var RecWhseInternalPickLine: Record "Whse. Internal Pick Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCreatePickFromWhseSource(var WhseInternalPickLine: Record "Whse. Internal Pick Line"; var WhseInternalPickHeader2: Record "Whse. Internal Pick Header"; HideValidationDialog: Boolean; var IsHandled: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

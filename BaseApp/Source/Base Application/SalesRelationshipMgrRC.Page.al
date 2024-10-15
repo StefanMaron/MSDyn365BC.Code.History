@@ -19,6 +19,10 @@ page 9026 "Sales & Relationship Mgr. RC"
             {
                 ApplicationArea = RelationshipMgmt;
             }
+            part("Emails"; "Email Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
             part(ApprovalsActivities; "Approvals Activities")
             {
                 ApplicationArea = RelationshipMgmt;
@@ -201,8 +205,6 @@ page 9026 "Sales & Relationship Mgr. RC"
                 ApplicationArea = Suite;
                 Caption = 'Sales Orders - Microsoft Dynamics 365 Sales';
                 RunObject = Page "CRM Sales Order List";
-                RunPageView = WHERE(StateCode = FILTER(Submitted),
-                                    LastBackofficeSubmit = FILTER(0D));
                 ToolTip = 'View sales orders in Dynamics 365 Sales that are coupled with sales orders in Business Central.';
             }
             action(Salespersons)

@@ -210,7 +210,10 @@ page 5902 "Service Order Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord();
+                        if Rec."Line No." = 0 then begin
+                            CurrPage.SaveRecord();
+                            Rec.LendLoanerWithConfirmation(true);
+                        end;
                     end;
                 }
                 field("Vendor No."; "Vendor No.")

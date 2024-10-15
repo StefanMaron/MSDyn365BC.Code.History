@@ -623,6 +623,7 @@ page 291 "Req. Worksheet"
                         trigger OnAction()
                         begin
                             GetSalesOrder.SetReqWkshLine(Rec, 1);
+                            OnActionGetSalesOrdersOnBeforeGetSalesOrderRunModal(GetSalesOrder, Rec);
                             GetSalesOrder.RunModal;
                             Clear(GetSalesOrder);
                         end;
@@ -859,6 +860,11 @@ page 291 "Req. Worksheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSalesOrderActionOnBeforeGetSalesOrderRunModal(var GetSalesOrder: Report "Get Sales Orders"; var RequisitionLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnActionGetSalesOrdersOnBeforeGetSalesOrderRunModal(var GetSalesOrder: Report "Get Sales Orders"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

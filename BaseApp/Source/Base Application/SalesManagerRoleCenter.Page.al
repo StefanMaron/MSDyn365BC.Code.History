@@ -170,8 +170,6 @@ page 9005 "Sales Manager Role Center"
                 ApplicationArea = Suite;
                 Caption = 'Sales Orders - Microsoft Dynamics 365 Sales';
                 RunObject = Page "CRM Sales Order List";
-                RunPageView = WHERE(StateCode = FILTER(Submitted),
-                                    LastBackofficeSubmit = FILTER(0D));
                 ToolTip = 'View sales orders in Dynamics 365 Sales that are coupled with sales orders in Business Central.';
             }
             action(SalesInvoices)

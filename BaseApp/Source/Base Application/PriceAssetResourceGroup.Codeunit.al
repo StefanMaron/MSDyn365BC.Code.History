@@ -6,6 +6,7 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
 
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::"Resource Group";
         if ResourceGroup.GetBySystemId(PriceAsset."Asset ID") then begin
             PriceAsset."Asset No." := ResourceGroup."No.";
             FillAdditionalFields(PriceAsset);
@@ -15,6 +16,7 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
 
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::"Resource Group";
         if ResourceGroup.Get(PriceAsset."Asset No.") then begin
             PriceAsset."Asset ID" := ResourceGroup.SystemId;
             FillAdditionalFields(PriceAsset);
@@ -23,10 +25,14 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
     end;
 
     procedure IsLookupOK(var PriceAsset: Record "Price Asset"): Boolean
+    var
+        xPriceAsset: Record "Price Asset";
     begin
-        if ResourceGroup.Get(PriceAsset."Asset No.") then;
+        xPriceAsset := PriceAsset;
+        if ResourceGroup.Get(xPriceAsset."Asset No.") then;
         if Page.RunModal(Page::"Resource Groups", ResourceGroup) = ACTION::LookupOK then begin
-            PriceAsset.Validate("Asset No.", ResourceGroup."No.");
+            xPriceAsset.Validate("Asset No.", ResourceGroup."No.");
+            PriceAsset := xPriceAsset;
             exit(true)
         end;
     end;
@@ -63,21 +69,25 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
     begin
         PriceListLine.SetRange("Asset Type", PriceAsset."Asset Type");
         PriceListLine.SetRange("Asset No.", PriceAsset."Asset No.");
-        if not PriceListLine.IsEmpty() then
-            exit(true);
-        PriceListLine.SetRange("Work Type Code");
+        PriceListLine.SetRange("Work Type Code", PriceAsset."Work Type Code");
     end;
 
     procedure PutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    var
+        NewPriceAsset: Record "Price Asset";
     begin
-        PriceAssetList.SetLevel(PriceAsset.Level + 1);
-        PriceAssetList.Add(PriceAsset."Asset Type"::Resource); // All Resources
+        PriceAssetList.SetLevel(PriceAsset.Level - 1);
+        NewPriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Resource);
+        NewPriceAsset.Validate("Asset No.", ''); // blank means All Resources
+        NewPriceAsset."Work Type Code" := PriceAsset."Work Type Code";
+        PriceAssetList.Add(NewPriceAsset);
     end;
 
     procedure FillFromBuffer(var PriceAsset: Record "Price Asset"; PriceCalculationBuffer: Record "Price Calculation Buffer")
     begin
         PriceAsset.NewEntry(PriceCalculationBuffer."Asset Type", PriceAsset.Level);
         PriceAsset.Validate("Asset No.", PriceCalculationBuffer."Asset No.");
+        PriceAsset."Work Type Code" := PriceCalculationBuffer."Work Type Code";
         PriceAsset."Unit of Measure Code" := PriceCalculationBuffer."Unit of Measure Code";
     end;
 

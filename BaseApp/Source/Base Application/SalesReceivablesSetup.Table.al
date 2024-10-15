@@ -421,6 +421,32 @@ table 311 "Sales & Receivables Setup"
             TableRelation = IF ("Write-in Product Type" = CONST(Item)) Item."No." WHERE(Type = FILTER(Service | "Non-Inventory"))
             ELSE
             IF ("Write-in Product Type" = CONST(Resource)) Resource."No.";
+
+            trigger OnValidate()
+            var
+                Item: Record Item;
+                Resource: Record Resource;
+                CRMIntegrationRecord: Record "CRM Integration Record";
+                CRMProductName: Codeunit "CRM Product Name";
+                RecId: RecordId;
+            begin
+                case "Write-in Product Type" of
+                    "Write-in Product Type"::Item:
+                        begin
+                            if not Item.Get("Write-in Product No.") then
+                                exit;
+                            RecId := Item.RecordId();
+                        end;
+                    "Write-in Product Type"::Resource:
+                        begin
+                            if not Resource.Get("Write-in Product No.") then
+                                exit;
+                            RecId := Resource.RecordId();
+                        end;
+                end;
+                if CRMIntegrationRecord.FindByRecordID(RecId) then
+                    Error(ProductCoupledErr, CRMProductName.Short());
+            end;
         }
         field(5800; "Posted Return Receipt Nos."; Code[20])
         {
@@ -510,6 +536,7 @@ table 311 "Sales & Receivables Setup"
 
     var
         Text001: Label 'Job Queue Priority must be zero or positive.';
+        ProductCoupledErr: Label 'You must choose a record that is not coupled to a product in %1.', Comment = '%1 - Dynamics 365 Sales product name';
         RecordHasBeenRead: Boolean;
 
     procedure GetRecordOnce()

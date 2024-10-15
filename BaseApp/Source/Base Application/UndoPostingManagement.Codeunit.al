@@ -1,4 +1,4 @@
-codeunit 5817 "Undo Posting Management"
+﻿codeunit 5817 "Undo Posting Management"
 {
 
     trigger OnRun()
@@ -211,7 +211,13 @@ codeunit 5817 "Undo Posting Management"
     local procedure TestWarehouseActivityLine2(UndoLineNo: Integer; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestWarehouseActivityLine2(WarehouseActivityLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WarehouseActivityLine do begin
             SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type", "Whse. Document Line No.");
             SetRange("Whse. Document No.", PostedWhseReceiptLine."No.");
@@ -658,6 +664,8 @@ codeunit 5817 "Undo Posting Management"
             xPurchLine."Quantity (Base)" := 0;
             ReservePurchLine.VerifyQuantity(PurchLine, xPurchLine);
 
+            UpdateWarehouseRequest(DATABASE::"Purchase Line", "Document Type", "Document No.", "Location Code");
+
             OnAfterUpdatePurchline(PurchLine);
         end;
     end;
@@ -704,6 +712,8 @@ codeunit 5817 "Undo Posting Management"
             xSalesLine."Quantity (Base)" := 0;
             ReserveSalesLine.VerifyQuantity(SalesLine, xSalesLine);
 
+            UpdateWarehouseRequest(DATABASE::"Sales Line", "Document Type", "Document No.", "Location Code");
+
             OnAfterUpdateSalesLine(SalesLine);
         end;
     end;
@@ -732,6 +742,8 @@ codeunit 5817 "Undo Posting Management"
             RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date");
             xServLine."Quantity (Base)" := 0;
             ReserveServLine.VerifyQuantity(ServLine, xServLine);
+
+            UpdateWarehouseRequest(DATABASE::"Service Line", "Document Type", "Document No.", "Location Code");
 
             OnAfterUpdateServLine(ServLine);
         end;
@@ -957,6 +969,18 @@ codeunit 5817 "Undo Posting Management"
     begin
     end;
 
+    local procedure UpdateWarehouseRequest(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        with WarehouseRequest do begin
+            SetSourceFilter(SourceType, SourceSubtype, SourceNo);
+            SetRange("Location Code", LocationCode);
+            if not IsEmpty() then
+                ModifyAll("Completely Handled", false);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSalesLine(var SalesLine: Record "Sales Line")
     begin
@@ -1064,6 +1088,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforePostItemJnlLineForJob(var ItemJnlLine2: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 }

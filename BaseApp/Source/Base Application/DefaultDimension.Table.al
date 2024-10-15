@@ -285,7 +285,14 @@ table 352 "Default Dimension"
     end;
 
     local procedure UpdateGlobalDimCode(GlobalDimCodeNo: Integer; TableID: Integer; AccNo: Code[20]; NewDimValue: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateGlobalDimCode(GlobalDimCodeNo, TableID, AccNo, NewDimValue, IsHandled);
+        if IsHandled then
+            exit;
+
         case TableID of
             DATABASE::"G/L Account":
                 UpdateGLAccGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
@@ -941,6 +948,11 @@ table 352 "Default Dimension"
             end;
             EmployeeTempl.Modify(true);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateGlobalDimCode(GlobalDimCodeNo: Integer; TableID: Integer; AccNo: Code[20]; NewDimValue: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

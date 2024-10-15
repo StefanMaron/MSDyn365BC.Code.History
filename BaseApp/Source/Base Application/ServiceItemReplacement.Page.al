@@ -223,7 +223,7 @@ page 5985 "Service Item Replacement"
         Replacement := ReplacementFrom;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterOnAssistEditNewSerialNo(var ItemLedgEntry: Record "Item Ledger Entry"; var ItemNo: Code[20]; var VariantCode: Code[10]; var NewSerialNo: Code[50]; var CopyComponentsFrom: Option "None","Item BOM","Old Service Item","Old Service Item w/o Serial No.")
     begin
     end;

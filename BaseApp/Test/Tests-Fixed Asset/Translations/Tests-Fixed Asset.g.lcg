@@ -59,6 +59,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Fixed Assets - NamedType CompletionStatsTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2190236020 - NamedType 2670264373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change the FA posting group because posted FA ledger entries use the existing posting group.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Asset Card - NamedType FoundFALedgerEntriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 893927009 - NamedType 860858598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to 'Yes'  in %2: %3=%4. Current value is 'No'.]]></Val>
@@ -1346,15 +1355,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - III - NamedType FieldError4)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3375241914 - NamedType 1634217986" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<Precision,2><Standard Format,0>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Fixed Assets Reports - III - NamedType FormatString)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3375241914 - NamedType 3385374423" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[GLAccNetChange]]></Val>
@@ -1542,24 +1542,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purch Inv Disc With FA - NamedType AmountError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 138691884 - NamedType 1717126803" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ASSETS]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Fixed Assets Plan-based E2E - NamedType FAJournalTemplateNameTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 138691884 - NamedType 904145353" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Bank Account]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Fixed Assets Plan-based E2E - NamedType FATypeOfAcquisitionTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 138691884 - NamedType 3516382779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

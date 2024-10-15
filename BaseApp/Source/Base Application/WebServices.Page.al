@@ -120,14 +120,21 @@ page 810 "Web Services"
     trigger OnOpenPage()
     var
         WebService: Record "Web Service";
+        MyNotification: Record "My Notifications";
+        WebServiceHelper: Codeunit "Web Service Helper";
     begin
         if WebService.WritePermission() then
             IsWebServiceWriteable := true;
         WebServiceManagement.LoadRecords(Rec);
+
+        WebServiceHelper.ODataV3DeprecationNotificationDefault(true);
+        if MyNotification.IsEnabled(WebServiceHelper.ODataV3DeprecationNotificationId()) then
+            WebServiceHelper.ODataV3DepricationNotificationShow(ODataV3DepricationNotification);
     end;
 
     var
         WebServiceManagement: Codeunit "Web Service Management";
+        ODataV3DepricationNotification: Notification;
         ClientType: Enum "Client Type";
         IsWebServiceWriteable: Boolean;
 }

@@ -27,7 +27,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LessErrorsOnErrorMessagesPageErr: Label '%1 contains less errors than expected.';
         MoreErrorsOnErrorMessagesPageErr: Label '%1 contains more errors than expected.';
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElectronicPayments_A_NoEmail_B_NoEmail_PrintIfEmailIsMissing_FALSE();
@@ -65,7 +65,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElectronicPayments_A_NoEmail_B_Email_PrintIfEmailIsMissing_FALSE();
@@ -106,7 +106,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElectronicPayments_A_Email_B_NoEmail_PrintIfEmailIsMissing_FALSE();
@@ -147,7 +147,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElectronicPayments_A_Email_B_Email_PrintIfEmailIsMissing_FALSE();
@@ -181,7 +181,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElectronicPayments_A_NoEmail_B_NoEmail_PrintIfEmailIsMissing_TRUE();
@@ -214,7 +214,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElectronicPayments_A_NoEmail_B_Email_PrintIfEmailIsMissing_TRUE();
@@ -251,7 +251,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElectronicPayments_A_Email_B_NoEmail_PrintIfEmailIsMissing_TRUE();
@@ -288,7 +288,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElectronicPayments_A_Email_B_Email_PrintIfEmailIsMissing_TRUE();
@@ -326,7 +326,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElecPaymentsWord_A_NoEmail_B_NoEmail_PrintIfEmailIsMissing_FALSE();
@@ -364,7 +364,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElecPaymentsWord_A_NoEmail_B_Email_PrintIfEmailIsMissing_FALSE();
@@ -405,7 +405,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElecPaymentsWord_A_Email_B_NoEmail_PrintIfEmailIsMissing_FALSE();
@@ -446,7 +446,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElecPaymentsWord_A_Email_B_Email_PrintIfEmailIsMissing_FALSE();
@@ -480,7 +480,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElecPaymentsWord_A_NoEmail_B_NoEmail_PrintIfEmailIsMissing_TRUE();
@@ -513,7 +513,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElecPaymentsWord_A_NoEmail_B_Email_PrintIfEmailIsMissing_TRUE();
@@ -550,7 +550,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElecPaymentsWord_A_Email_B_NoEmail_PrintIfEmailIsMissing_TRUE();
@@ -587,7 +587,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ExportElecPaymentsWord_A_Email_B_Email_PrintIfEmailIsMissing_TRUE();
@@ -625,7 +625,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('CustomerStatementsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerStatements_A_NoEmail_B_NoEmail_PrintIfEmailIsMissing_FALSE();
@@ -666,7 +666,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('CustomerStatementsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerStatements_A_NoEmail_B_Email_PrintIfEmailIsMissing_FALSE();
@@ -709,7 +709,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('CustomerStatementsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerStatements_A_Email_B_NoEmail_PrintIfEmailIsMissing_FALSE();
@@ -752,7 +752,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('CustomerStatementsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerStatements_A_Email_B_Email_PrintIfEmailIsMissing_FALSE();
@@ -789,7 +789,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('CustomerStatementsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerStatements_A_NoEmail_B_NoEmail_PrintIfEmailIsMissing_TRUE();
@@ -825,7 +825,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('CustomerStatementsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerStatements_A_NoEmail_B_Email_PrintIfEmailIsMissing_TRUE();
@@ -865,7 +865,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('CustomerStatementsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerStatements_A_Email_B_NoEmail_PrintIfEmailIsMissing_TRUE();
@@ -905,7 +905,7 @@ codeunit 144083 "EMail Custom Report Layout"
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('CustomerStatementsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerStatements_A_Email_B_Email_PrintIfEmailIsMissing_TRUE();

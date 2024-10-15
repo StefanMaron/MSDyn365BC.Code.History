@@ -43,9 +43,7 @@ codeunit 5921 "ServComponent-Copy from BOM"
                 end;
             until BOMComp.Next = 0;
         end else
-            Error(
-              Text000,
-              BOMComp.TableCaption, ServItem.FieldCaption("Item No."), ServItem."Item No.");
+            ShowBOMComponentNotFoundError();
     end;
 
     var
@@ -57,5 +55,22 @@ codeunit 5921 "ServComponent-Copy from BOM"
         LineNo: Integer;
         Index: Integer;
         Text001: Label 'You cannot copy the component list for this %1 from BOM. The %2 of one or more BOM components is not a whole number.';
+
+    local procedure ShowBOMComponentNotFoundError()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowBOMComponentNotFoundError(BOMComp, ServItem, IsHandled);
+        if IsHandled then
+            exit;
+
+        Error(Text000, BOMComp.TableCaption, ServItem.FieldCaption("Item No."), ServItem."Item No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowBOMComponentNotFoundError(BOMComp: Record "BOM Component"; ServItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

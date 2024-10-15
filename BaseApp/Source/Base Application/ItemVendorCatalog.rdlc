@@ -631,7 +631,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Item_Vendor__Lead_Time_Calculation__Control31Caption.Value</Value>
+                                                    <Value>=Fields!Item_Vendor__Lead_Time_Calculation_Caption.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -1583,7 +1583,7 @@
                                                     <Value>=Fields!PurchPrice__Direct_Unit_Cost_.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
-                                                      <Format>=Fields!PurchPrice__Direct_Unit_Cost__Control1020006Format.Value</Format>
+                                                      <Format>=Fields!PurchPrice__Direct_Unit_Cost_Format.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

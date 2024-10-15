@@ -14,6 +14,7 @@ codeunit 139187 "CRM Full Synchronization"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibrarySales: Codeunit "Library - Sales";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
 
@@ -80,6 +81,38 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
         VerifyDependencyFilter('SALESPRC-PRODPRICE', 'CUSTPRCGRP-PRICE|ITEM-PRODUCT');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure T102_Wave1PlusHaveNotBlankDependencyFilterExtendePrices()
+    var
+        CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
+    begin
+        // [FEATURE] [Processing Order]
+        // [GIVEN] Extended Prices are on.
+        Initialize(true);
+        LibraryLowerPermissions.SetO365Full;
+
+        // [WHEN] Generate CRM Full Synch Review Lines
+        CRMFullSynchReviewLine.Generate;
+
+        // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY'
+        VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY');
+        // [THEN] 'CONTACT' line, where "Dependency Filter" = 'CUSTOMER'
+        VerifyDependencyFilter('CONTACT', 'CUSTOMER|VENDOR');
+        // [THEN] 'OPPORTUNITY' line, where "Dependency Filter" = 'CONTACT'
+        VerifyDependencyFilter('OPPORTUNITY', 'CONTACT');
+        // [THEN] 'POSTEDSALESINV-INV' line, where "Dependency Filter" = 'OPPORTUNITY'
+        VerifyDependencyFilter('POSTEDSALESINV-INV', 'OPPORTUNITY');
+        // [THEN] 'ITEM-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
+        VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
+        // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
+        VerifyDependencyFilter('RESOURCE-PRODUCT', 'UNIT OF MEASURE');
+        // [THEN] 'PLHEADER-PRICE' line, where "Dependency Filter" = 'CURRENCY'
+        VerifyDependencyFilter('PLHEADER-PRICE', 'CURRENCY');
+        // [THEN] 'PLLINE-PRODPRICE' line, where "Dependency Filter" = 'PLHEADER-PRICE|ITEM-PRODUCT'
+        VerifyDependencyFilter('PLLINE-PRODPRICE', 'PLHEADER-PRICE|ITEM-PRODUCT');
     end;
 
     [Test]
@@ -289,8 +322,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyCustomerJobIsFinished(CRMFullSynchReviewLine."To Int. Table Job Status"::Error);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure T124_NotAllRecsFailedSynchJobStatusSuccess()
     var
@@ -594,6 +626,40 @@ codeunit 139187 "CRM Full Synchronization"
             "To Int. Table Job Status" := "To Int. Table Job Status"::Success;
             Assert.AreEqual('Favorable', GetStatusStyleExpression(Format("To Int. Table Job Status")), 'To Int. Table Job Status::Success');
         end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T154_StartSyncWhenWave1And2ParentsAreFinishedExtendedPrices()
+    var
+        CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
+        Counter: Integer;
+    begin
+        // [FEATURE] [Status] [UT]
+        // [GIVEN] Extended Prices are on
+        Initialize(true);
+        LibraryLowerPermissions.SetO365Full;
+        // [GIVEN] 'UNIT OF MEASURE','CURRENCY','ITEM-PRODUCT','PLHEADER-PRICE' are 'Finished'
+        CRMFullSynchReviewLine.Generate;
+        SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('PLHEADER-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+
+        // [WHEN] Run "Start"
+        CRMFullSynchReviewLine.Start;
+
+        // [THEN] Lines 'PLLINE-PRODPRICE','RESOURCE-PRODUCT','SALESPEOPLE' get "Job Queue Entry Status" = 'On Hold'
+        CRMFullSynchReviewLine.SetFilter(Name, 'PLLINE-PRODPRICE|RESOURCE-PRODUCT|SALESPEOPLE');
+        CRMFullSynchReviewLine.SetRange(
+          "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
+        Assert.RecordCount(CRMFullSynchReviewLine, 3);
+        // [THEN] Other lines, where "Job Queue Entry Status" is ' '
+        CRMFullSynchReviewLine.Reset();
+        Counter := CRMFullSynchReviewLine.Count();
+        CRMFullSynchReviewLine.SetRange(
+          "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 7); // 4 - Finished, 3 - Ready
     end;
 
     [Test]
@@ -962,8 +1028,7 @@ codeunit 139187 "CRM Full Synchronization"
         Assert.IsFalse(CRMFullSynchReviewPage.Start.Enabled, 'Start action should be disabled');
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure T170_ParentMappingGetsSyncModifiedOnFilters()
     var
@@ -1002,6 +1067,11 @@ codeunit 139187 "CRM Full Synchronization"
     end;
 
     local procedure Initialize()
+    begin
+        Initialize(false);
+    end;
+
+    local procedure Initialize(EnableExtendedPrice: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
@@ -1010,6 +1080,10 @@ codeunit 139187 "CRM Full Synchronization"
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        if EnableExtendedPrice then
+            LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         CRMFullSynchReviewLine.DeleteAll();
@@ -1220,8 +1294,7 @@ codeunit 139187 "CRM Full Synchronization"
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5340, 'OnQueryPostFilterIgnoreRecord', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]
     procedure OnQueryPostFilterIgnoreRecordCurrencyHandler(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     begin
         if SourceRecordRef.Number <> DATABASE::Currency then
@@ -1229,8 +1302,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyFullSyncRevieLineDuringSynch('CURRENCY');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5340, 'OnQueryPostFilterIgnoreRecord', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]
     procedure OnQueryPostFilterIgnoreRecordCustomerHandler(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     begin
         if SourceRecordRef.Number <> DATABASE::Customer then
@@ -1238,8 +1310,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyFullSyncRevieLineDuringSynch('CUSTOMER');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5340, 'OnQueryPostFilterIgnoreRecord', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]
     procedure OnQueryPostFilterIgnoreRecordCRMAccountHandler(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
@@ -1265,8 +1336,7 @@ codeunit 139187 "CRM Full Synchronization"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5340, 'OnQueryPostFilterIgnoreRecord', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]
     procedure OnQueryPostFilterIgnoreRecordContactHandler(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     var
         JobQueueEntry: Record "Job Queue Entry";

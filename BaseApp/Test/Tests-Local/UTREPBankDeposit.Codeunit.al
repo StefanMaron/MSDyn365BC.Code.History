@@ -24,6 +24,8 @@ codeunit 141009 "UT REP Bank Deposit"
         GenJournalLineAppliesToIDCap: Label 'Gen__Journal_Line_Applies_to_ID';
         DimSetEntryDimensionCodeCap: Label 'DimSetEntry__Dimension_Code_';
         LibraryUtility: Codeunit "Library - Utility";
+        DimSetEntryDimensionCodeTxt: Label 'DimSetEntry2__Dimension_Code_';
+        DimSetEntryDimensionValueCodeTxt: Label 'DimSetEntry2__Dimension_Value_Code_';
 
     [Test]
     [HandlerFunctions('DepositRequestPageHandler')]
@@ -475,6 +477,37 @@ codeunit 141009 "UT REP Bank Deposit"
         VerifyDepositTestReportEmployee(GenJournalLine, Employee."No." + ' - ' + '<Invalid Employee>');
     end;
 
+    [Test]
+    [HandlerFunctions('DepositTestReportRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure OnAfterGetRecordDimLoopTypeGLDepositTestReport2()
+    var
+        DepositHeader: Record "Deposit Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        // [SCENARIO 372135] Purpose of the test is to validate DimensionLoop1 - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Account Type GL Account.
+        Initialize();
+
+        // [GIVEN] Deposit with General Journal line with Dimension "D" and Dimension Value "DV".
+        CreateDepositHeader(DepositHeader);
+        CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
+        CreateDimension(DimensionSetEntry);
+        UpdateDimendionOnDepositLine(GenJournalLine, DimensionSetEntry."Dimension Set ID");
+
+        // [WHEN] Report "Deposit Test Report" is run.
+        LibraryVariableStorage.Enqueue(DepositHeader."No.");
+        REPORT.Run(REPORT::"Deposit Test Report");
+
+        // [THEN] Verify the Document Type, Account Type, Dimension Code and Applies To ID after running Deposit Test Report.
+        LibraryReportDataSet.LoadDataSetFile();
+        LibraryReportDataSet.AssertElementWithValueExists(DimSetEntryDimensionCodeTxt, DimensionSetEntry."Dimension Code");
+        LibraryReportDataSet.AssertElementWithValueExists(DimSetEntryDimensionValueCodeTxt, DimensionSetEntry."Dimension Value Code");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -681,6 +714,12 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         DepositHeader."Dimension Set ID" := DimensionSetID;
         DepositHeader.Modify();
+    end;
+
+    local procedure UpdateDimendionOnDepositLine(var GenJournalLine: Record "Gen. Journal Line"; DimensionSetID: Integer)
+    begin
+        GenJournalLine.Validate("Dimension Set ID", DimensionSetID);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure VerifyDepositTestReportEmployee(GenJournalLine: Record "Gen. Journal Line"; AccountName: Text)

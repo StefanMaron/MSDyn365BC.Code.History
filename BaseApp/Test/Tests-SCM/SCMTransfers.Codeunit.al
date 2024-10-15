@@ -1967,6 +1967,48 @@ codeunit 137038 "SCM Transfers"
         Assert.AreEqual(TransferLine.Description, LibraryVariableStorage.DequeueText(), 'Invalid transfer shipment line');
     end;
 
+    [Test]
+    procedure TransferOrderToShipmentPReservesShipmentMethodCode()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Transfer Shipment]
+        // [SCENARIO 373592] When creating Warehouse shipment from Transfer Order, the shipment method code is saved
+        Initialize();
+
+        // [GIVEN] Create LocationFrom, LocationTo and LocationInTransit. LocationFrom is set up for Whse Shipment
+        LibraryWarehouse.CreateLocationWMS(LocationFrom, false, false, false, false, true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+        LibraryWarehouse.CreateInTransitLocation(LocationInTransit);
+
+        // [GIVEN] Create Item with stock
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJnlWithCostLocationVariant(
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.",
+          LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(100), LocationFrom.Code, '');
+
+        // [GIVEN] Create Transfer Order with Shipment Method Code = "XXX" and a line
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        TransferHeader.Validate("Shipment Method Code", CreateShipmentMethodCode());
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(1, 5));
+
+        // [WHEN] Release Transfer Order and create whse. shipment
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        // [THEN] Warehouse Shipment has Shipment Method Code = "XXX"
+        WarehouseShipmentHeader.Get(LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Transfer Line", 0, TransferHeader."No."));
+        WarehouseShipmentHeader.TestField("Shipment Method Code", TransferHeader."Shipment Method Code");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2150,6 +2192,16 @@ codeunit 137038 "SCM Transfers"
         // Create Purchase Order with One Item Line. Random values used are not important for test.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+    end;
+
+    local procedure CreateShipmentMethodCode(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), DATABASE::"Shipment Method");
+        ShipmentMethod.Insert();
+        exit(ShipmentMethod.Code);
     end;
 
     local procedure CreateTransferRoutes()

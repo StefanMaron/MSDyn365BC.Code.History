@@ -6,7 +6,7 @@ page 77 "Resource List"
     CardPageID = "Resource Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Resource,Navigate';
+    PromotedActionCategories = 'New,Process,Report,Resource,Navigate,Prices & Discounts';
     SourceTable = Resource;
     UsageCategory = Lists;
 
@@ -260,6 +260,7 @@ page 77 "Resource List"
             {
                 Caption = 'Dynamics 365 Sales';
                 Visible = CRMIntegrationEnabled;
+                Enabled = (BlockedFilterApplied and (not Blocked)) or not BlockedFilterApplied;
                 action(CRMGoToProduct)
                 {
                     ApplicationArea = Suite;
@@ -365,7 +366,7 @@ page 77 "Resource List"
                     Caption = 'Costs';
                     Image = ResourceCosts;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Category6;
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
@@ -381,7 +382,7 @@ page 77 "Resource List"
                     Caption = 'Prices';
                     Image = Price;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Category6;
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
@@ -394,10 +395,10 @@ page 77 "Resource List"
                 action(PurchPriceLists)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Costs';
+                    Caption = 'Purchase Prices';
                     Image = ResourceCosts;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or change detailed information about costs for the resource.';
 
@@ -412,10 +413,10 @@ page 77 "Resource List"
                 action(SalesPriceLists)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Prices';
+                    Caption = 'Sales Prices';
                     Image = LineDiscount;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource.';
 
@@ -583,16 +584,21 @@ page 77 "Resource List"
 
     trigger OnOpenPage()
     var
+        IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        if CRMIntegrationEnabled then
+            if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then
+                BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text

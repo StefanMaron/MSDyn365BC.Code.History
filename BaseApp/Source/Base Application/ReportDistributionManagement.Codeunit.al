@@ -8,13 +8,25 @@ codeunit 452 "Report Distribution Management"
 
     var
         HideDialog: Boolean;
-        FullDocTypeTxt: Label '%1 %2', Comment = '%1 - Document Type prefix, Sales/Purchase etc. %2 - Document Type, Invoice/Order etc.';
-        SalesDocTypeTxt: Label 'Sales';
-        PurchaseDocTypeTxt: Label 'Purchase';
-        ServiceDocTypeTxt: Label 'Service';
-        ShipmentDocTypeTxt: Label 'Shipment';
+        SalesInvoiceDocTypeTxt: Label 'Sales Invoice';
+        SalesCrMemoDocTypeTxt: Label 'Sales Credit Memo';
+        SalesQuoteDocTypeTxt: Label 'Sales Quote';
+        SalesOrderDocTypeTxt: Label 'Sales Order';
+        SalesBlanketOrderDocTypeTxt: Label 'Sales Blanket Order';
+        SalesReturnOrderDocTypeTxt: Label 'Sales Return Order';
+        SalesShipmentDocTypeTxt: Label 'Sales Shipment';
+        SalesReturnRcptDocTypeTxt: Label 'Sales Receipt';
+        PurchaseInvoiceDocTypeTxt: Label 'Purchase Invoice';
+        PurchaseCrMemoDocTypeTxt: Label 'Purchase Credit Memo';
+        PurchaseQuoteDocTypeTxt: Label 'Purchase Quote';
+        PurchaseOrderDocTypeTxt: Label 'Purchase Order';
+        PurchaseBlanketOrderDocTypeTxt: Label 'Purchase Blanket Order';
+        PurchaseReturnOrderDocTypeTxt: Label 'Purchase Return Order';
+        ServiceInvoiceDocTypeTxt: Label 'Service Invoice';
+        ServiceCrMemoDocTypeTxt: Label 'Service Credit Memo';
+        ServiceQuoteDocTypeTxt: Label 'Service Quote';
+        ServiceOrderDocTypeTxt: Label 'Service Order';
         JobQuoteDocTypeTxt: Label 'Job Quote';
-        ReturnReceiptDocTypeTxt: Label 'Receipt';
         IssuedReminderDocTypeTxt: Label 'Issued Reminder';
         IssuedFinChargeMemoDocTypeTxt: Label 'Issued Finance Charge Memo';
 
@@ -82,19 +94,19 @@ codeunit 452 "Report Distribution Management"
 
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
-                DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, Format(SalesHeader."Document Type"::Invoice));
+                DocumentTypeText := SalesInvoiceDocTypeTxt;
             DATABASE::"Sales Cr.Memo Header":
-                DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, Format(SalesHeader."Document Type"::"Credit Memo"));
+                DocumentTypeText := SalesCrMemoDocTypeTxt;
             Database::"Sales Shipment Header":
-                DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, ShipmentDocTypeTxt);
+                DocumentTypeText := SalesShipmentDocTypeTxt;
             DATABASE::"Service Invoice Header":
-                DocumentTypeText := StrSubstNo(FullDocTypeTxt, ServiceDocTypeTxt, Format(ServiceHeader."Document Type"::Invoice));
+                DocumentTypeText := ServiceInvoiceDocTypeTxt;
             DATABASE::"Service Cr.Memo Header":
-                DocumentTypeText := StrSubstNo(FullDocTypeTxt, ServiceDocTypeTxt, Format(ServiceHeader."Document Type"::"Credit Memo"));
+                DocumentTypeText := ServiceCrMemoDocTypeTxt;
             DATABASE::Job:
                 DocumentTypeText := JobQuoteDocTypeTxt;
             Database::"Return Receipt Header":
-                DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, ReturnReceiptDocTypeTxt);
+                DocumentTypeText := SalesReturnRcptDocTypeTxt;
             Database::"Issued Reminder Header":
                 DocumentTypeText := IssuedReminderDocTypeTxt;
             Database::"Issued Fin. Charge Memo Header":
@@ -102,17 +114,52 @@ codeunit 452 "Report Distribution Management"
             DATABASE::"Sales Header":
                 begin
                     DocumentRecordRef.SetTable(SalesHeader);
-                    DocumentTypeText := StrSubstNo(FullDocTypeTxt, SalesDocTypeTxt, Format(SalesHeader."Document Type"));
+                    case SalesHeader."Document Type" of
+                        SalesHeader."Document Type"::Invoice:
+                            DocumentTypeText := SalesInvoiceDocTypeTxt;
+                        SalesHeader."Document Type"::"Credit Memo":
+                            DocumentTypeText := SalesCrMemoDocTypeTxt;
+                        SalesHeader."Document Type"::Quote:
+                            DocumentTypeText := SalesQuoteDocTypeTxt;
+                        SalesHeader."Document Type"::Order:
+                            DocumentTypeText := SalesOrderDocTypeTxt;
+                        SalesHeader."Document Type"::"Blanket Order":
+                            DocumentTypeText := SalesBlanketOrderDocTypeTxt;
+                        SalesHeader."Document Type"::"Return Order":
+                            DocumentTypeText := SalesReturnOrderDocTypeTxt;
+                    end;
                 end;
             DATABASE::"Purchase Header":
                 begin
                     DocumentRecordRef.SetTable(PurchaseHeader);
-                    DocumentTypeText := StrSubstNo(FullDocTypeTxt, PurchaseDocTypeTxt, Format(PurchaseHeader."Document Type"));
+                    case PurchaseHeader."Document Type" of
+                        PurchaseHeader."Document Type"::Invoice:
+                            DocumentTypeText := PurchaseInvoiceDocTypeTxt;
+                        PurchaseHeader."Document Type"::"Credit Memo":
+                            DocumentTypeText := PurchaseCrMemoDocTypeTxt;
+                        PurchaseHeader."Document Type"::Quote:
+                            DocumentTypeText := PurchaseQuoteDocTypeTxt;
+                        PurchaseHeader."Document Type"::Order:
+                            DocumentTypeText := PurchaseOrderDocTypeTxt;
+                        PurchaseHeader."Document Type"::"Blanket Order":
+                            DocumentTypeText := PurchaseBlanketOrderDocTypeTxt;
+                        PurchaseHeader."Document Type"::"Return Order":
+                            DocumentTypeText := PurchaseReturnOrderDocTypeTxt;
+                    end;
                 end;
             DATABASE::"Service Header":
                 begin
                     DocumentRecordRef.SetTable(ServiceHeader);
-                    DocumentTypeText := StrSubstNo(FullDocTypeTxt, ServiceDocTypeTxt, Format(ServiceHeader."Document Type"));
+                    case ServiceHeader."Document Type" of
+                        ServiceHeader."Document Type"::Invoice:
+                            DocumentTypeText := ServiceInvoiceDocTypeTxt;
+                        ServiceHeader."Document Type"::"Credit Memo":
+                            DocumentTypeText := ServiceCrMemoDocTypeTxt;
+                        ServiceHeader."Document Type"::Quote:
+                            DocumentTypeText := ServiceQuoteDocTypeTxt;
+                        ServiceHeader."Document Type"::Order:
+                            DocumentTypeText := ServiceOrderDocTypeTxt;
+                    end;
                 end;
         end;
 
