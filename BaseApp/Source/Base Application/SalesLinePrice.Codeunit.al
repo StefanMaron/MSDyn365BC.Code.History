@@ -112,6 +112,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
 
         FillBuffer(PriceCalculationBuffer);
         PriceCalculationBufferMgt.Set(PriceCalculationBuffer, PriceSourceList);
+        OnCopyToBufferOnAfterPriceCalculationBufferMgtSet(PriceCalculationBufferMgt, PriceCalculationBuffer, PriceSourceList);
         exit(true);
     end;
 
@@ -309,6 +310,11 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyToBufferOnAfterPriceCalculationBufferMgtSet(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; PriceCalculationBuffer: Record "Price Calculation Buffer"; var PriceSourceList: Codeunit "Price Source List")
     begin
     end;
 }

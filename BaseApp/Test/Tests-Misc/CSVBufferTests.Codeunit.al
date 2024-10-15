@@ -21,7 +21,7 @@ codeunit 135100 "CSV Buffer Tests"
         // [SCENARIO] Load a CSV file into the buffer
 
         // [GIVEN] A CSV file
-        ServerTempFileName := CreateSampleCSVFile;
+        ServerTempFileName := CreateSampleCSVFile();
 
         // [WHEN] The file is loaded into the buffer
         TempCSVBuffer.LoadData(ServerTempFileName, ';');
@@ -48,6 +48,45 @@ codeunit 135100 "CSV Buffer Tests"
         Assert.AreEqual('Test 2', TempCSVBuffer.GetValue(4, 2), 'The value does not match in line 4, field 2.');
         Assert.AreEqual('3456', TempCSVBuffer.GetValue(4, 3), 'The value does not match in line 4, field 3.');
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFillBufferWithCharactersToTrim()
+    var
+        TempCSVBuffer: Record "CSV Buffer" temporary;
+        ServerTempFileName: Text;
+    begin
+        // [SCENARIO] Load a CSV file into the buffer with characters to skip
+
+        // [GIVEN] A CSV file
+        ServerTempFileName := CreateSampleCSVFile();
+
+        // [WHEN] The file is loaded into the buffer and all the 1-s are skipped
+        TempCSVBuffer.LoadData(ServerTempFileName, ';', '1');
+        TempCSVBuffer.FindLast();
+
+        // [THEN] Every field in the CSV file results in one record
+        Assert.AreEqual(12, TempCSVBuffer.Count(), 'The number of records do not match.');
+
+        // [THEN] The number of lines/index in the file machtes the number of lines/index in the buffer
+        Assert.AreEqual(4, TempCSVBuffer."Line No.", 'The number of lines do not match.');
+        Assert.AreEqual(3, TempCSVBuffer."Field No.", 'The indexes do not match.');
+
+        // [THEN] All the values are loaded correctly into the buffer
+        Assert.AreEqual('0', TempCSVBuffer.GetValue(1, 1), 'The value does not match in line 1, field 1.');
+        Assert.AreEqual('Test ', TempCSVBuffer.GetValue(1, 2), 'The value does not match in line 1, field 2.');
+        Assert.AreEqual('234', TempCSVBuffer.GetValue(1, 3), 'The value does not match in line 1, field 3.');
+        Assert.AreEqual('02', TempCSVBuffer.GetValue(2, 1), 'The value does not match in line 2, field 1.');
+        Assert.AreEqual('Test 2', TempCSVBuffer.GetValue(2, 2), 'The value does not match in line 2, field 2.');
+        Assert.AreEqual('5678', TempCSVBuffer.GetValue(2, 3), 'The value does not match in line 2, field 3.');
+        Assert.AreEqual('02', TempCSVBuffer.GetValue(3, 1), 'The value does not match in line 3, field 1.');
+        Assert.AreEqual('Test ', TempCSVBuffer.GetValue(3, 2), 'The value does not match in line 3, field 2.');
+        Assert.AreEqual('9012', TempCSVBuffer.GetValue(3, 3), 'The value does not match in line 3, field 3.');
+        Assert.AreEqual('03', TempCSVBuffer.GetValue(4, 1), 'The value does not match in line 4, field 1.');
+        Assert.AreEqual('Test 2', TempCSVBuffer.GetValue(4, 2), 'The value does not match in line 4, field 2.');
+        Assert.AreEqual('3456', TempCSVBuffer.GetValue(4, 3), 'The value does not match in line 4, field 3.');
+    end;
+
 
     [Test]
     [Scope('OnPrem')]
@@ -84,7 +123,7 @@ codeunit 135100 "CSV Buffer Tests"
         // [SCENARIO] Apply a filter on the buffer and retrieve data from buffer
 
         // [GIVEN] A CSV file
-        ServerTempFileName := CreateSampleCSVFile;
+        ServerTempFileName := CreateSampleCSVFile();
 
         // [WHEN] The file is loaded into the buffer
         TempCSVBuffer.LoadData(ServerTempFileName, ';');
@@ -122,7 +161,7 @@ codeunit 135100 "CSV Buffer Tests"
         // [SCENARIO] Data from CSV Buffer is loaded from file and saved to file, resulting in identical files
 
         // [GIVEN] A source file which is loaded into the CSV Buffer
-        ServerTempFileNameSource := CreateSampleCSVFile;
+        ServerTempFileNameSource := CreateSampleCSVFile();
         TempCSVBuffer.LoadData(ServerTempFileNameSource, ';');
         Assert.AreEqual(12, TempCSVBuffer.Count, 'The number of records do not match.');
 
@@ -162,7 +201,7 @@ codeunit 135100 "CSV Buffer Tests"
         // [SCENARIO] Data from CSV Buffer can be loaded from stream and saved to a blob
 
         // [GIVEN] A source stream which is loaded into the CSV Buffer
-        ServerTempFileNameSource := CreateSampleCSVFile;
+        ServerTempFileNameSource := CreateSampleCSVFile();
         TestFileSource.Open(ServerTempFileNameSource);
         TestFileSource.CreateInStream(TestInStreamSource);
         TempCSVBuffer.LoadDataFromStream(TestInStreamSource, ';');

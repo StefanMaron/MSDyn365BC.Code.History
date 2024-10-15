@@ -1,4 +1,4 @@
-codeunit 1280 "Map Currency Exchange Rate"
+﻿codeunit 1280 "Map Currency Exchange Rate"
 {
     TableNo = "Data Exch.";
 
@@ -35,6 +35,8 @@ codeunit 1280 "Map Currency Exchange Rate"
                     if UpdateCurrencyExchangeRate(CurrencyExchangeRate, DataExchField) then;
                 end;
             until DataExchField.Next = 0;
+
+        OnAfterMapCurrencyExchangeRates(DataExch, CurrencyExchangeRate);
     end;
 
     local procedure UpdateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; DefinitionDataExchField: Record "Data Exch. Field"): Boolean
@@ -238,6 +240,11 @@ codeunit 1280 "Map Currency Exchange Rate"
                     ServiceConnection.InsertServiceConnection(
                       ServiceConnection, RecRef.RecordId, Description, ServiceURL, PAGE::"Curr. Exch. Rate Service Card");
             until CurrExchRateUpdateSetup.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMapCurrencyExchangeRates(DataExch: Record "Data Exch."; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
     end;
 }
 

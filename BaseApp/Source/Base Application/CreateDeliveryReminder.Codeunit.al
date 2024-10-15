@@ -44,6 +44,7 @@ codeunit 5005271 "Create Delivery Reminder"
         DelivReminLedgerEntries.SetCurrentKey("Order No.", "Order Line No.", "Posting Date");
         DelivReminLedgerEntries.SetRange("Order No.", PurchLine."Document No.");
         DelivReminLedgerEntries.SetRange("Order Line No.", PurchLine."Line No.");
+        OnRemindOnAfterDelivReminLedgerEntriesSetFilters(DelivReminLedgerEntries);
         if DelivReminLedgerEntries.FindLast then begin
             RemindingDate := DelivReminLedgerEntries."Document Date";
             LineLevel := DelivReminLedgerEntries."Reminder Level" + 1
@@ -304,6 +305,11 @@ codeunit 5005271 "Create Delivery Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeliveryReminderTextLineInsert(var DeliveryReminderLine: Record "Delivery Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemindOnAfterDelivReminLedgerEntriesSetFilters(var DelivReminLedgerEntries: Record "Delivery Reminder Ledger Entry")
     begin
     end;
 }

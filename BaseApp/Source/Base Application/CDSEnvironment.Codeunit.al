@@ -13,7 +13,7 @@ codeunit 7203 "CDS Environment"
         MissingKeyErr: Label 'The consumer key has not been initialized and are missing from the Azure Key Vault.';
         MissingSecretErr: Label 'The consumer secret has not been initialized and are missing from the Azure Key Vault.';
         ReceivedEmptyOnBehalfOfTokenErr: Label 'The On-Behalf-Of authorization for the current user to the Global Discoverability service has failed - the token returned is empty.', Locked = true;
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         SelectedDefaultEnvironmentTxt: Label 'Selected the default environment: %1', Locked = true, Comment = '%1 = The URL of the by default selected environment';
         SelectedEnvironmentTxt: Label 'Selected environment: %1', Locked = true, Comment = '%1 = The URL of the selected environment';
         ReceivedEmptyAuthCodeTokenErr: Label 'The auth code authorization for the current user to the Global Discoverability service has failed - the token returned is empty.', Locked = true;
@@ -22,8 +22,8 @@ codeunit 7203 "CDS Environment"
         CannotParseResponseTxt: Label 'Cannot parse response.', Locked = true;
         CannotInsertEnvironmentTxt: Label 'Cannot insert environment.', Locked = true;
         EnvironmentUrlEmptyTxt: Label 'Environment URL is empty.', Locked = true;
-        NoEnvironmentsWhenUrlNotEmptyMsg: Label 'No Common Data Service environments were discovered.';
-        NoEnvironmentsWhenUrlEmptyMsg: Label 'No Common Data Service environments were discovered. Please enter the URL of the Common Data Service environment to connect to.';
+        NoEnvironmentsWhenUrlNotEmptyMsg: Label 'No Dataverse environments were discovered.';
+        NoEnvironmentsWhenUrlEmptyMsg: Label 'No Dataverse environments were discovered. Please enter the URL of the Dataverse environment to connect to.';
         GlobalDiscoApiUrlTok: Label 'https://globaldisco.crm.dynamics.com/api/discovery/v1.0/Instances', Locked = true;
         RequestFailedWithStatusCodeTxt: Label 'Request failed with status code %1.', Locked = true;
 

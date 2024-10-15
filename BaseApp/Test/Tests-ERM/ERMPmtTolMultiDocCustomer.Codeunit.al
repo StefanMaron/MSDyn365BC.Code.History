@@ -12,6 +12,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryJournals: Codeunit "Library - Journals";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -501,6 +502,310 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         CleanupGeneralLedgerSetup;
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyCustEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnderPmtToInvoicesWhenFirstTwoHaveMaxPmtTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        InvAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalInvAmount: Decimal;
+        TotalTolAmount: Decimal;
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Payment with underpaid Amount to four posted Sales Invoices when the first two of them have different non-zero "Max. Payment Tolerance".
+        Initialize();
+
+        // [GIVEN] Four posted Sales Invoices with Amounts = 100.
+        CustomerNo := CreateCustomer();
+        FillListWithDecimalValues(
+            InvAmounts, TotalInvAmount, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::Invoice, CustomerNo, InvAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First two posted Sales Invoices have "Max. Payment Tolerance" = 5.
+        // [GIVEN] Last two posted Sales Invoices have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(5, 10, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
+
+        // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
+        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount + TotalTolAmount / 2,
+            LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
+
+        // [WHEN] Apply Payment to four posted Sales Invoices and then post Payment.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::Invoice);
+
+        // [THEN] All posted Sales Invoices were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Underpaid Amount = 5 was distributed over the first two posted Sales Invoices with the proportion = proportion of their Amounts.
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * InvAmounts.Get(1) / (InvAmounts.Get(1) + InvAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * InvAmounts.Get(2) / (InvAmounts.Get(1) + InvAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedCustLedgerEntry(CustomerNo, DocumentType::Invoice, ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyOverPmtToInvoicesWhenFirstTwoHaveMaxPmtTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        InvAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalInvAmount: Decimal;
+        TotalTolAmount: Decimal;
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Payment with overpaid Amount to four posted Sales Invoices when the first two of them have different non-zero "Max. Payment Tolerance".
+        Initialize();
+
+        // [GIVEN] Four posted Sales Invoices with Amounts = 100.
+        CustomerNo := CreateCustomer();
+        FillListWithDecimalValues(
+            InvAmounts, TotalInvAmount, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::Invoice, CustomerNo, InvAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First two posted Sales Invoices have "Max. Payment Tolerance" = 5.
+        // [GIVEN] Last two posted Sales Invoices have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(5, 10, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
+
+        // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> + <half of sum of Max Payment Tolerance Amounts>), i.e. 400 + 5 = 405.
+        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount - TotalTolAmount / 2,
+            LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
+
+        // [WHEN] Apply Payment to four posted Sales Invoices and then post Payment.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::Invoice);
+
+        // [THEN] All posted Sales Invoices were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Overpaid Amount = 5 was distributed over the first two posted Sales Invoices with the proportion = proportion of their Amounts.
+        ExpectedPmtTolAmounts.Add(-(TotalTolAmount / 2) * InvAmounts.Get(1) / (InvAmounts.Get(1) + InvAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add(-(TotalTolAmount / 2) * InvAmounts.Get(2) / (InvAmounts.Get(1) + InvAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedCustLedgerEntry(CustomerNo, DocumentType::Invoice, ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnderRefundToCrMemosWhenFirstTwoHaveMaxPmtTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        CrMemoAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalCrMemoAmount: Decimal;
+        TotalTolAmount: Decimal;
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Refund with underpaid Amount to four posted Sales Credit Memos when the first two of them have different non-zero "Max. Payment Tolerance".
+        Initialize();
+
+        // [GIVEN] Four posted Sales Credit Memos with Amounts = 100.
+        CustomerNo := CreateCustomer();
+        FillListWithDecimalValues(
+            CrMemoAmounts, TotalCrMemoAmount, -LibraryRandom.RandDecInRange(100, 200, 2), -LibraryRandom.RandDecInRange(100, 200, 2),
+            -LibraryRandom.RandDecInRange(100, 200, 2), -LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::"Credit Memo", CustomerNo, CrMemoAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First two posted Sales Credit Memos have "Max. Payment Tolerance" = 5.
+        // [GIVEN] Last two posted Sales Credit Memos have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, -LibraryRandom.RandDecInRange(5, 10, 2), -LibraryRandom.RandDecInRange(5, 10, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::"Credit Memo", MaxTolAmounts);
+
+        // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
+        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Sales Credit Memos to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Refund, CustomerNo, '', -TotalCrMemoAmount + TotalTolAmount / 2,
+            LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
+
+        // [WHEN] Apply Refund to four posted Sales Credit Memos and then post Payment.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::"Credit Memo");
+
+        // [THEN] All posted Sales Credit Memos were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Underpaid Amount = 5 was distributed over the first two posted Sales Credit Memos with the proportion = proportion of their Amounts.
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * CrMemoAmounts.Get(1) / (CrMemoAmounts.Get(1) + CrMemoAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * CrMemoAmounts.Get(2) / (CrMemoAmounts.Get(1) + CrMemoAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedCustLedgerEntry(CustomerNo, DocumentType::"Credit Memo", ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnderPmtToInvoicesWhenLastTwoHaveMaxPmtTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        InvAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalInvAmount: Decimal;
+        TotalTolAmount: Decimal;
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Payment to four posted Sales Invoices when the last two of them have different non-zero "Max. Payment Tolerance".
+        Initialize();
+
+        // [GIVEN] Four posted Sales Invoices with Amounts = 100.
+        CustomerNo := CreateCustomer();
+        FillListWithDecimalValues(
+            InvAmounts, TotalInvAmount, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::Invoice, CustomerNo, InvAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First two posted Sales Invoices have "Max. Payment Tolerance" = 0.
+        // [GIVEN] Last two posted Sales Invoices have "Max. Payment Tolerance" = 5.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, 0, 0, LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(5, 10, 2));
+        UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
+
+        // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
+        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount + TotalTolAmount / 2,
+            LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
+
+        // [WHEN] Apply Payment to four posted Sales Invoices and then post Payment.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::Invoice);
+
+        // [THEN] All posted Sales Invoices were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Underpaid Amount = 5 was distributed over the last two posted Sales Invoices with the proportion = proportion of their Amounts.
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * InvAmounts.Get(3) / (InvAmounts.Get(3) + InvAmounts.Get(4)));
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * InvAmounts.Get(4) / (InvAmounts.Get(3) + InvAmounts.Get(4)));
+        VerifyPmtToleranceOnClosedCustLedgerEntry(CustomerNo, DocumentType::Invoice, ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnderPmtToInvoicesWhenBigAmtSmallToleranceAndSmallAmtBigTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        InvAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalInvAmount: Decimal;
+        TotalTolAmount: Decimal;
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Payment with underpaid Amount to posted Sales Invoices when first Invoice has big Amount and small Tolerance, and the second one has small Amount and big Tolerance.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Amount = 10000.
+        // [GIVEN] Posted Sales Invoice with Amount = 100.
+        // [GIVEN] Two posted Sales Invoices with Amount = 100.
+        CustomerNo := CreateCustomer();
+        FillListWithDecimalValues(
+            InvAmounts, TotalInvAmount, LibraryRandom.RandDecInRange(10000, 20000, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::Invoice, CustomerNo, InvAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First posted Sales Invoice has "Max. Payment Tolerance" = 1.
+        // [GIVEN] Second posted Sales Invoice has "Max. Payment Tolerance" = 10.
+        // [GIVEN] Last two posted Sales Invoices have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
+
+        // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 10300 - 5.5 = 10294.5.
+        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount + TotalTolAmount / 2,
+            LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
+
+        // [WHEN] Apply Payment to four posted Sales Invoices and then post Payment.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::Invoice);
+
+        // [THEN] All posted Sales Invoices were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Underpaid Amount = 5.5 was distributed over the first two posted Sales Invoices.
+        // [THEN] "Pmt. Tolerance" = 1 for the first Invoice, because "Max. Payment Tolerance" < 5.5 * (10000/10100) ~ 5.45.
+        // [THEN] "Pmt. Tolerance" = 5.5 - 1 = 4.5 for the second Invoice.
+        ExpectedPmtTolAmounts.Add(MaxTolAmounts.Get(1));
+        ExpectedPmtTolAmounts.Add(TotalTolAmount / 2 - MaxTolAmounts.Get(1));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedCustLedgerEntry(CustomerNo, DocumentType::Invoice, ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyOverPmtToInvoicesWhenBigAmtSmallToleranceAndSmallAmtBigTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        InvAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalInvAmount: Decimal;
+        TotalTolAmount: Decimal;
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Payment with overpaid Amount to posted Sales Invoices when first Invoice has big Amount and small Tolerance, and the second one has small Amount and big Tolerance.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Amount = 10000.
+        // [GIVEN] Posted Sales Invoice with Amount = 100.
+        // [GIVEN] Two posted Sales Invoices with Amount = 100.
+        CustomerNo := CreateCustomer();
+        FillListWithDecimalValues(
+            InvAmounts, TotalInvAmount, LibraryRandom.RandDecInRange(10000, 20000, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::Invoice, CustomerNo, InvAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First posted Sales Invoice has "Max. Payment Tolerance" = 1.
+        // [GIVEN] Second posted Sales Invoice has "Max. Payment Tolerance" = 10.
+        // [GIVEN] Last two posted Sales Invoices have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
+
+        // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> + <half of sum of Max Payment Tolerance Amounts>), i.e. 10300 + 5.5 = 10305.5.
+        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount - TotalTolAmount / 2,
+            LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
+
+        // [WHEN] Apply Payment to four posted Sales Invoices and then post Payment.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::Invoice);
+
+        // [THEN] All posted Sales Invoices were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Overpaid Amount = 5.5 was distributed over the first two posted Sales Invoices.
+        // [THEN] "Pmt. Tolerance" = -1 for the first Invoice, because Abs("Max. Payment Tolerance") < Abs(-5.5) * (10000/10100) ~ 5.45.
+        // [THEN] "Pmt. Tolerance" = -5.5 + 1 = -4.5 for the second Invoice.
+        ExpectedPmtTolAmounts.Add(-MaxTolAmounts.Get(1));
+        ExpectedPmtTolAmounts.Add(-TotalTolAmount / 2 + MaxTolAmounts.Get(1));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedCustLedgerEntry(CustomerNo, DocumentType::Invoice, ExpectedPmtTolAmounts);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -647,6 +952,22 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GenJournalLine.Modify(true);
     end;
 
+    local procedure CreateGenJournalLinesDifferentAmount(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; Amounts: List of [Decimal])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlAccType: Enum "Gen. Journal Account Type";
+        BalGLAccountNo: Code[20];
+        Amount: Decimal;
+        i: Integer;
+    begin
+        BalGLAccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        for i := 1 to Amounts.Count() do
+            LibraryJournals.CreateGenJournalLine(
+                GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+                GenJnlAccType::Customer, CustomerNo, GenJnlAccType::"G/L Account", BalGLAccountNo, Amounts.Get(i));
+    end;
+
     local procedure SaveGenJnlLineInTempTable(var TempGenJournalLine: Record "Gen. Journal Line" temporary; GenJournalLine: Record "Gen. Journal Line")
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
@@ -755,6 +1076,15 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
+    local procedure FillListWithDecimalValues(var DecimalsList: List of [Decimal]; var TotalValue: Decimal; Value1: Decimal; Value2: Decimal; Value3: Decimal; Value4: Decimal)
+    begin
+        DecimalsList.Add(Value1);
+        DecimalsList.Add(Value2);
+        DecimalsList.Add(Value3);
+        DecimalsList.Add(Value4);
+        TotalValue := Value1 + Value2 + Value3 + Value4;
+    end;
+
     local procedure GetDueDate(): Date
     var
         PaymentTerms: Record "Payment Terms";
@@ -799,6 +1129,21 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         exit(Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
     end;
 
+    local procedure UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; MaxPmtTolAmounts: List of [Decimal])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        MaxPmtTolerance: Decimal;
+    begin
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.FindSet(true, false);
+        foreach MaxPmtTolerance in MaxPmtTolAmounts do begin
+            CustLedgerEntry.Validate("Max. Payment Tolerance", MaxPmtTolerance);
+            CustLedgerEntry.Modify(true);
+            CustLedgerEntry.Next();
+        end;
+    end;
+
     [Normal]
     local procedure VerifyCustomerLedgerEntry(var TempGenJournalLine: Record "Gen. Journal Line" temporary; OriginalPmtDiscPossible: Decimal)
     var
@@ -832,6 +1177,23 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         Assert.AreNearlyEqual(AmountLCY, DetailedCustLedgEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), AmountLCY, DetailedCustLedgEntry.TableCaption,
             DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
+    end;
+
+    local procedure VerifyPmtToleranceOnClosedCustLedgerEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedPmtTolerances: List of [Decimal])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ExpectedPmtTolAmt: Decimal;
+    begin
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.FindSet();
+        foreach ExpectedPmtTolAmt in ExpectedPmtTolerances do begin
+            CustLedgerEntry.CalcFields("Remaining Amount");
+            CustLedgerEntry.TestField("Remaining Amount", 0);
+            CustLedgerEntry.TestField(Open, false);
+            Assert.AreNearlyEqual(ExpectedPmtTolAmt, CustLedgerEntry."Pmt. Tolerance (LCY)", LibraryERM.GetAmountRoundingPrecision(), '');
+            CustLedgerEntry.Next();
+        end;
     end;
 
     [ModalPageHandler]

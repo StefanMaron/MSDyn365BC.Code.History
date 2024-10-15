@@ -313,7 +313,14 @@
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModify(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if xRec."Statement Amount" <> "Statement Amount" then
             RemoveApplication(Type);
     end;
@@ -347,6 +354,7 @@
         ImportPostedTransactionsQst: Label 'The bank statement contains payments that are already applied, but the related bank account ledger entries are not closed.\\Do you want to include these payments in the import?';
         ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
         AppliedEntriesFilterLbl: Label '|%1', Locked = true;
+        MatchedAutomaticallyFilterLbl: Label '=%1|%2|%3|%4', Locked = true;
         PaymentReconciliationJournalUXImprovementsLbl: Label 'PaymentReconciliationJournalUXImprovements', Locked = true;
 
     procedure DisplayApplication()
@@ -1257,6 +1265,11 @@
         exit('');
     end;
 
+    procedure GetMatchedAutomaticallyFilter(): Text
+    begin
+        exit(StrSubstNo(MatchedAutomaticallyFilterLbl, "Match Confidence"::None, "Match Confidence"::Low, "Match Confidence"::Medium, "Match Confidence"::High));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
@@ -1264,6 +1277,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var xBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsHandled: Boolean)
     begin
     end;
 

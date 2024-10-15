@@ -480,6 +480,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         Initialize;
 
         // [GIVEN] Intrastat Journal Line with "Type" = "Receipt", "Supplementary Units" = FALSE, Quantity = 1, "Country/Region of Origin Code" = "DE" (with "Intrastat Code" = "")
+        // [GIVEN] "Partner VAT ID" is not filled in
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
         MockIntrastatJnlLine(IntrastatJnlLine, ExportTypeGlb::Receipt, false);
         ModifyCountryRegionIntrastatCode(IntrastatJnlLine."Country/Region of Origin Code", '');
@@ -494,6 +495,8 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibraryXPathXMLReader.InitializeWithText(XMLDocument.OuterXml, '');
         VerifyXMLItemWithOriginCountry('/INSTAT/Envelope/Declaration/', IntrastatJnlLine, 0);
         LibraryXPathXMLReader.VerifyNodeAbsence('/INSTAT/Envelope/Declaration/Item/quantityInSU');
+        // [THEN] 'Item/partnerId' node is not exported (TFS 380061)
+        LibraryXPathXMLReader.VerifyNodeAbsence('/INSTAT/Envelope/Declaration/Item/partnerId');
     end;
 
     [Test]
@@ -654,6 +657,42 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibraryXPathXMLReader.VerifyNodeCountByXPath('/INSTAT/Envelope/Declaration/Item/quantityInSU', 1);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
           '/INSTAT/Envelope/Declaration/Item/quantityInSU', FormatDecimal(IntrastatJnlLine[2].Quantity), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportMgt_WriteXMLItem_PartnerVATID()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        XMLDocument: DotNet XmlDocument;
+        RootXMLNode: DotNet XmlNode;
+        XMLNode: DotNet XmlNode;
+        StartDate: Date;
+        CreationDate: Date;
+        CreationTime: Time;
+        MessageID: Text;
+        VATIDNo: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 380061] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLItem() with "Partner VAT ID"
+        Initialize();
+
+        // [GIVEN] Intrastat Journal Line1 with "Type" = "Shipment", Partner VAT ID = "DE444555666777"
+        PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
+        MockIntrastatJnlLine(IntrastatJnlLine, ExportTypeGlb::Shipment, false);
+        IntrastatJnlLine."Partner VAT ID" := LibraryUtility.GenerateGUID();
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Export XML
+        IntrastatExportMgtDACH.WriteXMLHeader(XMLDocument, RootXMLNode, false, StartDate);
+        IntrastatExportMgtDACH.WriteXMLDeclaration(RootXMLNode, XMLNode, ExportTypeGlb::Shipment, '');
+        IntrastatExportMgtDACH.WriteXMLItem(IntrastatJnlLine, XMLNode);
+
+        // [THEN] 'Item/partnerId' node is exported with value "DE444555666777"
+        LibraryXPathXMLReader.InitializeWithText(XMLDocument.OuterXml, '');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '/INSTAT/Envelope/Declaration/Item/partnerId', IntrastatJnlLine."Partner VAT ID");
     end;
 
     [Test]

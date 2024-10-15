@@ -27,7 +27,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         IgnoreSynchOnlyCoupledRecordsContext: Boolean;
         IsContextInitialized: Boolean;
         ContextErr: Label 'The integration record synchronization context has not been initialized.';
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         SyncConflictResolvedTxt: Label 'Synchronization conflict has been resolved as no one changed bidirectional field was detected. Fields modified: %1, additional fields modified: %2.', Locked = true;
         SyncConflictNotResolvedTxt: Label 'Synchronization conflict has not been resolved as a changed bidirectional field was detected. Field mapping: %1, %2, %3 -> %4.', Locked = true;
 

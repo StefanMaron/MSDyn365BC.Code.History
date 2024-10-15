@@ -201,6 +201,7 @@ page 99000919 "Demand Forecast"
     begin
         if (NewProductionForecastName <> '') and (NewProductionForecastName <> ProductionForecastName) then
             ProductionForecastName := NewProductionForecastName;
+        OnOpenPageOnBeforeSetColums(PeriodType, QtyType, ForecastType, LocationFilter, DateFilter);
         SetColumns(SetWanted::First);
     end;
 
@@ -251,6 +252,11 @@ page 99000919 "Demand Forecast"
     local procedure QtyTypeOnAfterValidate()
     begin
         SetMatrix;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeSetColums(var PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; var QtyType: Option "Net Change","Balance at Date"; var ForecastType: Option "Sales Item",Component,Both; var LocationFilter: Text; var DateFilter: Text[1024])
+    begin
     end;
 }
 

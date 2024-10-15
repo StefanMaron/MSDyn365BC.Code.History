@@ -188,10 +188,10 @@ codeunit 8617 "Config. Validate Management"
     begin
         for FieldCount := 1 to SourceRecRef.FieldCount do begin
             SourceFieldRef := SourceRecRef.FieldIndex(FieldCount);
-            if FieldRefToExclude.Name = SourceFieldRef.Name then
-                exit;
-            FieldRef := RecRef.FieldIndex(FieldCount);
-            FieldRef.Value := SourceFieldRef.VALUE();
+            if FieldRefToExclude.Name <> SourceFieldRef.Name then begin
+                FieldRef := RecRef.FieldIndex(FieldCount);
+                FieldRef.Value := SourceFieldRef.VALUE();
+            end;
         end;
     end;
 
