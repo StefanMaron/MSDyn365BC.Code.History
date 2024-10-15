@@ -33,7 +33,7 @@ codeunit 141072 "UT REP Stock Movement"
         // [SCENARIO] validate Item - OnAfterGetRecord Trigger of Report - 28022 Stock Movement with blank Date Filter.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemLedgerEntry(ItemLedgerEntry, CreateItem(0D), ItemLedgerEntry."Entry Type"::Sale, 0, 0D);  // Using 0 for Quantity and blank for Posting Date.
         EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", 0D);  // Using blank for Date Filter.
 
@@ -53,7 +53,7 @@ codeunit 141072 "UT REP Stock Movement"
         // [SCENARIO] validate Item - OnAfterGetRecord Trigger of Report - 28022 Stock Movement with Date Filter.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemLedgerEntry(ItemLedgerEntry, CreateItem(WorkDate), ItemLedgerEntry."Entry Type"::Output, 0, WorkDate);  // Using 0 for Quantity and WORKDATE for Posting Date.
         EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate);  // Using WORKDATE for Date Filter.
         CreateItemLedgerEntry(
@@ -76,7 +76,7 @@ codeunit 141072 "UT REP Stock Movement"
         // [SCENARIO] validate Item Ledger Entry - OnAfterGetRecord Trigger of Report - 28022 Stock Movement with Negative Quantity.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemLedgerEntry(
           ItemLedgerEntry, CreateItem(WorkDate), ItemLedgerEntry."Entry Type"::Consumption, -LibraryRandom.RandDec(10, 2), WorkDate);  // Using random for Quantity and WORKDATE for Posting Date.
         EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate);  // Using WORKDATE for Date Filter.
@@ -114,7 +114,7 @@ codeunit 141072 "UT REP Stock Movement"
         NetChange: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemLedgerEntry(ItemLedgerEntry, CreateItem(WorkDate), EntryType, LibraryRandom.RandDec(10, 2), WorkDate);  // Using random for Quantity and WORKDATE for Posting Date.
         EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate);  // Using WORKDATE for Date Filter.
         NetChange := GetNetChangeFromItem(ItemLedgerEntry."Item No.");
@@ -125,7 +125,7 @@ codeunit 141072 "UT REP Stock Movement"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(DateFilter: Date): Code[20]
@@ -142,7 +142,7 @@ codeunit 141072 "UT REP Stock Movement"
     var
         ItemLedgerEntry2: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry2.FindLast;
+        ItemLedgerEntry2.FindLast();
         ItemLedgerEntry."Entry No." := ItemLedgerEntry2."Entry No." + 1;
         ItemLedgerEntry."Item No." := ItemNo;
         ItemLedgerEntry."Posting Date" := PostingDate;

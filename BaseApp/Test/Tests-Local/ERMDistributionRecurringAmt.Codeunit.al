@@ -29,7 +29,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         // [SCENARIO] G/L Entry after Calculate Distribution on Recurring General Journal with Recurring Method as "B Balance".
 
         // Setup: Create Recurring Journal Line and calculate distribution on Recurring General Journal.
-        Initialize;
+        Initialize();
         AccountNo := CreateGLAccount;
         CreateAndPostRecurringJournalLine(
           GenJournalLine."Recurring Method"::"B  Balance", WhatToCalculate::"Net Change",
@@ -48,7 +48,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         // [SCENARIO] G/L Entry after Calculate Distribution on Recurring General Journal with Recurring Method as "RB Reversing Balance".
 
         // Setup: Create Recurring Journal Line and calculate distribution on Recurring General Journal.
-        Initialize;
+        Initialize();
         AccountNo := CreateAndPostGeneralJournalLine;
         CreateAndPostRecurringJournalLine(
           GenJournalLine."Recurring Method"::"RB Reversing Balance", WhatToCalculate::Balance, AccountNo, CreateGLAccount, AccountNo);
@@ -84,7 +84,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         // [SCENARIO] error after Calculate Distribution on Recurring General Journal with Recurring Method as "F  Fixed".
 
         // Setup: Create Recurring Journal Line and create Gen. Jnl Allocation.
-        Initialize;
+        Initialize();
         CreateRecurringJournalLine(GenJournalLine, GenJournalLine."Recurring Method"::"F  Fixed", CreateAndPostGeneralJournalLine);
         CreateGenJnlAllocation(GenJournalLine, CreateGLAccount);
 
@@ -97,7 +97,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CalculateDistributionOnRecurringGeneralJournal(CurrentJnlBatchName: Code[10])
@@ -193,7 +193,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Bal. Account No.", '');
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Global Dimension 1 Code", GlobalDimensionOneCode);
         Assert.AreEqual(Amount, GLEntry.Amount, ValueEqualMsg);
     end;

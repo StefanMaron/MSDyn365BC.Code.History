@@ -208,7 +208,7 @@ codeunit 86 "Sales-Quote to Order"
         Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
         Opp.SetRange("Sales Document No.", SalesHeader."No.");
         Opp.SetRange(Status, Opp.Status::"In Progress");
-        if Opp.FindFirst then begin
+        if Opp.FindFirst() then begin
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
                    Text000, Opp.TableCaption, Opp."Sales Document Type"::Quote,
@@ -241,7 +241,7 @@ codeunit 86 "Sales-Quote to Order"
             Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
             Opp.SetRange("Sales Document No.", SalesHeader."No.");
             Opp.SetRange(Status, Opp.Status::"In Progress");
-            if Opp.FindFirst then
+            if Opp.FindFirst() then
                 Error(Text001, Opp.TableCaption, Opp."Sales Document Type"::Quote, Opp."Sales Document Type"::Order);
             Commit();
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -257,7 +257,7 @@ codeunit 86 "Sales-Quote to Order"
         Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
         Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
         Opp.SetRange("Sales Document No.", SalesQuoteHeader."No.");
-        if Opp.FindFirst then
+        if Opp.FindFirst() then
             if Opp.Status = Opp.Status::Won then begin
                 Opp."Sales Document Type" := Opp."Sales Document Type"::Order;
                 Opp."Sales Document No." := SalesOrderHeader."No.";
@@ -266,7 +266,7 @@ codeunit 86 "Sales-Quote to Order"
                 OpportunityEntry.SetCurrentKey(Active, "Opportunity No.");
                 OpportunityEntry.SetRange(Active, true);
                 OpportunityEntry.SetRange("Opportunity No.", Opp."No.");
-                if OpportunityEntry.FindFirst then begin
+                if OpportunityEntry.FindFirst() then begin
                     OpportunityEntry."Calcd. Current Value (LCY)" := OpportunityEntry.GetSalesDocValue(SalesOrderHeader);
                     OpportunityEntry.Modify();
                 end;
@@ -291,7 +291,7 @@ codeunit 86 "Sales-Quote to Order"
         SalesQuoteLine.SetRange("Document Type", SalesQuoteHeader."Document Type");
         SalesQuoteLine.SetRange("Document No.", SalesQuoteHeader."No.");
         OnTransferQuoteToOrderLinesOnAfterSetFilters(SalesQuoteLine, SalesQuoteHeader);
-        if SalesQuoteLine.FindSet then
+        if SalesQuoteLine.FindSet() then
             repeat
                 IsHandled := false;
                 OnBeforeTransferQuoteLineToOrderLineLoop(SalesQuoteLine, SalesQuoteHeader, SalesOrderHeader, IsHandled);

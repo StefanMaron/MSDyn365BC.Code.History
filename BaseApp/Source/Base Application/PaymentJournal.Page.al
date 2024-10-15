@@ -1,4 +1,4 @@
-﻿page 256 "Payment Journal"
+page 256 "Payment Journal"
 {
     AdditionalSearchTerms = 'print check,payment file export,electronic payment';
     ApplicationArea = Basic, Suite;
@@ -839,7 +839,7 @@
                     begin
                         Clear(SuggestVendorPayments);
                         SuggestVendorPayments.SetGenJnlLine(Rec);
-                        SuggestVendorPayments.RunModal;
+                        SuggestVendorPayments.RunModal();
                     end;
                 }
                 action(PrintRemittanceAdvance)
@@ -881,7 +881,7 @@
                         trigger OnAction()
                         begin
                             RepCreateEFTFile.SetGenJnlLine(Rec);
-                            RepCreateEFTFile.RunModal;
+                            RepCreateEFTFile.RunModal();
                             Clear(RepCreateEFTFile);
                         end;
                     }
@@ -922,7 +922,7 @@
                     begin
                         Clear(SuggestEmployeePayments);
                         SuggestEmployeePayments.SetGenJnlLine(Rec);
-                        SuggestEmployeePayments.RunModal;
+                        SuggestEmployeePayments.RunModal();
                     end;
                 }
                 action(PreviewCheck)
@@ -983,7 +983,7 @@
 
                             Window.Open(GeneratingPaymentsMsg);
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.ExportPaymentFile;
                             Window.Close;
                         end;
@@ -1002,7 +1002,7 @@
                         trigger OnAction()
                         begin
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.VoidPaymentFile;
                         end;
                     }
@@ -1020,7 +1020,7 @@
                         trigger OnAction()
                         begin
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.TransmitPaymentFile;
                         end;
                     }
@@ -1101,6 +1101,25 @@
                     PromotedCategory = Category4;
                     RunObject = Page "Credit Transfer Registers";
                     ToolTip = 'View or edit the payment files that have been exported in connection with credit transfers.';
+                }
+                action(NetCustomerVendorBalances)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Net Customer/Vendor Balances';
+                    Image = Balance;
+                    ToolTip = 'Create journal lines to consolidate customer and vendor balances as of a specified date. This is relevant when you do business with a company that is both a customer and a vendor. Depending on which is larger, the balance will be netted for either the payable or receivable amount.';
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+
+                    trigger OnAction()
+                    var
+                        NetCustomerVendorBalances: Report "Net Customer/Vendor Balances";
+                    begin
+                        NetCustomerVendorBalances.SetGenJnlLine(Rec);
+                        NetCustomerVendorBalances.RunModal();
+                    end;
                 }
             }
             action(Approvals)
@@ -1266,7 +1285,7 @@
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action(PreCheck)
@@ -1471,7 +1490,7 @@
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter);
-                        FlowTemplateSelector.Run;
+                        FlowTemplateSelector.Run();
                     end;
                 }
                 action(SeeFlows)
@@ -1746,6 +1765,7 @@
         DocPrint: Codeunit "Document-Print";
         CheckManagement: Codeunit CheckManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         WHTManagement: Codeunit WHTManagement;
@@ -1834,8 +1854,8 @@
     local procedure EnableApplyEntriesAction()
     begin
         ApplyEntriesActionEnabled :=
-          ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) or
-          ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]);
+          ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee]) or
+          ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::Employee]);
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -1869,7 +1889,7 @@
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);

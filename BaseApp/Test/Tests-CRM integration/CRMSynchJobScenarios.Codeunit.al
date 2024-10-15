@@ -23,7 +23,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
         // [FEATURE] [Direction]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
 
         // [GIVEN] A source of 0 records
@@ -35,7 +35,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationSynchJob.DeleteAll();
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] Job direction matches the Integration Table Mapping direction.
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         Assert.AreEqual(
           IntegrationSynchJob."Synch. Direction"::ToIntegrationTable, IntegrationSynchJob."Synch. Direction",
           'Expected the direction to match the mapping ToIntegrationTable');
@@ -49,7 +49,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationSynchJob.DeleteAll();
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] Job direction matches the Integration Table Mapping direction.
-        IntegrationSynchJob.FindLast;
+        IntegrationSynchJob.FindLast();
         Assert.AreEqual(
           IntegrationSynchJob."Synch. Direction"::FromIntegrationTable, IntegrationSynchJob."Synch. Direction",
           'Expected the direction to match the mapping FromIntegrationTable');
@@ -82,7 +82,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         TestUid: Guid;
     begin
         // [FEATURE] [Table Filter]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
 
         // [GIVEN] A valid and registered CRM Connection Setup
@@ -90,7 +90,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [GIVEN] A mapping with a filter that limits the source to 2 records
         LibraryCRMIntegration.CreateIntegrationTableData(3, 0);
         // Create filter excluding the last row.
-        UnitOfMeasure.FindLast;
+        UnitOfMeasure.FindLast();
         UnitOfMeasure.SetFilter(Code, '<>%1', UnitOfMeasure.Code);
         TableFilter.AddTable(UnitOfMeasure.TableCaption, DATABASE::"Unit of Measure");
         TableFilter.SetView(UnitOfMeasure.TableCaption, UnitOfMeasure.GetView);
@@ -124,7 +124,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         end;
         // Create coupling
         UnitOfMeasure.Reset();
-        UnitOfMeasure.FindLast;
+        UnitOfMeasure.FindLast();
         CRMIntegrationRecord.CoupleCRMIDToRecordID(
           TestIntegrationTable."Integration Uid", UnitOfMeasure.RecordId);
         // Ensure it looks new
@@ -138,7 +138,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
 
         // [THEN] The coupled record outside the original filter is updated
         UnitOfMeasure.Reset();
-        UnitOfMeasure.FindLast;
+        UnitOfMeasure.FindLast();
         // Refresh row data
         TestIntegrationTable.Reset();
         TestIntegrationTable.Get(TestUid);
@@ -156,7 +156,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         TableFilter: FilterPageBuilder;
     begin
         // [FEATURE] [Integration Table Filter]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
         // [GIVEN] A valid and registered CRM Connection Setup
         // [GIVEN] A CRM source of 3 records
@@ -164,7 +164,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [GIVEN] A mapping allowing record creation
         LibraryCRMIntegration.CreateIntegrationTableData(0, 3);
         // Create filter only including the last row.
-        TestIntegrationTable.FindLast;
+        TestIntegrationTable.FindLast();
         TestIntegrationTable.SetFilter("Integration Uid", '=%1', TestIntegrationTable."Integration Uid");
         TableFilter.AddTable(TestIntegrationTable.TableCaption, DATABASE::"Test Integration Table");
         TableFilter.SetView(TestIntegrationTable.TableCaption, TestIntegrationTable.GetView);
@@ -194,7 +194,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         CRMSystemuser: Record "CRM Systemuser";
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
         // [GIVEN] A valid and registered CRM Connection Setup
         // [GIVEN] A CRM source of 3 records
@@ -203,7 +203,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LibraryCRMIntegration.CreateIntegrationTableData(0, 3);
 
         // [GIVEN] 2 of 3 records are modified by the integration system user
-        CRMConnectionSetup.FindFirst;
+        CRMConnectionSetup.FindFirst();
         CRMSystemuser.Get(CRMConnectionSetup.GetIntegrationUserID);
         TestIntegrationTable.FindSet();
         TestIntegrationTable.ModifiedBy := CRMSystemuser.SystemUserId;
@@ -233,7 +233,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         NumCustomerRecordsBeforeSynch: Integer;
     begin
         // [GIVEN] A valid and registered CRM Connection Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] A mapping allowing synch only for coupled records (the default setting)
         ResetDefaultCRMSetupConfiguration;
@@ -273,7 +273,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Table Filter] [Integration Table Filter]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
         LibraryCRMIntegration.CreateIntegrationTableData(2, 2);
 
@@ -310,14 +310,14 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         ExpectedLatestDateTime: DateTime;
     begin
         // [FEATURE] [Modified On]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
 
         // [GIVEN] A valid and registered CRM Connection Setup
         // [GIVEN] A CRM source of 2 records that can be copied to NAV
         LibraryCRMIntegration.CreateIntegrationTableData(0, 2);
         ExpectedLatestDateTime := CreateDateTime(Today + 1, Time);
-        TestIntegrationTable.FindLast;
+        TestIntegrationTable.FindLast();
         TestIntegrationTable."Integration Modified Field" := ExpectedLatestDateTime;
         TestIntegrationTable.Modify();
 
@@ -342,7 +342,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [GIVEN] A valid and registered CRM Connection Setup
         // [GIVEN] A NAV source of 2 records that can be copied to CRM
         LibraryCRMIntegration.CreateIntegrationTableData(2, 0);
-        UnitOfMeasure.FindLast;
+        UnitOfMeasure.FindLast();
         UnitOfMeasure.Description := 'xyz';
         ExpectedLatestDateTime := CurrentDateTime() + 200;
         Sleep(200);
@@ -372,7 +372,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LastSynchModifiedOn: DateTime;
     begin
         // [FEATURE] [Modified On]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
 
         // [GIVEN] A valid and registered CRM Connection Setup
@@ -401,7 +401,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Modified On]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
 
         // [GIVEN] A valid and registered CRM Connection Setup
@@ -434,7 +434,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
         // [FEATURE] [Direction]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
 
         // [GIVEN] A valid and registered CRM Connection Setup
@@ -463,7 +463,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
         // [FEATURE] [Direction]
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateIntegrationTableMapping(IntegrationTableMapping);
         LibraryCRMIntegration.CreateIntegrationTableData(2, 2);
 
@@ -491,7 +491,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [THEN] 1. customer should be created in NAV
         // [THEN] Customer is coupled to CRM Account
         // [THEN] Synch. Job entry is created with 1 inserted.
-        Initialize;
+        Initialize();
 
         CRMAccount.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
@@ -511,7 +511,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [THEN] 1. customer should be modified in NAV
         // [THEN] Customer remains coupled to CRM Account
         // [THEN] Synch. Job entry is created with 1 modified.
-        Initialize;
+        Initialize();
         CRMAccount.DeleteAll();
         // Setup
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
@@ -541,7 +541,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // Setup
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         IntegrationTableMapping.SetIntegrationTableFilter('');
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
@@ -549,7 +549,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
 
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
 
         IntegrationSynchJob.DeleteAll();
 
@@ -560,7 +560,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Assert.IsTrue(IntegrationSynchJob.FindSet, 'Expected job log entries');
         repeat
             IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", IntegrationSynchJob.ID);
-            if IntegrationSynchJobErrors.FindFirst then
+            if IntegrationSynchJobErrors.FindFirst() then
                 Assert.Fail('One or more job errors was found: ' + IntegrationSynchJobErrors.Message);
         until IntegrationSynchJob.Next = 0;
 
@@ -590,7 +590,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         // [SCENARIO 264617] Broken connection causes incremented "No. of Attempts to Run" on job queue entry.
-        Initialize;
+        Initialize();
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         ResetDefaultCRMSetupConfiguration;
@@ -600,10 +600,10 @@ codeunit 139169 "CRM Synch. Job Scenarios"
 
         // [WHEN] Sync job for customer is being run
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
         LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
 

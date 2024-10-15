@@ -41,7 +41,7 @@ codeunit 141056 "APAC ERM Prepayments"
 
         // [THEN] G/L entries of posted Sales Invoice.
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         VerifyGLEntriesOfSalesInvoice(
           SalesInvoiceHeader."No.", GeneralPostingSetup."Sales Prepayments Account", -SalesLine."Line Amount",
           -SalesLine."Line Amount" * SalesLine."VAT %" / 100);
@@ -385,7 +385,7 @@ codeunit 141056 "APAC ERM Prepayments"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         exit(SalesCrMemoHeader."No.");
     end;
 
@@ -459,7 +459,7 @@ codeunit 141056 "APAC ERM Prepayments"
 
     local procedure UpdateVendorInvoiceNo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -469,7 +469,7 @@ codeunit 141056 "APAC ERM Prepayments"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));

@@ -29,7 +29,7 @@ codeunit 141144 "ERM G/L Account WhereUsed APAC"
         WHTPostingSetup: Record "WHT Posting Setup";
     begin
         // [SCENARIO 263861] WHT Posting Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] WHT Posting Setup with "Sales WHT Adj. Account No." = "G"
         LibraryAPACLocalization.CreateWHTBusinessPostingGroup(WHTBusinessPostingGroup);
@@ -64,7 +64,7 @@ codeunit 141144 "ERM G/L Account WhereUsed APAC"
         WHTPostingSetupPage: TestPage "WHT Posting Setup";
     begin
         // [SCENARIO 263861] WHT Posting Setup page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] WHT Posting Setup "WHT Business Posting Group" = "BP", "WHT Product Posting Group" = "PP" with "Sales WHT Adj. Account No." = "G"
         LibraryAPACLocalization.CreateWHTBusinessPostingGroup(WHTBusinessPostingGroup);
@@ -84,7 +84,7 @@ codeunit 141144 "ERM G/L Account WhereUsed APAC"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 

@@ -26,7 +26,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         with Item do begin
             Init;
@@ -45,7 +45,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         BusPostingGroupValSetup: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BusPostingGroupValSetup := 'FROM_SETUP';
 
@@ -68,7 +68,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         BusPostingGroupValItem: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BusPostingGroupValSetup := 'FROM_SETUP';
         BusPostingGroupValItem := 'FROM_ITEM';
@@ -93,7 +93,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesSetupWithVATBusPostGrPrice('TEST');
 
@@ -112,7 +112,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         BusPostingGroupValItem: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BusPostingGroupValItem := 'FROM_ITEM';
 
@@ -133,7 +133,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesSetupWithVATBusPostGrPrice('TEST');
 
@@ -154,7 +154,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         BusPostingGroupValSetup: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BusPostingGroupValSetup := 'ANY';
 
@@ -183,7 +183,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         BusPostingGroupValSetup: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BusPostingGroupValSetup := 'FROM_SETUP';
 
@@ -206,7 +206,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         BusPostingGroupValCPG: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BusPostingGroupValSetup := 'FROM_SETUP';
         BusPostingGroupValCPG := 'FROM_CPG';
@@ -230,7 +230,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         CustomerPriceGroup: Record "Customer Price Group";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesSetupWithVATBusPostGrPrice('TEST');
 
@@ -249,7 +249,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         BusPostingGroupValCPG: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         BusPostingGroupValCPG := 'FROM_CPG';
 
@@ -272,7 +272,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         SalesPrice: Record "Sales Price";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item, 'ANYUOM', false, true, 'ANYVATGRP');
 
@@ -315,7 +315,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         SalesPrice: Record "Sales Price";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item, 'BOX', false, true, 'DOMESTIC');
 
@@ -343,7 +343,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         SalesPrice: Record "Sales Price";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item, 'BOX', false, true, 'DOMESTIC');
 
@@ -385,7 +385,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         IncorrectSalesType: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateItem(Item, 'BOX', false, true, 'DOMESTIC');
 
@@ -414,7 +414,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         Any: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Any := false;
         CreateItem(Item, 'BOX', Any, Any, 'any');
@@ -441,7 +441,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         // [SCENARIO 361663] Item's "Unit Price Excl. VAT" is equal to "Unit Price" if "Price Includes VAT" is "No"
         // [GIVEN] Item with price VAT setup, where "VAT %" = 25 and "Unit Price" = 1250
         // Setup
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Item.Init();
@@ -468,7 +468,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         // [SCENARIO 361663] Item's "Unit Price Excl. VAT" is calculated from "Unit Price" if "Price Includes VAT" is "Yes"
         // [GIVEN] Item with price VAT setup, where "VAT %" = 25
         // Setup
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Item.Init();
@@ -502,7 +502,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         LibrarySmallBusiness.CreateItem(Item);
 
         // [GIVEN] Created new VAT Posting Setup and SalesSetup with "VAT Bus. Post. Gr. Price"
-        BusPostingGroupValSetup := LibraryUtility.GenerateGUID;
+        BusPostingGroupValSetup := LibraryUtility.GenerateGUID();
         CreateDefaultVATPostingSetup(BusPostingGroupValSetup, Item."VAT Prod. Posting Group");
         CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
 
@@ -557,10 +557,10 @@ codeunit 138014 "O365 Item Price Including VAT"
         LibrarySmallBusiness.CreateItem(Item);
 
         // [GIVEN] Created new VAT Posting Setup and SalesSetup with "VAT Bus. Post. Gr. Price" not related to VAT Posting Setup
-        BusPostingGroupValSetup := LibraryUtility.GenerateGUID;
+        BusPostingGroupValSetup := LibraryUtility.GenerateGUID();
         CreateDefaultVATPostingSetup(BusPostingGroupValSetup, Item."VAT Prod. Posting Group");
-        CreateSalesSetupWithVATBusPostGrPrice(LibraryUtility.GenerateGUID);
-        SalesReceivablesSetup.Get;
+        CreateSalesSetupWithVATBusPostGrPrice(LibraryUtility.GenerateGUID());
+        SalesReceivablesSetup.Get();
 
         // [WHEN] Validate "Price Includes VAT" to True
         asserterror Item.Validate("Price Includes VAT", true);
@@ -588,7 +588,7 @@ codeunit 138014 "O365 Item Price Including VAT"
 
         // [GIVEN] Created SalesSetup with empty "VAT Bus. Post. Gr. Price" and new "VAT Prod. Posting Group" for Item
         BusPostingGroupValSetup := '';
-        BusProdPostingGroupValSetup := LibraryUtility.GenerateGUID;
+        BusProdPostingGroupValSetup := LibraryUtility.GenerateGUID();
         CreateSalesSetupWithVATBusPostGrPrice(BusPostingGroupValSetup);
         Item."VAT Prod. Posting Group" := BusProdPostingGroupValSetup;
 
@@ -655,8 +655,8 @@ codeunit 138014 "O365 Item Price Including VAT"
     begin
         with VATPostingSetup do begin
             Init;
-            "VAT Bus. Posting Group" := LibraryUtility.GenerateGUID;
-            "VAT Prod. Posting Group" := LibraryUtility.GenerateGUID;
+            "VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
+            "VAT Prod. Posting Group" := LibraryUtility.GenerateGUID();
             "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
             "VAT %" := LibraryRandom.RandInt(25);
             Insert;
@@ -672,7 +672,7 @@ codeunit 138014 "O365 Item Price Including VAT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Item Price Including VAT");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 }
 

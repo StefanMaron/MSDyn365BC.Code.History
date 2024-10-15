@@ -137,7 +137,7 @@ codeunit 141074 "UT REP Transaction Detail"
         GLEntry: Record "G/L Entry";
     begin
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CreateGLEntryAndRunTransactionDetailReport(GLEntry, WorkDate, SourceType, SourceNo, DocumentType, DocumentNo, true);  // Using True for ShowAmountsInAddReportingCurrency.
 
         // Verify.
@@ -155,7 +155,7 @@ codeunit 141074 "UT REP Transaction Detail"
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with ShowAmountsInAddReportingCurrency as False.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CreateGLEntryAndRunTransactionDetailReport(
           GLEntry, ClosingDate(WorkDate), GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice,
           CreateSalesInvoiceHeader, false);  // Using False for ShowAmountsInAddReportingCurrency.
@@ -175,7 +175,7 @@ codeunit 141074 "UT REP Transaction Detail"
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with ShowAmountsInAddReportingCurrency as True.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CreateGLEntryAndRunTransactionDetailReport(
           GLEntry, ClosingDate(WorkDate), GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice,
           CreateSalesInvoiceHeader, true);  // Using True for ShowAmountsInAddReportingCurrency.
@@ -186,7 +186,7 @@ codeunit 141074 "UT REP Transaction Detail"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -220,7 +220,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := CreateGLAccount;
         GLEntry.Amount := LibraryRandom.RandDec(100, 2);

@@ -72,16 +72,6 @@
             cuegroup(Approvals)
             {
                 Caption = 'Approvals';
-                field("Requests to Approve"; "Requests to Approve")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with Approvals Activities part';
-                    Visible = false;
-                    DrillDownPageID = "Requests to Approve";
-                    ToolTip = 'Specifies requests for certain documents, cards, or journal lines that you must approve for other users before they can proceed.';
-                    ObsoleteTag = '17.0';
-                }
                 field("Time Sheets to Approve"; "Time Sheets to Approve")
                 {
                     ApplicationArea = Basic, Suite;

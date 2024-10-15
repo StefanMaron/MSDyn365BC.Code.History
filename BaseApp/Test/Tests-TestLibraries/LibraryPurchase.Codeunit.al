@@ -140,7 +140,7 @@ codeunit 130512 "Library - Purchase"
             PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
         SetCorrDocNoPurchase(PurchaseHeader);
         if (DocumentType = PurchaseHeader."Document Type"::"Return Order") or (DocumentType = PurchaseHeader."Document Type"::"Credit Memo") then begin
-            if not ReasonCode.FindFirst then
+            if not ReasonCode.FindFirst() then
                 LibraryERM.CreateReasonCode(ReasonCode);
             PurchaseHeader.Validate("Reason Code", ReasonCode.Code);
         end;
@@ -170,7 +170,7 @@ codeunit 130512 "Library - Purchase"
         case LineType of
             PurchaseLine.Type::Item:
                 if No = '' then
-                    No := LibraryInventory.CreateItemNo;
+                    No := LibraryInventory.CreateItemNo();
             PurchaseLine.Type::"G/L Account":
                 if No = '' then
                     No := LibraryERM.CreateGLAccountWithPurchSetup();
@@ -330,7 +330,7 @@ codeunit 130512 "Library - Purchase"
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
         if ItemNo = '' then
-            ItemNo := LibraryInventory.CreateItemNo;
+            ItemNo := LibraryInventory.CreateItemNo();
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
         if LocationCode <> '' then
             PurchaseLine.Validate("Location Code", LocationCode);
@@ -579,7 +579,7 @@ codeunit 130512 "Library - Purchase"
         Clear(DeleteInvoicedPurchOrders);
         DeleteInvoicedPurchOrders.SetTableView(PurchaseHeader2);
         DeleteInvoicedPurchOrders.UseRequestPage(false);
-        DeleteInvoicedPurchOrders.RunModal;
+        DeleteInvoicedPurchOrders.RunModal();
     end;
 
     procedure ExplodeBOM(var PurchaseLine: Record "Purchase Line")
@@ -610,7 +610,7 @@ codeunit 130512 "Library - Purchase"
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        if not VendorPostingGroup.FindFirst then
+        if not VendorPostingGroup.FindFirst() then
             CreateVendorPostingGroup(VendorPostingGroup);
         exit(VendorPostingGroup.Code);
     end;
@@ -619,13 +619,13 @@ codeunit 130512 "Library - Purchase"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     procedure FindReturnShipmentHeader(var ReturnShipmentHeader: Record "Return Shipment Header"; ReturnOrderNo: Code[20])
     begin
         ReturnShipmentHeader.SetRange("Return Order No.", ReturnOrderNo);
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
     end;
 
     procedure GetDropShipment(var PurchaseHeader: Record "Purchase Header")
@@ -793,7 +793,7 @@ codeunit 130512 "Library - Purchase"
         BatchPostPurchRetOrders.SetTableView(PurchaseHeader);
         Commit();  // COMMIT is required to run this report.
         BatchPostPurchRetOrders.UseRequestPage(true);
-        BatchPostPurchRetOrders.Run;
+        BatchPostPurchRetOrders.Run();
     end;
 
     procedure RunDeleteInvoicedPurchaseReturnOrdersReport(var PurchaseHeader: Record "Purchase Header")
@@ -803,7 +803,7 @@ codeunit 130512 "Library - Purchase"
         Clear(DeleteInvdPurchRetOrders);
         DeleteInvdPurchRetOrders.SetTableView(PurchaseHeader);
         DeleteInvdPurchRetOrders.UseRequestPage(false);
-        DeleteInvdPurchRetOrders.Run;
+        DeleteInvdPurchRetOrders.Run();
     end;
 
     procedure RunMoveNegativePurchaseLinesReport(var PurchaseHeader: Record "Purchase Header"; FromDocType: Option; ToDocType: Option; ToDocType2: Option)
@@ -814,7 +814,7 @@ codeunit 130512 "Library - Purchase"
         MoveNegativePurchaseLines.SetPurchHeader(PurchaseHeader);
         MoveNegativePurchaseLines.InitializeRequest(FromDocType, ToDocType, ToDocType2);
         MoveNegativePurchaseLines.UseRequestPage(false);
-        MoveNegativePurchaseLines.Run;
+        MoveNegativePurchaseLines.Run();
     end;
 
     procedure SetAllowVATDifference(AllowVATDifference: Boolean)

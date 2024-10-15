@@ -50,12 +50,12 @@ page 5050 "Contact Card"
                                 Clear(NameDetails);
                                 NameDetails.SetTableView(Contact);
                                 NameDetails.SetRecord(Contact);
-                                NameDetails.RunModal;
+                                NameDetails.RunModal();
                             end else begin
                                 Clear(CompanyDetails);
                                 CompanyDetails.SetTableView(Contact);
                                 CompanyDetails.SetRecord(Contact);
-                                CompanyDetails.RunModal;
+                                CompanyDetails.RunModal();
                             end;
                         Rec := Contact;
                         CurrPage.Update(false);
@@ -155,7 +155,7 @@ page 5050 "Contact Card"
                             ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
                             ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
                             ContactBusinessRelation.SetRange("No.", Customer."No.");
-                            if ContactBusinessRelation.FindFirst then
+                            if ContactBusinessRelation.FindFirst() then
                                 Validate("Company No.", ContactBusinessRelation."Contact No.");
                         end else
                             Validate("Company No.", '');
@@ -207,7 +207,7 @@ page 5050 "Contact Card"
                         InteractionLogEntry.SetRange("Contact Company No.", "Company No.");
                         InteractionLogEntry.SetFilter("Contact No.", "Lookup Contact No.");
                         InteractionLogEntry.SetRange("Attempt Failed", false);
-                        if InteractionLogEntry.FindLast then
+                        if InteractionLogEntry.FindLast() then
                             PAGE.Run(0, InteractionLogEntry);
                     end;
                 }
@@ -225,7 +225,7 @@ page 5050 "Contact Card"
                         InteractionLogEntry.SetRange("Contact Company No.", "Company No.");
                         InteractionLogEntry.SetFilter("Contact No.", "Lookup Contact No.");
                         InteractionLogEntry.SetRange("Initiated By", InteractionLogEntry."Initiated By"::Us);
-                        if InteractionLogEntry.FindLast then
+                        if InteractionLogEntry.FindLast() then
                             PAGE.Run(0, InteractionLogEntry);
                     end;
                 }
@@ -852,6 +852,7 @@ page 5050 "Contact Card"
             }
             group(Prices)
             {
+                Caption = 'Prices';
                 action(PriceLists)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1025,7 +1026,6 @@ page 5050 "Contact Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this contact.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1421,10 +1421,8 @@ page 5050 "Contact Card"
     trigger OnOpenPage()
     var
         OfficeManagement: Codeunit "Office Management";
-        EmailFeature: Codeunit "Email Feature";
     begin
         IsOfficeAddin := OfficeManagement.IsAvailable;
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
@@ -1444,23 +1442,24 @@ page 5050 "Contact Card"
         VATRegistrationNoEnable: Boolean;
         [InDataSet]
         CompanyNameEnable: Boolean;
-        [InDataSet]
-        OrganizationalLevelCodeEnable: Boolean;
-        CompanyGroupEnabled: Boolean;
-        PersonGroupEnabled: Boolean;
-        ExtendedPriceEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
-        IsOfficeAddin: Boolean;
         RelatedCustomerEnabled: Boolean;
         RelatedVendorEnabled: Boolean;
         RelatedBankEnabled: Boolean;
         RelatedEmployeeEnabled: Boolean;
         ShowMapLbl: Label 'Show Map';
         NoFieldVisible: Boolean;
+
+    protected var
+        [InDataSet]
+        OrganizationalLevelCodeEnable: Boolean;
         ParentalConsentReceivedEnable: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
+        CompanyGroupEnabled: Boolean;
+        PersonGroupEnabled: Boolean;
+        ExtendedPriceEnabled: Boolean;
+        IsOfficeAddin: Boolean;
 
     local procedure EnableFields()
     begin
@@ -1486,7 +1485,7 @@ page 5050 "Contact Card"
         ContactBusinessRelation.SetCurrentKey("Link to Table", "Contact No.");
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("Contact No.", "Company No.");
-        if ContactBusinessRelation.FindFirst then begin
+        if ContactBusinessRelation.FindFirst() then begin
             IntegrationCustomerNo := ContactBusinessRelation."No.";
         end else
             IntegrationCustomerNo := '';

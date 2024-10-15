@@ -1,3 +1,5 @@
+#if not CLEAN20
+// Replaced by test codeunit 134881 ERM Exch. Rate Adjmt. Vendor"
 codeunit 134081 "ERM Adjust Exch. Rate Vendor"
 {
     Subtype = Test;
@@ -13,6 +15,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in \\%3 %4=%5.';
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
@@ -26,7 +29,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         // Test Adjust Exchange Rate batch job after modifying Higher Exchange Rate and verify Unrealized Loss entry created
         // in Detailed Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         AdjustExchRateForVendor(LibraryRandom.RandInt(50), DetailedVendorLedgEntry."Entry Type"::"Unrealized Loss");
     end;
 
@@ -39,7 +42,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         // Check that Adjust Exchange Rate batch job after Modify Higher Exchange Rate and verify Unrealized Gain entry created
         // in Detailed Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         AdjustExchRateForVendor(-LibraryRandom.RandInt(50), DetailedVendorLedgEntry."Entry Type"::"Unrealized Gain");
     end;
 
@@ -75,7 +78,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 253498] Run Adjust Exchange Rates report twice when currency is changed for vendor entries from gains to losses
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Amount = 39008 posted with exch.rate = 1,0887
         ExchRateAmt := LibraryRandom.RandDec(10, 2);
@@ -116,7 +119,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 253498] Run Adjust Exchange Rates report twice when currency is changed for vendor entries from losses to gains
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Amount = 39008 posted with exch.rate = 1,0887
         ExchRateAmt := LibraryRandom.RandDec(10, 2);
@@ -264,14 +267,18 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         isInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -318,7 +325,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     local procedure FindCurrencyExchRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
     end;
 
     local procedure RunAdjustExchangeRate(CurrencyCode: Code[10]; DocumentNo: Code[20])
@@ -330,13 +337,13 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         AdjustExchangeRates.SetTableView(Currency);
         AdjustExchangeRates.InitializeRequest2(0D, WorkDate, 'Test', WorkDate, DocumentNo, true, false);
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
     end;
 
     local procedure UpdateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; ExchRateAmount: Decimal)
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate(
           "Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" + ExchRateAmount);
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
@@ -351,7 +358,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         Currency.Get(CurrencyCode);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         DetailedVendorLedgEntry.TestField("Ledger Entry Amount", true);
         DetailedVendorLedgEntry.CalcSums("Amount (LCY)");
         Assert.AreNearlyEqual(
@@ -399,4 +406,4 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
-
+#endif

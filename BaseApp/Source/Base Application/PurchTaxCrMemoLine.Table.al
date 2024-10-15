@@ -591,7 +591,7 @@ table 28078 "Purch. Tax Cr. Memo Line"
     begin
         PurchCrMemoHeader.Reset();
         PurchCrMemoHeader.SetRange("No.", "External Document No.");
-        if PurchCrMemoHeader.FindFirst then
+        if PurchCrMemoHeader.FindFirst() then
             PAGE.RunModal(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHeader);
     end;
 

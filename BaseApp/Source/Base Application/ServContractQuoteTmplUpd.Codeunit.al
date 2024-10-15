@@ -5,7 +5,7 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
     trigger OnRun()
     begin
         ServiceContractTemplate.Reset();
-        if not ServiceContractTemplate.FindFirst then
+        if not ServiceContractTemplate.FindFirst() then
             exit;
 
         TestField("Contract No.");
@@ -54,15 +54,7 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
             Validate("Serv. Contract Acc. Gr. Code", ServiceContractTemplate."Serv. Contract Acc. Gr. Code");
             "Template No." := ServiceContractTemplate."No.";
 
-            CreateDim(
-              DATABASE::"Service Contract Template", ServiceContractTemplate."No.",
-              0, '', 0, '', 0, '', 0, '');
-            CreateDim(
-              DATABASE::"Service Contract Template", "Template No.",
-              DATABASE::Customer, "Bill-to Customer No.",
-              DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-              DATABASE::"Responsibility Center", "Responsibility Center",
-              DATABASE::"Service Order Type", "Service Order Type");
+            CreateDimFromDefaultDim(0);
 
             ContractServiceDiscount.Reset();
             ContractServiceDiscount.SetRange("Contract Type", "Contract Type");

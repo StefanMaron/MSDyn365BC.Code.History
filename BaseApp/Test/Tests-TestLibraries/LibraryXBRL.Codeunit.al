@@ -1,5 +1,9 @@
+#if not CLEAN20
 codeunit 131333 "Library - XBRL"
 {
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -248,3 +252,4 @@ codeunit 131333 "Library - XBRL"
     end;
 }
 
+#endif

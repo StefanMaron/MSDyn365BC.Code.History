@@ -30,7 +30,7 @@ codeunit 141057 "ERM Prepayment APAC"
         // [SCENARIO] GL Entry,VAT Entry,GST Sales Entry and Posted Invoice after posting Sales prepayment wiht discount and different Prepayment %.
 
         // [GIVEN] Create Sales Order, Reopen and Change Prepayment %.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesLine, CreateCustomerWithInvoiceDiscount);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         DocumentNo := GetPostedDocumentNo(SalesHeader."Posting No. Series");
@@ -63,7 +63,7 @@ codeunit 141057 "ERM Prepayment APAC"
         // [SCENARIO] Sales credit memo after posting Sales Invoice prepayment and Credit Memo prepayment.
 
         // [GIVEN] Create Sales Order and Post prepayment.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesOrder(SalesLine, Customer."No.");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -74,7 +74,7 @@ codeunit 141057 "ERM Prepayment APAC"
 
         // Verify.
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.CalcFields(Amount);
         VerifyGLEntry(SalesCrMemoHeader."No.", SalesCrMemoHeader.Amount);
     end;
@@ -94,7 +94,7 @@ codeunit 141057 "ERM Prepayment APAC"
         // [SCENARIO] GL Entry,VAT Entry,GST Sales Entry and Posted Invoice after posting Purchase prepayment with different Prepayment %.
 
         // [GIVEN] Create Purchase order, Modify Percentage and Post Prepayment.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         ModifyPrepaymentPctOnPurchaseHeader(PurchaseHeader, LibraryRandom.RandDec(10, 2));  // Random for Prepayment %.
@@ -115,7 +115,7 @@ codeunit 141057 "ERM Prepayment APAC"
         VerifyVATEntry(DocumentNo, (PurchaseLine."Amount Including VAT" - PurchaseLine.Amount));
         VerifyGSTPurchaseEntry(DocumentNo, (PurchaseLine."Amount Including VAT" - PurchaseLine.Amount));
         PurchInvHeader.SetRange("No.", DocumentNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(Amount, PurchInvHeader.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
     end;
@@ -136,7 +136,7 @@ codeunit 141057 "ERM Prepayment APAC"
         // [SCENARIO] GL Entry after posting purchase order with multiple purchase line.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GLAccountNo := CreateGLAccount;
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
@@ -174,7 +174,7 @@ codeunit 141057 "ERM Prepayment APAC"
         // [SCENARIO] GL Entry,VAT Entry,GST Sales Entry and Posted Invoice after posting Sales prepayment with different Prepayment % and General Journal Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesOrder(SalesLine, Customer."No.");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -317,7 +317,7 @@ codeunit 141057 "ERM Prepayment APAC"
 
     local procedure UpdateVendorInvoiceNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -326,7 +326,7 @@ codeunit 141057 "ERM Prepayment APAC"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
     end;
 
@@ -335,7 +335,7 @@ codeunit 141057 "ERM Prepayment APAC"
         GSTPurchaseEntry: Record "GST Purchase Entry";
     begin
         GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
-        GSTPurchaseEntry.FindFirst;
+        GSTPurchaseEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GSTPurchaseEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
     end;
 
@@ -344,7 +344,7 @@ codeunit 141057 "ERM Prepayment APAC"
         GSTSalesEntry: Record "GST Sales Entry";
     begin
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GSTSalesEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
     end;
 
@@ -353,7 +353,7 @@ codeunit 141057 "ERM Prepayment APAC"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("No.", No);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(Amount, SalesInvoiceHeader.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
     end;
@@ -363,7 +363,7 @@ codeunit 141057 "ERM Prepayment APAC"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
     end;
 }

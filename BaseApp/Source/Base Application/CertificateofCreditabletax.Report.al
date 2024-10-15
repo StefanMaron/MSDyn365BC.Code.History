@@ -221,7 +221,7 @@ report 16626 "Certificate of Creditable tax"
                           CalcDate('CM', DMY2Date(1, ForMonth, CurrYear)));
                 end else
                     WHTEntry1.SetRange("Posting Date", "Posting Date");
-                if WHTEntry1.FindFirst then begin
+                if WHTEntry1.FindFirst() then begin
                     FirstMonthWHT := WHTEntry1."Amount (LCY)";
                     FirstMonth := WHTEntry1."Base (LCY)";
                 end;
@@ -238,7 +238,7 @@ report 16626 "Certificate of Creditable tax"
                     else
                         WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, ForMonth + 1, CurrYear),
                           CalcDate('CM', DMY2Date(1, ForMonth + 1, CurrYear)));
-                    if WHTEntry1.FindFirst then begin
+                    if WHTEntry1.FindFirst() then begin
                         SecondMonthWHT := WHTEntry1."Amount (LCY)";
                         SecondMonth := WHTEntry1."Base (LCY)";
                     end;
@@ -256,7 +256,7 @@ report 16626 "Certificate of Creditable tax"
                     else
                         WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, ForMonth + 2, CurrYear),
                           CalcDate('CM', DMY2Date(1, ForMonth + 2, CurrYear)));
-                    if WHTEntry1.FindFirst then begin
+                    if WHTEntry1.FindFirst() then begin
                         ThirdMonthWHT := WHTEntry1."Amount (LCY)";
                         ThirdMonth := WHTEntry1."Base (LCY)";
                     end;

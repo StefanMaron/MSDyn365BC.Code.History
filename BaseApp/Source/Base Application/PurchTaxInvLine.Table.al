@@ -630,7 +630,7 @@ table 28076 "Purch. Tax Inv. Line"
     begin
         PurchInvHeader.Reset();
         PurchInvHeader.SetRange("No.", "External Document No.");
-        if PurchInvHeader.FindFirst then
+        if PurchInvHeader.FindFirst() then
             PAGE.RunModal(PAGE::"Posted Purchase Invoice", PurchInvHeader);
     end;
 

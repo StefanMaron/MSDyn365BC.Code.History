@@ -249,6 +249,13 @@ page 9003 "Acc. Receivables Adm. RC"
                 RunObject = Page "Bank Account List";
                 ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
             }
+            action(Deposits)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Bank Deposits';
+                RunObject = Codeunit "Open Deposit List Page";
+                ToolTip = 'View a list of item sales for each customer during a selected time period. The report contains information on quantity, sales amount, profit, and possible discounts. It can be used, for example, to analyze a company''s customer groups.';
+            }
             action(Reminders)
             {
                 ApplicationArea = Suite;
@@ -400,6 +407,13 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "Posted Sales Tax Cr. Memos";
                     ToolTip = 'View the list of posted documents.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
             }
         }
         area(processing)
@@ -510,6 +524,13 @@ page 9003 "Acc. Receivables Adm. RC"
                 RunObject = Page "Cash Receipt Journal";
                 ToolTip = 'Open the cash receipt journal to post incoming payments.';
             }
+            action(Deposit)
+            {
+                Caption = 'Bank Deposit';
+                Image = DepositSlip;
+                RunObject = codeunit "Open Deposit Page";
+                ToolTip = 'Create a new bank deposit. ';
+            }
             separator(Action111)
             {
             }
@@ -564,7 +585,7 @@ page 9003 "Acc. Receivables Adm. RC"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }

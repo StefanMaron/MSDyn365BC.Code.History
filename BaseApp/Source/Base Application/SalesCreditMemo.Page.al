@@ -1,4 +1,4 @@
-page 44 "Sales Credit Memo"
+﻿page 44 "Sales Credit Memo"
 {
     Caption = 'Sales Credit Memo';
     PageType = Document;
@@ -372,6 +372,12 @@ page 44 "Sales Credit Memo"
                         CurrPage.Update();
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("Shipment Date"; "Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -393,6 +399,13 @@ page 44 "Sales Credit Memo"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer s market type to link business transactions to.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -404,6 +417,7 @@ page 44 "Sales Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
@@ -435,6 +449,12 @@ page 44 "Sales Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -607,6 +627,14 @@ page 44 "Sales Credit Memo"
         }
         area(factboxes)
         {
+            part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = SalesDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
@@ -789,7 +817,7 @@ page 44 "Sales Credit Memo"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1052,7 +1080,7 @@ page 44 "Sales Credit Memo"
                     begin
                         Clear(MoveNegSalesLines);
                         MoveNegSalesLines.SetSalesHeader(Rec);
-                        MoveNegSalesLines.RunModal;
+                        MoveNegSalesLines.RunModal();
                         MoveNegSalesLines.ShowDocument;
                     end;
                 }
@@ -1189,7 +1217,7 @@ page 44 "Sales Credit Memo"
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -1300,7 +1328,9 @@ page 44 "Sales Credit Memo"
         SetControlAppearance;
         WorkDescription := GetWorkDescription;
         SellToContact.GetOrClear("Sell-to Contact No.");
-        BillToContact.GetOrClear("Bill-to Contact No.") ;
+        BillToContact.GetOrClear("Bill-to Contact No.");
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1310,11 +1340,9 @@ page 44 "Sales Credit Memo"
     end;
 
     trigger OnInit()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        JobQueueUsed := SalesReceivablesSetup.JobQueueActive;
-        SetExtDocNoMandatoryCondition;
+        JobQueueUsed := SalesSetup.JobQueueActive();
+        SetExtDocNoMandatoryCondition();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1342,10 +1370,13 @@ page 44 "Sales Credit Memo"
         ActivateFields;
 
         IsSaaS := EnvironmentInfo.IsSaaS;
-        SetDocNoVisible;
-        SetControlAppearance;
+        SetDocNoVisible();
+        SetControlAppearance();
         if ("No." <> '') and ("Sell-to Customer No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
+
+        SetPostingGroupEditable();
+        CheckShowBackgrValidationNotification();
     end;
 
 #if not CLEAN19
@@ -1372,6 +1403,8 @@ page 44 "Sales Credit Memo"
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        SalesSetup: Record "Sales & Receivables Setup";
+        GLSetup: Record "General Ledger Setup";
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
@@ -1398,14 +1431,23 @@ page 44 "Sales Credit Memo"
         IsCustomerOrContactNotEmpty: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
+        IsPostingGroupEditable: Boolean;
         IsSaaS: Boolean;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
+        SalesDocCheckFactboxVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
 
     local procedure ActivateFields()
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer)
@@ -1446,7 +1488,7 @@ page 44 "Sales Credit Memo"
 
         if OfficeMgt.IsAvailable then begin
             SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-            if SalesCrMemoHeader.FindFirst then
+            if SalesCrMemoHeader.FindFirst() then
                 PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
         end else
             if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
@@ -1497,11 +1539,9 @@ page 44 "Sales Credit Memo"
     end;
 
     local procedure SetExtDocNoMandatoryCondition()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get();
-        ExternalDocNoMandatory := SalesReceivablesSetup."Ext. Doc. No. Mandatory"
+        SalesSetup.GetRecordOnce();
+        ExternalDocNoMandatory := SalesSetup."Ext. Doc. No. Mandatory";
     end;
 
     procedure ShowPreview()
@@ -1514,6 +1554,7 @@ page 44 "Sales Credit Memo"
     local procedure SetControlAppearance()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
@@ -1525,15 +1566,26 @@ page 44 "Sales Credit Memo"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
         IsCustomerOrContactNotEmpty := ("Sell-to Customer No." <> '') or ("Sell-to Contact No." <> '');
 
+        SalesDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
     end;
 
-    local procedure CheckSalesCheckAllLinesHaveQuantityAssigned()
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+    procedure RunBackgroundCheck()
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        CurrPage.SalesDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            SetControlAppearance();
+    end;
+
+    local procedure CheckSalesCheckAllLinesHaveQuantityAssigned()
+    begin
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
     end;
 
     local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])
@@ -1542,11 +1594,22 @@ page 44 "Sales Credit Memo"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if SalesCrMemoHeader.FindFirst then
+        if SalesCrMemoHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesCrMemoQst, SalesCrMemoHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                InstructionMgt.ShowPostedDocument(SalesCrMemoHeader, Page::"Sales Credit Memo");
+    end;
+
+    procedure SetPostingGroupEditable()
+    begin
+        SalesSetup.GetRecordOnce();
+        IsPostingGroupEditable := SalesSetup."Allow Multiple Posting Groups";
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

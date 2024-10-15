@@ -39,7 +39,7 @@ codeunit 131900 "Library - Marketing"
     begin
         Clear(Attachment);
 
-        if Attachment.FindLast then
+        if Attachment.FindLast() then
             No := Attachment."No." + 1;
 
         Attachment.Init();
@@ -151,7 +151,7 @@ codeunit 131900 "Library - Marketing"
             MarketingSetup.Modify(true);
         end;
 
-        SalespersonPurchaser.FindFirst;
+        SalespersonPurchaser.FindFirst();
         Contact.Init();
         Contact.Insert(true);
         Contact.Validate(Name, Contact."No.");  // Validating Name as No. because value is not important.
@@ -225,7 +225,7 @@ codeunit 131900 "Library - Marketing"
         CreateBusinessRelation(BusinessRelation);
         CreateContactBusinessRelation(ContactBusinessRelation, ContactNo, BusinessRelation.Code);
         ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Customer;
-        ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo;
+        ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo();
         ContactBusinessRelation.Modify(true);
     end;
 
@@ -280,7 +280,7 @@ codeunit 131900 "Library - Marketing"
     begin
         Contact.SetHideValidationDialog(true);
         CustomerTemplate.SetRange("Contact Type", Contact.Type);
-        if not CustomerTemplate.FindFirst then begin
+        if not CustomerTemplate.FindFirst() then begin
             LibrarySales.CreateCustomerTemplate(CustomerTemplate);
             LibraryERM.CreateCountryRegion(CountryRegion);
             LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
@@ -297,7 +297,7 @@ codeunit 131900 "Library - Marketing"
 
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("Contact No.", Contact."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
 
         Customer.Get(ContactBusinessRelation."No.");
     end;
@@ -316,7 +316,7 @@ codeunit 131900 "Library - Marketing"
         NextInteractLogEntryNo: Integer;
     begin
         NextInteractLogEntryNo := 1;
-        if InteractionLogEntry.FindLast then
+        if InteractionLogEntry.FindLast() then
             NextInteractLogEntryNo := InteractionLogEntry."Entry No." + 1;
 
         InteractionLogEntry.Init();
@@ -333,7 +333,7 @@ codeunit 131900 "Library - Marketing"
     var
         InteractionGroup: Record "Interaction Group";
     begin
-        InteractionGroup.FindFirst;
+        InteractionGroup.FindFirst();
         InteractionTemplate.Init();
         InteractionTemplate.Validate(
           Code, LibraryUtility.GenerateRandomCode(InteractionTemplate.FieldNo(Code), DATABASE::"Interaction Template"));
@@ -369,16 +369,16 @@ codeunit 131900 "Library - Marketing"
     begin
         with Opportunity do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Validate("Contact No.", ContactNo);
             Contact.Get(ContactNo);
             if Contact."Salesperson Code" <> '' then
                 SalespersonPurchaser.Code := Contact."Salesperson Code"
             else
-                SalespersonPurchaser.FindFirst;
+                SalespersonPurchaser.FindFirst();
             Validate("Salesperson Code", SalespersonPurchaser.Code);
             Validate(Description, "No." + "Contact No.");  // Validating No. as Description because value is not important.
-            SalesCycle.FindFirst;
+            SalesCycle.FindFirst();
             Validate("Sales Cycle Code", SalesCycle.Code);
             Insert(true);
         end;
@@ -477,7 +477,7 @@ codeunit 131900 "Library - Marketing"
     begin
         SalesCycleStage.SetRange("Sales Cycle Code", SalesCycleCode);
         // Use 1 to Increase Stage.
-        if SalesCycleStage.FindLast then
+        if SalesCycleStage.FindLast() then
             Stage := SalesCycleStage.Stage + 1
         else
             Stage := 1;
@@ -623,13 +623,13 @@ codeunit 131900 "Library - Marketing"
         Contact: Record Contact;
     begin
         CreateCompanyContact(Contact);
-        Contact.Validate(Address, LibraryUtility.GenerateGUID);
+        Contact.Validate(Address, LibraryUtility.GenerateGUID());
         Contact.Validate("Country/Region Code", CountryRegionCode);
-        Contact.Validate("Post Code", LibraryUtility.GenerateGUID);
-        Contact.Validate(City, LibraryUtility.GenerateGUID);
+        Contact.Validate("Post Code", LibraryUtility.GenerateGUID());
+        Contact.Validate(City, LibraryUtility.GenerateGUID());
         Contact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
-        Contact.Validate("Fax No.", LibraryUtility.GenerateGUID);
-        Contact.Validate("E-Mail", LibraryUtility.GenerateGUID + '@' + LibraryUtility.GenerateGUID);
+        Contact.Validate("Fax No.", LibraryUtility.GenerateGUID());
+        Contact.Validate("E-Mail", LibraryUtility.GenerateGUID + '@' + LibraryUtility.GenerateGUID());
         Contact.Modify(true);
         exit(Contact."No.");
     end;
@@ -642,7 +642,7 @@ codeunit 131900 "Library - Marketing"
 #if not CLEAN18
     procedure FindCustomerTemplate(var CustomerTemplate: Record "Customer Template")
     begin
-        CustomerTemplate.FindFirst;
+        CustomerTemplate.FindFirst();
     end;
 #endif
 
@@ -653,7 +653,7 @@ codeunit 131900 "Library - Marketing"
         with CustomReportLayout do begin
             SetRange("Report ID", REPORT::"Email Merge");
             SetFilter(Code, 'MS-*');
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -668,7 +668,7 @@ codeunit 131900 "Library - Marketing"
             AddContacts.SetTableView(RecVar);
         end;
         AddContacts.UseRequestPage(UseRequestPage);
-        AddContacts.RunModal;
+        AddContacts.RunModal();
     end;
 
     procedure UpdateContactAddress(var Contact: Record Contact)

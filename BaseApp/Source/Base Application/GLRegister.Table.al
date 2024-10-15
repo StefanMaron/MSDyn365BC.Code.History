@@ -1,4 +1,4 @@
-table 45 "G/L Register"
+﻿table 45 "G/L Register"
 {
     Caption = 'G/L Register';
     LookupPageID = "G/L Registers";
@@ -67,6 +67,10 @@ table 45 "G/L Register"
         {
             Caption = 'Creation Time';
         }
+        field(12; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(28040; "From WHT Entry No."; Integer)
         {
             Caption = 'From WHT Entry No.';
@@ -123,7 +127,7 @@ table 45 "G/L Register"
         "From Entry No." := FromEntryNo;
         "From VAT Entry No." := FromVATEntryNo;
         "Journal Batch Name" := BatchName;
-        Clear(TemplateName);
+        "Journal Templ. Name" := TemplateName;
     end;
 
 

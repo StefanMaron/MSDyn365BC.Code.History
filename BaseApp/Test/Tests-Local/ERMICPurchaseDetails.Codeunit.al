@@ -323,7 +323,7 @@ codeunit 141083 "ERM IC Purchase Details"
     local procedure FindDefaultDimensionCode(var DefaultDimension: Record "Default Dimension"; No: Code[20])
     begin
         DefaultDimension.SetRange("No.", No);
-        DefaultDimension.FindFirst;
+        DefaultDimension.FindFirst();
     end;
 
     local procedure FindGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -331,7 +331,7 @@ codeunit 141083 "ERM IC Purchase Details"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
@@ -341,7 +341,7 @@ codeunit 141083 "ERM IC Purchase Details"
         ICPartner: Record "IC Partner";
     begin
         ICPartner.SetRange(Blocked, false);
-        ICPartner.FindFirst;
+        ICPartner.FindFirst();
         exit(ICPartner.Code);
     end;
 
@@ -351,7 +351,7 @@ codeunit 141083 "ERM IC Purchase Details"
     begin
         ICGLAccount.SetRange("Account Type", ICGLAccount."Account Type"::Posting);
         ICGLAccount.SetRange(Blocked, false);
-        ICGLAccount.FindFirst;
+        ICGLAccount.FindFirst();
         exit(ICGLAccount."No.");
     end;
 

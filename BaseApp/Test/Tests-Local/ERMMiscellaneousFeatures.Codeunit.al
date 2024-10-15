@@ -40,7 +40,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [SCENARIO] post service credit memo without any warning message when Adjustment Mandatory - True on General Ledger Setup.
 
         // [GIVEN] Create Customer with Adjustment Mandatory - TRUE on General Ledger Setup.
-        Initialize;
+        Initialize();
         OldAdjustmentMandatory := UpdateGLSetupAdjustmentMandatory(true);
         LibrarySales.CreateCustomer(Customer);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
@@ -67,7 +67,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [SCENARIO] System does not allow to post the purchase order with payment methods code while Bank Acc. Posting Group - Blank.
 
         // [GIVEN] Create Payment Method with Bank Account without Bank Account Posting Group. Create Purchase Order with that Payment method Code.
-        Initialize;
+        Initialize();
         CreatePaymentMethod(PaymentMethod, PaymentMethod."Bal. Account Type"::"Bank Account", CreateBankAccount);
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
@@ -93,7 +93,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [SCENARIO] System does not allow posting of purchase invoice with Payment Method Code when direct Posting - FALSE  on G\L Account which one is defined on Bal Account No of Payment method code.
 
         // [GIVEN] Create Payment Method with G/L Account without Direct Posting. Create Purchase Invoice with that Payment method Code.
-        Initialize;
+        Initialize();
         CreatePaymentMethod(PaymentMethod, PaymentMethod."Bal. Account Type"::"G/L Account", CreateGLAccount);
         UpdateGLAccountDirectPosting(PaymentMethod."Bal. Account No.", false);  // Direct Posting - FALSE.
         LibraryPurchase.CreateVendor(Vendor);
@@ -122,7 +122,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [SCENARIO] Posted Sales Credit Memo and update Adjustment Applies To for posted Invoice.
 
         // [GIVEN] Create and post Sales Invoice. Create Sales Credit Memo and update Adjustment Applies To for posted Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, Customer."No.", LibraryInventory.CreateItem(Item), '');  // Location - Blank.
         DocumentNo := PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.");
@@ -151,7 +151,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [SCENARIO] Posted Purchase Credit Memo and update Adjustment Applies To for posted Invoice.
 
         // [GIVEN] Create and post Purchase Invoice. Create Purchase Credit Memo and update Adjustment Applies To for posted Invoice.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, Vendor."No.", '', PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item));  // Payment Method Code - Blank.
@@ -182,12 +182,12 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [SCENARIO] Posted Sales Credit Memo and update Adjustment Applies To for posted Invoice with random value.
 
         // [GIVEN] Create and post Sales Invoice. Create Sales Credit Memo and update Adjustment Applies To for posted Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, Customer."No.", LibraryInventory.CreateItem(Item), '');  // Location - Blank.
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.");
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", Customer."No.", SalesLine."No.", '');  // Location - Blank.
-        AdjustmentAppliesTo := LibraryUtility.GenerateGUID;
+        AdjustmentAppliesTo := LibraryUtility.GenerateGUID();
 
         // [WHEN] Update Adjustment Applies To with random value.
         asserterror UpdateAdjustmentAppliesToSalesCrMemo(SalesLine."Document No.", AdjustmentAppliesTo);
@@ -210,14 +210,14 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [SCENARIO] Posted Purchase Credit Memo and update Adjustment Applies To for posted Invoice with random value.
 
         // [GIVEN] Create and post Purchase Invoice. Create Purchase Credit Memo and update Adjustment Applies To for posted Invoice.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, Vendor."No.", '', PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item));  // Payment Method Code - Blank.
         PostPurchaseDocument(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Vendor."No.", '', PurchaseLine.Type::Item, PurchaseLine."No.");  // Payment Method Code - Blank.
-        AdjustmentAppliesTo := LibraryUtility.GenerateGUID;
+        AdjustmentAppliesTo := LibraryUtility.GenerateGUID();
 
         // [WHEN] Update Adjustment Applies To with random value.
         asserterror UpdateAdjustmentAppliesToPurchaseCrMemo(PurchaseLine."Document No.", AdjustmentAppliesTo);
@@ -239,16 +239,16 @@ codeunit 141020 "ERM Miscellaneous Features"
         // [SCENARIO] program does not populate any error message while doing the export on the consolidation report.
 
         // [GIVEN] Find G/L Account of Account Type Posting.
-        Initialize;
+        Initialize();
         FilePath := TemporaryPath + LibraryUtility.GenerateGUID + '.xml';
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         Commit();  // Commit required.
         LibraryVariableStorage.Enqueue(FilePath);  // Required inside ExportConsolidationRequestPageHandler.
         Clear(ExportConsolidation);
 
         // Exercise.
-        ExportConsolidation.Run;
+        ExportConsolidation.Run();
 
         // [THEN]  Verify Export Consolidation Report successfully showing data for G/L Account of Type Posting on XML.
         LibraryXMLRead.Initialize(FilePath);
@@ -266,10 +266,10 @@ codeunit 141020 "ERM Miscellaneous Features"
     begin
         // [FEATURE] [Purchase] [Remittance Advice]
         // [SCENARIO 272925] Remittance Advice - Journal report can be run from payment journal with #Suite application area
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable Suite application area setup
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Payment journal line
         CreateGenJournalBatch(GenJournalBatch);
@@ -368,7 +368,7 @@ codeunit 141020 "ERM Miscellaneous Features"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostServiceCreditMemo(CustomerNo: Code[20]) Amount: Decimal
@@ -458,7 +458,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         exit(ServiceCrMemoHeader."No.");
     end;
 
@@ -467,7 +467,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         EntryNo: Integer;
     begin
         VendorLedgerEntry.Reset();
-        if VendorLedgerEntry.FindLast then;
+        if VendorLedgerEntry.FindLast() then;
         EntryNo := VendorLedgerEntry."Entry No." + 1;
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := EntryNo;
@@ -535,7 +535,7 @@ codeunit 141020 "ERM Miscellaneous Features"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustEqualMsg);
     end;
 

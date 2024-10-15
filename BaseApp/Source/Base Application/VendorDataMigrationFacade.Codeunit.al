@@ -282,15 +282,6 @@ codeunit 6111 "Vendor Data Migration Facade"
         GlobalVendor.Validate(Blocked, BlockedTypeToSet);
     end;
 
-    [Obsolete('Replaced by procedure SetBlocked with enum parameter.', '17.0')]
-    procedure SetBlockedType(BlockedTypeToSet: Option " ",Payment,All)
-    var
-        VendorBlocked: Enum "Vendor Blocked";
-    begin
-        VendorBlocked := "Vendor Blocked".FromInteger(BlockedTypeToSet);
-        SetBlocked(VendorBlocked);
-    end;
-
     procedure SetFaxNo(FaxNoToSet: Text[30])
     begin
         if not VendorIsSet then

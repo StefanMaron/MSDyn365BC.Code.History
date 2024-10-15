@@ -50,7 +50,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [Reservation] [Item Tracking]
         // [SCENARIO 213778] When prod. order component line of firm planned order is reserved for specific lot tracking, the long caption on Reservation page should not cause an overflow error. It should be possible to carry out the reservation.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetup;
 
         // [GIVEN] Lot-tracked item "C".
@@ -77,7 +77,7 @@ codeunit 137929 "SCM Orders UI"
 
         // [GIVEN] Lot "L" is assigned to the prod. order component (item "C").
         ProdOrderComponent.SetRange("Item No.", CompItem."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         LibraryVariableStorage.Enqueue(TrackingOption::AssignGivenLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(ProdOrderComponent.Quantity);
@@ -105,7 +105,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [Sales] [Item Charge]
         // [SCENARIO 264120] A confirmation message that warns a user that sales line will be re-created, should inform them that amount of existing item charge assignment will be cleared.
-        Initialize;
+        Initialize();
         ClearCustBusRelationCode;
 
         // [GIVEN] Sales order with two lines - for an item and an item charge, assigned to the item line.
@@ -131,7 +131,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [Sales] [Item Charge]
         // [SCENARIO 264120] A confirmation message that warns a user that sales line will be re-created, should not include information of cleared item charge assignments, if there isn't any.
-        Initialize;
+        Initialize();
         ClearCustBusRelationCode;
 
         // [GIVEN] Sales order with two lines - for an item and an item charge, that is not assigned yet.
@@ -157,7 +157,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [Purchase] [Item Charge]
         // [SCENARIO 264120] A confirmation message that warns a user that purchase line will be re-created, should inform them that amount of existing item charge assignment will be cleared.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with two lines - for an item and an item charge, assigned to the item line.
         CreatePurchaseOrderWithItemAndItemChargeLines(PurchaseHeader, LibraryRandom.RandDec(10, 2));
@@ -182,7 +182,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [Purchase] [Item Charge]
         // [SCENARIO 264120] A confirmation message that warns a user that purchase line will be re-created, should not include information of cleared item charge assignments, if there isn't any.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with two lines - for an item and an item charge, that is not assigned yet.
         CreatePurchaseOrderWithItemAndItemChargeLines(PurchaseHeader, 0);
@@ -211,7 +211,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [Location] [Require Receive] [Purchase Order]
         // [SCENARIO] Stan receives message when tries to validate Qty. to Receive in Purchase Line and Require Receipt is enabled in Location
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
 
         // [GIVEN] Location with Require Receive = TRUE
@@ -254,7 +254,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [Location] [Require Shipment] [Sales Order]
         // [SCENARIO] Stan receives message when tries to validate Qty. to Ship in Sales Line and Require Shipment is enabled in Location
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
 
         // [GIVEN] Location with Require Shipment = TRUE
@@ -297,7 +297,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [Location] [Require Shipment] [Service Order]
         // [SCENARIO] Stan receives message when he tries to validate Qty. to Ship in Service Line and Require Shipment is enabled in Location
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
 
         // [GIVEN] Location with Require Shipment = TRUE
@@ -342,7 +342,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Shipment]
         // [SCENARIO 317618] When Stan pushes Autofill Qty. to Ship on Warehouse Shipment page then other Whse Shipments are not affected
         // [SCENARIO 317618] when Warehouse Shipment is opened from Whse Shipment Lines Page and Whse Employee has location
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse Shipment Line "L1" with Qty. Outstanding = 10 and Qty to Ship = <zero>
         MockWhseShipmentLineWithQtyToShip(WarehouseShipmentLine, LibraryRandom.RandInt(10), 0);
@@ -393,7 +393,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Shipment]
         // [SCENARIO 317618] When Stan pushes Delete Qty. to Ship on Warehouse Shipment page then other Whse Shipments are not affected
         // [SCENARIO 317618] when Warehouse Shipment is opened from Whse Shipment Lines Page and Whse Employee has location
-        Initialize;
+        Initialize();
         QtyToShip := LibraryRandom.RandInt(10);
 
         // [GIVEN] Warehouse Shipment Line "L1" with Qty. Outstanding = Qty. to Ship = 10
@@ -444,7 +444,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Receipt]
         // [SCENARIO 317618] When Stan pushes Autofill Qty. to Receive on Warehouse Receipt page then other Whse Receipts are not affected
         // [SCENARIO 317618] when Warehouse Receipt is opened from Whse Receipt Lines Page and Whse Employee has location
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse Receipt Line "L1" with Qty. Outstanding = 10 and Qty to Receive = <zero>
         MockWhseReceiptLineWithQtyToReceive(WarehouseReceiptLine, LibraryRandom.RandInt(10), 0);
@@ -495,7 +495,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Receipt]
         // [SCENARIO 317618] When Stan pushes Delete Qty. to Receive on Warehouse Receipt page then other Whse Receipts are not affected
         // [SCENARIO 317618] when Warehouse Receipt is opened from Whse Receipt Lines Page and Whse Employee has location
-        Initialize;
+        Initialize();
         QtyToReceive := LibraryRandom.RandInt(10);
 
         // [GIVEN] Warehouse Receipt Line "L1" with Qty. Outstanding = Qty to Receive = 10
@@ -547,7 +547,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Pick]
         // [SCENARIO 317618] When Stan pushes Autofill Qty. to Handle on <blank> Pick page then other Picks are not affected
         // [SCENARIO 317618] when Pick is opened from Pick Lines Page and Pick has not yet been created from this Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse Activity Line "L1" with Qty Outstanding = 10 and Qty. to Handle = <zero>
         MockWhseActivLineWithQtyToHandle(
@@ -601,7 +601,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Pick]
         // [SCENARIO 317618] When Stan pushes Delete Qty. to Handle on <blank> Pick page then other Picks are not affected
         // [SCENARIO 317618] when Pick is opened from Pick Lines Page and Pick has not yet been created from this Shipment
-        Initialize;
+        Initialize();
         QtyToHandle := LibraryRandom.RandInt(10);
 
         // [GIVEN] Warehouse Activity Line "L1" with Qty Outstanding = Qty. to Handle = 10
@@ -656,7 +656,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Put-away]
         // [SCENARIO 317618] When Stan pushes Autofill Qty. to Handle on <blank> Put-away page then other Put-aways are not affected
         // [SCENARIO 317618] when Put-away is opened from Put-away Lines Page and Whse Employee has <blank> location
-        Initialize;
+        Initialize();
 
         // [GIVEN] Warehouse Activity Line "L1" with Qty Outstanding = 10 and Qty. to Handle = <zero>
         MockWhseActivLineWithQtyToHandle(
@@ -713,7 +713,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Put-away]
         // [SCENARIO 317618] When Stan pushes Autofill Qty. to Handle on <blank> Put-away page then other Put-aways are not affected
         // [SCENARIO 317618] when Put-away is opened from Put-away Lines Page and Whse Employee has <blank> location
-        Initialize;
+        Initialize();
         QtyToHandle := LibraryRandom.RandInt(10);
 
         // [GIVEN] Warehouse Activity Line "L1" with Qty Outstanding = Qty. to Handle = 10
@@ -767,7 +767,7 @@ codeunit 137929 "SCM Orders UI"
     BEGIN
         // [FEATURE] [Item] [BOM Structure]
         // [SCENARIO 319980] When BOM Structure is opened from filtered Item List, these filters do not impact BOM Structure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items "I1" had Description "X", Item "I2" had Description "Y", both had Production BOMs
         for Index := 1 to ArrayLen(Item) do begin
@@ -777,7 +777,7 @@ codeunit 137929 "SCM Orders UI"
               ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo,
               LibraryRandom.RandInt(10));
             Item[Index].Validate("Production BOM No.", ProductionBOMHeader."No.");
-            Item[Index].Validate(Description, LibraryUtility.GenerateGUID);
+            Item[Index].Validate(Description, LibraryUtility.GenerateGUID());
             Item[Index].Modify(true);
         end;
 
@@ -816,10 +816,10 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [Item Tracking] [Bin] [Select Entries]
         // [SCENARIO 322926] When Stan selected quantity on Item Tracking Summary page, closed and reopened Item Tracking
         // [SCENARIO 322926] and reopened Item Tracking Summary, then residual quantity is suggested to select in Selected Quantity tab
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         BaseQty := LibraryRandom.RandInt(10);
         NumberOfBins := 2;
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot Tracking Enabled
         LibraryItemTracking.CreateLotItem(Item);
@@ -891,10 +891,10 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [Item Tracking] [Bin] [Select Entries]
         // [SCENARIO 322926] When Stan selected quantity on Item Tracking Summary page and reopened page
         // [SCENARIO 322926] then residual quantity is suggested for selection in the Selected Quantity field
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         BaseQty := LibraryRandom.RandInt(10);
         NumberOfBins := 2;
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot Tracking Enabled
         LibraryItemTracking.CreateLotItem(Item);
@@ -952,7 +952,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         // [FEATURE] [UT] [Bin] [Select Entries]
         // [SCENARIO 322926] Cannot Validate Selected Quantity more than Bin Content excluding current pending qtys in Entry Summary
-        Initialize;
+        Initialize();
 
         // [GIVEN] Entry Summary had Bin Content 100 and Bin Active and Total Available Quantity 200
         // [GIVEN] Entry Summary had Current Pending Quantity 50 and Current Requested Quantity 30
@@ -1312,8 +1312,8 @@ codeunit 137929 "SCM Orders UI"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders UI");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -1358,7 +1358,7 @@ codeunit 137929 "SCM Orders UI"
     local procedure MockWhseShipmentLineWithQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; QtyOutstd: Decimal; QtyToShip: Decimal)
     begin
         WarehouseShipmentLine.Init();
-        WarehouseShipmentLine."No." := LibraryUtility.GenerateGUID;
+        WarehouseShipmentLine."No." := LibraryUtility.GenerateGUID();
         WarehouseShipmentLine."Line No." := LibraryRandom.RandInt(10);
         WarehouseShipmentLine."Qty. Outstanding (Base)" := QtyOutstd;
         WarehouseShipmentLine."Qty. Outstanding" := WarehouseShipmentLine."Qty. Outstanding (Base)";
@@ -1370,7 +1370,7 @@ codeunit 137929 "SCM Orders UI"
     local procedure MockWhseReceiptLineWithQtyToReceive(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; QtyOutstd: Decimal; QtyToReceive: Decimal)
     begin
         WarehouseReceiptLine.Init();
-        WarehouseReceiptLine."No." := LibraryUtility.GenerateGUID;
+        WarehouseReceiptLine."No." := LibraryUtility.GenerateGUID();
         WarehouseReceiptLine."Line No." := LibraryRandom.RandInt(10);
         WarehouseReceiptLine."Qty. Outstanding (Base)" := QtyOutstd;
         WarehouseReceiptLine."Qty. Outstanding" := WarehouseReceiptLine."Qty. Outstanding (Base)";
@@ -1383,7 +1383,7 @@ codeunit 137929 "SCM Orders UI"
     begin
         WarehouseActivityLine.Init();
         WarehouseActivityLine."Activity Type" := ActivityType;
-        WarehouseActivityLine."No." := LibraryUtility.GenerateGUID;
+        WarehouseActivityLine."No." := LibraryUtility.GenerateGUID();
         WarehouseActivityLine."Line No." := LibraryRandom.RandInt(10);
         WarehouseActivityLine."Qty. Outstanding (Base)" := QtyOutst;
         WarehouseActivityLine."Qty. Outstanding" := WarehouseActivityLine."Qty. Outstanding (Base)";

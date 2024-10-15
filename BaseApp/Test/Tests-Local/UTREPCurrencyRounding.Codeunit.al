@@ -45,7 +45,7 @@ codeunit 141046 "UT REP Currency Rounding"
         // [SCENARIO] validate Amounts In Whole - OnPreReport Trigger of Report - 28024 Balance Sheet with blank Amounts In Whole.
 
         // Setup.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100000, 10000000, 2);  // Using large value for Amount to display the value on report according to Amount In Whole.
         GLAccountNo := CreateGLBudgetEntry(GLAccount."Income/Balance"::"Balance Sheet", Amount);
         EnqueueValuesInRequestPageHandler(GLAccountNo, AmountsInWhole::" ");  // Enqueue values for BalanceSheetRequestPageHandler.
@@ -121,7 +121,7 @@ codeunit 141046 "UT REP Currency Rounding"
         GLAccountNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100000, 10000000, 2);  // Using large value for Amount to display the value on report according to Amount In Whole.
         GLAccountNo := CreateGLBudgetEntry(GLAccount."Income/Balance"::"Balance Sheet", Amount);
         EnqueueValuesInRequestPageHandler(GLAccountNo, AmountsInWhole);  // Enqueue values for BalanceSheetRequestPageHandler.
@@ -287,7 +287,7 @@ codeunit 141046 "UT REP Currency Rounding"
         GLAccountNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GLAccountNo :=
           CreateGLBudgetEntry(GLAccount."Income/Balance"::"Income Statement", LibraryRandom.RandDecInRange(100000, 10000000, 2));
         EnqueueValuesInRequestPageHandler(GLAccountNo, AmountsInWhole);  // Enqueue G/L Account No. for ClosingTrialBalanceRequestPageHandler, BudgetRequestPageHandler.
@@ -376,7 +376,7 @@ codeunit 141046 "UT REP Currency Rounding"
         ValueEntry: Record "Value Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateValueEntry(ValueEntry);
         EnqueueValuesInRequestPageHandler(ValueEntry."Source No.", AmountsInWhole);  // Enqueue G/L Account No. for ClosingTrialBalanceRequestPageHandler, BudgetRequestPageHandler.
 
@@ -464,7 +464,7 @@ codeunit 141046 "UT REP Currency Rounding"
         GLEntry: Record "G/L Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLEntry(GLEntry);
         EnqueueValuesInRequestPageHandler(GLEntry."G/L Account No.", AmountsInWhole);  // Enqueue values for FinancialAnalysisReportRequestPageHandler.
 
@@ -699,7 +699,7 @@ codeunit 141046 "UT REP Currency Rounding"
         GLEntry: Record "G/L Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLEntry(GLEntry);
 
         // Enqueue G/L Account No. for IncomeStatementRequestPageHandler, TrialBalanceBudgetRequestPageHandler and TrialBalancePreviousYearRequestPageHandler.
@@ -725,7 +725,7 @@ codeunit 141046 "UT REP Currency Rounding"
         // [SCENARIO] validate Amounts In Whole - OnPreReport Trigger of Report - 6 Trial Balance with blank Amount In Whole.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLEntry(GLEntry);
         EnqueueValuesInRequestPageHandler(GLEntry."G/L Account No.", AmountsInWhole::" ");  // Enqueue values for TrialBalanceRequestPageHandler.
 
@@ -802,7 +802,7 @@ codeunit 141046 "UT REP Currency Rounding"
         GLEntry: Record "G/L Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLEntry(GLEntry);
         EnqueueValuesInRequestPageHandler(GLEntry."G/L Account No.", AmountsInWhole);  // Enqueue values for TrialBalanceRequestPageHandler.
 
@@ -891,7 +891,7 @@ codeunit 141046 "UT REP Currency Rounding"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntry(CustLedgerEntry);
         EnqueueValuesInRequestPageHandler(CustLedgerEntry."Customer No.", AmountsInWhole);  // Enqueue values for SalespersonSalesStatisticsRequestPageHandler.
 
@@ -979,7 +979,7 @@ codeunit 141046 "UT REP Currency Rounding"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntry(CustLedgerEntry);
         EnqueueValuesInRequestPageHandler(CustLedgerEntry."Customer No.", AmountsInWhole);  // Enqueue values for SalesStatisticsRequestPageHandler.
 
@@ -993,7 +993,7 @@ codeunit 141046 "UT REP Currency Rounding"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -1009,7 +1009,7 @@ codeunit 141046 "UT REP Currency Rounding"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Posting Date" := WorkDate;
         CustLedgerEntry."Customer No." := CreateCustomer;
@@ -1043,7 +1043,7 @@ codeunit 141046 "UT REP Currency Rounding"
         GLAccount: Record "G/L Account";
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := CreateGLAccount(GLAccount."Income/Balance"::"Income Statement");
         GLEntry."Posting Date" := WorkDate;
@@ -1056,7 +1056,7 @@ codeunit 141046 "UT REP Currency Rounding"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemLedgerEntry2: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry2.FindLast;
+        ItemLedgerEntry2.FindLast();
         ItemLedgerEntry."Entry No." := ItemLedgerEntry2."Entry No." + 1;
         ItemLedgerEntry."Item No." := LibraryUTUtility.GetNewCode;
         ItemLedgerEntry."Source Type" := ItemLedgerEntry."Source Type"::Customer;
@@ -1080,7 +1080,7 @@ codeunit 141046 "UT REP Currency Rounding"
         CustomerNo: Code[20];
     begin
         CustomerNo := CreateCustomer;
-        ValueEntry2.FindLast;
+        ValueEntry2.FindLast();
         ValueEntry."Entry No." := ValueEntry2."Entry No." + 1;
         ValueEntry."Item No." := CreateItemLedgerEntry(CustomerNo);
         ValueEntry."Source Type" := ValueEntry."Source Type"::Customer;

@@ -913,7 +913,7 @@
         VATLinesForm.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
 

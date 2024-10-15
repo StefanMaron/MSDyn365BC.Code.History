@@ -45,7 +45,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [SCENARIO] EFT Payment and EFT Vendor Bank Account Code on the vendor card.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, '', '');  // WHT Business Posting Group, VAT Bus. Posting Group - Blank.
 
         // Exercise.
@@ -71,7 +71,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // Verify WHT Amount after posting multiple Purchase Orders.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         CreateMultipleWHTPostingSetup(WHTPostingSetup);
@@ -109,7 +109,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [SCENARIO] Payment Journal Line after running SuggestVendorPayments with EFT Payment as True.
 
         // [GIVEN] Create multiple WHT Posting Setup, Bank Account. Create and Post multiple Purchase Orders.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         CreateMultipleWHTPostingSetup(WHTPostingSetup);
@@ -155,7 +155,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [SCENARIO] EFT Text file, Payment Journal Line after running SuggestVendorPayments with EFT Payment as True and create File.
 
         // [GIVEN] Create multiple WHT Posting Setup, Bank Account. Create and Post multiple Purchase Orders.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         BankAccountNo :=
@@ -201,7 +201,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [SCENARIO] Error on Suggest Vendor Payment when EFT Type blank on Vendor.
 
         // [GIVEN] Create and Post Purchase Order with WHT Posting Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         BankAccountNo :=
@@ -263,7 +263,7 @@ codeunit 141021 "ERM Electronic - Banking"
         BankAccountNo: Code[20];
     begin
         // [GIVEN] Create and Post Purchase Order with WHT Posting Setup. Suggest Vendor Payment and reduce Amount on Payment Journal.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         MaxPaymentToleranceAmount := LibraryRandom.RandDec(10, 2);
@@ -317,7 +317,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [SCENARIO] EFT Text file, Payment Journal Line with Prices Including VAT after running SuggestVendorPayments with EFT Payment as True and create File.
 
         // [GIVEN] Create and Post multiple Purchase Orders with WHT Posting Setup and Prices Including VAT - TRUE. Suggest Vendor Payment.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         BankAccountNo :=
@@ -423,7 +423,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [SCENARIO 272097] EFT Text file must contain lines with 120 symbols
 
         // [GIVEN] Create and Post multipl Purchase Order
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         BankAccountNo :=
@@ -459,7 +459,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Posted payment which where exported has a link to EFT register
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor VEND
         CreateAndPostPurchaseOrderForNewVendor(Vendor);
@@ -496,7 +496,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Summarized per vendor payment can be exported to EFT file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post 3 invoices for vendor VEND
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -529,7 +529,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Export payment with Skip WHT = No without applying it to invoice leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment journal line without applying to invoice
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -566,7 +566,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Export payment with Skip WHT = Yes without applying it to invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment journal line without applying to invoice
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -600,7 +600,7 @@ codeunit 141021 "ERM Electronic - Banking"
         FilePath: Text;
     begin
         // [SCENARIO] EFT file can be created for several payments with same balancing bank account
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post 3 invoices for 3 vendors with names VEND1, VEND2 and VEND3
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -641,7 +641,7 @@ codeunit 141021 "ERM Electronic - Banking"
         TotalAmount: Decimal;
     begin
         // [SCENARIO] EFT file can be created for payments with balancing journal line
-        Initialize;
+        Initialize();
 
         // create 3 payment lines for different vendors without bal. account
         // create balancing line
@@ -687,7 +687,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Exported payment journal line cannot be deleted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor VEND
         CreateAndPostPurchaseOrderForNewVendor(Vendor);
@@ -702,7 +702,7 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // [WHEN] Exported payment journal line is being deleted
         GenJournalLine.SetRange("EFT Register No.", EFTRegister."No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         asserterror GenJournalLine.Delete(true);
 
         // [THEN] Expected error "You cannot delete line..."
@@ -726,7 +726,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] User can cancel export for exported journal line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor VEND
         CreateAndPostPurchaseOrderForNewVendor(Vendor);
@@ -763,7 +763,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Trying the export canceled EFT register leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor VEND
         CreateAndPostPurchaseOrderForNewVendor(Vendor);
@@ -806,7 +806,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [SCENARO] WHT Amount calculated and exported correctly for summarized payment
         // scenario with WHT amount calculation for summarized payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 posted invoices with total amount 100 and total WHT amount 45
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -844,7 +844,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Not posted summarized payment  can be exported to EFT file from EFT register
         // [SCENARIO 399338] Document No is exported in case of blanked Payment Reference
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post 3 invoices for vendor VEND
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -889,7 +889,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Posted summarized payment can be exported to EFT file from EFT register
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post 3 invoices for vendor VEND
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -927,7 +927,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment] [UT]
         // [SCENARIO] EFT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare empty payment journal batch
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
@@ -952,7 +952,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO] Export already exported journal line leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor VEND
         CreateAndPostPurchaseOrderForNewVendor(Vendor);
@@ -990,7 +990,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [FEATURE] [EFT Payment]
         // [SCENARIO 286433] "Document No." is filled in EFT File Created for suggested Vendor Payment
         // [SCENARIO 391963] "Payment Reference" replaces "Document No." in the export
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post Invoice for a created Vendor
         CreateAndPostPurchaseOrderForNewVendor(Vendor);
@@ -1021,7 +1021,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [FEATURE] [EFT Payment]
         // [SCENARIO 286433] "Document No." is filled in EFT File Created with Payment applied to ID
         // [SCENARIO 391963] "Payment Reference" replaces "Document No." in the export
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post Invoice for a created Vendor
         CreateAndPostPurchaseOrderForNewVendor(Vendor);
@@ -1053,7 +1053,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [FEATURE] [EFT Payment]
         // [SCENARIO 286433] "Document No." is filled in EFT File Created for Payment Journal Line
         // [SCENARIO 391963] "Payment Reference" replaces "Document No." in the export
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment journal line without applying to invoice
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -1081,7 +1081,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO 286434] Record Count in File Totals Record of EFT File includes Balancing Record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post Invoice for a created Vendor
         CreateAndPostPurchaseOrderForNewVendor(Vendor);
@@ -1117,7 +1117,7 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // [GIVEN] Posted Purchase Orders for two vendors with "EFT Bank Account No." having
         // [GIVEN] Customer/Vendor Bank, Bank Branch No., Bank Account No. filled in.
-        Initialize;
+        Initialize();
         CreateMultipleWHTPostingSetup(WHTPostingSetup);
         CreateGenJournalBatch(GenJournalBatch, CreateBankAccount(true, LibraryRandom.RandDate(5)));
         VendorFilter :=
@@ -1160,7 +1160,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO 314855] EFT file Amount is transferred from Gen. Journal Line not applied documents
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -1219,7 +1219,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO 314855] EFT file Amount is transferred from Gen. Journal Line not applied documents
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -1313,7 +1313,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [Payment Tolerance] [EFT] [Suggest Vendor Payments]
         // [SCENARO 390056] System does not involve Max. Payment Tolerance amount without EFT export
-        Initialize;
+        Initialize();
 
         UpdateGLSetupPaymentToleranceWarning(true, LibraryRandom.RandDecInRange(1, 5, 2));
 
@@ -1357,7 +1357,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [Payment Tolerance] [EFT] [Suggest Vendor Payments]
         // [SCENARO 390056] System does not involve Max. Payment Tolerance amount on EFT export.
-        Initialize;
+        Initialize();
 
         UpdateGLSetupPaymentToleranceWarning(true, LibraryRandom.RandDecInRange(1, 5, 2));
 
@@ -1405,7 +1405,7 @@ codeunit 141021 "ERM Electronic - Banking"
         // [FEATURE] [EFT Payment]
         // [SCENARIO 403477] "Document No." is filled in EFT File Created for Payment Journal Line when "Payment Reference" is blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment journal line with "Document No." = "X" and blank "Payment Reference"
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
@@ -1740,8 +1740,8 @@ codeunit 141021 "ERM Electronic - Banking"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         Clear(LibraryTextFileValidation);
         GenJournalLine.DeleteAll();
 
@@ -1773,7 +1773,7 @@ codeunit 141021 "ERM Electronic - Banking"
         with WHTEntry do begin
             SetRange("Bill-to/Pay-to No.", VendorNo);
             SetRange("Document No.", InvoiceNo);
-            FindFirst;
+            FindFirst();
             WHTAmount := "Unrealized Amount";
         end;
     end;
@@ -1893,10 +1893,10 @@ codeunit 141021 "ERM Electronic - Banking"
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.Validate("Bank Account No.", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("EFT Bank Code", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("EFT BSB No.", LibraryUtility.GenerateGUID);
-        BankAccount.Validate("EFT Security No.", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Bank Account No.", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("EFT Bank Code", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("EFT BSB No.", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("EFT Security No.", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
 
         // Required inside SuggestVendorPaymentsRequestPageHandler.
@@ -2036,8 +2036,8 @@ codeunit 141021 "ERM Electronic - Banking"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
-        VendorBankAccount.Validate("Bank Account No.", LibraryUtility.GenerateGUID);
-        VendorBankAccount.Validate("EFT BSB No.", LibraryUtility.GenerateGUID);
+        VendorBankAccount.Validate("Bank Account No.", LibraryUtility.GenerateGUID());
+        VendorBankAccount.Validate("EFT BSB No.", LibraryUtility.GenerateGUID());
         VendorBankAccount.Modify(true);
         exit(VendorBankAccount.Code);
     end;
@@ -2089,7 +2089,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         Commit();
         RepCreateEFTFile.SetGenJnlLine(GenJournalLine);
-        RepCreateEFTFile.RunModal;
+        RepCreateEFTFile.RunModal();
         exit(RepCreateEFTFile.GetServerFileName);
     end;
 
@@ -2113,7 +2113,7 @@ codeunit 141021 "ERM Electronic - Banking"
     local procedure FindEFTRegister(var EFTRegister: Record "EFT Register"; BankAccountNo: Code[20])
     begin
         EFTRegister.SetRange("Bank Account Code", BankAccountNo);
-        EFTRegister.FindFirst;
+        EFTRegister.FindFirst();
     end;
 
     local procedure FindWHTPostingSetup(var WHTPostingSetup: Record "WHT Posting Setup")
@@ -2133,21 +2133,21 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
         GenJournalLine.SetRange("Account No.", AccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure FindFirstGenJournalLineFromBatch(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure FindPaymentVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure SuggestVendorPayments(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; VendorNoFilter: Text; SummarizePerVendor: Boolean)
@@ -2171,7 +2171,7 @@ codeunit 141021 "ERM Electronic - Banking"
         SuggestVendorPayments.SetGenJnlLine(GenJnlLine);
 
         Commit();
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure UpdateGLSetupAndPurchasesPayablesSetup(var VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -2294,7 +2294,7 @@ codeunit 141021 "ERM Electronic - Banking"
         with GenJournalLine do begin
             SetRange("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             SetRange("Applies-to Doc. No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             TestField("Account No.", PurchInvHeader."Buy-from Vendor No.");
             Assert.AreEqual(
               PurchInvHeader."Vendor Invoice No.", "External Document No.", FieldCaption("External Document No."));

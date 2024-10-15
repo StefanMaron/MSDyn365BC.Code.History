@@ -3,7 +3,8 @@ entitlement "Internal Administrator BaseApp"
     Type = Role;
     RoleType = Local;
     Id = '62e90394-69f5-4237-9190-012177145e10';
-    ObjectEntitlements = "BaseApp Objects - Exec",
+    ObjectEntitlements = "BaseApp Login",
+                         "BaseApp Objects - Exec",
                          "D365 BASIC",
                          "D365 DIM CORRECTION",
                          "D365 MONITOR FIELDS",

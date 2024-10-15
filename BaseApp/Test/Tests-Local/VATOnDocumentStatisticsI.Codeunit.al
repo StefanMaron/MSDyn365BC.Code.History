@@ -48,7 +48,7 @@ codeunit 141079 "VAT On Document Statistics I"
         // [SCENARIO] values on Purchase Order Statistics page of Purchase Order with Invoice Rounding Precision.
 
         // [GIVEN] Update Invoice Rounding Precision on General Ledger Setup. Create Purchase Order.
-        Initialize;
+        Initialize();
         OldInvoiceRoundingPrecision :=
           UpdateInvRoundingPrecisionOnGeneralLedgerSetup(LibraryRandom.RandDecInDecimalRange(0.02, 0.1, 2));  // Random value required for Invoice Rounding Precision.
         CreatePurchaseOrderWithSetup(PurchaseLine);
@@ -78,7 +78,7 @@ codeunit 141079 "VAT On Document Statistics I"
         // [SCENARIO] values on Sales Order Statistics page of Sales Order with Invoice Rounding Precision.
 
         // [GIVEN] Update Invoice Rounding Precision on General Ledger Setup. Create Sales Order.
-        Initialize;
+        Initialize();
         OldInvoiceRoundingPrecision :=
           UpdateInvRoundingPrecisionOnGeneralLedgerSetup(LibraryRandom.RandDecInDecimalRange(0.02, 0.1, 2));  // Random value required for Invoice Rounding Precision.
         CreateSalesOrderWithSetup(SalesLine, 0);  // Value 0 required for Prepayment Percent.
@@ -110,7 +110,7 @@ codeunit 141079 "VAT On Document Statistics I"
         // [SCENARIO] values on Sales Order Statistics page of Sales Order with multiple lines and Full GST On Prepayment False.
 
         // Setup: Update Full GST On Prepayment as False on General Ledger Setup. Create Sales Order with two lines.
-        Initialize;
+        Initialize();
         OldFullGSTOnPrepayment := UpdateFullGSTOnPrepaymentOnGeneralLedgerSetup(false);
         CreateSalesOrderWithSetup(SalesLine, LibraryRandom.RandDecInRange(20, 50, 2));  // Random value used for Prepayment Percent.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -132,7 +132,7 @@ codeunit 141079 "VAT On Document Statistics I"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")

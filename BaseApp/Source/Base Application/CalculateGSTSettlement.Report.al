@@ -410,7 +410,7 @@ report 11603 "Calculate GST Settlement"
                                     VATEntry2.SetRange("Posting Date", PostDate);
                                     VATEntry2.SetRange("Document No.", DocNo);
                                     VATEntry2.SetFilter(Amount, '<%1', 0);
-                                    if VATEntry2.FindLast then
+                                    if VATEntry2.FindLast() then
                                         VATApplyEntryNo := VATEntry2."Entry No.";
                                 end;
                             end;
@@ -769,10 +769,10 @@ report 11603 "Calculate GST Settlement"
         with NewGenJnlLine do begin
             if InterCompany then begin
                 GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Intercompany);
-                if GenJnlTemplate.FindFirst then begin
+                if GenJnlTemplate.FindFirst() then begin
                     SetRange("Journal Template Name", GenJnlTemplate.Name);
                     GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
-                    if GenJnlBatch.FindFirst then begin
+                    if GenJnlBatch.FindFirst() then begin
                         JnlBatch := GenJnlBatch.Name;
                         if not ICPartner then
                             if GenJnlBatch."No. Series" <> '' then
@@ -814,11 +814,11 @@ report 11603 "Calculate GST Settlement"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Intercompany);
-        if GenJournalTemplate.FindFirst then begin
+        if GenJournalTemplate.FindFirst() then begin
             GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
             if GenJournalLine."Journal Batch Name" = '' then begin
                 GenJournalBatch.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-                GenJournalBatch.FindFirst;
+                GenJournalBatch.FindFirst();
                 GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
             end;
         end;

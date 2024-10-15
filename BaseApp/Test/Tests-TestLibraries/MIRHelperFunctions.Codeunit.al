@@ -55,7 +55,7 @@ codeunit 132477 "MIR - Helper Functions"
         FinanceChargeMemoHeader.SetRange("No.", FinanceChargeMemoHeader."No.");
         SuggestFinChargeMemoLinesRep.SetTableView(FinanceChargeMemoHeader);
         SuggestFinChargeMemoLinesRep.UseRequestPage(false);
-        SuggestFinChargeMemoLinesRep.Run;
+        SuggestFinChargeMemoLinesRep.Run();
     end;
 
     [Scope('OnPrem')]
@@ -79,11 +79,11 @@ codeunit 132477 "MIR - Helper Functions"
         GeneralLedgerSetup.Get();
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", FinanceChargeMemoHeader."Customer No.");
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         SalesInvoiceLine.SetRange("Sell-to Customer No.", FinanceChargeMemoHeader."Customer No.");
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", FinanceChargeMemoHeader."Fin. Charge Terms Code");
         FinanceChargeInterestRate.FindSet();
@@ -129,7 +129,7 @@ codeunit 132477 "MIR - Helper Functions"
         FinanceChargeMemoLine.Reset();
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeader."No.");
         FinanceChargeMemoLine.SetRange(Type, FinanceChargeMemoLine.Type::"Customer Ledger Entry");
-        FinanceChargeMemoLine.FindFirst;
+        FinanceChargeMemoLine.FindFirst();
         CustLedgerEntry.Get(FinanceChargeMemoLine."Entry No.");
         CustLedgerEntry.CalcFields("Remaining Amount");
 

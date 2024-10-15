@@ -20,28 +20,6 @@ codeunit 145301 "BAS Managament"
         ExportedBASCalcSheetErr: Label 'The BAS calculation sheet cannot be exported.';
         CannotEditFieldErr: Label 'You cannot edit this field. Use the import function.';
 
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('MPHBASCalcSheduleList,RPHBASUpdate,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure ImportSubsidiaries()
-    var
-        BASMgt: Codeunit "BAS Management";
-        BASVersion: Integer;
-        T2Value: Decimal;
-        DocumentNo: Code[11];
-    begin
-        // Initialize
-        InitScenarioImportSubsidiaries(DocumentNo, BASVersion, T2Value);
-
-        // Excercise
-        BASMgt.ImportSubsidiaries;
-
-        // Test
-        VerifyScenarioImportSubsidiaries(DocumentNo, BASVersion, T2Value);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure BanOnSettingValue()
@@ -50,10 +28,10 @@ codeunit 145301 "BAS Managament"
     begin
         // [SCENARIO 379595] Check the ban on setting the value in the field A1
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open BAS Calculation Sheet
-        BASCalculationSheet.OpenNew;
+        BASCalculationSheet.OpenNew();
 
         // [WHEN] Setting value in field A1.
         asserterror BASCalculationSheet.A1.SetValue(LibraryUtility.GenerateRandomText(10));
@@ -81,7 +59,7 @@ codeunit 145301 "BAS Managament"
         BASSetupName: Record "BAS Setup Name";
         SetupName: Code[20];
     begin
-        Initialize;
+        Initialize();
         BASVersion := LibraryRandom.RandInt(10);
         CreateBASSetupName(BASSetupName);
         SetupName := BASSetupName.Name;
@@ -148,63 +126,6 @@ codeunit 145301 "BAS Managament"
             "BAS Version" := BASCalcSheet."BAS Version";
             Insert;
         end;
-    end;
-
-#if not CLEAN19
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure RPHBASUpdate(var RequestPage: TestRequestPage "BAS-Update")
-    var
-        FileMgt: Codeunit "File Management";
-        SetupNameVar: Variant;
-        SetupName: Code[11];
-        ReportFilePath: Text;
-    begin
-        VarStorage.Dequeue(SetupNameVar);
-        Evaluate(SetupName, SetupNameVar);
-        RequestPage."BAS Setup".SetFilter("Setup Name", SetupName);
-        ReportFilePath := StrSubstNo('%1\%2.pdf', TemporaryPath, RequestPage.Caption);
-        RequestPage.SaveAsPdf(ReportFilePath);
-        FileMgt.DeleteClientFile(ReportFilePath);
-    end;
-#endif
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure MPHBASCalcSheduleList(var TestPage: TestPage "BAS Calc. Schedule List")
-    var
-        BASCalcSheet: Record "BAS Calculation Sheet";
-        BASUpdate: Report "BAS-Update";
-        DocumentNoVar: Variant;
-        BASVersionVar: Variant;
-        DocumentNo: Code[11];
-        BASVersion: Integer;
-    begin
-        VarStorage.Dequeue(DocumentNoVar);
-        Evaluate(DocumentNo, DocumentNoVar);
-        VarStorage.Dequeue(BASVersionVar);
-        Evaluate(BASVersion, Format(BASVersionVar));
-
-        BASCalcSheet.Get(DocumentNo, BASVersion);
-        with BASCalcSheet do begin
-            Commit();
-            Assert.AreEqual(false, Exported, ExportedBASCalcSheetErr);
-            Clear(BASUpdate);
-            BASUpdate.InitializeRequest(
-                BASCalcSheet, true, "VAT Statement Report Selection"::Open, "VAT Statement Report Period Selection"::"Before and Within Period", false);
-            BASUpdate.UseRequestPage(true);
-            BASUpdate.RunModal;
-        end;
-
-        TestPage.GotoRecord(BASCalcSheet);
-        TestPage.OK.Invoke;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Msg: Text[1024])
-    begin
-        // stub for message handling
     end;
 
     local procedure CreateBASSetupName(var BASSetupName: Record "BAS Setup Name")

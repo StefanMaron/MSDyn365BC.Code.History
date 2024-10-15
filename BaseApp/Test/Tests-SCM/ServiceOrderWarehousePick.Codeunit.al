@@ -103,9 +103,9 @@ codeunit 136144 "Service Order Warehouse Pick"
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // release warehouse shipment and create pick worksheet again
         LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServiceHeader);
-        WarehouseShipmentHeader.FindLast;
+        WarehouseShipmentHeader.FindLast();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShptRelease.Release(WarehouseShipmentHeader);
         InvokeGetWarehouseDocument;
         // Validate result
@@ -189,7 +189,7 @@ codeunit 136144 "Service Order Warehouse Pick"
     var
         WhseShptRelease: Codeunit "Whse.-Shipment Release";
     begin
-        Initialize;
+        Initialize();
         CreateWarehouseShipment(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, NumberOfServLines);
         WhseShptRelease.Release(WarehouseShipmentHeader);
     end;
@@ -201,9 +201,9 @@ codeunit 136144 "Service Order Warehouse Pick"
     begin
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, NumberOfServLines);
         LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServiceHeader);
-        WarehouseShipmentHeader.FindLast;
+        WarehouseShipmentHeader.FindLast();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure CreateServiceItem(var ServiceItem: Record "Service Item"; CustomerNo: Code[20]; ItemNo: Code[20])
@@ -236,7 +236,7 @@ codeunit 136144 "Service Order Warehouse Pick"
     begin
         WhseWorksheetTemplate.SetRange("Page ID", PAGE::"Pick Worksheet");
         Assert.AreEqual(1, WhseWorksheetTemplate.Count, StrSubstNo(ERR_MultipleWhseWorksheetTemplate, PickWorksheetPage));
-        if WhseWorksheetTemplate.FindFirst then begin
+        if WhseWorksheetTemplate.FindFirst() then begin
             WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplate.Name);
             WhseWorksheetLine.DeleteAll();
         end;
@@ -256,7 +256,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         LocationWhite: Record Location;
     begin
         LocationWhite.SetRange("Directed Put-away and Pick", true);
-        LocationWhite.FindFirst;
+        LocationWhite.FindFirst();
         exit(LocationWhite.Code);
     end;
 
@@ -299,9 +299,9 @@ codeunit 136144 "Service Order Warehouse Pick"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Warehouse Pick");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, GetWhiteLocation, true);
         Commit();
         isInitialized := true;
@@ -346,7 +346,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         WarehouseReceipt."Post Receipt".Invoke;
         with WhseActivityLine do begin
             SetRange("Activity Type", "Activity Type"::"Put-away");
-            FindLast;
+            FindLast();
             SetRange("No.", "No.");
             SetRange(Breakbulk);
         end;

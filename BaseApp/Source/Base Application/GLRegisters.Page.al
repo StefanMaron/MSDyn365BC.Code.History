@@ -346,7 +346,7 @@ page 116 "G/L Registers"
 
     trigger OnOpenPage()
     begin
-        if FindSet then;
+        if FindSet() then;
     end;
 
     trigger OnAfterGetRecord()

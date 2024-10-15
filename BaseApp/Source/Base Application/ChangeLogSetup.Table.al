@@ -1,7 +1,7 @@
 table 402 "Change Log Setup"
 {
     Caption = 'Change Log Setup';
-    ReplicateData = true;
+    ReplicateData = false;
 
     fields
     {

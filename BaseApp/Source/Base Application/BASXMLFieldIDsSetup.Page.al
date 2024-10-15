@@ -81,7 +81,7 @@ page 11614 "BAS - XML Field IDs Setup"
                 begin
                     BASImportExport.SetCurrentBASSetupName(CurrentBASSetupName);
                     BASImportExport.SetDirection(2);
-                    BASImportExport.RunModal;
+                    BASImportExport.RunModal();
                     Clear(BASImportExport);
                 end;
             }

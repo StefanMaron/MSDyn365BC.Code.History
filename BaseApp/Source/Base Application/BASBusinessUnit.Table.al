@@ -52,7 +52,7 @@ table 11603 "BAS Business Unit"
                     if "Company Name" <> CompanyName then
                         BASCalcSheet.ChangeCompany("Company Name");
                     BASCalcSheet.SetRange(A1, "Document No.");
-                    BASCalcSheet.FindFirst;
+                    BASCalcSheet.FindFirst();
                 end else
                     "BAS Version" := 0;
             end;

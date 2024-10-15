@@ -64,7 +64,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         StatementStyle: Option "Open Item",Balance;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesForAUNZStatement(StatementStyle::"Open Item", AgingMethod, '', '');  // Enqueue blank - Length of Aging Periods and Customer Number for PeriodCalculationFalseAUNZStatementRequestPageHandler.
 
         // Exercise.
@@ -105,7 +105,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         StatementStyle: Option "Open Item",Balance;
     begin
         // [GIVEN] Create Customer Ledger Entry and Enqueue Values For PrintLCYTrueAUNZStatementRequestPageHandler or PeriodCalculationTrueAUNZStatementRequestPageHandler.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntries(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice);
         EnqueueValuesForAUNZStatement(StatementStyle::"Open Item", AgingMethod::None, '', CustLedgerEntry."Customer No.");  // Blank - Length of Aging Periods.
 
@@ -199,7 +199,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         StatementStyle: Option "Open Item",Balance;
     begin
         // [GIVEN] Create Customer Ledger Entry and Enqueue Values for PrintLCYFalseAUNZStatementRequestPageHandler or PrintLCYTrueAUNZStatementRequestPageHandler.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntries(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice);
         EnqueueValuesForAUNZStatement(StatementStyle::"Open Item", AgingMethod,
           Format(LibraryRandom.RandInt(10)) + '<D>', CustLedgerEntry."Customer No.");  // Random - Length of Aging Periods as Day.
@@ -292,7 +292,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         // [SCENARIO] validate AgingCust. Ledger Entry - OnAfterGetRecord Trigger of Report ID - 17110 AU/NZ Statement.
 
         // [GIVEN] Create Customer Ledger Entries and Enqueue Value for PrintLCYTrueAUNZStatementRequestPageHandler or PrintLCYFalseAUNZStatementRequestPageHandler.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntries(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice);
         EnqueueValuesForAUNZStatement(
           StatementStyle::Balance, AgingMethod, Format(LibraryRandom.RandInt(10)) + '<D>', CustLedgerEntry."Customer No.");  // Random - Length of Aging Periods as Day.
@@ -318,7 +318,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         // [SCENARIO] validate End Of Customer - OnAfterGetRecord Trigger of Report ID - 17110 AU/NZ Statement.
 
         // [GIVEN] Create Customer Ledger Entries and Enqueue Values for UpdateStatementNumberAUNZStatementRequestPageHandler.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntries(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice);
         EnqueueValuesForAUNZStatement(
           StatementStyle::Balance, AgingMethod::"Trans Date",
@@ -363,7 +363,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         AUNZStatement: Report "AU/NZ Statement";
     begin
         // [GIVEN] Create Customer Ledger Entries and Sales Invoice Header.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntries(CustLedgerEntry, DocumentType);
         CreateSalesInvoice(CustLedgerEntry."Document No.", CreatePaymentTerms(Description));
 
@@ -395,7 +395,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         AUNZStatement: Report "AU/NZ Statement";
     begin
         // [GIVEN] Create Customer Ledger Entries and Sales Invoice Header.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntries(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice);
         CreateSalesInvoice(CustLedgerEntry."Document No.", PaymentTermsCode);
 
@@ -405,7 +405,7 @@ codeunit 141041 "UT AUNZ Statement Report"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -421,7 +421,7 @@ codeunit 141041 "UT AUNZ Statement Report"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
@@ -436,7 +436,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Customer No." := CustomerNo;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := EntryNo;
@@ -533,7 +533,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
           DebitBalanceCap, FindCustomerLedgerEntryAmount(CustLedgEntry.Amount, PrintLCY));

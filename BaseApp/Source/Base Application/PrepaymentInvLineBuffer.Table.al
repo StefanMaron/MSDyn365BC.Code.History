@@ -1,4 +1,4 @@
-table 461 "Prepayment Inv. Line Buffer"
+﻿table 461 "Prepayment Inv. Line Buffer"
 {
     Caption = 'Prepayment Inv. Line Buffer';
     ReplicateData = false;
@@ -163,6 +163,11 @@ table 461 "Prepayment Inv. Line Buffer"
             Caption = 'VAT Base Before Pmt. Disc.';
             DataClassification = SystemMetadata;
         }
+        field(30; "Orig. Pmt. Disc. Possible"; Decimal)
+        {
+            Caption = 'Original Pmt. Disc. Possible';
+            DataClassification = SystemMetadata;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -213,6 +218,7 @@ table 461 "Prepayment Inv. Line Buffer"
         "VAT Amount (ACY)" := "VAT Amount (ACY)" + PrepmtInvLineBuf."VAT Amount (ACY)";
         "VAT Base Amount (ACY)" := "VAT Base Amount (ACY)" + PrepmtInvLineBuf."VAT Base Amount (ACY)";
         "VAT Difference" := "VAT Difference" + PrepmtInvLineBuf."VAT Difference";
+        "Orig. Pmt. Disc. Possible" := "Orig. Pmt. Disc. Possible" + PrepmtInvLineBuf."Orig. Pmt. Disc. Possible";
         OnAfterIncrAmounts(Rec, PrepmtInvLineBuf);
     end;
 
@@ -226,6 +232,7 @@ table 461 "Prepayment Inv. Line Buffer"
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
         "VAT Base Amount (ACY)" := -"VAT Base Amount (ACY)";
         "VAT Difference" := -"VAT Difference";
+        "Orig. Pmt. Disc. Possible" := -"Orig. Pmt. Disc. Possible";
         OnAfterReverseAmounts()
     end;
 

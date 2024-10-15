@@ -476,7 +476,7 @@ page 5600 "Fixed Asset Card"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -589,7 +589,7 @@ page 5600 "Fixed Asset Card"
                     CopyFA: Report "Copy Fixed Asset";
                 begin
                     CopyFA.SetFANo("No.");
-                    CopyFA.RunModal;
+                    CopyFA.RunModal();
                 end;
             }
         }
@@ -700,7 +700,7 @@ page 5600 "Fixed Asset Card"
     protected var
         FADepreciationBook: Record "FA Depreciation Book";
 
-    local procedure ShowAcquisitionNotification()
+    protected procedure ShowAcquisitionNotification()
     var
         ShowNotification: Boolean;
         IsHandled: Boolean;
@@ -753,7 +753,7 @@ page 5600 "Fixed Asset Card"
         end;
     end;
 
-    local procedure SetDefaultDepreciationBook()
+    protected procedure SetDefaultDepreciationBook()
     var
         FASetup: Record "FA Setup";
     begin
@@ -765,7 +765,7 @@ page 5600 "Fixed Asset Card"
         end;
     end;
 
-    local procedure SetDefaultPostingGroup()
+    protected procedure SetDefaultPostingGroup()
     var
         FALedgerEntry: Record "FA Ledger Entry";
         FASubclass: Record "FA Subclass";
@@ -819,7 +819,7 @@ page 5600 "Fixed Asset Card"
         Clear(FADepreciationBookOld);
         FADepreciationBookOld.SetRange("FA No.", "No.");
         if FADepreciationBookOld.Count <= 1 then begin
-            if FADepreciationBookOld.FindFirst then begin
+            if FADepreciationBookOld.FindFirst() then begin
                 FADepreciationBookOld.CalcFields("Book Value");
                 ShowAddMoreDeprBooksLbl := true
             end;

@@ -83,7 +83,7 @@ codeunit 141073 "UT Input and Output VAT Report"
         VATEntry: Record "VAT Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateVATEntry(VATEntry, Customer."No.", DocumentType, VATEntry.Type::Sale);
         LibraryVariableStorage.Enqueue(Customer."No.");  // Enqueue value for VATReportCustomerRequestPageHandler.
@@ -153,7 +153,7 @@ codeunit 141073 "UT Input and Output VAT Report"
         Vendor: Record Vendor;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreateVATEntry(VATEntry, Vendor."No.", DocumentType, VATEntry.Type::Purchase);
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for VATReportVendorRequestPageHandler.
@@ -227,7 +227,7 @@ codeunit 141073 "UT Input and Output VAT Report"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)

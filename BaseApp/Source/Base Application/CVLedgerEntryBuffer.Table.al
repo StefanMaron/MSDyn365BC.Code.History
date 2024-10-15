@@ -1,4 +1,4 @@
-table 382 "CV Ledger Entry Buffer"
+﻿table 382 "CV Ledger Entry Buffer"
 {
     Caption = 'CV Ledger Entry Buffer';
     ReplicateData = false;
@@ -181,6 +181,12 @@ table 382 "CV Ledger Entry Buffer"
             Caption = 'Pmt. Disc. Given (LCY)';
             DataClassification = SystemMetadata;
         }
+        field(42; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Orig. Pmt. Disc. Possible (LCY)';
+            DataClassification = SystemMetadata;
+        }
         field(43; Positive; Boolean)
         {
             Caption = 'Positive';
@@ -207,6 +213,11 @@ table 382 "CV Ledger Entry Buffer"
         field(47; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
+            DataClassification = SystemMetadata;
+        }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
             DataClassification = SystemMetadata;
         }
         field(49; "Journal Batch Name"; Code[10])
@@ -464,6 +475,7 @@ table 382 "CV Ledger Entry Buffer"
         "Due Date" := VendLedgEntry."Due Date";
         "Pmt. Discount Date" := VendLedgEntry."Pmt. Discount Date";
         "Original Pmt. Disc. Possible" := VendLedgEntry."Original Pmt. Disc. Possible";
+        "Orig. Pmt. Disc. Possible(LCY)" := VendLedgEntry."Orig. Pmt. Disc. Possible(LCY)";
         "Remaining Pmt. Disc. Possible" := VendLedgEntry."Remaining Pmt. Disc. Possible";
         "Pmt. Disc. Given (LCY)" := VendLedgEntry."Pmt. Disc. Rcd.(LCY)";
         Positive := VendLedgEntry.Positive;
@@ -471,6 +483,7 @@ table 382 "CV Ledger Entry Buffer"
         "Closed at Date" := VendLedgEntry."Closed at Date";
         "Closed by Amount" := VendLedgEntry."Closed by Amount";
         "Applies-to ID" := VendLedgEntry."Applies-to ID";
+        "Journal Templ. Name" := VendLedgEntry."Journal Templ. Name";
         "Journal Batch Name" := VendLedgEntry."Journal Batch Name";
         "Reason Code" := VendLedgEntry."Reason Code";
         "Bal. Account Type" := VendLedgEntry."Bal. Account Type";
@@ -528,6 +541,7 @@ table 382 "CV Ledger Entry Buffer"
         "Closed at Date" := EmplLedgEntry."Closed at Date";
         "Closed by Amount" := EmplLedgEntry."Closed by Amount";
         "Applies-to ID" := EmplLedgEntry."Applies-to ID";
+        "Journal Templ. Name" := EmplLedgEntry."Journal Templ. Name";
         "Journal Batch Name" := EmplLedgEntry."Journal Batch Name";
         "Bal. Account Type" := EmplLedgEntry."Bal. Account Type";
         "Bal. Account No." := EmplLedgEntry."Bal. Account No.";

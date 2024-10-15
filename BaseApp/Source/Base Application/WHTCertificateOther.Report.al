@@ -347,7 +347,7 @@ report 28040 "WHT Certificate - Other"
                 WHTEntry3.CopyFilters("WHT Entry");
                 WHTEntry3.SetRange("WHT Revenue Type", Code);
                 WHTEntry3.SetRange("Document Type", WHTEntry3."Document Type"::Invoice);
-                if WHTEntry3.FindSet then
+                if WHTEntry3.FindSet() then
                     repeat
                         WHTBaseLCY := WHTBaseLCY + WHTEntry3."Base (LCY)";
                         WHTAmountLCY := WHTAmountLCY + WHTEntry3."Amount (LCY)";
@@ -356,7 +356,7 @@ report 28040 "WHT Certificate - Other"
                 WHTEntry4.CopyFilters("WHT Entry");
                 WHTEntry4.SetRange("WHT Revenue Type", Code);
                 WHTEntry4.SetRange("Document Type", WHTEntry4."Document Type"::Refund);
-                if WHTEntry4.FindSet then
+                if WHTEntry4.FindSet() then
                     repeat
                         WHTBaseLCY := WHTBaseLCY + WHTEntry4."Base (LCY)";
                         WHTAmountLCY := WHTAmountLCY + WHTEntry4."Amount (LCY)";
@@ -366,7 +366,7 @@ report 28040 "WHT Certificate - Other"
                 WHTEntry5.CopyFilters("WHT Entry");
                 WHTEntry5.SetRange("WHT Revenue Type", Code);
                 WHTEntry5.SetRange("Document Type", WHTEntry5."Document Type"::"Credit Memo");
-                if WHTEntry5.FindSet then
+                if WHTEntry5.FindSet() then
                     repeat
                         WHTBaseLCY := WHTBaseLCY + WHTEntry5."Base (LCY)";
                         WHTAmountLCY := WHTAmountLCY + WHTEntry5."Amount (LCY)";

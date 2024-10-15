@@ -422,7 +422,7 @@ table 5076 "Segment Header"
     begin
         SegmentLine.SetRange("Segment No.", "No.");
         SegmentLine.SetFilter("Contact No.", '<>%1', '');
-        if SegmentLine.FindSet then
+        if SegmentLine.FindSet() then
             repeat
                 SegmentLine.CreateOpportunity;
             until SegmentLine.Next() = 0;
@@ -588,7 +588,7 @@ table 5076 "Segment Header"
 
         SegLine.LockTable();
         SegLine.SetRange("Segment No.", "No.");
-        if SegLine.FindLast then
+        if SegLine.FindLast() then
             NextLineNo := SegLine."Line No.";
 
         Clear(SegCriteriaManagement);
@@ -697,7 +697,7 @@ table 5076 "Segment Header"
                               SavedSegCriteriaLineAction."Allow Company with Persons",
                               SavedSegCriteriaLineAction."Ignore Exclusion");
                             AddContacts.UseRequestPage(false);
-                            AddContacts.RunModal;
+                            AddContacts.RunModal();
                         end;
                     SavedSegCriteriaLineAction.Action::"Remove Contacts (Reduce)":
                         begin
@@ -713,7 +713,7 @@ table 5076 "Segment Header"
                             ReduceContacts.SetTableView(ValueEntry);
                             ReduceContacts.SetOptions(SavedSegCriteriaLineAction."Entire Companies");
                             ReduceContacts.UseRequestPage(false);
-                            ReduceContacts.RunModal;
+                            ReduceContacts.RunModal();
                         end;
                     SavedSegCriteriaLineAction.Action::"Remove Contacts (Refine)":
                         begin
@@ -729,7 +729,7 @@ table 5076 "Segment Header"
                             RefineContacts.SetTableView(ValueEntry);
                             ReduceContacts.SetOptions(SavedSegCriteriaLineAction."Entire Companies");
                             RefineContacts.UseRequestPage(false);
-                            RefineContacts.RunModal;
+                            RefineContacts.RunModal();
                         end;
                     else
                         OnReuseCriteriaSavedSegmentCriteriaLineCaseElse(SegHeader, SavedSegCriteriaLineAction);
@@ -747,7 +747,7 @@ table 5076 "Segment Header"
     begin
         CalcFields("No. of Criteria Actions");
         TestField("No. of Criteria Actions");
-        SaveSegCriteria.RunModal;
+        SaveSegCriteria.RunModal();
         SaveSegCriteria.GetValues(FormAction, SavedSegCriteria.Code, SavedSegCriteria.Description);
         if FormAction = ACTION::OK then begin
             SavedSegCriteria.Insert(true);

@@ -2085,7 +2085,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
             ProcessedDocType::Sale:
                 with SalesCrMemoLine do begin
                     SetRange("Document No.", SalesCrMemoHeader."No.");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             SalesLine.TransferFields(SalesCrMemoLine);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
@@ -2095,7 +2095,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
             ProcessedDocType::Service:
                 with ServiceCrMemoLine do begin
                     SetRange("Document No.", ServiceCrMemoHeader."No.");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             PEPPOLMgt.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
                             SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(Type);

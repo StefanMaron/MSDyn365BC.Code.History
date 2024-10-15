@@ -456,7 +456,7 @@ page 99000814 "Planned Prod. Order Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -529,7 +529,7 @@ page 99000814 "Planned Prod. Order Lines"
         TrackingForm: Page "Order Tracking";
     begin
         TrackingForm.SetProdOrderLine(Rec);
-        TrackingForm.RunModal;
+        TrackingForm.RunModal();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)

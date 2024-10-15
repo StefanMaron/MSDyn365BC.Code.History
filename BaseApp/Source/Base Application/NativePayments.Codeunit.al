@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 2831 "Native - Payments"
 {
     ObsoleteState = Pending;
@@ -27,7 +28,7 @@ codeunit 2831 "Native - Payments"
 
         GenJournalLine.SetRange("Journal Template Name", PaymentRegistrationSetup."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", PaymentRegistrationSetup."Journal Batch Name");
-        if GenJournalLine.FindLast then
+        if GenJournalLine.FindLast() then
             GenJournalLine.SetFilter("Line No.", '>%1', GenJournalLine."Line No.");
 
         GenJournalLine.Init();
@@ -61,7 +62,7 @@ codeunit 2831 "Native - Payments"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
-        if SalesInvoiceHeader.FindSet then begin
+        if SalesInvoiceHeader.FindSet() then begin
             repeat
                 LoadPayments(NativePayment, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
             until SalesInvoiceHeader.Next() = 0;
@@ -84,12 +85,12 @@ codeunit 2831 "Native - Payments"
 
         InvoiceCustLedgerEntry.SetRange("Document Type", InvoiceCustLedgerEntry."Document Type"::Invoice);
         InvoiceCustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if not InvoiceCustLedgerEntry.FindFirst then
+        if not InvoiceCustLedgerEntry.FindFirst() then
             exit;
 
         PaymentCustLedgerEntry.SetCurrentKey("Closed by Entry No.");
         PaymentCustLedgerEntry.SetRange("Closed by Entry No.", InvoiceCustLedgerEntry."Entry No.");
-        if PaymentCustLedgerEntry.FindSet then begin
+        if PaymentCustLedgerEntry.FindSet() then begin
             repeat
                 PaymentNo += 10000;
                 Clear(NativePayment);
@@ -125,6 +126,7 @@ codeunit 2831 "Native - Payments"
 
     procedure CancelCustLedgerEntry(CustomerLedgerEntry: Integer)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         PaymentCustLedgerEntry: Record "Cust. Ledger Entry";
         ReversalEntry: Record "Reversal Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -138,14 +140,15 @@ codeunit 2831 "Native - Payments"
         DetailedCustLedgEntry.SetRange("Document No.", PaymentCustLedgerEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustomerLedgerEntry);
         DetailedCustLedgEntry.SetRange(Unapplied, false);
-        if not DetailedCustLedgEntry.FindLast then
+        if not DetailedCustLedgEntry.FindLast() then
             Error(NoDetailedCustomerLedgerEntryForPaymentErr);
 
-        CustEntryApplyPostedEntries.PostUnApplyCustomerCommit(
-          DetailedCustLedgEntry, DetailedCustLedgEntry."Document No.", DetailedCustLedgEntry."Posting Date", false);
+        ApplyUnapplyParameters."Document No." := DetailedCustLedgEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := DetailedCustLedgEntry."Posting Date";
+        CustEntryApplyPostedEntries.PostUnApplyCustomerCommit(DetailedCustLedgEntry, ApplyUnapplyParameters, false);
 
         ReversalEntry.SetHideWarningDialogs;
         ReversalEntry.ReverseTransaction(PaymentCustLedgerEntry."Transaction No.");
     end;
 }
-
+#endif

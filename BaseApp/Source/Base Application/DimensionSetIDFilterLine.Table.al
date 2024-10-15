@@ -65,7 +65,7 @@ table 355 "Dimension Set ID Filter Line"
         Reset;
         SetRange(Code, NewCode);
         SetRange("Dimension Code", NewDimensionCode);
-        if FindSet then begin
+        if FindSet() then begin
             DimensionValueFilter := "Dimension Value Filter Part";
             if DimensionSetIDFilterLine.Next <> 0 then
                 repeat

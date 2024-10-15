@@ -252,7 +252,7 @@ page 5404 "Item Units of Measure"
     begin
         if GetFilter("Item No.") <> '' then begin
             CopyFilter("Item No.", Item."No.");
-            if Item.FindFirst then begin
+            if Item.FindFirst() then begin
                 ItemBaseUOM := Item."Base Unit of Measure";
                 if ItemBaseUnitOfMeasure.Get(Item."No.", ItemBaseUOM) then
                     ItemBaseUOMQtyPrecision := ItemBaseUnitOfMeasure."Qty. Rounding Precision";
@@ -266,9 +266,11 @@ page 5404 "Item Units of Measure"
         ItemBaseUnitOfMeasure: Record "Item Unit of Measure";
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
-        ItemBaseUOM: Code[10];
         ItemBaseUOMQtyPrecision: Decimal;
+
+    protected var
         StyleName: Text;
+        ItemBaseUOM: Code[10];
 
     local procedure SetStyle()
     begin

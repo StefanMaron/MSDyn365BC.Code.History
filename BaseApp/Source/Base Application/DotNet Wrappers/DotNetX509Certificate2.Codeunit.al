@@ -66,7 +66,7 @@ codeunit 3043 DotNet_X509Certificate2
         Evaluate(Expiration, DotNetX509Certificate2.GetExpirationDateString);
     end;
 
-    procedure ExpirationLocalTime() : DateTime
+    procedure ExpirationLocalTime(): DateTime
     begin
         exit(DotNetX509Certificate2.NotAfter);
     end;

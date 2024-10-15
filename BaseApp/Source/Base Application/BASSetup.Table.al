@@ -70,7 +70,7 @@ table 11600 "BAS Setup"
                 if "Account Totaling" <> '' then begin
                     GLAcc.SetFilter("No.", "Account Totaling");
                     GLAcc.SetFilter("Account Type", '<>%1', 0);
-                    if GLAcc.FindFirst then
+                    if GLAcc.FindFirst() then
                         GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
                 end;
             end;

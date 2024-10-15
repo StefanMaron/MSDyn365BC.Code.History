@@ -51,12 +51,7 @@ table 167 Job
                 OnBeforeValidateBillToCustomerNo(Rec, IsHandled, xRec, CurrFieldNo);
                 if IsHandled then
                     exit;
-
-                if ("Bill-to Customer No." = '') or ("Bill-to Customer No." <> xRec."Bill-to Customer No.") then
-                    if JobLedgEntryExist or JobPlanningLineExist then
-                        Error(AssociatedEntriesExistErr, FieldCaption("Bill-to Customer No."), TableCaption);
-
-                UpdateCust;
+                BillToCustomerNoUpdated(Rec, xRec);
             end;
         }
         field(12; "Creation Date"; Date)
@@ -92,6 +87,8 @@ table 167 Job
                 JobPlanningLine: Record "Job Planning Line";
                 JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
                 IsHandled: Boolean;
+                UndidCompleteStatus: Boolean;
+                ShouldDeleteReservationEntries: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateStatus(Rec, xRec, CurrFieldNo, IsHandled);
@@ -102,20 +99,26 @@ table 167 Job
                     if Status = Status::Completed then
                         Validate(Complete, true);
                     if xRec.Status = xRec.Status::Completed then
-                        if DIALOG.Confirm(StatusChangeQst) then
-                            Validate(Complete, false)
+                        if DIALOG.Confirm(StatusChangeQst) then begin
+                            Validate(Complete, false);
+                            UndidCompleteStatus := true;
+                        end
                         else
                             Status := xRec.Status;
                     Modify;
                     JobPlanningLine.SetCurrentKey("Job No.");
                     JobPlanningLine.SetRange("Job No.", "No.");
                     if JobPlanningLine.FindSet() then begin
-                        if CheckReservationEntries() then
-                            repeat
+                        ShouldDeleteReservationEntries := CheckReservationEntries();
+                        repeat
+                            if ShouldDeleteReservationEntries then
                                 JobPlanningLineReserve.DeleteLine(JobPlanningLine);
-                            until JobPlanningLine.Next() = 0;
-                        JobPlanningLine.ModifyAll(Status, Status);
+                            JobPlanningLine.Validate(Status, Status);
+                            JobPlanningLine.Modify();
+                        until JobPlanningLine.Next() = 0;
                         PerformAutoReserve(JobPlanningLine);
+                        if UndidCompleteStatus then
+                            JobPlanningLine.CreateWarehouseRequest();
                     end;
                 end;
             end;
@@ -238,6 +241,16 @@ table 167 Job
         field(58; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            TableRelation = Customer.Name;
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            var
+                Customer: Record Customer;
+            begin
+                if ShouldSearchForCustomerByName("Bill-to Customer No.") then
+                    Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
+            end;
         }
         field(59; "Bill-to Address"; Text[100])
         {
@@ -259,7 +272,9 @@ table 167 Job
 
             trigger OnLookup()
             begin
+#pragma warning disable AA0139
                 PostCode.LookupPostCode("Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+#pragma warning restore AA0139
             end;
 
             trigger OnValidate()
@@ -312,8 +327,10 @@ table 167 Job
 
             trigger OnValidate()
             begin
+#pragma warning disable AA0139
                 PostCode.CheckClearPostCodeCityCounty(
                   "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", xRec."Bill-to Country/Region Code");
+#pragma warning restore AA0139
             end;
         }
         field(68; "Bill-to Name 2"; Text[50])
@@ -597,7 +614,7 @@ table 167 Job
                     JobPlanningLine.SetCurrentKey("Job No.");
                     JobPlanningLine.SetRange("Job No.", "No.");
                     JobPlanningLine.SetRange("Schedule Line", true);
-                    if JobPlanningLine.FindSet then
+                    if JobPlanningLine.FindSet() then
                         repeat
                             JobPlanningLine.Validate("Usage Link", true);
                             if JobPlanningLine."Planning Date" = 0D then
@@ -716,6 +733,209 @@ table 167 Job
             Caption = 'Project Manager';
             TableRelation = "User Setup";
         }
+        field(2000; "Sell-to Customer No."; Code[20])
+        {
+            Caption = 'Sell-to Customer No.';
+            TableRelation = Customer;
+
+            trigger OnValidate()
+            begin
+                SellToCustomerNoUpdated(Rec, xRec);
+            end;
+        }
+        field(2001; "Sell-to Customer Name"; Text[100])
+        {
+            Caption = 'Sell-to Customer Name';
+            TableRelation = Customer.Name;
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            var
+                Customer: Record Customer;
+            begin
+                if ShouldSearchForCustomerByName("Sell-to Customer No.") then
+                    Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
+            end;
+        }
+        field(2002; "Sell-to Customer Name 2"; Text[50])
+        {
+            Caption = 'Sell-to Customer Name 2';
+        }
+        field(2003; "Sell-to Address"; Text[100])
+        {
+            Caption = 'Sell-to Address';
+        }
+        field(2004; "Sell-to Address 2"; Text[50])
+        {
+            Caption = 'Sell-to Address 2';
+        }
+        field(2005; "Sell-to City"; Text[30])
+        {
+            Caption = 'Sell-to City';
+            TableRelation = IF ("Sell-to Country/Region Code" = CONST('')) "Post Code".City
+            ELSE
+            IF ("Sell-to Country/Region Code" = FILTER(<> '')) "Post Code".City WHERE("Country/Region Code" = FIELD("Sell-to Country/Region Code"));
+            ValidateTableRelation = false;
+
+            trigger OnLookup()
+            begin
+#pragma warning disable AA0139
+                PostCode.LookupPostCode("Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+#pragma warning restore AA0139
+            end;
+
+            trigger OnValidate()
+            begin
+#pragma warning disable AA0139
+                PostCodeCheck.ValidateCity(
+                 CurrFieldNo, DATABASE::Job, GetPosition(), 3,
+                 "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
+                 "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
+#pragma warning restore AA0139
+            end;
+        }
+        field(2006; "Sell-to Contact"; Text[100])
+        {
+            Caption = 'Sell-to Contact';
+        }
+        field(2007; "Sell-to Post Code"; Code[20])
+        {
+            Caption = 'Sell-to Post Code';
+            TableRelation = IF ("Sell-to Country/Region Code" = CONST('')) "Post Code"
+            ELSE
+            IF ("Sell-to Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Sell-to Country/Region Code"));
+            ValidateTableRelation = false;
+        }
+        field(2008; "Sell-to County"; Text[30])
+        {
+            CaptionClass = '5,1,' + "Sell-to Country/Region Code";
+            Caption = 'Sell-to County';
+        }
+        field(2009; "Sell-to Country/Region Code"; Code[10])
+        {
+            Caption = 'Sell-to Country/Region Code';
+            TableRelation = "Country/Region";
+        }
+        field(2010; "Sell-to Phone No."; Text[30])
+        {
+            Caption = 'Sell-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+        field(2011; "Sell-to E-Mail"; Text[80])
+        {
+            Caption = 'Email';
+            ExtendedDatatype = EMail;
+
+            trigger OnValidate()
+            var
+                MailManagement: Codeunit "Mail Management";
+            begin
+                if "Sell-to E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
+            end;
+        }
+        field(2012; "Sell-to Contact No."; Code[20])
+        {
+            Caption = 'Sell-to Contact No.';
+            TableRelation = Contact;
+
+            trigger OnLookup()
+            begin
+                SelltoContactLookup();
+            end;
+
+            trigger OnValidate()
+            begin
+                UpdateSellToContact("Sell-to Contact No.");
+            end;
+        }
+        field(3000; "Ship-to Code"; Code[10])
+        {
+            Caption = 'Ship-to Code';
+            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Sell-to Customer No."));
+        }
+        field(3001; "Ship-to Name"; Text[100])
+        {
+            Caption = 'Ship-to Name';
+        }
+        field(3002; "Ship-to Name 2"; Text[50])
+        {
+            Caption = 'Ship-to Name 2';
+        }
+        field(3003; "Ship-to Address"; Text[100])
+        {
+            Caption = 'Ship-to Address';
+        }
+        field(3004; "Ship-to Address 2"; Text[50])
+        {
+            Caption = 'Ship-to Address 2';
+        }
+        field(3005; "Ship-to City"; Text[30])
+        {
+            Caption = 'Ship-to City';
+            TableRelation = IF ("Ship-to Country/Region Code" = CONST('')) "Post Code".City
+            ELSE
+            IF ("Ship-to Country/Region Code" = FILTER(<> '')) "Post Code".City WHERE("Country/Region Code" = FIELD("Ship-to Country/Region Code"));
+            ValidateTableRelation = false;
+
+            trigger OnLookup()
+            begin
+#pragma warning disable AA0139
+                PostCode.LookupPostCode("Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+#pragma warning restore AA0139
+            end;
+
+            trigger OnValidate()
+            begin
+#pragma warning disable AA0139
+                PostCodeCheck.ValidateCity(
+                 CurrFieldNo, DATABASE::Job, GetPosition(), 2,
+                 "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
+                 "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
+#pragma warning restore AA0139
+            end;
+        }
+        field(3006; "Ship-to Contact"; Text[100])
+        {
+            Caption = 'Ship-to Contact';
+        }
+        field(3007; "Ship-to Post Code"; Code[20])
+        {
+            Caption = 'Ship-to Post Code';
+            TableRelation = IF ("Ship-to Country/Region Code" = CONST('')) "Post Code"
+            ELSE
+            IF ("Ship-to Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Ship-to Country/Region Code"));
+            ValidateTableRelation = false;
+        }
+        field(3008; "Ship-to County"; Text[30])
+        {
+            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            Caption = 'Ship-to County';
+        }
+        field(3009; "Ship-to Country/Region Code"; Code[10])
+        {
+            Caption = 'Ship-to Country/Region Code';
+            TableRelation = "Country/Region";
+        }
+        field(4000; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
+        field(4001; "Payment Method Code"; Code[10])
+        {
+            Caption = 'Payment Method Code';
+            TableRelation = "Payment Method";
+        }
+        field(4002; "Payment Terms Code"; Code[10])
+        {
+            Caption = 'Payment Terms Code';
+            TableRelation = "Payment Terms";
+        }
+        field(4003; "Your Reference"; Text[35])
+        {
+            Caption = 'Your Reference';
+        }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
@@ -741,6 +961,12 @@ table 167 Job
                 if "Cost Calculation Method" <> "Cost Calculation Method"::" " then
                     PriceCalculationMgt.VerifyMethodImplemented("Cost Calculation Method", PriceType::Purchase);
             end;
+        }
+        field(7300; "Completely Picked"; Boolean)
+        {
+            CalcFormula = Min("Job Planning Line"."Completely Picked" WHERE("Job No." = FIELD("No.")));
+            Caption = 'Completely Picked';
+            FieldClass = FlowField;
         }
         field(8000; Id; Guid)
         {
@@ -785,6 +1011,7 @@ table 167 Job
     trigger OnDelete()
     var
         JobTask: Record "Job Task";
+        WhseRequest: Record "Warehouse Request";
     begin
         MoveEntries.MoveJobEntries(Rec);
 
@@ -800,6 +1027,10 @@ table 167 Job
 
         if "Project Manager" <> '' then
             RemoveFromMyJobs();
+
+        // Delete all warehouse requests and warehouse pick requests associated with the Job
+        WhseRequest.DeleteRequest(Database::Job, 0, "No.");
+        DeleteWhsePickRelation();
     end;
 
     trigger OnInsert()
@@ -870,7 +1101,9 @@ table 167 Job
         MoveEntries: Codeunit MoveEntries;
         OnlineMapMsg: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         CheckDateErr: Label '%1 must be equal to or earlier than %2.', Comment = '%1 = The job''s starting date; %2 = The job''s ending date';
+#if not CLEAN20
         BlockedCustErr: Label 'You cannot set %1 to %2, as this %3 has set %4 to %5.', Comment = '%1 = The Bill-to Customer No. field name; %2 = The job''s Bill-to Customer No. value; %3 = The Customer table name; %4 = The Blocked field name; %5 = The job''s customer''s Blocked value';
+#endif
         ApplyUsageLinkErr: Label 'A usage link cannot be enabled for the entire %1 because usage without the usage link already has been posted.', Comment = '%1 = The name of the Job table';
         WIPMethodQst: Label 'Do you want to set the %1 on every %2 of type %3?', Comment = '%1 = The WIP Method field name; %2 = The name of the Job Task table; %3 = The current job task''s WIP Total type';
         WIPAlreadyPostedErr: Label '%1 must be %2 because job WIP general ledger entries already were posted with this setting.', Comment = '%1 = The name of the WIP Posting Method field; %2 = The previous WIP Posting Method value of this job';
@@ -883,6 +1116,8 @@ table 167 Job
         ReservationEntriesDeleteQst: Label 'Any reservation entries that exist for this job will be deleted. \Do you want to continue?';
         ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the job has reservations on the job planning lines.', Comment = '%1=The job status name';
         AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
+        WhseCompletelyPickedErr: Label 'All of the items on the job planning lines are completely picked.';
+        WhseNoItemsToPickErr: Label 'There are no items to pick on the job planning lines.';
 
     procedure AssistEdit(OldJob: Record Job): Boolean
     begin
@@ -972,9 +1207,11 @@ table 167 Job
             exit;
 
         if GetFilter("Bill-to Customer No.") <> '' then
-            if GetRangeMin("Bill-to Customer No.") = GetRangeMax("Bill-to Customer No.") then
+            if GetRangeMin("Bill-to Customer No.") = GetRangeMax("Bill-to Customer No.") then begin
                 Validate("Bill-to Customer No.", GetRangeMin("Bill-to Customer No."));
-
+                if "Sell-to Customer No." = '' then
+                    Validate("Sell-to Customer No.", "Bill-to Customer No.");
+            end;
     end;
 
     local procedure AsPriceSource(var PriceSource: Record "Price Source")
@@ -984,7 +1221,8 @@ table 167 Job
         PriceSource."Source No." := "No.";
     end;
 
-    procedure ShowPriceListLines(PriceType: Enum "Price Type"; AssetType: Enum "Price Asset Type"; AmountType: Enum "Price Amount Type")
+    procedure ShowPriceListLines(PriceType: Enum "Price Type"; AssetType: Enum "Price Asset Type";
+                                                AmountType: Enum "Price Amount Type")
     var
         PriceAsset: Record "Price Asset";
         PriceSource: Record "Price Source";
@@ -1016,22 +1254,32 @@ table 167 Job
     end;
 
     procedure UpdateBillToContact(CustomerNo: Code[20])
+    begin
+        GetCustomerContact(CustomerNo, Rec."Bill-to Contact No.", Rec."Bill-to Contact");
+    end;
+
+    local procedure UpdateSellToContact(CustomerNo: Code[20])
+    begin
+        GetCustomerContact(CustomerNo, Rec."Sell-to Contact No.", Rec."Sell-to Contact");
+    end;
+
+    local procedure GetCustomerContact(CustomerNo: Code[20]; var ContactNo: Code[20]; var Contact: Text[100])
     var
         ContBusRel: Record "Contact Business Relation";
         Cust: Record Customer;
     begin
         if Cust.Get(CustomerNo) then begin
             if Cust."Primary Contact No." <> '' then
-                "Bill-to Contact No." := Cust."Primary Contact No."
+                ContactNo := Cust."Primary Contact No."
             else begin
                 ContBusRel.Reset();
                 ContBusRel.SetCurrentKey("Link to Table", "No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                ContBusRel.SetRange("No.", "Bill-to Customer No.");
+                ContBusRel.SetRange("No.", ContactNo);
                 if ContBusRel.FindFirst() then
-                    "Bill-to Contact No." := ContBusRel."Contact No.";
+                    ContactNo := ContBusRel."Contact No.";
             end;
-            "Bill-to Contact" := Cust.Contact;
+            Contact := Cust.Contact;
         end;
     end;
 
@@ -1110,6 +1358,8 @@ table 167 Job
         Error(ContactBusRelMissingErr, Cont."No.", Cont.Name);
     end;
 
+#if not CLEAN20
+    [Obsolete('Pending removal, replaced with BillToCustomerNoUpdated and SellToCustomerNoUpdated.', '20.0')]
     procedure UpdateCust()
     var
         IsHandled: Boolean;
@@ -1154,7 +1404,8 @@ table 167 Job
             "Language Code" := Cust."Language Code";
             "Bill-to County" := Cust.County;
             Reserve := Cust.Reserve;
-            UpdateBillToContact("Bill-to Customer No.");
+            if ((xRec."Bill-to Customer No." = '') and (Rec."Bill-to Contact No." = '')) or ((xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> Rec."Bill-to Customer No.")) or ((xRec."Bill-to Contact No." <> '') and (Rec."Bill-to Contact No." <> xRec."Bill-to Contact No.")) then
+                UpdateBillToContact("Bill-to Customer No.");
             CopyDefaultDimensionsFromCustomer();
         end else begin
             "Bill-to Name" := '';
@@ -1174,6 +1425,7 @@ table 167 Job
 
         OnAfterUpdateBillToCust(Rec, Cust);
     end;
+#endif
 
     procedure InitWIPFields()
     begin
@@ -1232,7 +1484,7 @@ table 167 Job
     begin
         Modify;
         PurchLine.SetRange("Job No.", "No.");
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 PurchLine.Validate("Job Currency Code", "Currency Code");
                 PurchLine.Validate("Job Task No.");
@@ -1242,6 +1494,7 @@ table 167 Job
 
     local procedure ChangeJobCompletionStatus()
     var
+        WhseRequest: Record "Warehouse Request";
         JobCalcWIP: Codeunit "Job Calculate WIP";
         IsHandled: Boolean;
     begin
@@ -1253,6 +1506,9 @@ table 167 Job
         if Complete then begin
             Validate("Ending Date", CalcEndingDate);
             Message(EndingDateChangedMsg, FieldCaption("Ending Date"), "Ending Date");
+
+            WhseRequest.DeleteRequest(Database::Job, 0, "No.");
+            DeleteWhsePickRelation();
         end else begin
             JobCalcWIP.ReOpenJob("No.");
             "WIP Posting Date" := 0D;
@@ -1260,6 +1516,24 @@ table 167 Job
         end;
 
         OnAfterChangeJobCompletionStatus(Rec, xRec);
+    end;
+
+    procedure CreateInvtPutAwayPick()
+    var
+        WhseRequest: Record "Warehouse Request";
+        CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
+    begin
+        TestField(Status, Status::Open);
+
+        WhseRequest.Reset();
+        WhseRequest.SetCurrentKey("Source Document", "Source No.");
+        WhseRequest.SetRange("Source Document", WhseRequest."Source Document"::"Job Usage");
+        WhseRequest.SetRange("Source Type", Database::Job);
+        WhseRequest.SetRange("Source No.", "No.");
+        CreateInvtPutAwayPickMvmt.InitializeRequest(false, true, false, false, true);
+        CreateInvtPutAwayPickMvmt.UseRequestPage := false;
+        CreateInvtPutAwayPickMvmt.SetTableView(WhseRequest);
+        CreateInvtPutAwayPickMvmt.RunModal();
     end;
 
     procedure DisplayMap()
@@ -1355,7 +1629,7 @@ table 167 Job
 
         JobDefaultDimension.SetRange("Table ID", DATABASE::Job);
         JobDefaultDimension.SetRange("No.", "No.");
-        if JobDefaultDimension.FindSet then
+        if JobDefaultDimension.FindSet() then
             repeat
                 DimMgt.DefaultDimOnDelete(JobDefaultDimension);
                 JobDefaultDimension.Delete();
@@ -1363,7 +1637,7 @@ table 167 Job
 
         CustDefaultDimension.SetRange("Table ID", DATABASE::Customer);
         CustDefaultDimension.SetRange("No.", "Bill-to Customer No.");
-        if CustDefaultDimension.FindSet then
+        if CustDefaultDimension.FindSet() then
             repeat
                 JobDefaultDimension.Init();
                 JobDefaultDimension.TransferFields(CustDefaultDimension);
@@ -1577,10 +1851,22 @@ table 167 Job
         MyJob: Record "My Job";
     begin
         MyJob.SetFilter("Job No.", '=%1', "No.");
-        if MyJob.FindSet then
+        if MyJob.FindSet() then
             repeat
                 MyJob.Delete();
             until MyJob.Next() = 0;
+    end;
+
+    local procedure DeleteWhsePickRelation()
+    var
+        WhsePickRequest: Record "Whse. Pick Request";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+    begin
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Job);
+        WhsePickRequest.SetRange("Document No.", Rec."No.");
+        WhsePickRequest.DeleteAll(true);
+
+        ItemTrackingMgt.DeleteWhseItemTrkgLines(DATABASE::Job, 0, Rec."No.", '', 0, 0, '', false);
     end;
 
     procedure ToPriceSource(var PriceSource: Record "Price Source"; PriceType: Enum "Price Type")
@@ -1589,6 +1875,21 @@ table 167 Job
         PriceSource."Price Type" := PriceType;
         PriceSource.Validate("Source Type", PriceSource."Source Type"::Job);
         PriceSource.Validate("Source No.", "No.");
+    end;
+
+    procedure SetJobDiffBuff(var TempJobDifferenceBuffer: Record "Job Difference Buffer" temporary; JobNo: Code[20]; JobTaskNo: Code[20]; JobTaskType: Option Posting,Heading,Total,"Begin-Total","End-Total"; Type: Option Resource,Item,"G/L Account",Text; No: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; WorkTypeCode: Code[10])
+    begin
+        TempJobDifferenceBuffer.Init();
+        TempJobDifferenceBuffer."Job No." := JobNo;
+        TempJobDifferenceBuffer."Job Task No." := JobTaskNo;
+        if JobTaskType = JobTaskType::Posting then begin
+            TempJobDifferenceBuffer.Type := "Job Planning Line Type".FromInteger(Type);
+            TempJobDifferenceBuffer."No." := No;
+            TempJobDifferenceBuffer."Location Code" := LocationCode;
+            TempJobDifferenceBuffer."Variant Code" := VariantCode;
+            TempJobDifferenceBuffer."Unit of Measure code" := UnitofMeasureCode;
+            TempJobDifferenceBuffer."Work Type Code" := WorkTypeCode;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -1622,7 +1923,6 @@ table 167 Job
           ReportSelections.Usage::JQ.AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestForm);
     end;
 
-    [Scope('OnPrem')]
     procedure EmailRecords(ShowDialog: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -1675,7 +1975,7 @@ table 167 Job
 
         JobLedgerEntry.SetRange("Job No.", "No.");
         JobLedgerEntry.SetCurrentKey("Job No.", "Posting Date");
-        if JobLedgerEntry.FindLast then
+        if JobLedgerEntry.FindLast() then
             if JobLedgerEntry."Posting Date" > EndingDate then
                 EndingDate := JobLedgerEntry."Posting Date";
 
@@ -1709,30 +2009,248 @@ table 167 Job
     end;
 
     procedure BilltoContactLookup(): Boolean
+    var
+        ContactNo: Code[20];
     begin
-        if ("Bill-to Customer No." <> '') and Cont.Get("Bill-to Contact No.") then
+        ContactNo := ContactLookup("Bill-to Customer No.", "Bill-to Contact No.");
+        if ContactNo <> '' then
+            Validate("Bill-to Contact No.", ContactNo);
+        exit(ContactNo <> '');
+    end;
+
+    procedure SelltoContactLookup(): Boolean
+    var
+        ContactNo: Code[20];
+    begin
+        ContactNo := ContactLookup("Sell-to Customer No.", "Sell-to Contact No.");
+        if ContactNo <> '' then
+            Validate("Sell-to Contact No.", ContactNo);
+        exit(ContactNo <> '');
+    end;
+
+    local procedure ContactLookup(CustomerNo: Code[20]; ContactNo: Code[20]): Code[20]
+    begin
+        if (CustomerNo <> '') and Cont.Get(ContactNo) then
             Cont.SetRange("Company No.", Cont."Company No.")
         else
-            if Cust.Get("Bill-to Customer No.") then begin
-                if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Bill-to Customer No.") then
+            if Cust.Get(CustomerNo) then begin
+                if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, CustomerNo) then
                     Cont.SetRange("Company No.", ContBusinessRelation."Contact No.");
             end else
                 Cont.SetFilter("Company No.", '<>%1', '''');
 
-        if "Bill-to Contact No." <> '' then
-            if Cont.Get("Bill-to Contact No.") then;
-        if Page.RunModal(0, Cont) = Action::LookupOK then begin
-            xRec := Rec;
-            Validate("Bill-to Contact No.", Cont."No.");
+        if ContactNo <> '' then
+            if Cont.Get(ContactNo) then;
+        if Page.RunModal(0, Cont) = Action::LookupOK then
+            exit(Cont."No.");
+        exit('');
+    end;
+
+    procedure ShipToAddressEqualsSellToAddress(): Boolean
+    begin
+        if ("Sell-to Address" = "Ship-to Address") and
+          ("Sell-to Address 2" = "Ship-to Address 2") and
+          ("Sell-to City" = "Ship-to City") and
+          ("Sell-to County" = "Ship-to County") and
+          ("Sell-to Post Code" = "Ship-to Post Code") and
+          ("Sell-to Country/Region Code" = "Ship-to Country/Region Code") and
+          ("Sell-to Contact" = "Ship-to Contact")
+        then
             exit(true);
-        end;
         exit(false);
     end;
 
+    procedure BillToAddressEqualsSellToAddress(): Boolean
+    begin
+        if ("Sell-to Address" = "Bill-to Address") and
+           ("Sell-to Address 2" = "Bill-to Address 2") and
+           ("Sell-to City" = "Bill-to City") and
+           ("Sell-to County" = "Bill-to County") and
+           ("Sell-to Post Code" = "Bill-to Post Code") and
+           ("Sell-to Country/Region Code" = "Bill-to Country/Region Code") and
+           ("Sell-to Contact No." = "Bill-to Contact No.") and
+           ("Sell-to Contact" = "Bill-to Contact")
+        then
+            exit(true);
+        exit(false);
+    end;
+
+    procedure SyncShipToWithSellTo()
+    begin
+        Rec."Ship-to Name" := Rec."Sell-to Customer Name";
+        Rec."Ship-to Name 2" := Rec."Sell-to Customer Name 2";
+        Rec."Ship-to Address" := Rec."Sell-to Address";
+        Rec."Ship-to Address 2" := Rec."Sell-to Address 2";
+        Rec."Ship-to City" := Rec."Sell-to City";
+        Rec."Ship-to County" := Rec."Sell-to County";
+        Rec."Ship-to Post Code" := Rec."Sell-to Post Code";
+        Rec."Ship-to Country/Region Code" := Rec."Sell-to Country/Region Code";
+        Rec."Ship-to Contact" := Rec."Sell-to Contact";
+        Rec."Ship-to Code" := '';
+    end;
+
+    procedure ShipToNameEqualsSellToName(): Boolean
+    begin
+        exit(
+            (Rec."Ship-to Name" = Rec."Sell-to Customer Name") and
+            (Rec."Ship-to Name 2" = Rec."Sell-to Customer Name 2")
+        );
+    end;
+
+    local procedure SellToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job)
+    var
+        SellToCustomer: Record Customer;
+    begin
+        if (Job."Sell-to Customer No." = '') or (Job."Sell-to Customer No." <> xJob."Sell-to Customer No.") then
+            if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
+                Error(AssociatedEntriesExistErr, Job.FieldCaption("Sell-to Customer No."), TableCaption);
+
+        if Job."Sell-to Customer No." <> '' then begin
+            SellToCustomer.Get(Job."Sell-to Customer No.");
+            Job."Sell-to Customer Name" := SellToCustomer.Name;
+            Job."Sell-to Customer Name 2" := SellToCustomer."Name 2";
+            Job."Sell-to Phone No." := SellToCustomer."Phone No.";
+            Job."Sell-to E-Mail" := SellToCustomer."E-Mail";
+            Job."Sell-to Address" := SellToCustomer.Address;
+            Job."Sell-to Address 2" := SellToCustomer."Address 2";
+            Job."Sell-to City" := SellToCustomer.City;
+            Job."Sell-to Post Code" := SellToCustomer."Post Code";
+            Job."Sell-to County" := SellToCustomer.County;
+            Job."Sell-to Country/Region Code" := SellToCustomer."Country/Region Code";
+            Job.Reserve := SellToCustomer.Reserve;
+            UpdateSellToContact(Job."Sell-to Customer No.");
+        end else begin
+            Job."Sell-to Customer Name" := '';
+            Job."Sell-to Customer Name 2" := '';
+            Job."Sell-to Phone No." := '';
+            Job."Sell-to E-Mail" := '';
+            Job."Sell-to Address" := '';
+            Job."Sell-to Address 2" := '';
+            Job."Sell-to City" := '';
+            Job."Sell-to Post Code" := '';
+            Job."Sell-to County" := '';
+            Job."Sell-to Country/Region Code" := '';
+            Job.Reserve := Job.Reserve::Never;
+            Job."Sell-to Contact" := '';
+            Job."Sell-to Contact No." := '';
+        end;
+
+        if (xJob."Bill-to Customer No." = xJob."Sell-to Customer No.") and xJob.BillToAddressEqualsSellToAddress() then
+            Job.Validate("Bill-to Customer No.", Rec."Sell-to Customer No.");
+
+        if
+            (xJob.ShipToNameEqualsSellToName() and xJob.ShipToAddressEqualsSellToAddress()) or
+            ((xJob."Ship-to Code" <> '') and (xJob."Sell-to Customer No." <> Job."Sell-to Customer No."))
+        then
+            Job.SyncShipToWithSellTo();
+    end;
+
+    local procedure BillToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job)
+    var
+        BillToCustomer: Record Customer;
+        IsHandled: Boolean;
+    begin
+        if (Job."Bill-to Customer No." = '') or (Job."Bill-to Customer No." <> xJob."Bill-to Customer No.") then
+            if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
+                Error(AssociatedEntriesExistErr, FieldCaption("Bill-to Customer No."), TableCaption);
+
+        // Set sell-to first if it hasn't been set yet.
+        if (Job."Sell-to Customer No." = '') and (Job."Bill-to Customer No." <> '') then
+            Validate("Sell-to Customer No.", Job."Bill-to Customer No.");
+
+        if Job."Bill-to Customer No." <> '' then begin
+            BillToCustomer.Get(Job."Bill-to Customer No.");
+            Job."Bill-to Name" := BillToCustomer.Name;
+            Job."Bill-to Name 2" := BillToCustomer."Name 2";
+            Job."Bill-to Address" := BillToCustomer.Address;
+            Job."Bill-to Address 2" := BillToCustomer."Address 2";
+            Job."Bill-to City" := BillToCustomer.City;
+            Job."Bill-to Post Code" := BillToCustomer."Post Code";
+            Job."Bill-to County" := BillToCustomer.County;
+            Job."Bill-to Country/Region Code" := BillToCustomer."Country/Region Code";
+
+            IsHandled := false;
+            OnUpdateCustOnBeforeAssignIncoiceCurrencyCode(Job, xJob, BillToCustomer, IsHandled);
+
+            if not IsHandled then
+                "Invoice Currency Code" := BillToCustomer."Currency Code";
+            if "Invoice Currency Code" <> '' then
+                Validate("Currency Code", '');
+
+            Job."Customer Disc. Group" := BillToCustomer."Customer Disc. Group";
+            Job."Customer Price Group" := BillToCustomer."Customer Price Group";
+            Job."Language Code" := BillToCustomer."Language Code";
+            UpdateBillToContact(Job."Bill-to Customer No.");
+            CopyDefaultDimensionsFromCustomer();
+        end else begin
+            Job."Bill-to Name" := '';
+            Job."Bill-to Name 2" := '';
+            Job."Bill-to Address" := '';
+            Job."Bill-to Address 2" := '';
+            Job."Bill-to City" := '';
+            Job."Bill-to Post Code" := '';
+            Job."Bill-to County" := '';
+            Job."Bill-to Country/Region Code" := '';
+            Job."Invoice Currency Code" := '';
+            Job."Customer Disc. Group" := '';
+            Job."Customer Price Group" := '';
+            Job."Language Code" := '';
+            Job."Bill-to Contact" := '';
+            Job."Bill-to Contact No." := '';
+        end;
+    end;
+
+    local procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]): Boolean
+    var
+        Customer: Record Customer;
+    begin
+        if CustomerNo = '' then
+            exit(true);
+
+        if not Customer.Get(CustomerNo) then
+            exit(true);
+
+        exit(not Customer."Disable Search by Name");
+    end;
+
+    procedure CreateWarehousePick()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        TestField(Status, Status::Open);
+        CalcFields("Completely Picked");
+        if "Completely Picked" then
+            Error(WhseCompletelyPickedErr);
+
+        JobPlanningLine.SetRange("Job No.", "No.");
+        JobPlanningLine.SetFilter("Line Type", '<>%1', JobPlanningLine."Line Type"::Billable);
+        JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.SetFilter("Quantity", '>0');
+
+        if not JobPlanningLine.IsEmpty() then
+            RunCreatePickFromWhseSource()
+        else
+            Error(WhseNoItemsToPickErr);
+    end;
+
+    local procedure RunCreatePickFromWhseSource()
+    var
+        CreatePickFromWhseSource: Report "Whse.-Source - Create Document";
+    begin
+        CreatePickFromWhseSource.SetJob(Rec);
+        CreatePickFromWhseSource.SetHideValidationDialog(false);
+        CreatePickFromWhseSource.UseRequestPage(true);
+        CreatePickFromWhseSource.RunModal();
+        CreatePickFromWhseSource.GetResultMessage("Warehouse Activity Type"::Pick.AsInteger());
+    end;
+
+#if not CLEAN20
+    [Obsolete('Pending removal, replaced with BillToCustomerNoUpdated and SellToCustomerNoUpdated.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCust(var Job: Record Job; Customer: Record Customer)
     begin
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterCalcRecognizedProfitAmount(var Result: Decimal)
@@ -1829,10 +2347,13 @@ table 167 Job
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Pending removal, replaced with BillToCustomerNoUpdated and SellToCustomerNoUpdated.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCust(var Job: Record Job; xJob: Record Job; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOverBudgetValue(var Job: Record Job; JobNo: Code[20]; Usage: Boolean; Cost: Decimal; var IsHandled: Boolean)
@@ -1849,10 +2370,13 @@ table 167 Job
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Pending removal, replaced with BillToCustomerNoUpdated and SellToCustomerNoUpdated.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustOnBeforeTestBillToCustomerNo(var Job: Record Job; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustOnBeforeAssignIncoiceCurrencyCode(var Job: Record Job; xJob: Record Job; Customer: Record Customer; var IsHandled: Boolean)

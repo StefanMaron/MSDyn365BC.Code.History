@@ -28,7 +28,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         ReportType: Option " ",,"Net Change/Budget","Net Change (This Year/Last Year)","Balance (This Year/Last Year)";
     begin
         // [SCENARIO] verify Report Type Net Change/Budget without Dimension and Additional Currency Amount on Report - 28026 Financial Analysis Report.
-        Initialize;
+        Initialize();
         ReportTypeWithAndWithoutDimension(
           '', false, GLAccount."Income/Balance"::"Income Statement", ReportType::"Net Change/Budget",
           0, LibraryRandom.RandDecInRange(100, 200, 2));  // Using blank for Dimension, False for ShowAmountsInAddReportingCurrency, Random Number for Amount and 0 for AdditionalCurrencyAmount.
@@ -44,7 +44,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         ReportType: Option " ",,"Net Change/Budget","Net Change (This Year/Last Year)","Balance (This Year/Last Year)";
     begin
         // [SCENARIO] verify Report Type Net Change/Budget with Dimension on Report - 28026 Financial Analysis Report.
-        Initialize;
+        Initialize();
         ReportTypeWithAndWithoutDimension(
           LibraryUTUtility.GetNewCode, false, GLAccount."Income/Balance"::"Income Statement", ReportType::"Net Change/Budget",
           0, LibraryRandom.RandDecInRange(100, 200, 2));  // False for ShowAmountsInAddReportingCurrency, 0 for AdditionalCurrencyAmount and  Random Number for Amount.
@@ -60,7 +60,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         ReportType: Option " ",,"Net Change/Budget","Net Change (This Year/Last Year)","Balance (This Year/Last Year)";
     begin
         // [SCENARIO] verify Report Type Net Change (This Year/Last Year) without Dimension and Additional Currency Amount on Report - 28026 Financial Analysis Report.
-        Initialize;
+        Initialize();
         ReportTypeWithAndWithoutDimension(
           '', true, GLAccount."Income/Balance"::"Income Statement", ReportType::"Net Change (This Year/Last Year)",
           LibraryRandom.RandDecInRange(100, 200, 2), 0);  // Using blank for Dimension, True for ShowAmountsInAddReportingCurrency, 0 for Amount and Random Number for AdditionalCurrencyAmount.
@@ -76,7 +76,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         ReportType: Option " ",,"Net Change/Budget","Net Change (This Year/Last Year)","Balance (This Year/Last Year)";
     begin
         // [SCENARIO] verify Report Type Net Change (This Year/Last Year) with Dimension on Report - 28026 Financial Analysis Report.
-        Initialize;
+        Initialize();
         ReportTypeWithAndWithoutDimension(
           LibraryUTUtility.GetNewCode, false, GLAccount."Income/Balance"::"Income Statement",
           ReportType::"Net Change (This Year/Last Year)", 0, LibraryRandom.RandDecInRange(100, 200, 2));  // False for ShowAmountsInAddReportingCurrency,0 for AdditionalCurrencyAmount and Random Number for AdditionalCurrencyAmount..
@@ -92,7 +92,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         ReportType: Option " ",,"Net Change/Budget","Net Change (This Year/Last Year)","Balance (This Year/Last Year)";
     begin
         // [SCENARIO] verify Report Type Balance (This Year/Last Year) and Additional Currency Amount on Report - 28026 Financial Analysis Report.
-        Initialize;
+        Initialize();
         ReportTypeWithAndWithoutDimension(
           '', true, GLAccount."Income/Balance"::"Balance Sheet", ReportType::"Balance (This Year/Last Year)",
           LibraryRandom.RandDecInRange(100, 200, 2), 0);    // Using blank for Dimension, True for ShowAmountsInAddReportingCurrency, Random Number for AdditionalCurrencyAmount and 0 for Amount.
@@ -108,7 +108,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         ReportType: Option " ",,"Net Change/Budget","Net Change (This Year/Last Year)","Balance (This Year/Last Year)";
     begin
         // [SCENARIO] verify Report Type Balance (This Year/Last Year) with Dimension on Report - 28026 Financial Analysis Report.
-        Initialize;
+        Initialize();
         ReportTypeWithAndWithoutDimension(
           LibraryUTUtility.GetNewCode, false, GLAccount."Income/Balance"::"Balance Sheet", ReportType::"Balance (This Year/Last Year)",
           0, LibraryRandom.RandDecInRange(100, 200, 2));    // False for ShowAmountsInAddReportingCurrency, 0 for AdditionalCurrencyAmount and Random Number for AdditionalCurrencyAmount.
@@ -135,7 +135,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGLAccountWithEntry(GlobalDimension1Code: Code[20]; AdditionalCurrencyAmount: Decimal; Amount: Decimal; IncomeBalance: Option): Code[20]
@@ -156,7 +156,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         GLBudgetEntry: Record "G/L Budget Entry";
         GLBudgetEntry2: Record "G/L Budget Entry";
     begin
-        GLBudgetEntry2.FindLast;
+        GLBudgetEntry2.FindLast();
         GLBudgetEntry."Entry No." := GLBudgetEntry2."Entry No." + 1;
         GLBudgetEntry."Budget Name" := BudgetName;
         GLBudgetEntry."G/L Account No." := GLAccountNo;
@@ -170,7 +170,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."Posting Date" := WorkDate;
         GLEntry."G/L Account No." := GLAccountNo;

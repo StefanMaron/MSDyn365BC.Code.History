@@ -202,7 +202,7 @@ report 11604 "BAS-Update"
 
                     BASCalcSheet2.SetRange(A1, BASCalcSheet.A1);
                     BASCalcSheet2.SetRange(Exported, true);
-                    if BASCalcSheet2.FindFirst then
+                    if BASCalcSheet2.FindFirst() then
                         if not Confirm(
                              Text1450015 + '\' + Text1450016 + '\' + Text1450017,
                              false, BASCalcSheet2."BAS Version", BASCalcSheet2.A1, BASCalcSheet."BAS Version")
@@ -220,12 +220,12 @@ report 11604 "BAS-Update"
                         BASCalcEntry.SetCurrentKey("Consol. BAS Doc. No.", "Consol. Version No.");
                         BASCalcEntry.SetRange("Consol. BAS Doc. No.", BASCalcSheet.A1);
                         BASCalcEntry.SetRange("Consol. Version No.", BASCalcSheet."BAS Version");
-                        if BASCalcEntry.FindFirst then
+                        if BASCalcEntry.FindFirst() then
                             repeat
                                 BASCalcEntry."Consol. BAS Doc. No." := '';
                                 BASCalcEntry."Consol. Version No." := 0;
                                 BASCalcEntry.Modify();
-                            until not BASCalcEntry.FindFirst;
+                            until not BASCalcEntry.FindFirst();
 
                         if BASBusUnits.Find('-') then
                             repeat
@@ -246,12 +246,12 @@ report 11604 "BAS-Update"
                     BASCalcEntry.SetRange("Company Name", CompanyName);
                     BASCalcEntry.SetRange("BAS Document No.", BASCalcSheet.A1);
                     BASCalcEntry.SetRange("BAS Version", BASCalcSheet."BAS Version");
-                    if BASCalcEntry.FindFirst then
+                    if BASCalcEntry.FindFirst() then
                         BASCalcEntry.DeleteAll();
 
                     GLEntry.SetCurrentKey("BAS Doc. No.", "BAS Version");
                     GLEntry.SetRange("BAS Doc. No.", BASCalcSheet.A1);
-                    if GLEntry.FindFirst then begin
+                    if GLEntry.FindFirst() then begin
                         GLEntry.ModifyAll("BAS Doc. No.", '');
                         GLEntry.ModifyAll("BAS Version", 0);
                     end;
@@ -259,7 +259,7 @@ report 11604 "BAS-Update"
 
                     VATEntry.SetCurrentKey("BAS Doc. No.", "BAS Version");
                     VATEntry.SetRange("BAS Doc. No.", BASCalcSheet.A1);
-                    if VATEntry.FindFirst then begin
+                    if VATEntry.FindFirst() then begin
                         VATEntry.ModifyAll("BAS Doc. No.", '');
                         VATEntry.ModifyAll("BAS Version", 0);
                     end;
@@ -421,7 +421,7 @@ report 11604 "BAS-Update"
         BASSetup.SetRange("Setup Name", BASSetupName);
         BASSetup.SetFilter(Type, '%1', BASSetup.Type::"Row Totaling");
         BASSetup.SetRange(Print, false);
-        if BASSetup.FindFirst then
+        if BASSetup.FindFirst() then
             Error(Text1450018, BASSetup."Row No.");
     end;
 
@@ -793,7 +793,7 @@ report 11604 "BAS-Update"
                                     BASCalcEntry1.SetRange("Entry No.", GLEntry."Entry No.");
                                     BASCalcEntry1.SetRange("BAS Document No.", DocumentNo);
                                     BASCalcEntry1.SetRange("BAS Version", VersionNo);
-                                    if BASCalcEntry1.FindFirst then
+                                    if BASCalcEntry1.FindFirst() then
                                         case BASSetup2."Amount Type" of
                                             BASSetup2."Amount Type"::Amount:
                                                 Amount := Amount + GLEntry.Amount;
@@ -839,7 +839,7 @@ report 11604 "BAS-Update"
                             BASCalcEntry1.SetRange("Entry No.", VATEntry."Entry No.");
                             BASCalcEntry1.SetRange("BAS Document No.", DocumentNo);
                             BASCalcEntry1.SetRange("BAS Version", VersionNo);
-                            if BASCalcEntry1.FindFirst then
+                            if BASCalcEntry1.FindFirst() then
                                 case BASSetup2."Amount Type" of
                                     BASSetup2."Amount Type"::Amount:
                                         Amount := Amount + VATEntry.Amount;

@@ -46,7 +46,7 @@ report 11607 "Transfer EFT Register"
 
                 GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-                if GenJnlLine.FindFirst then
+                if GenJnlLine.FindFirst() then
                     GenJnlLine.Init
                 else
                     Clear(GenJnlLine."Line No.");

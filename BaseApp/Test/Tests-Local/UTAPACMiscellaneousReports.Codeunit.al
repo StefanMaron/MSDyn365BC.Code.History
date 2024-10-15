@@ -54,7 +54,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [SCENARIO] validate G/L Account - OnAfterGetRecord Trigger of Report - 28024 with Amounts In Whole as Blank and New Page as False.
 
         // Setup: Create G/L Account. G/L Budget entry and G/L Entry.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet", false);  // False for New Page.
         BudgetAmount := CreateGLBudgetEntry('', GLAccountNo, '', '', WorkDate);  // Blank used for Budget Name, Global Dimension 1 Code and Global Dimension 2 Code.
         Amount := LibraryRandom.RandDec(100, 2);
@@ -104,7 +104,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         BudgetAmount2: Decimal;
     begin
         // Setup: Create G/L Account. Create G/L Budget entries and G/L Entries.
-        Initialize;
+        Initialize();
         BudgetName := LibraryUTUtility.GetNewCode10;
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet", true);  // True for New Page.
         BudgetAmount := CreateGLBudgetEntry(BudgetName, GLAccountNo, GlobalDimensionOneCode, GlobalDimensionTwoCode, WorkDate);
@@ -142,7 +142,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Income Statement]
         // [SCENARIO 280565] Validate G/L Account - OnAfterGetRecord Trigger of Report - 28025 with Amounts In Whole as Blank and New Page as False and HideEmptyLines as True.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         OnAfterGetRecordGLAccountIncomeStatementReport(AmountsInWhole::" ", '', '', false, false, Amount, Amount, true);  // Blank used for Global Dimension 1 Code and Global Dimension 2 Code. False for New Page and ShowAmountsInAddReportingCurrency.
     end;
@@ -158,7 +158,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Income Statement]
         // [SCENARIO 280565] Validate G/L Account - OnAfterGetRecord Trigger of Report - 28025 with Dimensions and HideEmptyLines as True.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         OnAfterGetRecordGLAccountIncomeStatementReport(
           AmountsInWhole::" ", LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, false, false, Amount, Amount, true);  // False for New Page and ShowAmountsInAddReportingCurrency.
@@ -175,7 +175,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Income Statement]
         // [SCENARIO 280565] Validate G/L Account - OnAfterGetRecord Trigger of Report - 28025 with Dimensions and ShowAmountsInAddReportingCurrency and HideEmptyLines as False.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         OnAfterGetRecordGLAccountIncomeStatementReport(
           AmountsInWhole::Tens, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, true, true, Amount,
@@ -215,7 +215,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [SCENARIO] validate Bank Account Ledger Entry1 - OnAfterGetRecord Trigger of Report - 28021.
 
         // Setup: Create Bank Account Ledger entries for Customer and Vendor.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount;
         Amount := -LibraryRandom.RandDec(10, 2);
         Amount2 := LibraryRandom.RandDecInRange(10, 50, 2);
@@ -240,7 +240,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [SCENARIO] validate Bank Account Ledger Entry2 - OnAfterGetRecord Trigger of Report - 28021 with multiple Customer and Vendor.
 
         // Setup: Create Bank Account Ledger entries for multiple Customer and Vendor.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount;
         Amount := -LibraryRandom.RandDec(10, 2);
         Amount2 := LibraryRandom.RandDecInRange(10, 50, 2);
@@ -265,7 +265,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [SCENARIO] validate Gen. Journal Line - OnAfterGetRecord Trigger of Report - 28023 with single Customer.
 
         // Setup: Create General Journal line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandInt(100));  // Random value used for Line No.
 
@@ -293,7 +293,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [SCENARIO] validate Gen. Journal Line - OnAfterGetRecord Trigger of Report - 28023 with multiple Customer.
 
         // Setup: Create two General Journal lines for different Customers.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandInt(100));  // Random value used for Line No.
         CreateGeneralJournalLine(GenJournalLine2, GenJournalBatch, GenJournalLine."Line No." + LibraryRandom.RandInt(100));  // Random value added for Different Line No.
@@ -321,7 +321,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         // [SCENARIO] validate Purch. Rcpt. Line - OnAfterGetRecord Trigger of Report - 28029 with multiple Vendors.
 
         // Setup: Create two Purchase Receipts.
-        Initialize;
+        Initialize();
         CreatePurchaseReceipt(PurchRcptLine);
         CreatePurchaseReceipt(PurchRcptLine2);
         LibraryVariableStorage.Enqueue(PurchRcptLine."Pay-to Vendor No.");  // Enqueue for PurchaseReceiptsRequestPageHandler.
@@ -343,7 +343,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     procedure OnPreReportReplaceDocDateCopyPurchaseDocumentRpt()
     begin
         // [SCENARIO] validate OnPreReport Trigger of Report - 492 with Replace Document Date as True.
-        Initialize;
+        Initialize();
         OnPreReportCopyPurchaseDocumentReport(
           false, true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate), WorkDate);  // False for ReplacePostDate and True for ReplaceDocDate.
     end;
@@ -358,7 +358,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Copy Purchase Document]
         // [SCENARIO] validate OnPreReport Trigger of Report - 492 with Replace Posting Date as True.
-        Initialize;
+        Initialize();
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
         OnPreReportCopyPurchaseDocumentReport(true, false, PostingDate, PostingDate);  // True for ReplacePostDate and False for ReplaceDocDate.
     end;
@@ -376,7 +376,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader2);
 
         // Exercise.
-        CopyPurchaseDocument.Run;  // Opens CopyPurchaseDocumentRequestPageHandler.
+        CopyPurchaseDocument.Run();  // Opens CopyPurchaseDocumentRequestPageHandler.
 
         // Verify: Posting Date and Document Date on Purchase Order.
         PurchaseHeader2.Get(PurchaseHeader2."Document Type", PurchaseHeader2."No.");
@@ -392,7 +392,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Copy Sales Document]
         // [SCENARIO] validate OnPreReport Trigger of Report - 292 with Replace Document Date as True.
-        Initialize;
+        Initialize();
         OnPreReportCopySalesDocumentReport(false, true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate), WorkDate);  // False for ReplacePostDate and True for ReplaceDocDate.
     end;
 
@@ -406,7 +406,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Copy Sales Document]
         // [SCENARIO] validate OnPreReport Trigger of Report - 292 with Replace Posting Date as True.
-        Initialize;
+        Initialize();
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
         OnPreReportCopySalesDocumentReport(true, false, PostingDate, PostingDate);  // True for ReplacePostDate and False for ReplaceDocDate.
     end;
@@ -424,7 +424,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         CopySalesDocument.SetSalesHeader(SalesHeader2);
 
         // Exercise.
-        CopySalesDocument.Run;  // Opens CopySalesDocumentRequestPageHandler.
+        CopySalesDocument.Run();  // Opens CopySalesDocumentRequestPageHandler.
 
         // Verify: Posting Date and Document Date on Sales Order.
         SalesHeader2.Get(SalesHeader2."Document Type", SalesHeader2."No.");
@@ -443,7 +443,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Income Statement]
         // [SCENARIO 295055] Income Statement report shows G/L accounts with negative current period net change
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account with negative balance in period
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Income Statement", true);
@@ -477,7 +477,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Income Statement] [Rounnding]
         // [SCENARIO 332438] Income Statement report shows G/L accounts with rounded net change
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account with positive balance in period was created and posted
         GLAccountNo := CreateGLAccount(GLAccount."Income/Balance"::"Income Statement", true);
@@ -510,7 +510,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
     begin
         // [FEATURE] [Purchase Receipts] [UI]
         // [SCENARIO 374783] "Purchase Receipts" report can be run from Vendor Card action without error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Receipt posted for Vendor
         CreatePurchaseReceipt(PurchRcptLine);
@@ -533,7 +533,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
     end;
 
@@ -553,7 +553,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccountLedgerEntry2: Record "Bank Account Ledger Entry";
     begin
-        BankAccountLedgerEntry2.FindLast;
+        BankAccountLedgerEntry2.FindLast();
         BankAccountLedgerEntry."Entry No." := BankAccountLedgerEntry2."Entry No." + 1;
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
         BankAccountLedgerEntry."Posting Date" := WorkDate;
@@ -616,7 +616,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         GLBudgetEntry: Record "G/L Budget Entry";
         GLBudgetEntry2: Record "G/L Budget Entry";
     begin
-        GLBudgetEntry2.FindLast;
+        GLBudgetEntry2.FindLast();
         GLBudgetEntry."Entry No." := GLBudgetEntry2."Entry No." + 1;
         GLBudgetEntry."Budget Name" := BudgetName;
         GLBudgetEntry."G/L Account No." := GLAccountNo;
@@ -633,7 +633,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry."Global Dimension 1 Code" := GlobalDimensionOneCode;

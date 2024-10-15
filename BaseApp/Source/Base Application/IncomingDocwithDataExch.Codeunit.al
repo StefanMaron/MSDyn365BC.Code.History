@@ -50,7 +50,7 @@ codeunit 1216 "Incoming Doc. with Data. Exch."
         // if no external data handling, use the attachments
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         IncomingDocumentAttachment.SetRange(Default, true);
-        if not IncomingDocumentAttachment.FindFirst then
+        if not IncomingDocumentAttachment.FindFirst() then
             Error(AttachmentErr);
 
         IncomingDocumentAttachment.CalcFields(Content);

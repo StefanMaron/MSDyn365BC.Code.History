@@ -1131,7 +1131,7 @@ codeunit 141011 "ERM WHT - AU"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         Commit();
@@ -1996,7 +1996,7 @@ codeunit 141011 "ERM WHT - AU"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::"G/L Account");
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         PurchaseLine.Delete(true);  // Deleting last Purchase Line of Type - G/L Account.
     end;
 
@@ -2150,7 +2150,7 @@ codeunit 141011 "ERM WHT - AU"
         WHTEntry: Record "WHT Entry";
     begin
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, BillToPayToNo);
-        WHTEntry.FindFirst;
+        WHTEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(Base, WHTEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
@@ -2162,7 +2162,7 @@ codeunit 141011 "ERM WHT - AU"
         WHTEntry: Record "WHT Entry";
     begin
         FilterOnWHTEntry(WHTEntry, DocumentType, BillToPayToNo);
-        WHTEntry.FindFirst;
+        WHTEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
@@ -2251,7 +2251,7 @@ codeunit 141011 "ERM WHT - AU"
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Payment Discount");
         DetailedVendorLedgEntry.SetRange("Document Type", DetailedVendorLedgEntry."Document Type"::Payment);
         DetailedVendorLedgEntry.SetRange("Vendor No.", PurchInvHeader."Buy-from Vendor No.");
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         Amount := PurchInvHeader.Amount * PurchInvHeader."Payment Discount %" / 100;
         Assert.AreNearlyEqual(Amount, DetailedVendorLedgEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;

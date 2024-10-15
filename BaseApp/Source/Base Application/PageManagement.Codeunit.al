@@ -173,6 +173,8 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Text-to-Account Mapping Wksh.");
             DATABASE::"Cash Flow Setup":
                 exit(PAGE::"Cash Flow Setup");
+            DATABASE::"Sales Invoice Header":
+                exit(PAGE::"Posted Sales Invoice");
             DATABASE::"Production Order":
                 exit(GetProductionOrderPageID(RecRef));
             Database::User:
@@ -274,7 +276,7 @@ codeunit 700 "Page Management"
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if not GenJournalLine.FindFirst then begin
+        if not GenJournalLine.FindFirst() then begin
             GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
             GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
             RecRef.GetTable(GenJournalLine);

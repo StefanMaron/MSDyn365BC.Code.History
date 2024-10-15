@@ -31,7 +31,7 @@ codeunit 134921 "ERM Standard Journal"
         // Test create General Journal Lines and Save them as Standard Journal.
 
         // 1. Setup: Create General Journal Batch, General Journal Lines and Standard Journal Code.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
 
@@ -54,7 +54,7 @@ codeunit 134921 "ERM Standard Journal"
         // Test create General Journal Lines using get Standard Journal.
 
         // 1. Setup: Create General Journal Batch, Create multiple General Journal Lines and save them as Standard Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
         CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
@@ -80,13 +80,13 @@ codeunit 134921 "ERM Standard Journal"
         // Test create General Journal Lines using get Standard Journal by providing a document number.
 
         // 1. Setup: Create General Journal Batch, Create multiple General Journal Lines and save them as Standard Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
         CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
 
         // 2. Exercise: Get saved standard Journal in General Journal and use a document number for new lines.
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         StandardGeneralJournal.CreateGenJnlFromStdJnlWithDocNo(StandardGeneralJournal, GenJournalBatch.Name, DocumentNo, 0D);
 
         // 3. Verify: Verify Standard General Journal Lines created match with the General Journal Lines.
@@ -106,7 +106,7 @@ codeunit 134921 "ERM Standard Journal"
         // Test update an existing Standard Journal and create General Journal Lines using get Standard Journal.
 
         // 1. Setup: Create General Journal Batch, create multiple General Journal Lines and save them as Standard Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
         CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
@@ -136,7 +136,7 @@ codeunit 134921 "ERM Standard Journal"
         // Test create General Journal Lines using get standard Journal and save multiple Standard Journals.
 
         // 1. Setup: Create General Journal Batch and create two Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
         CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
@@ -170,7 +170,7 @@ codeunit 134921 "ERM Standard Journal"
         // Test create General Journal Lines and replace an existing Standard Journal using save Standard Journal.
 
         // 1. Setup: Create General Journal Template and General Journal Batch.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
         CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
@@ -201,7 +201,7 @@ codeunit 134921 "ERM Standard Journal"
 
         // 1. Setup: Create General Journal Batch, create a Customer and create General Journal Lines.
         // Save the General Journal Lines created as Standard General Journal.
-        Initialize;
+        Initialize();
         GLAccount.FilterGroup(2);
         GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
         GLAccount.FilterGroup(0);
@@ -236,7 +236,7 @@ codeunit 134921 "ERM Standard Journal"
     begin
         // [FEATURE] [FCY]
         // [SCEANRIO 376966] Standard journal use currency factor from actual gen. journal's posting date
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [GIVEN] Currency "C" with two Exchange Rates: 100 (date "D1"), 200 (date "D2")
@@ -272,7 +272,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournal: Record "Standard General Journal";
     begin
         // [SCENARIO 293278] Function Get Standard Journal creates journal lines in batch with No. Series with same document number if source standard journal lines have zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create general journal batch with No. Series
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -300,7 +300,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournal: Record "Standard General Journal";
     begin
         // [SCENARIO 293278] Function Get Standard Journal creates journal lines in batch without No. Series with empty document number if source standard journal lines have zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create general journal batch with empty No. Series
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -330,7 +330,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournalLine: Record "Standard General Journal Line";
     begin
         // [SCENARIO 324153] "External Document No." passed to standard gen. jnl. line when save it from gen. jnl. line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. jnl. line with "External Document No." = "ED"
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -358,7 +358,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournalLine: Record "Standard General Journal Line";
     begin
         // [SCENARIO 324153] "External Document No." passed to gen. jnl. line when create it from standard gen. jnl. line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Standard gen. jnl. line with "External Document No." = "ED"
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -451,7 +451,7 @@ codeunit 134921 "ERM Standard Journal"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -507,7 +507,7 @@ codeunit 134921 "ERM Standard Journal"
     begin
         StandardGeneralJournalLine.SetRange("Journal Template Name", StandardGeneralJournal."Journal Template Name");
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardGeneralJournal.Code);
-        if StandardGeneralJournalLine.FindLast then;
+        if StandardGeneralJournalLine.FindLast() then;
         LineNo := StandardGeneralJournalLine."Line No." + 10000;
 
         StandardGeneralJournalLine.Init();
@@ -574,7 +574,7 @@ codeunit 134921 "ERM Standard Journal"
         SaveAsStandardGenJournal.Initialise(GenJournalLine, GenJournalBatch);
         SaveAsStandardGenJournal.InitializeRequest(Code, '', true);
         SaveAsStandardGenJournal.UseRequestPage(false);
-        SaveAsStandardGenJournal.RunModal;
+        SaveAsStandardGenJournal.RunModal();
     end;
 
     local procedure SaveGenJournalLineInTemp(var GenJournalLine2: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
@@ -598,7 +598,7 @@ codeunit 134921 "ERM Standard Journal"
         StandardGeneralJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
         StandardGeneralJournalLine.SetRange("Account Type", StandardGeneralJournalLine."Account Type"::"G/L Account");
-        StandardGeneralJournalLine.FindFirst;
+        StandardGeneralJournalLine.FindFirst();
         StandardGeneralJournalLine.Validate("Account No.", GLAccount."No.");
         StandardGeneralJournalLine.Modify(true);
         exit(StandardGeneralJournalLine."Account No.");
@@ -610,7 +610,7 @@ codeunit 134921 "ERM Standard Journal"
     begin
         FindGeneralJournalLines(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Account No.", AccountNo);
     end;
 
@@ -618,11 +618,11 @@ codeunit 134921 "ERM Standard Journal"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         repeat
             CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-            CustLedgerEntry.FindFirst;
+            CustLedgerEntry.FindFirst();
             CustLedgerEntry.CalcFields(Amount);
             CustLedgerEntry.TestField(Amount, GenJournalLine.Amount);
         until GenJournalLine.Next = 0;

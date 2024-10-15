@@ -58,18 +58,20 @@
         GenJnlLine."Business Unit Code" := BusUnit.Code;
         GenJnlLine."Document No." := GLDocNo;
         GenJnlLine."Source Code" := ConsolidSourceCode;
+        GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
         TempSubsidGLEntry.Reset();
         TempSubsidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         TempSubsidGLEntry.SetRange("Posting Date", StartingDate, EndingDate);
         OnBeforeUpdateTempGLEntry(TempSubsidGLEntry, GenJnlLine, CurErrorIdx, ErrorText, TestMode);
         TempSubsidGLAcc.Reset();
-        if TempSubsidGLAcc.FindSet then
+        if TempSubsidGLAcc.FindSet() then
             repeat
                 Window.Update(3, TempSubsidGLAcc."No.");
                 DimBufMgt.DeleteAllDimensions;
                 InitializeGLAccount;
                 PreviousDate := 0D;
-                if TempSubsidGLEntry.FindSet then
+                if TempSubsidGLEntry.FindSet() then
                     repeat
                         if (TempSubsidGLEntry."Posting Date" <> NormalDate(TempSubsidGLEntry."Posting Date")) and
                            not ConsolidatingClosingDate
@@ -85,7 +87,7 @@
                             if PreviousDate <> 0D then begin
                                 TempDimBufOut.Reset();
                                 TempDimBufOut.DeleteAll();
-                                if TempGLEntry.FindSet then
+                                if TempGLEntry.FindSet() then
                                     repeat
                                         if not SkipAllDimensions then begin
                                             DimBufMgt.GetDimensions(TempGLEntry."Entry No.", TempDimBufOut);
@@ -103,7 +105,7 @@
                         TempDimBufIn.DeleteAll();
                         if not SkipAllDimensions then begin
                             TempSubsidDimBuf.SetRange("Entry No.", TempSubsidGLEntry."Entry No.");
-                            if TempSubsidDimBuf.FindSet then
+                            if TempSubsidDimBuf.FindSet() then
                                 repeat
                                     if TempSelectedDim.Get('', 0, 0, '', TempSubsidDimBuf."Dimension Code") then begin
                                         TempDimBufIn.Init();
@@ -122,7 +124,7 @@
                 TempDimBufOut.Reset();
                 TempDimBufOut.DeleteAll();
                 OnRunOnBeforeTempGLEntryLoop(TempGLEntry, TempSubsidGLAcc);
-                if TempGLEntry.FindSet then
+                if TempGLEntry.FindSet() then
                     repeat
                         if not SkipAllDimensions then begin
                             DimBufMgt.GetDimensions(TempGLEntry."Entry No.", TempDimBufOut);
@@ -277,6 +279,7 @@
         TempSubsidCurrExchRate: Record "Currency Exchange Rate" temporary;
         TempSelectedDim: Record "Selected Dimension" temporary;
         GenJnlLine: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         TempDimBufIn: Record "Dimension Buffer" temporary;
         TempDimBufOut: Record "Dimension Buffer" temporary;
@@ -353,6 +356,11 @@
             Error(Text000);
     end;
 
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
+    end;
+
     procedure SetSelectedDim(var SelectedDim: Record "Selected Dimension")
     var
         IsHandled: Boolean;
@@ -366,7 +374,7 @@
         if SkipAllDimensions then
             exit;
 
-        if SelectedDim.FindSet then
+        if SelectedDim.FindSet() then
             repeat
                 TempSelectedDim := SelectedDim;
                 TempSelectedDim."User ID" := '';
@@ -472,7 +480,7 @@
           DateToDecimal(StartingDate) + DateToDecimal(EndingDate) +
           TextToDecimal(FormatVersion) + TextToDecimal(ProductVersion);
         TempSubsidGLAcc.Reset();
-        if TempSubsidGLAcc.FindSet then
+        if TempSubsidGLAcc.FindSet() then
             repeat
                 CheckSum :=
                   CheckSum +
@@ -483,7 +491,7 @@
                   TextToDecimal(CopyStr(TempSubsidGLAcc."Consol. Credit Acc.", 11, 10));
             until TempSubsidGLAcc.Next() = 0;
         TempSubsidGLEntry.Reset();
-        if TempSubsidGLEntry.FindSet then
+        if TempSubsidGLEntry.FindSet() then
             repeat
                 CheckSum := CheckSum +
                   TempSubsidGLEntry."Debit Amount" + TempSubsidGLEntry."Credit Amount" +
@@ -588,7 +596,7 @@
         // assume all dimensions that were imported were also selected.
         TempSelectedDim.Reset();
         TempSelectedDim.DeleteAll();
-        if TempSubsidDimBuf.FindSet then
+        if TempSubsidDimBuf.FindSet() then
             repeat
                 TempSelectedDim.Init();
                 TempSelectedDim."User ID" := '';
@@ -670,15 +678,15 @@
         OnClearPreviousConsolidationOnBeforeCheckAmountArray(DeletedAmounts, DeletedDates);
         CheckAmountArray;
 
-        if AnalysisView.FindSet then
+        if AnalysisView.FindSet() then
             repeat
                 AnalysisViewFound := false;
-                if TempGLAccount.FindSet then
+                if TempGLAccount.FindSet() then
                     repeat
                         AnalysisViewEntry.SetRange("Analysis View Code", AnalysisView.Code);
                         AnalysisViewEntry.SetRange("Account No.", TempGLAccount."No.");
                         AnalysisViewEntry.SetRange("Account Source", AnalysisViewEntry."Account Source"::"G/L Account");
-                        if AnalysisViewEntry.FindFirst then begin
+                        if AnalysisViewEntry.FindFirst() then begin
                             TempAnalysisView.Code := AnalysisViewEntry."Analysis View Code";
                             TempAnalysisView."Account Source" := AnalysisViewEntry."Account Source";
                             TempAnalysisView.Insert();
@@ -688,7 +696,7 @@
             until AnalysisView.Next() = 0;
 
         AnalysisViewEntry.Reset();
-        if TempAnalysisView.FindSet then
+        if TempAnalysisView.FindSet() then
             repeat
                 AnalysisView.Get(TempAnalysisView.Code);
                 if AnalysisView.Blocked then begin
@@ -850,6 +858,8 @@
 
         GenJnlLine."Business Unit Code" := BusUnit.Code;
         GenJnlLine."Document No." := GLDocNo;
+        GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
         GenJnlLine."Source Code" := ConsolidSourceCode;
 
         BusUnit.TestField("Balance Currency Factor");
@@ -871,7 +881,7 @@
               BusUnit."Minority Exch. Rate Gains Acc.", BusUnit."Minority Exch. Rate Losses Acc",
               BusUnit."Residual Account");
             OnBeforeConsolidGlAccFindSet(ConsolidGLAcc);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Window.Update(3, "No.");
                     case "Consol. Translation Method" of
@@ -894,12 +904,12 @@
                                 ConsolidGLEntry.SetRange("Posting Date", 0D, EndingDate);
                                 ConsolidGLEntry.SetRange("Business Unit Code", BusUnit.Code);
                                 OnBeforeConsolidGLEntryFindSet(ConsolidGLEntry);
-                                if ConsolidGLEntry.FindSet then
+                                if ConsolidGLEntry.FindSet() then
                                     repeat
                                         TempDimBufIn.Reset();
                                         TempDimBufIn.DeleteAll();
                                         ConsolidDimSetEntry.SetRange("Dimension Set ID", ConsolidGLEntry."Dimension Set ID");
-                                        if ConsolidDimSetEntry.FindSet then
+                                        if ConsolidDimSetEntry.FindSet() then
                                             repeat
                                                 if TempSelectedDim.Get('', 0, 0, '', ConsolidDimSetEntry."Dimension Code") then begin
                                                     TempDimBufIn.Init();
@@ -914,7 +924,7 @@
                                     until ConsolidGLEntry.Next() = 0;
                                 TempDimBufOut.Reset();
                                 TempDimBufOut.DeleteAll();
-                                if TempGLEntry.FindSet then
+                                if TempGLEntry.FindSet() then
                                     repeat
                                         DimBufMgt.GetDimensions(TempGLEntry."Entry No.", TempDimBufOut);
                                         TempDimBufOut.SetRange("Entry No.", TempGLEntry."Entry No.");
@@ -956,6 +966,8 @@
             Clear(GenJnlLine);
             GenJnlLine."Business Unit Code" := BusUnit.Code;
             GenJnlLine."Document No." := GLDocNo;
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             GenJnlLine."Source Code" := ConsolidSourceCode;
             GenJnlLine.Amount := -ExchRateAdjAmount;
             if GenJnlLine.Amount < 0 then begin
@@ -993,7 +1005,7 @@
                   Round(BusUnit."Balance Currency Factor", 0.00001),
                   WorkDate),
                 1, MaxStrLen(GenJnlLine.Description));
-            if TempDimBufOut.FindSet then begin
+            if TempDimBufOut.FindSet() then begin
                 repeat
                     TempDimSetEntry2.Init();
                     TempDimSetEntry2."Dimension Code" := TempDimBufOut."Dimension Code";
@@ -1025,7 +1037,7 @@
             exit;
 
         DimEntryNo := DimBufMgt.FindDimensions(TempDimBufIn);
-        Found := TempDimBufIn.FindFirst;
+        Found := TempDimBufIn.FindFirst();
         if Found and (DimEntryNo = 0) then begin
             TempGLEntry := GLEntry;
             TempGLEntry."Entry No." := DimBufMgt.InsertDimensions(TempDimBufIn);
@@ -1146,7 +1158,7 @@
                 "Posting Date" := EndingDate;
             idx := NormalDate("Posting Date") - NormalDate(StartingDate) + 1;
 
-            if DimBuf.FindSet then begin
+            if DimBuf.FindSet() then begin
                 repeat
                     TempDimSetEntry2.Init();
                     TempDimSetEntry2."Dimension Code" := DimBuf."Dimension Code";
@@ -1189,7 +1201,7 @@
             ConsolidCurrExchRate.Reset();
             ConsolidCurrExchRate.SetRange("Currency Code", BusUnit."Currency Code");
             ConsolidCurrExchRate.SetRange("Starting Date", 0D, DateToTranslate);
-            ConsolidCurrExchRate.FindLast;
+            ConsolidCurrExchRate.FindLast();
             ConsolidCurrExchRate.TestField("Exchange Rate Amount");
             ConsolidCurrExchRate.TestField("Relational Exch. Rate Amount");
             ConsolidCurrExchRate.TestField("Relational Currency Code", '');
@@ -1199,7 +1211,7 @@
             TempSubsidCurrExchRate.Reset();
             TempSubsidCurrExchRate.SetRange("Starting Date", 0D, DateToTranslate);
             TempSubsidCurrExchRate.SetRange("Currency Code", CurrencyPCY);
-            TempSubsidCurrExchRate.FindLast;
+            TempSubsidCurrExchRate.FindLast();
             TempSubsidCurrExchRate.TestField("Exchange Rate Amount");
             TempSubsidCurrExchRate.TestField("Relational Exch. Rate Amount");
             TempSubsidCurrExchRate.TestField("Relational Currency Code", '');
@@ -1207,7 +1219,7 @@
               TempSubsidCurrExchRate."Exchange Rate Amount";
             if BusUnit."Data Source" = BusUnit."Data Source"::"Add. Rep. Curr. (ACY)" then begin
                 TempSubsidCurrExchRate.SetRange("Currency Code", CurrencyACY);
-                TempSubsidCurrExchRate.FindLast;
+                TempSubsidCurrExchRate.FindLast();
                 TempSubsidCurrExchRate.TestField("Exchange Rate Amount");
                 TempSubsidCurrExchRate.TestField("Relational Exch. Rate Amount");
                 TempSubsidCurrExchRate.TestField("Relational Currency Code", '');
@@ -1236,7 +1248,7 @@
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
     begin
         TempGenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date");
-        if TempGenJnlLine.FindSet then
+        if TempGenJnlLine.FindSet() then
             repeat
                 Window.Update(3, TempGenJnlLine."Account No.");
                 OnBeforeGenJnlPostLine(TempGenJnlLine);
@@ -1292,7 +1304,7 @@
     procedure Get1stSubsidGLAcc(var GlAccount: Record "G/L Account"): Boolean
     begin
         TempSubsidGLAcc.Reset();
-        if TempSubsidGLAcc.FindFirst then begin
+        if TempSubsidGLAcc.FindFirst() then begin
             GlAccount := TempSubsidGLAcc;
             if TestMode then
                 TestGLAccounts;
@@ -1338,7 +1350,7 @@
             Reset;
             SetCurrentKey("G/L Account No.", "Posting Date");
             SetRange("G/L Account No.", TempSubsidGLAcc."No.");
-            if FindFirst then begin
+            if FindFirst() then begin
                 GLEntry := TempSubsidGLEntry;
                 if TestMode then begin
                     if ("Posting Date" <> NormalDate("Posting Date")) and

@@ -28,7 +28,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     procedure StockoutSetupFalseNoWarning()
     begin
         // Check Stockout warning does not appear when Stockout setup is FALSE.
-        Initialize;
+        Initialize();
         StockoutWarning(false, false);  // Stockout warning and Drop Shipment.
     end;
 
@@ -40,9 +40,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check Stockout warning appears when Stockout setup is TRUE.
-        Initialize;
+        Initialize();
         StockoutWarning(true, false);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -50,7 +50,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     procedure StockoutDropShipNoWarning()
     begin
         // Check Stockout warning does not appear even when Stockout setup is TRUE, with Drop Shipment.
-        Initialize;
+        Initialize();
         StockoutWarning(true, true);
     end;
 
@@ -74,7 +74,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     procedure CreditWarningSetupNoWarning()
     begin
         // Check Credit warning does not appear when Credit warning setup is No Warning.
-        Initialize;
+        Initialize();
         StockoutAndCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"No Warning", false, false, true);
     end;
 
@@ -86,9 +86,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check Credit warning appears when Credit warning setup is Both Warnings.
-        Initialize;
+        Initialize();
         StockoutAndCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Both Warnings", false, false, true);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -99,9 +99,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check Stock and Credit warning appears when Stockout setup is TRUE and Credit warning setup is Both Warnings.
-        Initialize;
+        Initialize();
         StockoutAndCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Both Warnings", true, false, true);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -112,9 +112,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check Stock and Credit warning when Drop Shipment is True.
-        Initialize;
+        Initialize();
         StockoutAndCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Both Warnings", true, true, true);  // Drop Shipment-TRUE.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -125,9 +125,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check Stock and Credit warning when Drop Shipment is True and after Drop Shipment is False.
-        Initialize;
+        Initialize();
         StockoutAndCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Both Warnings", true, true, false);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -138,9 +138,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check Credit warning does not appear when Credit warning setup is No Warning and Stock Out Warning TRUE.
-        Initialize;
+        Initialize();
         StockoutAndCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"No Warning", true, false, false);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure StockoutAndCreditWarnings(CreditWarnings: Option; StockoutWarning: Boolean; DropShipBefore: Boolean; DropShipAfter: Boolean)
@@ -183,7 +183,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"Both Warnings", true);
         CreateItemWithInventory(Item, LibraryRandom.RandInt(10));  // Inventory value important for test.
         CreateCustomerWithCreditLimit(Customer, LibraryRandom.RandInt(10));  // Credit Limit greater than Zero important for test.
@@ -209,7 +209,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"Both Warnings", true);
         CreateItemWithInventory(Item, LibraryRandom.RandInt(10));  // Inventory value important for test.
         CreateCustomerWithCreditLimit(Customer, LibraryRandom.RandInt(10));  // Credit Limit greater than Zero important for test.
@@ -240,7 +240,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"No Warning", true);
@@ -267,9 +267,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check for Credit Limit Warning for Old and New customer with different Credit Limit without Shipping details.
-        Initialize;
+        Initialize();
         SalesOrderSellToCustomerNo(SalesReceivablesSetup."Credit Warnings"::"Both Warnings", false);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -281,11 +281,11 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check for Credit Limit Warning for Old and New customer with different Credit Limit with Shipping details.
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         SalesOrderSellToCustomerNo(SalesReceivablesSetup."Credit Warnings"::"Both Warnings", true);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -294,7 +294,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     procedure CustShippingNoCreditWarning()
     begin
         // Check for Credit Limit Warning (No Warning) for Old and New customer with different Credit Limit with Shipping details.
-        Initialize;
+        Initialize();
         SalesOrderSellToCustomerNo(SalesReceivablesSetup."Credit Warnings"::"No Warning", true);
     end;
 
@@ -343,7 +343,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"Both Warnings", false);
         CreateSalesOrderDimNoCrLimit(SalesHeader, SalesLine, true);  // Customer 1:Dimension-TRUE.
         CreateNewCustomerForSalesOrder(Customer, false);  // Customer 2:Shipping-FALSE.
@@ -355,7 +355,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         // Verify: Check Dimension and Credit Limit warning that credit limit exceeds.
         SalesLine.TestField("Dimension Set ID", 0);
         CustCheckCrLimit.SalesLineCheck(SalesLine);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -366,9 +366,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check for warnings with Shipping and Dimension.
-        Initialize;
+        Initialize();
         SalesOrderShippingAndDimension(true);  // Both Credit Warning and Stockout Warning come up.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -379,9 +379,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Check for warnings with Shipping and Dimension.
-        Initialize;
+        Initialize();
         SalesOrderShippingAndDimension(false);  // Stockout Warning only comes up.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure SalesOrderShippingAndDimension(CreditWarning: Boolean)
@@ -419,15 +419,15 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Bugfixes Run Modal Errors");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Bugfixes Run Modal Errors");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ItemJournalSetup;
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -531,7 +531,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure UpdateCustomerShippingTime(var Customer: Record Customer)

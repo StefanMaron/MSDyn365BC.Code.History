@@ -31,7 +31,7 @@ codeunit 141070 "UT REP Stock Card"
         // [SCENARIO] validate OnPreReport Trigger of Report - 14311 Stock Card for blank Date Filter.
 
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesForStockCardRequestPageHandler('', GroupTotals::Location, 0D);  // Enqueue blank as Item No. and 0D as Date Filter for StockCardRequestPageHandler.
 
         // Exercise.
@@ -111,7 +111,7 @@ codeunit 141070 "UT REP Stock Card"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemLedgerEntries(ItemLedgerEntry, CostingMethod);
         CreateValueEntry(ItemLedgerEntry."Entry No.");
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
@@ -137,7 +137,7 @@ codeunit 141070 "UT REP Stock Card"
         // [SCENARIO] validate Item Application Entry - OnAfterGetRecord Trigger of Report - 14311 Stock Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemLedgerEntries(ItemLedgerEntry, Item."Costing Method"::FIFO);
         Quantity := CreateItemApplicationEntry(ItemLedgerEntry."Entry No.");
         CostPerUnit := CreateValueEntry(ItemLedgerEntry."Entry No.");
@@ -149,7 +149,7 @@ codeunit 141070 "UT REP Stock Card"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(CostingMethod: Enum "Costing Method"): Code[20]
@@ -179,7 +179,7 @@ codeunit 141070 "UT REP Stock Card"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         CreateItemLedgerEntry(
           ItemLedgerEntry, CreateItem(CostingMethod), CreateLocation, ItemLedgerEntry."Entry No." + 1, LibraryRandom.RandDec(10, 2),
           WorkDate);  // Using random for Quantity and WORKDATE for Posting Date.

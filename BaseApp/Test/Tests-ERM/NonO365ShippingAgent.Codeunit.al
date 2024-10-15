@@ -30,7 +30,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         ShippingAgent: Record "Shipping Agent";
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -63,7 +63,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         ShippingAgentServiceCode: Code[10];
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -101,7 +101,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         ShippingAgentServiceCode: Code[10];
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -134,7 +134,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Non-O365 Shipping Agent");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         // Not running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
@@ -229,7 +229,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
     begin
         ReturnReceiptHeader.SetCurrentKey("Sell-to Customer No.");
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        ReturnReceiptHeader.FindLast;
+        ReturnReceiptHeader.FindLast();
 
         PostedReturnReceipt.OpenView;
         PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);

@@ -108,7 +108,7 @@ report 910 "Posted Assembly Order"
                         if not ShowInternalInfo then
                             CurrReport.Break();
                         DimensionSetEntry1.SetRange("Dimension Set ID", "Posted Assembly Header"."Dimension Set ID");
-                        if not DimensionSetEntry1.FindSet then
+                        if not DimensionSetEntry1.FindSet() then
                             CurrReport.Break();
                         LastDimCode := false;
                     end;
@@ -189,7 +189,7 @@ report 910 "Posted Assembly Order"
                             if not ShowInternalInfo then
                                 CurrReport.Break();
                             DimensionSetEntry2.SetRange("Dimension Set ID", "Posted Assembly Line"."Dimension Set ID");
-                            if not DimensionSetEntry2.FindSet then
+                            if not DimensionSetEntry2.FindSet() then
                                 CurrReport.Break();
                             LastDimCode := false;
                         end;

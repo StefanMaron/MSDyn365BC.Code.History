@@ -17,7 +17,7 @@ report 28140 "Adjust Settlement Exch. Rates"
                 CurrExchRate.Reset();
                 CurrExchRate.SetRange("Currency Code", Code);
                 CurrExchRate.SetRange("Starting Date", 0D, StartDate);
-                if CurrExchRate.FindLast then begin
+                if CurrExchRate.FindLast() then begin
                     if CurrExchRate."Relational Currency Code" <> '' then begin
                         if UseDailyRate then begin
                             SettRate := CurrExchRate."Settlement Rate Amount";
@@ -25,7 +25,7 @@ report 28140 "Adjust Settlement Exch. Rates"
                             RelCurrCode := CurrExchRate."Relational Currency Code";
                             CurrExchRate.SetFilter("Currency Code", RelCurrCode);
                             CurrExchRate.SetRange("Starting Date", 0D, StartDate);
-                            if CurrExchRate.FindLast then begin
+                            if CurrExchRate.FindLast() then begin
                                 CurrencyCode := CurrExchRate."Currency Code";
                                 ExchRate := CurrExchRate."Exchange Rate Amount";
                                 RelExchRate := CurrExchRate."Relational Exch. Rate Amount";
@@ -39,7 +39,7 @@ report 28140 "Adjust Settlement Exch. Rates"
                 CurrExchRate.SetRange("Currency Code", Code);
                 if not UseDailyRate then begin
                     CurrExchRate.SetFilter("Starting Date", '..%1', CalcDate('-1D', StartDate));
-                    CurrExchRate.FindLast;
+                    CurrExchRate.FindLast();
                     CurrExchRate.TestField("Settlement Rate Amount");
                     CurrExchRate.TestField("Relational Sett. Rate Amount");
                 end;
@@ -53,14 +53,14 @@ report 28140 "Adjust Settlement Exch. Rates"
                 VATEntry.SetRange(Closed, false);
                 VATEntry.SetRange("Settlement Adjustment", false);
                 VATCountTotal := VATEntry.Count();
-                if VATEntry.FindSet then
+                if VATEntry.FindSet() then
                     repeat
                         VATEntry2.Reset();
                         VATEntry2.Get(VATEntry."Unrealized VAT Entry No.");
                         if VATEntry2."Posting Date" < StartDate then begin
                             if UseDailyRate then begin
                                 CurrExchRate.SetFilter("Starting Date", '..%1', VATEntry."Posting Date");
-                                CurrExchRate.FindLast;
+                                CurrExchRate.FindLast();
                             end;
                             VATCount := VATCount + 1;
                             Window.Update(1, Round(VATCount / VATCountTotal * 10000, 1));
@@ -250,7 +250,7 @@ report 28140 "Adjust Settlement Exch. Rates"
         if (VATAmount = 0) and (VATBase = 0) then
             exit;
         VATEntry2.Reset();
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         EntryNo := VATEntry2."Entry No." + 1;
         VATEntry3.Reset();
         VATEntry3.Init();

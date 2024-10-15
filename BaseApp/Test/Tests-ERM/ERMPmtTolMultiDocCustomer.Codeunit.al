@@ -27,7 +27,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and within Payment
         // Discount Period.
-        Initialize;
+        Initialize();
         OverPmtBeforeDiscDate('', '');
     end;
 
@@ -42,7 +42,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and same Currency
         // and within Payment Discount Period.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         OverPmtBeforeDiscDate(CurrencyCode, CurrencyCode);
     end;
@@ -56,7 +56,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and multiple
         // Currencies, within Payment Discount Period.
-        Initialize;
+        Initialize();
         OverPmtBeforeDiscDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -90,7 +90,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and after Payment
         // Discount Period.
-        Initialize;
+        Initialize();
         OverPmtAfterDiscDate('', '');
     end;
 
@@ -105,7 +105,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and same Currency
         // and after Payment Discount Period..
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         OverPmtAfterDiscDate(CurrencyCode, CurrencyCode);
     end;
@@ -119,7 +119,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and multiple
         // Currencies, after Payment Discount Period..
-        Initialize;
+        Initialize();
         OverPmtAfterDiscDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -153,7 +153,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount and
         // within Payment Discount Period.
-        Initialize;
+        Initialize();
         EqualPmtBeforeDiscDate('', '');
     end;
 
@@ -168,7 +168,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount
         // and same Currency, within Payment Discount Period.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         EqualPmtBeforeDiscDate(CurrencyCode, CurrencyCode);
     end;
@@ -182,7 +182,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount
         // and same Currency, within Payment Discount Period.
-        Initialize;
+        Initialize();
         EqualPmtBeforeDiscDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -212,7 +212,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount and after
         // Payment Discount Period.
-        Initialize;
+        Initialize();
         EqualPmtAfterDueDate('', '');
     end;
 
@@ -227,7 +227,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount
         // and same Currency and after Payment Discount Period.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         EqualPmtAfterDueDate(CurrencyCode, CurrencyCode);
     end;
@@ -241,7 +241,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount
         // and different Currencies and after Payment Discount Period.
-        Initialize;
+        Initialize();
         EqualPmtAfterDueDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -271,7 +271,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and within
         // within Payment Discount Period.
-        Initialize;
+        Initialize();
         LessPmtBeforeDiscDate('', '');
     end;
 
@@ -286,7 +286,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and same
         // Currency and within discount period.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         LessPmtBeforeDiscDate(CurrencyCode, CurrencyCode);
     end;
@@ -300,7 +300,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and with
         // different Currencies and within Payment Discount Period.
-        Initialize;
+        Initialize();
         LessPmtBeforeDiscDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -331,7 +331,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and after
         // Payment Discount Period.
-        Initialize;
+        Initialize();
         LessPmtAfterDiscDate('', '');
     end;
 
@@ -346,7 +346,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount
         // and same Currency and after Payment Discount Period.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         LessPmtAfterDiscDate(CurrencyCode, CurrencyCode);
     end;
@@ -360,7 +360,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and with
         // different Currencies and after Payment Discount Period.
-        Initialize;
+        Initialize();
         LessPmtAfterDiscDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -391,7 +391,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and within Payment
         // Discount Period.
-        Initialize;
+        Initialize();
         UnderAmtBeforeDiscDate('', '');
     end;
 
@@ -406,7 +406,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and Currency
         // within Payment Discount Period.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         UnderAmtBeforeDiscDate(CurrencyCode, CurrencyCode);
     end;
@@ -420,7 +420,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and multiple
         // Currencies and within Payment Discount Period.
-        Initialize;
+        Initialize();
         UnderAmtBeforeDiscDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -451,7 +451,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount after Payment
         // Discount Period.
-        Initialize;
+        Initialize();
         UnderAmtAfterDiscDate('', '');
     end;
 
@@ -466,7 +466,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and Same Currency
         // after Payment Discount Period.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         UnderAmtAfterDiscDate(CurrencyCode, CurrencyCode);
     end;
@@ -480,7 +480,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
 
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and multiple
         // Currencies.
-        Initialize;
+        Initialize();
         UnderAmtAfterDiscDate(CreateCurrency, CreateCurrency);
     end;
 
@@ -815,8 +815,8 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Pmt Tol Multi Doc Customer");
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         IsInitialized := true;
         Commit();
@@ -1063,7 +1063,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         CustEntrySetApplID: Codeunit "Cust. Entry-SetAppl.ID";
         ApplyCustomerEntries: Page "Apply Customer Entries";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.FindSet();
@@ -1125,7 +1125,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         if CurrencyCode = '' then
             exit(Amount);
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         exit(Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
     end;
 
@@ -1155,7 +1155,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         TempGenJournalLine.FindSet();
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
-            CustLedgerEntry.FindFirst;
+            CustLedgerEntry.FindFirst();
             Assert.AreNearlyEqual(
               OriginalPmtDiscPossible, CustLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Amount Rounding Precision",
               StrSubstNo(AmountError, CustLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), OriginalPmtDiscPossible,
@@ -1173,7 +1173,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(AmountLCY, DetailedCustLedgEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), AmountLCY, DetailedCustLedgEntry.TableCaption,
             DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));

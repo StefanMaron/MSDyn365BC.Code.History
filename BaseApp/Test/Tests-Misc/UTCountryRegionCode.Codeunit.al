@@ -372,20 +372,20 @@ codeunit 134995 "UT Country/Region Code"
         // [SCENARIO 295922] If there are two cities in same country with the same "Post Code", then when Ship-to Address is created it uses Customer's city
 
         // [GIVEN] One country Code, One Post Code
-        CountryCode := LibraryUtility.GenerateGUID;
-        PostCode := LibraryUtility.GenerateGUID;
+        CountryCode := LibraryUtility.GenerateGUID();
+        PostCode := LibraryUtility.GenerateGUID();
         InitCountry(CountryCode);
 
         // [GIVEN] Two Post Code setups, with 2 different City Names, "City1" and "City2"
         InitPostCode(CountryCode, 'A-' + LibraryUtility.GenerateGUID, PostCode);
-        CityName := 'Z-' + LibraryUtility.GenerateGUID;
+        CityName := 'Z-' + LibraryUtility.GenerateGUID();
         InitPostCode(CountryCode, CityName, PostCode);
 
         // [GIVEN] A Customer with Country Code, Post Code and City Name = "City2"
         CreateCustomerWithAddressInfo(Customer, CountryCode, PostCode, CityName);
 
         // [WHEN] Create a new Ship-to Address for this Customer via Ship-to Address page
-        ShipToAddressPage.OpenNew;
+        ShipToAddressPage.OpenNew();
         ShipToAddressPage.FILTER.SetFilter("Customer No.", Customer."No.");
         ShipToAddressPage.New;
 
@@ -407,20 +407,20 @@ codeunit 134995 "UT Country/Region Code"
         // [SCENARIO 295922] If there are two post codes for same city in the same country, then when Ship-to Address is created it uses Customer's city
 
         // [GIVEN] One country Code, One City Name
-        CountryCode := LibraryUtility.GenerateGUID;
-        CityName := LibraryUtility.GenerateGUID;
+        CountryCode := LibraryUtility.GenerateGUID();
+        CityName := LibraryUtility.GenerateGUID();
         InitCountry(CountryCode);
 
         // [GIVEN] Two Post Code setups, with same City Name, 2 different postcodes "Code1" and "Code2"
-        InitPostCode(CountryCode, CityName, LibraryUtility.GenerateGUID);
-        PostCode := LibraryUtility.GenerateGUID;
+        InitPostCode(CountryCode, CityName, LibraryUtility.GenerateGUID());
+        PostCode := LibraryUtility.GenerateGUID();
         InitPostCode(CountryCode, CityName, PostCode);
 
         // [GIVEN] A Customer with Country Code, City Name and Post Code = "Code2"
         CreateCustomerWithAddressInfo(Customer, CountryCode, PostCode, CityName);
 
         // [WHEN] Create a new Ship-to Address for this Customer via Ship-to Address page
-        ShipToAddressPage.OpenNew;
+        ShipToAddressPage.OpenNew();
         ShipToAddressPage.FILTER.SetFilter("Customer No.", Customer."No.");
         ShipToAddressPage.New;
 
@@ -440,7 +440,7 @@ codeunit 134995 "UT Country/Region Code"
         // [SCENARIO 311818] Page "Ship-to Address" has field "County/State" visible for countries with Address Format "City+County+Post Code"
         InitializeCountriesDifferentFormat(CountryWithoutCounty, CountryWithCounty);
 
-        ShiptoAddress.OpenNew;
+        ShiptoAddress.OpenNew();
         ShiptoAddress."Country/Region Code".Value := CountryWithoutCounty.Code;
         Assert.IsFalse(ShiptoAddress.County.Visible, 'County field should not be visible');
         ShiptoAddress."Country/Region Code".Value := CountryWithCounty.Code;

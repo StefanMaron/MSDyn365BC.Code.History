@@ -257,7 +257,7 @@ report 405 "Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -447,7 +447,7 @@ report 405 "Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -812,7 +812,7 @@ report 405 "Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not PrepmtDimSetEntry.FindSet then
+                                    if not PrepmtDimSetEntry.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -1087,7 +1087,7 @@ report 405 "Order"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Purchase Header".FindSet then
+            if "Purchase Header".FindSet() then
                 repeat
                     "Purchase Header".CalcFields("No. of Archived Versions");
                     SegManagement.LogDocument(13, "Purchase Header"."No.", "Purchase Header"."Doc. No. Occurrence",

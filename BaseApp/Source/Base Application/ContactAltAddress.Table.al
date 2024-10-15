@@ -3,6 +3,8 @@ table 5051 "Contact Alt. Address"
     Caption = 'Contact Alt. Address';
     DataCaptionFields = "Contact No.", "Code", "Company Name";
     LookupPageID = "Contact Alt. Address List";
+    Permissions = TableData Contact = rm,
+                  TableData "Contact Alt. Addr. Date Range" = rd;
 
     fields
     {

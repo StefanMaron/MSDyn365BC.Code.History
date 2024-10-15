@@ -24,7 +24,7 @@ codeunit 141000 "Report Layout - Local"
     procedure TestFinancialAnalysisReport()
     begin
         // [FEATURE] [Financial Analysis Report]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Financial Analysis Report");
     end;
 
@@ -34,7 +34,7 @@ codeunit 141000 "Report Layout - Local"
     procedure TestStockCard()
     begin
         // [FEATURE] [Stock Card]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Stock Card");
     end;
 
@@ -44,7 +44,7 @@ codeunit 141000 "Report Layout - Local"
     procedure TestAUNZStatement()
     begin
         // [FEATURE] [AU/NZ Statement]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"AU/NZ Statement");
     end;
 
@@ -53,7 +53,7 @@ codeunit 141000 "Report Layout - Local"
     procedure TestAnnualInformationReturnWHT()
     begin
         // [FEATURE] [Annual Information Return  WHT]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Annual Information Return  WHT");
     end;
 
@@ -63,7 +63,7 @@ codeunit 141000 "Report Layout - Local"
     procedure TestBalanceSheet()
     begin
         // [FEATURE] [Balance Sheet]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Balance Sheet");
     end;
 
@@ -73,7 +73,7 @@ codeunit 141000 "Report Layout - Local"
     procedure TestIncomeStatement()
     begin
         // [FEATURE] [Income Statement]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Income Statement");
     end;
 
@@ -83,7 +83,7 @@ codeunit 141000 "Report Layout - Local"
     procedure TestGLJournal()
     begin
         // [FEATURE] [G/L Journal]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"G/L Journal");
     end;
 
@@ -93,7 +93,7 @@ codeunit 141000 "Report Layout - Local"
     procedure TestJournals()
     begin
         // [FEATURE] [Journals]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::Journals);
     end;
 

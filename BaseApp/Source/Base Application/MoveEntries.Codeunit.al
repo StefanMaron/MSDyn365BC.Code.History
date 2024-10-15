@@ -43,7 +43,6 @@ codeunit 361 MoveEntries
         PurchOrderLine: Record "Purchase Line";
         ReminderEntry: Record "Reminder/Fin. Charge Entry";
         ValueEntry: Record "Value Entry";
-        AvgCostAdjmt: Record "Avg. Cost Adjmt. Entry Point";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ServLedgEntry: Record "Service Ledger Entry";
         WarrantyLedgEntry: Record "Warranty Ledger Entry";
@@ -121,7 +120,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Customer No.", Cust."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -141,7 +140,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Bill-to Customer No.", Cust."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -196,7 +195,7 @@ codeunit 361 MoveEntries
             exit;
 
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             CustLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
     end;
 
@@ -249,7 +248,7 @@ codeunit 361 MoveEntries
             exit;
 
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             VendLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
     end;
 
@@ -263,7 +262,7 @@ codeunit 361 MoveEntries
         BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
         BankAccLedgEntry.SetRange("Bank Account No.", BankAcc."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             BankAccLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not BankAccLedgEntry.IsEmpty() then
             Error(
@@ -291,6 +290,7 @@ codeunit 361 MoveEntries
 
     procedure MoveItemEntries(Item: Record Item)
     var
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         NewItemNo: Code[20];
     begin
         OnBeforeMoveItemEntries(Item, NewItemNo);
@@ -299,7 +299,7 @@ codeunit 361 MoveEntries
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ItemLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ItemLedgEntry.IsEmpty() then
             Error(
@@ -335,17 +335,13 @@ codeunit 361 MoveEntries
               Item."No.", Text005);
         ItemLedgEntry.SetRange("Applied Entry to Adjust");
 
-        if Item."Costing Method" = Item."Costing Method"::Average then begin
-            AvgCostAdjmt.Reset();
-            AvgCostAdjmt.SetRange("Item No.", Item."No.");
-            AvgCostAdjmt.SetRange("Cost Is Adjusted", false);
-            if not AvgCostAdjmt.IsEmpty() then
+        if Item."Costing Method" = Item."Costing Method"::Average then
+            if not AvgCostEntryPointHandler.IsEntriesAdjusted(Item."No.", 0D) then
                 Error(
                   Text002 +
                   Text003 +
                   Text004,
                   Item."No.", Text005);
-        end;
 
         ItemLedgEntry.SetRange(Open);
         ItemLedgEntry.ModifyAll("Item No.", NewItemNo);
@@ -355,9 +351,7 @@ codeunit 361 MoveEntries
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.ModifyAll("Item No.", NewItemNo);
 
-        AvgCostAdjmt.Reset();
-        AvgCostAdjmt.SetRange("Item No.", Item."No.");
-        AvgCostAdjmt.DeleteAll();
+        AvgCostEntryPointHandler.DeleteBuffer(Item."No.", 0D);
 
         InvtAdjmtEntryOrder.Reset();
         InvtAdjmtEntryOrder.SetRange("Item No.", Item."No.");
@@ -369,7 +363,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Item No. (Serviced)", Item."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -390,7 +384,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Type, ServLedgEntry.Type::Item);
         ServLedgEntry.SetRange("No.", Item."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -440,7 +434,7 @@ codeunit 361 MoveEntries
         ResLedgEntry.SetCurrentKey("Resource No.", "Posting Date");
         ResLedgEntry.SetRange("Resource No.", Res."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ResLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ResLedgEntry.IsEmpty() then
             Error(
@@ -456,7 +450,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Type, ServLedgEntry.Type::Resource);
         ServLedgEntry.SetRange("No.", Res."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -507,7 +501,7 @@ codeunit 361 MoveEntries
           PurchOrderLine."Document Type"::Order,
           PurchOrderLine."Document Type"::"Return Order");
         PurchOrderLine.SetRange("Job No.", Job."No.");
-        if PurchOrderLine.FindFirst then begin
+        if PurchOrderLine.FindFirst() then begin
             if PurchOrderLine."Document Type" = PurchOrderLine."Document Type"::Order then
                 Error(Text007, Job.TableCaption, Job."No.");
             if PurchOrderLine."Document Type" = PurchOrderLine."Document Type"::"Return Order" then
@@ -517,7 +511,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Job No.", Job."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -587,7 +581,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -608,7 +602,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
         ServLedgEntry.SetRange("No.", ServiceContractHeader."Contract No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -642,7 +636,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Cost");
         ServLedgEntry.SetRange("No.", ServiceCost.Code);
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServLedgEntry.IsEmpty() then
             Error(
@@ -687,7 +681,7 @@ codeunit 361 MoveEntries
         CFForecastEntry.SetCurrentKey("Cash Flow Account No.");
         CFForecastEntry.SetRange("Cash Flow Account No.", CashFlowAccount."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             CFForecastEntry.SetFilter("Cash Flow Date", '>%1', AccountingPeriod."Starting Date");
         if not CFForecastEntry.IsEmpty() then
             Error(
@@ -761,7 +755,7 @@ codeunit 361 MoveEntries
         ServiceLedgerEntry.SetCurrentKey("Service Item No. (Serviced)");
         ServiceLedgerEntry.SetRange("Service Item No. (Serviced)", ServiceItemNo);
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             ServiceLedgerEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not ServiceLedgerEntry.IsEmpty() then
             exit(StrSubstNo(Text000, ServiceItem.TableCaption, ServiceItemNo));
@@ -795,7 +789,7 @@ codeunit 361 MoveEntries
 
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             GLEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
         if not GLEntry.IsEmpty() then
             Error(CannotDeleteGLAccountWithEntriesInOpenFiscalYearErr, GLAccount."No.");
@@ -804,6 +798,7 @@ codeunit 361 MoveEntries
         if AccountingPeriod.IsEmpty() then
             exit;
 
+        GeneralLedgerSetup.TestField("Block Deletion of G/L Accounts", false);
         GeneralLedgerSetup.TestField("Allow G/L Acc. Deletion Before");
 
         GLEntry.SetFilter("Posting Date", '>=%1', GeneralLedgerSetup."Allow G/L Acc. Deletion Before");
@@ -814,7 +809,7 @@ codeunit 361 MoveEntries
         GLBudgetEntry.SetFilter(Date, '>=%1', GeneralLedgerSetup."Allow G/L Acc. Deletion Before");
 
         HasGLEntries := not GLEntry.IsEmpty;
-        HasGLBudgetEntries := GLBudgetEntry.FindFirst;
+        HasGLBudgetEntries := GLBudgetEntry.FindFirst();
 
         if HasGLEntries or HasGLBudgetEntries then begin
             if ConfirmManagement.GetResponseOrDefault(GLAccDeleteClosedPeriodsQst, true) then

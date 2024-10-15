@@ -30,7 +30,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // Verify Dimension on Archive Sales Order.
 
         // Create Customer with Default Dimension, Item, Sales Order.Archive Sales Order and Post it.
-        Initialize;
+        Initialize();
         SalesOrderArchive(SalesHeader, TempDimensionSetEntry);
 
         // Verify Dimension on Archive Sales Order and Dimension Set Entry and Dimension on Sales Line successfully updated.
@@ -53,7 +53,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // Verify Dimensions are deleted on deletion of Archived Purchase order.
 
         // Create Customer with Default Dimension, Item, Sales Order.Archive Sales Order and Post it.
-        Initialize;
+        Initialize();
         SalesOrderArchive(SalesHeader, TempDimensionSetEntry);
 
 #if not CLEAN19
@@ -78,7 +78,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // Verify Dimension on Archive Purchase Order.
 
         // Create Customer with Default Dimension, Item, Purchase Order.Archive Purchase Order and Post it.
-        Initialize;
+        Initialize();
         PurchaseOrderArchive(PurchaseHeader, TempDimensionSetEntry);
 
         // Verify Dimension on Archive Purchase Order and Dimension Set Entry and Dimension on Purchase Line successfully updated.
@@ -101,7 +101,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // Verify Dimensions are deleted on deletion of Archived Sales order.
 
         // Create Customer with Default Dimension, Item, Purchase Order.Archive Purchase Order and Post it.
-        Initialize;
+        Initialize();
         PurchaseOrderArchive(PurchaseHeader, TempDimensionSetEntry);
 #if not CLEAN19        
         DeleteArchivePurchOrder(PurchaseHeader);
@@ -124,7 +124,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // Verify Sales Header Archive and Sales Line Archive values.
 
         // Setup: Update Sales & Receivable setup, create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesArchiveOrder(SalesLine);
 
         // Exercise.
@@ -144,11 +144,11 @@ codeunit 134481 "ERM Dimension Archive Document"
         // Verify Sales Header Archive and Sales Line Archive values with multiple Sales Order Archive.
 
         // Setup: Update Sales & Receivable setup, create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesArchiveOrder(SalesLine);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / 2);  // Taken partial Qty. to Ship.
         SalesLine.Modify(true);
 
@@ -169,7 +169,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // Verify Purchase Header Archive and Purchase Line Archive values.
 
         // Setup: Update Purchases & Payables setup, create and post Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseArchiveOrder(PurchaseLine);
 
         // Exercise.
@@ -189,11 +189,11 @@ codeunit 134481 "ERM Dimension Archive Document"
         // Verify Purchase Header Archive and Purchase Line Archive values with multiple Purchase Order Archive .
 
         // Setup: Update Purchases & Payables setup, create and post Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseArchiveOrder(PurchaseLine);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity / 2);  // Taken partial Qty. to Receive.
         PurchaseLine.Modify(true);
 
@@ -215,7 +215,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // [SCENARIO 200401] System creates archive after posting final invoice when "Sales & Recievables Setup"."Archive Quotes and Orders" = TRUE
 
         // [GIVEN] Sales Order "SO" fully shipped and partially invoiced (1 archive exists)
-        Initialize;
+        Initialize();
         LibrarySales.SetArchiveOrders(true);
         CreateSalesOrder(SalesHeader, SalesLine);
         SalesLine.Validate("Qty. to Invoice", SalesLine."Qty. to Invoice" / 2);
@@ -241,7 +241,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // [SCENARIO 200401] System creates archive after posting final invoice when "Purchases & Payables Setup"."Archive Quotes and Orders" = TRUE
 
         // [GIVEN] Purchase Order "PO" fully receipt and partially invoiced (1 archive exists)
-        Initialize;
+        Initialize();
         LibraryPurchase.SetArchiveOrders(true);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Qty. to Invoice" / 2);
@@ -272,7 +272,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // [SCENARIO 200401] System creates archive after delete invoiced sales order
 
         // [GIVEN] Sales Order "SO" fully shipped and not invoiced (1 archive exists)
-        Initialize;
+        Initialize();
         LibrarySales.SetArchiveOrders(true);
         CreateSalesOrder(SalesHeaderOrder, SalesLineOrder);
         LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
@@ -309,7 +309,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // [SCENARIO 200401] System creates archive after delete invoiced purchase order
 
         // [GIVEN] Purchase Order "PO" fully receipt and not invoiced (1 archive exists)
-        Initialize;
+        Initialize();
         LibraryPurchase.SetArchiveOrders(true);
         CreatePurchaseOrder(PurchaseHeaderOrder, PurchaseLineOrder);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
@@ -343,7 +343,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // [SCENARIO 200401] System creates archive when delete sales quote
 
         // [GIVEN] Sales Quote when the line
-        Initialize;
+        Initialize();
         LibrarySales.SetArchiveOrders(true);
         LibrarySales.SetArchiveQuoteAlways;
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -368,7 +368,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         // [SCENARIO 200401] System creates archive when delete purchase quote
 
         // [GIVEN] Purchase Quote when the line
-        Initialize;
+        Initialize();
         LibraryPurchase.SetArchiveOrders(true);
         LibraryPurchase.SetArchiveQuotesAlways;
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, LibraryPurchase.CreateVendorNo);
@@ -387,14 +387,14 @@ codeunit 134481 "ERM Dimension Archive Document"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Archive Document");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Archive Document");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -645,7 +645,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         FindSalesDocumentArchive(SalesHeaderArchive, SalesHeader);
         DeleteSalesOrderVersions.UseRequestPage(false);
         DeleteSalesOrderVersions.SetTableView(SalesHeaderArchive);
-        DeleteSalesOrderVersions.Run;
+        DeleteSalesOrderVersions.Run();
     end;
 
     local procedure DeleteArchivePurchOrder(PurchaseHeader: Record "Purchase Header")
@@ -656,7 +656,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         FindPurchDocumentArchive(PurchaseHeaderArchive, PurchaseHeader);
         DeletePurchaseOrderVersions.UseRequestPage(false);
         DeletePurchaseOrderVersions.SetTableView(PurchaseHeaderArchive);
-        DeletePurchaseOrderVersions.Run;
+        DeletePurchaseOrderVersions.Run();
     end;
 #endif
 
@@ -664,28 +664,28 @@ codeunit 134481 "ERM Dimension Archive Document"
     begin
         SalesLineArchive.SetRange("Document Type", DocumentType);
         SalesLineArchive.SetRange("Document No.", DocumentNo);
-        SalesLineArchive.FindFirst;
+        SalesLineArchive.FindFirst();
     end;
 
     local procedure FindPurchaseLineArchive(var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLineArchive.SetRange("Document Type", DocumentType);
         PurchaseLineArchive.SetRange("Document No.", DocumentNo);
-        PurchaseLineArchive.FindFirst;
+        PurchaseLineArchive.FindFirst();
     end;
 
     local procedure FindSalesDocumentArchive(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")
     begin
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
     end;
 
     local procedure FindPurchDocumentArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
     end;
 
     local procedure VerifyDimOnSalesArchHeader(SalesHeader: Record "Sales Header")
@@ -727,7 +727,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         repeat
             DimensionSetEntry.SetRange("Dimension Code", TempDimensionSetEntry."Dimension Code");
-            DimensionSetEntry.FindFirst;
+            DimensionSetEntry.FindFirst();
             DimensionSetEntry.TestField("Dimension Value Code", TempDimensionSetEntry."Dimension Value Code");
         until TempDimensionSetEntry.Next = 0;
     end;
@@ -739,7 +739,7 @@ codeunit 134481 "ERM Dimension Archive Document"
     begin
         FindPurchDocumentArchive(PurchaseHeaderArchive, PurchaseHeader);
         PurchaseHeaderArchive.SetRange("Version No.", VersionNo);
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
         PurchaseHeaderArchive.TestField("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
 
         FindPurchaseLineArchive(PurchaseLineArchive, PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -755,7 +755,7 @@ codeunit 134481 "ERM Dimension Archive Document"
     begin
         FindSalesDocumentArchive(SalesHeaderArchive, SalesHeader);
         SalesHeaderArchive.SetRange("Version No.", VersionNo);
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
         SalesHeaderArchive.TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
 
         FindSalesLineArchive(SalesLineArchive, SalesHeader."Document Type", SalesHeader."No.");

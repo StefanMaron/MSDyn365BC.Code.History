@@ -83,7 +83,7 @@ codeunit 141081 "ERM Journals"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         CreateGenJournalLine(
           GenJournalLine, Customer."No.", CustomerBankAccount.Code, GenJournalLine."Account Type"::Customer, 0);  // Using 0 for Amount.
-        CustomerVendorBankCode := LibraryUtility.GenerateGUID;
+        CustomerVendorBankCode := LibraryUtility.GenerateGUID();
 
         // Exercise.
         asserterror GenJournalLine.Validate("Customer/Vendor Bank", CustomerVendorBankCode);
@@ -109,7 +109,7 @@ codeunit 141081 "ERM Journals"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         CreateGenJournalLine(
           GenJournalLine, Vendor."No.", VendorBankAccount.Code, GenJournalLine."Account Type"::Vendor, 0);  // Using 0 for Amount.
-        CustomerVendorBankCode := LibraryUtility.GenerateGUID;
+        CustomerVendorBankCode := LibraryUtility.GenerateGUID();
 
         // Exercise.
         asserterror GenJournalLine.Validate("Customer/Vendor Bank", CustomerVendorBankCode);
@@ -487,7 +487,7 @@ codeunit 141081 "ERM Journals"
     begin
         with GSTPurchaseEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(GSTAmount, Amount, StrSubstNo(AmountErr, GSTAmount, Amount));
         end;
     end;
@@ -498,7 +498,7 @@ codeunit 141081 "ERM Journals"
     begin
         with GSTSalesEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(GSTAmount, Amount, StrSubstNo(AmountErr, GSTAmount, Amount));
         end;
     end;
@@ -516,7 +516,7 @@ codeunit 141081 "ERM Journals"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     [ModalPageHandler]

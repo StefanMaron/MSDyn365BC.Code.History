@@ -173,7 +173,7 @@ report 14311 "Stock Card"
                     if "Item Ledger Entry".Quantity < 0 then begin
                         ItemLedgEntry2.Get("Item Application Entry"."Inbound Item Entry No.");
                         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
-                        if ValueEntry.FindFirst then begin
+                        if ValueEntry.FindFirst() then begin
                             IssuedQty := Abs("Item Application Entry".Quantity);
                             IssuedCost := ValueEntry."Cost per Unit";
                             Amount := IssuedQty * IssuedCost;
@@ -324,7 +324,7 @@ report 14311 "Stock Card"
                     if "Item Ledger Entry".Quantity > 0 then begin
                         ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
                         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-                        if not ValueEntry.FindFirst then
+                        if not ValueEntry.FindFirst() then
                             ValueEntry.Init();
                         ReceivedQty := ValueEntry."Invoiced Quantity";
                         ReceivedCost := ValueEntry."Cost per Unit";
@@ -351,7 +351,7 @@ report 14311 "Stock Card"
                     if "Item Ledger Entry".Quantity > 0 then begin
                         ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
                         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-                        if not ValueEntry.FindFirst then
+                        if not ValueEntry.FindFirst() then
                             ValueEntry.Init();
                         ReceivedQty := ValueEntry."Invoiced Quantity";
                         ReceivedCost := ValueEntry."Cost per Unit";

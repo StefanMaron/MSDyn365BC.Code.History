@@ -33,8 +33,8 @@ codeunit 144001 "Tax Document Report Caption"
         GeneralLedgerSetupPage: TestPage "General Ledger Setup";
     begin
         // [FEATURE] [UI]
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
         GeneralLedgerSetupPage.OpenEdit;
         Assert.IsTrue(GeneralLedgerSetupPage."Tax Invoice Renaming Threshold".Visible, 'Tax Invoice Renaming Threshold is not visible');
         Assert.IsTrue(GeneralLedgerSetupPage."Tax Invoice Renaming Threshold".Editable, 'Tax Invoice Renaming Threshold is not editable');
@@ -49,7 +49,7 @@ codeunit 144001 "Tax Document Report Caption"
     begin
         // [FEATURE] [Standard] [Sales] [Invoice]
         // [SCENARIO] Report caption is 'Invoice' if document's total amount is equal to "Tax Invoice Threshold Amount".
-        Initialize;
+        Initialize();
         // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
         SetTaxInvoiceThreshold(1000.0);
         // [GIVEN] Posted Sales Invoice, where "Amount Incl. VAT" is 1000.00.
@@ -72,7 +72,7 @@ codeunit 144001 "Tax Document Report Caption"
     begin
         // [FEATURE] [Standard] [Sales] [Invoice]
         // [SCENARIO] Report caption is 'Tax Invoice' if document's total amount is above "Tax Invoice Threshold Amount".
-        Initialize;
+        Initialize();
         // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
         SetTaxInvoiceThreshold(1000.0);
         // [GIVEN] Posted Sales Invoice, where "Amount Incl. VAT" is 1000.01.
@@ -95,7 +95,7 @@ codeunit 144001 "Tax Document Report Caption"
     begin
         // [FEATURE] [Standard] [Sales] [Invoice] [Prepayment]
         // [SCENARIO] Report caption is 'Prepayment Tax Invoice' if prepayment total amount is above "Tax Invoice Threshold Amount".
-        Initialize;
+        Initialize();
         // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
         SetTaxInvoiceThreshold(1000.0);
         // [GIVEN] Posted Sales Prepayment Invoice, where "Amount Incl. VAT" is 1000.01.
@@ -121,7 +121,7 @@ codeunit 144001 "Tax Document Report Caption"
     begin
         // [FEATURE] [Standard] [Sales] [Invoice] [FCY]
         // [SCENARIO] Report caption is 'Tax Invoice' if FCY document's total amount in LCY is above "Tax Invoice Threshold Amount".
-        Initialize;
+        Initialize();
         // [GIVEN] "Tax Invoice Threshold Amount" is 1000.01
         SetTaxInvoiceThreshold(1000.01);
         // [GIVEN] Posted Sales Invoice in FCY, where "Amount Incl. VAT" is 500.01 (= NZD1000.02).
@@ -144,7 +144,7 @@ codeunit 144001 "Tax Document Report Caption"
     begin
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO] Report caption is 'Service - Invoice' if document's total amount is equal to "Tax Invoice Threshold Amount".
-        Initialize;
+        Initialize();
         // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
         SetTaxInvoiceThreshold(1000.0);
         // [GIVEN] Posted Service Invoice, where "Amount Incl. VAT" is 1000.00.
@@ -167,7 +167,7 @@ codeunit 144001 "Tax Document Report Caption"
     begin
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO] Report caption is 'Service - Tax Invoice' if document's total amount is above "Tax Invoice Threshold Amount".
-        Initialize;
+        Initialize();
         // [GIVEN] "Tax Invoice Threshold Amount" is 1000.00
         SetTaxInvoiceThreshold(1000.0);
         // [GIVEN] Posted Service Invoice, where "Amount Incl. VAT" is 1000.01.
@@ -183,7 +183,7 @@ codeunit 144001 "Tax Document Report Caption"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure PostSalesInvoice(CurrencyFactor: Decimal; TotalAmount: Decimal): Code[20]
@@ -226,7 +226,7 @@ codeunit 144001 "Tax Document Report Caption"
 
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceInvoiceHeader.SetRange("Customer No.", ServiceHeader."Customer No.");
-        ServiceInvoiceHeader.FindLast;
+        ServiceInvoiceHeader.FindLast();
         ServiceInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
         exit(ServiceInvoiceHeader."No.");
     end;

@@ -334,7 +334,7 @@ page 959 "Time Sheet Archive"
         TimeSheetHeaderArchive.Get(CurrTimeSheetNo);
         Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
         Calendar.SetRange("Period Start", TimeSheetHeaderArchive."Starting Date", TimeSheetHeaderArchive."Ending Date");
-        if Calendar.FindSet then
+        if Calendar.FindSet() then
             repeat
                 NoOfColumns += 1;
                 ColumnRecords[NoOfColumns]."Period Start" := Calendar."Period Start";

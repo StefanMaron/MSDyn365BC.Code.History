@@ -35,7 +35,7 @@ codeunit 28090 PostDatedCheckMgt
     [Scope('OnPrem')]
     procedure Post(var PostDatedCheck: Record "Post Dated Check Line")
     begin
-        PostDatedCheck.FindFirst;
+        PostDatedCheck.FindFirst();
         CheckCount := PostDatedCheck.Count();
         repeat
             GenJnlLine.Reset();
@@ -60,7 +60,7 @@ codeunit 28090 PostDatedCheckMgt
                         GenJnlLine.SetRange("Journal Batch Name", PurchSetup."Post Dated Check Batch");
                 end;
 
-            if GenJnlLine.FindLast then begin
+            if GenJnlLine.FindLast() then begin
                 LineNumber := GenJnlLine."Line No.";
                 GenJnlLine2 := GenJnlLine;
             end else
@@ -105,7 +105,7 @@ codeunit 28090 PostDatedCheckMgt
             if PostDatedCheck."Account Type" = PostDatedCheck."Account Type"::Customer then begin
                 if PostDatedCheck."Applies-to ID" <> '' then begin
                     CustLedgEntry.SetRange("Applies-to ID", PostDatedCheck."Applies-to ID");
-                    if CustLedgEntry.FindSet then
+                    if CustLedgEntry.FindSet() then
                         repeat
                             CustLedgEntry."Applies-to ID" := GenJnlLine."Document No.";
                             CustLedgEntry.Modify();
@@ -117,7 +117,7 @@ codeunit 28090 PostDatedCheckMgt
                 if PostDatedCheck."Account Type" = PostDatedCheck."Account Type"::Vendor then begin
                     if PostDatedCheck."Applies-to ID" <> '' then begin
                         VendLedgEntry.SetRange("Applies-to ID", PostDatedCheck."Applies-to ID");
-                        if VendLedgEntry.FindSet then
+                        if VendLedgEntry.FindSet() then
                             repeat
                                 VendLedgEntry."Applies-to ID" := GenJnlLine."Document No.";
                                 VendLedgEntry.Modify();
@@ -167,7 +167,7 @@ codeunit 28090 PostDatedCheckMgt
             exit;
         PostDatedCheck.Reset();
         PostDatedCheck.SetCurrentKey("Line Number");
-        if PostDatedCheck.FindLast then
+        if PostDatedCheck.FindLast() then
             LineNumber := PostDatedCheck."Line Number"
         else
             LineNumber := 0;
@@ -209,7 +209,7 @@ codeunit 28090 PostDatedCheckMgt
         if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then begin
             if GenJnlLine."Applies-to ID" <> '' then begin
                 CustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         CustLedgEntry."Applies-to ID" := PostDatedCheck."Document No.";
                         CustLedgEntry.Modify();
@@ -220,7 +220,7 @@ codeunit 28090 PostDatedCheckMgt
             if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor then begin
                 if GenJnlLine."Applies-to ID" <> '' then begin
                     VendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
-                    if VendLedgEntry.FindSet then
+                    if VendLedgEntry.FindSet() then
                         repeat
                             VendLedgEntry."Applies-to ID" := PostDatedCheck."Document No.";
                             VendLedgEntry.Modify();
@@ -254,14 +254,14 @@ codeunit 28090 PostDatedCheckMgt
         GenJnlLine.SetRange("Journal Template Name", GLSetup."Post Dated Journal Template");
         GenJnlLine.SetRange("Journal Batch Name", GLSetup."Post Dated Journal Batch");
         GenJnlLine.SetFilter("Account No.", '<>%1', '');
-        if GenJnlLine.FindSet then begin
+        if GenJnlLine.FindSet() then begin
             repeat
                 PostDatedCheck.Reset();
                 PostDatedCheck.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
                 PostDatedCheck.SetRange("Account No.", GenJnlLine."Account No.");
                 PostDatedCheck.SetRange("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type");
                 PostDatedCheck.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
-                if not PostDatedCheck.FindFirst then begin
+                if not PostDatedCheck.FindFirst() then begin
                     PostDatedCheck.Reset();
                     case GenJnlLine."Account Type" of
                         GenJnlLine."Account Type"::"G/L Account":
@@ -272,7 +272,7 @@ codeunit 28090 PostDatedCheckMgt
                             PostDatedCheck.SetRange("Account Type", PostDatedCheck."Account Type"::Vendor);
                     end;
                     PostDatedCheck.SetRange("Account No.", GenJnlLine."Account No.");
-                    if PostDatedCheck.FindLast then
+                    if PostDatedCheck.FindLast() then
                         LineNumber := PostDatedCheck."Line Number" + 10000
                     else
                         LineNumber := 10000;
@@ -319,7 +319,7 @@ codeunit 28090 PostDatedCheckMgt
             GenJnlLine.SetRange("Journal Template Name", GLSetup."Post Dated Journal Template");
             GenJnlLine.SetRange("Journal Batch Name", GLSetup."Post Dated Journal Batch");
             GenJnlLine.SetRange("Post Dated Check", true);
-            if GenJnlLine.FindFirst then
+            if GenJnlLine.FindFirst() then
                 GenJnlLine.DeleteAll();
             GenJnlLine."Line No." := "Line Number";
             GenJnlLine."Journal Template Name" := GLSetup."Post Dated Journal Template";
@@ -385,7 +385,7 @@ codeunit 28090 PostDatedCheckMgt
         GenJnlLine.SetRange("Journal Template Name", GLSetup."Post Dated Journal Template");
         GenJnlLine.SetRange("Journal Batch Name", GLSetup."Post Dated Journal Batch");
         GenJnlLine.SetRange("Post Dated Check", true);
-        if GenJnlLine.FindFirst then
+        if GenJnlLine.FindFirst() then
             GenJnlLine.DeleteAll();
     end;
 
@@ -397,13 +397,13 @@ codeunit 28090 PostDatedCheckMgt
         GenJnlLine."Journal Template Name" := GLSetup."Post Dated Journal Template";
         GenJnlLine."Journal Batch Name" := GLSetup."Post Dated Journal Batch";
         CreateVendorPmtSuggestion.SetGenJnlLine(GenJnlLine);
-        CreateVendorPmtSuggestion.RunModal;
+        CreateVendorPmtSuggestion.RunModal();
         CopySuggestedVendorPayments;
         Clear(CreateVendorPmtSuggestion);
         GenJnlLine.Reset();
         GenJnlLine.SetRange("Journal Template Name", GLSetup."Post Dated Journal Template");
         GenJnlLine.SetRange("Journal Batch Name", GLSetup."Post Dated Journal Batch");
-        if GenJnlLine.FindFirst then
+        if GenJnlLine.FindFirst() then
             GenJnlLine.DeleteAll();
     end;
 
@@ -423,7 +423,7 @@ codeunit 28090 PostDatedCheckMgt
             GenJnlLine.SetRange("Journal Template Name", GLSetup."Post Dated Journal Template");
             GenJnlLine.SetRange("Journal Batch Name", GLSetup."Post Dated Journal Batch");
             GenJnlLine.SetRange("Post Dated Check", true);
-            if GenJnlLine.FindFirst then
+            if GenJnlLine.FindFirst() then
                 GenJnlLine.DeleteAll();
         end;
     end;
@@ -438,7 +438,7 @@ codeunit 28090 PostDatedCheckMgt
         GenJnlLine.Insert();
         Commit();
         DocPrint.PrintCheck(GenJnlLine);
-        if GenJnlLine.FindFirst then begin
+        if GenJnlLine.FindFirst() then begin
             PostDatedCheckLine."Check Printed" := GenJnlLine."Check Printed";
             PostDatedCheckLine."Check No." := GenJnlLine."Document No.";
             PostDatedCheckLine."Document No." := GenJnlLine."Document No.";
@@ -450,7 +450,7 @@ codeunit 28090 PostDatedCheckMgt
         GenJnlLine.SetRange("Journal Template Name", GLSetup."Post Dated Journal Template");
         GenJnlLine.SetRange("Journal Batch Name", GLSetup."Post Dated Journal Batch");
         GenJnlLine.SetRange("Post Dated Check", true);
-        if GenJnlLine.FindFirst then
+        if GenJnlLine.FindFirst() then
             GenJnlLine.DeleteAll();
     end;
 
@@ -473,7 +473,7 @@ codeunit 28090 PostDatedCheckMgt
             GenJnlLine.SetRange("Journal Template Name", GLSetup."Post Dated Journal Template");
             GenJnlLine.SetRange("Journal Batch Name", GLSetup."Post Dated Journal Batch");
             GenJnlLine.SetRange("Post Dated Check", true);
-            if GenJnlLine.FindFirst then begin
+            if GenJnlLine.FindFirst() then begin
                 "Check Printed" := GenJnlLine."Check Printed";
                 Modify;
                 GenJnlLine.DeleteAll();

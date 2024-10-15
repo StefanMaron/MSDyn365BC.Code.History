@@ -43,7 +43,7 @@ codeunit 134165 "Payroll Extension Support Test"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         GenJnlManagement: Codeunit GenJnlManagement;
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         CleanUp;
 
         if IsInitialized then
@@ -57,7 +57,7 @@ codeunit 134165 "Payroll Extension Support Test"
         FailedSetupChoice := ServiceConnection.Status::Disabled;
         UnunstallSetupChoice := ServiceConnection.Status::" ";
 
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
 
         LibraryRandom.SetSeed(1);
         BindSubscription(PayrollServiceExtensionMock);
@@ -82,7 +82,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch, TempSetupServiceConnection.Status::" ");
 
@@ -107,7 +107,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch, TempSetupServiceConnection.Status::Enabled);
 
@@ -136,7 +136,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch, TempSetupServiceConnection.Status::Enabled);
 
@@ -163,7 +163,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionInstalledAndEnabledWhenAnotherLineExist(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch, GenJournalLine);
 
@@ -197,7 +197,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch, TempSetupServiceConnection.Status::Disabled);
 
@@ -228,7 +228,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch, TempSetupServiceConnection.Status::Disabled);
 
@@ -260,7 +260,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch, TempSetupServiceConnection.Status::Disabled);
 
@@ -292,7 +292,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch, TempSetupServiceConnection.Status::Disabled);
 
@@ -322,7 +322,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionWithAssistedSetupInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Disabled);
@@ -354,7 +354,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionWithAssistedSetupInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Disabled);
@@ -387,7 +387,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupSingleExtensionWithAssistedSetupInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Disabled);
@@ -419,7 +419,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateMockPayrollService(TempSetupServiceConnection, TempSetupServiceConnection.Status::Disabled);
         CreateMockPayrollService(TempSetupServiceConnection, TempSetupServiceConnection.Status::Enabled);
         SelectGenJournalBatch(GenJournalBatch);
@@ -453,7 +453,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTwoExtensionsInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Enabled, TempSetupServiceConnection.Status::Enabled);
@@ -484,7 +484,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTwoExtensionsInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Enabled, TempSetupServiceConnection.Status::Enabled);
@@ -515,7 +515,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTwoExtensionsInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Disabled, TempSetupServiceConnection.Status::Disabled);
@@ -548,7 +548,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTwoExtensionsInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Disabled, TempSetupServiceConnection.Status::Disabled);
@@ -582,7 +582,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTwoExtensionsInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Disabled, TempSetupServiceConnection.Status::Disabled);
@@ -615,7 +615,7 @@ codeunit 134165 "Payroll Extension Support Test"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupTwoExtensionsInstalled(
           TempSetupServiceConnection, TempGenJournalLine, GenJournalBatch,
           TempSetupServiceConnection.Status::Disabled, TempSetupServiceConnection.Status::Disabled);
@@ -764,12 +764,9 @@ codeunit 134165 "Payroll Extension Support Test"
 
     local procedure CreateAssistedSetup(PageID: Integer)
     var
-        AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
-        GroupName: Enum "Assisted Setup Group";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
-        AssistedSetup.Add(BaseAppID.Get(), PageID, 
-            CopyStr(LibraryUtility.GenerateRandomText(10), 1, 250), GroupName::Uncategorized);
+        GuidedExperience.InsertAssistedSetup('', '', '', 0, ObjectType::Page, PageID, "Assisted Setup Group"::Uncategorized, '', "Video Category"::Uncategorized, '');
     end;
 
     local procedure GetGenJournalNewLineNo(var GenJournalBatch: Record "Gen. Journal Batch"): Integer
@@ -779,7 +776,7 @@ codeunit 134165 "Payroll Extension Support Test"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if GenJournalLine.FindLast then
+        if GenJournalLine.FindLast() then
             LineNo := GenJournalLine."Line No." + 10000
         else
             LineNo := 10000;
@@ -846,7 +843,7 @@ codeunit 134165 "Payroll Extension Support Test"
         PayrollServiceExtensionMock.GetAvailableServiceConnections(TempSetupServiceConnection);
         Customer.Get(CustomerCard."No.".Value);
         TempSetupServiceConnection.SetRange("Record ID", Customer.RecordId);
-        TempSetupServiceConnection.FindFirst;
+        TempSetupServiceConnection.FindFirst();
         if NewStatus = TempSetupServiceConnection.Status::" " then
             TempSetupServiceConnection.Delete
         else begin
@@ -867,7 +864,7 @@ codeunit 134165 "Payroll Extension Support Test"
         NewStatus := LibraryVariableStorage.DequeueInteger;
         PayrollServiceExtensionMock.GetAvailableServiceConnections(TempSetupServiceConnection);
         TempSetupServiceConnection.SetRange("Assisted Setup Page ID", PAGE::"General Ledger Setup");
-        TempSetupServiceConnection.FindFirst;
+        TempSetupServiceConnection.FindFirst();
         if NewStatus = TempSetupServiceConnection.Status::" " then
             TempSetupServiceConnection.Delete
         else begin

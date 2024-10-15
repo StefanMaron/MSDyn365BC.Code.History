@@ -77,7 +77,7 @@ codeunit 17100 "Recurring Amount - Distribute"
                 SumAllocationPercent += "G/L Alloc. Line"."Allocation %";
             until "G/L Alloc. Line".Next() = 0;
             PercentageRoundDiff := 100 - SumAllocationPercent;
-            "G/L Alloc. Line".FindLast;
+            "G/L Alloc. Line".FindLast();
             "G/L Alloc. Line"."Allocation %" := "G/L Alloc. Line"."Allocation %" + PercentageRoundDiff;
             "G/L Alloc. Line".Modify();
             Message(Text1450002);

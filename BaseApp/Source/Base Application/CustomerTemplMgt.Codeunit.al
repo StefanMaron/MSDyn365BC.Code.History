@@ -575,7 +575,8 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
         Page.Run(Page::"Customer Templ. List");
     end;
-
+#endif
+#if not CLEAN18
     [EventSubscriber(ObjectType::Page, Page::"Customer Template List", 'OnOpenPageEvent', '', false, false)]
     local procedure CustomerTemplateListOnOpenPageEventHandler()
     begin

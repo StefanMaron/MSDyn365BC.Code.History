@@ -144,7 +144,7 @@ xmlport 16630 "WHT-EFiling"
                     WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                     WHTEntry1.SetFilter("Posting Date", ReturnPeriod);
                     WHTEntry1.SetFilter("Bill-to/Pay-to No.", VendID);
-                    if WHTEntry1.FindFirst then
+                    if WHTEntry1.FindFirst() then
                         REPORT.RunModal(REPORT::"E-Filing", false, false, WHTEntry1);
                 end;
             }

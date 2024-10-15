@@ -82,10 +82,6 @@ codeunit 1876 "Business Setup Subscribers"
         ReportLayoutsShortTitleTxt: Label 'Report layout selection';
         ReportLayoutsDescriptionTxt: Label 'Define the appearance for PDF or printed documents and reports.';
         ReportLayoutsKeywordsTxt: Label 'Report, Layout, Design';
-        SMTPMailSetupTitleTxt: Label 'SMTP email setup';
-        SMTPMailSetupShortTitleTxt: Label 'Set up SMTP email';
-        SMTPMailSetupDescriptionTxt: Label 'Set up your email server.';
-        SMTPMailSetupKeywordsTxt: Label 'System, SMTP, Mail';
         EmailAccountMailSetupTitleTxt: Label 'Email account setup';
         EmailAccountMailSetupShortTitleTxt: Label 'Email account setup';
         EmailAccountSetupDescriptionTxt: Label 'Set up your email accounts.';
@@ -280,7 +276,6 @@ codeunit 1876 "Business Setup Subscribers"
 #if not CLEAN19
         EnvironmentInfo: Codeunit "Environment Information";
 #endif
-        EmailFeature: Codeunit "Email Feature";
         Info: ModuleInfo;
         ManualSetupCategory: Enum "Manual Setup Category";
     begin
@@ -370,12 +365,9 @@ codeunit 1876 "Business Setup Subscribers"
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(ReportLayoutsTitleTxt, ReportLayoutsShortTitleTxt, ReportLayoutsDescriptionTxt, 15, ObjectType::Page,
               Page::"Report Layout Selection", ManualSetupCategory::System, ReportLayoutsKeywordsTxt);
-            if EmailFeature.IsEnabled() then
-                Sender.InsertManualSetup(EmailAccountMailSetupTitleTxt, EmailAccountMailSetupShortTitleTxt, EmailAccountSetupDescriptionTxt, 7, ObjectType::Page,
-                  Page::"Email Accounts", ManualSetupCategory::System, EmailAccountSetupKeywordsTxt)
-            else
-                Sender.InsertManualSetup(SMTPMailSetupTitleTxt, SMTPMailSetupShortTitleTxt, SMTPMailSetupDescriptionTxt, 10, ObjectType::Page,
-                  Page::"SMTP Mail Setup", ManualSetupCategory::System, SMTPMailSetupKeywordsTxt);
+
+            Sender.InsertManualSetup(EmailAccountMailSetupTitleTxt, EmailAccountMailSetupShortTitleTxt, EmailAccountSetupDescriptionTxt, 7, ObjectType::Page,
+              Page::"Email Accounts", ManualSetupCategory::System, EmailAccountSetupKeywordsTxt);
 
             Sender.InsertManualSetup(UsersTitleTxt, UsersShortTitleTxt, UsersDescriptionTxt, 10, ObjectType::Page,
               Page::Users, ManualSetupCategory::System, UsersKeywordsTxt);
@@ -490,8 +482,14 @@ codeunit 1876 "Business Setup Subscribers"
 
         // Intercompany
         IF ApplicationAreaMgmtFacade.IsIntercompanyEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
+#if not CLEAN20          
             Sender.InsertManualSetup(ICSetupTitleTxt, ICSetupShortTitleTxt, ICSetupDescriptionTxt, 2, ObjectType::Page,
               Page::"IC Setup", ManualSetupCategory::Intercompany, ICSetupKeywordsTxt);
+#else
+            Sender.InsertManualSetup(
+                ICSetupTitleTxt, ICSetupShortTitleTxt, ICSetupDescriptionTxt, 2, ObjectType::Page,
+                Page::"Intercompany Setup", ManualSetupCategory::Intercompany, ICSetupKeywordsTxt);
+#endif
 
             Sender.InsertManualSetup(ICPartnersTitleTxt, ICPartnersShortTitleTxt, ICPartnersDescriptionTxt, 5, ObjectType::Page,
               Page::"IC Partner List", ManualSetupCategory::Intercompany, ICPartnersKeywordsTxt);

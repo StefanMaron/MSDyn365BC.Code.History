@@ -115,6 +115,12 @@ page 370 "Bank Account Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
                 }
+                field("Use as Default for Currency"; "Use as Default for Currency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether this is the default company account for payments in sales and service documents in the currency specified for this account. Each currency can have only one default bank account.';
+                }
                 group(Control45)
                 {
                     ShowCaption = false;
@@ -550,7 +556,6 @@ page 370 "Bank Account Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -803,9 +808,7 @@ page 370 "Bank Account Card"
     trigger OnOpenPage()
     var
         Contact: Record Contact;
-        EmailFeature: Codeunit "Email Feature";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
@@ -821,7 +824,6 @@ page 370 "Bank Account Card"
         ShowBankLinkingActions: Boolean;
         NoFieldVisible: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetNoFieldVisible()
     var

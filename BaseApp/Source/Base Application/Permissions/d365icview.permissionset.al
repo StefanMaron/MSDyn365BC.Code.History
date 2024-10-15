@@ -32,5 +32,6 @@ permissionset 3814 "D365 IC, VIEW"
                   tabledata "IC Outbox Purchase Line" = R,
                   tabledata "IC Outbox Sales Header" = R,
                   tabledata "IC Outbox Sales Line" = R,
-                  tabledata "IC Partner" = R;
+                  tabledata "IC Partner" = R,
+                  tabledata "IC Setup" = R;
 }

@@ -77,7 +77,7 @@ codeunit 441 "Prepayment Mgt."
     local procedure ApplySalesPrepaymentPct(var SalesLine: Record "Sales Line"; var SalesPrepaymentPct: Record "Sales Prepayment %"): Boolean
     begin
         with SalesPrepaymentPct do
-            if FindLast then begin
+            if FindLast() then begin
                 SalesLine."Prepayment %" := "Prepayment %";
                 exit(true);
             end;
@@ -109,7 +109,7 @@ codeunit 441 "Prepayment Mgt."
     local procedure ApplyPurchPrepaymentPct(var PurchLine: Record "Purchase Line"; var PurchPrepaymentPct: Record "Purchase Prepayment %"): Boolean
     begin
         with PurchPrepaymentPct do
-            if FindLast then begin
+            if FindLast() then begin
                 PurchLine."Prepayment %" := "Prepayment %";
                 exit(true);
             end;
@@ -129,7 +129,7 @@ codeunit 441 "Prepayment Mgt."
         SalesLine.SetLoadFields("Prepmt. Line Amount", "Prepmt. Amt. Inv.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if SalesLine."Prepmt. Line Amount" <> 0 then
                     if SalesLine."Prepmt. Amt. Inv." <> SalesLine."Prepmt. Line Amount" then
@@ -153,7 +153,7 @@ codeunit 441 "Prepayment Mgt."
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetFilter("Prepmt. Line Amount", '<>%1', 0);
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 if PurchaseLine."Prepmt. Amt. Inv." <> PurchaseLine."Prepmt. Line Amount" then
                     exit(true);
@@ -192,7 +192,7 @@ codeunit 441 "Prepayment Mgt."
         SalesInvHeader.SetLoadFields("No.");
         SalesInvHeader.SetRange("Prepayment Order No.", SalesHeader."No.");
         SalesInvHeader.SetRange("Prepayment Invoice", true);
-        if SalesInvHeader.FindSet then
+        if SalesInvHeader.FindSet() then
             repeat
                 OnTestSalesPaymentOnBeforeCustLedgerEntrySetFilter(CustLedgerEntry, SalesHeader, SalesInvHeader);
                 CustLedgerEntry.SetCurrentKey("Document No.");
@@ -226,7 +226,7 @@ codeunit 441 "Prepayment Mgt."
         PurchInvHeader.SetLoadFields("No.");
         PurchInvHeader.SetRange("Prepayment Order No.", PurchaseHeader."No.");
         PurchInvHeader.SetRange("Prepayment Invoice", true);
-        if PurchInvHeader.FindSet then
+        if PurchInvHeader.FindSet() then
             repeat
                 OnTestPurchasePaymentOnBeforeVendLedgerEntrySetFilter(VendLedgerEntry, PurchaseHeader, PurchInvHeader);
                 VendLedgerEntry.SetCurrentKey("Document No.");

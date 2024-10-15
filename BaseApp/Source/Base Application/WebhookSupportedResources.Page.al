@@ -53,7 +53,7 @@ page 5460 "Webhook Supported Resources"
 
         ApiWebhookEntity.SetRange("Object Type", ApiWebhookEntity."Object Type"::Page);
         ApiWebhookEntity.SetRange("Table Temporary", false);
-        if not ApiWebhookEntity.FindSet then
+        if not ApiWebhookEntity.FindSet() then
             exit(false);
 
         repeat
@@ -67,7 +67,7 @@ page 5460 "Webhook Supported Resources"
         until ApiWebhookEntity.Next() = 0;
 
         SetView(View);
-        FindFirst;
+        FindFirst();
         Initialized := true;
         exit(true);
     end;

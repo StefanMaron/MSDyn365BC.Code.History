@@ -161,7 +161,7 @@ codeunit 136202 "Marketing Document Logging"
 
         // 1. Setup: Create Sales Header and Sales Line with Type Item.
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
-        LibraryReportDataset.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportDataset.SetFileName(LibraryUtility.GenerateGUID());
         SetRDLCReportLayout(REPORT::"Standard Sales - Quote");
 
         // 2. Exercise: Run Sales Quote Report with Log Interaction, Save it as as XLSX.
@@ -177,7 +177,7 @@ codeunit 136202 "Marketing Document Logging"
         LibraryUtility.CheckFileNotEmpty(LibraryReportDataset.GetFileName());
         InteractionLogEntry.SetRange("Contact No.", SalesHeader."Bill-to Contact No.");
         InteractionLogEntry.SetRange("Document No.", SalesHeader."No.");
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
     end;
 
     [Test]
@@ -241,7 +241,7 @@ codeunit 136202 "Marketing Document Logging"
         // 2. Exercise: Restore the Sales Document from first archived Sales Document.
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
         ArchiveManagement.RestoreSalesDocument(SalesHeaderArchive);
 
         // 3. Verify: Verify Sales Line after Restore Sales Document.
@@ -313,7 +313,7 @@ codeunit 136202 "Marketing Document Logging"
 
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
         ArchiveManagement.RestoreSalesDocument(SalesHeaderArchive);
 
         // 3. Verify: Verify Comments on Service Header and Service Line.
@@ -371,7 +371,7 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveManagement: Codeunit ArchiveManagement;
     begin
         // 1. Setup: Create Purchase Header, Purchase Line with Type Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         // Use Random because value is not important.
@@ -430,7 +430,7 @@ codeunit 136202 "Marketing Document Logging"
         // 2. Verify: Verify Sales Header Archive Created.
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        // FIX SalesHeaderArchive.FINDFIRST;
+        // FIX SalesHeaderArchive.FindFirst();
     end;
 
     [Test]
@@ -484,7 +484,7 @@ codeunit 136202 "Marketing Document Logging"
         // 3. Verify: Verify Sales Header Archive Created.
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
     end;
 
     [Test]
@@ -617,7 +617,7 @@ codeunit 136202 "Marketing Document Logging"
         Quantity: Decimal;
     begin
         // Test Create a Sales Quote Document from Contact and Verify Values on Sales Quote Document.
-        Initialize;
+        Initialize();
         // 1. Setup: Create Contact, Customer Template.
         LibraryMarketing.CreateCompanyContact(Contact);
         LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
@@ -651,7 +651,7 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveManagement: Codeunit ArchiveManagement;
     begin
         // Test Create Archive Document from Sales Quote Document with Contact.
-        Initialize;
+        Initialize();
         // 1. Setup: Create Contact, Customer Template, Create Sales Quote Document from Contact with Customer Template and Random Quantity.
         LibraryMarketing.CreateCompanyContact(Contact);
         LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
@@ -689,7 +689,7 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveManagement: Codeunit ArchiveManagement;
     begin
         // Test Create Archive Document from Sales Quote Document with Contact and Release Sales Quote after Archiving.
-        Initialize;
+        Initialize();
         // 1. Setup: Create Contact, Customer Template, Create Sales Quote Document from Contact with Customer Template and Random Quantity.
         // Archive the Sales Document.
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -729,7 +729,7 @@ codeunit 136202 "Marketing Document Logging"
         // Test and Verify that after restoring the acrhive document, Location on Sales Line do not get updated with location of Sales Header.
 
         // 1. Setup: Create sales order and archive the sales order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesOrderWithDifferentLocation(SalesHeader, Customer."No.");
         ArchiveCreatedSalesOrder(SalesHeaderArchive, SalesHeader);
@@ -774,7 +774,7 @@ codeunit 136202 "Marketing Document Logging"
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
         // [SCENARIO 179174] Printing Posted Sales Invoice Report with Interaction Log Entry - Account Receivables Permission
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "PSI" for Customer with Contact "C"
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
@@ -805,7 +805,7 @@ codeunit 136202 "Marketing Document Logging"
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
         // [SCENARIO 179174] Printing Posted Sales Invoice Report with Interaction Log Entry - SALES DOC, POST Permission
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "PSI" for Customer with Contact "C"
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
@@ -849,15 +849,15 @@ codeunit 136202 "Marketing Document Logging"
         CompanyInformation: Record "Company Information";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Document Logging");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Document Logging");
 
         LibrarySales.SetCreditWarningsToNoWarnings;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ReportSelections.DeleteAll();
         CreateDefaultReportSelection;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -881,7 +881,7 @@ codeunit 136202 "Marketing Document Logging"
         VATProdPostingGroup: Code[20];
     begin
         // Setup: Create and archive Sales Return Order.
-        Initialize;
+        Initialize();
         VATProdPostingGroup := CreateSalesDocumentWithVAT(SalesHeader, SalesLine, DocumentType);
         ArchiveManagement.ArchiveSalesDocument(SalesHeader);
 
@@ -974,7 +974,7 @@ codeunit 136202 "Marketing Document Logging"
 
     local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         // Use Random because value is not important.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
@@ -1068,7 +1068,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
         ArchivedSalesQuote.SetTableView(SalesHeaderArchive);
-        ArchivedSalesQuote.Run;
+        ArchivedSalesQuote.Run();
     end;
 
     local procedure RunReportArchivedSalesReturnOrder(SalesHeader: Record "Sales Header")
@@ -1081,7 +1081,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
         ArchSalesReturnOrder.SetTableView(SalesHeaderArchive);
-        ArchSalesReturnOrder.Run;
+        ArchSalesReturnOrder.Run();
     end;
 
     local procedure VerifyArchivedVersions(SalesHeader: Record "Sales Header")
@@ -1098,7 +1098,7 @@ codeunit 136202 "Marketing Document Logging"
     begin
         PurchaseHeaderArchive.SetRange("Document Type", PurchCommentLine."Document Type".AsInteger());
         PurchaseHeaderArchive.SetRange("No.", PurchCommentLine."No.");
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
 
         PurchCommentLineArchive.Get(
           PurchaseHeaderArchive."Document Type", PurchaseHeaderArchive."No.", PurchaseHeaderArchive."Doc. No. Occurrence",
@@ -1113,7 +1113,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type".AsInteger());
         SalesCommentLine.SetRange("No.", SalesHeader."No.");
         SalesCommentLine.SetRange("Document Line No.", DocumentLineNo);
-        SalesCommentLine.FindFirst;
+        SalesCommentLine.FindFirst();
         SalesCommentLine.TestField(Comment, Comment);
     end;
 
@@ -1142,7 +1142,7 @@ codeunit 136202 "Marketing Document Logging"
     begin
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
         SalesHeaderArchive.TestField("Sell-to Contact No.", SalesHeader."Sell-to Contact No.");
         SalesHeaderArchive.TestField("Sell-to Customer Template Code", SalesHeader."Sell-to Customer Template Code");
         SalesHeaderArchive.TestField("Order Date", SalesHeader."Order Date");
@@ -1168,13 +1168,13 @@ codeunit 136202 "Marketing Document Logging"
         SalesLine.FindSet();
         SalesHeaderArchive.SetRange("Document Type", SalesLine."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesLine."Document No.");
-        SalesHeaderArchive.FindLast;
+        SalesHeaderArchive.FindLast();
         SalesLineArchive.SetRange("Document Type", SalesHeaderArchive."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesHeaderArchive."No.");
         SalesLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
         repeat
             SalesLineArchive.SetRange("Line No.", SalesLine."Line No.");
-            SalesLineArchive.FindFirst;
+            SalesLineArchive.FindFirst();
             SalesLineArchive.TestField(Type, SalesLine.Type);
             SalesLineArchive.TestField("No.", SalesLine."No.");
             SalesLineArchive.TestField(Quantity, SalesLine.Quantity);
@@ -1202,7 +1202,7 @@ codeunit 136202 "Marketing Document Logging"
     begin
         ReportLayoutSelection.SetRange("Report ID", ReportID);
         ReportLayoutSelection.SetRange("Company Name", CompanyName);
-        if ReportLayoutSelection.FindFirst then begin
+        if ReportLayoutSelection.FindFirst() then begin
             ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
             ReportLayoutSelection."Custom Report Layout Code" := '';
             ReportLayoutSelection.Modify();

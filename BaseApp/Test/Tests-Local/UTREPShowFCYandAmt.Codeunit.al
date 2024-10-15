@@ -44,7 +44,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         // [SCENARIO] verify Amount, Amount Including VAT and Amount in words on Report - 406 Purchase - Invoice.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseInvoice(PurchInvLine);
         LibraryVariableStorage.Enqueue(PurchInvLine."Document No.");  // Enqueue for PurchaseInvoiceRequestPageHandler.
         Commit();  // COMMIT is explicitly called on OnRun of COD319 - Purch. Inv.-Printed.
@@ -66,7 +66,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         // [SCENARIO] verify Amount, Amount Including VAT and Amount in words on Report - 407 Purchase - Credit Memo.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedPurchaseCreditMemo(PurchCrMemoLine);
         LibraryVariableStorage.Enqueue(PurchCrMemoLine."Document No.");  // Enqueue for PurchaseCreditMemoRequestPageHandler.
         Commit();  // COMMIT is explicitly called on OnRun of COD320 - PurchCrMemo-Printed.
@@ -80,7 +80,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCurrency(): Code[10]

@@ -604,7 +604,7 @@ table 28073 "Sales Tax Cr.Memo Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     local procedure TestNoSeries(): Boolean

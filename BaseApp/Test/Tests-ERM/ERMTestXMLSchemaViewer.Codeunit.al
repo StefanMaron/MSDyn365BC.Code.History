@@ -12,11 +12,12 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         XMLDateFormatTxt: Label 'YYYY-MM-DD', Locked = true;
         XMLDateTimeFormatTxt: Label 'YYYY-MM-DDThh:mm:ss', Locked = true;
         DefaultCultureTxt: Label 'en-US', Locked = true;
+#if not CLEAN20
         LibraryXBRL: Codeunit "Library - XBRL";
+#endif
         LibraryRandom: Codeunit "Library - Random";
 
     [Test]
@@ -1171,6 +1172,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         Assert.ExpectedErrorCode('TestValidation');
     end;
 
+#if not CLEAN20
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('MessageHandler,XBRLExportInstanceSpec2RequestPageHandler')]
@@ -1245,6 +1247,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         LibraryVariableStorage.AssertEmpty();
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -1785,6 +1788,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         exit(false);
     end;
 
+#if not CLEAN20
     local procedure CreateXBRLSchemaFile(var OutStr: OutStream; LineName: Text; LineId: Text)
     begin
         OutStr.WriteText('<?xml version="1.0" encoding="UTF-8"?>');
@@ -1808,8 +1812,9 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XBRLExportInstanceSpec2.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
         XBRLExportInstanceSpec2.CreateFile.SetValue(LibraryVariableStorage.DequeueBoolean());
 
-        XBRLExportInstanceSpec2.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+        XBRLExportInstanceSpec2.Preview().Invoke();
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

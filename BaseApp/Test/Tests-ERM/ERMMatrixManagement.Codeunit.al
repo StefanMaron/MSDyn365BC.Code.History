@@ -53,7 +53,7 @@ codeunit 134490 "ERM Matrix Management"
 
         InitDimensionValues(DimensionCode, Count, CaptionSet, FirstColumn, LastColumn);
         DimensionValue.SetRange("Dimension Code", DimensionCode);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         VerifyDimToCaptions(DimensionValue.Name, 1, DimensionCode, FirstColumn, LastColumn, '=' + DimensionValue.Code, CaptionSet);
     end;
 
@@ -393,7 +393,7 @@ codeunit 134490 "ERM Matrix Management"
         i: Integer;
     begin
         TotalingDimValue.SetRange("Dimension Code", DimensionCode);
-        TotalingDimValue.FindFirst;
+        TotalingDimValue.FindFirst();
 
         DimensionValue.Copy(TotalingDimValue);
         for i := 1 to ArrayLen(DimValueCode) do begin

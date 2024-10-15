@@ -1,4 +1,4 @@
-﻿codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
+codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 {
     trigger OnRun()
     var

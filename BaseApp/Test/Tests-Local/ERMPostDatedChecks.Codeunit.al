@@ -43,7 +43,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Post Dated Check and Balance Amount on Customer after Suggest Checks to Bank from Post Dated Check Lines.
 
         // [GIVEN] Create Customer, Post Sales order and create Post Dated Check Lines.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         BalanceAmount := CreateAndPostSalesOrder(Customer."No.");
         PDCAmount :=
@@ -71,7 +71,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Cash Receipt Journal after create cash Journal from Post Dated Check Lines.
 
         // [GIVEN] Create Customer, Post Sales order, create Post Dated Check Lines and Suggest Checks to Bank.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostSalesOrder(Customer."No.");
         PDCAmount := CreatePDCLineWithCustApplication(Customer."No.", 0, -LibraryRandom.RandDec(100, 2));  // Using 0 for Dimension Set ID, Random for Check Amount.
@@ -97,7 +97,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         // [SCENARIO] Post Dated Check Lines with Credit Limit on Customer and Credit Warning as Overdue Balance on Sales & Receivable Setup.
         PostDatedCheckWithInclPDCCreditLimit(SalesReceivablesSetup."Credit Warnings"::"Overdue Balance");
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -119,7 +119,7 @@ codeunit 141031 "ERM Post Dated Checks"
         SalesOrder: TestPage "Sales Order";
     begin
         // [GIVEN] Create Customer with Credit Limit, Post Sales order, create Post Dated Check Lines and Suggest Checks to Bank.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         UpdateSalesReceivableSetup(true, CreditWarnings);  // True for Incl. PDC in Cr. Limit Check.
         LibrarySales.CreateCustomer(Customer);
@@ -128,7 +128,7 @@ codeunit 141031 "ERM Post Dated Checks"
         CreateAndPostSalesOrder(Customer."No.");
         CreatePDCLine(Customer."No.", PostDatedCheckLine."Account Type"::Customer, -LibraryRandom.RandDecInRange(1000, 1200, 2), '');  // Using blank for Bank Account, required Random in Range to check credit limit.
         SuggestChecksToBank(Customer."No.");
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // Exercise;
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
@@ -151,7 +151,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Post Dated Check Lines with Date and Customer No. filter on Post Dated Check Page.
 
         // [GIVEN] Create Customer, Post Sales order, create Post Dated Check Lines.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreatePDCLine(Customer."No.", PostDatedCheckLine."Account Type"::Customer, 0, '');  // Using 0 for amount and Blank for Bank Account.
 
@@ -175,7 +175,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Dimension Set ID after deleting Post Dated Check Lines with Dimension.
 
         // [GIVEN] Create Customer, Post Sales order, create and delete Post Dated Check Lines with Dimension.
-        Initialize;
+        Initialize();
         CreatePDCLineWithDimension(Customer, LibraryRandom.RandInt(10));
         FindAndDeletePDCLine(Customer."No.");
 
@@ -198,7 +198,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] reverted Post Dated Check Line after Cancel Post Dated Check Line from Cash Receipt Journal.
 
         // [GIVEN] Create Customer, Post Sales order, create Post Dated Check Lines with Dimension and Application, Suggest Checks to Bank and create Cash Journal.
-        Initialize;
+        Initialize();
         CreatePDCLineWithDimension(Customer, 0);  // Using 0 for Dimension Set ID.
         SuggestChecksToBank(Customer."No.");
         CreateCashReceiptJournal(Customer."No.");
@@ -224,7 +224,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Post Dated Check and Balance Amount on Vendor after Suggest Checks to Bank from Post Dated Check Lines.
 
         // [GIVEN] Create Vendor, Post Purchase order and create Post Dated Check Lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostPurchaseOrder(PurchaseLine, Vendor."No.");
         PDCAmount :=
@@ -252,7 +252,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Interest Amount on Post Dated Check Line after Suggest Checks to Bank with Interest Cal Excl. VAT is Yes on General Ledger Setup.
 
         // [GIVEN] Create Vendor, Post Purchase order and create Post Dated Check Lines.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryPurchase.CreateVendor(Vendor);
         NoOfInstallmentAndIntRate := LibraryRandom.RandIntInRange(2, 5);
@@ -276,7 +276,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Interest Amount on Post Dated Check Line after Suggest Checks to Bank with Interest Cal Excl. VAT is No on General Ledger Setup.
 
         // [GIVEN] Create Vendor, Post Purchase order and create Post Dated Check Lines.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryPurchase.CreateVendor(Vendor);
         NoOfInstallmentAndIntRate := LibraryRandom.RandIntInRange(2, 5);
@@ -301,7 +301,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Interest Amount on GL Entry after Post Payment Journal with Interest Cal Excl. VAT is Yes on General Ledger Setup.
 
         // [GIVEN] Create Vendor, Post Purchase order and create Post Dated Check Lines.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryPurchase.CreateVendor(Vendor);
         NoOfInstallmentAndIntRate := LibraryRandom.RandIntInRange(2, 5);
@@ -327,7 +327,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Interest Amount on GL Entry after Post Payment Journal with Interest Cal Excl. VAT is No on General Ledger Setup.
 
         // [GIVEN] Create Vendor, Post Purchase order and create Post Dated Check Lines.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryPurchase.CreateVendor(Vendor);
         NoOfInstallmentAndIntRate := LibraryRandom.RandIntInRange(2, 5);
@@ -351,7 +351,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Post Dated Check Lines with Date and Vendor No. filter on Post Dated Check-Purchase Page.
 
         // [GIVEN] Create Vendor, Post Purchase order, create Post Dated Check Lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePDCLine(Vendor."No.", PostDatedCheckLine."Account Type"::Vendor, 0, '');  // Using 0 for amount and Blank for Bank Account.
 
@@ -403,7 +403,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] reverted Post Dated Check Line after Cancel Post Dated Check Line from Payment Journal.
 
         // [GIVEN] Create Vendor, post Purchase order, create Post Dated Check Lines with Dimension and Application, Suggest Checks to Bank and create Payment Journal.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         SuggestCheckToBankWithVAT(PurchaseLine, Vendor."No.", false);  // Using False for Interest Cal Excl. VAT.
         CreatePaymentJournal(Vendor."No.");
@@ -429,7 +429,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Post Dated Check Payable Dimension with Receivable Dimension.
 
         // [GIVEN] Create vendor, post Purchase Order, created Post Dated Check Line with Application.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostPurchaseOrder(PurchaseLine, Vendor."No.");
         DimensionSetID := SetDimensionID(LibraryRandom.RandIntInRange(1000, 1100));
@@ -454,7 +454,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Bank Account No. on Post Dated Check-Purchase page, flow from Gen. Journal Batch.
 
         // [GIVEN] Create Vendor, get Purchase Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         PurchasesPayablesSetup.Get();
 
@@ -479,7 +479,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Post Dated Check Line existence with Vendor No. and Applies-to Doc. No. after execute Suggest Vendor Payment.
 
         // [GIVEN] Create Vendor, post Purchase Order.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostPurchaseOrder(PurchaseLine, Vendor."No.");
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for SuggestVendorPaymentsRequestPageHandler.
@@ -506,7 +506,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Post Dated Check Line with more than one application on Payment Journal.
 
         // [GIVEN] Create Vendor, Post multiple Purchase order and create & Suggest to bank Post Dated Check Lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostPurchaseOrder(PurchaseLine, Vendor."No.");
         CreateAndPostPurchaseOrder(PurchaseLine2, Vendor."No.");
@@ -532,7 +532,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Print Acknowledgement report for Customer.
 
         // [GIVEN] Create Customer, Create PDC Line with Application.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostSalesOrder(Customer."No.");
         CreatePDCLineWithCustApplication(Customer."No.", 0, -LibraryRandom.RandDec(100, 2));  // Using 0 for Dimension Set ID, Random for Amount.
@@ -554,7 +554,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO] Print Acknowledgement report for Vendor.
 
         // [GIVEN] Create Vendor, Create PDC Line with Application.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         SuggestCheckToBankWithVAT(PurchaseLine, Vendor."No.", false);  // Using False for Interest Cal Excl. VAT.
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for PDCAcknowledgementReceiptRequestPageHandler.
@@ -573,7 +573,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         // [FEATURE] [Void check] [Check Ledger Entry] [Interest]
         // [SCENARIO 123631] Void Check Ledger Entry with Interest Amount
-        Initialize;
+        Initialize();
         // [GIVEN] Check Ledger Entry with Interest Amount
         BankAccountNo := CreatePostPaymentJournalLineManualCheck;
         // [WHEN] Void Check created Check Ledger Entry with "Void check only" option
@@ -592,7 +592,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         // [FEATURE] [Void check] [Check Ledger Entry] [Interest]
         // [SCENARIO 123631] Unapply and Void Check Ledger Entry with Interest Amount
-        Initialize;
+        Initialize();
         // [GIVEN] Check Ledger Entry with Interest Amount
         BankAccountNo := CreatePostPaymentJournalLineManualCheck;
         // [WHEN] Void Check created Check Ledger Entry with "Unapply and void check" option
@@ -614,7 +614,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         // [FEATURE] [WHT] [Void Check]
         // [SCENARIO 363133] Void Check with WHT and Interest Amount
-        Initialize;
+        Initialize();
         UpdateGLSetupWHT(true, false, OldEnableWHT, OldEnableGST);
         // [GIVEN] Purchase Invoice with WHT, applied payment with WHT and Interest
         CreateAndPostPurchOrderWithWHTAndAppliedPmt(BankAccountNo, WHTAmount);
@@ -628,7 +628,7 @@ codeunit 141031 "ERM Post Dated Checks"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure ApplyToEntriesOnPostDatedCheckLine(AccountNo: Code[20])
@@ -830,9 +830,9 @@ codeunit 141031 "ERM Post Dated Checks"
           PostDatedCheckLine, AccountNo, AccountType, SalesReceivablesSetup."Post Dated Check Batch",
           SalesReceivablesSetup."Post Dated Check Template");
         PostDatedCheckLine.Validate(Amount, Amount);
-        PostDatedCheckLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        PostDatedCheckLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         PostDatedCheckLine.Validate("Check Date", WorkDate);
-        PostDatedCheckLine.Validate("Check No.", LibraryUtility.GenerateGUID);
+        PostDatedCheckLine.Validate("Check No.", LibraryUtility.GenerateGUID());
         PostDatedCheckLine.Validate("Bank Account", BankAccount);
         PostDatedCheckLine.Modify(true);
         exit(PostDatedCheckLine.Amount);
@@ -890,7 +890,7 @@ codeunit 141031 "ERM Post Dated Checks"
 
         with GenJournalLine do begin
             SetRange("Account No.", Vendor."No.");
-            FindFirst;
+            FindFirst();
             Validate("Bank Payment Type", "Bank Payment Type"::"Manual Check");
             Modify(true);
         end;
@@ -979,26 +979,26 @@ codeunit 141031 "ERM Post Dated Checks"
     local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         GenJournalLine.SetRange("Account Type", AccountType);
         GenJournalLine.SetRange("Account No.", AccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure FindPDCLine(var PostDatedCheckLine: Record "Post Dated Check Line"; AccountNo: Code[20])
     begin
         PostDatedCheckLine.SetRange("Account No.", AccountNo);
-        PostDatedCheckLine.FindFirst;
+        PostDatedCheckLine.FindFirst();
     end;
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure OpenDimensionFromReceivablePostDatedCheck(DimensionSetID: Integer)
@@ -1007,7 +1007,7 @@ codeunit 141031 "ERM Post Dated Checks"
         PostDatedChecks: TestPage "Post Dated Checks";
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         LibraryVariableStorage.Enqueue(DimensionSetEntry."Dimension Code");  // Enqueue value for EditDimensionSetEntriesModalPageHandler.
         PostDatedChecks.OpenEdit;
         PostDatedChecks.Dimensions.Invoke;  // Call EditDimensionSetEntriesModalPageHandler.
@@ -1032,7 +1032,7 @@ codeunit 141031 "ERM Post Dated Checks"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Account No.", AccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1045,7 +1045,7 @@ codeunit 141031 "ERM Post Dated Checks"
 
         // Verify GL Entries after Post Dated Check line from Payment Journal.
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Round(Amount * NoOfInstallmentAndIntRate / 100 / NoOfInstallmentAndIntRate));
 
         // Tear Down.
@@ -1148,7 +1148,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         with CheckLedgerEntry do begin
             SetRange("Bank Account No.", BankAccountNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(
               "Entry Status"::"Financially Voided", "Entry Status",
               StrSubstNo(ValueIncorrectErr, FieldCaption("Entry Status")));
@@ -1162,7 +1162,7 @@ codeunit 141031 "ERM Post Dated Checks"
         ConfirmFinancialVoid: Page "Confirm Financial Void";
     begin
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
         ConfirmFinancialVoid.SetCheckLedgerEntry(CheckLedgerEntry);
     end;
@@ -1172,7 +1172,7 @@ codeunit 141031 "ERM Post Dated Checks"
         CheckLedgEntry: Record "Check Ledger Entry";
     begin
         CheckLedgEntry.SetRange("Bank Account No.", BankAccNo);
-        CheckLedgEntry.FindFirst;
+        CheckLedgEntry.FindFirst();
         Assert.AreNearlyEqual(WHTAmount, CheckLedgEntry."WHT Amount", 0.01, CheckLedgEntry.FieldCaption("WHT Amount"));
     end;
 

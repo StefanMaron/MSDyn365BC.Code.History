@@ -213,7 +213,7 @@ report 14306 "WHT certificate preprint Copy"
                 // WHT Report
                 WHTPostingSetup.SetRange("WHT Business Posting Group", "WHT Bus. Posting Group");
                 WHTPostingSetup.SetRange("WHT Product Posting Group", "WHT Prod. Posting Group");
-                if WHTPostingSetup.FindFirst then
+                if WHTPostingSetup.FindFirst() then
                     case WHTPostingSetup."WHT Report" of
                         WHTPostingSetup."WHT Report"::" ":
                             CheckBox1 := 'X';

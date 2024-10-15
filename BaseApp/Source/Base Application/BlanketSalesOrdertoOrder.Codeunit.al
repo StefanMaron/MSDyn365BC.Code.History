@@ -43,7 +43,7 @@ codeunit 87 "Blanket Sales Order to Order"
         BlanketOrderSalesLine.SetRange("Document Type", "Document Type");
         BlanketOrderSalesLine.SetRange("Document No.", "No.");
         OnRunOnAfterBlanketOrderSalesLineSetFilters(BlanketOrderSalesLine);
-        if BlanketOrderSalesLine.FindSet then begin
+        if BlanketOrderSalesLine.FindSet() then begin
             TempSalesLine.DeleteAll();
             repeat
                 OnBeforeHandlingBlanketOrderSalesLine(BlanketOrderSalesLine);
@@ -52,7 +52,7 @@ codeunit 87 "Blanket Sales Order to Order"
                     SalesLine.SetRange("Blanket Order No.", BlanketOrderSalesLine."Document No.");
                     SalesLine.SetRange("Blanket Order Line No.", BlanketOrderSalesLine."Line No.");
                     QuantityOnOrders := 0;
-                    if SalesLine.FindSet then
+                    if SalesLine.FindSet() then
                         repeat
                             if (SalesLine."Document Type" = SalesLine."Document Type"::"Return Order") or
                                ((SalesLine."Document Type" = SalesLine."Document Type"::"Credit Memo") and
@@ -223,6 +223,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
     var
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
         PostCodeCheck: Codeunit "Post Code Check";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
@@ -239,6 +240,8 @@ codeunit 87 "Blanket Sales Order to Order"
 
             SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
+            StandardCodesMgt.SetSkipRecurringLines(true);
+            SalesOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
             SalesOrderHeader.Insert(true);
 
             PostCodeCheck.CopyAllAddressID(
@@ -334,7 +337,7 @@ codeunit 87 "Blanket Sales Order to Order"
             SetRange("Document No.", BlanketOrderSalesHeader."No.");
             SetRange(Type, Type::Item);
             SetFilter("No.", '<>%1', '');
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Qty. to Ship" > 0 then begin
                         SalesLine := BlanketOrderSalesLine;

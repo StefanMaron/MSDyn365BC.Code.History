@@ -37,7 +37,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Planned);  // Create Planned Production Order.
         ProdOrderCompAndRoutingReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -50,7 +50,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::"Firm Planned");  // Create Firm Planned Production Order.
         ProdOrderCompAndRoutingReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -63,7 +63,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Released Production Order.
         ProdOrderCompAndRoutingReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -76,7 +76,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Production Order and Refresh.
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderCompAndRoutingReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
@@ -94,7 +94,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
         // Verify: Check the value of Production Order No, Production Item, Components, Work Center, Machine Center in the report.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         VerifyProductionOrder(ProductionOrder, 'No_ProductionOrder', 'ItemNo_ProdOrderLine');
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status, 'ItemNo_PrdOrdrComp');
         VerifyRoutingLine(ProductionOrder."Routing No.", 'No_ProdOrderRoutingLine');
@@ -108,7 +108,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Planned);  // Create Planned Production Order.
         ProdOrderJobCardReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -121,7 +121,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::"Firm Planned");  // Create Firm Planned Production Order.
         ProdOrderJobCardReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -134,7 +134,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Released Production Order.
         ProdOrderJobCardReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -147,7 +147,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Production Order and Refresh.
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderJobCardReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
@@ -165,7 +165,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
         // Verify: Check the value of Production Order, Production Item and Production Components.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         VerifyProductionOrder(ProductionOrder, 'No_ProdOrder', 'SourceNo_ProdOrder');
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status, 'ItemNo_ProdOrderComp');
         VerifyRoutingLine(ProductionOrder."Routing No.", 'No_ProdOrderRtngLine');
@@ -179,7 +179,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Planned);  // Create Planned Production Order.
         ProdOrderPrecalcTimeReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -192,7 +192,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::"Firm Planned");  // Create Firm Planned Production Order.
         ProdOrderPrecalcTimeReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -205,7 +205,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Released Production Order.
         ProdOrderPrecalcTimeReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -218,7 +218,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Production Order and Refresh.
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderPrecalcTimeReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
@@ -236,7 +236,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
         // Verify: Check the value of Production Order No, Production Item, Work Center, Machine Center in the report.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         VerifyProductionOrder(ProductionOrder, 'Production_Order__No__', 'Production_Order__Source_No__');
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status, 'Prod__Order_Component__Item_No__');
         VerifyRoutingLine(ProductionOrder."Routing No.", 'Prod__Order_Routing_Line__No__');
@@ -250,7 +250,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Planned);  // Create Planned Production Order.
         ProdOrderMatRequisitionReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -263,7 +263,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::"Firm Planned");  // Create Firm Planned Production Order.
         ProdOrderMatRequisitionReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -276,7 +276,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Released Production Order.
         ProdOrderMatRequisitionReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -289,7 +289,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Production Order and Refresh.
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderMatRequisitionReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
@@ -307,7 +307,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
         // Verify: Check the value of Production Order No, Production Item, Components in the report.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         VerifyProductionOrder(ProductionOrder, 'No_ProdOrder', 'SourceNo_ProdOrder');
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status, 'ItemNo_ProdOrderComp');
     end;
@@ -320,7 +320,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Planned);  // Create Planned Production Order.
         ProdOrderPickingListReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -333,7 +333,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::"Firm Planned");  // Create Firm Planned Production Order.
         ProdOrderPickingListReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -346,7 +346,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Released Production Order.
         ProdOrderPickingListReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -364,7 +364,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
         // Verify: Check the value of Production Order No, Production Item and Component in the report.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Item', ProdOrderComponent."Item No.");
         LibraryReportDataset.GetNextRow;
@@ -380,7 +380,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Planned);  // Create Planned Production Order.
         ProdOrderDetailedCalcReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -393,7 +393,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::"Firm Planned");  // Create Firm Planned Production Order.
         ProdOrderDetailedCalcReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -406,7 +406,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Released Production Order.
         ProdOrderDetailedCalcReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -419,7 +419,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Production Order and Refresh.
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderDetailedCalcReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
@@ -437,7 +437,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
         // Verify: Check the value of Production Order No, Production Item, Component, and Routing in the report.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         VerifyProductionOrder(ProductionOrder, 'No_ProdOrder', 'SourceNo_ProdOrder');
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status, 'ItemNo_ProdOrderComp');
         VerifyRoutingLine(ProductionOrder."Routing No.", 'No_ProdOrderRtngLine');
@@ -451,7 +451,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Planned);  // Create Planned Production Order.
         ProdOrderShortageListReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -464,7 +464,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::"Firm Planned");  // Create Firm Planned Production Order.
         ProdOrderShortageListReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -477,7 +477,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Released Production Order.
         ProdOrderShortageListReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -490,7 +490,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Production Order and Refresh.
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderShortageListReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
@@ -508,7 +508,7 @@ codeunit 137304 "SCM Manufacturing Reports"
 
         // Verify: Check the value of Production Order No, Production Item and Component in the report.
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, ProductionOrderNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('No_ProdOrder', ProductionOrder."No.");
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status, 'ItemNo_ProdOrderComp');
@@ -522,7 +522,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Planned);  // Create Planned Production Order.
         ProdOrderStatisticsReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -535,7 +535,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::"Firm Planned");  // Create Firm Planned Production Order.
         ProdOrderStatisticsReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -548,7 +548,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Released Production Order.
         ProdOrderStatisticsReport(ProductionOrder.Status, ProductionOrder."No.");
     end;
@@ -561,7 +561,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);  // Create Production Order and Refresh.
         FinishProductionOrder(ProductionOrder."No.");
         ProdOrderStatisticsReport(ProductionOrder.Status::Finished, ProductionOrder."No.");  // Finish Production Order.
@@ -586,7 +586,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         REPORT.Run(REPORT::"Production Order Statistics", true, false, ProductionOrder);
 
         // Verify: Check the value of Production Order No, Production Item in the report.
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         SelectProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
         CostCalculationManagement.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
         Assert.AreEqual(1, ShareOfTotalCapCost, '');
@@ -611,7 +611,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionForecastEntry: Record "Production Forecast Entry";
     begin
         // Setup: Create Production Forecast Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
         LibraryManufacturing.CreateProductionForecastEntry(
@@ -638,7 +638,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Parent and Child Items.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
         ProdOrderRefreshReport(ProductionOrder."Source Type"::Item, Item."No.");
     end;
@@ -654,7 +654,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Parent Items, Routing and Family.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
         ClearRouting(Item);
         CreateProdOrderItemsSetup(Item2);
@@ -674,7 +674,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Parent and Child Items, Sales Order.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(
@@ -711,7 +711,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);
 
         // Exercise: Run Calculate Consumption report.
@@ -738,7 +738,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProdCapacityTaskListReport(ProductionOrder, ProdOrderRoutingLine.Type::"Work Center");
 
         // Verify: Check Production Order No, Routing No and Work Center No exist in the report.
@@ -754,7 +754,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionOrder: Record "Production Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ProdCapacityTaskListReport(ProductionOrder, ProdOrderRoutingLine.Type::"Machine Center");
 
         // Verify: Check Production Order No, Routing No exist in the report.
@@ -770,7 +770,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         BOMComponent: Record "BOM Component";
     begin
         // Setup: Create BOM Component Setup.
-        Initialize;
+        Initialize();
         CreateBOMComponentSetup(BOMComponent);
 
         // Exercise: Generate the BOMs report.
@@ -790,7 +790,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         BOMComponent: Record "BOM Component";
     begin
         // Setup: Create BOM Component Setup.
-        Initialize;
+        Initialize();
         CreateBOMComponentSetup(BOMComponent);
 
         // Exercise: Generate the Where-Used List report.
@@ -810,7 +810,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         BOMComponent: Record "BOM Component";
     begin
         // Setup: Create BOM Component Setup.
-        Initialize;
+        Initialize();
         CreateBOMComponentSetup(BOMComponent);
 
         // Exercise: Generate the BOM Raw Materials report.
@@ -818,7 +818,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         REPORT.Run(REPORT::"Assembly BOM - Raw Materials", true, false, Item);
 
         // Verify: Check child Item on BOM exists in the report.
-        Item.FindFirst;
+        Item.FindFirst();
         Item.CalcFields(Inventory);
         VerifyBOMItem(Item."No.", 'No_Item');
         LibraryReportDataset.AssertCurrentRowValueEquals('Inventory_Item', Item.Inventory);
@@ -833,7 +833,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         BOMComponent: Record "BOM Component";
     begin
         // Setup: Create BOM Component Setup.
-        Initialize;
+        Initialize();
         CreateBOMComponentSetup(BOMComponent);
 
         // Exercise: Generate the BOM Finished Goods report.
@@ -841,7 +841,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         REPORT.Run(REPORT::"Assembly BOM - End Items", true, false, Item);
 
         // Verify: Check parent Item on BOM exists in the report.
-        Item.FindFirst;
+        Item.FindFirst();
         Item.CalcFields(Inventory);
         VerifyBOMItem(BOMComponent."Parent Item No.", 'No_Item');
         LibraryReportDataset.AssertCurrentRowValueEquals('Inventory_Item', Item.Inventory);
@@ -857,7 +857,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         BOMComponent2: Record "BOM Component";
     begin
         // Setup: Create BOM Component Setup.
-        Initialize;
+        Initialize();
         CreateBOMComponentSetup(BOMComponent);
         LibraryInventory.CreateItem(Item);
         LibraryManufacturing.CreateBOMComponent(BOMComponent2, BOMComponent."No.", BOMComponent2.Type::Item, Item."No.", 1, '');
@@ -868,7 +868,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         REPORT.Run(REPORT::"Assembly BOM - Subassemblies", true, false, Item);
 
         // Verify: Check parent Item on BOM exists in the report.
-        Item.FindFirst;
+        Item.FindFirst();
         Item.CalcFields(Inventory);
         VerifyBOMItem(BOMComponent2."Parent Item No.", 'No_Item');
         LibraryReportDataset.AssertCurrentRowValueEquals('Inventory_Item', Item.Inventory);
@@ -883,7 +883,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Setup: Create Production Order Items Setup.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
 
         // Exercise: Generate the Quantity Explosion Of BOM report.
@@ -904,7 +904,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         Item: Record Item;
     begin
         // Setup: Create Production Order Items Setup.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
 
         // Exercise: Generate the Routing Sheet report.
@@ -929,13 +929,13 @@ codeunit 137304 "SCM Manufacturing Reports"
         PeriodLength: DateFormula;
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);
 
         // Exercise: Generate the Machine Center Load report.
         Commit();
         RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         WorkCenter.SetRange("No.", RoutingLine."Work Center No.");
         Evaluate(PeriodLength, StrSubstNo('<%1D>', LibraryRandom.RandInt(5)));  // Random values not important
         MachineCenterLoad.InitializeRequest(WorkDate, LibraryRandom.RandInt(5), PeriodLength, 0);  // Min. Cap. Efficiency important.
@@ -962,15 +962,15 @@ codeunit 137304 "SCM Manufacturing Reports"
         PeriodLength: DateFormula;
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);
 
         // Exercise: Generate the Work Center Load report.
         Commit();
         RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         WorkCenter.SetRange("No.", RoutingLine."Work Center No.");
-        WorkCenter.FindFirst;
+        WorkCenter.FindFirst();
         WorkCenterGroup.SetRange(Code, WorkCenter."Work Center Group Code");
         Evaluate(PeriodLength, StrSubstNo('<%1D>', LibraryRandom.RandInt(5)));
         LibraryVariableStorage.Enqueue(WorkDate);
@@ -999,7 +999,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         // Run the Quantity Explosion of BOM Report. Verify Components.
 
         // Setup: Create Certified Production Bom for another Production Bom and Assign Second Production Bom to ParentItem.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, LibraryInventory.CreateItem(ChildItem),
           LibraryRandom.RandInt(10));
         ProdBomNoWithLineTypeProductionBom := CreateCertifiedProductionBomWithType(ProductionBOMHeader."No.", '',
@@ -1069,7 +1069,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ChildItem: Record Item;
     begin
         // Verify Make-to-Order child item is not shown on Shortage List report
-        Initialize;
+        Initialize();
 
         CreateProdOrderItemsSetup(Item);
         FindChildItem(ChildItem, Item."Production BOM No.");
@@ -1120,13 +1120,13 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manufacturing Reports");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ItemJournalSetup;
 
         isInitialized := true;
@@ -1141,7 +1141,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         // Create Production Order Items Setup. Create two BOM Versions and update Quantity Per.
-        Initialize;
+        Initialize();
         CreateProdOrderItemsSetup(Item);
         CreateProdBOMVersion(ProductionBOMVersion, Item, Status, QtyPer);
         CreateProdBOMVersion(ProductionBOMVersion, Item, ProductionBOMHeader.Status::New, LibraryRandom.RandInt(5));
@@ -1300,7 +1300,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -1457,7 +1457,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         ChildItem.Get(ProductionBOMLine."No.");
     end;
 

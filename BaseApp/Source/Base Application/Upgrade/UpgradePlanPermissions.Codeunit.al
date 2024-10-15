@@ -14,9 +14,8 @@ codeunit 104030 "Upgrade Plan Permissions"
         SetExcelExportActionPermissions();
         RemoveExtensionManagementFromPlan();
         RemoveExtensionManagementFromUsers();
-        SetSmartListDesignerPermissions();
         SetMonitorSensitiveFieldPermisions();
-        AddFeatureDataUpdatePernissions();
+        AddFeatureDataUpdatePermissions();
     end;
 
     var
@@ -35,13 +34,11 @@ codeunit 104030 "Upgrade Plan Permissions"
         EditInExcelTok: Label 'Edit in Excel - View', Locked = true, MaxLength = 20;
         ExcelExportActionTok: Label 'EXCEL EXPORT ACTION', Locked = true, MaxLength = 20;
         ExcelExportActionDescriptionTxt: Label 'D365 Excel Export Action', Locked = true, MaxLength = 30;
-        SmartListDesignerTok: Label 'SMARTLIST DESIGNER', Locked = true;
-        SmartListDesignerDescriptionTxt: Label 'SmartList Designer';
         D365MonitorFieldsTxt: Label 'D365 Monitor Fields', Locked = true;
         SecurityUserGroupTok: Label 'D365 SECURITY', Locked = true;
         CannotCreatePermissionSetLbl: Label 'Permission Set %1 is missing from this environment and cannot be created.', Locked = true;
 
-    local procedure AddFeatureDataUpdatePernissions()
+    local procedure AddFeatureDataUpdatePermissions()
     var
         Permission: Record Permission;
         UpgradeTag: Codeunit "Upgrade Tag";
@@ -311,52 +308,6 @@ codeunit 104030 "Upgrade Plan Permissions"
         AddUserGroupToPlan(ExcelExportActionTok, PlanIds.GetAccountantHubPlanId());
         AddUserGroupToPlan(ExcelExportActionTok, PlanIds.GetHelpDeskPlanId());
         AddUserGroupToPlan(ExcelExportActionTok, PlanIds.GetInfrastructurePlanId());
-    end;
-
-    local procedure SetSmartListDesignerPermissions()
-    var
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSmartListDesignerPermissionSetUpgradeTag()) then
-            exit;
-
-        AddSmartListDesignerPermissionSet();
-        AddSmartListDesignerUserGroup();
-        AddSmartListDesignerPermissionSetToGroup();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSmartListDesignerPermissionSetUpgradeTag());
-    end;
-
-    local procedure AddSmartListDesignerPermissionSet(): Boolean
-    var
-        PermissionSet: Record "Permission Set";
-        Permission: Record Permission;
-    begin
-        if TryInsertPermissionSet(CopyStr(SmartListDesignerTok, 1, MaxStrLen(PermissionSet."Role ID")),
-            CopyStr(SmartListDesignerDescriptionTxt, 1, MaxStrLen(PermissionSet.Name))) then begin
-            InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9600, 0, 0, 0, 0, 1);
-            InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9605, 0, 0, 0, 0, 1);
-            InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9610, 0, 0, 0, 0, 1);
-            InsertPermission(CopyStr(SmartListDesignerTok, 1, MaxStrLen(Permission."Role ID")), 10, 9615, 0, 0, 0, 0, 1);
-            exit(true);
-        end;
-    end;
-
-    local procedure AddSmartListDesignerUserGroup();
-    var
-        UserGroup: Record "User Group";
-    begin
-        InsertUserGroup(CopyStr(SmartListDesignerTok, 1, MaxStrLen(UserGroup.Code)),
-            CopyStr(SmartListDesignerDescriptionTxt, 1, MaxStrLen(UserGroup.Name)), false);
-    end;
-
-    local procedure AddSmartListDesignerPermissionSetToGroup();
-    var
-        UserGroupPermissionSet: Record "User Group Permission Set";
-    begin
-        AddPermissionSetToUserGroup(CopyStr(SmartListDesignerTok, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
-            CopyStr(SmartListDesignerTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
     end;
 
     local procedure SetMonitorSensitiveFieldPermisions()

@@ -11,9 +11,9 @@ codeunit 28074 "Sales Tax Cr.Memo-Printed"
         Modify;
 
         SalesTaxCrMemoLine.SetRange("Document No.", "No.");
-        if SalesTaxCrMemoLine.FindFirst then begin
+        if SalesTaxCrMemoLine.FindFirst() then begin
             SalesCrMemoHeader.SetRange("No.", SalesTaxCrMemoLine."External Document No.");
-            if SalesCrMemoHeader.FindFirst then begin
+            if SalesCrMemoHeader.FindFirst() then begin
                 SalesCrMemoHeader."Printed Tax Document" := true;
                 SalesCrMemoHeader.Modify();
             end;

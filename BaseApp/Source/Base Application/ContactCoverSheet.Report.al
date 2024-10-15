@@ -341,7 +341,7 @@ report 5055 "Contact - Cover Sheet"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if Contact.FindSet then
+            if Contact.FindSet() then
                 repeat
                     SegManagement.LogDocument(17, '', 0, 0, DATABASE::Contact, Contact."No.", '', '', '', '');
                 until Contact.Next() = 0;

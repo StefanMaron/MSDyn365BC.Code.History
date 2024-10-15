@@ -320,9 +320,6 @@ table 49 "Invoice Post. Buffer"
         {
             Caption = 'Line No.';
             DataClassification = SystemMetadata;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
         }
         field(28111; "Posting Description"; Text[100])
         {

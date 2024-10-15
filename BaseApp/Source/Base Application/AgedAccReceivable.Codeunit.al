@@ -78,7 +78,7 @@ codeunit 763 "Aged Acc. Receivable"
         NoOfPeriods: Integer;
     begin
         with BusChartBuf do begin
-            Initialize;
+            Initialize();
             SetXAxis(OverDueText, "Data Type"::String);
             AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
             if AlreadyInitialized then
@@ -89,7 +89,7 @@ codeunit 763 "Aged Acc. Receivable"
                     CustomerNo, '', "Period Filter Start Date", PeriodLength, NoOfPeriods,
                     TempEntryNoAmountBuf);
             end;
-            if TempEntryNoAmountBuf.FindSet then
+            if TempEntryNoAmountBuf.FindSet() then
                 repeat
                     PeriodIndex := TempEntryNoAmountBuf."Entry No.";
                     AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
@@ -107,7 +107,7 @@ codeunit 763 "Aged Acc. Receivable"
         NoOfPeriods: Integer;
     begin
         with BusChartBuf do begin
-            Initialize;
+            Initialize();
             SetXAxis(OverdueTxt, "Data Type"::String);
 
             InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
@@ -115,13 +115,13 @@ codeunit 763 "Aged Acc. Receivable"
               "Period Filter Start Date", PeriodLength, NoOfPeriods,
               TempEntryNoAmountBuf);
 
-            if CustPostingGroup.FindSet then
+            if CustPostingGroup.FindSet() then
                 repeat
                     AddDecimalMeasure(CustPostingGroup.Code, GroupIndex, "Chart Type"::StackedColumn);
 
                     TempEntryNoAmountBuf.Reset();
                     TempEntryNoAmountBuf.SetRange("Business Unit Code", CustPostingGroup.Code);
-                    if TempEntryNoAmountBuf.FindSet then
+                    if TempEntryNoAmountBuf.FindSet() then
                         repeat
                             PeriodIndex := TempEntryNoAmountBuf."Entry No.";
                             if GroupIndex = 0 then
@@ -182,7 +182,7 @@ codeunit 763 "Aged Acc. Receivable"
             TempEntryNoAmtBuf.Insert();
         end;
 
-        if CustPostingGroup.FindSet then
+        if CustPostingGroup.FindSet() then
             repeat
                 PeriodStartDate := StartDate;
                 TempEntryNoAmtBuf.SetRange("Business Unit Code", CustPostingGroup.Code);
@@ -190,7 +190,7 @@ codeunit 763 "Aged Acc. Receivable"
                 for Index := 0 to NoOfPeriods - 1 do begin
                     RemainingAmountLCY := 0;
                     TempEntryNoAmtBuf.SetFilter("Start Date", DateFilterByAge(Index, PeriodStartDate, PeriodLength, NoOfPeriods, PeriodEndDate));
-                    if TempEntryNoAmtBuf.FindSet then
+                    if TempEntryNoAmtBuf.FindSet() then
                         repeat
                             RemainingAmountLCY += TempEntryNoAmtBuf.Amount;
                         until TempEntryNoAmtBuf.Next() = 0;
@@ -397,14 +397,14 @@ codeunit 763 "Aged Acc. Receivable"
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
         CustLedgEntry.SetRange(Open, false);
         CustLedgEntry.SetFilter("Due Date", '<>%1', 0D);
-        if not CustLedgEntry.FindSet then
+        if not CustLedgEntry.FindSet() then
             exit(0);
 
         repeat
             DetailedCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
             DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
             DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Payment);
-            if DetailedCustLedgEntry.FindLast then begin
+            if DetailedCustLedgEntry.FindLast() then begin
                 PaymentDays += DetailedCustLedgEntry."Posting Date" - CustLedgEntry."Due Date";
                 InvoiceCount += 1;
             end;

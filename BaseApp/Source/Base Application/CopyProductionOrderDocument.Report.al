@@ -96,12 +96,14 @@ report 99003802 "Copy Production Order Document"
 
     var
         Text000: Label 'You must enter a document number. ';
-        ToProdOrder: Record "Production Order";
         FromProdOrder: Record "Production Order";
+        Text002: Label 'The %1 cannot be copied onto itself.';
+
+    protected var
+        ToProdOrder: Record "Production Order";
         StatusType: Enum "Production Order Status";
         DocNo: Code[20];
         IncludeHeader: Boolean;
-        Text002: Label 'The %1 cannot be copied onto itself.';
 
     procedure SetProdOrder(var NewProdOrder: Record "Production Order")
     begin
@@ -122,7 +124,7 @@ report 99003802 "Copy Production Order Document"
     begin
         FromProdOrder.SetRange(Status, StatusType);
         FromProdOrder.SetRange("No.", DocNo);
-        if FromProdOrder.FindFirst then begin
+        if FromProdOrder.FindFirst() then begin
             ToProdOrder.Description := FromProdOrder.Description;
             ToProdOrder."Search Description" := FromProdOrder."Search Description";
             ToProdOrder."Description 2" := FromProdOrder."Description 2";
@@ -169,7 +171,7 @@ report 99003802 "Copy Production Order Document"
     begin
         ToProdOrderLine.SetRange(Status, ToProdOrder.Status);
         ToProdOrderLine.SetRange("Prod. Order No.", ToProdOrder."No.");
-        if ToProdOrderLine.FindLast then
+        if ToProdOrderLine.FindLast() then
             LineNo := ToProdOrderLine."Line No." + 10000
         else
             LineNo := 10000;

@@ -630,7 +630,7 @@ table 28071 "Sales Tax Invoice Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     local procedure TestNoSeries(): Boolean

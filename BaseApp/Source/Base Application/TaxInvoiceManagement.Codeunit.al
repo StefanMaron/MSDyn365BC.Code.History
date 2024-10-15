@@ -183,7 +183,7 @@ codeunit 28070 TaxInvoiceManagement
             TaxInvoicePurchase(GenJnlLine, false);
         if InvNo <> '' then begin
             TempPurchTaxInvLine.SetRange("Document No.", InvNo);
-            if not TempPurchTaxInvLine.FindFirst then
+            if not TempPurchTaxInvLine.FindFirst() then
                 if PurchTaxInvHeader.Get(InvNo) then begin
                     PurchTaxInvHeader.Delete();
                     PurchSetup.Get();
@@ -194,7 +194,7 @@ codeunit 28070 TaxInvoiceManagement
                 end;
         end;
         PurchTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-        if PurchTaxInvHeader.FindFirst then
+        if PurchTaxInvHeader.FindFirst() then
             BuildTaxPostBuffer(PurchTaxInvHeader."No.", PurchTaxInvHeader."Posting Description", 0);
     end;
 
@@ -377,7 +377,7 @@ codeunit 28070 TaxInvoiceManagement
             TaxInvoiceSales(GenJnlLine, WHTUsed1, false);
         if InvNo <> '' then begin
             TempSalesTaxInvLine.SetRange("Document No.", InvNo);
-            if not TempSalesTaxInvLine.FindFirst then
+            if not TempSalesTaxInvLine.FindFirst() then
                 if SalesTaxInvHeader.Get(InvNo) then begin
                     SalesTaxInvHeader.Delete();
                     SalesSetup.Get();
@@ -388,7 +388,7 @@ codeunit 28070 TaxInvoiceManagement
                 end;
         end;
         SalesTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-        if SalesTaxInvHeader.FindFirst then
+        if SalesTaxInvHeader.FindFirst() then
             BuildTaxPostBuffer(SalesTaxInvHeader."No.", SalesTaxInvHeader."Posting Description", 1);
     end;
 
@@ -477,7 +477,7 @@ codeunit 28070 TaxInvoiceManagement
             TaxInvoicePurchaseCrMemo(GenJnlLine, WHTUsed1, false);
         if InvNo <> '' then begin
             TempPurchTaxCrMemoLine.SetRange("Document No.", InvNo);
-            if not TempPurchTaxCrMemoLine.FindFirst then
+            if not TempPurchTaxCrMemoLine.FindFirst() then
                 if PurchTaxCrMemoHeader.Get(InvNo) then begin
                     PurchTaxCrMemoHeader.Delete();
                     PurchSetup.Get();
@@ -488,7 +488,7 @@ codeunit 28070 TaxInvoiceManagement
                 end;
         end;
         PurchTaxCrMemoHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-        if PurchTaxCrMemoHeader.FindFirst then
+        if PurchTaxCrMemoHeader.FindFirst() then
             BuildTaxPostBuffer(PurchTaxCrMemoHeader."No.", PurchTaxCrMemoHeader."Posting Description", 2);
     end;
 
@@ -584,7 +584,7 @@ codeunit 28070 TaxInvoiceManagement
             TaxInvoiceSalesCrMemo(GenJnlLine, WHTUsed1, false);
         if InvNo <> '' then begin
             TempSalesTaxCrMemoLine.SetRange("Document No.", InvNo);
-            if not TempSalesTaxCrMemoLine.FindFirst then
+            if not TempSalesTaxCrMemoLine.FindFirst() then
                 if SalesTaxCrMemoHeader.Get(InvNo) then begin
                     SalesTaxCrMemoHeader.Delete();
                     SalesSetup.Get();
@@ -595,7 +595,7 @@ codeunit 28070 TaxInvoiceManagement
                 end;
         end;
         SalesTaxCrMemoHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-        if SalesTaxCrMemoHeader.FindFirst then
+        if SalesTaxCrMemoHeader.FindFirst() then
             BuildTaxPostBuffer(SalesTaxCrMemoHeader."No.", SalesTaxCrMemoHeader."Posting Description", 3);
     end;
 
@@ -611,7 +611,7 @@ codeunit 28070 TaxInvoiceManagement
     begin
         SalesInvHeader2.Reset();
         SalesInvHeader2.SetRange("No.", SalesInvHeader."No.");
-        SalesInvHeader2.FindFirst;
+        SalesInvHeader2.FindFirst();
         SalesInvLine.Reset();
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
         SalesInvLine.Find('-');
@@ -634,7 +634,7 @@ codeunit 28070 TaxInvoiceManagement
         until SalesInvLine.Next() = 0;
         TempSalesTaxInvLine.Reset();
         TempSalesTaxInvLine.SetRange("Document No.", SalesTaxInvHeader."No.");
-        if not TempSalesTaxInvLine.FindFirst then begin
+        if not TempSalesTaxInvLine.FindFirst() then begin
             SalesTaxInvHeader.Delete();
             SalesSetup.Get();
             if CheckTaxableNoSeries(SalesInvHeader."Sell-to Customer No.", 1) then
@@ -660,7 +660,7 @@ codeunit 28070 TaxInvoiceManagement
     begin
         PurchInvHeader2.Reset();
         PurchInvHeader2.SetRange("No.", PurchInvHeader."No.");
-        PurchInvHeader2.FindFirst;
+        PurchInvHeader2.FindFirst();
         PurchInvLine.Reset();
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.Find('-');
@@ -683,7 +683,7 @@ codeunit 28070 TaxInvoiceManagement
         until PurchInvLine.Next() = 0;
         TempPurchTaxInvLine.Reset();
         TempPurchTaxInvLine.SetRange("Document No.", PurchTaxInvHeader."No.");
-        if not TempPurchTaxInvLine.FindFirst then begin
+        if not TempPurchTaxInvLine.FindFirst() then begin
             PurchTaxInvHeader.Delete();
             PurchSetup.Get();
             if CheckTaxableNoSeries(PurchInvHeader."Buy-from Vendor No.", 0) then
@@ -709,7 +709,7 @@ codeunit 28070 TaxInvoiceManagement
     begin
         SalesCrMemoHeader2.Reset();
         SalesCrMemoHeader2.SetRange("No.", SalesCrMemoHeader."No.");
-        SalesCrMemoHeader2.FindFirst;
+        SalesCrMemoHeader2.FindFirst();
         SalesCrMemoLine.Reset();
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         SalesCrMemoLine.Find('-');
@@ -732,7 +732,7 @@ codeunit 28070 TaxInvoiceManagement
         until SalesCrMemoLine.Next() = 0;
         TempSalesTaxCrMemoLine.Reset();
         TempSalesTaxCrMemoLine.SetRange("Document No.", SalesTaxCrMemoHeader."No.");
-        if not TempSalesTaxCrMemoLine.FindFirst then begin
+        if not TempSalesTaxCrMemoLine.FindFirst() then begin
             SalesTaxCrMemoHeader.Delete();
             SalesSetup.Get();
             if CheckTaxableNoSeries(SalesCrMemoHeader."Sell-to Customer No.", 1) then
@@ -758,7 +758,7 @@ codeunit 28070 TaxInvoiceManagement
     begin
         PurchCrMemoHeader2.Reset();
         PurchCrMemoHeader2.SetRange("No.", PurchCrMemoHeader."No.");
-        PurchCrMemoHeader2.FindFirst;
+        PurchCrMemoHeader2.FindFirst();
         PurchCrMemoLine.Reset();
         PurchCrMemoLine.SetRange("Document No.", PurchCrMemoHeader."No.");
         PurchCrMemoLine.Find('-');
@@ -779,7 +779,7 @@ codeunit 28070 TaxInvoiceManagement
         until PurchCrMemoLine.Next() = 0;
         TempPurchTaxCrMemoLine.Reset();
         TempPurchTaxCrMemoLine.SetRange("Document No.", PurchTaxCrMemoHeader."No.");
-        if not TempPurchTaxCrMemoLine.FindFirst then begin
+        if not TempPurchTaxCrMemoLine.FindFirst() then begin
             PurchTaxCrMemoHeader.Delete();
             PurchSetup.Get();
             if CheckTaxableNoSeries(PurchCrMemoHeader."Buy-from Vendor No.", 0) then
@@ -977,13 +977,13 @@ codeunit 28070 TaxInvoiceManagement
                     CustLedgEntry.Reset();
                     CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
                     CustLedgEntry.SetRange("Document No.", SalesCrMemoLine."Document No.");
-                    if CustLedgEntry.FindFirst then
+                    if CustLedgEntry.FindFirst() then
                         CustLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", Amount, "Remaining Amount");
 
                     SalesTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-                    if SalesTaxInvHeader.FindFirst then begin
+                    if SalesTaxInvHeader.FindFirst() then begin
                         SalesTaxInvLine.SetRange("Document No.", SalesTaxInvHeader."No.");
-                        if SalesTaxInvLine.FindLast then
+                        if SalesTaxInvLine.FindLast() then
                             LineNo := SalesTaxInvLine."Line No." + 10000;
                     end;
                     if LineNo = 0 then
@@ -1075,14 +1075,14 @@ codeunit 28070 TaxInvoiceManagement
                     CustLedgEntry.Reset();
                     CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
                     CustLedgEntry.SetRange("Document No.", SalesInvoiceLine."Document No.");
-                    if CustLedgEntry.FindFirst then begin
+                    if CustLedgEntry.FindFirst() then begin
                         CustLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", Amount, "Remaining Amount");
                         SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
                         SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceLine."Document No.");
-                        if SalesCrMemoHeader.FindFirst then begin
+                        if SalesCrMemoHeader.FindFirst() then begin
                             CustLedgEntry1.SetRange("Document Type", CustLedgEntry1."Document Type"::"Credit Memo");
                             CustLedgEntry1.SetRange("Document No.", SalesCrMemoHeader."No.");
-                            if CustLedgEntry1.FindFirst then
+                            if CustLedgEntry1.FindFirst() then
                                 CustLedgEntry1.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", Amount, "Remaining Amount");
                             WHTAmount1 := 0;
                             WHTEntry1.Reset();
@@ -1095,9 +1095,9 @@ codeunit 28070 TaxInvoiceManagement
                             WHTAmount := WHTAmount + WHTAmount1;
                         end;
                         SalesTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-                        if SalesTaxInvHeader.FindFirst then begin
+                        if SalesTaxInvHeader.FindFirst() then begin
                             SalesTaxInvLine.SetRange("Document No.", SalesTaxInvHeader."No.");
-                            if SalesTaxInvLine.FindLast then
+                            if SalesTaxInvLine.FindLast() then
                                 LineNo := SalesTaxInvLine."Line No." + 10000;
                         end;
                         if LineNo = 0 then
@@ -1214,13 +1214,13 @@ codeunit 28070 TaxInvoiceManagement
 
                     CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
                     CustLedgEntry.SetRange("Document No.", SalesCrMemoLine."Document No.");
-                    if CustLedgEntry.FindFirst then
+                    if CustLedgEntry.FindFirst() then
                         CustLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", Amount, "Remaining Amount");
 
                     SalesTaxCrMemoHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-                    if SalesTaxCrMemoHeader.FindFirst then begin
+                    if SalesTaxCrMemoHeader.FindFirst() then begin
                         SalesTaxCrMemoLine.SetRange("Document No.", SalesTaxCrMemoHeader."No.");
-                        if SalesTaxCrMemoLine.FindLast then
+                        if SalesTaxCrMemoLine.FindLast() then
                             LineNo := SalesTaxCrMemoLine."Line No." + 10000;
                     end;
                     if LineNo = 0 then
@@ -1321,9 +1321,9 @@ codeunit 28070 TaxInvoiceManagement
                     Payment2 := 0;
 
                     PurchTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-                    if PurchTaxInvHeader.FindFirst then begin
+                    if PurchTaxInvHeader.FindFirst() then begin
                         PurchTaxInvLine.SetRange("Document No.", PurchTaxInvHeader."No.");
-                        if PurchTaxInvLine.FindLast then
+                        if PurchTaxInvLine.FindLast() then
                             LineNo := PurchTaxInvLine."Line No." + 10000;
                     end;
                     if LineNo = 0 then
@@ -1331,7 +1331,7 @@ codeunit 28070 TaxInvoiceManagement
                     VendLedgEntry.Reset();
                     VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
                     VendLedgEntry.SetRange("Document No.", PurchCrMemoLine."Document No.");
-                    if VendLedgEntry.FindFirst then begin
+                    if VendLedgEntry.FindFirst() then begin
                         VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", Amount, "Remaining Amount");
 
                         PurchTaxInvLine.Init();
@@ -1397,10 +1397,10 @@ codeunit 28070 TaxInvoiceManagement
 
                     PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
                     PurchCrMemoHeader.SetRange("Applies-to Doc. No.", PurchInvoiceLine."Document No.");
-                    if PurchCrMemoHeader.FindFirst then begin
+                    if PurchCrMemoHeader.FindFirst() then begin
                         VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
                         VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
-                        if VendLedgEntry1.FindFirst then
+                        if VendLedgEntry1.FindFirst() then
                             VendLedgEntry1.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", Amount, "Remaining Amount");
 
                         WHTAmount1 := 0;
@@ -1414,9 +1414,9 @@ codeunit 28070 TaxInvoiceManagement
                         WHTAmount := WHTAmount + WHTAmount1;
                     end;
                     PurchTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-                    if PurchTaxInvHeader.FindFirst then begin
+                    if PurchTaxInvHeader.FindFirst() then begin
                         PurchTaxInvLine.SetRange("Document No.", PurchTaxInvHeader."No.");
-                        if PurchTaxInvLine.FindLast then
+                        if PurchTaxInvLine.FindLast() then
                             LineNo := PurchTaxInvLine."Line No." + 10000;
                     end;
                     if LineNo = 0 then
@@ -1424,7 +1424,7 @@ codeunit 28070 TaxInvoiceManagement
                     VendLedgEntry.Reset();
                     VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
                     VendLedgEntry.SetRange("Document No.", PurchInvoiceLine."Document No.");
-                    if VendLedgEntry.FindFirst then begin
+                    if VendLedgEntry.FindFirst() then begin
                         VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", Amount, "Remaining Amount");
                         PurchTaxInvLine.Init();
                         if VATPostingSetup.Get(PurchInvoiceLine."VAT Bus. Posting Group", PurchInvoiceLine."VAT Prod. Posting Group") then
@@ -1512,10 +1512,10 @@ codeunit 28070 TaxInvoiceManagement
                     Payment2 := 0;
 
                     PurchTaxCrMemoHeader.SetRange("Posting Description", GenJnlLine."Document No.");
-                    if PurchTaxCrMemoHeader.FindFirst then begin
+                    if PurchTaxCrMemoHeader.FindFirst() then begin
                         PurchTaxCrMemoLine.Reset();
                         PurchTaxCrMemoLine.SetRange("Document No.", PurchTaxCrMemoHeader."No.");
-                        if PurchTaxCrMemoLine.FindLast then
+                        if PurchTaxCrMemoLine.FindLast() then
                             LineNo := PurchTaxCrMemoLine."Line No." + 10000;
                     end;
                     if LineNo = 0 then
@@ -1523,7 +1523,7 @@ codeunit 28070 TaxInvoiceManagement
                     VendLedgEntry.Reset();
                     VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
                     VendLedgEntry.SetRange("Document No.", PurchCrMemoLine."Document No.");
-                    if VendLedgEntry.FindFirst then begin
+                    if VendLedgEntry.FindFirst() then begin
                         VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", Amount, "Remaining Amount");
 
                         PurchTaxCrMemoLine.Init();
@@ -1688,7 +1688,7 @@ codeunit 28070 TaxInvoiceManagement
                 until SalesInvLine.Next() = 0;
             until TaxDocBufferBuild.Next() = 0;
             TempSalesTaxInvLine.SetRange("Document No.", SalesTaxInvHeader."No.");
-            if not TempSalesTaxInvLine.FindFirst then begin
+            if not TempSalesTaxInvLine.FindFirst() then begin
                 SalesTaxInvHeader.Delete();
                 SalesSetup.Get();
                 if CheckTaxableNoSeries(SalesInvHeader."Sell-to Customer No.", 1) then
@@ -1699,7 +1699,7 @@ codeunit 28070 TaxInvoiceManagement
             if Print then begin
                 SalesTaxInvHeader2.Reset();
                 SalesTaxInvHeader2.SetRange("No.", SalesTaxInvHeader."No.");
-                SalesTaxInvHeader2.FindFirst;
+                SalesTaxInvHeader2.FindFirst();
                 ReportSelection.Reset();
                 ReportSelection.SetRange(Usage, ReportSelection.Usage::"S.TaxInvoice");
                 if ReportSelection.Find('-') then
@@ -1767,7 +1767,7 @@ codeunit 28070 TaxInvoiceManagement
                 if TaxInvBuffer."Tax Invoice No." <> LastTaxInvoice then begin
                     PurchTaxInvoiceHeader.Reset();
                     PurchTaxInvoiceHeader.SetRange("No.", TaxInvBuffer."Tax Invoice No.");
-                    if PurchTaxInvoiceHeader.FindFirst then begin
+                    if PurchTaxInvoiceHeader.FindFirst() then begin
                         ReportSelection.Reset();
                         ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.TaxInvoice");
                         if ReportSelection.Find('-') then
@@ -1790,7 +1790,7 @@ codeunit 28070 TaxInvoiceManagement
                 if TaxInvBuffer."Tax Invoice No." <> LastTaxInvoice then begin
                     SalesTaxInvoiceHeader.Reset();
                     SalesTaxInvoiceHeader.SetRange("No.", TaxInvBuffer."Tax Invoice No.");
-                    if SalesTaxInvoiceHeader.FindFirst then begin
+                    if SalesTaxInvoiceHeader.FindFirst() then begin
                         ReportSelection.Reset();
                         ReportSelection.SetRange(Usage, ReportSelection.Usage::"S.TaxInvoice");
                         if ReportSelection.Find('-') then
@@ -1813,7 +1813,7 @@ codeunit 28070 TaxInvoiceManagement
                 if TaxInvBuffer."Tax Invoice No." <> LastTaxInvoice then begin
                     PurchTaxCrMemoHeader.Reset();
                     PurchTaxCrMemoHeader.SetRange("No.", TaxInvBuffer."Tax Invoice No.");
-                    if PurchTaxCrMemoHeader.FindFirst then begin
+                    if PurchTaxCrMemoHeader.FindFirst() then begin
                         ReportSelection.Reset();
                         ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.TaxCreditMemo");
                         if ReportSelection.Find('-') then
@@ -1836,7 +1836,7 @@ codeunit 28070 TaxInvoiceManagement
                 if TaxInvBuffer."Tax Invoice No." <> LastTaxInvoice then begin
                     SalesTaxCrMemoHeader.Reset();
                     SalesTaxCrMemoHeader.SetRange("No.", TaxInvBuffer."Tax Invoice No.");
-                    if SalesTaxCrMemoHeader.FindFirst then begin
+                    if SalesTaxCrMemoHeader.FindFirst() then begin
                         ReportSelection.Reset();
                         ReportSelection.SetRange(Usage, ReportSelection.Usage::"S.TaxCreditMemo");
                         if ReportSelection.Find('-') then
@@ -1874,18 +1874,18 @@ codeunit 28070 TaxInvoiceManagement
                 begin
                     Vendor.Reset();
                     Vendor.SetFilter("No.", "No.");
-                    if Vendor.FindFirst then
+                    if Vendor.FindFirst() then
                         VendorPostingGroup.SetFilter(Code, Vendor."Vendor Posting Group");
-                    if VendorPostingGroup.FindFirst then
+                    if VendorPostingGroup.FindFirst() then
                         exit(VendorPostingGroup."Non-Taxable");
                 end;
             "Vend/Cust"::Customer:
                 begin
                     Customer.Reset();
                     Customer.SetFilter("No.", "No.");
-                    if Customer.FindFirst then
+                    if Customer.FindFirst() then
                         CustomerPostingGroup.SetFilter(Code, Customer."Customer Posting Group");
-                    if CustomerPostingGroup.FindFirst then
+                    if CustomerPostingGroup.FindFirst() then
                         exit(CustomerPostingGroup."Non-Taxable");
                 end;
         end;

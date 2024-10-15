@@ -69,7 +69,7 @@ report 11608 "Create EFT File"
 
                 EFTRegister.Reset();
                 EFTRegister.LockTable();
-                if not EFTRegister.FindLast then
+                if not EFTRegister.FindLast() then
                     Clear(EFTRegister."No.");
                 EFTRegister."No." += 1;
 
@@ -160,7 +160,7 @@ report 11608 "Create EFT File"
         BalGenJournalLine.SetRange("Document No.", GenJnlLine."Document No.");
         BalGenJournalLine.SetRange("Posting Date", GenJnlLine."Posting Date");
         BalGenJournalLine.SetRange("Account Type", BalGenJournalLine."Account Type"::"Bank Account");
-        BalGenJournalLine.FindFirst;
+        BalGenJournalLine.FindFirst();
         exit(BalGenJournalLine."Account No.");
     end;
 }

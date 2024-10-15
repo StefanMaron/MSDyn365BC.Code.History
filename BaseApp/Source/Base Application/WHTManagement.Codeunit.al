@@ -115,7 +115,7 @@ codeunit 28040 WHTManagement
         TempVendLedgEntry.Reset();
         SetVendAppliesToFilter(TempVendLedgEntry, GenJnlLine);
         TempVendLedgEntry.SetRange("Document Type", TempVendLedgEntry."Document Type"::"Credit Memo");
-        if TempVendLedgEntry.FindSet then
+        if TempVendLedgEntry.FindSet() then
             repeat
                 TempVendLedgEntry.CalcFields(
                   Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)",
@@ -150,7 +150,7 @@ codeunit 28040 WHTManagement
         SetVendAppliesToFilter(TempVendLedgEntry, GenJnlLine);
         TempVendLedgEntry.SetFilter("Document Type", '<>%1&<>%2',
           TempVendLedgEntry."Document Type"::"Credit Memo", TempVendLedgEntry."Document Type"::" ");
-        if TempVendLedgEntry.FindSet then
+        if TempVendLedgEntry.FindSet() then
             repeat
                 TempVendLedgEntry.CalcFields(
                   Amount,
@@ -263,7 +263,7 @@ codeunit 28040 WHTManagement
         TempCustLedgEntry.Reset();
         SetCustAppliesToFilter(TempCustLedgEntry, GenJnlLine);
         TempCustLedgEntry.SetRange("Document Type", TempCustLedgEntry."Document Type"::"Credit Memo");
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 TempCustLedgEntry.CalcFields(
                   Amount,
@@ -340,7 +340,7 @@ codeunit 28040 WHTManagement
         TempCustLedgEntry.Reset();
         SetCustAppliesToFilter(TempCustLedgEntry, GenJnlLine);
         TempCustLedgEntry.SetFilter("Document Type", '<>%1', TempCustLedgEntry."Document Type"::"Credit Memo");
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 TempCustLedgEntry.CalcFields(
                   Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)", "Original Amount", "Original Amt. (LCY)");
@@ -430,12 +430,12 @@ codeunit 28040 WHTManagement
         if GenJnlLine."Applies-to Doc. No." = '' then begin
             TempCustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
             TempCustLedgEntry.SetRange("Document Type", TempCustLedgEntry."Document Type"::"Credit Memo");
-            if TempCustLedgEntry.FindSet then
+            if TempCustLedgEntry.FindSet() then
                 repeat
                     WHTEntry.Reset();
                     WHTEntry.SetRange("Document No.", TempCustLedgEntry."Document No.");
                     WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
-                    if WHTEntry.FindSet then
+                    if WHTEntry.FindSet() then
                         repeat
                             GenJnlLine.Validate(Amount, WHTEntry."Remaining Unrealized Amount");
                             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
@@ -449,12 +449,12 @@ codeunit 28040 WHTManagement
             TempCustLedgEntry.Reset();
             TempCustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
             TempCustLedgEntry.SetFilter("Document Type", '<>%1', TempCustLedgEntry."Document Type"::"Credit Memo");
-            if TempCustLedgEntry.FindSet then
+            if TempCustLedgEntry.FindSet() then
                 repeat
                     WHTEntry.Reset();
                     WHTEntry.SetRange("Document No.", TempCustLedgEntry."Document No.");
                     WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Invoice);
-                    if WHTEntry.FindSet then
+                    if WHTEntry.FindSet() then
                         repeat
                             if TotAmt > Abs(WHTEntry."Remaining Unrealized Amount") then begin
                                 GenJnlLine.Validate(Amount, WHTEntry."Remaining Unrealized Amount");
@@ -494,7 +494,7 @@ codeunit 28040 WHTManagement
             PurchInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
             PurchInvLine.SetRange("Document No.", "No.");
             PurchInvLine.SetFilter(Quantity, '<>0');
-            if PurchInvLine.FindSet then begin
+            if PurchInvLine.FindSet() then begin
                 WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
                 WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
                 if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then
@@ -525,7 +525,7 @@ codeunit 28040 WHTManagement
             TempPurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
             TempPurchInvLine.SetFilter(Quantity, '<>0');
             TempPurchInvLine.SetRange("Prepayment Line", false);
-            if TempPurchInvLine.FindSet then
+            if TempPurchInvLine.FindSet() then
                 repeat
                     if WHTPostingSetup.Get(
                          TempPurchInvLine."WHT Business Posting Group",
@@ -558,7 +558,7 @@ codeunit 28040 WHTManagement
             PurchInvLine.SetRange("Document No.", "No.");
             PurchInvLine.SetFilter(Quantity, '<>0');
             PurchInvLine.SetRange("Prepayment Line", false);
-            if PurchInvLine.FindSet then
+            if PurchInvLine.FindSet() then
                 repeat
                     if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then
                         if WHTPostingSetup."WHT %" > 0 then begin
@@ -653,7 +653,7 @@ codeunit 28040 WHTManagement
             PurchCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
             PurchCreditLine.SetRange("Document No.", "No.");
             PurchCreditLine.SetFilter(Quantity, '<>0');
-            if PurchCreditLine.FindSet then begin
+            if PurchCreditLine.FindSet() then begin
                 WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
                 WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
                 if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then
@@ -683,7 +683,7 @@ codeunit 28040 WHTManagement
             TempPurchCreditLine.Reset();
             TempPurchCreditLine.SetRange("Document No.", PurchCreditHeader."No.");
             TempPurchCreditLine.SetFilter(Quantity, '<>0');
-            if TempPurchCreditLine.FindSet then
+            if TempPurchCreditLine.FindSet() then
                 repeat
                     if WHTPostingSetup.Get(
                          TempPurchCreditLine."WHT Business Posting Group",
@@ -716,11 +716,11 @@ codeunit 28040 WHTManagement
                     TempVendLedgEntry.SetRange("Applies-to ID", AppliesID);
 
             if TempVendLedgEntry.GetFilters <> '' then begin
-                if TempVendLedgEntry.FindSet then begin
+                if TempVendLedgEntry.FindSet() then begin
                     WHTEntry.Reset();
                     WHTEntry.SetRange("Transaction Type", WHTEntry."Transaction Type"::Purchase);
                     WHTEntry.SetRange("Document No.", TempVendLedgEntry."Document No.");
-                    if not WHTEntry.FindFirst then
+                    if not WHTEntry.FindFirst() then
                         if CheckWHTCalculationRule(TotalInvoiceAmountLCY, WHTPostingSetup) then
                             exit;
                 end;
@@ -734,7 +734,7 @@ codeunit 28040 WHTManagement
             PurchCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
             PurchCreditLine.SetRange("Document No.", "No.");
             PurchCreditLine.SetFilter(Quantity, '<>0');
-            if PurchCreditLine.FindSet then
+            if PurchCreditLine.FindSet() then
                 repeat
                     if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then
                         if WHTPostingSetup."WHT %" > 0 then begin
@@ -798,7 +798,7 @@ codeunit 28040 WHTManagement
             SalesInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
             SalesInvLine.SetRange("Document No.", "No.");
             SalesInvLine.SetFilter(Quantity, '<>0');
-            if SalesInvLine.FindSet then begin
+            if SalesInvLine.FindSet() then begin
                 WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
                 WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
                 if WHTPostingSetup.Get(SalesInvLine."WHT Business Posting Group", SalesInvLine."WHT Product Posting Group") then
@@ -824,7 +824,7 @@ codeunit 28040 WHTManagement
             SalesInvLine.SetRange("Document No.", "No.");
             SalesInvLine.SetFilter(Quantity, '<>0');
             SalesInvLine.SetRange("Prepayment Line", false);
-            if SalesInvLine.FindSet then
+            if SalesInvLine.FindSet() then
                 repeat
                     if WHTPostingSetup.Get(SalesInvLine."WHT Business Posting Group", SalesInvLine."WHT Product Posting Group") then
                         if WHTPostingSetup."WHT %" > 0 then begin
@@ -887,7 +887,7 @@ codeunit 28040 WHTManagement
             SalesCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
             SalesCreditLine.SetRange("Document No.", "No.");
             SalesCreditLine.SetFilter(Quantity, '<>0');
-            if SalesCreditLine.FindSet then begin
+            if SalesCreditLine.FindSet() then begin
                 WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
                 WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
                 if WHTPostingSetup.Get(SalesCreditLine."WHT Business Posting Group", SalesCreditLine."WHT Product Posting Group") then
@@ -912,7 +912,7 @@ codeunit 28040 WHTManagement
             SalesCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
             SalesCreditLine.SetRange("Document No.", "No.");
             SalesCreditLine.SetFilter(Quantity, '<>0');
-            if SalesCreditLine.FindSet then
+            if SalesCreditLine.FindSet() then
                 repeat
                     if WHTPostingSetup.Get(SalesCreditLine."WHT Business Posting Group", SalesCreditLine."WHT Product Posting Group") then
                         if WHTPostingSetup."WHT %" > 0 then begin
@@ -1009,7 +1009,7 @@ codeunit 28040 WHTManagement
                     WHTEntry4.SetCurrentKey("Document Type", "Document No.");
                     WHTEntry4.SetRange("Document Type", TempCustLedgEntry."Document Type");
                     WHTEntry4.SetFilter("Document No.", TempCustLedgEntry."Document No.");
-                    if WHTEntry4.FindFirst then begin
+                    if WHTEntry4.FindFirst() then begin
                         if Abs(GenJnlLine.Amount) < Abs(TempCustLedgEntry.Amount) then
                             PaymentAmount1 := GenJnlLine.Amount
                         else
@@ -1031,7 +1031,7 @@ codeunit 28040 WHTManagement
                     WHTEntry4.SetCurrentKey("Document Type", "Document No.");
                     WHTEntry4.SetRange("Document Type", TempVendLedgEntry."Document Type");
                     WHTEntry4.SetFilter("Document No.", TempVendLedgEntry."Document No.");
-                    if WHTEntry4.FindFirst then begin
+                    if WHTEntry4.FindFirst() then begin
                         if Abs(GenJnlLine.Amount) < Abs(TempVendLedgEntry.Amount) then
                             PaymentAmount1 := GenJnlLine.Amount
                         else
@@ -1068,7 +1068,7 @@ codeunit 28040 WHTManagement
             WHTEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.")
         else
             WHTEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
-        if WHTEntry.FindSet then
+        if WHTEntry.FindSet() then
             repeat
                 WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
                 if (WHTPostingSetup."Realized WHT Type" =
@@ -1084,12 +1084,12 @@ codeunit 28040 WHTManagement
                                 PurchCrMemoHeader.Reset();
                                 PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
                                 PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                                if PurchCrMemoHeader.FindFirst then begin
+                                if PurchCrMemoHeader.FindFirst() then begin
                                     TempRemAmt := 0;
                                     VendLedgEntry1.Reset();
                                     VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
                                     VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
-                                    if VendLedgEntry1.FindFirst then
+                                    if VendLedgEntry1.FindFirst() then
                                         VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                     WHTEntryTemp.Reset();
                                     WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
@@ -1097,7 +1097,7 @@ codeunit 28040 WHTManagement
                                     WHTEntryTemp.SetRange("Transaction Type", WHTEntry."Transaction Type"::Purchase);
                                     WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                     WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                    if WHTEntryTemp.FindFirst then begin
+                                    if WHTEntryTemp.FindFirst() then begin
                                         TempRemBase := WHTEntryTemp."Unrealized Amount";
                                         TempRemAmt := WHTEntryTemp."Unrealized Base";
                                     end;
@@ -1110,7 +1110,7 @@ codeunit 28040 WHTManagement
                                 else
                                     if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Credit Memo" then
                                         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
-                                if VendLedgEntry.FindFirst then
+                                if VendLedgEntry.FindFirst() then
                                     VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                                 ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
                                 if VendLedgEntry1."Amount (LCY)" = 0 then
@@ -1188,12 +1188,12 @@ codeunit 28040 WHTManagement
                                 SalesCrMemoHeader.Reset();
                                 SalesCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
                                 SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                                if SalesCrMemoHeader.FindFirst then begin
+                                if SalesCrMemoHeader.FindFirst() then begin
                                     TempRemAmt := 0;
                                     CustLedgEntry1.Reset();
                                     CustLedgEntry1.SetRange("Document No.", SalesCrMemoHeader."No.");
                                     CustLedgEntry1.SetRange("Document Type", CustLedgEntry1."Document Type"::"Credit Memo");
-                                    if CustLedgEntry1.FindFirst then
+                                    if CustLedgEntry1.FindFirst() then
                                         CustLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                     WHTEntryTemp.Reset();
                                     WHTEntryTemp.SetRange("Document No.", SalesCrMemoHeader."No.");
@@ -1201,7 +1201,7 @@ codeunit 28040 WHTManagement
                                     WHTEntryTemp.SetRange("Transaction Type", WHTEntry."Transaction Type"::Sale);
                                     WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                     WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                    if WHTEntryTemp.FindFirst then begin
+                                    if WHTEntryTemp.FindFirst() then begin
                                         TempRemBase := WHTEntryTemp."Unrealized Amount";
                                         TempRemAmt := WHTEntryTemp."Unrealized Base";
                                     end;
@@ -1214,7 +1214,7 @@ codeunit 28040 WHTManagement
                                 else
                                     if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Credit Memo" then
                                         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
-                                if CustLedgEntry.FindFirst then
+                                if CustLedgEntry.FindFirst() then
                                     CustLedgEntry.CalcFields(Amount, "Remaining Amount");
                                 if CustLedgEntry1."Amount (LCY)" = 0 then
                                     CustLedgEntry1."Rem. Amt" := 0;
@@ -1295,7 +1295,7 @@ codeunit 28040 WHTManagement
                                 if GenJnlLine."Certificate Printed" then begin
                                     WHTEntry2."WHT Report Line No" := GenJnlLine."WHT Report Line No.";
                                     TempWHT.SetRange("Document No.", WHTEntry2."Document No.");
-                                    if TempWHT.FindFirst then
+                                    if TempWHT.FindFirst() then
                                         WHTEntry2."WHT Certificate No." := TempWHT."WHT Certificate No.";
                                 end else begin
                                     if ((Source = Source::Vendor) and
@@ -1395,7 +1395,7 @@ codeunit 28040 WHTManagement
                         TempGenJnlTemp.SetRange(Type, TempGenJnlTemp.Type::Sales)
                     else
                         TempGenJnlTemp.SetRange(Type, TempGenJnlTemp.Type::Purchases);
-                    if TempGenJnlTemp.FindFirst then
+                    if TempGenJnlTemp.FindFirst() then
                         if GenJnlLine."Journal Template Name" <> TempGenJnlTemp.Name then begin
                             // Payment Method Code.End;
                             if WHTEntry2.Amount <> 0 then
@@ -1445,7 +1445,7 @@ codeunit 28040 WHTManagement
             if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Credit Memo" then
                 WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
 
-        if WHTEntry.FindSet then
+        if WHTEntry.FindSet() then
             repeat
                 WHTEntryTemp.Reset();
                 WHTEntryTemp := WHTEntry;
@@ -1457,7 +1457,7 @@ codeunit 28040 WHTManagement
                             WHTEntry3.Reset();
                             WHTAmount := 0;
                             WHTEntry3.Copy(WHTEntry);
-                            if WHTEntry3.FindSet then
+                            if WHTEntry3.FindSet() then
                                 repeat
                                     WHTAmount := WHTAmount + WHTEntry3."Unrealized Amount";
                                 until WHTEntry3.Next() = 0;
@@ -1485,7 +1485,7 @@ codeunit 28040 WHTManagement
                             WHTEntry3.Reset();
                             WHTAmount := 0;
                             WHTEntry3.Copy(WHTEntry);
-                            if WHTEntry3.FindSet then
+                            if WHTEntry3.FindSet() then
                                 repeat
                                     WHTAmount := WHTAmount + WHTEntry3."Unrealized Amount";
                                 until WHTEntry3.Next() = 0;
@@ -1690,7 +1690,7 @@ codeunit 28040 WHTManagement
         NewWHTEntry: Record "Temp WHT Entry";
     begin
         NewWHTEntry.Reset();
-        if NewWHTEntry.FindLast then
+        if NewWHTEntry.FindLast() then
             exit(NewWHTEntry."Entry No." + 1);
 
         exit(1);
@@ -1729,14 +1729,14 @@ codeunit 28040 WHTManagement
             GLEntry.SetRange("Entry No.", GLReg."To Entry No.", GLReg."From Entry No.")
         else
             GLEntry.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         StartTrans := GLEntry."Transaction No.";
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         EndTrans := GLEntry."Transaction No.";
         WHTEntry.Reset();
         WHTEntry.SetCurrentKey("Bill-to/Pay-to No.", "Original Document No.", "WHT Revenue Type");
         WHTEntry.SetRange("Transaction No.", StartTrans, EndTrans);
-        if not WHTEntry.FindFirst then
+        if not WHTEntry.FindFirst() then
             exit;
         repeat
             if WHTEntry."Transaction Type" = WHTEntry."Transaction Type"::Sale then begin
@@ -1796,13 +1796,13 @@ codeunit 28040 WHTManagement
                 else
                     WHTEntry.SetRange("Bill-to/Pay-to No.", VendorArray[PrintSlips]);
                 WHTEntry.SetRange("Original Document No.", DocumentArray[PrintSlips]);
-                if WHTEntry.FindSet then
+                if WHTEntry.FindSet() then
                     repeat
                         WHTRevenueTypes.Reset();
                         WHTRevenueTypes.SetRange(Code, WHTEntry."WHT Revenue Type");
                         WHTEntry2.Reset();
                         WHTEntry2 := WHTEntry;
-                        if WHTRevenueTypes.FindFirst then begin
+                        if WHTRevenueTypes.FindFirst() then begin
                             WHTEntry2."WHT Certificate No." := WHTSlipNo;
                             WHTEntry2.Modify();
                         end;
@@ -1815,11 +1815,11 @@ codeunit 28040 WHTManagement
                     WHTEntry.SetRange("Bill-to/Pay-to No.", VendorArray[PrintSlips]);
                 WHTEntry.SetRange("Original Document No.", DocumentArray[PrintSlips]);
                 WHTEntry.SetRange("WHT Certificate No.", WHTSlipNo);
-                if WHTEntry.FindSet then
+                if WHTEntry.FindSet() then
                     ReportSelection.Reset();
                 ReportSelection.SetRange(Usage, ReportSelection.Usage::"WHT Certificate");
                 GeneralLedgerSetup.Get();
-                if ReportSelection.FindSet then
+                if ReportSelection.FindSet() then
                     repeat
                         if ScheduleInJobQueue then
                             BatchPostingPrintMgt.SchedulePrintJobQueueEntry(WHTEntry, ReportSelection."Report ID", GeneralLedgerSetup."Report Output Type")
@@ -2022,7 +2022,7 @@ codeunit 28040 WHTManagement
                         TempWHTEntry.SetRange("Document No.", WHTEntry."Applies-to Doc. No.");
                         TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                         TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                        if TempWHTEntry.FindFirst then begin
+                        if TempWHTEntry.FindFirst() then begin
                             if Abs(WHTEntry."Unrealized Amount") <=
                                Abs(TempWHTEntry."Remaining Unrealized Amount")
                             then begin
@@ -2056,7 +2056,7 @@ codeunit 28040 WHTManagement
                                (WHTEntry."Document Type" = WHTEntry."Document Type"::"Credit Memo")
                             then begin
                                 VendLedgerEntry1.SetRange("Applies-to ID", "Applies-toID");
-                                if VendLedgerEntry1.FindSet then
+                                if VendLedgerEntry1.FindSet() then
                                     repeat
                                         if FindWHTEntryForApply(
                                              TempWHTEntry, VendLedgerEntry1."Document Type", VendLedgerEntry1."Document No.",
@@ -2082,16 +2082,16 @@ codeunit 28040 WHTManagement
                             if TransType = TransType::Sale then begin
                                 CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
                                 CustLedgerEntry.SetRange("Document No.", WHTEntry."Document No.");
-                                if CustLedgerEntry.FindFirst then begin
+                                if CustLedgerEntry.FindFirst() then begin
                                     CustLedgerEntry1.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
-                                    if CustLedgerEntry1.FindSet then
+                                    if CustLedgerEntry1.FindSet() then
                                         repeat
                                             TempWHTEntry.Reset();
                                             TempWHTEntry.SetRange("Document Type", CustLedgerEntry1."Document Type");
                                             TempWHTEntry.SetRange("Document No.", CustLedgerEntry1."Document No.");
                                             TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                             TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                            if TempWHTEntry.FindFirst then begin
+                                            if TempWHTEntry.FindFirst() then begin
                                                 WHTEntry."Remaining Unrealized Amount" :=
                                                   TempWHTEntry."Unrealized Amount" + WHTEntry."Unrealized Amount";
                                                 WHTEntry."Remaining Unrealized Base" :=
@@ -2107,13 +2107,13 @@ codeunit 28040 WHTManagement
                                     if CustLedgerEntry."Closed by Entry No." <> 0 then begin
                                         CustLedgerEntry1.Reset();
                                         CustLedgerEntry1.SetRange("Entry No.", CustLedgerEntry."Closed by Entry No.");
-                                        if CustLedgerEntry1.FindFirst then begin
+                                        if CustLedgerEntry1.FindFirst() then begin
                                             TempWHTEntry.Reset();
                                             TempWHTEntry.SetRange("Document Type", CustLedgerEntry1."Document Type");
                                             TempWHTEntry.SetRange("Document No.", CustLedgerEntry1."Document No.");
                                             TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                             TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                            if TempWHTEntry.FindFirst then begin
+                                            if TempWHTEntry.FindFirst() then begin
                                                 if Abs(WHTEntry."Remaining Unrealized Amount") <=
                                                    Abs(TempWHTEntry."Remaining Unrealized Amount")
                                                 then begin
@@ -2189,7 +2189,7 @@ codeunit 28040 WHTManagement
                                           TempWHTEntry."Document Type"::Invoice,
                                           TempWHTEntry."Document Type"::Refund);
 
-                                    if TempWHTEntry.FindFirst then begin
+                                    if TempWHTEntry.FindFirst() then begin
                                         if TempWHTEntry.Prepayment then begin
                                             PaymentAmount1 := WHTEntry.Base;
                                             WHTEntry3.Reset();
@@ -2198,11 +2198,11 @@ codeunit 28040 WHTManagement
                                             PurchCrMemoHeader.Reset();
                                             PurchCrMemoHeader.SetRange("Applies-to Doc. No.", WHTEntry."Applies-to Doc. No.");
                                             PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                                            if PurchCrMemoHeader.FindFirst then begin
+                                            if PurchCrMemoHeader.FindFirst() then begin
                                                 TempRemAmt := 0;
                                                 VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
                                                 VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
-                                                if VendLedgEntry1.FindFirst then
+                                                if VendLedgEntry1.FindFirst() then
                                                     VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                                 WHTEntryTemp.Reset();
                                                 WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
@@ -2210,7 +2210,7 @@ codeunit 28040 WHTManagement
                                                 WHTEntryTemp.SetRange("Transaction Type", WHTEntry."Transaction Type"::Purchase);
                                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                if WHTEntryTemp.FindFirst then begin
+                                                if WHTEntryTemp.FindFirst() then begin
                                                     TempRemBase := WHTEntryTemp."Unrealized Amount";
                                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                                                 end;
@@ -2223,7 +2223,7 @@ codeunit 28040 WHTManagement
                                             else
                                                 if WHTEntry."Applies-to Doc. Type" = WHTEntry."Applies-to Doc. Type"::"Credit Memo" then
                                                     VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
-                                            if VendLedgEntry.FindFirst then
+                                            if VendLedgEntry.FindFirst() then
                                                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                                             ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
                                             if VendLedgEntry1."Amount (LCY)" = 0 then
@@ -2347,10 +2347,10 @@ codeunit 28040 WHTManagement
                                                 VendLedgerEntry.Reset();
                                                 VendLedgerEntry.SetRange("Document No.", TempWHTEntry."Document No.");
                                                 VendLedgerEntry.SetRange("Document Type", TempWHTEntry."Document Type");
-                                                if VendLedgerEntry.FindFirst then begin
+                                                if VendLedgerEntry.FindFirst() then begin
                                                     TempVendLedgEntry.Reset();
                                                     TempVendLedgEntry.SetRange("Entry No.", VendLedgerEntry."Entry No.");
-                                                    if TempVendLedgEntry.FindSet then begin
+                                                    if TempVendLedgEntry.FindSet() then begin
                                                         TempVendLedgEntry.CalcFields(
                                                           Amount, "Amount (LCY)",
                                                           "Remaining Amount", "Remaining Amt. (LCY)");
@@ -2474,7 +2474,7 @@ codeunit 28040 WHTManagement
                                             VendLedgerEntry.Reset();
                                             VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
                                             VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Refund);
-                                            if VendLedgerEntry.FindSet then begin
+                                            if VendLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := WHTEntry."Rem Realized Base";
                                                 TotalWHT := WHTEntry."Rem Realized Amount";
                                                 repeat
@@ -2483,7 +2483,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if Abs(TotalWHT) > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             WHTEntry."Rem Realized Base" :=
                                                               WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
@@ -2534,14 +2534,14 @@ codeunit 28040 WHTManagement
                                             VendLedgerEntry.Reset();
                                             VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
                                             VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
-                                            if VendLedgerEntry.FindSet then begin
+                                            if VendLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := WHTEntry."Rem Realized Base";
                                                 TotalWHT := WHTEntry."Rem Realized Amount";
                                                 repeat
                                                     if VendLedgerEntry.Prepayment then begin
                                                         TempVendLedgEntry.Reset();
                                                         TempVendLedgEntry.SetRange("Entry No.", VendLedgerEntry."Entry No.");
-                                                        if TempVendLedgEntry.FindFirst then begin
+                                                        if TempVendLedgEntry.FindFirst() then begin
                                                             TempVendLedgEntry.CalcFields(
                                                               Amount, "Amount (LCY)",
                                                               "Remaining Amount", "Remaining Amt. (LCY)");
@@ -2623,7 +2623,7 @@ codeunit 28040 WHTManagement
                                                                 TempWHTEntry.SetRange("Document Type", TempGenJnlLine."Applies-to Doc. Type");
                                                             end else
                                                                 TempWHTEntry.SetRange("Bill-to/Pay-to No.", TempGenJnlLine."Account No.");
-                                                            if TempWHTEntry.FindSet then
+                                                            if TempWHTEntry.FindSet() then
                                                                 repeat
                                                                     WHTEntry3.Reset();
                                                                     WHTEntry3 := TempWHTEntry;
@@ -2631,11 +2631,11 @@ codeunit 28040 WHTManagement
                                                                     PurchCrMemoHeader.SetRange("Applies-to Doc. No.", TempGenJnlLine."Applies-to Doc. No.");
                                                                     PurchCrMemoHeader.SetRange(
                                                                       "Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                                                                    if PurchCrMemoHeader.FindFirst then begin
+                                                                    if PurchCrMemoHeader.FindFirst() then begin
                                                                         TempRemAmt := 0;
                                                                         VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
                                                                         VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
-                                                                        if VendLedgEntry1.FindFirst then
+                                                                        if VendLedgEntry1.FindFirst() then
                                                                             VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                                                         WHTEntryTemp.Reset();
                                                                         WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
@@ -2643,7 +2643,7 @@ codeunit 28040 WHTManagement
                                                                         WHTEntryTemp.SetRange("Transaction Type", TempWHTEntry."Transaction Type"::Purchase);
                                                                         WHTEntryTemp.SetRange("WHT Bus. Posting Group", TempWHTEntry."WHT Bus. Posting Group");
                                                                         WHTEntryTemp.SetRange("WHT Prod. Posting Group", TempWHTEntry."WHT Prod. Posting Group");
-                                                                        if WHTEntryTemp.FindFirst then begin
+                                                                        if WHTEntryTemp.FindFirst() then begin
                                                                             TempRemBase := WHTEntryTemp."Unrealized Amount";
                                                                             TempRemAmt := WHTEntryTemp."Unrealized Base";
                                                                         end;
@@ -2658,7 +2658,7 @@ codeunit 28040 WHTManagement
                                                                            TempGenJnlLine."Applies-to Doc. Type"::"Credit Memo"
                                                                         then
                                                                             VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
-                                                                    if VendLedgEntry.FindFirst then
+                                                                    if VendLedgEntry.FindFirst() then
                                                                         VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                                                                     ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
                                                                     if VendLedgEntry1."Amount (LCY)" = 0 then
@@ -2716,10 +2716,10 @@ codeunit 28040 WHTManagement
                                                         TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
                                                         TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                         TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                        if TempWHTEntry.FindFirst then begin
+                                                        if TempWHTEntry.FindFirst() then begin
                                                             TempVendLedgEntry.Reset();
                                                             TempVendLedgEntry.SetRange("Entry No.", VendLedgerEntry."Entry No.");
-                                                            if TempVendLedgEntry.FindFirst then begin
+                                                            if TempVendLedgEntry.FindFirst() then begin
                                                                 TempVendLedgEntry.CalcFields(
                                                                   Amount, "Amount (LCY)",
                                                                   "Remaining Amount", "Remaining Amt. (LCY)");
@@ -2838,7 +2838,7 @@ codeunit 28040 WHTManagement
                                               '%1|%2',
                                               VendLedgerEntry."Document Type"::Payment,
                                               VendLedgerEntry."Document Type"::"Credit Memo");
-                                            if VendLedgerEntry.FindSet then begin
+                                            if VendLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 repeat
@@ -2847,7 +2847,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then begin
                                                                 WHTEntry.Base := WHTEntry.Base - Abs(TempWHTEntry."Rem Realized Base");
@@ -2948,7 +2948,7 @@ codeunit 28040 WHTManagement
                                           TempWHTEntry."Document Type"::"Credit Memo",
                                           TempWHTEntry."Document Type"::Payment);
 
-                                    if TempWHTEntry.FindFirst then begin
+                                    if TempWHTEntry.FindFirst() then begin
                                         if Abs(TempWHTEntry."Rem Realized Amount") >= Abs(WHTEntry.Amount) then begin
                                             if ((TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Invoice) or
                                                 (TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment))
@@ -3010,7 +3010,7 @@ codeunit 28040 WHTManagement
                                             VendLedgerEntry.Reset();
                                             VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
                                             VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Refund);
-                                            if VendLedgerEntry.FindSet then begin
+                                            if VendLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := WHTEntry."Rem Realized Base";
                                                 TotalWHT := WHTEntry."Rem Realized Amount";
                                                 repeat
@@ -3019,7 +3019,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if Abs(TotalWHT) > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             WHTEntry.Base := WHTEntry.Base + TempWHTEntry."Rem Realized Base";
                                                             WHTEntry.Amount := WHTEntry.Amount + TempWHTEntry."Rem Realized Amount";
@@ -3074,7 +3074,7 @@ codeunit 28040 WHTManagement
                                             VendLedgerEntry.Reset();
                                             VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
                                             VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
-                                            if VendLedgerEntry.FindSet then begin
+                                            if VendLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 repeat
@@ -3083,7 +3083,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
                                                             WHTEntry."Rem Realized Amount" := WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
@@ -3138,7 +3138,7 @@ codeunit 28040 WHTManagement
                                               '%1|%2',
                                               VendLedgerEntry."Document Type"::Payment,
                                               VendLedgerEntry."Document Type"::"Credit Memo");
-                                            if VendLedgerEntry.FindSet then begin
+                                            if VendLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 repeat
@@ -3147,7 +3147,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
                                                                 WHTEntry.Base := WHTEntry.Base + Abs(TempWHTEntry."Rem Realized Base");
@@ -3230,7 +3230,7 @@ codeunit 28040 WHTManagement
                                     CustLedgerEntry.SetRange("Document No.", WHTEntry."Applies-to Doc. No.");
                                     CustLedgerEntry.SetRange("Document Type", WHTEntry."Applies-to Doc. Type");
                                     CustLedgerEntry.SetRange(Prepayment, false);
-                                    if CustLedgerEntry.FindFirst then begin
+                                    if CustLedgerEntry.FindFirst() then begin
                                         TempWHTEntry.Reset();
                                         TempWHTEntry.SetRange(Settled, false);
                                         TempWHTEntry.SetRange("Document Type", WHTEntry."Applies-to Doc. Type");
@@ -3251,7 +3251,7 @@ codeunit 28040 WHTManagement
                                               TempWHTEntry."Document Type"::Invoice,
                                               TempWHTEntry."Document Type"::Refund);
 
-                                        if TempWHTEntry.FindFirst then begin
+                                        if TempWHTEntry.FindFirst() then begin
                                             if Abs(TempWHTEntry."Rem Realized Amount") >= Abs(WHTEntry.Amount) then begin
                                                 if ((TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo") or
                                                     (TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Refund))
@@ -3316,7 +3316,7 @@ codeunit 28040 WHTManagement
                                             CustLedgerEntry.Reset();
                                             CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
                                             CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Refund);
-                                            if CustLedgerEntry.FindFirst then begin
+                                            if CustLedgerEntry.FindFirst() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 IsRefund := true;
@@ -3326,7 +3326,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             WHTEntry."Rem Realized Base" :=
                                                               WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
@@ -3378,7 +3378,7 @@ codeunit 28040 WHTManagement
                                             CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
                                             CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
                                             CustLedgerEntry.SetRange(Prepayment, false);
-                                            if CustLedgerEntry.FindSet then begin
+                                            if CustLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 repeat
@@ -3387,7 +3387,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             WHTEntry.Base := WHTEntry.Base + TempWHTEntry."Rem Realized Base";
                                                             WHTEntry.Amount := WHTEntry.Amount + TempWHTEntry."Rem Realized Amount";
@@ -3448,7 +3448,7 @@ codeunit 28040 WHTManagement
                                               '%1|%2',
                                               CustLedgerEntry."Document Type"::Payment,
                                               CustLedgerEntry."Document Type"::"Credit Memo");
-                                            if CustLedgerEntry.FindSet then begin
+                                            if CustLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 repeat
@@ -3457,7 +3457,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then begin
                                                                 WHTEntry.Base := WHTEntry.Base + Abs(TempWHTEntry."Rem Realized Base");
@@ -3555,7 +3555,7 @@ codeunit 28040 WHTManagement
                                           TempWHTEntry."Document Type"::"Credit Memo",
                                           TempWHTEntry."Document Type"::Payment);
 
-                                    if TempWHTEntry.FindFirst then begin
+                                    if TempWHTEntry.FindFirst() then begin
                                         if Abs(TempWHTEntry."Rem Realized Amount") >= Abs(WHTEntry.Amount) then begin
                                             if ((TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Invoice) or
                                                 (TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment))
@@ -3617,7 +3617,7 @@ codeunit 28040 WHTManagement
                                             CustLedgerEntry.Reset();
                                             CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
                                             CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Refund);
-                                            if CustLedgerEntry.FindSet then begin
+                                            if CustLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 repeat
@@ -3626,7 +3626,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             WHTEntry.Base := WHTEntry.Base - TempWHTEntry."Rem Realized Base";
                                                             WHTEntry.Amount := WHTEntry.Amount - TempWHTEntry."Rem Realized Amount";
@@ -3681,7 +3681,7 @@ codeunit 28040 WHTManagement
                                             CustLedgerEntry.Reset();
                                             CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
                                             CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-                                            if CustLedgerEntry.FindSet then begin
+                                            if CustLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 repeat
@@ -3690,7 +3690,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
                                                             WHTEntry."Rem Realized Amount" := WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
@@ -3745,7 +3745,7 @@ codeunit 28040 WHTManagement
                                               '%1|%2',
                                               CustLedgerEntry."Document Type"::Payment,
                                               CustLedgerEntry."Document Type"::"Credit Memo");
-                                            if CustLedgerEntry.FindSet then begin
+                                            if CustLedgerEntry.FindSet() then begin
                                                 TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
                                                 TotalWHT := Abs(WHTEntry."Rem Realized Amount");
                                                 repeat
@@ -3754,7 +3754,7 @@ codeunit 28040 WHTManagement
                                                     TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
                                                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst then begin
+                                                    if TempWHTEntry.FindFirst() then begin
                                                         if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
                                                             if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
                                                                 WHTEntry.Base := WHTEntry.Base - Abs(TempWHTEntry."Rem Realized Base");
@@ -3871,7 +3871,7 @@ codeunit 28040 WHTManagement
                     TempWHTEntry.SetRange("Document No.", WHTEntry."Applies-to Doc. No.");
                     TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                     TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                    if TempWHTEntry.FindFirst then begin
+                    if TempWHTEntry.FindFirst() then begin
                         TempWHTEntry."Rem Unrealized Amount (LCY)" :=
                           TempWHTEntry."Rem Unrealized Amount (LCY)" + WHTEntry."Unrealized Amount (LCY)";
                         TempWHTEntry."Rem Unrealized Base (LCY)" :=
@@ -3966,7 +3966,7 @@ codeunit 28040 WHTManagement
             end else
                 exit(TotalWHTAmount);
 
-            if TempVendLedgEntry1.FindSet then
+            if TempVendLedgEntry1.FindSet() then
                 repeat
                     TempVendLedgEntry1.CalcFields(
                       Amount, "Amount (LCY)",
@@ -3988,7 +3988,7 @@ codeunit 28040 WHTManagement
 
             TempVendLedgEntry.SetRange(Open, true);
             TempVendLedgEntry.SetRange("Document Type", TempVendLedgEntry."Document Type"::"Credit Memo");
-            if TempVendLedgEntry.FindSet then
+            if TempVendLedgEntry.FindSet() then
                 repeat
                     TempVendLedgEntry.CalcFields(
                       Amount, "Amount (LCY)",
@@ -4018,16 +4018,16 @@ codeunit 28040 WHTManagement
                     PaymentAmountLCY := GenJnlLine."Amount (LCY)";
                     FilterWHTEntry(WHTEntry, GenJnlLine);
 
-                    if WHTEntry.FindSet then
+                    if WHTEntry.FindSet() then
                         repeat
                             PurchCrMemoHeader.Reset();
                             PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
                             PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
-                            if PurchCrMemoHeader.FindFirst then begin
+                            if PurchCrMemoHeader.FindFirst() then begin
                                 TempRemAmt := 0;
                                 VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
                                 VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
-                                if VendLedgEntry1.FindFirst then
+                                if VendLedgEntry1.FindFirst() then
                                     VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                 WHTEntryTemp.Reset();
                                 WHTEntryTemp.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
@@ -4035,7 +4035,7 @@ codeunit 28040 WHTManagement
                                 WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                if WHTEntryTemp.FindFirst then begin
+                                if WHTEntryTemp.FindFirst() then begin
                                     TempRemBase := WHTEntryTemp."Unrealized Amount";
                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                                 end;
@@ -4045,7 +4045,7 @@ codeunit 28040 WHTManagement
                             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
                             VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
 
-                            if VendLedgEntry.FindFirst then
+                            if VendLedgEntry.FindFirst() then
                                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
 
                             ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
@@ -4128,7 +4128,7 @@ codeunit 28040 WHTManagement
             TempVendLedgEntry.SetRange(Open, true);
             TempVendLedgEntry.SetFilter("Document Type", '<>%1&<>%2',
               TempVendLedgEntry."Document Type"::"Credit Memo", TempVendLedgEntry."Document Type"::" ");
-            if TempVendLedgEntry.FindSet then begin
+            if TempVendLedgEntry.FindSet() then begin
                 repeat
                     TempVendLedgEntry.CalcFields(
                       Amount,
@@ -4158,15 +4158,15 @@ codeunit 28040 WHTManagement
                     PaymentAmount1 := GenJnlLine.Amount;
                     PaymentAmountLCY := GenJnlLine."Amount (LCY)";
                     FilterWHTEntry(WHTEntry, GenJnlLine);
-                    if WHTEntry.FindSet then
+                    if WHTEntry.FindSet() then
                         repeat
                             PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
                             PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
-                            if PurchCrMemoHeader.FindFirst then begin
+                            if PurchCrMemoHeader.FindFirst() then begin
                                 TempRemAmt := 0;
                                 VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
                                 VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
-                                if VendLedgEntry1.FindFirst then
+                                if VendLedgEntry1.FindFirst() then
                                     VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                 WHTEntryTemp.Reset();
                                 WHTEntryTemp.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
@@ -4174,7 +4174,7 @@ codeunit 28040 WHTManagement
                                 WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                if WHTEntryTemp.FindFirst then begin
+                                if WHTEntryTemp.FindFirst() then begin
                                     TempRemBase := WHTEntryTemp."Unrealized Amount";
                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                                 end;
@@ -4184,7 +4184,7 @@ codeunit 28040 WHTManagement
                             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
                             if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::Invoice then
                                 VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
-                            if VendLedgEntry.FindFirst then
+                            if VendLedgEntry.FindFirst() then
                                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                             ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
                             if (GenJnlLine."Posting Date" <= VendLedgEntry."Pmt. Discount Date") and
@@ -4257,7 +4257,7 @@ codeunit 28040 WHTManagement
         TempVendLedgEntry.Reset();
         TempVendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         TempVendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-        if TempVendLedgEntry.FindFirst then begin
+        if TempVendLedgEntry.FindFirst() then begin
             if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::Invoice then begin
                 TempVendLedgEntry.CalcFields(
                   Amount,
@@ -4318,17 +4318,17 @@ codeunit 28040 WHTManagement
         PaymentAmount1 := GenJnlLine.Amount;
         PaymentAmountLCY := GenJnlLine."Amount (LCY)";
         FilterWHTEntry(WHTEntry, GenJnlLine);
-        if WHTEntry.FindSet then begin
+        if WHTEntry.FindSet() then begin
             repeat
                 PurchCrMemoHeader.SetRange(
                   "Applies-to Doc. Type",
                   PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
                 PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
-                if PurchCrMemoHeader.FindFirst then begin
+                if PurchCrMemoHeader.FindFirst() then begin
                     TempRemAmt := 0;
                     VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
                     VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
-                    if VendLedgEntry1.FindFirst then
+                    if VendLedgEntry1.FindFirst() then
                         VendLedgEntry1.CalcFields(Amount, "Remaining Amount", "Remaining Amt. (LCY)");
                     WHTEntryTemp.Reset();
                     WHTEntryTemp.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
@@ -4336,14 +4336,14 @@ codeunit 28040 WHTManagement
                     WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
                     WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                     WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                    if WHTEntryTemp.FindFirst then
+                    if WHTEntryTemp.FindFirst() then
                         TempRemAmt := WHTEntryTemp."Unrealized Base";
                 end;
 
                 VendLedgEntry.Reset();
                 VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
                 VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-                if VendLedgEntry.FindFirst then
+                if VendLedgEntry.FindFirst() then
                     VendLedgEntry.CalcFields(Amount, "Remaining Amount", "Remaining Amt. (LCY)");
                 ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
                 AppldAmount :=
@@ -4405,7 +4405,7 @@ codeunit 28040 WHTManagement
         TotAmt := Abs(GenJnlLine.Amount);
         TempCustLedgEntry1.Reset();
         SetCustAppliesToFilter(TempCustLedgEntry1, GenJnlLine);
-        if TempCustLedgEntry1.FindSet then
+        if TempCustLedgEntry1.FindSet() then
             repeat
                 TempCustLedgEntry1.CalcFields(
                   Amount,
@@ -4426,7 +4426,7 @@ codeunit 28040 WHTManagement
         TempCustLedgEntry.Reset();
         SetCustAppliesToFilter(TempCustLedgEntry, GenJnlLine);
         TempCustLedgEntry.SetRange("Document Type", TempCustLedgEntry."Document Type"::"Credit Memo");
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 TempCustLedgEntry.CalcFields(
                   Amount,
@@ -4513,7 +4513,7 @@ codeunit 28040 WHTManagement
         TempCustLedgEntry.Reset();
         SetCustAppliesToFilter(TempCustLedgEntry, GenJnlLine);
         TempCustLedgEntry.SetFilter("Document Type", '<>%1', TempCustLedgEntry."Document Type"::"Credit Memo");
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 TempCustLedgEntry.CalcFields(
                   Amount,
@@ -4641,7 +4641,7 @@ codeunit 28040 WHTManagement
             WHTEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         end else
             WHTEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
-        if WHTEntry.FindSet then begin
+        if WHTEntry.FindSet() then begin
             repeat
                 case Source of
                     Source::Vendor:
@@ -4650,12 +4650,12 @@ codeunit 28040 WHTManagement
                                 exit;
                             PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
                             PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                            if PurchCrMemoHeader.FindFirst then begin
+                            if PurchCrMemoHeader.FindFirst() then begin
                                 TempRemAmt := 0;
                                 VendLedgEntry1.Reset();
                                 VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
                                 VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
-                                if VendLedgEntry1.FindFirst then
+                                if VendLedgEntry1.FindFirst() then
                                     VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                 WHTEntryTemp.Reset();
                                 WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
@@ -4663,7 +4663,7 @@ codeunit 28040 WHTManagement
                                 WHTEntryTemp.SetRange("Transaction Type", WHTEntry."Transaction Type"::Purchase);
                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                if WHTEntryTemp.FindFirst then begin
+                                if WHTEntryTemp.FindFirst() then begin
                                     TempRemBase := WHTEntryTemp."Unrealized Amount";
                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                                 end;
@@ -4676,7 +4676,7 @@ codeunit 28040 WHTManagement
                             else
                                 if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Credit Memo" then
                                     VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
-                            if VendLedgEntry.FindFirst then
+                            if VendLedgEntry.FindFirst() then
                                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                             ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
                             if (GenJnlLine."Posting Date" <= VendLedgEntry."Pmt. Discount Date") and
@@ -4699,12 +4699,12 @@ codeunit 28040 WHTManagement
                         begin
                             SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
                             SalesCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
-                            if SalesCrMemoHeader.FindFirst then begin
+                            if SalesCrMemoHeader.FindFirst() then begin
                                 TempRemAmt := 0;
                                 CustLedgEntry1.Reset();
                                 CustLedgEntry1.SetRange("Document No.", SalesCrMemoHeader."No.");
                                 CustLedgEntry1.SetRange("Document Type", CustLedgEntry1."Document Type"::"Credit Memo");
-                                if CustLedgEntry1.FindFirst then
+                                if CustLedgEntry1.FindFirst() then
                                     CustLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                 WHTEntryTemp.Reset();
                                 WHTEntryTemp.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
@@ -4712,7 +4712,7 @@ codeunit 28040 WHTManagement
                                 WHTEntryTemp.SetRange("Document No.", SalesCrMemoHeader."No.");
                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                if WHTEntryTemp.FindFirst then begin
+                                if WHTEntryTemp.FindFirst() then begin
                                     TempRemBase := WHTEntryTemp."Unrealized Amount";
                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                                 end;
@@ -4721,7 +4721,7 @@ codeunit 28040 WHTManagement
                             CustLedgEntry.Reset();
                             CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
                             CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-                            if CustLedgEntry.FindFirst then
+                            if CustLedgEntry.FindFirst() then
                                 CustLedgEntry.CalcFields(Amount, "Remaining Amount");
                             ExpectedAmount := -(CustLedgEntry.Amount + CustLedgEntry1.Amount);
                             if (GenJnlLine."Posting Date" <= CustLedgEntry."Pmt. Discount Date") and
@@ -4796,7 +4796,7 @@ codeunit 28040 WHTManagement
             WHTEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         end else
             WHTEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
-        if WHTEntry.FindSet then
+        if WHTEntry.FindSet() then
             repeat
                 case Source of
                     Source::Vendor:
@@ -4806,11 +4806,11 @@ codeunit 28040 WHTManagement
                             PurchCrMemoHeader.Reset();
                             PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
                             PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                            if PurchCrMemoHeader.FindFirst then begin
+                            if PurchCrMemoHeader.FindFirst() then begin
                                 TempRemAmt := 0;
                                 VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
                                 VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
-                                if VendLedgEntry1.FindFirst then
+                                if VendLedgEntry1.FindFirst() then
                                     VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                 WHTEntryTemp.Reset();
                                 WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
@@ -4818,7 +4818,7 @@ codeunit 28040 WHTManagement
                                 WHTEntryTemp.SetRange("Transaction Type", WHTEntry."Transaction Type"::Purchase);
                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                if WHTEntryTemp.FindFirst then begin
+                                if WHTEntryTemp.FindFirst() then begin
                                     TempRemBase := WHTEntryTemp."Unrealized Amount";
                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                                 end;
@@ -4831,7 +4831,7 @@ codeunit 28040 WHTManagement
                                 if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Credit Memo" then
                                     VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
 
-                            if VendLedgEntry.FindFirst then
+                            if VendLedgEntry.FindFirst() then
                                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                             ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
                             if (GenJnlLine."Posting Date" <= VendLedgEntry."Pmt. Discount Date") and
@@ -4879,12 +4879,12 @@ codeunit 28040 WHTManagement
                             SalesCrMemoHeader.Reset();
                             SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
                             SalesCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
-                            if SalesCrMemoHeader.FindFirst then begin
+                            if SalesCrMemoHeader.FindFirst() then begin
                                 TempRemAmt := 0;
                                 CustLedgEntry1.Reset();
                                 CustLedgEntry1.SetRange("Document No.", SalesCrMemoHeader."No.");
                                 CustLedgEntry1.SetRange("Document Type", CustLedgEntry1."Document Type"::"Credit Memo");
-                                if CustLedgEntry1.FindFirst then
+                                if CustLedgEntry1.FindFirst() then
                                     CustLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                 WHTEntryTemp.Reset();
                                 WHTEntryTemp.SetRange("Document No.", SalesCrMemoHeader."No.");
@@ -4892,7 +4892,7 @@ codeunit 28040 WHTManagement
                                 WHTEntryTemp.SetRange("Transaction Type", WHTEntry."Transaction Type"::Sale);
                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                if WHTEntryTemp.FindFirst then begin
+                                if WHTEntryTemp.FindFirst() then begin
                                     TempRemBase := WHTEntryTemp."Unrealized Amount";
                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                                 end;
@@ -4901,7 +4901,7 @@ codeunit 28040 WHTManagement
                             CustLedgEntry.Reset();
                             CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
                             CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-                            if CustLedgEntry.FindFirst then
+                            if CustLedgEntry.FindFirst() then
                                 CustLedgEntry.CalcFields(Amount, "Remaining Amount");
                             ExpectedAmount := -(CustLedgEntry.Amount + CustLedgEntry1.Amount);
                             if (GenJnlLine."Posting Date" <= CustLedgEntry."Pmt. Discount Date") and
@@ -5053,7 +5053,7 @@ codeunit 28040 WHTManagement
         if GenJnlLine."Applies-to Doc. No." = '' then begin
             TempVendLedgEntry1.SetRange(Open, true);
             TempVendLedgEntry1.SetRange("Applies-to ID", GenJnlLine."Document No.");
-            if TempVendLedgEntry1.FindSet then
+            if TempVendLedgEntry1.FindSet() then
                 repeat
                     TempVendLedgEntry1.CalcFields(
                       Amount, "Amount (LCY)",
@@ -5071,7 +5071,7 @@ codeunit 28040 WHTManagement
             TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLineTemp."Document No.");
             TempVendLedgEntry.SetRange(Open, true);
             TempVendLedgEntry.SetRange("Document Type", TempVendLedgEntry."Document Type"::"Credit Memo");
-            if TempVendLedgEntry.FindSet then
+            if TempVendLedgEntry.FindSet() then
                 repeat
                     TempVendLedgEntry.CalcFields(
                       Amount,
@@ -5140,7 +5140,7 @@ codeunit 28040 WHTManagement
             TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempVendLedgEntry.SetRange(Open, true);
             TempVendLedgEntry.SetFilter("Document Type", '<>%1', TempVendLedgEntry."Document Type"::"Credit Memo");
-            if TempVendLedgEntry.FindSet then begin
+            if TempVendLedgEntry.FindSet() then begin
                 repeat
                     TempVendLedgEntry.CalcFields(
                       Amount,
@@ -5249,7 +5249,7 @@ codeunit 28040 WHTManagement
                 TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempVendLedgEntry.SetRange("Document Type", TempVendLedgEntry."Document Type"::"Credit Memo");
 
-            if TempVendLedgEntry.FindSet then
+            if TempVendLedgEntry.FindSet() then
                 repeat
                     TempVendLedgEntry.CalcFields(
                       Amount,
@@ -5325,7 +5325,7 @@ codeunit 28040 WHTManagement
                 TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
 
             TempVendLedgEntry.SetFilter("Document Type", '<>%1', TempVendLedgEntry."Document Type"::"Credit Memo");
-            if TempVendLedgEntry.FindSet then begin
+            if TempVendLedgEntry.FindSet() then begin
                 repeat
                     TempVendLedgEntry.CalcFields(
                       Amount, "Amount (LCY)",
@@ -5449,7 +5449,7 @@ codeunit 28040 WHTManagement
             else
                 TempCustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempCustLedgEntry.SetRange("Document Type", TempCustLedgEntry."Document Type"::"Credit Memo");
-            if TempCustLedgEntry.FindSet then
+            if TempCustLedgEntry.FindSet() then
                 repeat
                     TempCustLedgEntry.CalcFields(
                       Amount,
@@ -5535,7 +5535,7 @@ codeunit 28040 WHTManagement
                 TempCustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempCustLedgEntry.SetFilter("Document Type", '<>%1', TempCustLedgEntry."Document Type"::"Credit Memo");
             TempCustLedgEntry.SetFilter("Document No.", '<>%1', GenJnlLine."Document No.");
-            if TempCustLedgEntry.FindSet then begin
+            if TempCustLedgEntry.FindSet() then begin
                 repeat
                     TempCustLedgEntry.CalcFields(
                       Amount,
@@ -5688,7 +5688,7 @@ codeunit 28040 WHTManagement
         end else
             WHTEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
 
-        if WHTEntry.FindSet then
+        if WHTEntry.FindSet() then
             repeat
                 WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
                 if (WHTPostingSetup."Realized WHT Type" =
@@ -5704,11 +5704,11 @@ codeunit 28040 WHTManagement
                                 PurchCrMemoHeader.Reset();
                                 PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
                                 PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                                if PurchCrMemoHeader.FindFirst then begin
+                                if PurchCrMemoHeader.FindFirst() then begin
                                     TempRemAmt := 0;
                                     VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
                                     VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
-                                    if VendLedgEntry1.FindFirst then
+                                    if VendLedgEntry1.FindFirst() then
                                         VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                     WHTEntryTemp.Reset();
                                     WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
@@ -5716,7 +5716,7 @@ codeunit 28040 WHTManagement
                                     WHTEntryTemp.SetRange("Transaction Type", WHTEntry."Transaction Type"::Purchase);
                                     WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                     WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                    if WHTEntryTemp.FindFirst then begin
+                                    if WHTEntryTemp.FindFirst() then begin
                                         TempRemBase := WHTEntryTemp."Unrealized Amount";
                                         TempRemAmt := WHTEntryTemp."Unrealized Base";
                                     end;
@@ -5730,7 +5730,7 @@ codeunit 28040 WHTManagement
                                     if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Credit Memo" then
                                         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
 
-                                if VendLedgEntry.FindFirst then
+                                if VendLedgEntry.FindFirst() then
                                     VendLedgEntry.CalcFields(Amount, "Remaining Amount");
 
                                 ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
@@ -5783,12 +5783,12 @@ codeunit 28040 WHTManagement
                             begin
                                 SalesCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
                                 SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                                if SalesCrMemoHeader.FindFirst then begin
+                                if SalesCrMemoHeader.FindFirst() then begin
                                     TempRemAmt := 0;
                                     CustLedgEntry1.Reset();
                                     CustLedgEntry1.SetRange("Document Type", CustLedgEntry1."Document Type"::"Credit Memo");
                                     CustLedgEntry1.SetRange("Document No.", SalesCrMemoHeader."No.");
-                                    if CustLedgEntry1.FindFirst then
+                                    if CustLedgEntry1.FindFirst() then
                                         CustLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                     WHTEntryTemp.Reset();
                                     WHTEntryTemp.SetRange("Document No.", SalesCrMemoHeader."No.");
@@ -5796,7 +5796,7 @@ codeunit 28040 WHTManagement
                                     WHTEntryTemp.SetRange("Transaction Type", WHTEntry."Transaction Type"::Sale);
                                     WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                     WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                    if WHTEntryTemp.FindFirst then begin
+                                    if WHTEntryTemp.FindFirst() then begin
                                         TempRemBase := WHTEntryTemp."Unrealized Amount";
                                         TempRemAmt := WHTEntryTemp."Unrealized Base";
                                     end;
@@ -5805,7 +5805,7 @@ codeunit 28040 WHTManagement
                                 CustLedgEntry.Reset();
                                 CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
                                 CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-                                if CustLedgEntry.FindFirst then
+                                if CustLedgEntry.FindFirst() then
                                     CustLedgEntry.CalcFields(Amount, "Remaining Amount");
                                 if CustLedgEntry1."Amount (LCY)" = 0 then
                                     CustLedgEntry1."Rem. Amt for WHT" := 0;
@@ -5910,7 +5910,7 @@ codeunit 28040 WHTManagement
                                 if GenJnlLine."Certificate Printed" then begin
                                     WHTEntry2."WHT Report Line No" := GenJnlLine."WHT Report Line No.";
                                     TempWHT.SetRange("Document No.", WHTEntry2."Document No.");
-                                    if TempWHT.FindFirst then
+                                    if TempWHT.FindFirst() then
                                         WHTEntry2."WHT Certificate No." := TempWHT."WHT Certificate No.";
                                 end else begin
                                     if ((Source = Source::Vendor) and
@@ -6037,7 +6037,7 @@ codeunit 28040 WHTManagement
             if GenJournalLine."Applies-to Doc. Type" = GenJournalLine."Applies-to Doc. Type"::"Credit Memo" then
                 WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
             WHTEntry.SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
-            if WHTEntry.FindFirst then begin
+            if WHTEntry.FindFirst() then begin
                 WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
                 WHTPostingSetup.TestField("WHT Report Line No. Series");
                 GenJournalLine."WHT Report Line No." :=
@@ -6047,7 +6047,7 @@ codeunit 28040 WHTManagement
         end else begin
             VendLedgEntry.Reset();
             VendLedgEntry.SetRange("Applies-to ID", GenJournalLine."Document No.");
-            if VendLedgEntry.FindSet then
+            if VendLedgEntry.FindSet() then
                 repeat
                     WHTEntry.Reset();
                     WHTEntry.SetCurrentKey("Transaction Type", "Document No.", "Document Type", "Bill-to/Pay-to No.");
@@ -6057,7 +6057,7 @@ codeunit 28040 WHTManagement
                         WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
                     WHTEntry.SetRange("Document No.", VendLedgEntry."Document No.");
                     if not WHTExists then
-                        if WHTEntry.FindFirst then begin
+                        if WHTEntry.FindFirst() then begin
                             WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
                             WHTPostingSetup.TestField("WHT Report Line No. Series");
                             NoSeriesCode := WHTPostingSetup."WHT Report Line No. Series";
@@ -6073,7 +6073,7 @@ codeunit 28040 WHTManagement
         TempWHTEntry.Reset();
         TempWHTEntry.SetCurrentKey("Bill-to/Pay-to No.", "Original Document No.", "WHT Revenue Type");
         TempWHTEntry.SetRange("Original Document No.", GenJournalLine."Document No.");
-        if TempWHTEntry.FindFirst then
+        if TempWHTEntry.FindFirst() then
             if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then
                 REPORT.Run(REPORT::"WHT certificate preprint", PurchSetup."Print Dialog", false, TempWHTEntry);
         GenJournalLine."Certificate Printed" := true;
@@ -6092,19 +6092,19 @@ codeunit 28040 WHTManagement
         else
             TempCustLedgEntry.SetRange("Applies-to ID", SalesHeader."Applies-to ID");
 
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 WHTEntry.Reset();
                 WHTEntry.SetRange("Document No.", TempCustLedgEntry."Document No.");
                 WHTEntry.SetRange("Transaction Type", WHTEntry."Transaction Type"::Sale);
-                if WHTEntry.FindSet then
+                if WHTEntry.FindSet() then
                     repeat
                         SalesLine1.Reset();
                         SalesLine1.SetRange("Document No.", SalesHeader."No.");
                         SalesLine1.SetRange("Document Type", SalesHeader."Document Type");
                         SalesLine1.SetRange("WHT Business Posting Group", WHTEntry."WHT Bus. Posting Group");
                         SalesLine1.SetRange("WHT Product Posting Group", WHTEntry."WHT Prod. Posting Group");
-                        if not SalesLine1.FindFirst then
+                        if not SalesLine1.FindFirst() then
                             Error(Text1500003);
                     until WHTEntry.Next() = 0;
             until TempCustLedgEntry.Next() = 0;
@@ -6122,19 +6122,19 @@ codeunit 28040 WHTManagement
         else
             TempVendLedgEntry.SetRange("Applies-to ID", PurchHeader."Applies-to ID");
 
-        if TempVendLedgEntry.FindSet then
+        if TempVendLedgEntry.FindSet() then
             repeat
                 WHTEntry.Reset();
                 WHTEntry.SetRange("Document No.", TempVendLedgEntry."Document No.");
                 WHTEntry.SetRange("Transaction Type", WHTEntry."Transaction Type"::Purchase);
-                if WHTEntry.FindSet then
+                if WHTEntry.FindSet() then
                     repeat
                         PurchLine1.Reset();
                         PurchLine1.SetRange("Document No.", PurchHeader."No.");
                         PurchLine1.SetRange("Document Type", PurchHeader."Document Type");
                         PurchLine1.SetRange("WHT Business Posting Group", WHTEntry."WHT Bus. Posting Group");
                         PurchLine1.SetRange("WHT Product Posting Group", WHTEntry."WHT Prod. Posting Group");
-                        if not PurchLine1.FindFirst then
+                        if not PurchLine1.FindFirst() then
                             Error(Text1500003);
                     until WHTEntry.Next() = 0;
             until TempVendLedgEntry.Next() = 0;
@@ -6154,16 +6154,16 @@ codeunit 28040 WHTManagement
                 TempCustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.")
             else
                 TempCustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
-            if TempCustLedgEntry.FindSet then
+            if TempCustLedgEntry.FindSet() then
                 repeat
                     WHTEntry.Reset();
                     WHTEntry.SetRange("Document No.", TempCustLedgEntry."Document No.");
                     WHTEntry.SetRange("Transaction Type", WHTEntry."Transaction Type"::Sale);
-                    if WHTEntry.FindSet then
+                    if WHTEntry.FindSet() then
                         repeat
                             GenJnlLine.SetRange("WHT Business Posting Group", WHTEntry."WHT Bus. Posting Group");
                             GenJnlLine.SetRange("WHT Product Posting Group", WHTEntry."WHT Prod. Posting Group");
-                            if not GenJnlLine.FindFirst then
+                            if not GenJnlLine.FindFirst() then
                                 Error(Text1500003);
                         until WHTEntry.Next() = 0;
                 until TempCustLedgEntry.Next() = 0;
@@ -6184,16 +6184,16 @@ codeunit 28040 WHTManagement
                 TempVendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.")
             else
                 TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
-            if TempVendLedgEntry.FindSet then
+            if TempVendLedgEntry.FindSet() then
                 repeat
                     WHTEntry.Reset();
                     WHTEntry.SetRange("Document No.", TempVendLedgEntry."Document No.");
                     WHTEntry.SetRange("Transaction Type", WHTEntry."Transaction Type"::Purchase);
-                    if WHTEntry.FindSet then
+                    if WHTEntry.FindSet() then
                         repeat
                             GenJnlLine.SetRange("WHT Business Posting Group", WHTEntry."WHT Bus. Posting Group");
                             GenJnlLine.SetRange("WHT Product Posting Group", WHTEntry."WHT Prod. Posting Group");
-                            if not GenJnlLine.FindFirst then
+                            if not GenJnlLine.FindFirst() then
                                 Error(Text1500003);
                         until WHTEntry.Next() = 0;
                 until TempVendLedgEntry.Next() = 0;
@@ -6276,7 +6276,7 @@ codeunit 28040 WHTManagement
                   '%1',
                   VendorLedgerEntry."Document Type"::Refund);
 
-            if VendorLedgerEntry.FindFirst then begin
+            if VendorLedgerEntry.FindFirst() then begin
                 if GenJnlLine."Currency Code" <> VendorLedgerEntry."Currency Code" then
                     Error(Text1500000);
 
@@ -6291,17 +6291,17 @@ codeunit 28040 WHTManagement
                         WHTEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
                     end else
                         WHTEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
-                    if WHTEntry.FindSet then begin
+                    if WHTEntry.FindSet() then begin
                         repeat
                             PurchCrMemoHeader.SetRange(
                               "Applies-to Doc. Type",
                               PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
                             PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
-                            if PurchCrMemoHeader.FindFirst then begin
+                            if PurchCrMemoHeader.FindFirst() then begin
                                 TempRemAmt := 0;
                                 VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
                                 VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
-                                if VendLedgEntry1.FindFirst then
+                                if VendLedgEntry1.FindFirst() then
                                     VendLedgEntry1.CalcFields(Amount, "Remaining Amount");
                                 WHTEntryTemp.Reset();
                                 WHTEntryTemp.SetRange("Document Type", WHTEntry."Document Type"::"Credit Memo");
@@ -6309,13 +6309,13 @@ codeunit 28040 WHTManagement
                                 WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                if WHTEntryTemp.FindFirst then
+                                if WHTEntryTemp.FindFirst() then
                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                             end;
 
                             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
                             VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-                            if VendLedgEntry.FindFirst then
+                            if VendLedgEntry.FindFirst() then
                                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                             ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
                             if (GenJnlLine."Posting Date" <= VendLedgEntry."Pmt. Discount Date") and
@@ -6351,7 +6351,7 @@ codeunit 28040 WHTManagement
                 end else begin
                     WHTEntry.Reset();
                     WHTEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
-                    if WHTEntry.FindFirst then
+                    if WHTEntry.FindFirst() then
                         if WHTPostingSetup.Get(
                              WHTEntry."WHT Bus. Posting Group",
                              WHTEntry."WHT Prod. Posting Group")
@@ -6364,7 +6364,7 @@ codeunit 28040 WHTManagement
                                 TotAmt := GenJnlLine.Amount;
                                 TempVendLedgEntry.Reset();
                                 TempVendLedgEntry.SetRange("Entry No.", VendorLedgerEntry."Entry No.");
-                                if TempVendLedgEntry.FindSet then begin
+                                if TempVendLedgEntry.FindSet() then begin
                                     TempVendLedgEntry.CalcFields(
                                       Amount, "Amount (LCY)",
                                       "Remaining Amount", "Remaining Amt. (LCY)");
@@ -6400,11 +6400,11 @@ codeunit 28040 WHTManagement
                       '%1|%2',
                       VendorLedgerEntry."Document Type"::Payment,
                       VendorLedgerEntry."Document Type"::"Credit Memo");
-                    if VendorLedgerEntry.FindSet then
+                    if VendorLedgerEntry.FindSet() then
                         repeat
                             WHTEntry.Reset();
                             WHTEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
-                            if WHTEntry.FindSet then
+                            if WHTEntry.FindSet() then
                                 repeat
                                     if WHTPostingSetup.Get(
                                          WHTEntry."WHT Bus. Posting Group",
@@ -6453,7 +6453,7 @@ codeunit 28040 WHTManagement
                     else
                         TempVendLedgEntry1.SetRange("Buy-from Vendor No.", GenJnlLine."Bill-to/Pay-to No.");
 
-                    if TempVendLedgEntry1.FindSet then
+                    if TempVendLedgEntry1.FindSet() then
                         repeat
                             TempVendLedgEntry1.CalcFields(
                               Amount, "Amount (LCY)",
@@ -6470,11 +6470,11 @@ codeunit 28040 WHTManagement
                     VendorLedgerEntry.Reset();
                     VendorLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
                     VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Refund);
-                    if VendorLedgerEntry.FindSet then
+                    if VendorLedgerEntry.FindSet() then
                         repeat
                             WHTEntry.Reset();
                             WHTEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
-                            if WHTEntry.FindSet then
+                            if WHTEntry.FindSet() then
                                 repeat
                                     if WHTPostingSetup.Get(
                                          WHTEntry."WHT Bus. Posting Group",
@@ -6502,7 +6502,7 @@ codeunit 28040 WHTManagement
                     VendorLedgerEntry.Reset();
                     VendorLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
                     VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-                    if VendorLedgerEntry.FindSet then begin
+                    if VendorLedgerEntry.FindSet() then begin
                         repeat
                             if GenJnlLine."Currency Code" <> VendorLedgerEntry."Currency Code" then
                                 Error(Text1500000);
@@ -6510,7 +6510,7 @@ codeunit 28040 WHTManagement
                             if VendorLedgerEntry.Prepayment then begin
                                 TempVendLedgEntry.Reset();
                                 TempVendLedgEntry.SetRange("Entry No.", VendorLedgerEntry."Entry No.");
-                                if TempVendLedgEntry.FindSet then begin
+                                if TempVendLedgEntry.FindSet() then begin
                                     TempVendLedgEntry.CalcFields(
                                       Amount, "Amount (LCY)",
                                       "Remaining Amount", "Remaining Amt. (LCY)");
@@ -6619,16 +6619,16 @@ codeunit 28040 WHTManagement
                                         WHTEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
                                     end else
                                         WHTEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
-                                    if WHTEntry.FindSet then
+                                    if WHTEntry.FindSet() then
                                         repeat
                                             PurchCrMemoHeader.Reset();
                                             PurchCrMemoHeader.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.");
                                             PurchCrMemoHeader.SetRange("Applies-to Doc. Type", PurchCrMemoHeader."Applies-to Doc. Type"::Invoice);
-                                            if PurchCrMemoHeader.FindFirst then begin
+                                            if PurchCrMemoHeader.FindFirst() then begin
                                                 TempRemAmt := 0;
                                                 VendLedgEntry1.SetRange("Document Type", VendLedgEntry1."Document Type"::"Credit Memo");
                                                 VendLedgEntry1.SetRange("Document No.", PurchCrMemoHeader."No.");
-                                                if VendLedgEntry1.FindFirst then
+                                                if VendLedgEntry1.FindFirst() then
                                                     VendLedgEntry1.CalcFields(Amount, "Remaining Amount",
                                                       "Amount (LCY)", "Remaining Amt. (LCY)");
                                                 WHTEntryTemp.Reset();
@@ -6637,7 +6637,7 @@ codeunit 28040 WHTManagement
                                                 WHTEntryTemp.SetRange("Document No.", PurchCrMemoHeader."No.");
                                                 WHTEntryTemp.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                                 WHTEntryTemp.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                if WHTEntryTemp.FindFirst then begin
+                                                if WHTEntryTemp.FindFirst() then begin
                                                     TempRemBase := WHTEntryTemp."Unrealized Amount";
                                                     TempRemAmt := WHTEntryTemp."Unrealized Base";
                                                 end;
@@ -6650,7 +6650,7 @@ codeunit 28040 WHTManagement
                                             else
                                                 if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Credit Memo" then
                                                     VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
-                                            if VendLedgEntry.FindFirst then
+                                            if VendLedgEntry.FindFirst() then
                                                 VendLedgEntry.CalcFields(Amount, "Remaining Amount",
                                                   "Amount (LCY)", "Remaining Amt. (LCY)");
                                             ExpectedAmount := -(VendLedgEntry.Amount + VendLedgEntry1.Amount);
@@ -6708,7 +6708,7 @@ codeunit 28040 WHTManagement
                             end else begin
                                 WHTEntry.Reset();
                                 WHTEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
-                                if WHTEntry.FindSet then
+                                if WHTEntry.FindSet() then
                                     repeat
                                         if WHTPostingSetup.Get(
                                              WHTEntry."WHT Bus. Posting Group",
@@ -6720,7 +6720,7 @@ codeunit 28040 WHTManagement
                                             then begin
                                                 TempVendLedgEntry.Reset();
                                                 TempVendLedgEntry.SetRange("Entry No.", VendorLedgerEntry."Entry No.");
-                                                if TempVendLedgEntry.FindSet then begin
+                                                if TempVendLedgEntry.FindSet() then begin
                                                     TempVendLedgEntry.CalcFields(
                                                       Amount, "Amount (LCY)",
                                                       "Remaining Amount", "Remaining Amt. (LCY)");
@@ -6859,11 +6859,11 @@ codeunit 28040 WHTManagement
                   '%1',
                   CustLedgerEntry."Document Type"::Refund);
 
-            if CustLedgerEntry.FindFirst then
+            if CustLedgerEntry.FindFirst() then
                 if not CustLedgerEntry.Prepayment then begin
                     WHTEntry.Reset();
                     WHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                    if WHTEntry.FindFirst then
+                    if WHTEntry.FindFirst() then
                         if WHTPostingSetup.Get(
                              WHTEntry."WHT Bus. Posting Group",
                              WHTEntry."WHT Prod. Posting Group")
@@ -6891,11 +6891,11 @@ codeunit 28040 WHTManagement
                       '%1|%2',
                       CustLedgerEntry."Document Type"::Payment,
                       CustLedgerEntry."Document Type"::"Credit Memo");
-                    if CustLedgerEntry.FindSet then
+                    if CustLedgerEntry.FindSet() then
                         repeat
                             WHTEntry.Reset();
                             WHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                            if WHTEntry.FindSet then
+                            if WHTEntry.FindSet() then
                                 repeat
                                     if WHTPostingSetup.Get(
                                          WHTEntry."WHT Bus. Posting Group",
@@ -6935,12 +6935,12 @@ codeunit 28040 WHTManagement
                     CustLedgerEntry.Reset();
                     CustLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
                     CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Refund);
-                    if CustLedgerEntry.FindSet then
+                    if CustLedgerEntry.FindSet() then
                         repeat
                             IsRefund := true;
                             WHTEntry.Reset();
                             WHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                            if WHTEntry.FindSet then
+                            if WHTEntry.FindSet() then
                                 repeat
                                     if WHTPostingSetup.Get(
                                          WHTEntry."WHT Bus. Posting Group",
@@ -6969,11 +6969,11 @@ codeunit 28040 WHTManagement
                     CustLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
                     CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
                     CustLedgerEntry.SetRange(Prepayment, false);
-                    if CustLedgerEntry.FindSet then
+                    if CustLedgerEntry.FindSet() then
                         repeat
                             WHTEntry.Reset();
                             WHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                            if WHTEntry.FindSet then
+                            if WHTEntry.FindSet() then
                                 repeat
                                     if WHTPostingSetup.Get(
                                          WHTEntry."WHT Bus. Posting Group",
@@ -7026,7 +7026,7 @@ codeunit 28040 WHTManagement
             PurchLine.SetRange("Document No.", PurchHeader."No.");
             PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
 
-            if PurchLine.FindSet then
+            if PurchLine.FindSet() then
                 repeat
                     if PurchasePostPrepayments.PrepmtAmount(PurchLine, 0) <> 0 then
                         if WHTPostingSetup.Get(PurchLine."WHT Business Posting Group", PurchLine."WHT Product Posting Group") then
@@ -7204,7 +7204,7 @@ codeunit 28040 WHTManagement
             VendLedgEntry.Reset();
             VendLedgEntry.SetRange("Document Type", TempGenJnlLine."Document Type");
             VendLedgEntry.SetRange("Document No.", TempGenJnlLine."Document No.");
-            if VendLedgEntry.FindLast then
+            if VendLedgEntry.FindLast() then
                 WHTEntry2."Transaction No." := VendLedgEntry."Transaction No.";
             WHTEntry2.Base := Round(AppldAmount);
             WHTEntry2.Amount := Round(WHTEntry2.Base * WHTEntry2."WHT %" / 100);
@@ -7216,7 +7216,7 @@ codeunit 28040 WHTManagement
             if TempGenJnlLine."Certificate Printed" then begin
                 WHTEntry2."WHT Report Line No" := TempGenJnlLine."WHT Report Line No.";
                 TempWHT.SetRange("Document No.", "Document No.");
-                if TempWHT.FindFirst then
+                if TempWHT.FindFirst() then
                     WHTEntry2."WHT Certificate No." := TempWHT."WHT Certificate No.";
             end else begin
                 if ((TransType = TransType::Purchase) and
@@ -7338,7 +7338,7 @@ codeunit 28040 WHTManagement
             PurchLine.SetRange("Document No.", "No.");
             PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
 
-            if PurchLine.FindSet then
+            if PurchLine.FindSet() then
                 repeat
                     if PurchLine."Prepmt. Line Amount" <> 0 then
                         if WHTPostingSetup.Get(PurchLine."WHT Business Posting Group", PurchLine."WHT Product Posting Group") then

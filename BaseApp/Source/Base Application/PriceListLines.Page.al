@@ -294,11 +294,8 @@ page 7001 "Price List Lines"
     end;
 
     var
-        DiscountStyle: Text;
-        PriceStyle: Text;
         JobSourceType: Enum "Job Price Source Type";
         SourceType: Enum "Sales Price Source Type";
-        LineToVerify: Boolean;
         SourceNoEnabled: Boolean;
 
     protected var
@@ -309,14 +306,17 @@ page 7001 "Price List Lines"
         AmountEditable: Boolean;
         AmountTypeIsEditable: Boolean;
         AmountTypeIsVisible: Boolean;
+        DiscountStyle: Text;
         DiscountMandatory: Boolean;
         DiscountVisible: Boolean;
         IsJobGroup: Boolean;
         IsParentAllowed: Boolean;
         ItemAsset: Boolean;
+        PriceStyle: Text;
         PriceMandatory: Boolean;
         PriceVisible: Boolean;
         ResourceAsset: Boolean;
+        LineToVerify: Boolean;
         UOMEditable: Boolean;
 
     local procedure GetStyle(Mandatory: Boolean): Text;

@@ -258,8 +258,6 @@ report 492 "Copy Purchase Document"
     end;
 
     var
-        PurchHeader: Record "Purchase Header";
-        FromPurchHeader: Record "Purchase Header";
         FromPurchRcptHeader: Record "Purch. Rcpt. Header";
         FromPurchInvHeader: Record "Purch. Inv. Header";
         FromReturnShptHeader: Record "Return Shipment Header";
@@ -270,10 +268,6 @@ report 492 "Copy Purchase Document"
         PostCodeCheck: Codeunit "Post Code Check";
         BASManagement: Codeunit "BAS Management";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        FromDocType: Enum "Purchase Document Type From";
-        FromDocNo: Code[20];
-        FromDocNoOccurrence: Integer;
-        FromDocVersionNo: Integer;
         IncludeHeader: Boolean;
         RecalculateLines: Boolean;
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible, copy a %2 instead or use %3 functionality.';
@@ -282,6 +276,14 @@ report 492 "Copy Purchase Document"
         ReplacePostDate: Boolean;
         ReplaceDocDate: Boolean;
         PostingDate: Date;
+
+    protected var
+        PurchHeader: Record "Purchase Header";
+        FromPurchHeader: Record "Purchase Header";
+        FromDocType: Enum "Purchase Document Type From";
+        FromDocNo: Code[20];
+        FromDocNoOccurrence: Integer;
+        FromDocVersionNo: Integer;
 
     procedure SetPurchHeader(var NewPurchHeader: Record "Purchase Header")
     begin
@@ -381,7 +383,7 @@ report 492 "Copy Purchase Document"
             CopyDocMgt.GetPurchaseDocumentType(FromDocType), FromDocNo, FromDocNoOccurrence, FromDocVersionNo)
         then begin
             FromPurchHeaderArchive.SetRange("No.", FromDocNo);
-            if FromPurchHeaderArchive.FindLast then begin
+            if FromPurchHeaderArchive.FindLast() then begin
                 FromDocNoOccurrence := FromPurchHeaderArchive."Doc. No. Occurrence";
                 FromDocVersionNo := FromPurchHeaderArchive."Version No.";
             end;
@@ -536,14 +538,6 @@ report 492 "Copy Purchase Document"
         IncludeHeader := NewIncludeHeader;
         RecalculateLines := NewRecalcLines;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SetParameters().', '17.0')]
-    procedure InitializeRequest(NewDocType: Option; NewDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
-    begin
-        SetParameters("Purchase Document Type From".FromInteger(NewDocType), NewDocNo, NewIncludeHeader, NewRecalcLines);
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenPage()

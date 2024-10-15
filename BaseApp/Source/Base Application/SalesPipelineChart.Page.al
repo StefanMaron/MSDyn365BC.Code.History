@@ -94,14 +94,16 @@ page 781 "Sales Pipeline Chart"
         BusinessChartBuffer: Record "Business Chart Buffer";
         SalesCycle: Record "Sales Cycle";
         TempSalesCycleStage: Record "Sales Cycle Stage" temporary;
-        SalesPipelineChartMgt: Codeunit "Sales Pipeline Chart Mgt.";
         StatusText: Text;
         IsChartAddInReady: Boolean;
-        IsChartDataReady: Boolean;
         NextSalesCycleAvailable: Boolean;
         PrevSalesCycleAvailable: Boolean;
 
-    local procedure UpdateChart(SalesCycle: Record "Sales Cycle")
+    protected var
+        SalesPipelineChartMgt: Codeunit "Sales Pipeline Chart Mgt.";
+        IsChartDataReady: Boolean;
+
+    protected procedure UpdateChart(SalesCycle: Record "Sales Cycle")
     begin
         if not IsChartAddInReady then
             exit;

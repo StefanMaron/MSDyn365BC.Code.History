@@ -118,7 +118,7 @@ page 1265 "Data Exch. Setup Subform"
             SetRange("Data Exchange Def Code", DataExchDefCode);
             SetRange("Data Exchange Line Def Code", "Data Exchange Line Def Code");
             SetRange("Table ID", "Table ID");
-            if FindFirst then;
+            if FindFirst() then;
         end;
     end;
 
@@ -129,7 +129,7 @@ page 1265 "Data Exch. Setup Subform"
 
     procedure SetSuggestedField(var TempNewSuggestedField: Record "Field" temporary)
     begin
-        if TempNewSuggestedField.FindSet then begin
+        if TempNewSuggestedField.FindSet() then begin
             TempSuggestedField.DeleteAll();
 
             repeat
@@ -144,7 +144,7 @@ page 1265 "Data Exch. Setup Subform"
         TempXMLBuffer.Reset();
         TempXMLBuffer.DeleteAll();
 
-        if XMLBuffer.FindSet then
+        if XMLBuffer.FindSet() then
             repeat
                 TempXMLBuffer.Copy(XMLBuffer);
                 TempXMLBuffer.Insert();

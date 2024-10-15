@@ -388,7 +388,7 @@ report 81 "Import Budget from Excel"
                             end;
 
                             TempExcelBuf.SetRange("Column No.", ExcelBuf."Column No.");
-                            if TempExcelBuf.FindFirst then
+                            if TempExcelBuf.FindFirst() then
                                 case TempExcelBuf.Comment of
                                     Text010:
                                         begin
@@ -397,7 +397,7 @@ report 81 "Import Budget from Excel"
                                               CopyStr(
                                                 ExcelBuf."Cell Value as Text",
                                                 1, MaxStrLen(DummyBudgetBuf."G/L Account No.")));
-                                            if TempGLAcc.FindFirst then
+                                            if TempGLAcc.FindFirst() then
                                                 DummyBudgetBuf."G/L Account No." :=
                                                   CopyStr(
                                                     ExcelBuf."Cell Value as Text",
@@ -477,7 +477,7 @@ report 81 "Import Budget from Excel"
 
         TempDim.SetRange("Code Caption");
         TempDim.MarkedOnly(true);
-        if TempDim.FindFirst then begin
+        if TempDim.FindFirst() then begin
             Dim.Get(TempDim.Code);
             Error(Text028, Dim."Code Caption");
         end;
@@ -485,10 +485,10 @@ report 81 "Import Budget from Excel"
         Window.Close;
         TempExcelBuf.Reset();
         TempExcelBuf.SetRange(Comment, Text010);
-        if not TempExcelBuf.FindFirst then
+        if not TempExcelBuf.FindFirst() then
             Error(Text025);
         TempExcelBuf.SetRange(Comment, Text014);
-        if not TempExcelBuf.FindFirst then
+        if not TempExcelBuf.FindFirst() then
             Error(Text026);
     end;
 

@@ -39,9 +39,9 @@ codeunit 136134 "Jobs Stockout"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Jobs Stockout");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Jobs Stockout");
@@ -65,7 +65,7 @@ codeunit 136134 "Jobs Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Quantity = Y.
         // SETUP: Create Job Planning Line Demand for Item X,with zero quantity
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         PlanningLineQuantity := PurchaseQuantity + 1;
         CreateItem(Item);
@@ -112,7 +112,7 @@ codeunit 136134 "Jobs Stockout"
         Assert.AreEqual(
           NbNotifs - 1, TempNotificationContext.Count, 'Unexpected number of notifications after changing Line type to Billable.');
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -127,7 +127,7 @@ codeunit 136134 "Jobs Stockout"
         // Test supply cover Job Planning Line demand and therefore no warning.
 
         // SETUP: Create Supply for Item X.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         CreateItem(Item);
         PurchaseOrderNo := CreatePurchaseSupply(Item."No.", PurchaseQuantity);
@@ -156,7 +156,7 @@ codeunit 136134 "Jobs Stockout"
 
         // SETUP: Create Job Planning Line Demand for Item X,with zero quantity.
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, at a date after Job Demand.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         PlanningLineQuantity := PurchaseQuantity - 1;
         CreateItem(Item);
@@ -170,7 +170,7 @@ codeunit 136134 "Jobs Stockout"
 
         // VERIFY: Quantity on Job Planning Line after warning is Y - 1.
         ValidateQuantity(JobNo, PlanningLineQuantity);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -190,7 +190,7 @@ codeunit 136134 "Jobs Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Location = Z.
         // SETUP: Create Job Planning Line Demand for Item X, Quantity=0, Location = M.
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         PlanningLineQuantity := PurchaseQuantity - 1;
         CreateItem(Item);
@@ -206,7 +206,7 @@ codeunit 136134 "Jobs Stockout"
 
         // VERIFY: Verify Quantity on Job Planning Line after warning is Y - 1.
         ValidateQuantity(JobNo, PlanningLineQuantity);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -224,7 +224,7 @@ codeunit 136134 "Jobs Stockout"
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Date = Workdate.
         // SETUP: Create Job Planning Line Demand for Item X, Quantity=Y, Date = Workdate + 1
-        Initialize;
+        Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         CreateItem(Item);
         JobNo := CreateJobDemand(Item."No.", PurchaseQuantity);
@@ -239,7 +239,7 @@ codeunit 136134 "Jobs Stockout"
 
         // VERIFY: Quantity on Job Planning Line after warning is Y and Date is Workdate - 1.
         ValidateQuantity(JobNo, QuantityToSet);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
@@ -357,7 +357,7 @@ codeunit 136134 "Jobs Stockout"
         // Method returns the receipt date from a purchase order.
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeaderNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         if PurchaseLine.Count > 0 then
             exit(PurchaseLine."Expected Receipt Date");
         Error(ReceiptDateDocumentErr, PurchaseHeaderNo);
@@ -369,7 +369,7 @@ codeunit 136134 "Jobs Stockout"
     begin
         // Method returns the planning date from Job.
         JobPlanningLine.SetRange("Job No.", JobNo);
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         exit(JobPlanningLine."Planning Date");
     end;
 
@@ -382,7 +382,7 @@ codeunit 136134 "Jobs Stockout"
         JobPlanningLinesToReturn.OpenEdit;
         if Job.Get(JobNo) then begin
             JobTaskLine.SetRange("Job No.", Job."No.");
-            JobTaskLine.FindFirst;
+            JobTaskLine.FindFirst();
             JobPlanningLinesToReturn.FILTER.SetFilter("Job No.", Job."No.");
             JobPlanningLinesToReturn.FILTER.SetFilter("Job Task No.", JobTaskLine."Job Task No.");
             JobPlanningLinesToReturn.First;
@@ -458,7 +458,7 @@ codeunit 136134 "Jobs Stockout"
         // Method verifies the quantity on a Job.
         if Job.Get(DocumentNo) then begin
             JobPlanningLine.SetRange("Job No.", Job."No.");
-            JobPlanningLine.FindFirst;
+            JobPlanningLine.FindFirst();
             Assert.AreEqual(Quantity, JobPlanningLine.Quantity, 'Verify Job Planning Line Quantity matches expected');
             exit;
         end;

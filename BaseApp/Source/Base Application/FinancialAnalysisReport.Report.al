@@ -279,11 +279,11 @@ report 28026 "Financial Analysis Report"
         AccPeriod.Reset();
         AccPeriod.SetRange("New Fiscal Year", true, true);
         AccPeriod.SetFilter("Starting Date", '..%1', CurrentPeriodEnd);
-        AccPeriod.FindLast;
+        AccPeriod.FindLast();
         CurrentYearStart := AccPeriod."Starting Date";
 
         AccPeriod.SetFilter("Starting Date", '..%1', LastYearCurrentPeriodEnd);
-        AccPeriod.FindLast;
+        AccPeriod.FindLast();
         LastYearStart := AccPeriod."Starting Date";
     end;
 

@@ -76,7 +76,7 @@ report 114 "Salesperson - Sales Statistics"
 
                 CustLedgEntry.CopyFilters("Cust. Ledger Entry");
                 CustLedgEntry.SetRange("Salesperson Code", Code);
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         SalesLCY += CustLedgEntry."Sales (LCY)";
                         ProfitLCY += CustLedgEntry."Profit (LCY)";

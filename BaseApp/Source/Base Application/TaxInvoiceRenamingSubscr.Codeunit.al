@@ -27,7 +27,7 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
     begin
         CustLedgerEntry.SetRange("Posting Date", SalesInvoiceHeader."Posting Date");
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        if CustLedgerEntry.FindFirst then begin
+        if CustLedgerEntry.FindFirst() then begin
             CustLedgerEntry.CalcFields("Original Amt. (LCY)");
             exit(CustLedgerEntry."Original Amt. (LCY)" > ThresholdAmount);
         end;

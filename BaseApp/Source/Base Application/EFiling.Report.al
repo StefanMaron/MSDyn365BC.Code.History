@@ -36,7 +36,7 @@ report 16630 "E-Filing"
                         TotAmt := TotAmt + "Base (LCY)";
                     until WHTEntry1.Next() = 0;
 
-                    if TempWHTEntry.FindLast then
+                    if TempWHTEntry.FindLast() then
                         TempWHTEntry."Entry No." := TempWHTEntry."Entry No." + 1
                     else
                         TempWHTEntry."Entry No." := 1;
@@ -61,7 +61,7 @@ report 16630 "E-Filing"
             trigger OnPreDataItem()
             begin
                 LastFieldNo := FieldNo("WHT Revenue Type");
-                if TempWHTEntry.FindFirst then
+                if TempWHTEntry.FindFirst() then
                     TempWHTEntry.Delete();
             end;
         }

@@ -42,7 +42,7 @@ table 5940 "Service Item"
                     ServItem.SetRange("Item No.", "Item No.");
                     ServItem.SetRange("Serial No.", "Serial No.");
                     ServItem.SetFilter("No.", '<>%1', "No.");
-                    if ServItem.FindFirst then begin
+                    if ServItem.FindFirst() then begin
                         if "Item No." <> '' then
                             Error(
                               Text003,
@@ -1158,7 +1158,7 @@ table 5940 "Service Item"
         ServItemComponent.SetCurrentKey(Type, "No.", Active);
         ServItemComponent.SetRange(Type, ServItemComponent.Type::"Service Item");
         ServItemComponent.SetRange("No.", "No.");
-        if ServItemComponent.FindFirst then
+        if ServItemComponent.FindFirst() then
             exit(
               StrSubstNo(
                 Text001,

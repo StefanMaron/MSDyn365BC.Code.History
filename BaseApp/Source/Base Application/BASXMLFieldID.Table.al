@@ -20,7 +20,7 @@ table 11602 "BAS XML Field ID"
                 if "Field No." <> 0 then begin
                     BASXMLFieldID.SetCurrentKey("Field No.");
                     BASXMLFieldID.SetRange("Field No.", "Field No.");
-                    if BASXMLFieldID.FindFirst then
+                    if BASXMLFieldID.FindFirst() then
                         Error(Text11600, "Field No.", BASXMLFieldID."XML Field ID");
                 end;
 

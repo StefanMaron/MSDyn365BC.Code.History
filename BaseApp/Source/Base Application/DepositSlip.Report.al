@@ -180,10 +180,10 @@ report 28023 "Deposit Slip"
                 GenJnlBatch.Reset();
                 GenJnlBatch.SetRange("Bal. Account Type", "Gen. Journal Line"."Account Type"::"Bank Account");
                 GenJnlBatch.SetRange(Name, "Gen. Journal Line"."Journal Batch Name");
-                if GenJnlBatch.FindFirst then begin
+                if GenJnlBatch.FindFirst() then begin
                     BankAccount.Reset();
                     BankAccount.SetRange("No.", GenJnlBatch."Bal. Account No.");
-                    if BankAccount.FindFirst then;
+                    if BankAccount.FindFirst() then;
                 end;
 
                 GenJnlCheckLine.Run("Gen. Journal Line");

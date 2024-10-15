@@ -207,7 +207,7 @@ table 224 "Order Address"
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::"Order Address", GetPosition)
         else
             Message(Text001);

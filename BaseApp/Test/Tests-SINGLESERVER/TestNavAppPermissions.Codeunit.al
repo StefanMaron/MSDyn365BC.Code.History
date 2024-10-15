@@ -11,22 +11,22 @@ codeunit 134611 "Test Nav App Permissions"
     var
         User: Record User;
         UserGroup: Record "User Group";
-        PermissionSet: Record "Permission Set";
+        TenantPermission: Record "Tenant Permission";
         TenantPermissionSet: Record "Tenant Permission Set";
         AppPermissionSet: Record "Tenant Permission Set";
-        Permission: Record Permission;
         Assert: Codeunit Assert;
         LibraryPermissions: Codeunit "Library - Permissions";
         LibraryUtility: Codeunit "Library - Utility";
         NullGuid: Guid;
         PermissionRoles: array[2] of Code[20];
+        PermissionAppIds: array[2] of Guid;
         TenantPermissionRoles: array[2] of Code[20];
         AppPermissionRoles: array[2] of Code[20];
         AppGUIDs: array[2] of Guid;
+        LibrarySingleServer: Codeunit "Library - Single Server";
 
     local procedure InitializeData()
     var
-        PublishedApplication: Record "Published Application";
         i: Integer;
     begin
         Clear(NullGuid); // Ensure the null GUID is cleared
@@ -45,49 +45,37 @@ codeunit 134611 "Test Nav App Permissions"
               UserGroup, LibraryUtility.GenerateRandomCode(UserGroup.FieldNo(Code), DATABASE::"User Group"));
 
         // Set up 2 system permission sets
-        PermissionSet.FindFirst();
-        PermissionRoles[1] := PermissionSet."Role ID";
-        PermissionSet.Next();
-        PermissionRoles[2] := PermissionSet."Role ID";
+        PermissionRoles[1] := 'TestSet';
+        PermissionAppIds[1] := LibrarySingleServer.GetAppIdGuid();
+        PermissionRoles[2] := 'TestSet';
+        PermissionAppIds[2] := LibrarySingleServer.GetAppIdGuid();
 
         // Set up 2 tenant permission sets (non-app)
         for i := 1 to 2 do begin
             TenantPermissionRoles[i] :=
-              LibraryUtility.GenerateRandomCode(TenantPermissionSet.FieldNo("Role ID"), DATABASE::"Permission Set");
+              LibraryUtility.GenerateRandomCode(TenantPermissionSet.FieldNo("Role ID"), DATABASE::"Tenant Permission Set");
             LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, TenantPermissionRoles[i], NullGuid);
         end;
 
         // Add permissions to the new permission sets
-        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[1], Permission."Object Type"::Table, DATABASE::Customer);
-        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[1], Permission."Object Type"::Table, DATABASE::Vendor);
-        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[2], Permission."Object Type"::Table, DATABASE::"Sales Header");
-        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[2], Permission."Object Type"::Table, DATABASE::"Sales Invoice Header");
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[1], TenantPermission."Object Type"::Table, DATABASE::Customer);
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[1], TenantPermission."Object Type"::Table, DATABASE::Vendor);
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[2], TenantPermission."Object Type"::Table, DATABASE::"Sales Header");
+        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionRoles[2], TenantPermission."Object Type"::Table, DATABASE::"Sales Invoice Header");
 
         // Set up 2 Nav App permission sets
+        AppGUIDs[1] := LibrarySingleServer.GetAppIdGuid();
+        AppGUIDs[2] := LibrarySingleServer.GetTestLibraryAppIdGuid();
         for i := 1 to 2 do begin
-            AppPermissionRoles[i] := LibraryUtility.GenerateRandomCode(AppPermissionSet.FieldNo("Role ID"), DATABASE::"Permission Set");
-            AppGUIDs[i] := CreateGuid;
+            AppPermissionRoles[i] := LibraryUtility.GenerateRandomCode(AppPermissionSet.FieldNo("Role ID"), DATABASE::"Tenant Permission Set");
             LibraryPermissions.CreateTenantPermissionSet(AppPermissionSet, AppPermissionRoles[i], AppGUIDs[i]);
         end;
-        PublishedApplication.Init();
-        PublishedApplication."Package ID" := AppGUIDs[1];
-        PublishedApplication."Runtime Package ID" := AppGUIDs[1];
-        PublishedApplication.ID := AppGUIDs[1];
-        PublishedApplication.Name := LibraryUtility.GenerateGUID;
-        PublishedApplication.Insert();
-
-        PublishedApplication.Init();
-        PublishedApplication."Package ID" := AppGUIDs[2];
-        PublishedApplication."Runtime Package ID" := AppGUIDs[2];
-        PublishedApplication.ID := AppGUIDs[2];
-        PublishedApplication.Name := LibraryUtility.GenerateGUID;
-        PublishedApplication.Insert();
 
         // Add permissions to the new permission sets
-        LibraryPermissions.AddTenantPermission(AppGUIDs[1], AppPermissionRoles[1], Permission."Object Type"::Table, PAGE::"Customer Card");
-        LibraryPermissions.AddTenantPermission(AppGUIDs[1], AppPermissionRoles[1], Permission."Object Type"::Table, PAGE::"Vendor Card");
-        LibraryPermissions.AddTenantPermission(AppGUIDs[2], AppPermissionRoles[2], Permission."Object Type"::Table, PAGE::"Customer Statistics");
-        LibraryPermissions.AddTenantPermission(AppGUIDs[2], AppPermissionRoles[2], Permission."Object Type"::Table, PAGE::"Vendor Statistics");
+        LibraryPermissions.AddTenantPermission(AppGUIDs[1], AppPermissionRoles[1], TenantPermission."Object Type"::Table, PAGE::"Customer Card");
+        LibraryPermissions.AddTenantPermission(AppGUIDs[1], AppPermissionRoles[1], TenantPermission."Object Type"::Table, PAGE::"Vendor Card");
+        LibraryPermissions.AddTenantPermission(AppGUIDs[2], AppPermissionRoles[2], TenantPermission."Object Type"::Table, PAGE::"Customer Statistics");
+        LibraryPermissions.AddTenantPermission(AppGUIDs[2], AppPermissionRoles[2], TenantPermission."Object Type"::Table, PAGE::"Vendor Statistics");
     end;
 
     local procedure CreateSuperUser(): Guid
@@ -147,8 +135,8 @@ codeunit 134611 "Test Nav App Permissions"
 
         // Verify
 
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionRoles[1]);
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionRoles[2]);
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, PermissionAppIds[1], PermissionRoles[1]);
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, PermissionAppIds[2], PermissionRoles[2]);
 
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, NullGuid, TenantPermissionRoles[1]);
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, NullGuid, TenantPermissionRoles[2]);
@@ -180,28 +168,28 @@ codeunit 134611 "Test Nav App Permissions"
 
         // Find a system permission set
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::System);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         PointPermissionSetPageToRole(PermissionSets, Format(PermissionSetBuffer.Type::System), AggregatePermissionSet."Role ID");
 
         // Find a tenant permission set
 
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.SetRange("App ID", NullGuid);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         PointPermissionSetPageToRole(PermissionSets, Format(PermissionSetBuffer.Type::"User-Defined"), AggregatePermissionSet."Role ID");
 
         // Find the application permission sets
 
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         PointPermissionSetPageToRole(PermissionSets, Format(PermissionSetBuffer.Type::Extension), AggregatePermissionSet."Role ID");
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSets."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSets.PermissionSet.Value, 'Role ID mismatch');
 
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[2]);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         PointPermissionSetPageToRole(PermissionSets, Format(PermissionSetBuffer.Type::Extension), AggregatePermissionSet."Role ID");
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSets."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSets.PermissionSet.Value, 'Role ID mismatch');
@@ -229,14 +217,14 @@ codeunit 134611 "Test Nav App Permissions"
         // Find the application permission sets
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSetByUser."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSetByUser."Role ID".Value, 'Role ID mismatch');
 
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[2]);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSetByUser."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSetByUser."Role ID".Value, 'Role ID mismatch');
@@ -263,14 +251,14 @@ codeunit 134611 "Test Nav App Permissions"
         // Find the application permission sets
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         PermissionSetByUserGroup.GotoRecord(AggregatePermissionSet);
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSetByUserGroup."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSetByUserGroup."Role ID".Value, 'Role ID mismatch');
 
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[2]);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
         PermissionSetByUserGroup.GotoRecord(AggregatePermissionSet);
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSetByUserGroup."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSetByUserGroup."Role ID".Value, 'Role ID mismatch');
@@ -297,7 +285,6 @@ codeunit 134611 "Test Nav App Permissions"
         PermissionSets.Close;
 
         // Verify
-        Assert.KnownFailure('Validation error for Field: PermissionSet', 281244);
         CleanupData;
     end;
 
@@ -316,7 +303,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Execute
         PermissionSetByUser.OpenView;
@@ -356,7 +343,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Execute
         PermissionSetByUser.OpenView;
@@ -409,7 +396,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Execute
         PermissionSetByUserGroup.OpenView;
@@ -452,7 +439,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Execute
         PermissionSetByUserGroup.OpenView;
@@ -509,7 +496,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Execute
         PermissionSetByUser.OpenView;
@@ -556,7 +543,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Execute
         PermissionSetByUser.OpenView;
@@ -679,7 +666,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Execute
         PermissionSetByUserGroup.OpenView;
@@ -733,7 +720,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Execute
         PermissionSetByUserGroup.OpenView;
@@ -800,11 +787,11 @@ codeunit 134611 "Test Nav App Permissions"
         // Init
         InitializeData;
 
-        User.FindLast; // Find a record
+        User.FindLast(); // Find a record
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-        AggregatePermissionSet.FindFirst;
+        AggregatePermissionSet.FindFirst();
 
         // Set the permission - should generate an AccessControl record
         PermissionSetByUser.OpenView;
@@ -814,7 +801,7 @@ codeunit 134611 "Test Nav App Permissions"
 
         // Execute
         AccessControl.SetRange("User Security ID", User."User Security ID");
-        AccessControl.FindFirst;
+        AccessControl.FindFirst();
 
         UserPermissionSets.OpenEdit;
         UserPermissionSets.FILTER.SetFilter("User Security ID", User."User Security ID");
@@ -828,10 +815,10 @@ codeunit 134611 "Test Nav App Permissions"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PermissionSetLookupHandler(var PermissionSetLookup: TestPage "Permission Set Lookup")
+    procedure PermissionSetLookupHandler(var LookupPermissionSet: TestPage "Lookup Permission Set")
     begin
-        PermissionSetLookup.Last;
-        PermissionSetLookup.OK.Invoke;
+        LookupPermissionSet.Last;
+        LookupPermissionSet.OK.Invoke;
     end;
 
     [ConfirmHandler]
@@ -857,4 +844,3 @@ codeunit 134611 "Test Nav App Permissions"
         Assert.Fail('Newly created tenant permission set not found.');
     end;
 }
-

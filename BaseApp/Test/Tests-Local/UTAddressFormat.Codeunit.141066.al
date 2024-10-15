@@ -32,7 +32,7 @@ codeunit 141066 "UT Address Format"
         // [SCENARIO] verify if post code is entered manually on the Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CustomerNo := CreateCustomer;
@@ -55,7 +55,7 @@ codeunit 141066 "UT Address Format"
         // [SCENARIO] verify if post code is entered manually on the Vendor.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         VendorNo := CreateVendor;
@@ -78,8 +78,8 @@ codeunit 141066 "UT Address Format"
         // [SCENARIO] Actual Error msg is,"Validation error for Field:City, Message = 'There is no Post Code within the filter.Filters: Search City: XXXXXX' ".
 
         // Setup.
-        Initialize;
-        ContactCard.OpenNew;
+        Initialize();
+        ContactCard.OpenNew();
         ContactCard."No.".SetValue(LibraryUTUtility.GetNewCode);
 
         // Exercise.
@@ -98,7 +98,7 @@ codeunit 141066 "UT Address Format"
         // [FEATURE] [Post Code]
         // [SCENARIO 377569] "County" ("State" in translation) field on Post Codes page should be related to County table, so not existing State can not be inserted
 
-        Initialize;
+        Initialize();
         asserterror PostCode.Validate(County, LibraryUTUtility.GetNewCode10);
         Assert.ExpectedErrorCode('DB');
     end;
@@ -113,7 +113,7 @@ codeunit 141066 "UT Address Format"
         // [FEATURE] [Post Code]
         // [SCENARIO 377569] "County" ("State" in translation) field on Post Codes page should be related to County table, so State included in County table may be inserted
 
-        Initialize;
+        Initialize();
         County.Init();
         County.Name := LibraryUtility.GenerateRandomCode(County.FieldNo(Name), DATABASE::County);
         County.Insert();
@@ -131,7 +131,7 @@ codeunit 141066 "UT Address Format"
         CountryRegion: Record "Country/Region";
     begin
         // [SCENARIO 298365] Custom address format lines created properly when Address Format changed from City+County+Post Code (no comma) to Custom
-        Initialize;
+        Initialize();
 
         // [GIVEN] Country with Address Format = City+County+Post Code (no comma)
         CountryRegion.Get(
@@ -151,7 +151,7 @@ codeunit 141066 "UT Address Format"
         CountryRegion: Record "Country/Region";
     begin
         // [SCENARIO 298365] Custom address format lines created properly when Address Format changed from City+Post Code (no comma) to Custom
-        Initialize;
+        Initialize();
 
         // [GIVEN] Country with Address Format = City+Post Code (no comma)
         CountryRegion.Get(
@@ -173,7 +173,7 @@ codeunit 141066 "UT Address Format"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO 303244] Country/Region code field is filled in when user enter Post Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Code record with Post Code = "1234" and "Country/Region Code" = "XX"
         LibraryERM.CreatePostCode(PostCode);
@@ -200,7 +200,7 @@ codeunit 141066 "UT Address Format"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO 303244] Country/Region code field is filled in when user enter Post Code and pick one of post codes records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Code record with Post Code = "1234", City = "ABC" and "Country/Region Code" = "XX"
         LibraryERM.CreatePostCode(PostCode);
@@ -230,7 +230,7 @@ codeunit 141066 "UT Address Format"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO 303244] Country/Region code field is filled in when user lookup Post Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Code record with Post Code = "1234", City = "ABC" and "Country/Region Code" = "XX"
         LibraryERM.CreatePostCode(PostCode);
@@ -259,7 +259,7 @@ codeunit 141066 "UT Address Format"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO 303244] Country/Region code field is filled in when user enter City
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Code record with City = "1234" and "Country/Region Code" = "XX"
         LibraryERM.CreatePostCode(PostCode);
@@ -286,7 +286,7 @@ codeunit 141066 "UT Address Format"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO 303244] Country/Region code field is filled in when user enter City and pick one of post codes records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Code record with Post Code = "1234", City = "ABC" and "Country/Region Code" = "XX"
         LibraryERM.CreatePostCode(PostCode[1]);
@@ -316,7 +316,7 @@ codeunit 141066 "UT Address Format"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO 303244] Country/Region code field is filled in when user lookup City
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Code record with Post Code = "1234", City = "ABC" and "Country/Region Code" = "XX"
         LibraryERM.CreatePostCode(PostCode[1]);
@@ -338,7 +338,7 @@ codeunit 141066 "UT Address Format"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -443,7 +443,7 @@ codeunit 141066 "UT Address Format"
         CustomAddressFormat: Record "Custom Address Format";
     begin
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegionCode);
-        CustomAddressFormat.FindLast;
+        CustomAddressFormat.FindLast();
         CustomAddressFormat.TestField("Line Format", ExpectedLineFormat);
     end;
 

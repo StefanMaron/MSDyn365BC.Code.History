@@ -36,7 +36,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             CheckDim;
             CheckLines(TransHeader, TransLine);
 
-            WhseReceive := TempWhseRcptHeader.FindFirst;
+            WhseReceive := TempWhseRcptHeader.FindFirst();
             InvtPickPutaway := WhseReference <> 0;
             if not (WhseReceive or InvtPickPutaway) then
                 CheckWarehouse(TransLine);
@@ -159,7 +159,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 DeleteOneTransferOrder(TransHeader, TransLine)
             else begin
                 WhseTransferRelease.Release(TransHeader);
-                ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, TransferDirection::Inbound);
+                ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, "Transfer Direction"::Inbound);
             end;
 
             OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader, SuppressCommit);
@@ -219,7 +219,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         InvtPickPutaway: Boolean;
         PostCodeCheck: Codeunit "Post Code Check";
         SuppressCommit: Boolean;
-        TransferDirection: Enum "Transfer Direction";
         HideValidationDialog: Boolean;
 
     local procedure PostItemJnlLine(var TransLine3: Record "Transfer Line"; TransRcptHeader2: Record "Transfer Receipt Header"; TransRcptLine2: Record "Transfer Receipt Line")
@@ -291,7 +290,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         CheckDimValuePosting(TransHeader, TransLine);
 
         TransLine.SetRange("Document No.", TransHeader."No.");
-        if TransLine.FindFirst then begin
+        if TransLine.FindFirst() then begin
             CheckDimComb(TransHeader, TransLine);
             CheckDimValuePosting(TransHeader, TransLine);
         end;
@@ -383,7 +382,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             repeat
                 if TrackingSpecificationExists then begin
                     TempDerivedSpecification.SetRange("Source Ref. No.", TransLine4."Line No.");
-                    if TempDerivedSpecification.FindFirst then begin
+                    if TempDerivedSpecification.FindFirst() then begin
                         TransLine4."Qty. to Receive (Base)" := TempDerivedSpecification."Qty. to Handle (Base)";
                         TransLine4."Qty. to Receive" := TempDerivedSpecification."Qty. to Handle";
                     end else begin
@@ -393,7 +392,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 end;
                 if TransLine4."Qty. to Receive (Base)" <= BaseQtyToReceive then begin
                     ReserveTransLine.TransferTransferToItemJnlLine(
-                      TransLine4, ItemJnlLine, TransLine4."Qty. to Receive (Base)", TransferDirection::Inbound);
+                      TransLine4, ItemJnlLine, TransLine4."Qty. to Receive (Base)", "Transfer Direction"::Inbound);
                     TransLine4."Quantity (Base)" :=
                       TransLine4."Quantity (Base)" - TransLine4."Qty. to Receive (Base)";
                     TransLine4.Quantity :=
@@ -402,7 +401,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     QtyToReceive := QtyToReceive - TransLine4."Qty. to Receive";
                 end else begin
                     ReserveTransLine.TransferTransferToItemJnlLine(
-                      TransLine4, ItemJnlLine, BaseQtyToReceive, TransferDirection::Inbound);
+                      TransLine4, ItemJnlLine, BaseQtyToReceive, "Transfer Direction"::Inbound);
                     TransLine4.Quantity := TransLine4.Quantity - QtyToReceive;
                     TransLine4."Quantity (Base)" := TransLine4."Quantity (Base)" - BaseQtyToReceive;
                     BaseQtyToReceive := 0;
@@ -510,7 +509,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 WhseRcptLine.SetRange("Source No.", TransLine."Document No.");
                 WhseRcptLine.SetRange("Source Line No.", TransLine."Line No.");
                 OnInsertTransRcptLineOnAfterWhseRcptLineSetFilters(TransLine, TransRcptLine, WhseRcptLine);
-                if WhseRcptLine.FindFirst then
+                if WhseRcptLine.FindFirst() then
                     CreatePostedRcptLineFromWhseRcptLine(TransRcptLine);
             end;
             ShouldRunPosting := WhsePosting;
@@ -675,10 +674,10 @@ codeunit 5705 "TransferOrder-Post Receipt"
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeriesLine.LockTable();
-        if NoSeriesLine.FindLast then;
+        if NoSeriesLine.FindLast() then;
         if AutoCostPosting then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast then;
+            if GLEntry.FindLast() then;
         end;
     end;
 

@@ -430,7 +430,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                 AccountNetChange := "Net Change (LCY)";
                 VendorLedgerEntry.SetRange("Posting Date", 0D, PeriodStartDate[5]);
                 if AccountNetChange = 0 then
-                    if not VendorLedgerEntry.FindFirst then
+                    if not VendorLedgerEntry.FindFirst() then
                         CurrReport.Skip();
 
                 HasEntry := true;

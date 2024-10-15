@@ -29,7 +29,7 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] First day of the year is default starting period date when no periods defined
-        Initialize;
+        Initialize();
         Assert.AreEqual(
           CalcDate('<-CY>', WorkDate), AccountingPeriodMgt.GetPeriodStartingDate, WrongPeriodStartingDateErr);
     end;
@@ -43,7 +43,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [FEATURE] [UT]
         // [SCENARIO 222561] First posting date is starting period date when accounting periods are defined
         LibraryFiscalYear.CloseAccountingPeriod;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         Assert.AreEqual(
           CalcDate('<-CY>', LibraryFiscalYear.GetFirstPostingDate(false)),
           AccountingPeriodMgt.GetPeriodStartingDate, WrongPeriodStartingDateErr);
@@ -91,11 +91,11 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT] [Report]
         // [SCENARIO 222561] Close Income Statement report generates error when no accounting periods
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CloseIncomeStatement.InitializeRequestTest(WorkDate, GenJournalLine, GLAccount, false);
         CloseIncomeStatement.UseRequestPage(false);
-        asserterror CloseIncomeStatement.Run;
+        asserterror CloseIncomeStatement.Run();
 
         Assert.ExpectedError(CloseIncomeStatementErr);
         Assert.ExpectedErrorCode('Dialog');
@@ -107,20 +107,27 @@ codeunit 134360 "No Accounting Periods: Basic"
     var
         AnalysisView: Record "Analysis View";
         GLEntry: Record "G/L Entry";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressGeneralLedger: Report "Date Compress General Ledger";
     begin
         // [FEATURE] [UT] [Report]
         // [SCENARIO 222561] Date Compress General Ledger report generates error when no accounting periods
-        Initialize;
+        Initialize();
         AnalysisView.DeleteAll();
         GLEntry.Init();
-        GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo;
+        GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo();
         GLEntry."Posting Date" := WorkDate;
         GLEntry.Amount := LibraryRandom.RandDec(100, 2);
         GLEntry.Insert();
-        DateCompressGeneralLedger.InitializeRequest(WorkDate, WorkDate, 0, '', false, false, false, false, false, '');
+        DateComprRetainFields."Retain Document Type" := false;
+        DateComprRetainFields."Retain Document No." := false;
+        DateComprRetainFields."Retain Job No." := false;
+        DateComprRetainFields."Retain Business Unit Code" := false;
+        DateComprRetainFields."Retain Quantity" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
+        DateCompressGeneralLedger.InitializeRequest(WorkDate, WorkDate, 0, '', DateComprRetainFields, '', false);
         DateCompressGeneralLedger.UseRequestPage(false);
-        asserterror DateCompressGeneralLedger.Run;
+        asserterror DateCompressGeneralLedger.Run();
 
         Assert.ExpectedError(NoAccountingPeriodsErr);
     end;
@@ -133,8 +140,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] Create Fiscal Year when no accounting periods
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
         Assert.RecordIsNotEmpty(AccountingPeriod);
         Assert.RecordCount(AccountingPeriod, 13);
         VerifyAccountingPeriod(AccountingPeriod, CalcDate('<-CY>', WorkDate), true, false);
@@ -152,9 +159,9 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [SCENARIO 222561] Create Fiscal Year before existing period is allowed
 
         // [GIVEN] One open fiscal year
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
-        AccountingPeriod.FindFirst;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
+        AccountingPeriod.FindFirst();
         DateInPeriodBefore := CalcDate('<-CY-1Y>', AccountingPeriod."Starting Date");
 
         // [WHEN] Create new fiscal year before existing
@@ -177,9 +184,9 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [SCENARIO 222561] Create Fiscal Year between two existing periods
 
         // [GIVEN] Open 2020 fiscal year, closed 2018 fiscal year
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
-        AccountingPeriod.FindFirst;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
+        AccountingPeriod.FindFirst();
         LastPeriodStartingDate := AccountingPeriod."Starting Date";
         RunCreateFiscalYear(CalcDate('<-2Y>', LastPeriodStartingDate));
 
@@ -201,7 +208,7 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] Create and approve time sheets is possible
-        Initialize;
+        Initialize();
         LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
         TimeSheetLine.TestField(Status, TimeSheetLine.Status::Approved);
     end;
@@ -215,7 +222,7 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT] [Statistics]
         // [SCENARIO 222561] Accounting Period is initialized from start of the year in O365Statistics
-        Initialize;
+        Initialize();
         O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriod);
         AccountingPeriod.TestField("Starting Date", CalcDate('<-CY>', WorkDate));
     end;
@@ -230,7 +237,7 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT] [Statistics]
         // [SCENARIO 222561] Accounting Period is initialized from existing accounting period in O365Statistics when we have filter after first run
-        Initialize;
+        Initialize();
         AccountingPeriod.Init();
         AccountingPeriod."Starting Date" := WorkDate;
         AccountingPeriod."New Fiscal Year" := true;
@@ -252,7 +259,7 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindFiscalYear returns first date of the year for requested date when no accounting periods
-        Initialize;
+        Initialize();
         RequestDate := LibraryRandom.RandDate(10);
         Assert.AreEqual(CalcDate('<-CY>', RequestDate), AccountingPeriodMgt.FindFiscalYear(RequestDate), '');
     end;
@@ -265,7 +272,7 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindFiscalYear returns first date of the year of workdate when no accounting periods and no requested date specified
-        Initialize;
+        Initialize();
         Assert.AreEqual(CalcDate('<-CY>', WorkDate), AccountingPeriodMgt.FindFiscalYear(0D), '');
     end;
 
@@ -278,8 +285,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindFiscalYear returns first date of the year for requested date inside existing accounting period
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
         RequestDate := LibraryRandom.RandDateFrom(LibraryFiscalYear.GetFirstPostingDate(false), 100);
         Assert.AreEqual(CalcDate('<-CY>', RequestDate), AccountingPeriodMgt.FindFiscalYear(RequestDate), '');
     end;
@@ -294,8 +301,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindFiscalYear returns first date of the year for requested date before existing accounting period
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
         FirstPostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
         RequestDate := CalcDate('<-5Y>', FirstPostingDate);
         Assert.AreEqual(FirstPostingDate, AccountingPeriodMgt.FindFiscalYear(RequestDate), '');
@@ -311,8 +318,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindFiscalYear returns last posting date in the year for requested date after existing accounting period
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
         FirstPostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
         RequestDate := CalcDate('<5Y>', FirstPostingDate);
         Assert.AreEqual(LibraryFiscalYear.GetLastPostingDate(false), AccountingPeriodMgt.FindFiscalYear(RequestDate), '');
@@ -327,7 +334,7 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindEndOfFiscalYear returns last date of the year for requested date when no accounting periods
-        Initialize;
+        Initialize();
         RequestDate := LibraryRandom.RandDate(10);
         Assert.AreEqual(CalcDate('<CY>', RequestDate), AccountingPeriodMgt.FindEndOfFiscalYear(RequestDate), '');
     end;
@@ -340,7 +347,7 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindEndOfFiscalYear returns last date of the year of workdate when no accounting periods and no requested date specified
-        Initialize;
+        Initialize();
         Assert.AreEqual(CalcDate('<CY>', WorkDate), AccountingPeriodMgt.FindEndOfFiscalYear(0D), '');
     end;
 
@@ -353,8 +360,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindEndOfFiscalYear returns last date of the year for requested date inside existing accounting period
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
         RequestDate := LibraryRandom.RandDateFrom(LibraryFiscalYear.GetFirstPostingDate(false), 100);
         Assert.AreEqual(CalcDate('<CY>', RequestDate), AccountingPeriodMgt.FindEndOfFiscalYear(RequestDate), '');
     end;
@@ -369,8 +376,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindEndOfFiscalYear returns last posting date of the year for requested date before existing accounting period
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
         LastPostingDate := LibraryFiscalYear.GetLastPostingDate(false) - 1;
         RequestDate := CalcDate('<-5Y>', LastPostingDate);
         Assert.AreEqual(LastPostingDate, AccountingPeriodMgt.FindEndOfFiscalYear(RequestDate), '');
@@ -386,8 +393,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindEndFiscalYear returns 31-12-9999 for requested date after existing accounting period
-        Initialize;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CreateFiscalYear();
         LastPostingDate := LibraryFiscalYear.GetLastPostingDate(false) - 1;
         RequestDate := CalcDate('<5Y>', LastPostingDate);
         Assert.AreEqual(DMY2Date(31, 12, 9999), AccountingPeriodMgt.FindEndOfFiscalYear(RequestDate), '');
@@ -412,13 +419,13 @@ codeunit 134360 "No Accounting Periods: Basic"
         LibraryVariableStorage.Enqueue(12);
         LibraryVariableStorage.Enqueue(PeriodLength);
         CreateFiscalYear.HideConfirmationDialog(true);
-        CreateFiscalYear.Run;
+        CreateFiscalYear.Run();
     end;
 
     local procedure VerifyAccountingPeriod(AccountingPeriod: Record "Accounting Period"; StartingDate: Date; DateLocked: Boolean; IsClosed: Boolean)
     begin
         AccountingPeriod.SetRange("Starting Date", StartingDate);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         AccountingPeriod.TestField("New Fiscal Year", true);
         AccountingPeriod.TestField("Date Locked", DateLocked);
         AccountingPeriod.TestField(Closed, IsClosed);

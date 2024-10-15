@@ -33,7 +33,7 @@ codeunit 141012 "ERM WHT"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO] Test to verify Error While Posting WHT Cash Receipt Journal Without Applied to Id.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Vendor.
         WHTGeneralJournalLineWithoutAppliedIdPostingErr(
@@ -48,7 +48,7 @@ codeunit 141012 "ERM WHT"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO] Test to verify Error While Posting WHT Payment Journal Without Applied to Id.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer.
         WHTGeneralJournalLineWithoutAppliedIdPostingErr(
@@ -79,7 +79,7 @@ codeunit 141012 "ERM WHT"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO] Test to verify after Posting Sales Invoice with WHT, WHT Entry - Unrealized Amount, Unrealized Base and G/L Entry - Amount correctly calculated.
-        Initialize;
+        Initialize();
         WHTEntryOnPostedSalesDocumentWithWHT(SalesHeader."Document Type"::Invoice);
     end;
 
@@ -90,7 +90,7 @@ codeunit 141012 "ERM WHT"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO] Test to verify after Posting Sales Credit Memo with WHT, WHT Entry - Unrealized Amount, Unrealized Base and G/L Entry - Amount correctly calculated.
-        Initialize;
+        Initialize();
         WHTEntryOnPostedSalesDocumentWithWHT(SalesHeader."Document Type"::"Credit Memo");
     end;
 
@@ -129,7 +129,7 @@ codeunit 141012 "ERM WHT"
         PostedInvoiceNo: Code[20];
     begin
         // [SCENARIO] Test to verify after Posting Sales Cash Receipt with WHT, WHT Entry - Amount,Base and G/L Entry - Amount correctly calculated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Cash Receipt with WHT and apply Posted Sales Invoice.
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
@@ -160,7 +160,7 @@ codeunit 141012 "ERM WHT"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Test to verify after Posting Purchase Invoice with WHT, WHT Entry - Unrealized Amount, Unrealized Base and G/L Entry - Amount correctly calculated.
-        Initialize;
+        Initialize();
         WHTEntryOnPostedPurchaseDocumentWithWHT(PurchaseHeader."Document Type"::Invoice);
     end;
 
@@ -171,7 +171,7 @@ codeunit 141012 "ERM WHT"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Test to verify after Posting Purchase Credit Memo with WHT, WHT Entry - Unrealized Amount, Unrealized Base and G/L Entry - Amount correctly calculated.
-        Initialize;
+        Initialize();
         WHTEntryOnPostedPurchaseDocumentWithWHT(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
@@ -212,7 +212,7 @@ codeunit 141012 "ERM WHT"
         PostedInvoiceNo: Code[20];
     begin
         // [SCENARIO] Test to verify after Posting Payment Journal with WHT, WHT Entry - Amount,Base and G/L Entry - Amount correctly calculated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Payment Journal with WHT and apply Posted Purchase Invoice.
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
@@ -249,7 +249,7 @@ codeunit 141012 "ERM WHT"
         PostedInvoiceNo: Code[20];
     begin
         // [SCENARIO] Test to verify after Posting Payment Journal with Currency and WHT, Bank Ledger Entry - Amount and Bank Account Number correctly calculated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Payment Journal with Currency Code and WHT and apply Posted Purchase Invoice.
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
@@ -288,7 +288,7 @@ codeunit 141012 "ERM WHT"
         DocumentNo: Code[20];
     begin
         // [SCENARIO] to verify after Posting Purchase Invoice with WHT, WHT Entry - Unrealized Amount and Unrealized Base correctly calculated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Invoice with WHT.
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
@@ -321,7 +321,7 @@ codeunit 141012 "ERM WHT"
         PostedInvoiceNo: Code[20];
     begin
         // [SCENARIO] after Posting Payment Journal with WHT, G/L Entry - Amount on Post Payment Journal correctly calculated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Payment Journal with WHT and apply Posted Purchase Invoice.
         UpdateGeneralLedgerSetup(false, true, true);  // False - Enable GST and True - Enable WHT, Round Amount for WHT Calc .
@@ -352,7 +352,7 @@ codeunit 141012 "ERM WHT"
     procedure UnapplyVendorLedgerEntryWithCurrencyAmountOnGLEntry()
     begin
         // [SCENARIO] after Unapplied Vendor Ledger Entry on Posted Payment Journal with WHT and Currency, G/L Entry - Amount correctly calculated.
-        Initialize;
+        Initialize();
         UnapplyVendorLedgerEntryAmount(CreateCurrencyWithExchangeRate);
     end;
 
@@ -362,7 +362,7 @@ codeunit 141012 "ERM WHT"
     procedure UnapplyVendorLedgerEntryAmountOnGLEntry()
     begin
         // [SCENARIO] after Unapplied Vendor Ledger Entry on Posted Payment Journal with WHT, G/L Entry - Amount correctly calculated.
-        Initialize;
+        Initialize();
         UnapplyVendorLedgerEntryAmount('');  // Currency as blank.
     end;
 
@@ -417,7 +417,7 @@ codeunit 141012 "ERM WHT"
         VendorNo: Code[20];
     begin
         // [SCENARIO] Test to verify after Running Additional Currency Report, Posted multiple Payment Journal with different Account Type and WHT, currency. Posted General Journal Line Amount on G/L Entry correctly calculated.
-        Initialize;
+        Initialize();
         // [GIVEN] Create multiple Payment Journal with different Account Type.
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
         CurrencyCode := CreateCurrencyWithExchangeRate;
@@ -454,7 +454,7 @@ codeunit 141012 "ERM WHT"
         CurrencyCode: Code[10];
     begin
         // [SCENARIO 360805] Post Gen. Jnl Line in FCY with WHT Enabled. Check Bank Account Ledger entries not influenced by WHT.
-        Initialize;
+        Initialize();
         // [GIVEN] Enabled WHT
         UpdateGeneralLedgerSetup(false, true, false);
         FindWHTPostingSetup(WHTPostingSetup);
@@ -495,7 +495,7 @@ codeunit 141012 "ERM WHT"
     begin
         // [FEATURE] [Application] [Unrealized WHT]
         // [SCENARIO 363071] Remaining Unrealized WHT Amount decreased by applying partial Purchase Credit Memo with "Applies-to ID"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Initial setting with WHT enabled
         InitScenarioForWHTApplication(WHTPostingSetup, VendorNo, GLAccountNo);
@@ -542,7 +542,7 @@ codeunit 141012 "ERM WHT"
     begin
         // [FEATURE] [Application]
         // [SCENARIO 362329] Remaining Unrealized WHT Amount decreased by applying partial Purchase Credit Memo with "Applies-to Doc. No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Initial setting with WHT enabled
         InitScenarioForWHTApplication(WHTPostingSetup, VendorNo, GLAccountNo);
@@ -588,7 +588,7 @@ codeunit 141012 "ERM WHT"
     begin
         // [FEATURE] [Application]
         // [SCENARIO 375350] Remaining Unrealized WHT Amounts for several Inoices decreased by applying partial Purchase Credit Memo with "Applies-to ID"
-        Initialize;
+        Initialize();
         Index := 1 / LibraryRandom.RandIntInRange(2, 4);
         // [GIVEN] Initial setting with WHT enabled
         InitScenarioForWHTApplication(WHTPostingSetup, VendorNo, GLAccountNo);
@@ -635,7 +635,7 @@ codeunit 141012 "ERM WHT"
     begin
         // [FEATURE] [Purchase] [Apply]
         // [SCENARIO 375712,376116] WHT Entries should be aligned with G/l Entries on partial application one to many.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         FindWHTPostingSetup(WHTPostingSetup);
@@ -689,7 +689,7 @@ codeunit 141012 "ERM WHT"
     begin
         // [FEATURE] [Purchase] [Apply]
         // [SCENARIO 376796] Apply 3 equal payments to 2 equal invoices with certain amounts
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         FindWHTPostingSetup(WHTPostingSetup);
@@ -738,7 +738,7 @@ codeunit 141012 "ERM WHT"
     begin
         // [FEATURE] [Purchase] [Apply]
         // [SCENARIO 376796] Apply payment to invioces when payment amount less then summary amount of invoices
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         FindWHTPostingSetup(WHTPostingSetup);
@@ -783,7 +783,7 @@ codeunit 141012 "ERM WHT"
     begin
         // [FEATURE] [Purchase] [Apply]
         // [SCENARIO 377165] Apply 5 equal partial payments to 5 equal invoices with certain amounts
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         FindWHTPostingSetup(WHTPostingSetup);
@@ -819,14 +819,14 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 273538] Posting of purchase order with 100% prepayment, two item lines
         // [SCENARIO 273538] with different "Purch. Prepayments Account" (one WHT 4% another NO WHT)
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Enable GST (Australia)" = TRUE, "Full GST on Prepayment" = FALSE, "Enable WHT" = TRUE
         // [GIVEN] Two WHT setups: WHT 4% / NO WHT
         // [GIVEN] Two General setups: RETAIL / NO WHT (with different "Purch. Prepayments Account")
         UpdateGLSetupPrepmt(true, false, true);
-        PurchPrepmtAccNo[1] := LibraryERM.CreateGLAccountNo; // WHT 4%
-        PurchPrepmtAccNo[2] := LibraryERM.CreateGLAccountNo; // NO WHT
+        PurchPrepmtAccNo[1] := LibraryERM.CreateGLAccountNo(); // WHT 4%
+        PurchPrepmtAccNo[2] := LibraryERM.CreateGLAccountNo(); // NO WHT
         PrepareVendorAndTwoItemsWithDiffSetup(VendorNo, ItemNo, PurchPrepmtAccNo);
 
         // [GIVEN] Purchase order with 100% prepayment
@@ -864,14 +864,14 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 273538] Posting of purchase order with 100% prepayment, two item lines
         // [SCENARIO 273538] with different "Purch. Prepayments Account" (one NO WHT another WHT 4%)
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Enable GST (Australia)" = TRUE, "Full GST on Prepayment" = FALSE, "Enable WHT" = TRUE
         // [GIVEN] Two WHT setups: WHT 4% / NO WHT
         // [GIVEN] Two General setups: RETAIL / NO WHT (with different "Purch. Prepayments Account")
         UpdateGLSetupPrepmt(true, false, true);
-        PurchPrepmtAccNo[2] := LibraryERM.CreateGLAccountNo; // NO WHT
-        PurchPrepmtAccNo[1] := LibraryERM.CreateGLAccountNo; // WHT 4%
+        PurchPrepmtAccNo[2] := LibraryERM.CreateGLAccountNo(); // NO WHT
+        PurchPrepmtAccNo[1] := LibraryERM.CreateGLAccountNo(); // WHT 4%
         PrepareVendorAndTwoItemsWithDiffSetup(VendorNo, ItemNo, PurchPrepmtAccNo);
 
         // [GIVEN] Purchase order with 100% prepayment
@@ -914,7 +914,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of Payment applies to Purhase Doc. "D1" with empty type and to Purchase Invoice "D2".
         // [SCENARIO 304082] "D1" has negative Amount, "D2" is posted after the "D1".
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Gen. Journal Line "D1" with Vendor "V", empty "Document Type" and negative Amount.
@@ -963,7 +963,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of Payment applies to Purhase Doc. "D1" with empty type and to Purchase Invoice "D2".
         // [SCENARIO 304082] "D1" has positive Amount, "D2" is posted after the "D1".
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Gen. Journal Line "D1" with Vendor "V", empty "Document Type" and positive Amount.
@@ -1013,7 +1013,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of Payment applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
         // [SCENARIO 304082] Both "D1" and "D2" have related WHT Entry. "D2" is applied to "D1".
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice "D1" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
@@ -1065,7 +1065,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of Payment applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
         // [SCENARIO 304082] Both "D1" and "D2" have related WHT Entry.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice "D1" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
@@ -1118,7 +1118,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of Payment applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
         // [SCENARIO 304082] Only "D1" has related WHT Entry. "D2" is applied to "D1".
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice "D1" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
@@ -1170,7 +1170,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of Payment applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
         // [SCENARIO 304082] Only "D1" has related WHT Entry.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice "D1" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
@@ -1220,7 +1220,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 321930] WHT Amount calculation in case of Payment applies to two Purchase Invoices and to two Purchase Cr.Memos.
         // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is less than summ of Purchase document amounts.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
@@ -1263,7 +1263,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 321930] WHT Amount calculation in case of Payment applies to two Purchase Invoices and to two Purchase Cr.Memos.
         // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is equal to summ of Purchase document amounts.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
@@ -1306,7 +1306,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 321930] WHT Amount calculation in case of Payment applies to two Purchase Invoices and to two Purchase Cr.Memos.
         // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is greater than summ of Purchase document amounts.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
@@ -1349,7 +1349,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purhase Doc. "D1" with empty type and to Purchase Invoice "D2".
         // [SCENARIO 304082] "D1" has negative Amount, "D2" is posted after the "D1".
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Gen. Journal Line "D1" with Vendor "V", empty "Document Type" and negative Amount.
@@ -1399,7 +1399,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purhase Doc. "D1" with empty type and to Purchase Invoice "D2".
         // [SCENARIO 304082] "D1" has positive Amount, "D2" is posted after the "D1".
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Gen. Journal Line "D1" with Vendor "V", empty "Document Type" and positive Amount.
@@ -1450,7 +1450,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
         // [SCENARIO 304082] Both "D1" and "D2" have related WHT Entry. "D2" is applied to "D1".
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice "D1" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
@@ -1502,7 +1502,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
         // [SCENARIO 304082] Both "D1" and "D2" have related WHT Entry.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice "D1" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
@@ -1556,7 +1556,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
         // [SCENARIO 304082] Only "D1" has related WHT Entry. "D2" is applied to "D1".
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice "D1" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
@@ -1607,7 +1607,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
         // [SCENARIO 304082] Only "D1" has related WHT Entry.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice "D1" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
@@ -1659,7 +1659,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 321930] WHT Amount calculation in case of posting Payment, that applies to two Purchase Invoices and to two Purchase Cr.Memos.
         // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is less than summ of Purchase document amounts.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
@@ -1705,7 +1705,7 @@ codeunit 141012 "ERM WHT"
         // [FEATURE] [Purchase]
         // [SCENARIO 321930] WHT Amount calculation in case of posting Payment, that applies to two Purchase Invoices and to two Purchase Cr.Memos.
         // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is equal to summ of Purchase document amounts.
-        Initialize;
+        Initialize();
         FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
 
         // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
@@ -1798,7 +1798,7 @@ codeunit 141012 "ERM WHT"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1863,7 +1863,7 @@ codeunit 141012 "ERM WHT"
         // Find Posted Vendor Ledger Entries.
         VendorLedgerEntry.SetRange("Vendor No.", ApplyingVendorLedgerEntry."Vendor No.");
         VendorLedgerEntry.SetRange("Applying Entry", false);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -2289,7 +2289,7 @@ codeunit 141012 "ERM WHT"
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         NewGeneralPostingSetup := GeneralPostingSetup;
         NewGeneralPostingSetup."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
-        NewGeneralPostingSetup."Purch. Account" := LibraryERM.CreateGLAccountNo;
+        NewGeneralPostingSetup."Purch. Account" := LibraryERM.CreateGLAccountNo();
         NewGeneralPostingSetup."Purch. Prepayments Account" := PurchPrepmtAccNo;
         NewGeneralPostingSetup.Insert();
     end;
@@ -2312,7 +2312,7 @@ codeunit 141012 "ERM WHT"
         if CurrencyCode = '' then
             exit(1);  // If Blank Currency Code, use Currency factor 1.
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         exit(CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount");
     end;
 
@@ -2345,7 +2345,7 @@ codeunit 141012 "ERM WHT"
     begin
         with WHTEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Unrealized Base");
         end;
     end;
@@ -2403,7 +2403,7 @@ codeunit 141012 "ERM WHT"
     local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
         PurchaseHeader.Find;
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
@@ -2528,7 +2528,7 @@ codeunit 141012 "ERM WHT"
         WHTEntry: Record "WHT Entry";
     begin
         WHTEntry.SetRange("Original Document No.", DocumentNo);
-        WHTEntry.FindFirst;
+        WHTEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, WHTEntry.FieldCaption(Amount), Amount));
         Assert.AreNearlyEqual(
@@ -2541,7 +2541,7 @@ codeunit 141012 "ERM WHT"
     begin
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, BankAccountLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, Amount, BankAccountLedgerEntry.FieldCaption(Amount)));
@@ -2553,7 +2553,7 @@ codeunit 141012 "ERM WHT"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
     end;
@@ -2615,7 +2615,7 @@ codeunit 141012 "ERM WHT"
         GLEntry.SetRange("Bal. Account Type", BalAccountType);
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
         GLEntry.SetFilter(Amount, AmountFilter, 0);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
     end;
@@ -2627,7 +2627,7 @@ codeunit 141012 "ERM WHT"
         with WHTEntry do begin
             SetRange("Document No.", DocumentNo);
             Assert.RecordCount(WHTEntry, 1);
-            FindFirst;
+            FindFirst();
 
             Assert.AreNearlyEqual(
               UnrealizedAmount, "Unrealized Amount", LibraryERM.GetAmountRoundingPrecision,
@@ -2661,7 +2661,7 @@ codeunit 141012 "ERM WHT"
     begin
         with WHTEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
 
             Assert.AreNearlyEqual(
               UnrealizedAmount, "Unrealized Amount", LibraryERM.GetAmountRoundingPrecision,

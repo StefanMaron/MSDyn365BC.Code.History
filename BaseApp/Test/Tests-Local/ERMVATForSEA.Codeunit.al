@@ -33,7 +33,7 @@ codeunit 141037 "ERM VAT For SEA"
         // [SCENARIO] Amount after create and post Sales Invoice and apply payment.
 
         // [GIVEN] Create General Posting Setup and WHT Posting Setup. Find VAT Posting Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
         CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
@@ -58,7 +58,7 @@ codeunit 141037 "ERM VAT For SEA"
         // [SCENARIO] Amount after create and post Sales Invoice and apply payment with different Bill to Customer No.
 
         // [GIVEN] Create General Posting Setup and WHT Posting Setup. Find VAT Posting Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
         CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
@@ -83,7 +83,7 @@ codeunit 141037 "ERM VAT For SEA"
         // [SCENARIO] Amount after create and post Sales Order and apply partial payments with different Bill to Customer No.
 
         // [GIVEN] Create General Posting Setup and WHT Posting Setup. Find VAT Posting Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
         CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
@@ -108,7 +108,7 @@ codeunit 141037 "ERM VAT For SEA"
         // [SCENARIO] Amount after create and post Sales Order and apply partial payments.
 
         // [GIVEN] Create General Posting Setup and WHT Posting Setup. Find VAT Posting Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
         CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
@@ -138,8 +138,8 @@ codeunit 141037 "ERM VAT For SEA"
         // [SCENARIO] Amount after create and post Sales Credit Memo and apply refund.
 
         // [GIVEN] Create Customer, create and post Sales Credit Memo.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
         CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
@@ -179,7 +179,7 @@ codeunit 141037 "ERM VAT For SEA"
         // [SCENARIO] Amount after create and post Purchase Order and apply Payments with different Pay to Vendor No.
 
         // [GIVEN] Create General Posting Setup and WHT Posting Setup. Find VAT Posting Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
         CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
@@ -205,7 +205,7 @@ codeunit 141037 "ERM VAT For SEA"
         // [SCENARIO] Amount after create and post Purchase Invoice and apply Payments.
 
         // [GIVEN] Create General Posting Setup and WHT Posting Setup. Find VAT Posting Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
         CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
@@ -236,7 +236,7 @@ codeunit 141037 "ERM VAT For SEA"
         // [SCENARIO] after create and post a Purchase Credit Memo and apply partial refund.
 
         // [GIVEN] Create and post Purchase Credit Memo and partially post Gen. Journal Line.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayableSetup;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
@@ -274,7 +274,7 @@ codeunit 141037 "ERM VAT For SEA"
 
     local procedure Initialize()
     begin
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         UpdateGeneralLedgerSetup;
     end;
 
@@ -446,7 +446,7 @@ codeunit 141037 "ERM VAT For SEA"
     begin
         PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
         PurchCrMemoLine.SetRange("No.", No);
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
         exit(PurchCrMemoLine."Document No.");
     end;
 
@@ -456,7 +456,7 @@ codeunit 141037 "ERM VAT For SEA"
     begin
         PurchInvLine.SetRange(Type, PurchInvLine.Type::"G/L Account");
         PurchInvLine.SetRange("No.", No);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         exit(PurchInvLine."Document No.");
     end;
 
@@ -466,7 +466,7 @@ codeunit 141037 "ERM VAT For SEA"
     begin
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::"G/L Account");
         SalesCrMemoLine.SetRange("No.", No);
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         exit(SalesCrMemoLine."Document No.");
     end;
 
@@ -476,7 +476,7 @@ codeunit 141037 "ERM VAT For SEA"
     begin
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"G/L Account");
         SalesInvoiceLine.SetRange("No.", No);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         exit(SalesInvoiceLine."Document No.");
     end;
 
@@ -517,7 +517,7 @@ codeunit 141037 "ERM VAT For SEA"
         Amount: Decimal;
     begin
         // Create and post Sales Document.
-        UpdateSalesReceivablesSetup;
+        UpdateSalesReceivablesSetup();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateAndPostSalesDocument(SalesLine, DocumentType, BillToCustomerNo, No, SellToCustomerNo);
         Amount := SalesLine."Amount Including VAT" - (SalesLine.Amount * WHTPct / 100); // Calculate Amount excluding WHT Amount.
@@ -550,7 +550,7 @@ codeunit 141037 "ERM VAT For SEA"
         VATAmount: Decimal;
     begin
         // Create and post Sales Order and partially post Gen. Journal Line.
-        UpdateSalesReceivablesSetup;
+        UpdateSalesReceivablesSetup();
         CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Order, BillToCustomerNo, No, SellToCustomerNo);
         Amount := SalesLine."Amount Including VAT" - (SalesLine.Amount * WHTPct / 100);  // Calculate Amount excluding WHT Amount.
         VATAmount := (SalesLine.Amount / 2) + (SalesLine.Amount * VATPct / 200);  // Calculate Partial Amount including VAT.
@@ -612,7 +612,7 @@ codeunit 141037 "ERM VAT For SEA"
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
     end;
 
@@ -622,7 +622,7 @@ codeunit 141037 "ERM VAT For SEA"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(VATEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
         Assert.AreNearlyEqual(VATEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
     end;
@@ -633,7 +633,7 @@ codeunit 141037 "ERM VAT For SEA"
     begin
         WHTEntry.SetRange("Document Type", DocumentType);
         WHTEntry.SetRange("Document No.", DocumentNo);
-        WHTEntry.FindFirst;
+        WHTEntry.FindFirst();
         Assert.AreNearlyEqual(WHTEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
         Assert.AreNearlyEqual(WHTEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
     end;

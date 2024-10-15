@@ -43,7 +43,7 @@ codeunit 141036 "UT VAT For SEA"
         // [SCENARIO] Purpose of the test is to validate Purch. Tax Inv. Header - OnAfterGetRecord Trigger of Report - 28071 (Purch. - Tax Invoice).
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchTaxInvHeader.Get(CreatePurchTaxInvHeader);
 
         // Exercise.
@@ -64,7 +64,7 @@ codeunit 141036 "UT VAT For SEA"
         // [SCENARIO] Purpose of the test is to validate DimensionLoop1 - OnAfterGetRecord Trigger of Report - 28071 (Purch. - Tax Invoice).
 
         // Setup: Create Purchase Tax Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseTaxInvoice(PurchTaxInvHeader);
 
         // Exercise.
@@ -86,7 +86,7 @@ codeunit 141036 "UT VAT For SEA"
         // [SCENARIO] Purpose of the test is to validate Purch. Tax Inv. Line - OnAfterGetRecord Trigger of Report - 28071 (Purch. - Tax Invoice).
 
         // Setup: Create Purchase Tax Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseTaxInvoice(PurchTaxInvHeader);
 
         // Exercise.
@@ -111,7 +111,7 @@ codeunit 141036 "UT VAT For SEA"
         // [SCENARIO] Purpose of the test is to validate Sales Tax Inv. Header - OnAfterGetRecord Trigger of Report - 28072 (Sales - Tax Invoice).
 
         // Setup: Update Sales & Receivables Setup. Create Sales Tax Invoice Header.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Logo Position on Documents"::"No Logo");
         SalesTaxInvoiceHeader.Get(CreateSalesTaxInvHeader);
 
@@ -145,7 +145,7 @@ codeunit 141036 "UT VAT For SEA"
     begin
         // [FEATURE] [Sales] [Tax Invoice]
         // [SCENARIO 380526] Print VAT Amount Specification part of Report - 28072 (Sales - Tax Invoice).
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Tax Invoice with Amount = 100, Amount Including VAT = 120 and VAT Identifier = "V".
         CreateSalesTaxInvoice(SalesTaxInvoiceHeader);
@@ -194,7 +194,7 @@ codeunit 141036 "UT VAT For SEA"
         SalesTaxInvoiceHeader: Record "Sales Tax Invoice Header";
     begin
         // Setup: Update Sales & Receivables Setup. Create Sales Tax Invoice.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(LogoPositionOnDocuments);
         CreateSalesTaxInvoice(SalesTaxInvoiceHeader);
 
@@ -219,7 +219,7 @@ codeunit 141036 "UT VAT For SEA"
         // [SCENARIO] Purpose of the test is to validate Purch. - Tax Cr. Memo Header - OnAfterGetRecord Trigger of Report - 28073 (Purch. - Tax Cr. Memo).
 
         // Setup: Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         PurchTaxCrMemoHdr.Get(CreatePurchTaxCrMemoHeader);
 
         // Exercise.
@@ -241,7 +241,7 @@ codeunit 141036 "UT VAT For SEA"
         // [SCENARIO] Purpose of the test is to validate DimensionLoop1 - OnAfterGetRecord  Trigger of Report - 28073 (Purch. - Tax Cr. Memo).
 
         // Setup: Create Purchase Tax Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseTaxCreditMemo(PurchTaxCrMemoHdr);
 
         // Exercise.
@@ -263,7 +263,7 @@ codeunit 141036 "UT VAT For SEA"
         // [SCENARIO] Purpose of the test is to validate Purch. - Tax Cr. Memo Line - OnAfterGetRecord Trigger of Report - 28073 (Purch. - Tax Cr. Memo).
 
         // Setup: Create Purchase Tax Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseTaxCreditMemo(PurchTaxCrMemoHdr);
 
         // Exercise.
@@ -340,7 +340,7 @@ codeunit 141036 "UT VAT For SEA"
         SalesTaxCrMemoHeader: Record "Sales Tax Cr.Memo Header";
     begin
         // Setup: Update Sales & Receivables Setup. Create Sales Tax Credit Memo.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(LogoPositionOnDocuments);
         CreateSalesTaxCreditMemo(SalesTaxCrMemoHeader);
 
@@ -512,7 +512,7 @@ codeunit 141036 "UT VAT For SEA"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndUpdatePurchTaxCrMemoHeader(): Code[20]

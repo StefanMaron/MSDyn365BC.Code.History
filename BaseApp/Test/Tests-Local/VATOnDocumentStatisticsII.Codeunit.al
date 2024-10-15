@@ -31,7 +31,7 @@ codeunit 141080 "VAT On Document Statistics II"
         // [SCENARIO] values on Statistics page for Blanket Purchase Order with Additional Reporting Currency setup.
 
         // [GIVEN] Run Additional Reporting Currency job and Create Blanket Purchase Order.
-        Initialize;
+        Initialize();
         RunAddReportingCurrAndCreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Blanket Order");
         EnqueueValuesForHandler(PurchaseLine."Amount Including VAT", PurchaseLine.Amount * PurchaseLine."VAT %" / 100);  // Enqueue values for PurchaseOrderStatisticsModalPageHandler.
         BlanketPurchaseOrder.OpenEdit;
@@ -55,7 +55,7 @@ codeunit 141080 "VAT On Document Statistics II"
         // [SCENARIO] values on Statistics page for Blanket Sales Order with Additional Reporting Currency setup.
 
         // [GIVEN] Run Additional Reporting Currency job and Create Blanket Sales Order.
-        Initialize;
+        Initialize();
         RunAddReportingCurrAndCreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order");
         EnqueueValuesForHandler(SalesLine."Amount Including VAT", SalesLine.Amount * SalesLine."VAT %" / 100);  // Enqueue values for SalesOrderStatisticsModalPageHandler.
         BlanketSalesOrder.OpenEdit;
@@ -79,7 +79,7 @@ codeunit 141080 "VAT On Document Statistics II"
         // [SCENARIO] values on Statistics page for Purchase Quote with Additional Reporting Currency setup.
 
         // [GIVEN] Run Additional Reporting Currency job and Create Purchase Quote.
-        Initialize;
+        Initialize();
         RunAddReportingCurrAndCreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Quote);
         EnqueueValuesForHandler(PurchaseLine."Amount Including VAT", PurchaseLine.Amount * PurchaseLine."VAT %" / 100);  // Enqueue values for PurchaseStatisticsModalPageHandler.
         PurchaseQuote.OpenEdit;
@@ -103,7 +103,7 @@ codeunit 141080 "VAT On Document Statistics II"
         // [SCENARIO] values on Statistics page for Sales Quote with Additional Reporting Currency setup.
 
         // [GIVEN] Run Additional Reporting Currency job and Create Sales Quote.
-        Initialize;
+        Initialize();
         RunAddReportingCurrAndCreateSalesDocument(SalesLine, SalesLine."Document Type"::Quote);
         EnqueueValuesForHandler(SalesLine."Amount Including VAT", SalesLine.Amount * SalesLine."VAT %" / 100);  // Enqueue values for SalesStatisticsModalPageHandler.
         SalesQuote.OpenEdit;
@@ -207,8 +207,8 @@ codeunit 141080 "VAT On Document Statistics II"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -318,7 +318,7 @@ codeunit 141080 "VAT On Document Statistics II"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     VATAmount += "Line Amount" * "VAT %" / 100;
                 until Next = 0;
@@ -335,7 +335,7 @@ codeunit 141080 "VAT On Document Statistics II"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     VATAmount += "Line Amount" * "VAT %" / 100;
                 until Next = 0;

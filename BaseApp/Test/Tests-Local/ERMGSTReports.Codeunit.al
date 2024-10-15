@@ -28,7 +28,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Purchase] [Order]
         // [SCENARIO] GST Purchase Entries page for posted Purchase Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order
         DocumentNo :=
@@ -50,7 +50,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // [SCENARIO] GST Purchase Entries page for posted Purchase Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Return Order
         DocumentNo :=
@@ -72,7 +72,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO] GST Purchase Entries page for posted Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         DocumentNo :=
@@ -94,7 +94,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO] GST Purchase Entries page for posted Purchase Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo
         DocumentNo :=
@@ -116,7 +116,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO] GST Sales Entries page for posted Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Order
         DocumentNo :=
@@ -138,7 +138,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO] GST Sales Entries page for posted Sales Return Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Return Order
         DocumentNo :=
@@ -160,7 +160,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO] GST Sales Entries page for posted Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         DocumentNo :=
@@ -182,7 +182,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO] GST Sales Entries page for posted Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo
         DocumentNo :=
@@ -204,7 +204,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Sales] [Prepayment] [Order]
         // [SCENARIO] GST Sales Entries page for posted Prepayment Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Prepayment Sales Order
         DocumentNo := CreateAndPostSalesPrepmtOrder(SalesLine);
@@ -225,7 +225,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Purchase] [Prepayment] [Order]
         // [SCENARIO] GST Purchase Entries page for posted Prepayment Purchase Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Prepayment Purchase Order
         DocumentNo := CreateAndPostPurchPrepmtOrder(PurchaseLine);
@@ -245,7 +245,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Sales] [General Journal] [Invoice]
         // [SCENARIO] GST Sales Entries page for posted Sales Invoice throught the General Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice through the General Journal
         CreateAndPostGeneralJournalLine(
@@ -269,7 +269,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Sales] [General Journal] [Credit Memo]
         // [SCENARIO] GST Sales Entries page for posted Sales Credit Memo throught the General Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo through the General Journal
         CreateAndPostGeneralJournalLine(
@@ -293,7 +293,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Purchase] [General Journal] [Invoice]
         // [SCENARIO] GST Purchase Entries page for posted Purchase Invoice throught the General Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice through the General Journal
         CreateAndPostGeneralJournalLine(
@@ -317,7 +317,7 @@ codeunit 141006 "ERM GST Reports"
     begin
         // [FEATURE] [Purchase] [General Journal] [Credit Memo]
         // [SCENARIO] GST Purchase Entries page for posted Purchase Credit Memo throught the General Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo through the General Journal
         CreateAndPostGeneralJournalLine(
@@ -335,7 +335,7 @@ codeunit 141006 "ERM GST Reports"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UpdateGeneralLedgerSetup;
     end;
 
@@ -444,7 +444,7 @@ codeunit 141006 "ERM GST Reports"
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -519,7 +519,7 @@ codeunit 141006 "ERM GST Reports"
         GSTPurchaseEntries: TestPage "GST Purchase Entries";
     begin
         GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
-        GSTPurchaseEntry.FindFirst;
+        GSTPurchaseEntry.FindFirst();
 
         GSTPurchaseEntries.OpenEdit;
         GSTPurchaseEntries.GotoRecord(GSTPurchaseEntry);
@@ -536,7 +536,7 @@ codeunit 141006 "ERM GST Reports"
         GSTSalesEntries: TestPage "GST Sales Entries";
     begin
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
-        GSTSalesEntry.FindFirst;
+        GSTSalesEntry.FindFirst();
 
         GSTSalesEntries.OpenEdit;
         GSTSalesEntries.GotoRecord(GSTSalesEntry);

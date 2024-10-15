@@ -525,7 +525,7 @@ page 11601 "BAS Calculation Sheet"
                         BASSetup.FilterGroup(0);
                         BASSetupForm.SetTableView(BASSetup);
                         BASSetupForm.SetValues(A1, "BAS Version");
-                        BASSetupForm.RunModal;
+                        BASSetupForm.RunModal();
                     end;
                 }
                 action(Comment)
@@ -560,7 +560,7 @@ page 11601 "BAS Calculation Sheet"
                     begin
                         BASImportExport.SetBASCalcSheetRecord(Rec);
                         BASImportExport.SetDirection(0);
-                        BASImportExport.RunModal;
+                        BASImportExport.RunModal();
                         BASImportExport.ReturnRecord(Rec);
                         Clear(BASImportExport);
                     end;
@@ -595,7 +595,7 @@ page 11601 "BAS Calculation Sheet"
                     begin
                         BASImportExport.SetBASCalcSheetRecord(Rec);
                         BASImportExport.SetDirection(1);
-                        BASImportExport.RunModal;
+                        BASImportExport.RunModal();
                         BASImportExport.ReturnRecord(Rec);
                         Clear(BASImportExport);
                     end;

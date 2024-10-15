@@ -28,7 +28,8 @@ report 499 "Delete Invoiced Purch. Orders"
                 if IsHandled then
                     CurrReport.Skip();
 
-                Window.Update(1, "No.");
+                if GuiAllowed() then
+                    Window.Update(1, "No.");
 
                 ItemChargeAssgntPurch.Reset();
                 ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
@@ -125,7 +126,8 @@ report 499 "Delete Invoiced Purch. Orders"
 
             trigger OnPreDataItem()
             begin
-                Window.Open(Text000);
+                if GuiAllowed() then
+                    Window.Open(Text000Txt);
             end;
         }
     }
@@ -147,7 +149,7 @@ report 499 "Delete Invoiced Purch. Orders"
     }
 
     var
-        Text000: Label 'Processing purch. orders #1##########';
+        Text000Txt: Label 'Processing purch. orders #1##########';
         PurchLine: Record "Purchase Line";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";

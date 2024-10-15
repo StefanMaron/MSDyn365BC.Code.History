@@ -71,7 +71,7 @@ codeunit 11601 "BAS Management"
             A1 := ReadXMLNodeValues(FieldNo(A1));
             BASCalcSheet.LockTable();
             BASCalcSheet.SetRange(A1, A1);
-            if BASCalcSheet.FindLast then begin
+            if BASCalcSheet.FindLast() then begin
                 if not Confirm(Text1450002, false) then
                     exit;
                 "BAS Version" := BASCalcSheet."BAS Version" + 1;
@@ -206,7 +206,7 @@ codeunit 11601 "BAS Management"
                 BASCalcEntry.SetRange("BAS Version", "BAS Version");
             end;
 
-            if BASCalcEntry.FindSet then begin
+            if BASCalcEntry.FindSet() then begin
                 Window.Open(Text1450008 + Text1450009 + Text1450010);
                 repeat
                     GLEntry.ChangeCompany(BASCalcEntry."Company Name");
@@ -248,7 +248,7 @@ codeunit 11601 "BAS Management"
                 Error(Text1450027);
             Clear(BASUpdate);
             BASUpdate.InitializeRequest(BASCalcSheet3, true, 0, 0, false);
-            BASUpdate.RunModal;
+            BASUpdate.RunModal();
         end;
     end;
 
@@ -266,7 +266,7 @@ codeunit 11601 "BAS Management"
         GLSetup.TestField("BAS to be Lodged as a Group", true);
         GLSetup.TestField("BAS Group Company", true);
 
-        if not BASBusUnits.FindFirst then
+        if not BASBusUnits.FindFirst() then
             Error(Text1450013);
 
         BASCalcScheduleList.LookupMode(true);
@@ -371,7 +371,7 @@ codeunit 11601 "BAS Management"
     begin
         BASXMLFieldID.SetCurrentKey("Field No.");
         BASXMLFieldID.SetRange("Field No.", FieldNumber);
-        if BASXMLFieldID.FindFirst then
+        if BASXMLFieldID.FindFirst() then
             if TempBASXMLFieldID.Get(BASXMLFieldID."XML Field ID") then begin
                 Amount := DelChr(Amount, '=', ',');
                 XMLNode := XMLDocument.DocumentElement.SelectSingleNode(StrSubstNo('./%1', BASXMLFieldID."XML Field ID"));
@@ -383,7 +383,7 @@ codeunit 11601 "BAS Management"
     begin
         BASXMLFieldID.SetCurrentKey("Field No.");
         BASXMLFieldID.SetRange("Field No.", FieldNumber);
-        if BASXMLFieldID.FindFirst then begin
+        if BASXMLFieldID.FindFirst() then begin
             if TempBASXMLFieldID.Get(BASXMLFieldID."XML Field ID") then begin
                 XMLNode := XMLDocument.DocumentElement.SelectSingleNode(StrSubstNo('./%1', BASXMLFieldID."XML Field ID"));
                 exit(XMLNode.InnerText);
@@ -472,7 +472,7 @@ codeunit 11601 "BAS Management"
                 BASXMLFieldIDSetup.SetCurrentKey("XML Field ID");
                 BASXMLFieldIDSetup.SetRange("Setup Name", BASSetupName);
                 BASXMLFieldIDSetup.SetRange("XML Field ID", XMLNode.Name);
-                if not BASXMLFieldIDSetup.FindFirst then begin
+                if not BASXMLFieldIDSetup.FindFirst() then begin
                     BASXMLFieldIDSetup.Init();
                     BASXMLFieldIDSetup."Setup Name" := BASSetupName;
                     BASXMLFieldIDSetup."XML Field ID" := XMLNode.Name;
@@ -512,7 +512,7 @@ codeunit 11601 "BAS Management"
                 begin
                     Date.SetRange("Period Type", Date."Period Type"::Quarter);
                     Date.SetFilter("Period Start", '..%1', DocDate);
-                    Date.FindLast;
+                    Date.FindLast();
                     exit(InvDocDate < Date."Period Start");
                 end;
         end;
@@ -661,7 +661,7 @@ codeunit 11601 "BAS Management"
         BASSetupName: Record "BAS Setup Name";
     begin
         if not BASSetupName.Get(CurrentBASSetupName) then
-            if not BASSetupName.FindFirst then begin
+            if not BASSetupName.FindFirst() then begin
                 BASSetupName.Init();
                 BASSetupName.Name := Text1450029;
                 BASSetupName.Description := Text1450028;
@@ -691,7 +691,7 @@ codeunit 11601 "BAS Management"
     procedure SetBASSetupName(CurrentBASSetupName: Code[20]; var BASSetup: Record "BAS Setup")
     begin
         BASSetup.SetRange("Setup Name", CurrentBASSetupName);
-        if BASSetup.FindFirst then;
+        if BASSetup.FindFirst() then;
     end;
 
     [Scope('OnPrem')]
@@ -711,7 +711,7 @@ codeunit 11601 "BAS Management"
     procedure SetBASXMLSetupName(CurrentBASSetupName: Code[20]; var BASXMLFieldIDSetup: Record "BAS XML Field ID Setup")
     begin
         BASXMLFieldIDSetup.SetRange("Setup Name", CurrentBASSetupName);
-        if BASXMLFieldIDSetup.FindFirst then;
+        if BASXMLFieldIDSetup.FindFirst() then;
     end;
 
     [Scope('OnPrem')]
@@ -804,7 +804,7 @@ codeunit 11601 "BAS Management"
         BASCalculationSheet.SetRange(A1, BASCalcSheetNo);
         BASCalculationSheet.SetFilter("BAS Version", '<>%1', BASVersionNo);
         BASCalculationSheet.SetRange(Exported, true);
-        if BASCalculationSheet.FindLast then
+        if BASCalculationSheet.FindLast() then
             if BASCalculationSheet."BAS Version" <> BASVersionNo then
                 if not Confirm(Text1450005, false, BASCalculationSheet."BAS Version", BASCalculationSheet.A1) then
                     Error('');

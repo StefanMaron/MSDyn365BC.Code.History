@@ -439,8 +439,8 @@ page 1824 "Jobs Setup Wizard"
         Step := Step::Welcome;
         EnableControls;
 
-        if ResourcesSetup.FindFirst then;
-        if JobsSetup.FindFirst then;
+        if ResourcesSetup.FindFirst() then;
+        if JobsSetup.FindFirst() then;
 
         if NoSeries.Get(JobTxt) then
             NoSeriesJob := JobTxt;
@@ -715,7 +715,7 @@ page 1824 "Jobs Setup Wizard"
     local procedure SaveJobsSetup()
     begin
         with JobsSetup do
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "Job Nos." := NoSeriesJob;
                 "Job WIP Nos." := NoSeriesJobWIP;
@@ -754,7 +754,7 @@ page 1824 "Jobs Setup Wizard"
         SaveNoSeriesResourceTimeSheet;
         with ResourcesSetup do
             if CreateTimesheetYes then
-                if not FindFirst then begin
+                if not FindFirst() then begin
                     Init;
                     "Time Sheet First Weekday" := FirstWeekday;
                     "Time Sheet by Job Approval" := SuiteJobApproval;
@@ -798,7 +798,7 @@ page 1824 "Jobs Setup Wizard"
     local procedure SaveNoSeriesResourceTimeSheet()
     begin
         with ResourcesSetup do
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 "Resource Nos." := NoSeriesResource;
                 "Time Sheet Nos." := NoSeriesTimeSheet;

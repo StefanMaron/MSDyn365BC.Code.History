@@ -45,7 +45,7 @@ page 28092 "Post Dated Checks-Purchases"
 
                         UpdateVendor;
                         SetFilter("Check Date", DateFilter);
-                        if not FindFirst then
+                        if not FindFirst() then
                             UpdateBalance;
                     end;
 
@@ -378,7 +378,7 @@ page 28092 "Post Dated Checks-Purchases"
                         TestField("Document No.");
                         TestField("Check Printed", false);
                         CreateInstallments.SetPostDatedCheckLine(Rec);
-                        CreateInstallments.RunModal;
+                        CreateInstallments.RunModal();
                         Clear(CreateInstallments);
                     end;
                 }
@@ -433,7 +433,7 @@ page 28092 "Post Dated Checks-Purchases"
                         PostDatedCheck.CopyFilters(Rec);
                         PostDatedCheck.SetRange("Account Type", "Account Type");
                         PostDatedCheck.SetRange("Account No.", "Account No.");
-                        if PostDatedCheck.FindFirst then
+                        if PostDatedCheck.FindFirst() then
                             REPORT.RunModal(REPORT::"PDC Acknowledgement Receipt", true, true, PostDatedCheck);
                     end;
                 }
@@ -517,7 +517,7 @@ page 28092 "Post Dated Checks-Purchases"
         PostDatedCheck.SetRange("Account Type", PostDatedCheck."Account Type"::Vendor);
         if VendorNo <> '' then
             PostDatedCheck.SetRange("Account No.", VendorNo);
-        if PostDatedCheck.FindSet then begin
+        if PostDatedCheck.FindSet() then begin
             repeat
                 LineAmount := LineAmount + PostDatedCheck."Amount (LCY)";
             until PostDatedCheck.Next() = 0;

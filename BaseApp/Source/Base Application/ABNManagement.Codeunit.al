@@ -58,7 +58,7 @@ codeunit 11600 "ABN Management"
                 begin
                     Vendor.SetCurrentKey(ABN);
                     Vendor.SetRange(ABN, ABN);
-                    if Vendor.FindFirst then
+                    if Vendor.FindFirst() then
                         if not Confirm(Text1450003, false, Vendor.TableCaption, Vendor."No.") then
                             Error('');
                 end;
@@ -66,7 +66,7 @@ codeunit 11600 "ABN Management"
                 begin
                     Customer.SetCurrentKey(ABN);
                     Customer.SetRange(ABN, ABN);
-                    if Customer.FindFirst then
+                    if Customer.FindFirst() then
                         if not Confirm(Text1450003, false, Customer.TableCaption, Customer."No.") then
                             Error('');
                 end;
@@ -75,7 +75,7 @@ codeunit 11600 "ABN Management"
                     Contact.SetCurrentKey(ABN, Type);
                     Contact.SetRange(ABN, ABN);
                     Contact.SetRange(Type, Contact.Type::Company);
-                    if Contact.FindFirst then
+                    if Contact.FindFirst() then
                         if not Confirm(Text1450003, false, Contact.TableCaption, Contact."No.") then
                             Error('');
                 end;

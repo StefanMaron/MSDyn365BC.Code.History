@@ -39,7 +39,7 @@ codeunit 134850 "Test General Document Lookup"
         Customer: Record Customer;
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         // [FEATURE] [Sales] [Fixed Asset]
         // [SCENARIO] Create a Sales Invoice, add a Line of type Fixed Asset and verify that Line has correct description.
         // [GIVEN] Fixed Asset, where "No." = 'X'
@@ -64,7 +64,7 @@ codeunit 134850 "Test General Document Lookup"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
         // [FEATURE] [Purchase] [Fixed Asset]
         // [SCENARIO] Create a Purchase Invoice, add a Line of type Fixed Asset and verify that Line has correct description.
         // [GIVEN] Fixed Asset, where "No." = 'X'
@@ -155,7 +155,7 @@ codeunit 134850 "Test General Document Lookup"
         // [FEATURE] [UT] [G/L Account] [Purchase] [Find Record By Description]
         // [SCENARIO 296402] When validate Description in G/L Account type Purchase Line with <blank> No then first Non-blocked G/L Account is found
         // [SCENARIO 296402] having Account Type = Posting and Direct Posting enabled.
-        GLAccountName := LibraryUtility.GenerateGUID;
+        GLAccountName := LibraryUtility.GenerateGUID();
 
         // [GIVEN] G/L Accounts with same Name = 'Software' were created as follows:
         // [GIVEN] Heading, Total, Begin-Total, End-Total G/L Accounts with Nos = 8306, 8307, 8308, 8309
@@ -195,7 +195,7 @@ codeunit 134850 "Test General Document Lookup"
         // [FEATURE] [UT] [G/L Account] [Sales] [Find Record By Description]
         // [SCENARIO 296402] When validate Description in G/L Account type Sales Line with <blank> No then first Non-blocked G/L Account is found
         // [SCENARIO 296402] having Account Type = Posting and Direct Posting enabled.
-        GLAccountName := LibraryUtility.GenerateGUID;
+        GLAccountName := LibraryUtility.GenerateGUID();
 
         // [GIVEN] G/L Accounts with same Name = 'Software' were created as follows:
         // [GIVEN] Heading, Total, Begin-Total, End-Total G/L Accounts with Nos = 8306, 8307, 8308, 8309
