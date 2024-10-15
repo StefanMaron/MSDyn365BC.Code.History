@@ -3115,7 +3115,13 @@
             OldCustLedgEntry.FindFirst();
             OnPrepareTempCustLedgEntryOnBeforeTestPositive(GenJnlLine, IsHandled);
             if not IsHandled then
-                OldCustLedgEntry.TestField(Positive, not NewCVLedgEntryBuf.Positive);
+                if not ((GenJnlLine.Amount < 0) and
+                        (GenJnlLine."Document Type" = GenJnlLine."Document Type"::" ") and
+                        (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) and
+                        (GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Finance Charge Memo") and
+                        (GenJnlLine."Applies-to Doc. No." <> '')) then
+                    OldCustLedgEntry.TestField(Positive, not NewCVLedgEntryBuf.Positive);
+
             if OldCustLedgEntry."Posting Date" > ApplyingDate then
                 ApplyingDate := OldCustLedgEntry."Posting Date";
             GenJnlApply.CheckAgainstApplnCurrency(
@@ -8359,4 +8365,5 @@
     local procedure OnContinuePostingOnIncreaseNextTransactionNo(var GenJnlLine: Record "Gen. Journal Line"; var NextTransactionNo: Integer; var IsHandled: Boolean)
     begin
     end;
+
 }
