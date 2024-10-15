@@ -650,6 +650,12 @@
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -994,6 +1000,7 @@
         SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
     end;

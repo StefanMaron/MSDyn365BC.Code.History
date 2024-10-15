@@ -804,6 +804,12 @@
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             part(Control1907829707; "Service Hist. Sell-to FactBox")
             {
                 ApplicationArea = Service;
@@ -1350,6 +1356,7 @@
         SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
     end;
@@ -1394,6 +1401,7 @@
         SellToContact.GetOrClear(Rec."Contact No.");
         UpdateDocHasRegimeCode();
         ActivateFields();
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

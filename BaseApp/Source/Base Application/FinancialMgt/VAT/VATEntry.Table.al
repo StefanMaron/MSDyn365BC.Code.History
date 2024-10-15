@@ -527,6 +527,10 @@
         {
             Caption = 'Ignore In SII';
         }
+        field(10726; "One Stop Shop Reporting"; Boolean)
+        {
+            Caption = 'One Stop Shop Reporting';
+        }
     }
 
     keys

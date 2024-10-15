@@ -815,6 +815,7 @@ table 130 "Incoming Document"
     var
         GenJnlLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
     begin
         case "Document Type" of
@@ -829,6 +830,12 @@ table 130 "Incoming Document"
                     SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     if SalesHeader.FindFirst() then
                         Error(AlreadyUsedInDocHdrErr, SalesHeader."Document Type", SalesHeader."No.", SalesHeader.TableCaption());
+                end;
+            "Document Type"::"Service Invoice", "Document Type"::"Service Credit Memo":
+                begin
+                    ServiceHeader.SetRange("Incoming Document Entry No.", "Entry No.");
+                    if ServiceHeader.FindFirst() then
+                        Error(AlreadyUsedInDocHdrErr, ServiceHeader."Document Type", ServiceHeader."No.", ServiceHeader.TableCaption());
                 end;
             "Document Type"::"Purchase Invoice", "Document Type"::"Purchase Credit Memo":
                 begin
@@ -992,6 +999,7 @@ table 130 "Incoming Document"
     var
         GenJnlLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
     begin
         case "Document Type" of
@@ -1004,6 +1012,11 @@ table 130 "Incoming Document"
                 begin
                     SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     SalesHeader.ModifyAll("Incoming Document Entry No.", 0, true);
+                end;
+            "Document Type"::"Service Invoice", "Document Type"::"Service Credit Memo":
+                begin
+                    ServiceHeader.SetRange("Incoming Document Entry No.", "Entry No.");
+                    ServiceHeader.ModifyAll("Incoming Document Entry No.", 0, true);
                 end;
             "Document Type"::"Purchase Invoice", "Document Type"::"Purchase Credit Memo":
                 begin
@@ -1118,6 +1131,24 @@ table 130 "Incoming Document"
         Modify();
         if not DocLinkExists(SalesHeader) then
             SalesHeader.AddLink(GetURL(), Description);
+    end;
+
+    procedure SetServiceDoc(var ServiceHeader: Record "Service Header")
+    begin
+        if ServiceHeader."Incoming Document Entry No." = 0 then
+            exit;
+        Get(ServiceHeader."Incoming Document Entry No.");
+        TestReadyForProcessing();
+        TestIfAlreadyExists();
+        case ServiceHeader."Document Type" of
+            ServiceHeader."Document Type"::Invoice:
+                "Document Type" := "Document Type"::"Service Invoice";
+            ServiceHeader."Document Type"::"Credit Memo":
+                "Document Type" := "Document Type"::"Service Credit Memo";
+        end;
+        Modify();
+        if not DocLinkExists(ServiceHeader) then
+            ServiceHeader.AddLink(GetURL(), Description);
     end;
 
     procedure SetPurchDoc(var PurchaseHeader: Record "Purchase Header")
@@ -1296,6 +1327,7 @@ table 130 "Incoming Document"
     var
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
         GenJournalLine: Record "Gen. Journal Line";
         DocExists: Boolean;
     begin
@@ -1326,6 +1358,21 @@ table 130 "Incoming Document"
                     Error(NotSupportedSalesErr, Format(SalesHeader."Document Type"));
             end;
             "Document No." := SalesHeader."No.";
+            exit;
+        end;
+
+        // If service
+        ServiceHeader.SetRange("Incoming Document Entry No.", "Entry No.");
+        if ServiceHeader.FindFirst() then begin
+            case ServiceHeader."Document Type" of
+                ServiceHeader."Document Type"::Invoice:
+                    "Document Type" := "Document Type"::"Service Invoice";
+                ServiceHeader."Document Type"::"Credit Memo":
+                    "Document Type" := "Document Type"::"Service Credit Memo";
+                else
+                    Error(NotSupportedSalesErr, Format(ServiceHeader."Document Type"));
+            end;
+            "Document No." := ServiceHeader."No.";
             exit;
         end;
 
@@ -1645,6 +1692,7 @@ table 130 "Incoming Document"
     local procedure FindUnpostedRecord(var RelatedRecord: Variant): Boolean
     var
         SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
         GenJournalLine: Record "Gen. Journal Line";
         RecordFound: Boolean;
@@ -1667,6 +1715,15 @@ table 130 "Incoming Document"
                     SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     if SalesHeader.FindFirst() then begin
                         RelatedRecord := SalesHeader;
+                        exit(true);
+                    end;
+                end;
+            "Document Type"::"Service Invoice",
+            "Document Type"::"Service Credit Memo":
+                begin
+                    ServiceHeader.SetRange("Incoming Document Entry No.", "Entry No.");
+                    if ServiceHeader.FindFirst() then begin
+                        RelatedRecord := ServiceHeader;
                         exit(true);
                     end;
                 end;
@@ -1785,6 +1842,10 @@ table 130 "Incoming Document"
         case RelatedRecordRef.Number of
             DATABASE::"Sales Header":
                 RecCaption := StrSubstNo('%1 %2', SalesTxt, GetRecordCaption(RelatedRecordRef));
+#pragma warning disable AA0217
+            Database::"Service Header":
+                RecCaption := StrSubstNo('%1 %2', SalesTxt, GetRecordCaption(RelatedRecordRef));
+#pragma warning restore AA0217
             DATABASE::"Sales Invoice Header":
                 RecCaption := StrSubstNo('%1 - %2', SalesInvoiceTxt, GetRecordCaption(RelatedRecordRef));
             DATABASE::"Sales Cr.Memo Header":
@@ -1964,6 +2025,7 @@ table 130 "Incoming Document"
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
+        ServiceHeader: Record "Service Header";
         PostingDate: Date;
     begin
         if (DocumentNo = '') or (PostingDateText = '') then
@@ -1981,6 +2043,11 @@ table 130 "Incoming Document"
                     IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
                     IncomingDocument.SetRange(Posted, true);
                 end;
+            Database::"Service Invoice Header":
+                begin
+                    IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Service Invoice");
+                    IncomingDocument.SetRange(Posted, true);
+                end;
             Database::"Purch. Inv. Header":
                 begin
                     IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
@@ -1989,6 +2056,11 @@ table 130 "Incoming Document"
             Database::"Sales Cr.Memo Header":
                 begin
                     IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Credit Memo");
+                    IncomingDocument.SetRange(Posted, true);
+                end;
+            Database::"Service Cr.Memo Header":
+                begin
+                    IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Service Credit Memo");
                     IncomingDocument.SetRange(Posted, true);
                 end;
             Database::"Purch. Cr. Memo Hdr.":
@@ -2008,6 +2080,22 @@ table 130 "Incoming Document"
                         SalesHeader."Document Type"::"Credit Memo":
                             begin
                                 IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Credit Memo");
+                                IncomingDocument.SetRange(Posted, false);
+                            end;
+                    end;
+                end;
+            Database::"Service Header":
+                begin
+                    MainRecordRef.SetTable(ServiceHeader);
+                    case ServiceHeader."Document Type" of
+                        ServiceHeader."Document Type"::Invoice, ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Quote:
+                            begin
+                                IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Service Invoice");
+                                IncomingDocument.SetRange(Posted, false);
+                            end;
+                        ServiceHeader."Document Type"::"Credit Memo":
+                            begin
+                                IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Service Credit Memo");
                                 IncomingDocument.SetRange(Posted, false);
                             end;
                     end;

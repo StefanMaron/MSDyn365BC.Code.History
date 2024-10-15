@@ -26,6 +26,7 @@ table 325 "VAT Posting Setup"
                 CheckZeroVATRateForNoTaxableVAT("VAT+EC %", FieldCaption("VAT+EC %"));
                 if "VAT Calculation Type" <> "VAT Calculation Type"::"No Taxable VAT" then
                     "No Taxable Type" := "No Taxable Type"::" ";
+                "One Stop Shop Reporting" := false;
             end;
         }
         field(4; "VAT+EC %"; Decimal)
@@ -310,6 +311,7 @@ table 325 "VAT Posting Setup"
             trigger OnValidate()
             begin
                 CheckSalesSpecialSchemeCode();
+                "One Stop Shop Reporting" := false;
             end;
         }
         field(10708; "Purch. Special Scheme Code"; Enum "SII Purch. Upload Scheme Code")
@@ -319,6 +321,16 @@ table 325 "VAT Posting Setup"
         field(10709; "Ignore In SII"; Boolean)
         {
             Caption = 'Ignore In SII';
+        }
+        field(10780; "One Stop Shop Reporting"; Boolean)
+        {
+            Caption = 'One Stop Shop Reporting';
+
+            trigger OnValidate()
+            begin
+                TestField("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
+                TestField("Sales Special Scheme Code", "Sales Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+            end;
         }
     }
 
