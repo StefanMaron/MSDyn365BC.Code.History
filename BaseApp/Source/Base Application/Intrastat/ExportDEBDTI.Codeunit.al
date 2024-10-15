@@ -286,17 +286,16 @@ codeunit 10821 "Export DEB DTI"
     local procedure AddItem(var XMLNode: DotNet XmlNode; IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemNumberXML: Integer)
     begin
         XMLDomMgt.AddGroupNode(XMLNode, 'Item');
+        // node's order is important
         XMLDomMgt.AddNode(XMLNode, 'itemNumber', FormatExtendNumberToXML(ItemNumberXML, 6));
         if IntrastatJnlLine."Tariff No." <> '' then begin
             XMLDomMgt.AddGroupNode(XMLNode, 'CN8');
             XMLDomMgt.AddLastNode(XMLNode, 'CN8Code', IntrastatJnlLine."Tariff No.");
         end;
-        if IntrastatJnlLine."Country/Region of Origin Code" <> '' then
-            XMLDomMgt.AddNode(XMLNode, 'countryOfOriginCode', IntrastatJnlLine."Country/Region of Origin Code");
         if IntrastatJnlLine."Entry/Exit Point" <> '' then
             XMLDomMgt.AddNode(XMLNode, 'MSConsDestCode', IntrastatJnlLine."Entry/Exit Point");
-        if IntrastatJnlLine.Area <> '' then
-            XMLDomMgt.AddNode(XMLNode, 'regionCode', IntrastatJnlLine.Area);
+        if IntrastatJnlLine."Country/Region of Origin Code" <> '' then
+            XMLDomMgt.AddNode(XMLNode, 'countryOfOriginCode', IntrastatJnlLine."Country/Region of Origin Code");
         if IntrastatJnlLine."Total Weight" <> 0 then
             XMLDomMgt.AddNode(XMLNode, 'netMass', FormatToXML(IntrastatJnlLine."Total Weight"));
         if IntrastatJnlLine.Quantity <> 0 then
@@ -316,6 +315,8 @@ codeunit 10821 "Export DEB DTI"
 
         if IntrastatJnlLine."Transport Method" <> '' then
             XMLDomMgt.AddNode(XMLNode, 'modeOfTransportCode', IntrastatJnlLine."Transport Method");
+        if IntrastatJnlLine.Area <> '' then
+            XMLDomMgt.AddNode(XMLNode, 'regionCode', IntrastatJnlLine.Area);
     end;
 
     local procedure FormatExtendNumberToXML(Value: Integer; Length: Integer): Text

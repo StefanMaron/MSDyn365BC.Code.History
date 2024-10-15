@@ -1685,6 +1685,68 @@ codeunit 144049 "ERM Payment Management"
         VendorLedgerEntry.TestField("Applies-to ID", '');
     end;
 
+    [Test]
+    [HandlerFunctions('PaymentClassListModalPageHandler,SuggestVendorPaymentsFRRequestPageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure PostPaymentSlipAfterGettingDimError()
+    var
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        PaymentLine: Record "Payment Line";
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        PaymentHeader: Record "Payment Header";
+        PaymentSlip: TestPage "Payment Slip";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 408792] Stan can post payment slip from the second attempt after getting the dimension error
+
+        Initialize();
+
+        // [GIVEN] USD currency with "Realized Gains Acc." = "X"
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Modify(true);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1, LibraryRandom.RandDecInDecimalRange(5, 10, 2));
+
+        // [GIVEN] Department dimension is mandatory for G/L account "X"
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, Currency."Realized Gains Acc.", Dimension.Code, '');
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice with Currency = "X" and Currency Factor = 0.01
+        CreatePurchaseInvoiceWithCurrencyAndPost(Vendor, Currency, WorkDate());
+
+        // [GIVEN] Payment slip with posted purchase invoiced
+        CreatePaymentSlipForPurchInvApplication(PaymentHeader, Vendor, Currency);
+
+        // [GIVEN] Currency factor is changed to 0.02 to make posting to realized gains acc.
+        PaymentHeader.Validate("Currency Factor", PaymentHeader."Currency Factor" + 0.01);
+        PaymentHeader.Modify(true);
+
+        // [GIVEN] Get an error after posting the payment slip first time
+        PaymentSlip.OpenEdit();
+        PaymentSlip.FILTER.SetFilter("Payment Class", PaymentHeader."Payment Class");
+        asserterror PaymentSlip.Post.Invoke();
+        Assert.ExpectedError('Select a Dimension Value Code');
+
+        // [GIVEN] Assign Department dimension for the payment slip
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        FindPaymentLine(PaymentLine, PaymentHeader."Payment Class", 0);
+        PaymentLine.Validate(
+          "Dimension Set ID", LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code));
+        PaymentLine.Modify(true);
+
+        // [WHEN] Post second time
+        PaymentSlip.Post.Invoke();
+
+        // [THEN] Payment slip has been posted
+        PaymentHeader.Find();
+        PaymentHeader.TestField("Status No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Management");
@@ -2051,6 +2113,23 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeader.Modify(true);
         PostPaymentSlipHeaderNo(PaymentHeader."No.");
         exit(PaymentHeader."No.");
+    end;
+
+    local procedure CreatePaymentSlipForPurchInvApplication(var PaymentHeader: Record "Payment Header"; Vendor: Record Vendor; Currency: Record Currency)
+    var
+        PaymentClass: Record "Payment Class";
+        PaymentStepLedger: Record "Payment Step Ledger";
+        PaymentSlip: TestPage "Payment Slip";
+    begin
+        PaymentClass.Get(SetupForPmtSlipAppliedToPurchInv(PaymentStepLedger."Detail Level"::Account));
+        CreatePaymentHeader(PaymentHeader);
+        PaymentHeader.Validate("Currency Code", Currency.Code);
+        PaymentHeader.Modify(true);
+
+        OpenPaymentSlip(PaymentSlip, PaymentHeader."No.");
+        EnqueueValuesForHandler(Vendor."No.", Currency.Code);  // Enqueue for SuggestVendorPaymentsFRRequestPageHandler.
+        Commit();
+        PaymentSlip.SuggestVendorPayments.Invoke();
     end;
 
     local procedure CreateSetupForPaymentSlip(var LineNo: Integer; PaymentClass: Text[30]; PaymentInProgress: Boolean) LineNo2: Integer
@@ -2565,6 +2644,35 @@ codeunit 144049 "ERM Payment Management"
         CreatePaymentStepLedger(
           PaymentStepLedger2, PaymentClass, PaymentStepLedger2.Sign::Credit, PaymentStepLedger2."Accounting Type"::"Payment Line Account",
           PaymentStepLedger2."Account Type"::"G/L Account", '', PaymentStepLedger2.Application::"Applied Entry", LineNo);  // Blank value for G/L Account No.
+        LibraryVariableStorage.Enqueue(PaymentClass);
+        exit(PaymentClass);
+    end;
+
+    local procedure SetupForPmtSlipAppliedToPurchInv(DetailLevel: Option): Text[30]
+    var
+        PaymentStatus: Record "Payment Status";
+        PaymentStatus2: Record "Payment Status";
+        PaymentStep: Record "Payment Step";
+        PaymentStepLedger: Record "Payment Step Ledger";
+        PaymentStepLedger2: Record "Payment Step Ledger";
+        DummyPaymentClass: Record "Payment Class";
+        PaymentClass: Text[30];
+        LineNo: Integer;
+    begin
+        PaymentClass := CreatePaymentClass(DummyPaymentClass.Suggestions::Vendor);
+        CreatePaymentStatus(PaymentStatus, PaymentClass, PaymentClassNameTxt, false);
+        CreatePaymentStatus(PaymentStatus2, PaymentClass, LibraryUtility.GenerateGUID(), false);
+        LineNo :=
+          CreatePaymentStep(PaymentClass, LibraryUtility.GenerateGUID(),
+          PaymentStatus.Line, PaymentStatus2.Line, PaymentStep."Action Type"::Ledger, false);
+        CreatePaymentStepLedger(
+          PaymentStepLedger2, PaymentClass, PaymentStepLedger2.Sign::Debit, PaymentStepLedger2."Accounting Type"::"Payment Line Account",
+          PaymentStepLedger2."Account Type"::"G/L Account", '', PaymentStepLedger2.Application::"Applied Entry", LineNo);
+        CreatePaymentStepLedger(
+          PaymentStepLedger, PaymentClass, PaymentStepLedger.Sign::Credit, PaymentStepLedger."Accounting Type"::"Header Payment Account",
+          PaymentStepLedger."Account Type"::"G/L Account", '', PaymentStepLedger.Application::None, LineNo);
+        PaymentStepLedger.Validate("Detail Level", DetailLevel);
+        PaymentStepLedger.Modify(true);
         LibraryVariableStorage.Enqueue(PaymentClass);
         exit(PaymentClass);
     end;
