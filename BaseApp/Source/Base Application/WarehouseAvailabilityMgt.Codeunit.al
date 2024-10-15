@@ -462,6 +462,8 @@ codeunit 7314 "Warehouse Availability Mgt."
                         QtyBlocked += CalcQtyWithBlockedItemTracking();
                 until Next() = 0;
         end;
+
+        OnAfterCalcQtyOnBlockedITOrOnBlockedOutbndBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, QtyBlocked);
     end;
 
     procedure CalcQtyOnOutboundBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; ExcludeDedicatedBinContent: Boolean) QtyOnOutboundBins: Decimal
@@ -726,6 +728,53 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(WhseActivityLine."Qty. Outstanding (Base)" + WarehouseActivityLine."Qty. Outstanding (Base)");
     end;
 
+    procedure CalcQtyAvailToTakeOnWhseWorksheetLine(WhseWorksheetLine: Record "Whse. Worksheet Line") AvailQtyBase: Decimal
+    var
+        Location: Record Location;
+        Item: Record Item;
+        BinContent: Record "Bin Content";
+        TempWhseActivLine: Record "Warehouse Activity Line" temporary;
+        TypeHelper: Codeunit "Type Helper";
+        QtyReservedOnPickShip: Decimal;
+        QtyReservedForCurrLine: Decimal;
+    begin
+        with WhseWorksheetLine do begin
+            AvailQtyBase := 0;
+
+            Location.GetLocationSetup("Location Code", Location);
+            if Location."Directed Put-away and Pick" then
+                exit(0);
+
+            if Item.Get("Item No.") then;
+
+            if Location."Bin Mandatory" then begin
+                BinContent.SetRange("Location Code", "Location Code");
+                BinContent.SetRange("Item No.", "Item No.");
+                BinContent.SetRange("Variant Code", "Variant Code");
+                if BinContent.FindSet() then
+                    repeat
+                        AvailQtyBase += TypeHelper.Maximum(0, BinContent.CalcQtyAvailToPick(0));
+                    until BinContent.Next() = 0;
+
+                Item.SetRange("Location Filter", "Location Code");
+                Item.SetRange("Variant Filter", "Variant Code");
+                Item.CalcFields("Reserved Qty. on Inventory");
+                AvailQtyBase -= Item."Reserved Qty. on Inventory";
+            end else
+                AvailQtyBase := CalcInvtAvailQty(Item, Location, "Variant Code", TempWhseActivLine);
+
+            if Location."Require Pick" then
+                QtyReservedOnPickShip := CalcReservQtyOnPicksShips("Location Code", "Item No.", "Variant Code", TempWhseActivLine);
+
+            QtyReservedForCurrLine :=
+              Abs(
+                CalcLineReservedQtyOnInvt(
+                  "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, TempWhseActivLine));
+
+            AvailQtyBase := AvailQtyBase + QtyReservedOnPickShip + QtyReservedForCurrLine;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyPicked(var Item: Record Item; var QtyPicked: Decimal; Location: Record Location)
     begin
@@ -738,6 +787,11 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyRcvdNotAvailable(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var QtyRcvdNotAvailable: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyOnBlockedITOrOnBlockedOutbndBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyBlocked: Decimal)
     begin
     end;
 

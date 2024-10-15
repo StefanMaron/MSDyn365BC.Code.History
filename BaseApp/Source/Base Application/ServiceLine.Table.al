@@ -56,7 +56,7 @@
                 ClearFields;
 
                 "Currency Code" := ServiceLine."Currency Code";
-                ValidateServiceItemLineNumber(ServiceLine."Service Item Line No.");
+                ValidateServiceItemLineNumber(ServiceLine);
 
                 if Type = Type::Item then begin
                     if ServHeader.WhsePickConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
@@ -2770,8 +2770,6 @@
             exit;
         if not GuiAllowed then
             exit;
-        if Reserve = Reserve::Always then
-            exit;
         if (Type <> Type::Item) or ("No." = '') then
             exit;
         if Quantity <= 0 then
@@ -5040,7 +5038,7 @@
         ServiceLedgerEntry.Modify();
     end;
 
-    local procedure ValidateServiceItemLineNumber(LineNo: Integer)
+    local procedure ValidateServiceItemLineNumber(var ServiceLine: Record "Service Line")
     var
         IsHandled: Boolean;
     begin
@@ -5049,7 +5047,9 @@
         if IsHandled then
             exit;
 
-        Validate("Service Item Line No.", LineNo);
+        Validate("Service Item Line No.", ServiceLine."Service Item Line No.");
+
+        OnAfterValidateServiceItemLineNumber(Rec, ServiceLine);
     end;
 
     local procedure UpdateWithWarehouseShip()
@@ -5557,6 +5557,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateServiceItemLineNumber(var Rec: Record "Service Line"; var ServiceLine: Record "Service Line")
     begin
     end;
 

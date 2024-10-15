@@ -441,6 +441,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     if TempPaymentExportRemittanceText.Next() = 0 then
                                         exit;
                                     RemittanceText2 := TempPaymentExportRemittanceText.Text;
+                                    // there is not text combination like in W1.
                                 end;
                             end;
                         }

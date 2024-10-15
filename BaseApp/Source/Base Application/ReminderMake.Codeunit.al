@@ -226,6 +226,7 @@ codeunit 392 "Reminder-Make"
                             ReminderLine.Type := ReminderLine.Type::"Customer Ledger Entry";
                             ReminderLine.Validate("Entry No.", CustLedgEntryOnHoldTEMP."Entry No.");
                             ReminderLine."No. of Reminders" := 0;
+                            OnMakeReminderOnBeforeOnHoldReminderLineInsert(ReminderLine, ReminderHeader, ReminderLevel, CustLedgEntry, CustLedgEntryOnHoldTEMP);
                             ReminderLine.Insert();
                         until CustLedgEntryOnHoldTEMP.Next() = 0;
                     end;
@@ -270,6 +271,7 @@ codeunit 392 "Reminder-Make"
                 ReminderLine.Type := ReminderLine.Type::"Customer Ledger Entry";
                 ReminderLine.Validate("Entry No.", CustLedgEntry."Entry No.");
                 ReminderLine."No. of Reminders" := 0;
+                OnAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilterOnBeforeReminderLineInsert(ReminderLine, ReminderHeader, ReminderLevel, CustLedgEntry);
                 ReminderLine.Insert();
                 AmountsNotDueLineInserted := true;
                 RemoveNotDueLinesInSectionReminderLine(ReminderLine);
@@ -673,6 +675,16 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeReminderOnBeforeCustLedgEntryFindSet(var CustLedgEntry: Record "Cust. Ledger Entry"; Cust: Record Customer; ReminderHeader: Record "Reminder Header"; MaxReminderLevel: Integer; var OverDueEntriesOnly: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnBeforeOnHoldReminderLineInsert(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header"; ReminderLevel: Record "Reminder Level"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgEntryOnHoldTEMP: Record "Cust. Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilterOnBeforeReminderLineInsert(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header"; ReminderLevel: Record "Reminder Level"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

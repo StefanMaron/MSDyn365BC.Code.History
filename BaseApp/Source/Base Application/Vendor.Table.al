@@ -604,7 +604,13 @@ table 23 Vendor
             Caption = 'VAT Registration No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVATRegistrationNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
                 "VAT Registration No." := UpperCase("VAT Registration No.");
                 if "VAT Registration No." <> xRec."VAT Registration No." then
                     VATRegistrationValidation;
@@ -2672,6 +2678,11 @@ table 23 Vendor
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATRegistrationNo(var Rec: Record "Vendor"; xRec: Record "Vendor"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

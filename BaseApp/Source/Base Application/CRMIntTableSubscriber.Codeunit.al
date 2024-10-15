@@ -535,7 +535,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         ParentCustomerId := SourceFieldRef.Value();
         if not CRMSynchHelper.SetContactParentCompany(ParentCustomerId, DestinationRecordRef) then begin
             Session.LogMessage('0000ECB', StrSubstNo(UpdateContactParentCompanyFailedTxt, ParentCustomerId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            Error(ContactMissingCompanyErr);
+            if not CRMSynchHelper.IsContactBusinessRelationOptional() then
+                Error(ContactMissingCompanyErr);
+            exit;
         end;
         Session.LogMessage('0000ECH', UpdateContactParentCompanySuccessfulTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
@@ -545,6 +547,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
         if IgnoreRecord then
+            exit;
+
+        if CRMSynchHelper.IsContactBusinessRelationOptional() then
             exit;
 
         if CRMSynchHelper.FindContactRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then
@@ -641,13 +646,18 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     var
         CRMContact: Record "CRM Contact";
         ParentCustomerIdFieldRef: FieldRef;
+        AccountId: Guid;
+        Silent: Boolean;
     begin
         if CRMIntegrationManagement.IsCDSIntegrationEnabled() then
             exit;
 
-        // Tranfer the parent company id to the ParentCustomerId
-        ParentCustomerIdFieldRef := DestinationRecordRef.Field(CRMContact.FieldNo(ParentCustomerId));
-        ParentCustomerIdFieldRef.Value := FindParentCRMAccountForContact(SourceRecordRef);
+        Silent := CRMSynchHelper.IsContactBusinessRelationOptional();
+        if FindParentCRMAccountForContact(SourceRecordRef, Silent, AccountId) then begin
+            // Tranfer the parent company id to the ParentCustomerId
+            ParentCustomerIdFieldRef := DestinationRecordRef.Field(CRMContact.FieldNo(ParentCustomerId));
+            ParentCustomerIdFieldRef.Value := AccountId;
+        end;
     end;
 
     local procedure CheckSalesInvoiceLineItemsAreCoupled(SourceRecordRef: RecordRef)
@@ -1293,20 +1303,25 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         exit(true);
     end;
 
-    local procedure FindParentCRMAccountForContact(SourceRecordRef: RecordRef) AccountId: Guid
+    local procedure FindParentCRMAccountForContact(SourceRecordRef: RecordRef; Silent: Boolean; var AccountId: Guid): Boolean
     var
         ContactBusinessRelation: Record "Contact Business Relation";
         Contact: Record Contact;
         Customer: Record Customer;
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        if not CRMSynchHelper.FindContactRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then
+        if CRMSynchHelper.FindContactRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then begin
+            if Customer.Get(ContactBusinessRelation."No.") then begin
+                CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId);
+                exit(true);
+            end;
+            if not Silent then
+                Error(RecordNotFoundErr, Customer.TableCaption(), ContactBusinessRelation."No.");
+            exit(false);
+        end;
+        if not Silent then
             Error(ContactsMustBeRelatedToCompanyErr, SourceRecordRef.Field(Contact.FieldNo("No.")).Value());
-
-        if not Customer.Get(ContactBusinessRelation."No.") then
-            Error(RecordNotFoundErr, Customer.TableCaption(), ContactBusinessRelation."No.");
-
-        CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId);
+        exit(false);
     end;
 
     local procedure FindParentCRMAccountForOpportunity(SourceRecordRef: RecordRef) AccountId: Guid

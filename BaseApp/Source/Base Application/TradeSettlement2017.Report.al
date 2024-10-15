@@ -265,9 +265,6 @@ report 10618 "Trade Settlement 2017"
                         TaxTextStd := OutstandingTaxLbl
                     else
                         TaxTextStd := TaxToPayLbl;
-
-                    if ExportXML then
-                        ExportXMLFile;
                 end;
 
                 trigger OnPreDataItem()
@@ -583,12 +580,12 @@ report 10618 "Trade Settlement 2017"
                                 FileManagement: Codeunit "File Management";
                             begin
                                 ClientFileName :=
-                                  FileManagement.SaveFileDialog(XMLOpenFileDialogCaptionLbl, ClientFileName, FileManagement.GetToFilterText('', '.XML'));
+                                    FileManagement.SaveFileDialog(XMLOpenFileDialogCaptionLbl, ClientFileName, FileManagement.GetToFilterText('', '.XML'));
                             end;
 #else
                             trigger OnAssistEdit()
                             begin
-                                ClientFileName := '';
+                                ClientFileName := XMLFileNameLbl;
                             end;
 #endif
                         }
@@ -616,6 +613,11 @@ report 10618 "Trade Settlement 2017"
     {
     }
 
+    trigger OnInitReport()
+    begin
+        ClientFileName := XMLFileNameLbl;
+    end;
+
     trigger OnPreReport()
     begin
         if EndDate = 0D then
@@ -625,6 +627,12 @@ report 10618 "Trade Settlement 2017"
         VATDateFilter := "VAT Entry".GetFilter("Posting Date");
 
         CopyVATPostingSetupToTempVATPostingSetup;
+    end;
+
+    trigger OnPostReport()
+    begin
+        if ExportXML then
+            ExportXMLFile();
     end;
 
     var
@@ -715,12 +723,14 @@ report 10618 "Trade Settlement 2017"
         Box13_ReverseCharge_Domestic_Lbl: Label '13. Domestic purchases subject to reverse charge, VAT High';
         DomesticDeduction_Lbl: Label 'Deductible domestic input VAT';
         ImportDeduction_Lbl: Label 'Deductible import VAT';
+        [InDataSet]
         ExportXML: Boolean;
         ClientFileName: Text;
         XMLOpenFileDialogCaptionLbl: Label 'Trade Settlement 2017 XML File Name';
         HighLbl: Label ' High';
         MediumLbl: Label ' Medium';
         LowLbl: Label ' Low';
+        XMLFileNameLbl: Label 'Trade Settlement from 2017';
 
     local procedure CalculateStartEnd(VatPeriodNo: Integer; Year: Integer; var StartDate: Date; var EndDate: Date)
     begin
@@ -801,9 +811,9 @@ report 10618 "Trade Settlement 2017"
         TradeSettlement2017.Export;
         ExportFile.Close;
 #if not CLEAN17
-        FileManagement.DownloadToFile(ServerFileName, ClientFileName);
+        FileManagement.DownloadToFile(ServerFileName, FileManagement.CreateFileNameWithExtension(ClientFileName, '.xml'));
 #else
-        FileManagement.DownloadHandler(ServerFileName, '', '', '', ClientFileName);
+        FileManagement.DownloadHandler(ServerFileName, '', '', '', FileManagement.CreateFileNameWithExtension(ClientFileName, '.xml'));
 #endif
     end;
 

@@ -501,8 +501,9 @@ codeunit 139011 "Excel Buffer Test"
         // [SCENARIO 338944] DateTime is read in UTC format, when set SetReadDateTimeInUtc=true
         ExcelBuffer.SetReadDateTimeInUtcDate(true);
         UTCDateTime := ExcelBuffer.ConvertDateTimeDecimalToDateTime(0.91666666666666663);
-        ExpectedDateTime := CreateDateTime(Today, 0T);
-        Assert.AreEqual(Format(DT2Time(ExpectedDateTime)), Format(DT2Time(UTCDateTime)), 'String is not converted correct');
+        // The tests are run on a system with UTC time, so UTC time is the same as local time in the previous test
+        ExpectedDateTime := CreateDateTime(18991230D, 220000T);
+        Assert.AreEqual(ExpectedDateTime, UTCDateTime, 'String is not converted correct');
         ExcelBuffer.SetReadDateTimeInUtcDate(true);
     end;
 
@@ -635,7 +636,7 @@ codeunit 139011 "Excel Buffer Test"
         TempValueNameBuffer: Record "Name/Value Buffer" temporary;
         TempExcelBuffer: Record "Excel Buffer" temporary;
         Base64Convert: Codeunit "Base64 Convert";
-		TempBlob: Codeunit "Temp Blob";
+        TempBlob: Codeunit "Temp Blob";
         OutStream: OutStream;
         ExcelFileStream: InStream;
     begin
@@ -661,7 +662,7 @@ codeunit 139011 "Excel Buffer Test"
     var
         TempExcelBuffer: Record "Excel Buffer" temporary;
         Base64Convert: Codeunit "Base64 Convert";
-		TempBlob: Codeunit "Temp Blob";
+        TempBlob: Codeunit "Temp Blob";
         ExcelFileStream: InStream;
         OutStream: OutStream;
     begin

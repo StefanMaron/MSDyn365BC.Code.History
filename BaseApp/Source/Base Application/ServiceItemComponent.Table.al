@@ -38,40 +38,54 @@ table 5941 "Service Item Component"
 
             trigger OnLookup()
             begin
-                if Type = Type::Item then begin
-                    Item."No." := xRec."No.";
-                    if PAGE.RunModal(0, Item) = ACTION::LookupOK then
-                        Validate("No.", Item."No.");
-                end else begin
-                    ServItem.Get("Parent Service Item No.");
-                    ServItem2.Reset();
-                    ServItem2.SetCurrentKey("Customer No.", "Ship-to Code");
-                    ServItem2.SetRange("Customer No.", ServItem."Customer No.");
-                    ServItem2.SetRange("Ship-to Code", ServItem."Ship-to Code");
-                    ServItem2."No." := "No.";
-                    if PAGE.RunModal(0, ServItem2) = ACTION::LookupOK then
-                        Validate("No.", ServItem2."No.");
+                case Type of
+                    Type::"Service Item":
+                        begin
+                            ServItem.Get("Parent Service Item No.");
+                            ServItem2.Reset();
+                            ServItem2.SetCurrentKey("Customer No.", "Ship-to Code");
+                            ServItem2.SetRange("Customer No.", ServItem."Customer No.");
+                            ServItem2.SetRange("Ship-to Code", ServItem."Ship-to Code");
+                            ServItem2."No." := "No.";
+                            if PAGE.RunModal(0, ServItem2) = ACTION::LookupOK then
+                                Validate("No.", ServItem2."No.");
+                        end;
+                    Type::Item:
+                        begin
+                            Item."No." := xRec."No.";
+                            if PAGE.RunModal(0, Item) = ACTION::LookupOK then
+                                Validate("No.", Item."No.");
+                        end;
+                    else
+                        OnLookupNoOnCaseElse(Rec);
                 end;
             end;
 
             trigger OnValidate()
             begin
                 if "No." <> '' then begin
-                    if Type = Type::"Service Item" then begin
-                        if "No." = "Parent Service Item No." then
-                            Error(
-                              Text000,
-                              Type, "No.", TableCaption, ServItem.TableCaption, "Parent Service Item No.");
-                        ServItem.Get("No.");
-                        "Serial No." := ServItem."Serial No.";
-                        "Variant Code" := ServItem."Variant Code";
-                        Description := ServItem.Description;
-                        "Description 2" := ServItem."Description 2";
-                    end else begin
-                        Item.Get("No.");
-                        "Serial No." := '';
-                        Description := Item.Description;
-                        "Description 2" := Item."Description 2";
+                    case Type of
+                        Type::"Service Item":
+                            begin
+                                if "No." = "Parent Service Item No." then
+                                    Error(
+                                      Text000,
+                                      Type, "No.", TableCaption, ServItem.TableCaption, "Parent Service Item No.");
+                                ServItem.Get("No.");
+                                "Serial No." := ServItem."Serial No.";
+                                "Variant Code" := ServItem."Variant Code";
+                                Description := ServItem.Description;
+                                "Description 2" := ServItem."Description 2";
+                            end;
+                        Type::Item:
+                            begin
+                                Item.Get("No.");
+                                "Serial No." := '';
+                                Description := Item.Description;
+                                "Description 2" := Item."Description 2";
+                            end;
+                        else
+                            OnValidateNoOnCaseElse(Rec);
                     end;
                     "Date Installed" := WorkDate;
                 end else begin
@@ -295,6 +309,16 @@ table 5941 "Service Item Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupVariantCode(var ServiceItemComponent: Record "Service Item Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupNoOnCaseElse(var ServiceItemComponent: Record "Service Item Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnCaseElse(var ServiceItemComponent: Record "Service Item Component")
     begin
     end;
 }

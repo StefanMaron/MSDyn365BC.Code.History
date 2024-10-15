@@ -195,12 +195,18 @@ codeunit 10601 DocumentTools
         GenJnlLineRegRepCode.DeleteAll();
     end;
 
-    procedure IsNorgeSEPACT(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    procedure IsNorgeSEPACT(GenJournalLine: Record "Gen. Journal Line") Result: Boolean
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         BankAccount: Record "Bank Account";
         BankExportImportSetup: Record "Bank Export/Import Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsNorgeSEPACT(GenJournalLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
             if BankAccount.Get(GenJournalBatch."Bal. Account No.") then
                 if BankExportImportSetup.Get(BankAccount."Payment Export Format") then
@@ -221,6 +227,11 @@ codeunit 10601 DocumentTools
             GenJournalLine.Validate("Applies-to Ext. Doc. No.", VendorLedgerEntry."External Document No.");
             GenJournalLine.Validate(KID, VendorLedgerEntry.KID);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsNorgeSEPACT(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

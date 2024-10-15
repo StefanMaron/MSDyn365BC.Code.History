@@ -338,10 +338,16 @@ codeunit 5064 "Email Logging Dispatcher"
         exit(false);
     end;
 
-    local procedure IsMessageToLog(QueueMessage: DotNet IEmailMessage; var SegLine: Record "Segment Line"; var Attachment: Record Attachment): Boolean
+    local procedure IsMessageToLog(QueueMessage: DotNet IEmailMessage; var SegLine: Record "Segment Line"; var Attachment: Record Attachment) Result: Boolean
     var
         Sender: DotNet IEmailAddress;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsMessageToLog(SegLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if QueueMessage.IsSensitive then begin
             Session.LogMessage('0000BWA', MessageNotForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
@@ -799,6 +805,11 @@ codeunit 5064 "Email Logging Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertInteractionLogEntry()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsMessageToLog(var SegmentLine: Record "Segment Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

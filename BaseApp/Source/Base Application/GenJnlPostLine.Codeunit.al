@@ -808,9 +808,7 @@
             InitGLEntry(GenJnlLine, GLEntry,
               "Account No.", "Amount (LCY)",
               "Source Currency Amount", true, "System-Created Entry");
-            if not "System-Created Entry" then
-                if "Posting Date" = NormalDate("Posting Date") then
-                    GLAcc.TestField("Direct Posting", true);
+            CheckGLAccDirectPosting(GenJnlLine, GLAcc);
             if GLAcc."Omit Default Descr. in Jnl." then
                 if DelChr(Description, '=', ' ') = '' then
                     Error(
@@ -2754,6 +2752,7 @@
         PmtTolAmtToBeApplied: Decimal;
         AllApplied: Boolean;
         IsAmountToApplyCheckHandled: Boolean;
+        ShouldUpdateCalcInterest: Boolean;
     begin
         OnBeforeApplyCustLedgEntry(NewCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, Cust, IsAmountToApplyCheckHandled);
         if not IsAmountToApplyCheckHandled then
@@ -2791,7 +2790,9 @@
               GenJnlLine, DtldCVLedgEntryBuf, OldCVLedgEntryBuf, NewCVLedgEntryBuf, NewCVLedgEntryBuf2,
               Cust."Block Payment Tolerance", AllApplied, AppliedAmount, PmtTolAmtToBeApplied);
 
-            if not OldCVLedgEntryBuf.Open then begin
+            ShouldUpdateCalcInterest := not OldCVLedgEntryBuf.Open;
+            OnApplyCustLedgEntryOnAfterCalcShouldUpdateCalcInterestFromOldBuf(OldCVLedgEntryBuf, NewCVLedgEntryBuf, Cust, ShouldUpdateCalcInterest);
+            if ShouldUpdateCalcInterest then begin
                 UpdateCalcInterest(OldCVLedgEntryBuf);
                 UpdateCalcInterest(OldCVLedgEntryBuf, NewCVLedgEntryBuf);
             end;
@@ -2846,7 +2847,9 @@
         NewCVLedgEntryBuf."Applies-to ID" := '';
         NewCVLedgEntryBuf."Amount to Apply" := 0;
 
-        if not NewCVLedgEntryBuf.Open then
+        ShouldUpdateCalcInterest := not NewCVLedgEntryBuf.Open;
+        OnApplyCustLedgEntryOnAfterCalcShouldUpdateCalcInterestFromNewBuf(OldCVLedgEntryBuf, NewCVLedgEntryBuf, Cust, ShouldUpdateCalcInterest);
+        if ShouldUpdateCalcInterest then
             UpdateCalcInterest(NewCVLedgEntryBuf);
 
         if GLSetup."Unrealized VAT" or
@@ -4867,7 +4870,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostUnapply(GenJnlLine, VATEntry, VATEntryType, BilltoPaytoNo, TransactionNo, UnapplyVATEntries, TempVATEntry, IsHandled);
+        OnBeforePostUnapply(GenJnlLine, VATEntry, VATEntryType, BilltoPaytoNo, TransactionNo, UnapplyVATEntries, TempVATEntry, IsHandled, NextVATEntryNo);
         if IsHandled then
             exit;
 
@@ -5610,6 +5613,20 @@
         Error(DimMgt.GetDimValuePostingErr);
     end;
 
+    local procedure CheckGLAccDirectPosting(GenJnlLine: Record "Gen. Journal Line"; GLAcc: Record "G/L Account")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGLAccDirectPosting(GenJnlLine, GLAcc, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not GenJnlLine."System-Created Entry" then
+            if GenJnlLine."Posting Date" = NormalDate(GenJnlLine."Posting Date") then
+                GLAcc.TestField("Direct Posting", true);
+    end;
+
     local procedure CalculateCurrentBalance(AccountNo: Code[20]; BalAccountNo: Code[20]; InclVATAmount: Boolean; AmountLCY: Decimal; VATAmount: Decimal)
     begin
         if (AccountNo <> '') and (BalAccountNo <> '') then
@@ -6243,13 +6260,18 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCode(var GenJnlLine: Record "Gen. Journal Line"; CheckLine: Boolean; var IsPosted: Boolean; var GLReg: Record "G/L Register")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGLAccDimError(var GenJournalLine: Record "Gen. Journal Line"; GLAccNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLAccDirectPosting(var GenJournalLine: Record "Gen. Journal Line"; GLAcc: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6891,7 +6913,7 @@
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostUnapply(GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry";
         VATEntryType: Enum "General Posting Type"; BilltoPaytoNo: Code[20]; TransactionNo: Integer; UnapplyVATEntries: Boolean;
-        var TempVATEntry: Record "VAT Entry" temporary; var IsHandled: Boolean)
+        var TempVATEntry: Record "VAT Entry" temporary; var IsHandled: Boolean; var NextVATEntryNo: Integer)
     begin
     end;
 
@@ -6936,6 +6958,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyCustLedgEntryOnAfterCalcShouldUpdateCalcInterestFromOldBuf(var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; Cust: Record Customer; var ShouldUpdateCalcInterest: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustLedgEntryOnAfterCalcShouldUpdateCalcInterestFromNewBuf(var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; Cust: Record Customer; var ShouldUpdateCalcInterest: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyCustLedgEntryOnBeforePrepareTempCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var NewCVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var NextEntryNo: Integer)
     begin
     end;
@@ -6960,7 +6992,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCreateGLEntryForTotalAmountsForInvPostBuf(var GenJnlLine: Record "Gen. Journal Line"; InvPostBuf: Record "Invoice Post. Buffer"; var GLAccNo: Code[20])
     begin
     end;

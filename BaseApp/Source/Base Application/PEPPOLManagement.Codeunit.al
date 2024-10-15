@@ -348,6 +348,8 @@
             CustContactTelefax := Customer."Telex No.";
             CustContactElectronicMail := Customer."E-Mail";
         end;
+
+        OnAfterGetAccountingCustomerPartyContact(SalesHeader, Customer, CustContactID, CustContactName, CustContactTelephone, CustContactTelefax, CustContactElectronicMail);
     end;
 
     procedure GetPayeePartyInfo(var PayeePartyID: Text; var PayeePartyIDSchemeID: Text; var PayeePartyNameName: Text; var PayeePartyLegalEntityCompanyID: Text; var PayeePartyLegalCompIDSchemeID: Text)
@@ -456,6 +458,8 @@
         FinancialInstitutionID := DelChr(CompanyInfo."SWIFT Code", '=', ' ');
         FinancialInstitutionSchemeID := BICTxt;
         FinancialInstitutionName := CompanyInfo."Bank Name";
+
+        OnAfterGetPaymentMeansPayeeFinancialAcc(CompanyInfo, PayeeFinancialAccountID, PaymentMeansSchemeID);
     end;
 
     procedure GetPaymentMeansPayeeFinancialAccBIS(var PayeeFinancialAccountID: Text; var FinancialInstitutionBranchID: Text)
@@ -1456,6 +1460,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAccountingCustomerPartyContact(SalesHeader: Record "Sales Header"; Customer: Record Customer; var CustContactID: Text; var CustContactName: Text; var CustContactTelephone: Text; var CustContactTelefax: Text; var CustContactElectronicMail: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetAdditionalDocRefInfo(var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; SalesHeader: Record "Sales Header")
     begin
     end;
@@ -1482,6 +1491,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetOrderReferenceInfo(SalesHeader: Record "Sales Header"; var OrderReferenceID: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPaymentMeansPayeeFinancialAcc(CompanyInfo: Record "Company Information"; var PayeeFinancialAccountID: Text; var FinancialInstitutionBranchID: Text)
     begin
     end;
 
