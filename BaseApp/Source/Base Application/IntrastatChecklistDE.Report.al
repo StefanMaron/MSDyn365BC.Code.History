@@ -274,6 +274,12 @@ report 11013 "Intrastat - Checklist DE"
                 column(NoOfRecords_Control1140075Caption; NoOfRecords_Control1140075CaptionLbl)
                 {
                 }
+                column(Intrastat_Jnl_Line_Partner_VAT_ID; "Partner VAT ID")
+                {
+                }
+                column(Intrastat_Jnl_Line_Partner_VAT_ID_Caption; PartnerVATIDLbl)
+                {
+                }
 
                 trigger OnAfterGetRecord()
                 begin
@@ -297,11 +303,20 @@ report 11013 "Intrastat - Checklist DE"
                     TestField(Area);
                     if CompanyInfo."Check Transaction Specific." then
                         TestField("Transaction Specification");
+
+                    OriginCountryIntrastatCode := '';
                     if Type = Type::Receipt then begin
                         TestField("Country/Region of Origin Code");
                         OriginCountryIntrastatCode := IntrastatExportMgtDACH.GetOriginCountryCode("Country/Region of Origin Code");
-                    end else
-                        OriginCountryIntrastatCode := '';
+                    end else begin
+                        if CompanyInfo."Check for Partner VAT ID" then
+                            TestField("Partner VAT ID");
+                        if CompanyInfo."Check for Country of Origin" then
+                            TestField("Country/Region of Origin Code");
+                        if "Country/Region of Origin Code" <> '' then
+                            OriginCountryIntrastatCode := IntrastatExportMgtDACH.GetOriginCountryCode("Country/Region of Origin Code");
+                    end;
+
                     if "Supplementary Units" then
                         TestField(Quantity);
 
@@ -431,14 +446,15 @@ report 11013 "Intrastat - Checklist DE"
         Intrastat_Jnl__Line__Transaction_Type__Control1140051CaptionLbl: Label 'Transaction Type';
         Intrastat_Jnl__Line__Transport_Method__Control1140052CaptionLbl: Label 'Transport Method';
         Intrastat_Jnl__Line__Total_Weight__Control1140053CaptionLbl: Label 'Total Weight';
-        Country_of_Origin_CodeCaptionLbl: Label 'Country of Origin Code';
+        Country_of_Origin_CodeCaptionLbl: Label 'Country of Origin';
         Country_CodeCaptionLbl: Label 'Country Code';
         Country__Intrastat_Code_CaptionLbl: Label 'Country Code';
-        Country_of_Origin_CodeCaption_Control1140043Lbl: Label 'Country of Origin Code';
+        Country_of_Origin_CodeCaption_Control1140043Lbl: Label 'Country of Origin';
         SumTotalWeightCaptionLbl: Label 'Total';
         No__of_EntriesCaptionLbl: Label 'No. of Entries';
         TotalCaptionLbl: Label 'Total';
         TotalCaption_Control1140070Lbl: Label 'Total';
         NoOfRecords_Control1140075CaptionLbl: Label 'No. of Entries';
+        PartnerVATIDLbl: Label 'Partner VAT ID';
 }
 

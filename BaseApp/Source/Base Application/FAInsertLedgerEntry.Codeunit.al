@@ -82,11 +82,6 @@ codeunit 5600 "FA Insert Ledger Entry"
         then
             CheckFADocNo(FALedgEntry);
         FALedgEntry.Insert(true);
-        if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then begin
-            TempFALedgerEntryReverse := FALedgEntry;
-            TempFALedgerEntryReverse.Insert;
-            ReverseFALedgerEntryAmounts(FALedgEntry);
-        end;
 
         if ErrorEntryNo > 0 then begin
             if not FALedgEntry2.Get(ErrorEntryNo) then
@@ -515,18 +510,18 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Reverted FA Disposal Entries sign', '19.0')]
     procedure FinalizeInsertFA()
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        if TempFALedgerEntryReverse.FindSet then begin
+        if TempFALedgerEntryReverse.FindSet() then begin
             repeat
                 FALedgerEntry.Get(TempFALedgerEntryReverse."Entry No.");
                 ReverseFALedgerEntryAmounts(FALedgerEntry);
-                FALedgerEntry.Modify;
-            until TempFALedgerEntryReverse.Next = 0;
-            TempFALedgerEntryReverse.DeleteAll;
+                FALedgerEntry.Modify();
+            until TempFALedgerEntryReverse.Next() = 0;
+            TempFALedgerEntryReverse.DeleteAll();
         end;
     end;
 
@@ -606,7 +601,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         GLRegisterNo := NewGLRegisterNo;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Reverted FA Disposal Entries sign', '19.0')]
     procedure ReverseFALedgerEntryAmounts(var FALedgerEntry: Record "FA Ledger Entry")
     begin
         FALedgerEntry.Amount := -FALedgerEntry.Amount;
