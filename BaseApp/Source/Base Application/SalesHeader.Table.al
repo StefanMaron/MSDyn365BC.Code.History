@@ -2955,8 +2955,6 @@ table 36 "Sales Header"
     end;
 
     trigger OnInsert()
-    var
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         InitInsert;
         InsertMode := true;
@@ -2970,7 +2968,7 @@ table 36 "Sales Header"
             SetDefaultSalesperson;
 
         if "Sell-to Customer No." <> '' then
-            StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+            StandardCodesMgtGlobal.CheckCreateSalesRecurringLines(Rec);
 
         // Remove view filters so that the cards does not show filtered view notification
         SetView('');
@@ -3049,6 +3047,7 @@ table 36 "Sales Header"
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         PostingSetupMgt: Codeunit PostingSetupManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         CurrencyDate: Date;
         Confirmed: Boolean;
@@ -3246,6 +3245,11 @@ table 36 "Sales Header"
             exit;
 
         "Posting Description" := Format("Document Type") + ' ' + "No.";
+    end;
+
+    procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
+    begin
+        StandardCodesMgtGlobal := StandardCodesMgtNew;
     end;
 
     procedure AssistEdit(OldSalesHeader: Record "Sales Header") Result: Boolean

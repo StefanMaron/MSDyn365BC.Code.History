@@ -930,6 +930,7 @@ table 5740 "Transfer Header"
                             TempTransferLine := TransferLine;
                             TransferLine.Validate("Item No.", TempTransferLine."Item No.");
                             TransferLine.Validate("Variant Code", TempTransferLine."Variant Code");
+                            TransferLine.Validate("Dimension Set ID", TempTransferLine."Dimension Set ID");
                         end;
                     else
                         OnUpdateTransLines(TransferLine, TransferHeader, FieldID);

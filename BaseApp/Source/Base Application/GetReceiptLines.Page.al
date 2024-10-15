@@ -159,6 +159,13 @@ page 5709 "Get Receipt Lines"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the referenced item number.';
                 }
+                field("Pay-to Vendor No."; "Pay-to Vendor No.")
+                {
+                    Caption = 'Pay-to Vendor No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
