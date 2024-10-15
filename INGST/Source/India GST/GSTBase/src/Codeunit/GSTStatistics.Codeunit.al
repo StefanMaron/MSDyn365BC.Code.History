@@ -166,8 +166,10 @@ codeunit 18006 "GST Statistics"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calculate Statistics", 'OnGetPurchaseHeaderGSTAmount', '', false, false)]
     local procedure OnGetPurchaseHeaderGSTAmount(PurchaseHeader: Record "Purchase Header"; var GSTAmount: Decimal)
+    var
+        GSTStatsManagement: Codeunit "GST Stats Management";
     begin
-        GetPurchaseStatisticsAmountExcludingChargeItem(PurchaseHeader, GSTAmount);
+        GSTAmount := GSTStatsManagement.GetGstStatsAmount();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calculate Statistics", 'OnGetPurchInvHeaderGSTAmount', '', false, false)]

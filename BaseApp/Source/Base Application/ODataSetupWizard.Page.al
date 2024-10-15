@@ -459,11 +459,11 @@ page 6711 "OData Setup Wizard"
                     if (ActionType = ActionType::"Create a new data set") or (ActionType = ActionType::"Create a copy of an existing data set") then begin
                         if not TenantWebService.Get(ObjectTypeLookup, ServiceNameEdit) then
                             Error(ServiceNotFoundErr);
-                        EditinExcel.GenerateExcelWorkBook(TenantWebService, '');
+                        EditinExcel.GenerateExcelWorkBook(TenantWebService, EditinExcelFilters);
                     end else begin
                         if not TenantWebService.Get(ObjectTypeLookup, ServiceNameLookup) then
                             Error(ServiceNotFoundErr);
-                        EditinExcel.GenerateExcelWorkBook(TenantWebService, '');
+                        EditinExcel.GenerateExcelWorkBook(TenantWebService, EditinExcelFilters);
                     end;
                 end;
             }
@@ -500,6 +500,7 @@ page 6711 "OData Setup Wizard"
         MediaResourcesDone: Record "Media Resources";
         TempTenantWebServiceColumns: Record "Tenant Web Service Columns" temporary;
         TempTenantWebServiceFilter: Record "Tenant Web Service Filter" temporary;
+        EditinExcelFilters: Codeunit "Edit in Excel Filters";
         ClientTypeManagement: Codeunit "Client Type Management";
         CurrentPage: Integer;
         PublishFlag: Boolean;
@@ -629,6 +630,9 @@ page 6711 "OData Setup Wizard"
                 TempTenantWebServiceFilter."Data Item" := keyValuePair.Key;
                 TempTenantWebServiceFilter.TenantWebServiceID := RecordId;
                 WebServiceManagement.SetTenantWebServiceFilter(TempTenantWebServiceFilter, FilterText);
+
+                UpdateEditInExcelFilters(AllObjWithCaption, FilterText);
+
                 repeat
                     TempTenantWebServiceFilter."Entry ID" := TempTenantWebServiceFilter."Entry ID" + 1;
                 until TempTenantWebServiceFilter.Insert(true);
@@ -636,6 +640,100 @@ page 6711 "OData Setup Wizard"
             exit(true);
         end;
         exit(false);
+    end;
+
+    local procedure UpdateEditInExcelFilters(AllObjWithCaption: Record AllObjWithCaption; FilterText: Text)
+    var
+        ODataUtility: Codeunit ODataUtility;
+        RecordRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldIndex: Integer;
+        TotalFields: Integer;
+        FilterValueEnglish: Text;
+        FilterEDMValue: Text;
+        FilterEDMType: Enum "Edit in Excel Edm Type";
+        FieldName: Text;
+        FilterType: Enum "Edit in Excel Filter Type";
+        PreviousGlobalLanguage: Integer;
+        EnglishLanguage: Integer;
+    begin
+        clear(EditinExcelFilters);
+        RecordRef.Open(AllObjWithCaption."Object ID");
+        RecordRef.SetView(FilterText);
+        TotalFields := RecordRef.FIELDCOUNT;
+
+        for FieldIndex := 1 to TotalFields do begin
+            FieldRef := RecordRef.FieldIndex(FieldIndex);
+
+            PreviousGlobalLanguage := GlobalLanguage();
+            // Retrieve filters in English-US for ease of processing
+            EnglishLanguage := 1033;
+            GlobalLanguage(EnglishLanguage);
+            FilterValueEnglish := FieldRef.GetFilter();
+            GlobalLanguage(PreviousGlobalLanguage);
+
+            if FilterValueEnglish <> '' then
+                if IsFilterRange(FieldRef) then
+                    if IsFilterRangeSingleValue(FieldRef) then begin
+                        FieldName := ODataUtility.ExternalizeName(FieldRef.Name);
+                        FilterEDMType := ConvertFieldTypeToEdmType(FieldRef.Type);
+                        FilterType := Enum::"Edit in Excel Filter Type"::Equal;
+                        FilterEDMValue := ConvertToEDMValue(FilterValueEnglish, FilterEDMType);
+                        EditinExcelFilters.AddField(FieldName, FilterType, FilterEDMValue, FilterEDMType);
+                    end
+        end
+    end;
+
+    local procedure ConvertToEDMValue(FilterValue: Text; EDMType: Enum "Edit in Excel Edm Type"): Text
+    var
+        FilterEDMValue: Text;
+    begin
+        FilterEDMValue := FilterValue;
+        case EDMType of
+            Enum::"Edit in Excel Edm Type"::"Edm.Boolean":
+                if FilterValue = 'Yes' then
+                    FilterEDMValue := 'true'
+                else
+                    FilterEDMValue := 'false';
+        end;
+        exit(FilterEDMValue)
+    end;
+
+    [TryFunction]
+    local procedure IsFilterRange(FieldRef: FieldRef)
+    var
+        TempRange: Text;
+    begin
+        TempRange := FieldRef.GetRangeMax();
+    end;
+
+    local procedure IsFilterRangeSingleValue(FieldRef: FieldRef): Boolean
+    begin
+        exit(FieldRef.GetRangeMin() = FieldRef.GetRangeMax())
+    end;
+
+    procedure ConvertFieldTypeToEdmType(FieldType: FieldType): Enum "Edit in Excel Edm Type";
+    var
+        EdmType: Enum "Edit in Excel Edm Type";
+    begin
+        case FieldType of
+            FieldType::Text, FieldType::Code, FieldType::Guid, FieldType::Option:
+                EdmType := Enum::"Edit in Excel Edm Type"::"Edm.String";
+            FieldType::Integer:
+                EdmType := Enum::"Edit in Excel Edm Type"::"Edm.Int32";
+            FieldType::BigInteger:
+                EdmType := Enum::"Edit in Excel Edm Type"::"Edm.Int64";
+            FieldType::Decimal:
+                EdmType := Enum::"Edit in Excel Edm Type"::"Edm.Decimal";
+            FieldType::DateTime, FieldType::Date:
+                EdmType := Enum::"Edit in Excel Edm Type"::"Edm.DateTimeOffset";
+            FieldType::Boolean:
+                EdmType := Enum::"Edit in Excel Edm Type"::"Edm.Boolean";
+            else
+                EdmType := Enum::"Edit in Excel Edm Type"::"Edm.String";
+        end;
+
+        exit(EdmType);
     end;
 
     local procedure LoadTopBanners()

@@ -393,7 +393,7 @@ report 1308 "Standard Sales - Shipment"
             column(NoCaption; NoCaptionLbl)
             {
             }
-            column(ShowLotSN;ShowLotSN)
+            column(ShowLotSN; ShowLotSN)
             {
             }
             dataitem(Line; "Sales Shipment Line")
@@ -705,6 +705,8 @@ report 1308 "Standard Sales - Shipment"
 
                 if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales Shpt.-Printed", Header);
+
+                OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(IsReportInPreviewMode(), Header);
 
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
@@ -1141,6 +1143,11 @@ report 1308 "Standard Sales - Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFormatDocumentFields(var SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(ReportInPreviewMode: Boolean; var SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 }

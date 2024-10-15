@@ -16,7 +16,7 @@ query 18031 GSTR1NonGSTExemp
             {
                 SqlJoinType = InnerJoin;
                 DataItemLink = "Document No." = Sales_Invoice_Header."No.";
-                DataItemTableFilter = "Line No." = filter(= 10000);
+                DataItemTableFilter = "GST Group Code" = filter(= '');
 
                 column(GST_Group_Code; "GST Group Code")
                 {

@@ -67,6 +67,9 @@ codeunit 18438 "GST Item Charge Subscribers"
         GSTAmountLoaded: Decimal;
     begin
         GSTAmountLoaded := GetItemChargeGSTAmount(PurchaseLine);
+        if TempItemChargeAssgntPurch."Document Type" in [TempItemChargeAssgntPurch."Document Type"::"Credit Memo", TempItemChargeAssgntPurch."Document Type"::"Return Order"] then
+            GSTAmountLoaded := -1 * GSTAmountLoaded;
+
         GSTApplicationSessionMgt.SetGSTAmountLoaded(GSTAmountLoaded * TempItemChargeAssgntPurch."Qty. to Assign");
     end;
 

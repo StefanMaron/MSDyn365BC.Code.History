@@ -98,6 +98,10 @@ codeunit 18251 "GST Purchase Non Availment"
         QuantityFactor: Decimal;
         CustomDutyAmount: Decimal;
     begin
+        if (PurchaseLine.Type = PurchaseLine.Type::"Charge (Item)") and
+            (PurchaseLine."GST Credit" = PurchaseLine."GST Credit"::"Non-Availment") then
+            exit;
+
         PurchLineGSTAmount := GSTCalculatedAmount(PurchaseLine);
         if PurchLineGSTAmount = 0 then
             exit;

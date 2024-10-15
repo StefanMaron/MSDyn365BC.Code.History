@@ -26,7 +26,6 @@ codeunit 18080 "GST Purchase Subscribers"
         OrderAddGSTARNErr: Label ' Either GST Registration No. or ARN No. should have a value.';
         PANVendErr: Label 'PAN No. must be entered in Vendor.';
         GSTRegNoErr: Label 'You cannot select GST Reg. No. for selected Vendor Type.';
-        GSTAssessableErr: Label 'GST Assessable Value must have a value in Purchase Line Document Type %1 and Document No %2.', Comment = '%1 = Document Type , %2 = Document No.';
         IGSTAggTurnoverErr: Label 'Interstate transaction cannot be calculated against Unregistered Vendor whose aggregate turnover is more than 20 Lakhs.';
         POSasGSTGroupRevChargeErr: Label 'POS as Vendor State is not applicable for Reverse Charge';
         GSTUnregisteredNotAppErr: Label 'GST is not applicable for Unregistered Vendors.';
@@ -1395,7 +1394,6 @@ codeunit 18080 "GST Purchase Subscribers"
     local procedure CheckBillOfEntry(var PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
-        Location: Record Location;
     begin
         if not (PurchaseHeader."GST Vendor Type" in [PurchaseHeader."GST Vendor Type"::Import, PurchaseHeader."GST Vendor Type"::SEZ]) then
             exit;
@@ -1403,19 +1401,6 @@ codeunit 18080 "GST Purchase Subscribers"
         if not (PurchaseHeader."Document Type" in ["Document Type Enum"::Order, "Document Type Enum"::Invoice]) then
             exit;
 
-        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.SetFilter("GST Group Type", '%1', PurchaseLine."GST Group Type"::Goods);
-        PurchaseLine.SetFilter(Type, '<>%1&<>%2', PurchaseLine.Type::" ", PurchaseLine.Type::"Charge (Item)");
-        PurchaseLine.SetFilter("GST Group Code", '<>%1', '');
-        PurchaseLine.SetFilter("GST Assessable Value", '%1', 0);
-        PurchaseLine.SetFilter("Qty. to Receive", '<>%1', 0);
-        if PurchaseLine.FindSet() then
-            repeat
-                if Location.Get(PurchaseLine."Location Code") then
-                    if not Location.IsBondedWarehouse(Location.Code) then
-                        Error(GSTAssessableErr, PurchaseHeader."Document Type", PurchaseHeader."No.");
-            until PurchaseLine.Next() = 0;
 
         if PurchaseHeader."Without Bill Of Entry" then
             exit;

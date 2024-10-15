@@ -199,6 +199,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         GetPriceLine: Page "Get Price Line";
         AmountType: Enum "Price Amount Type";
     begin
+        OnBeforeShowPrices(TempPriceListLine, CurrLineWithPrice);
+
         if not TempPriceListLine.IsEmpty() then begin
             GetPriceLine.SetForLookup(CurrLineWithPrice, AmountType::Price, TempPriceListLine);
             GetPriceLine.RunModal();
@@ -333,7 +335,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         PriceCalculationBufferMgt.SetFiltersOnPriceListLine(PriceListLine, AmountType, ShowAll);
         PriceCalculationBufferMgt.GetAssets(PriceAssetList);
         PriceCalculationBufferMgt.GetSources(PriceSourceList);
-        OnFindLinesOnBefoerPriceSourceListGetMinMaxLevel(PriceAssetList, PriceSourceList, AmountType, PriceCalculationBufferMgt);
+        OnFindLinesOnBefoerPriceSourceListGetMinMaxLevel(PriceAssetList, PriceSourceList, AmountType, PriceCalculationBufferMgt, ShowAll);
         PriceSourceList.GetMinMaxLevel(Level);
         for CurrLevel := Level[2] downto Level[1] do
             if not FoundLines then
@@ -469,7 +471,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindLinesOnBefoerPriceSourceListGetMinMaxLevel(var PriceAssetList: Codeunit "Price Asset List"; var PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.")
+    local procedure OnFindLinesOnBefoerPriceSourceListGetMinMaxLevel(var PriceAssetList: Codeunit "Price Asset List"; var PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; ShowAll: Boolean)
     begin
     end;
 
@@ -480,6 +482,11 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindLines(AmountType: Enum "Price Amount Type"; var TempPriceListLine: Record "Price List Line" temporary; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; ShowAll: Boolean; var FoundLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPrices(var TempPriceListLine: Record "Price List Line"; LineWithPrice: Interface "Line With Price")
     begin
     end;
 }

@@ -1188,6 +1188,7 @@ codeunit 18433 "GST Application Library"
         DetailedGSTLedgerEntry.SetRange("Source No.", CVNo);
         DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
         DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
+        DetailedGSTLedgerEntry.SetRange("GST Group Type", DetailedGSTLedgerEntry."GST Group Type"::Service);
         DetailedGSTLedgerEntry.SetRange("Associated Enterprises", false);
         exit(not DetailedGSTLedgerEntry.IsEmpty());
     end;
@@ -1755,7 +1756,6 @@ codeunit 18433 "GST Application Library"
     begin
         GSTApplicationBufferFinal.SetRange("Transaction Type", GSTApplicationBufferStage."Transaction Type");
         GSTApplicationBufferFinal.SetRange("Account No.", GSTApplicationBufferStage."Account No.");
-        GSTApplicationBufferFinal.SetRange("Transaction No.", GSTApplicationBufferStage."Transaction No.");
         GSTApplicationBufferFinal.SetRange("Original Document Type", GSTApplicationBufferStage."Original Document Type");
         GSTApplicationBufferFinal.SetRange("Original Document No.", GSTApplicationBufferStage."Original Document No.");
         GSTApplicationBufferFinal.SetRange("GST Group Code", GSTApplicationBufferStage."GST Group Code");

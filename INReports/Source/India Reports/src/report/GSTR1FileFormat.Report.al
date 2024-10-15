@@ -1418,7 +1418,6 @@ report 18049 "GSTR-1 File Format"
             "GST Customer Type"::"SEZ Development",
             "GST Customer Type"::"SEZ Unit",
             "GST Customer Type"::Registered);
-        GSTR1EXEMPQuery.SetFilter(GST__, '=%1', 0);
         GSTR1EXEMPQuery.SetFilter(GST_Jurisdiction_Type, '%1', "GST Jurisdiction Type"::Interstate);
         GSTR1EXEMPQuery.Open();
         while GSTR1EXEMPQuery.Read() do
@@ -1433,6 +1432,7 @@ report 18049 "GSTR-1 File Format"
     local procedure GetExmpNonGSTInterRegAmt()
     var
         GSTR1NonGSTExemp: Query GSTR1NonGSTExemp;
+        GSTR1NonGSTExempCrMemo: Query GSTR1NonGSTExempCrMemo;
     begin
         GSTR1NonGSTExemp.SetRange(Location_GST_Reg__No_, LocationGSTIN);
         GSTR1NonGSTExemp.SetRange(Posting_Date, StartDate, EndDate);
@@ -1450,11 +1450,29 @@ report 18049 "GSTR-1 File Format"
         GSTR1NonGSTExemp.Open();
         while GSTR1NonGSTExemp.Read() do
             ExempNonGSTIntraRegAmt += Abs(GSTR1NonGSTExemp.Amount);
+
+        GSTR1NonGSTExempCrMemo.SetRange(Location_GST_Reg__No_, LocationGSTIN);
+        GSTR1NonGSTExempCrMemo.SetRange(Posting_Date, StartDate, EndDate);
+        GSTR1NonGSTExempCrMemo.SetFilter(GST_Customer_Type, '%1|%2|%3|%4',
+            "GST Customer Type"::"Deemed Export",
+            "GST Customer Type"::"SEZ Development",
+            "GST Customer Type"::"SEZ Unit",
+            "GST Customer Type"::Registered);
+        GSTR1NonGSTExempCrMemo.SetFilter(GST_Jurisdiction_Type, '%1', "GST Jurisdiction Type"::Interstate);
+        GSTR1NonGSTExempCrMemo.Open();
+        while GSTR1NonGSTExempCrMemo.Read() do
+            ExempNonGSTInterRegAmt -= Abs(GSTR1NonGSTExempCrMemo.Amount);
+
+        GSTR1NonGSTExempCrMemo.SetFilter(GST_Jurisdiction_Type, '%1', "GST Jurisdiction Type"::Intrastate);
+        GSTR1NonGSTExempCrMemo.Open();
+        while GSTR1NonGSTExempCrMemo.Read() do
+            ExempNonGSTIntraRegAmt -= Abs(GSTR1NonGSTExempCrMemo.Amount);
     end;
 
     local procedure GetExmpNonGSTInterUnRegAmt()
     var
         GSTR1NonGSTExemp: Query GSTR1NonGSTExemp;
+        GSTR1NonGSTExempCrMemo: Query GSTR1NonGSTExempCrMemo;
     begin
         GSTR1NonGSTExemp.SetRange(Location_GST_Reg__No_, LocationGSTIN);
         GSTR1NonGSTExemp.SetRange(Posting_Date, StartDate, EndDate);
@@ -1470,6 +1488,21 @@ report 18049 "GSTR-1 File Format"
         GSTR1NonGSTExemp.Open();
         while GSTR1NonGSTExemp.Read() do
             ExempNonGSTIntraUnRegAmt += Abs(GSTR1NonGSTExemp.Amount);
+
+        GSTR1NonGSTExempCrMemo.SetRange(Location_GST_Reg__No_, LocationGSTIN);
+        GSTR1NonGSTExempCrMemo.SetRange(Posting_Date, StartDate, EndDate);
+        GSTR1NonGSTExempCrMemo.SetFilter(GST_Customer_Type, '%1|%2',
+            "GST Customer Type"::Unregistered,
+            "GST Customer Type"::Export);
+        GSTR1NonGSTExempCrMemo.SetFilter(GST_Jurisdiction_Type, '%1', "GST Jurisdiction Type"::Interstate);
+        GSTR1NonGSTExempCrMemo.Open();
+        while GSTR1NonGSTExempCrMemo.Read() do
+            ExempNonGSTInterUnRegAmt -= Abs(GSTR1NonGSTExempCrMemo.Amount);
+
+        GSTR1NonGSTExempCrMemo.SetFilter(GST_Jurisdiction_Type, '%1', "GST Jurisdiction Type"::Intrastate);
+        GSTR1NonGSTExempCrMemo.Open();
+        while GSTR1NonGSTExempCrMemo.Read() do
+            ExempNonGSTIntraUnRegAmt -= Abs(GSTR1NonGSTExempCrMemo.Amount);
     end;
 
     local procedure GetExmpIntraInterUnRegAmount()
@@ -1485,7 +1518,6 @@ report 18049 "GSTR-1 File Format"
         GSTR1EXEMPQuery.SetFilter(GST_Customer_Type, '%1|%2',
             "GST Customer Type"::Unregistered,
             "GST Customer Type"::Export);
-        GSTR1EXEMPQuery.SetFilter(GST__, '=%1', 0);
         GSTR1EXEMPQuery.SetFilter(GST_Jurisdiction_Type, '%1', "GST Jurisdiction Type"::Intrastate);
         GSTR1EXEMPQuery.Open();
         if GSTR1EXEMPQuery.Read() then

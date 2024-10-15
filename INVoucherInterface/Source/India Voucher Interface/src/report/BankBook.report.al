@@ -428,10 +428,10 @@ report 18930 "Bank Book"
                       "Global Dimension 2 Code", "Posting Date");
                     BankAccountLedgerEntry.SetRange("Bank Account No.", "No.");
                     BankAccountLedgerEntry.SetFilter("Posting Date", '%1..%2', 0D, NormalDate(GetRangeMin("Date Filter")) - 1);
-                    if "Global Dimension 1 Filter" <> '' then
-                        BankAccountLedgerEntry.SetFilter("Global Dimension 1 Code", "Global Dimension 1 Filter");
+                    if GetFilter("Global Dimension 1 Filter") <> '' then
+                        BankAccountLedgerEntry.SetFilter("Global Dimension 1 Code", GetFilter("Global Dimension 1 Filter"));
                     if "Global Dimension 2 Filter" <> '' then
-                        BankAccountLedgerEntry.SetFilter("Global Dimension 2 Code", "Global Dimension 2 Filter");
+                        BankAccountLedgerEntry.SetFilter("Global Dimension 2 Code", GetFilter("Global Dimension 2 Filter"));
 
                     BankAccountLedgerEntry.CalcSums("Amount (LCY)");
                     if BankAccountLedgerEntry."Amount (LCY)" > 0 then

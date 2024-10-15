@@ -3682,6 +3682,32 @@ codeunit 18196 "GST Sales Tests"
         VerifySalesDocumentCreated(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
+    procedure VerifyExemptNonGSTSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GSTCustomeType: Enum "GST Customer Type";
+        GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+    begin
+        // [Scenario] To verify the exempted Non-GST supplies sales invoice amount
+        // [GIVEN] Create Sales Document
+        CreateGSTSetup(GSTCustomeType::Registered, GSTGroupType::Goods, true);
+        InitializeShareStep(false, false);
+        Storage.Set(NoOfLineLbl, '1');
+
+        // [WHEN] Post Sales Document 
+        PostedDocumentNo := CreateAndPostSalesDocumentWithNonGSTSupplies(SalesHeader, SalesLine, LineType::Item, DocumentType::Invoice);
+
+        //[THEN] Verify G/L Entries
+        LibraryGST.VerifyGLEntries(DocumentType::Invoice, PostedDocumentNo, 2);
+    end;
+
+
     local procedure TransferJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; Fraction: Decimal; Credit: Boolean)
     var
         Location: Record Location;
@@ -4434,6 +4460,34 @@ codeunit 18196 "GST Sales Tests"
 
         Assert.AreEqual(true, CustLedgerEntry.Open, StrSubstNo(VerifyErr, CustLedgerEntry.FieldName(Open), CustLedgerEntry.TableCaption));
     end;
+
+    local procedure CreateAndPostSalesDocumentWithNonGSTSupplies(
+        var SalesHeader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        LineType: Enum "Sales Line Type";
+        DocumentType: Enum "Sales Document Type"): Code[20];
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        CustomerNo: Code[20];
+        LocationCode: Code[10];
+        PostedDocumentNo: Code[20];
+    begin
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Generate E-Inv. on Sales Post" = false then begin
+            GeneralLedgerSetup."Generate E-Inv. on Sales Post" := true;
+            GeneralLedgerSetup.Modify();
+        end;
+
+        CustomerNo := Storage.Get(CustomerNoLbl);
+        LocationCode := CopyStr(Storage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        CreateSalesHeaderWithGST(SalesHeader, CustomerNo, DocumentType, LocationCode);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, '', LibraryRandom.RandDecInRange(2, 10, 0));
+        LibraryGST.CreateGeneralPostingSetup(SalesHeader."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Storage.Set(PostedDocumentNoLbl, PostedDocumentNo);
+        exit(PostedDocumentNo);
+    end;
+
 
     [PageHandler]
     procedure TaxRatePageHandler(var TaxRates: TestPage "Tax Rates")
