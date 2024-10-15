@@ -119,6 +119,16 @@
         {
             Caption = 'Phone No.';
             ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Phone No.") do
+                    if Char.IsLetter("Phone No."[i]) then
+                        FieldError("Phone No.", PhoneNoCannotContainLettersErr);
+            end;
         }
         field(10; "Telex No."; Text[20])
         {
@@ -423,6 +433,16 @@
         {
             Caption = 'Mobile Phone No.';
             ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Mobile Phone No.") do
+                    if Char.IsLetter("Mobile Phone No."[i]) then
+                        FieldError("Mobile Phone No.", PhoneNoCannotContainLettersErr);
+            end;
         }
         field(5062; Pager; Text[30])
         {
@@ -1141,6 +1161,7 @@
         MultipleCustomerTemplatesConfirmQst: Label 'Quotes with customer templates different from %1 were assigned to customer %2. Do you want to review the quotes now?', Comment = '%1=Customer Template Code,%2=Customer No.';
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
+        PhoneNoCannotContainLettersErr: Label 'must not contain letters';
 
     protected var
         HideValidationDialog: Boolean;

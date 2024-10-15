@@ -44,6 +44,7 @@ report 82 "Export Budget to Excel"
                 RecNo: Integer;
                 TotalRecNo: Integer;
                 Continue: Boolean;
+                IsHandled: Boolean;
                 LastBudgetRowNo: Integer;
                 DimensionRange: array[2, 8] of Integer;
             begin
@@ -86,12 +87,15 @@ report 82 "Export Budget to Excel"
                             Continue := false;
                     if Continue then begin
                         ColNo := ColNo + 1;
-                        if i = BusUnitDimIndex then
-                            EnterCell(HeaderRowNo, ColNo, BusUnit.TableCaption, false, true, '', ExcelBuf."Cell Type"::Text)
-                        else begin
-                            Dim.Get(ColumnDimCode[i]);
-                            EnterCell(HeaderRowNo, ColNo, Dim."Code Caption", false, true, '', ExcelBuf."Cell Type"::Text);
-                        end;
+                        IsHandled := false;
+                        OnGLBudgetEntryOnPostDataItemOnBeforeSetHeaderDim(HeaderRowNo, ColNo, i, ExcelBuf, IsHandled);
+                        if not IsHandled then
+                            if i = BusUnitDimIndex then
+                                EnterCell(HeaderRowNo, ColNo, BusUnit.TableCaption, false, true, '', ExcelBuf."Cell Type"::Text)
+                            else begin
+                                Dim.Get(ColumnDimCode[i]);
+                                EnterCell(HeaderRowNo, ColNo, Dim."Code Caption", false, true, '', ExcelBuf."Cell Type"::Text);
+                            end;
                     end;
                 end;
                 if TempPeriod.Find('-') then
@@ -223,6 +227,7 @@ report 82 "Export Budget to Excel"
                 SelectedDim.SetRange("Object Type", 3);
                 SelectedDim.SetRange("Object ID", REPORT::"Export Budget to Excel");
                 i := 0;
+                OnGLBudgetEntryPreDataItemOnAfterSelectedDimSetFilters(ColumnDimCode, i);
                 if BusUnit.FindFirst then begin
                     i := i + 1;
                     BusUnitDimIndex := i;
@@ -391,8 +396,15 @@ report 82 "Export Budget to Excel"
         end;
     end;
 
-    local procedure GetDimValueCode(DimCode: Code[20]): Code[20]
+    local procedure GetDimValueCode(DimCode: Code[20]) Result: Code[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDimValueCode(DimCode, Result, IsHandled, "G/L Budget Entry");
+        if IsHandled then
+            exit(Result);
+
         if DimCode = '' then
             exit('');
         if DimCode = BusUnitDimCode then
@@ -430,10 +442,13 @@ report 82 "Export Budget to Excel"
     local procedure EnterDimValue(ColDimIndex: Integer; DimValueCode: Code[20])
     var
         DimFilter: Text;
+        ShouldGetDimValueCode: Boolean;
     begin
         if ColumnDimCode[ColDimIndex] <> '' then begin
             ColNo := ColNo + 1;
-            if (DimValueCode = '') and (ColDimIndex > BusUnitDimIndex) then begin
+            ShouldGetDimValueCode := (DimValueCode = '') and (ColDimIndex > BusUnitDimIndex);
+            OnEnterDimValueOnAfterCalcShouldGetDimValueCode(DimValueCode, ColDimIndex, BusUnitDimIndex, ShouldGetDimValueCode);
+            if ShouldGetDimValueCode then begin
                 DimFilter := GetGLBudgetEntryDimFilter(ColumnDimCode[ColDimIndex]);
                 if GetDimValueCount(ColumnDimCode[ColDimIndex], DimFilter) = 1 then
                     DimValueCode := CopyStr(DimFilter, 1, MaxStrLen(DimValueCode));
@@ -540,25 +555,36 @@ report 82 "Export Budget to Excel"
     end;
 
     local procedure EnterRangeOfValues(var DimensionRange: array[2, 8] of Integer; var BusUnit: Record "Business Unit"; var DimValue: Record "Dimension Value")
-    var
-        RecRef: RecordRef;
-        DimFilter: Text;
     begin
         RowNo := RowNo + 200; // Move way below the budget
         for i := 1 to NoOfDimensions do
-            if i = BusUnitDimIndex then begin
-                RecRef.GetTable(BusUnit);
-                EnterRange(BusUnit, DimensionRange, BusUnit.FieldNo(Code));
-            end else begin
-                DimValue.SetRange("Dimension Code", ColumnDimCode[i]);
-                DimValue.SetFilter("Dimension Value Type", '%1|%2',
-                  DimValue."Dimension Value Type"::Standard, DimValue."Dimension Value Type"::"Begin-Total");
-                DimFilter := GetGLBudgetEntryDimFilter(ColumnDimCode[i]);
-                DimValue.SetRange(Code);
-                if DimFilter <> '' then
-                    DimValue.SetFilter(Code, DimFilter);
-                EnterRange(DimValue, DimensionRange, DimValue.FieldNo(Code));
-            end;
+            EnterRangeForDimension(DimensionRange, BusUnit, DimValue);
+    end;
+
+    local procedure EnterRangeForDimension(var DimensionRange: array[2, 8] of Integer; var BusUnit: Record "Business Unit"; var DimValue: Record "Dimension Value")
+    var
+        RecRef: RecordRef;
+        DimFilter: Text;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeEnterRangeForDimension(DimensionRange, BusUnit, DimValue, RowNo, IsHandled, i, "G/L Budget Entry", ExcelBuf);
+        if IsHandled then
+            exit;
+
+        if i = BusUnitDimIndex then begin
+            RecRef.GetTable(BusUnit);
+            EnterRange(BusUnit, DimensionRange, BusUnit.FieldNo(Code));
+        end else begin
+            DimValue.SetRange("Dimension Code", ColumnDimCode[i]);
+            DimValue.SetFilter("Dimension Value Type", '%1|%2',
+              DimValue."Dimension Value Type"::Standard, DimValue."Dimension Value Type"::"Begin-Total");
+            DimFilter := GetGLBudgetEntryDimFilter(ColumnDimCode[i]);
+            DimValue.SetRange(Code);
+            if DimFilter <> '' then
+                DimValue.SetFilter(Code, DimFilter);
+            EnterRange(DimValue, DimensionRange, DimValue.FieldNo(Code));
+        end;
     end;
 
     local procedure EnterRange(RecVariant: Variant; var DimensionRange: array[2, 8] of Integer; FieldID: Integer)
@@ -589,7 +615,32 @@ report 82 "Export Budget to Excel"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnterRangeForDimension(var DimensionRange: array[2, 8] of Integer; var BusUnit: Record "Business Unit"; var DimValue: Record "Dimension Value"; var RowNo: Integer; var IsHandled: Boolean; i: Integer; var GLBudgetEntry: Record "G/L Budget Entry"; var ExcelBuffer: Record "Excel Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTempPeriods(var TempPeriod: Record Date temporary; StartDate: Date; NoOfPeriods: Integer; PeriodLength: DateFormula; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDimValueCode(DimCode: Code[20]; var Result: Code[20]; var IsHandled: Boolean; var GLBudgetEntry: Record "G/L Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEnterDimValueOnAfterCalcShouldGetDimValueCode(DimValueCode: Code[20]; ColDimIndex: Integer; BusUnitDimIndex: Integer; var ShouldGetDimValueCode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGLBudgetEntryPreDataItemOnAfterSelectedDimSetFilters(var ColumnDimCode: array[8] of Code[20]; var i: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGLBudgetEntryOnPostDataItemOnBeforeSetHeaderDim(HeaderRowNo: Integer; ColNo: Integer; i: Integer; var ExcelBuffer: Record "Excel Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 }

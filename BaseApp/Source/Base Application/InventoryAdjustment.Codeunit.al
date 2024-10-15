@@ -804,7 +804,7 @@
               CompletelyInvoiced);
     end;
 
-    local procedure CalcInbndEntryAdjustedCost(var AdjustedCostElementBuf: Record "Cost Element Buffer"; ItemApplnEntry: Record "Item Application Entry"; OutbndItemLedgEntryNo: Integer; InbndItemLedgEntryNo: Integer; ExactCostReversing: Boolean; Recursion: Boolean): Boolean
+    local procedure CalcInbndEntryAdjustedCost(var AdjustedCostElementBuf: Record "Cost Element Buffer"; ItemApplnEntry: Record "Item Application Entry"; OutbndItemLedgEntryNo: Integer; InbndItemLedgEntryNo: Integer; ExactCostReversing: Boolean; Recursion: Boolean) CompletelyInvoiced: Boolean
     var
         InbndValueEntry: Record "Value Entry";
         InbndItemLedgEntry: Record "Item Ledger Entry";
@@ -874,7 +874,8 @@
                   AdjustedCostElementBuf."Actual Cost", AdjustedCostElementBuf."Actual Cost (ACY)",
                   ItemApplnEntry."Output Completely Invd. Date" <> 0D);
         end;
-        exit(InbndItemLedgEntry."Completely Invoiced");
+        CompletelyInvoiced := InbndItemLedgEntry."Completely Invoiced";
+        OnAfterCalcInbndEntryAdjustedCost(AdjustedCostElementBuf, InbndValueEntry, InbndItemLedgEntry, ItemApplnEntry, OutbndItemLedgEntryNo, CompletelyInvoiced);
     end;
 
     local procedure CalcNewAdjustedCost(var AdjustedCostElementBuf: Record "Cost Element Buffer"; ShareOfTotalCost: Decimal)
@@ -1708,12 +1709,18 @@
                 until Next() = 0;
     end;
 
-    local procedure UpdateAdjmtBuf(OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; ItemLedgEntryPostingDate: Date; EntryType: Enum "Cost Entry Type"): Boolean
+    local procedure UpdateAdjmtBuf(OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; ItemLedgEntryPostingDate: Date; EntryType: Enum "Cost Entry Type") Result: Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemApplnEntry: Record "Item Application Entry";
         SourceOrigValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAdjmtBuf(OrigValueEntry, NewAdjustedCost, NewAdjustedCostACY, ItemLedgEntryPostingDate, EntryType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not HasNewCost(NewAdjustedCost, NewAdjustedCostACY) then
             exit(false);
 
@@ -1844,7 +1851,13 @@
     local procedure PostItemJnlLine(ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal)
     var
         InvtPeriod: Record "Inventory Period";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(ItemJnlLine, OrigValueEntry, NewAdjustedCost, NewAdjustedCostACY, SkipUpdateJobItemCost, IsHandled);
+        if IsHandled then
+            exit;
+
         with OrigValueEntry do begin
             ItemJnlLine."Item No." := "Item No.";
             ItemJnlLine."Location Code" := "Location Code";
@@ -2777,6 +2790,11 @@
         UpdateJobItemCost();
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCalcInbndEntryAdjustedCost(var AdjustedCostElementBuf: Record "Cost Element Buffer"; var InbndValueEntry: Record "Value Entry"; InbndItemLedgEntry: Record "Item Ledger Entry"; ItemApplnEntry: Record "Item Application Entry"; OutbndItemLedgEntryNo: Integer; var CompletelyInvoiced: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAdjustOutbndAvgEntryOnBeforeForwardAvgCostToInbndEntries(var OutbndItemLedgEntry: Record "Item Ledger Entry")
     begin
@@ -2843,7 +2861,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; SkipUpdateJobItemCost: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenWindow(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAdjmtBuf(OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; ItemLedgEntryPostingDate: Date; EntryType: Enum "Cost Entry Type"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

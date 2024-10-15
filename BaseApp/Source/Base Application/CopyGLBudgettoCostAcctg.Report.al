@@ -58,6 +58,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
                 CostBudgetEntry.Description := Description;
                 TotalAmount := TotalAmount + Amount;
 
+                OnAfterGetRecordOnBeforeCostBudgetEntryInsert(CostBudgetEntry);
                 CostBudgetEntry.Insert();
                 NextEntryNo := NextEntryNo + 1;
 
@@ -78,6 +79,8 @@ report 1135 "Copy G/L Budget to Cost Acctg."
 
                 if not Confirm(Text003, true, NoInserted, CostBudgetEntryTarget."Budget Name", NoSkipped) then
                     Error('');
+
+                OnPostDataItemOnAfterConfirmCopyBudget(CostBudgetEntry, CostBudgetEntryTarget);
 
                 LastCostBudgetEntryNo := NextEntryNo - 1;
 
@@ -204,8 +207,10 @@ report 1135 "Copy G/L Budget to Cost Acctg."
     {
     }
 
-    var
+    protected var
         CostBudgetEntryTarget: Record "Cost Budget Entry";
+
+    var
         CostBudgetEntry: Record "Cost Budget Entry";
         GLAccount: Record "G/L Account";
         CostBudgetRegister: Record "Cost Budget Register";
@@ -228,5 +233,15 @@ report 1135 "Copy G/L Budget to Cost Acctg."
         Text004: Label 'Define name of source budget.';
         Text005: Label 'Define name of target budget.';
         Text006: Label 'No entries were copied. %1 entries were skipped because no corresponding general ledger accounts were defined or because cost center and cost object were missing.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnBeforeCostBudgetEntryInsert(var CostBudgetEntry: Record "Cost Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnAfterConfirmCopyBudget(var CostBudgetEntry: Record "Cost Budget Entry"; CostBudgetEntryTarget: Record "Cost Budget Entry")
+    begin
+    end;
 }
 

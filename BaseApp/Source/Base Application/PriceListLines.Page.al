@@ -396,6 +396,8 @@ page 7001 "Price List Lines"
                     IsJobGroup := true;
                     JobSourceType := "Job Price Source Type".FromInteger(Rec."Source Type".AsInteger());
                 end;
+            else
+                OnUpdateSourceTypeOnCaseElse(PriceListHeader, SourceType, IsJobGroup);
         end;
         PriceSource."Source Type" := Rec."Source Type";
         IsParentAllowed := PriceSource.IsParentSourceAllowed();
@@ -428,4 +430,9 @@ page 7001 "Price List Lines"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Sales Price Source Type"; var IsJobGroup: Boolean)
+    begin
+    end;
 }

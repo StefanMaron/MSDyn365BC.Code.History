@@ -214,6 +214,8 @@ table 5054 "Contact Business Relation"
                             CustContUpdate.OnInsert(RecVar);
                         DATABASE::Vendor:
                             VendContUpdate.OnInsert(RecVar);
+                        else
+                            OnFindOrRestoreContactBusinessRelationCaseElse(RecVar);
                     end;
                     FindFirst;
                     Cont.Validate("Company No.", "Contact No.");
@@ -221,7 +223,7 @@ table 5054 "Contact Business Relation"
                 end;
     end;
 
-    local procedure GetBusinessRelationCodeFromSetup(LinkToTable: Enum "Contact Business Relation Link To Table"): Code[10]
+    local procedure GetBusinessRelationCodeFromSetup(LinkToTable: Enum "Contact Business Relation Link To Table") Result: Code[10]
     var
         MarketingSetup: Record "Marketing Setup";
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -243,6 +245,8 @@ table 5054 "Contact Business Relation"
                     MarketingSetup.TestField("Bus. Rel. Code for Employees");
                     exit(MarketingSetup."Bus. Rel. Code for Employees");
                 end;
+            else
+                OnGetBusinessRelationCodeFromSetupCaseElse(LinkToTable, Result);
         end;
     end;
 
@@ -433,6 +437,16 @@ table 5054 "Contact Business Relation"
             until ContactBusinessRelation.Next() <= 0;
 
         end
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindOrRestoreContactBusinessRelationCaseElse(RecVar: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBusinessRelationCodeFromSetupCaseElse(LinkToTable: Enum "Contact Business Relation Link To Table"; var Result: Code[10])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

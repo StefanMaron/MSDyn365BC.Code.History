@@ -1057,7 +1057,14 @@
     end;
 
     procedure TransferShptTransferFrom(var AddrArray: array[8] of Text[100]; var TransShptHeader: Record "Transfer Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferShptTransferFrom(AddrArray, TransShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransShptHeader do begin
             FormatAddr(
               AddrArray,
@@ -1070,7 +1077,14 @@
     end;
 
     procedure TransferShptTransferTo(var AddrArray: array[8] of Text[100]; var TransShptHeader: Record "Transfer Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferShptTransferTo(AddrArray, TransShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransShptHeader do begin
             FormatAddr(
               AddrArray, "Transfer-to Name", "Transfer-to Name 2", '', "Transfer-to Address", "Transfer-to Address 2",
@@ -1082,7 +1096,14 @@
     end;
 
     procedure TransferRcptTransferFrom(var AddrArray: array[8] of Text[100]; var TransRcptHeader: Record "Transfer Receipt Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferRcptTransferFrom(AddrArray, TransRcptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransRcptHeader do begin
             FormatAddr(
               AddrArray,
@@ -1095,7 +1116,14 @@
     end;
 
     procedure TransferRcptTransferTo(var AddrArray: array[8] of Text[100]; var TransRcptHeader: Record "Transfer Receipt Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferRcptTransferTo(AddrArray, TransRcptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransRcptHeader do begin
             FormatAddr(
               AddrArray, "Transfer-to Name", "Transfer-to Name 2", '', "Transfer-to Address", "Transfer-to Address 2",
@@ -1107,7 +1135,14 @@
     end;
 
     procedure TransferHeaderTransferFrom(var AddrArray: array[8] of Text[100]; var TransHeader: Record "Transfer Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferHeaderTransferFrom(AddrArray, TransHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransHeader do begin
             FormatAddr(
               AddrArray,
@@ -1120,7 +1155,14 @@
     end;
 
     procedure TransferHeaderTransferTo(var AddrArray: array[8] of Text[100]; var TransHeader: Record "Transfer Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferHeaderTransferTo(AddrArray, TransHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransHeader do begin
             FormatAddr(
               AddrArray, "Transfer-to Name", "Transfer-to Name 2", '', "Transfer-to Address", "Transfer-to Address 2",
@@ -2226,6 +2268,36 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetLineNos(Country: Record "Country/Region"; var NameLineNo: Integer; var Name2LineNo: Integer; var AddrLineNo: Integer; var Addr2LineNo: Integer; var ContLineNo: Integer; var PostCodeCityLineNo: Integer; var CountyLineNo: Integer; var CountryLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferHeaderTransferFrom(var AddrArray: array[8] of Text[100]; var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferHeaderTransferTo(var AddrArray: array[8] of Text[100]; var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferRcptTransferFrom(var AddrArray: array[8] of Text[100]; var TransferReceiptHeader: Record "Transfer Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferRcptTransferTo(var AddrArray: array[8] of Text[100]; var TransferReceiptHeader: Record "Transfer Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferShptTransferFrom(var AddrArray: array[8] of Text[100]; var TransferShipmentHeader: Record "Transfer Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferShptTransferTo(var AddrArray: array[8] of Text[100]; var TransferShipmentHeader: Record "Transfer Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 
