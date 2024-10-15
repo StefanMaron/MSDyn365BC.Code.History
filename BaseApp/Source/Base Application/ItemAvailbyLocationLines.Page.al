@@ -1,4 +1,4 @@
-page 515 "Item Avail. by Location Lines"
+﻿page 515 "Item Avail. by Location Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;
@@ -385,6 +385,13 @@ page 515 "Item Avail. by Location Lines"
           Item, AmountType = AmountType::"Balance at Date",
           GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,
           PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, DummyQtyAvailable, AvailableInventory);
+        OnAfterCalcAvailQuantities(Rec, Item, GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,
+          PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, DummyQtyAvailable, AvailableInventory);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcAvailQuantities(var Location: Record Location; var Item: Record Item; var GrossRequirement: Decimal; var PlannedOrderRcpt: Decimal; var ScheduledRcpt: Decimal; var PlannedOrderReleases: Decimal; var ProjAvailableBalance: Decimal; var ExpectedInventory: Decimal; var QtyAvailable: Decimal; var AvailableInventory: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

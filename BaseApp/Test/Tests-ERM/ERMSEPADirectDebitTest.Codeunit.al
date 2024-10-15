@@ -482,7 +482,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY.
-        TransferDate := CreateTransferDate();
+        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
 
         // [GIVEN] Error "The earliest possible transfer date is today." is shown in the factbox "File Export Errors".
@@ -533,8 +533,8 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         // [SCENARIO 334429] Run "Reset Transfer Date" action of page "Direct Debit Collect. Entries" in case Status of DD Entry is not New.
         Initialize();
 
-        // [GIVEN] Direct Debit Collection Entry with Transfer Date < Today()and Status = Rejected.
-        TransferDate := CreateTransferDate();
+        // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = Rejected.
+        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
         DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::Rejected;
         DirectDebitCollectionEntry.Modify();
@@ -560,7 +560,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Two Direct Debit Collections D1 and D2, each have one DD Collection Entry with Transfer Date < TODAY.
-        TransferDate := CreateTransferDate();
+        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry[1], TransferDate);
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry[2], TransferDate);
 
@@ -595,6 +595,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM SEPA Direct Debit Test");
 
         LibraryERMCountryData.CreateVATData;
+        CreateEURCurrencyExchRatePreviousYear();
         Commit();
         IsInitialized := true;
 
@@ -718,6 +719,19 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
 
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+
+    local procedure CreateEURCurrencyExchRatePreviousYear()
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        // create EUR Currency Exch Rate for the previous year to avoid test failure in the very beginning of a year
+        if LibraryERM.GetCurrencyCode('EUR') <> '' then begin   // there is no EUR exchange rate in some countries like DE
+            CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.GetCurrencyCode('EUR'));
+            CurrencyExchangeRate.FindFirst();
+            CurrencyExchangeRate.Validate("Starting Date", CalcDate('<-1Y>', CurrencyExchangeRate."Starting Date"));
+            CurrencyExchangeRate.Insert(true);
+        end;
     end;
 
     local procedure EnqueueRequestPage(FromDate: Date; ToDate: Date; PartnerType: Enum "Partner Type"; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean)
@@ -850,21 +864,6 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         PmtJnlExportErrorText.SetRange("Document No.", Format(DirectDebitCollectionEntry."Direct Debit Collection No."));
         PmtJnlExportErrorText.SetRange("Journal Line No.", DirectDebitCollectionEntry."Entry No.");
         Assert.RecordIsEmpty(PmtJnlExportErrorText);
-    end;
-
-    local procedure CreateTransferDate(): Date
-    var
-        DateLimit: Date;
-        CurrentYear: Integer;
-    begin
-        // the logic in this method prevent the test from failing in the first days of the year
-        CurrentYear := Date2DWY(Today, 3);
-        DateLimit := DMY2DATE(21, 1, CurrentYear);
-
-        if Today < DateLimit then
-            exit(DateLimit - LibraryRandom.RandIntInRange(10, 20));
-
-        exit(Today() - LibraryRandom.RandIntInRange(10, 20));
     end;
 
     [MessageHandler]

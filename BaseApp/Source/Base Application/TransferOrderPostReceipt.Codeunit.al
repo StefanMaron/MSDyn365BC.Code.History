@@ -1,4 +1,4 @@
-codeunit 5705 "TransferOrder-Post Receipt"
+﻿codeunit 5705 "TransferOrder-Post Receipt"
 {
     Permissions = TableData "Item Entry Relation" = i;
     TableNo = "Transfer Header";
@@ -85,6 +85,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             TransRcptLine.LockTable();
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Receive");
+            OnRunOnAfterTransLineSetFiltersForRcptLines(TransLine, TransHeader, Location, WhseReceive);
             if TransLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
@@ -270,7 +271,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         OnBeforePostItemJournalLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2, SuppressCommit, TransLine);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
 
-        OnAfterPostItemJnlLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2);
+        OnAfterPostItemJnlLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2, ItemJnlPostLine);
     end;
 
     local procedure CopyCommentLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
@@ -783,7 +784,12 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItemJnlLine(ItemJnlLine: Record "Item Journal Line"; var TransLine3: Record "Transfer Line"; var TransRcptHeader2: Record "Transfer Receipt Header"; var TransRcptLine2: Record "Transfer Receipt Line")
+    local procedure OnAfterPostItemJnlLine(ItemJnlLine: Record "Item Journal Line"; var TransLine3: Record "Transfer Line"; var TransRcptHeader2: Record "Transfer Receipt Header"; var TransRcptLine2: Record "Transfer Receipt Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterTransLineSetFiltersForRcptLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseReceive: Boolean)
     begin
     end;
 }

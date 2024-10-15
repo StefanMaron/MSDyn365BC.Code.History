@@ -18,6 +18,8 @@
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         IsInitialized: Boolean;
 
     [Test]
@@ -5233,6 +5235,150 @@
         WarrantyLedgerEntries.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DimSetEntryGlobalDimNoDefaultDimensions()
+    var
+        DimensionValue: array[6] of Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        i: Integer;
+    begin
+        // [SCENARIO 386822] "Global Dimension No." is filled with value when dimension set entries inserted from default dimensions
+        Initialize;
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+
+        // [GIVEN] Customer with default dimensions
+        LibrarySales.CreateCustomer(Customer);
+        for i := 1 to 6 do
+            LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Customer, Customer."No.", DimensionValue[i]."Dimension Code", DimensionValue[i].Code);
+
+        // [WHEN] Create sales document
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] Dimension set entries (DSE) inserted, "Global Dimension No." filled like DSE1 = 3, ..., DSE6 = 8
+        VerifyDimSetEntryGlobalDimNo(DimensionValue);
+    end;
+
+    [Test]
+    [HandlerFunctions('EditDimensionSetEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure DimSetEntryGlobalDimNoAddedDimensions()
+    var
+        DimensionValue: array[6] of Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+        i: Integer;
+    begin
+        // [SCENARIO 386822] "Global Dimension No." is filled with value when dimension set entries inserted manuall by user
+        Initialize;
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        for i := 1 to 6 do
+            LibraryVariableStorage.Enqueue(DimensionValue[i]."Dimension Code");
+
+        // [GIVEN] Sales order without dimensions
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [WHEN] Setup dimensions via page from the sales order
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+        SalesOrder.Dimensions.Invoke();
+
+        // [THEN] Dimension set entries (DSE) inserted, "Global Dimension No." filled like DSE1 = 3, ..., DSE6 = 8
+        VerifyDimSetEntryGlobalDimNo(DimensionValue);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringByDimSingleDimFilter()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGenJournalLine: Record "Gen. Journal Line";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        i: Integer;
+        DimSetId: array[6] of Integer;
+    begin
+        // [SCENARIO 386822] Post recurring journal by dimensions with single dimension filter
+        Initialize;
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup ("D1".."D6")
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] G/L Account "GLA" to be balanced by dimensions
+        LibraryERM.CreateGLAccount(GLAccount);
+        // [GIVEN] 6 posted gen. jnl. lines with "GLA" and "D1".."D6" and amounts 100..600
+        for i := 1 to 6 do begin
+            CreateGenJnlLine(GenJournalLine, GLAccount."No.", i * 100);
+            DimSetId[i] := CreateDimSet(DimensionValue[i]);
+            GenJournalLine.Validate("Dimension Set ID", DimSetId[i]);
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+
+        // [WHEN] Post recurring journal with "D1".."D6" dimension filter
+        for i := 1 to 6 do begin
+            CreateRecurringGenJnlLine(RecurringGenJournalLine, GLAccount."No.");
+            CreateGenJnlDimFilter(RecurringGenJournalLine, DimensionValue[i]);
+            LibraryERM.PostGeneralJnlLine(RecurringGenJournalLine);
+        end;
+
+        // [THEN] Original g/l entry by "D1".."D6" balanced with recurring g/l entry by "D1".."D6"
+        for i := 1 to 6 do
+            VerifyGLEntrySingleDim(DimSetId[i], GLAccount."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringByDimNoDimFilter()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGenJournalLine: Record "Gen. Journal Line";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        i: Integer;
+        DimSetId: array[6] of Integer;
+    begin
+        // [SCENARIO 386822] Post recurring journal by dimensions without dimension filter
+        Initialize;
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup ("D1".."D6")
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] G/L Account "GLA" to be balanced by dimensions
+        LibraryERM.CreateGLAccount(GLAccount);
+        // [GIVEN] 6 posted gen. jnl. lines with "GLA" and "D1".."D6" and amounts 100..600
+        for i := 1 to 6 do begin
+            CreateGenJnlLine(GenJournalLine, GLAccount."No.", i * 100);
+            DimSetId[i] := CreateDimSet(DimensionValue[i]);
+            GenJournalLine.Validate("Dimension Set ID", DimSetId[i]);
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+
+        // [WHEN] Post recurring journal without "D1" dimension filter
+        CreateRecurringGenJnlLine(RecurringGenJournalLine, GLAccount."No.");
+        LibraryERM.PostGeneralJnlLine(RecurringGenJournalLine);
+
+        // [THEN] Original g/l entry by "D1" balanced with recurring g/l entry by "D1"
+        for i := 1 to 6 do
+            VerifyGLEntrySingleDim(DimSetId[i], GLAccount."No.");
+
+        // [THEN] "GLA".Balance = 0
+        GLAccount.CalcFields(Balance);
+        Assert.IsTrue(GLAccount.Balance = 0, 'Wrong balance');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Shortcuts");
@@ -5369,6 +5515,20 @@
         exit(DimensionManagement.GetDimensionSetID(TempDimensionSetEntry));
     end;
 
+    local procedure CreateDimSet(DimensionValue: Record "Dimension Value"): Integer
+    var
+        TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        TempDimensionSetEntry.Init();
+        TempDimensionSetEntry."Dimension Code" := DimensionValue."Dimension Code";
+        TempDimensionSetEntry."Dimension Value Code" := DimensionValue.Code;
+        TempDimensionSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+        TempDimensionSetEntry.Insert();
+
+        exit(DimensionManagement.GetDimensionSetID(TempDimensionSetEntry));
+    end;
+
     local procedure SetGLSetupShortcutDimensionsAll(DimensionValue: array[6] of Record "Dimension Value")
     var
         GLSetup: Record "General Ledger Setup";
@@ -5412,6 +5572,59 @@
                 end;
             end;
         GLSetup.Modify();
+    end;
+
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", AccountNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
+        GenJournalLine."Document No." := CopyStr(LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), Database::"Gen. Journal Line"), 1, 20);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateRecurringGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+    begin
+        LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Recurring := true;
+        GenJournalBatch.Modify(true);
+        GenJournalBatch.SetupNewBatch();
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", AccountNo, 0);
+        GenJournalLine."Document No." := CopyStr(LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), Database::"Gen. Journal Line"), 1, 20);
+        GenJournalLine."Recurring Method" := GenJournalLine."Recurring Method"::"BD Balance by Dimension";
+        Evaluate(GenJournalLine."Recurring Frequency", '<1M>');
+        GenJournalLine.Modify(true);
+
+        LibraryERM.CreateGenJnlAllocation(GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        GenJnlAllocation.Validate("Account No.", LibraryERM.CreateGLAccountNo());
+        GenJnlAllocation.Validate("Allocation %", 100);
+        GenJnlAllocation.Modify(true);
+    end;
+
+    local procedure CreateGenJnlDimFilter(RecurringGenJournalLine: Record "Gen. Journal Line"; DimensionValue: Record "Dimension Value")
+    var
+        GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
+    begin
+        GenJnlDimFilter.Init();
+        GenJnlDimFilter."Journal Template Name" := RecurringGenJournalLine."Journal Template Name";
+        GenJnlDimFilter."Journal Batch Name" := RecurringGenJournalLine."Journal Batch Name";
+        GenJnlDimFilter."Journal Line No." := RecurringGenJournalLine."Line No.";
+        GenJnlDimFilter."Dimension Code" := DimensionValue."Dimension Code";
+        GenJnlDimFilter."Dimension Value Filter" := DimensionValue.Code;
+        GenJnlDimFilter.Insert();
     end;
 
     local procedure VerifyEntryShortcutDimensions(RecVar: Variant; DimensionValue: array[6] of Record "Dimension Value")
@@ -5462,6 +5675,30 @@
         end;
     end;
 
+    local procedure VerifyDimSetEntryGlobalDimNo(DimensionValue: array[6] of Record "Dimension Value")
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        i: Integer;
+    begin
+        for i := 1 to 6 do begin
+            DimensionSetEntry.SetRange("Dimension Code", DimensionValue[i]."Dimension Code");
+            DimensionSetEntry.FindFirst();
+            Assert.RecordCount(DimensionSetEntry, 1);
+            Assert.AreEqual(i + 2, DimensionSetEntry."Global Dimension No.", 'Global Dimension No is wrong');
+        end;
+    end;
+
+    local procedure VerifyGLEntrySingleDim(DimSetId: Integer; GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.SetRange("Dimension Set ID", DimSetId);
+        Assert.RecordCount(GLEntry, 2);
+        GLEntry.CalcSums(Amount);
+        Assert.IsTrue(GLEntry.Amount = 0, 'Wrong balance');
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
@@ -5473,6 +5710,22 @@
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
     begin
+    end;
+
+    [ModalPageHandler]
+    procedure EditDimensionSetEntriesHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
+    var
+        DimensionValue: Record "Dimension Value";
+        i: Integer;
+    begin
+        for i := 1 to 6 do begin
+            DimensionValue.SetRange("Dimension Code", LibraryVariableStorage.DequeueText());
+            DimensionValue.FindFirst();
+
+            EditDimensionSetEntries.New();
+            EditDimensionSetEntries."Dimension Code".Value(DimensionValue."Dimension Code");
+            EditDimensionSetEntries.DimensionValueCode.Value(DimensionValue.Code);
+        end;
     end;
 }
 
